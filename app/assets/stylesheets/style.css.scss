@@ -1,0 +1,89 @@
+body {
+  min-height: 1400px;
+  padding-top: 55px;
+  background:#e0e0e0;
+}
+
+.navbar {
+	border-bottom:2px solid #c6c6c6;
+}
+
+[class*="col-"] {
+  padding:10px 10px;
+}
+
+.CW_box_style {
+	background:#FFF;
+	padding:15px;
+	border:1px solid #cecece;
+	border-radius:4px;
+}
+
+.selection {
+	margin-top:10px;
+}
+
+
+.table {
+	margin-top:-10px;
+}
+
+.table .csv {background:#f4f7ff;}
+.table .txt {background:#fffaf2;}
+.table .xls, .table .xlsx {background:#ffeaea;}
+.table .png {background:#eae6f7;}
+
+.table {
+	border-collapse: separate;
+}
+
+.tab .table td {
+	border-top:2px solid #FFF !important;
+	border-bottom:1px solid #d6d6d6 !important;
+}
+
+.tab tbody td {
+	line-height:35px !important;
+}
+
+.table th {
+	white-space: nowrap;
+	cursor:pointer;
+	text-decoration: underline;
+	border:0 !important;
+}
+
+.table .created_on {
+	white-space: nowrap;
+}
+
+.tablesorter-filter {
+	width:100%;
+	border:1px solid #cecece;
+}
+
+.cw_select {
+	color:black;
+	text-decoration:underline;
+}
+
+.menu_selection {
+	overflow-y:auto;
+	overflow-x:hidden;
+}
+
+.file_options_c {
+	display:none;
+}
+
+.file_options a {
+	display:block;
+}
+
+.btn-group {
+	min-width:100px;
+}
+
+.tab {
+	margin-top:15px;
+}

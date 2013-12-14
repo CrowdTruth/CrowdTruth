@@ -6,3 +6,4 @@ composer.lock
 Thumbs.db
 crowd-watson.sublime-project
 crowd-watson.sublime-workspace
+.bowerrc
