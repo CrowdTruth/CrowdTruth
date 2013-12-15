@@ -22,7 +22,7 @@ class FilesController extends BaseController {
 	    $files = Input::file('files');
 
 	    foreach($files as $file) {
-	        $file->move('uploads/');
+	        $file->move('uploads');
 	    }
         return 'done';
 	}
