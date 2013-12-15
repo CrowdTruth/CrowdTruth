@@ -19,7 +19,11 @@ class FilesController extends BaseController {
 
 	public function postUpload()
 	{
-        $input = Input::all();
-        dd($input);
+	    $files = Input::file('files');
+
+	    foreach($files as $file) {
+	        $file->move('uploads/');
+	    }
+        return 'done';
 	}
 }

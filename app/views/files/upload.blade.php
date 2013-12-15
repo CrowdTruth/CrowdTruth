@@ -18,10 +18,10 @@
 								</div>
 								<div class="panel-body">
 
-									{{ Form::open(array('action' => 'FilesController@postUpload')) }}
+									{{ Form::open(array('action' => 'FilesController@postUpload', 'files' => 'true')) }}
 
 									<div class="form-group">
-										<input type="file" name="file[]" multiple />
+										<input type="file" name="files[]" multiple />
 										<p class="help-block">Allowed filetypes are: txt | csv | pdf </p>
 									</div>
 
