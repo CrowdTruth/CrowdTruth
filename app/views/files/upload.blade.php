@@ -11,7 +11,34 @@
 					<div class='maincolumn CW_box_style'>
 @include('files.nav')
 
-						<div class='tab'>        
+						<div class='tab'>
+
+						@if (isset($status_upload['error']))
+							<div class="panel panel-danger">
+								<div class="panel-heading">
+									<h4><i class="fa fa-upload fa-fw"></i>Error</h4>
+								</div>
+								<div class="panel-body">
+							@foreach ($status_upload['error'] as $status_message)
+								{{ $status_message }}
+							@endforeach
+								</div>
+							</div>
+						@endif
+
+						@if (isset($status_upload['success']))
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<h4><i class="fa fa-upload fa-fw"></i>Success</h4>
+								</div>
+								<div class="panel-body">
+							@foreach ($status_upload['success'] as $status_message)
+								{{ $status_message }}
+							@endforeach
+								</div>
+							</div>
+						@endif
+
 							<div class="panel panel-default">
 								<div class="panel-heading">
 									<h4><i class="fa fa-upload fa-fw"></i>File input</h4>
