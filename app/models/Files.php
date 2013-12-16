@@ -2,9 +2,9 @@
 
 class Files {
 
-	protected $rules = [
+	protected $rules = array(
 		'file' => 'mimes:gif,jpg,jpeg,bmp,zip,zipx,txt,csv,doc,docx,xls,xlsx,pdf|max:2000'	
-	];
+	);
 
 	protected $extraAllowedMimeTypes = array(
 	    'text/csv',
