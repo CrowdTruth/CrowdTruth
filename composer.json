@@ -6,6 +6,7 @@
 	"require": {
 		"laravel/framework": "4.1.*",
 	    "codesleeve/asset-pipeline": "dev-master",
+        "jenssegers/mongodb": "*",	    
 		"way/generators": "dev-master"
 	},
 	"autoload": {
@@ -16,7 +17,10 @@
 			"app/database/migrations",
 			"app/database/seeds",
 			"app/tests/TestCase.php"
-		]
+		],
+		"psr-0": {
+			"Joli": "app/"
+		}
 	},
 	"scripts": {
 		"post-install-cmd": [

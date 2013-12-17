@@ -1,9 +1,12 @@
-<?php
+<?php namespace Models;
 
-class Files {
+use Moloquent;
+use Validator;
+
+class File extends Moloquent {
 
 	protected $rules = array(
-		'file' => 'mimes:gif,jpg,jpeg,bmp,zip,zipx,txt,csv,doc,docx,xls,xlsx,pdf|max:2000'	
+		'file' => 'mimes:gif,jpg,jpeg,png,bmp,zip,zipx,txt,csv,doc,docx,xls,xlsx,pdf|max:2000'	
 	);
 
 	protected $extraAllowedMimeTypes = array(
@@ -58,6 +61,7 @@ class Files {
 		} catch (Exception $e){
 	        $this->message['error'][$originalName] = 'File "' . $upload->getClientOriginalName() . '":' . $e->getMessage();
 		}
-		
+
+
 	}
 }

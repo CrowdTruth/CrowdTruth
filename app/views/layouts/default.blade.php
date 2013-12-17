@@ -8,7 +8,6 @@
 		<meta name="author" content="">
 		<title>Crowd-Watson</title>
 		<?= stylesheet_link_tag() ?>
-		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 	</head>
 	<body>
 @include('layouts.navbar')

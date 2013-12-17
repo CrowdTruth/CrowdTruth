@@ -8,3 +8,11 @@ Route::get('/', function()
 Route::get('home', 'PagesController@index');
 
 Route::controller('files', 'FilesController');
+
+
+
+
+App::bind('Models\File', function($app)
+{
+    return new Models\File;
+});

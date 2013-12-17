@@ -108,8 +108,8 @@ return array(
 		'Illuminate\Workbench\WorkbenchServiceProvider',
 		// added
 		'Codesleeve\AssetPipeline\AssetPipelineServiceProvider',
-		'Way\Generators\GeneratorsServiceProvider',
-
+		'Jenssegers\Mongodb\MongodbServiceProvider',
+		'Way\Generators\GeneratorsServiceProvider'
 	),
 
 	/*
@@ -175,6 +175,9 @@ return array(
 		'URL'             => 'Illuminate\Support\Facades\URL',
 		'Validator'       => 'Illuminate\Support\Facades\Validator',
 		'View'            => 'Illuminate\Support\Facades\View',
+
+		// added
+		'Moloquent'       => 'Jenssegers\Mongodb\Model'
 
 	),
 

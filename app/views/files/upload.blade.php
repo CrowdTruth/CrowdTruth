@@ -12,16 +12,17 @@
 @include('files.nav')
 
 						<div class='tab'>
-
 						@if (isset($status_upload['error']))
 							<div class="panel panel-danger">
 								<div class="panel-heading">
 									<h4><i class="fa fa-exclamation-triangle fa-fw"></i>Error</h4>
 								</div>
 								<div class="panel-body">
+									<ul class="list-group">					
 							@foreach ($status_upload['error'] as $status_message)
-								{{ $status_message }}
+								<li class="list-group-item"><span class='message'> {{ $status_message }} </li>
 							@endforeach
+									</ul>
 								</div>
 							</div>
 						@endif
@@ -33,7 +34,7 @@
 								</div>
 								<div class="panel-body">
 							@foreach ($status_upload['success'] as $status_message)
-								{{ $status_message }}
+								<li class="list-group-item"><span class='message'> {{ $status_message }} </li>
 							@endforeach
 								</div>
 							</div>
@@ -62,5 +63,5 @@
 						</div>
 					</div>
 				</div>
-				<!-- STOP upload_content ---> 				
+				<!-- STOP upload_content --> 				
 @stop
