@@ -114,8 +114,8 @@ return array(
 	|	'cache' => new Assetic\Cache\FilesystemCache(storage_path() . '/cache/asset-pipeline'),
 	|
 	*/
-	'cache' => new Codesleeve\AssetPipeline\Filters\FilesNotCached,
-	//'cache' => new Assetic\Cache\FilesystemCache(storage_path() . '/cache/asset-pipeline'),
+	//'cache' => new Codesleeve\AssetPipeline\Filters\FilesNotCached,
+	'cache' => new Assetic\Cache\FilesystemCache(storage_path() . '/cache/asset-pipeline'),
 	/*
 	|--------------------------------------------------------------------------
 	| concat
