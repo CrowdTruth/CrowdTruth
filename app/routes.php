@@ -1,18 +1,26 @@
 <?php
 
-Route::get('/', function()
+Route::group(array('before' => 'auth'), function()
 {
-    return Redirect::to('home');
+
+	Route::get('/', function()
+	{
+	    return Redirect::to('home');
+	});
+
+	Route::get('home', 'PagesController@index');
+	Route::controller('files', 'FilesController');
+	Route::controller('preprocess/chang', 'preprocess\ChangController');
+	Route::controller('preprocess', 'PreprocessController');
+	Route::controller('selection', 'SelectionController');
+	Route::get('resource/{collection}/{category}/{document}', 'ResourceController@getDocument');
+	Route::get('resource/{collection}/{category}', 'ResourceController@getCategory');
+	Route::get('resource/{collection}', 'ResourceController@getCollection');
+	Route::get('resource', 'ResourceController@index');
+
+	//Route::controller('resource', 'ResourceController');
+
 });
 
-Route::get('home', 'PagesController@index');
 
-Route::controller('files', 'FilesController');
-
-
-
-
-App::bind('Models\File', function($app)
-{
-    return new Models\File;
-});
+Route::controller('user', 'UserController');

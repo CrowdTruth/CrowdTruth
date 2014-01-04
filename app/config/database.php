@@ -26,7 +26,7 @@ return array(
 	|
 	*/
 
-	'default' => 'mongodb',
+	'default' => 'mongodb_app',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -83,13 +83,40 @@ return array(
 			'prefix'   => '',
 		),
 
-		'mongodb' => array(
+		'mongodb_app' => array(
 		    'driver'   => 'mongodb',
 		    'host'     => 'localhost',
 		    'port'     => 27017,
 		    'username' => '',
 		    'password' => '',
-		    'database' => 'jolicrowd'
+		    'database' => 'app'
+		),		
+
+		'mongodb_text' => array(
+		    'driver'   => 'mongodb',
+		    'host'     => 'localhost',
+		    'port'     => 27017,
+		    'username' => '',
+		    'password' => '',
+		    'database' => 'text'
+		),		
+
+		'mongodb_images' => array(
+		    'driver'   => 'mongodb',
+		    'host'     => 'localhost',
+		    'port'     => 27017,
+		    'username' => '',
+		    'password' => '',
+		    'database' => 'images'
+		),		
+
+		'mongodb_videos' => array(
+		    'driver'   => 'mongodb',
+		    'host'     => 'localhost',
+		    'port'     => 27017,
+		    'username' => '',
+		    'password' => '',
+		    'database' => 'videos'
 		),		
 
 	),

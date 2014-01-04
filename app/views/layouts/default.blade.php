@@ -8,16 +8,62 @@
 		<meta name="author" content="">
 		<title>Crowd-Watson</title>
 		<?= stylesheet_link_tag() ?>
+@yield('head')
 	</head>
 	<body>
-@include('layouts.navbar')
-
-		<div class="container CW_{{Request::segment(1)}}">
+		@include('layouts.navbar')
+		
+		<div class="container CW_{{Request::segment(2)}}">
 			<div class="row">
 @yield('content')
 			</div>   
 		</div>
 	</div>
-	<?= javascript_include_tag() ?>
+	{{ javascript_include_tag() }}
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		$(document).bind('click', function(e) {
+			if(!$(e.target).is('.btn') && !$(e.target).is('.popover *')) {
+				$(".selectionButton").popover("hide");
+			}
+		});
+
+		$('body').on( "click", ".update_selection", function() {
+			var _this = this;
+			var href = $(this).attr('href');
+			var jqxhr = $.post(href);
+			jqxhr.done(function(data) {
+				// alert( data );
+				// console.log('done');
+				// console.log(data);
+				$(_this).closest('.btn-group').find('.dropdown-toggle').click();
+
+				if (href.toLowerCase().indexOf("destroy") >= 0){
+					$('.tableSelection').fadeOut();
+				}
+
+				if (href.toLowerCase().indexOf("remove") >= 0){
+					$('a[href="' + href + '"]').closest('tr').remove();
+				} else {
+					$(".selectionButton").popover("show");
+				}
+
+				$('.menu_selection').empty().prepend($(data).html());
+			});
+
+			jqxhr.fail(function(data) {
+				//  alert( data );
+				console.log('fail');
+				//  console.log(data);
+			});
+
+			return false;
+		});
+	});
+</script>
+
+@yield('end_javascript')
+@yield('selection_user_javascript')
 	</body>
 </html>

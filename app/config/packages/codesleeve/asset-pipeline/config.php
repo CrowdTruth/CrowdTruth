@@ -29,6 +29,7 @@ return array(
 	'paths' => array(
 		'app/assets/javascripts',
 		'app/assets/stylesheets',
+		'app/assets/stylesheets/custom',
 		'lib/assets/javascripts',
 		'lib/assets/stylesheets',
 		'provider/assets/javascripts',
@@ -56,6 +57,7 @@ return array(
 			new Codesleeve\AssetPipeline\Filters\URLRewrite
 		),
 		'.css' => array(
+			new Assetic\Filter\ScssphpFilter,			
 			new Codesleeve\AssetPipeline\Filters\URLRewrite,
 			new Codesleeve\AssetPipeline\Filters\MinifyCSS(App::environment())
 		),
@@ -112,8 +114,8 @@ return array(
 	|	'cache' => new Assetic\Cache\FilesystemCache(storage_path() . '/cache/asset-pipeline'),
 	|
 	*/
-	//'cache' => new Codesleeve\AssetPipeline\Filters\FilesNotCached,
-	'cache' => new Assetic\Cache\FilesystemCache(storage_path() . '/cache/asset-pipeline'),
+	'cache' => new Codesleeve\AssetPipeline\Filters\FilesNotCached,
+	//'cache' => new Assetic\Cache\FilesystemCache(storage_path() . '/cache/asset-pipeline'),
 	/*
 	|--------------------------------------------------------------------------
 	| concat

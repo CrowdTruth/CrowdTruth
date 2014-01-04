@@ -1,3 +1,4 @@
-*= require bootstrap.css
-*= require bootstrap-theme.css
+*= require bootstrap.min.css
+*= require bootstrap-theme.min.css
+*= require font-awesome.min.css
 *= require style.css.scss

@@ -109,6 +109,7 @@ return array(
 		// added
 		'Codesleeve\AssetPipeline\AssetPipelineServiceProvider',
 		'Jenssegers\Mongodb\MongodbServiceProvider',
+		'Gloudemans\Shoppingcart\ShoppingcartServiceProvider',
 		'Way\Generators\GeneratorsServiceProvider'
 	),
 
@@ -177,7 +178,8 @@ return array(
 		'View'            => 'Illuminate\Support\Facades\View',
 
 		// added
-		'Moloquent'       => 'Jenssegers\Mongodb\Model'
+		'Moloquent'       => 'Jenssegers\Mongodb\Model',
+		'Cart'            => 'Gloudemans\Shoppingcart\Facades\Cart'
 
 	),
 
