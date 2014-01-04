@@ -65,6 +65,7 @@ class FilesController extends BaseController {
 			return Redirect::to('files/browse/');
 		}
 
+		sort($domainTypes);
 		if($domainType == 'none')
 			return View::make('files/browse/' . $fileType . '/domains', compact('fileType', 'domainTypes'));
 
