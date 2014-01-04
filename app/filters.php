@@ -16,11 +16,11 @@ App::before(function($request)
 	//
 });
 
+
 App::after(function($request, $response)
 {
-    $response->headers->set('Cache-Control', 'max-age=3600, must-revalidate');
+	//
 });
-
 
 /*
 |--------------------------------------------------------------------------
