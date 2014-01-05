@@ -68,8 +68,8 @@ class UserController extends BaseController {
 		}
 
 	    $userdata = array(
-	        'firstname' => Input::get('firstname'),
-	        'lastname' => Input::get('lastname'),
+	        'firstname' => ucfirst(Input::get('firstname')),
+	        'lastname' => ucfirst(Input::get('lastname')),
 	        'username' => Input::get('username'),
 	        'email' => Input::get('email'),
 	        'password' => Input::get('password'),
