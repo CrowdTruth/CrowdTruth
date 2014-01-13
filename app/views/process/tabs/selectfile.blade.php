@@ -12,7 +12,7 @@
 									
 						</div>
 					</div>
-					sadfasfdsa
+					
 				</div>
 				
 @stop
