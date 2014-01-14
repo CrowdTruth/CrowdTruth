@@ -26,21 +26,22 @@ Todo:
 		<h4>Create your AMT-job</h4>
 	</div>
 	<div class="panel-body">
-			{{ Form::open(array('class' => 'form-horizontal', 'action' => 'ProcessController@postSubmit', 'method' => 'POST')) }}
+<!--		{{ Form::open(array('class' => 'form-horizontal', 'action' => 'ProcessController@postSubmit', 'method' => 'POST')) }} -->
+{{ Form::model($crowdtask, array('class' => 'form-horizontal', 'action' => 'ProcessController@postSubmit', 'method' => 'POST'))}}
 		<fieldset>	
 			{{ Form::label('title', 'Job title', array('class' => 'col-xs-4 control-label')) }}
 			<div class="input-group col-xs-8">
-			{{ Form::text('Title', $hit->getTitle(), array('class' => 'form-control col-xs-6')) }}
+			{{ Form::text('title', null, array('class' => 'form-control col-xs-6')) }}
 			</div>
 			<br>
 			{{ Form::label('keywords', 'Job keywords', array('class' => 'col-xs-4 control-label')) }}
 			<div class="input-group col-xs-8">
-			{{ Form::text('keywords', $hit->getKeywords(), array('class' => 'form-control col-xs-6', 'placeholder' => 'Separated by comma')) }}
+			{{ Form::text('keywords', null, array('class' => 'form-control col-xs-6', 'placeholder' => 'Separated by comma')) }}
 			</div>
 			<br>
 			{{ Form::label('description', 'Job description', array('class' => 'col-xs-4 control-label')) }}
 			<div class="input-group col-xs-8">
-			{{ Form::textarea('description', $hit->getDescription(), array('class' => 'form-control col-xs-6', 'rows'=>'3')) }}
+			{{ Form::textarea('description', null, array('class' => 'form-control col-xs-6', 'rows'=>'3')) }}
 			</div>
 		</fieldset>
 		<br>

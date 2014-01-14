@@ -14,5 +14,6 @@
 						</div>
 					</div>
 				</div>
+{{ javascript_include_tag() }}
 				<!-- STOP process/index --> 				
 @stop

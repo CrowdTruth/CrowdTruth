@@ -2,6 +2,7 @@
 
 class ProcessController extends BaseController {
 
+
 	public function getIndex() {
 		// if(!count(Cart::content()) > 0){
 		// 	Session::flash('flashNotice', 'You have not added any items to your selection yet');
@@ -11,11 +12,20 @@ class ProcessController extends BaseController {
 	}
 
 	public function getSelectfile() {
+		// instantiate CT
+
 		return View::make('process.tabs.selectfile');
 	}
 
 	public function getDetails() {
-		return View::make('process.tabs.details');
+		if (!Session::has('crowdtask')){
+			$turk = new crowdwatson\MechanicalTurkService(base_path() . '/templates/');
+			$hit = $turk->hitFromTemplate('factor_span');
+			$ct = CrowdTask::getFromHit($hit);
+			Session::put('crowdtask', serialize($ct));
+		}
+		
+		return View::make('process.tabs.details')->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
 
 	public function getPlatform() {
@@ -23,7 +33,27 @@ class ProcessController extends BaseController {
 	}
 
 	public function getTemplate() {
-		return View::make('process.tabs.template');
+		
+		// Create array for the select.
+		$templatePath = '/templates/';
+		$filesystempath = base_path() . '/public/' . $templatePath;
+		$templates = array();
+		$files = glob($filesystempath . '*.{html}', GLOB_BRACE);
+		foreach($files as $file) {
+			$file = str_replace($filesystempath, '', $file);
+			$file = str_replace('.html', '', $file);
+			$prettyname = ucfirst(str_replace('_', ' ', $file));
+			$templates[$file] = $prettyname;
+		}
+
+		return View::make('process.tabs.template')->with('templates', $templates)->with('templatePath', $templatePath);
+	}
+
+	public function postFormPart($next){
+		 $old = unserialize(Session::get('crowdtask'));
+		 $new = new CrowdTask(array_merge($old->toArray(), Input::get()));
+		 Session::put('crowdtask', serialize($new));
+		 return Redirect::to("process/$next");
 	}
 
 	public function getAmt($template='default') {
@@ -36,7 +66,12 @@ class ProcessController extends BaseController {
 		} catch (crowdwatson\AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
 		}
-		return View::make('process.tabs.amt')->with('hit', $hit)->with('template', $template)->with('questionids', $questionids);
+		
+		return View::make('process.tabs.amt')
+			->with('hit', $hit)
+			->with('template', $template)
+			->with('questionids', $questionids)
+			->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
 
 	// public function getCf(){
