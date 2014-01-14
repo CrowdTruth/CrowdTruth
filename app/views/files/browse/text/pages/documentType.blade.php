@@ -12,13 +12,13 @@
 
 					<div class='row'>
 						<div class="col-xs-8">
-							@include('files.nav')
+							@include('files.layouts.nav')
 						</div>
 						<div class="col-xs-4 text-center">
 							<h2 class='thumbHeader'> {{$documentType }} &nbsp;<small>documents</small></h2>
 						</div>
 					</div>
-					@include('files.browse.breadcrumb')
+					@include('files.browse.layouts.breadcrumb')
 						<div class='table-responsive'>
 							<table class='table table-striped'>
 								<thead>
@@ -86,25 +86,7 @@
 				// Set this option to false to make the searches case sensitive 
 				filter_ignoreCase : true
 				}
-			});
-
-			$('table').on("click", ".delete_document", function() {
-				var _this = $(this);
-				var jqxhr = $.post($(this).attr('href'));
-				jqxhr.done(function(data) {
-					$(_this).closest('tr').fadeOut();
-					$('.menu_selection').empty().prepend($(data).html());
-					console.log(data);
-				});
-
-				jqxhr.fail(function(data) {
-					//  alert( data );
-					console.log('fail');
-					//  console.log(data);
-				});
-
-				return false;
-			});			
+			});		
 		});
 	</script>
 @stop

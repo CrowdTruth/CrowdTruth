@@ -1,8 +1,12 @@
 <?php
 
+// Event::listen('illuminate.query', function($query){
+// 	var_dump($query);
+// });
+
+
 Route::group(array('before' => 'auth'), function()
 {
-
 	Route::get('/', function()
 	{
 	    return Redirect::to('home');
@@ -13,13 +17,6 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('preprocess/chang', 'preprocess\ChangController');
 	Route::controller('preprocess', 'PreprocessController');
 	Route::controller('selection', 'SelectionController');
-	Route::get('resource/{collection}/{category}/{document}', 'ResourceController@getDocument');
-	Route::get('resource/{collection}/{category}', 'ResourceController@getCategory');
-	Route::get('resource/{collection}', 'ResourceController@getCollection');
-	Route::get('resource', 'ResourceController@index');
-
-	//Route::controller('resource', 'ResourceController');
-
 });
 
 

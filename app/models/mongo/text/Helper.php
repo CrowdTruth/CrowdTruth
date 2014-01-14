@@ -44,6 +44,8 @@ class Helper extends Moloquent {
 
 			} catch (Exception $e) {
 				// Something went wrong with creating the Activity
+				$status['error'][$fileName] = $e->getMessage();
+				continue;
 			}
 
 
@@ -57,7 +59,7 @@ class Helper extends Moloquent {
 				$entity->domain = strtolower($domainType);
 				$entity->fileType = "text";
 				$entity->documentType = strtolower($documentType);
-				$entity->parent = null;
+				$entity->parent_id = null;
 				$entity->ancestors = null;
 				$entity->activity_id = strtolower($activityURI);
 				$entity->user_id = $user->_id;
@@ -67,6 +69,8 @@ class Helper extends Moloquent {
 				$status['success'][$fileName] = $fileName . " was successfully uploaded. (URI: {$entityURI})";
 			} catch (Exception $e) {
 				// Something went wrong with creating the Entity
+				$activity->forceDelete();
+				$entity->forceDelete();
 				$status['error'][$fileName] = $e->getMessage();
 			}
 		}

@@ -7,7 +7,7 @@
 		<meta name="description" content="">
 		<meta name="author" content="">
 		<title>Crowd-Watson</title>
-		<?= stylesheet_link_tag() ?>
+		{{ stylesheet_link_tag() }}
 @yield('head')
 	</head>
 	<body>
@@ -25,7 +25,7 @@
 	$(document).ready(function () {
 		$(document).bind('click', function(e) {
 			if(!$(e.target).is('.btn') && !$(e.target).is('.popover *')) {
-				$(".selectionButton").popover("hide");
+				$('.selectionButton').popover("hide");
 			}
 		});
 
@@ -60,6 +60,30 @@
 
 			return false;
 		});
+
+		$('table').on("click", ".delete_document", function() {
+
+			if(confirm("Are you sure you want to delete this document?")) {
+				var _this = $(this);
+				var jqxhr = $.post($(this).attr('href'));
+
+				jqxhr.done(function(data) {
+					$(_this).closest('tr').fadeOut();
+					$('.menu_selection').empty().prepend($(data).html());
+					console.log(data);
+				});
+
+				jqxhr.fail(function(data) {
+					//  alert( data );
+					console.log('fail');
+					//  console.log(data);
+				});	
+
+			}
+
+			return false;
+
+		});			
 	});
 </script>
 

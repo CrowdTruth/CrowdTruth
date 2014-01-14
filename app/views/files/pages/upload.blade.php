@@ -5,7 +5,7 @@
 				<div class="col-xs-10 col-sm-offset-1">
 					<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')						
-@include('files.nav')
+@include('files.layouts.nav')
 
 					@if (isset($status_upload['error']))
 						<div class="panel panel-danger">
@@ -22,7 +22,7 @@
 						</div>
 					@endif
 
-					@if (isset($status_upload['success']))
+					@if(isset($status_upload['success']))
 						<div class="panel panel-success">
 							<div class="panel-heading">
 								<h4><i class="fa fa-check fa-fw"></i>Success</h4>

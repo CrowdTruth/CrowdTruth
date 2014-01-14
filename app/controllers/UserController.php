@@ -48,17 +48,12 @@ class UserController extends BaseController {
 	        'password' => Input::get('password'),
 	    );
 
-	    if($user = User::where('username', '=', $userdata['username'])->orWhere('email', '=', $userdata['email'])->first()){
-	    	if(Auth::attempt(array('email' => $user['email'], 'password' => $userdata['password']))){
+	    if($user = User::where('username', '=', strtolower($userdata['username']))->orWhere('email', '=', strtolower($userdata['email']))->first())
+	    	if(Auth::attempt(array('email' => $user['email'], 'password' => $userdata['password'])))
 	    		return Redirect::intended('/');
-	    	} else {
-	    		Session::flash('flashError', 'Invalid credentials');
-	    		return Redirect::back();	    		
-	    	}
-	    } else {
-	    	Session::flash('flashError', 'Invalid credentials');
-	    	return Redirect::back();
-	    }
+
+    	Session::flash('flashError', 'Invalid credentials');
+    	return Redirect::back();
 	}
 
 	public function postRegister(){
@@ -68,10 +63,10 @@ class UserController extends BaseController {
 		}
 
 	    $userdata = array(
-	        'firstname' => ucfirst(Input::get('firstname')),
-	        'lastname' => ucfirst(Input::get('lastname')),
-	        'username' => Input::get('username'),
-	        'email' => Input::get('email'),
+	        'firstname' => ucfirst(strtolower(Input::get('firstname'))),
+	        'lastname' => ucfirst(strtolower(Input::get('lastname'))),
+	        'username' => strtolower(Input::get('username')),
+	        'email' => strtolower(Input::get('email')),
 	        'password' => Input::get('password'),
 	        'confirm_password' => Input::get('confirm_password'),
 	    );

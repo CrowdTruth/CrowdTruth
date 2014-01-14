@@ -15,7 +15,7 @@
 					<ul class="nav navbar-nav">
 						<li{{ (Request::segment(1) == 'home' ? ' class="active"' : '') }}>{{ link_to('/', "Home") }}</li>
 						<li{{ (Request::segment(1) == 'files' ? ' class="active"' : '') }}>{{ link_to('files', "Files") }}</li>
-						<li{{ (Request::segment(1) == 'preprocess' ? ' class="active"' : ' class="disabled"') }}>{{ link_to('#', "Pre-Process") }}</li>
+						<li{{ (Request::segment(1) == 'preprocess' ? ' class="active"' : '') }}>{{ link_to('preprocess', "Pre-Process") }}</li>
 						<li{{ (Request::segment(1) == 'process' ? ' class="active"' : ' class="disabled"') }}>{{ link_to('#', "Process") }}</li>
 						<li{{ (Request::segment(1) == 'postprocess' ? ' class="active"' : ' class="disabled"') }}>{{ link_to('#', "Post-Process") }}</li>
 						<li class="dropdown">
@@ -29,7 +29,7 @@
 							</ul>
 						</li>
 					</ul>
-					@include('layouts.selection_user')
+					@include('layouts.dynamic_selection_user')
 				</div><!--/.nav-collapse -->
 			</div>
 		</div>

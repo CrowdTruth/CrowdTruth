@@ -34,11 +34,11 @@ class DocumentHelper {
 	}
 
 	public function getCollectionTypeFor($URI){
-		if (strpos($URI, '/text') !== false) {
+		if (strpos($URI, 'resource/text') !== false) {
 		    return 'text';
-		} elseif(strpos($URI, '/images') !== false) {
+		} elseif(strpos($URI, 'resource/images') !== false) {
 		    return 'images';
-		} elseif(strpos($URI, '/videos') !== false) {
+		} elseif(strpos($URI, 'resource/videos') !== false) {
 		    return 'videos';
 		} else {
 			return false;

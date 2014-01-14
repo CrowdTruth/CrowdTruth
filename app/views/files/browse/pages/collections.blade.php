@@ -13,13 +13,13 @@
 
 						<div class='row' style="margin-bottom:0px">
 							<div class="col-xs-8">
-								@include('files.nav')
+								@include('files.layouts.nav')
 							</div>
 							<div class="col-xs-4 text-center">
 								<h2 class='thumbHeader'>collection &nbsp;<small>types</small></h2>
 							</div>
 						</div>
-						@include('files.browse.breadcrumb')
+						@include('files.browse.layouts.breadcrumb')
 
 						<div class="row">
 							<div class="col-xs-4">

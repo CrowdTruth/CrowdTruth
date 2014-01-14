@@ -1,4 +1,5 @@
 <div class="navbar-form navbar-right">
+    @yield('dynamicButton')
 	<a href='{{ URL::to('selection')}}' class="btn btn-info selectionButton {{  (Request::is('selection') ? 'active' : '') }}"><i class="fa fa-shopping-cart fa-fw"></i>Selection</a>
     
 
@@ -9,7 +10,7 @@
     <ul class="dropdown-menu pull-right" role="menu">
         <li><a href="#"><i class="fa fa-folder-open fa-fw"></i>My activity</a></li>
         <li><a href="{{ URL::to('/user/logout') }}"><i class="fa fa-sign-out fa-fw"></i>Log out</a></li>
-    </ul>
+    </ul> 
 </div>
 
     <div class='selectionContent' style='display:none;'>
