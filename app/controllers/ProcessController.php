@@ -32,6 +32,13 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.platform');
 	}
 
+
+	public function getSubmit() {
+		return View::make('process.tabs.submit');
+	}
+
+	
+
 	public function getTemplate() {
 		
 		// Create array for the select.
