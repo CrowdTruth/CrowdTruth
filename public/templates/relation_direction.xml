@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<HIT>
+	<Title>What is the right order of two related WORD PHRASES?</Title>
+	<Description>You are asked to read a SENTENCE containing two related WORD PHRASES, then decide on the correct order of the relation.</Description>
+	<Keywords>medical relations, medical text, relation direction</Keywords>
+	<MaxAssignments>15</MaxAssignments>
+	<Reward>
+		<Amount>0.03</Amount>
+		<CurrencyCode>USD</CurrencyCode>
+	</Reward>
+	<AutoApprovalDelayInSeconds>172800</AutoApprovalDelayInSeconds>
+	<AssignmentDurationInSeconds>60</AssignmentDurationInSeconds>
+	<LifetimeInSeconds>604800</LifetimeInSeconds>
+	<QualificationRequirement>
+		<QualificationTypeId>00000000000000000040</QualificationTypeId>
+		<Comparator>GreaterThan</Comparator>
+		<IntegerValue>1000</IntegerValue>
+	</QualificationRequirement>
+	<QualificationRequirement>
+		<QualificationTypeId>000000000000000000L0</QualificationTypeId>
+		<Comparator>GreaterThan</Comparator>
+		<IntegerValue>90</IntegerValue>
+	</QualificationRequirement>
+</HIT>
