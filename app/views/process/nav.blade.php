@@ -4,7 +4,7 @@
 							<li{{ (Request::segment(2) == 'template' ? ' class="active"' : '') }} title='template'>{{ link_to('process/template', "Pick/build Template") }}</li>
 							<li{{ (Request::segment(2) == 'details' ? ' class="active"' : '') }} title='details'>{{ link_to('process/details', "Job Details") }}</li>
 							<li{{ (Request::segment(2) == 'platform' ? ' class="active"' : '') }} title='platform'>{{ link_to('process/platform', "Platform") }}</li>
-							<li{{ (Request::segment(2) == 'submit' ? ' class="active"' : '') }} title='submit'>{{ link_to('process/submit', "Submit") }}</li>
+							<li{{ (Request::segment(2) == 'finish' ? ' class="active"' : '') }} title='finish'>{{ link_to('process/finish', "Finish") }}</li>
 							<li{{ (Request::segment(2) == 'amt' ? ' class="active"' : '') }} title='amt'>{{ link_to('process/amt', "AMT") }}</li>
 						</ul>
 <!-- END process_nav   -->   

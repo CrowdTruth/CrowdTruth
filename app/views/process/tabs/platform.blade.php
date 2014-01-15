@@ -15,9 +15,9 @@
 						<h4>Choose platform-specific options</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
+						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'finish'), 'method' => 'POST'))}}
 						<div class="btn-group" data-toggle="buttons">
-						  <label class="btn btn-primary">
+						  <label class="btn btn-primary active">
 						    {{ Form::checkbox('amt', 'true', true)}} Mechanical Turk
 						  </label>
 						  <label class="btn btn-primary">

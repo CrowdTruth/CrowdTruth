@@ -27,11 +27,9 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.platform')->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
 
-
-	public function getSubmit() {
-		return View::make('process.tabs.submit');
+	public function getFinish() {
+		return View::make('process.tabs.finish')->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
-
 
 	public function getTemplate() {
 		// Create array for the select
