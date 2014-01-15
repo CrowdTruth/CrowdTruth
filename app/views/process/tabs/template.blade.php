@@ -15,11 +15,11 @@
 						<h4>Create your AMT-job</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::open( array('class' => 'form-horizontal', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
+						{{ Form::model($crowdtask, array('class' => 'form-horizontal', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
 						<fieldset>	
 							{{ Form::select('template', $templates) }}
 							<br><br>
-							<iframe id ="question" src="{{ $templatePath}}default.html" width="720" height="400" seemless></iframe>
+							<iframe id ="question" src="{{ $templatePath}}{{ $template }}.html" width="720" height="400" seemless></iframe>
 						</fieldset>
 						<br>
 						<br>
@@ -34,9 +34,9 @@
 @endsection
 @section('end_javascript')
 <script>
-$( "select[name='template']" ).change(function() {
-  $("#question").attr('src', "{{ $templatePath }}"+ $( "select[name='template'] option:selected").val()+'.html');
-});
+$("select[name='template']" ).change(function(){
+       $("#question").attr('src', "{{ $templatePath }}"+ $( "select[name='template'] option:selected").val()+'.html');
+    });
 </script>
 @endsection
 @stop

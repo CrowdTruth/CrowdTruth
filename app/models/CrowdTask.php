@@ -3,7 +3,7 @@
 //use Jenssegers\Mongodb\Model as Eloquent;
 
 class CrowdTask extends Moloquent {
-	protected $fillable = array('title', 'description', 'keywords');
+	protected $fillable = array('title', 'description', 'keywords', 'template');
     
 
 
@@ -17,7 +17,6 @@ class CrowdTask extends Moloquent {
 			'title' 		=> $hit->getTitle(),
 			'description' 	=> $hit->getDescription(),
 			'keywords'		=> $hit->getKeywords()
-
 			));
 	}
 
