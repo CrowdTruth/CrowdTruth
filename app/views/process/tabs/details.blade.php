@@ -15,7 +15,7 @@
 						<h4>Create your AMT-job</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::model($crowdtask, array('class' => 'form-horizontal', 'action' => array('ProcessController@postFormPart', 'platform'), 'method' => 'POST'))}}
+						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'platform'), 'method' => 'POST'))}}
 						<fieldset>	
 							{{ Form::label('title', 'Job title', array('class' => 'col-xs-4 control-label')) }}
 							<div class="input-group col-xs-8">

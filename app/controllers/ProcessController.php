@@ -14,34 +14,30 @@ class ProcessController extends BaseController {
 	public function getSelectfile() {
 		// instantiate CT
 
+		// Where to forget?
+		Session::forget('crowdtask');
 		return View::make('process.tabs.selectfile');
 	}
 
 	public function getDetails() {
-		if (!Session::has('crowdtask')){
-			$turk = new crowdwatson\MechanicalTurkService(base_path() . '/templates/');
-			$hit = $turk->hitFromTemplate('factor_span');
-			$ct = CrowdTask::getFromHit($hit);
-			Session::put('crowdtask', serialize($ct));
-		}
-		
 		return View::make('process.tabs.details')->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
 
 	public function getPlatform() {
-		return View::make('process.tabs.platform');
+		return View::make('process.tabs.platform')->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
 
-
-	public function getSubmit() {
-		return View::make('process.tabs.submit');
+	public function getFinish() {
+		return View::make('process.tabs.finish')->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
-
-	
 
 	public function getTemplate() {
-		
-		// Create array for the select.
+		// Create array for the select
+		$crowdtask = unserialize(Session::get('crowdtask'));
+		if(isset($crowdtask->template))
+			$template = $crowdtask->template;
+		else
+			$template = 'default';
 		$templatePath = '/templates/';
 		$filesystempath = base_path() . '/public/' . $templatePath;
 		$templates = array();
@@ -53,14 +49,45 @@ class ProcessController extends BaseController {
 			$templates[$file] = $prettyname;
 		}
 
-		return View::make('process.tabs.template')->with('templates', $templates)->with('templatePath', $templatePath);
+		return View::make('process.tabs.template')
+			->with('templates', $templates)
+			->with('templatePath', $templatePath)
+			->with('template', $template)
+			->with('crowdtask', $crowdtask);
+	}
+
+	private function newCTfromTemplate($template){
+		try {
+			$turk = new crowdwatson\MechanicalTurkService(base_path() . '/public/templates/');
+			$hit = $turk->hitFromTemplate($template);
+			$ct = CrowdTask::getFromHit($hit);
+			$ct->template = $template;
+			return $ct;
+		} catch (crowdwatson\AMTException $e){
+			Session::flash('flashError', $e->getMessage());
+			return new CrowdTask;
+		}
 	}
 
 	public function postFormPart($next){
-		 $old = unserialize(Session::get('crowdtask'));
-		 $new = new CrowdTask(array_merge($old->toArray(), Input::get()));
-		 Session::put('crowdtask', serialize($new));
-		 return Redirect::to("process/$next");
+		$ct = unserialize(Session::get('crowdtask'));
+
+		if(Input::has('template')){
+			$template = Input::get('template');
+			if (empty($ct) or ($ct->template != $template))
+				$ct = $this->newCTfromTemplate($template);		
+		} else {
+			if (empty($ct)){
+				$ct = new CrowdTask;
+				Session::flash('flashWarning', 'No template selected.');
+			} else {
+				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
+			}		
+		}
+
+		Session::put('crowdtask', serialize($ct));
+		return Redirect::to("process/$next");
+
 	}
 
 	public function getAmt($template='default') {

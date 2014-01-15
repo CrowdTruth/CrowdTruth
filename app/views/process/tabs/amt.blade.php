@@ -27,7 +27,7 @@ Todo:
 	</div>
 	<div class="panel-body">
 <!--		{{ Form::open(array('class' => 'form-horizontal', 'action' => 'ProcessController@postSubmit', 'method' => 'POST')) }} -->
-{{ Form::model($crowdtask, array('class' => 'form-horizontal', 'action' => 'ProcessController@postSubmit', 'method' => 'POST'))}}
+{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => 'ProcessController@postSubmit', 'method' => 'POST'))}}
 		<fieldset>	
 			{{ Form::label('title', 'Job title', array('class' => 'col-xs-4 control-label')) }}
 			<div class="input-group col-xs-8">
