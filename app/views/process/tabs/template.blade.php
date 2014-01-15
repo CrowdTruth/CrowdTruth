@@ -12,7 +12,7 @@
 			<div>
 				<div class="panel panel-default">		
 					<div class="panel-heading">
-						<h4>Select a question template</h4>
+						<h4>Select your template</h4>
 					</div>
 					<div class="panel-body">
 						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
