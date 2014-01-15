@@ -11,6 +11,13 @@
 @include('layouts.flashdata')
 									
 						</div>
+						<div>
+							{{ Form::open(array( ))}}
+							{{ Form::checkbox('cf', 'Crowdflower'); }}
+							{{ Form::checkbox('amt', 'AMT'); }}
+							{{ Form::close()}}
+						</div>
+
 					</div>
 				</div>
 	

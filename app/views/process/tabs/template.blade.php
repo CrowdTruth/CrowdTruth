@@ -12,7 +12,7 @@
 			<div>
 				<div class="panel panel-default">		
 					<div class="panel-heading">
-						<h4>Create your AMT-job</h4>
+						<h4>Select your template</h4>
 					</div>
 					<div class="panel-body">
 						{{ Form::open( array('class' => 'form-horizontal', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
