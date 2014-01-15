@@ -15,7 +15,7 @@
 						<h4>Create your AMT-job</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::model($crowdtask, array('class' => 'form-horizontal', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
+						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
 						<fieldset>	
 							{{ Form::select('template', $templates) }}
 							<br><br>
@@ -31,12 +31,5 @@
 		</div>
 	</div>
 </div>		
-@endsection
-@section('end_javascript')
-<script>
-$("select[name='template']" ).change(function(){
-       $("#question").attr('src', "{{ $templatePath }}"+ $( "select[name='template'] option:selected").val()+'.html');
-    });
-</script>
 @endsection
 @stop
