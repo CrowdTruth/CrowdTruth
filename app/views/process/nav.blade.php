@@ -14,7 +14,6 @@ $(document).ready(function(){
 	$("#processtabs > li").click(function(event){
 		if($(".crowdtask").prop("action").length > 0) {
 			event.preventDefault();
-			console.log($(".crowdtask"));
 	       $(".crowdtask").prop("action", "/process/form-part/" + $(this).prop('title')).submit();
 		}
 	});

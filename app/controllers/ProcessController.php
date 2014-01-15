@@ -24,7 +24,7 @@ class ProcessController extends BaseController {
 	}
 
 	public function getPlatform() {
-		return View::make('process.tabs.platform');
+		return View::make('process.tabs.platform')->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
 
 
