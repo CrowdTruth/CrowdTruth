@@ -28,7 +28,20 @@ class ProcessController extends BaseController {
 	}
 
 	public function getFinish() {
-		return View::make('process.tabs.finish')->with('crowdtask', unserialize(Session::get('crowdtask')));
+		$crowdtask = unserialize(Session::get('crowdtask'));
+		$turk = new crowdwatson\MechanicalTurkService();
+		$question = file_get_contents(base_path() . '/public/templates/' . $crowdtask->template . '.html');
+
+		try{
+			$questions = $turk->createPreviews($question, base_path() . '/public/csv/test.csv');
+		} catch (crowdwatson\AMTException $e) {
+			$questions = array($e->getMessage());
+			Session::flash('flashError', $e->getMessage());
+		}
+
+		return View::make('process.tabs.finish')
+			->with('crowdtask', $crowdtask)
+			->with('questions',  $questions);
 	}
 
 	public function getTemplate() {
