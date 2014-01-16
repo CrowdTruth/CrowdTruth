@@ -104,6 +104,8 @@ class ProcessController extends BaseController {
 				Session::flash('flashWarning', 'No template selected.');
 			} else {
 				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
+				if(Input::has('qr')) 		$ct->addQualReq(Input::get('qr'));
+				if(Input::has('answerkey')) $ct->addAssRev(Input::get('anwerkey'), Input::get('arp'));
 			}		
 		}
 

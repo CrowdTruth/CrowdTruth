@@ -33,7 +33,10 @@
 														'00000000000000000071' => 'Locale',
 														'00000000000000000060' => 'Adult'		
 												); ?>
+
 								<div class="form-group">
+
+
 								@foreach($types as $key=>$val)	
 								<?php 
 									// standard values.
