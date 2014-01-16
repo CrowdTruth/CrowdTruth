@@ -34,7 +34,7 @@ class CrowdTask extends Moloquent {
 
 	public function addAssRevPol($answerkey, $arp){
 		$arpanswerkey = array();	
-		foreach ($answerkey as $key=>$val)
+		foreach ($arpanswerkey as $key=>$val)
 			if($val != '') $arpanswerkey[$key]=$val;	
 			
 		$arpparams = array();
