@@ -27,8 +27,8 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.platform')->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
 
-	public function getFinish() {
-		return View::make('process.tabs.finish')->with('crowdtask', unserialize(Session::get('crowdtask')));
+	public function getSubmit() {
+		return View::make('process.tabs.submit')->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
 
 	public function getTemplate() {
@@ -60,7 +60,8 @@ class ProcessController extends BaseController {
 		try {
 			$turk = new crowdwatson\MechanicalTurkService(base_path() . '/public/templates/');
 			$hit = $turk->hitFromTemplate($template);
-			$ct = CrowdTask::getFromHit($hit);
+			$task = new CrowdTask;
+			$ct = $task->getFromHit($hit);
 			$ct->template = $template;
 			return $ct;
 		} catch (crowdwatson\AMTException $e){
