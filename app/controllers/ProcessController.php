@@ -1,7 +1,10 @@
 <?php
 
-class ProcessController extends BaseController {
+use crowdwatson\MechanicalTurkService;
+use crowdwatson\AMTException;
+use crowdwatson\Hit;
 
+class ProcessController extends BaseController {
 
 	public function getIndex() {
 		// if(!count(Cart::content()) > 0){
@@ -12,8 +15,6 @@ class ProcessController extends BaseController {
 	}
 
 	public function getSelectfile() {
-		// instantiate CT
-
 		// Where to forget?
 		Session::forget('crowdtask');
 		return View::make('process.tabs.selectfile');
@@ -27,21 +28,21 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.platform')->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
 
-	public function getSubmit() {
-		return View::make('process.tabs.submit')->with('crowdtask', unserialize(Session::get('crowdtask')));
-	}
+
+	// public function getSubmit() {
+	// 	return View::make('process.tabs.submit')->with('crowdtask', unserialize(Session::get('crowdtask')));
+	// }
 
 	public function getTemplate() {
 		// Create array for the select
-		$crowdtask = unserialize(Session::get('crowdtask'));
-		if(isset($crowdtask->template))
-			$template = $crowdtask->template;
-		else
-			$template = 'default';
+		$crowdtask = unserialize(Session::get('crowdtask'));		
 		$templatePath = '/templates/';
+		$currenttemplate = (isset($crowdtask->template) ? $crowdtask->template : 'default');
+
 		$filesystempath = base_path() . '/public/' . $templatePath;
-		$templates = array();
 		$files = glob($filesystempath . '*.{html}', GLOB_BRACE);
+		$templates = array();
+
 		foreach($files as $file) {
 			$file = str_replace($filesystempath, '', $file);
 			$file = str_replace('.html', '', $file);
@@ -50,21 +51,41 @@ class ProcessController extends BaseController {
 		}
 
 		return View::make('process.tabs.template')
-			->with('templates', $templates)
 			->with('templatePath', $templatePath)
-			->with('template', $template)
+			->with('templates', $templates)
+			->with('currenttemplate', $currenttemplate)
 			->with('crowdtask', $crowdtask);
+	}
+
+	public function getSubmit() {
+		$crowdtask = unserialize(Session::get('crowdtask'));
+		$turk = new MechanicalTurkService();
+		$questions = array();
+
+		try{
+			$question = file_get_contents(base_path() . "/public/templates/{$crowdtask->template}.html");
+			$questions = $turk->createPreviews($question, base_path() . '/public/csv/test.csv');
+		} catch (AMTException $e) {
+			Session::flash('flashError', $e->getMessage());
+		} catch (ErrorException $e) {
+			Session::flash('flashError', 'Error reading templatefile.');
+		}
+
+		return View::make('process.tabs.submit')
+			->with('crowdtask', $crowdtask)
+			->with('questions',  $questions);
 	}
 
 	private function newCTfromTemplate($template){
 		try {
-			$turk = new crowdwatson\MechanicalTurkService(base_path() . '/public/templates/');
+			// Currently, the HIT format is used.
+			$turk = new MechanicalTurkService(base_path() . '/public/templates/');
 			$hit = $turk->hitFromTemplate($template);
 			$task = new CrowdTask;
 			$ct = $task->getFromHit($hit);
 			$ct->template = $template;
 			return $ct;
-		} catch (crowdwatson\AMTException $e){
+		} catch (AMTException $e){
 			Session::flash('flashError', $e->getMessage());
 			return new CrowdTask;
 		}
@@ -92,13 +113,13 @@ class ProcessController extends BaseController {
 	}
 
 	public function getAmt($template='default') {
-		$hit = new crowdwatson\Hit();
+		$hit = new Hit();
 		$questionids= array();
 		try {
-			$turk = new crowdwatson\MechanicalTurkService(base_path() . '/../amt/res/templates/');
+			$turk = new MechanicalTurkService(base_path() . '/public/templates/');
 			$hit = $turk->hitFromTemplate($template);
 			$questionids = $turk->findQuestionIds($template);
-		} catch (crowdwatson\AMTException $e) {
+		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
 		}
 		
@@ -115,8 +136,8 @@ class ProcessController extends BaseController {
 
 	public function postSubmit(){
 		$input = Input::get();
-		$hit = new crowdwatson\Hit;
-		$turk = new crowdwatson\MechanicalTurkService;
+		$hit = new Hit;
+		$turk = new MechanicalTurkService;
 
 		// Standard fields
 		if (!empty($input ['title'])) 			 			$hit->setTitle						  	($input ['title']); 
@@ -167,9 +188,10 @@ class ProcessController extends BaseController {
 		try {
 			if		(!empty($input['csvfilename'])) Session::flash('flashSuccess', 'Created ' . count($turk->createBatch	($input['template'], $input['csvfilename'], $hit)) . ' HITs.');
 			elseif 	($paramsset) 				    Session::flash('flashSuccess', 'Created HIT ' .   $turk->createSingle	($input['template'], $input['params'], $hit) . '.');
-			else throw new crowdwatson\AMTException('Provide either a CSV file or parameters.');
-		} catch (crowdwatson\AMTException $e) {
+			else throw new AMTException('Provide either a CSV file or parameters.');
+		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
+			return Redirect::to("process/finish");
 		}
 	}
 }

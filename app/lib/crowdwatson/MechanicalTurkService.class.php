@@ -52,6 +52,26 @@ class MechanicalTurkService{
 		}
 	}
 	
+	public function createPreviews($question, $csvFilename){
+		$paramsArray = $this->csv_to_array($csvFilename);
+		$questions = array();
+		foreach($paramsArray as $params){
+			$basequestion = $question;
+			foreach ($params as $key=>$val)	{
+				$param = '${' . $key . '}';
+				if (strpos($question, $param) === false)
+					throw new AMTException('Not all given parameters are in the HTML template.');
+				$basequestion = str_replace($param, $val, $basequestion);
+			}
+			$questions[] = $basequestion;
+			if(preg_match('#\$\{[A-Za-z0-9_.]*\}#', $basequestion) == 1) // ${...}
+				throw new AMTException('HTML contains parameters that are not given.');
+		}
+		
+		return $questions;
+	}
+
+
 	/**
 	* Create a HIT from a template (html for the question, xml or Hit for the rest) with parameters, and upload it to AMT
 	* @param string $templateName The name of the html and xml template files in the templates directory (without extension).
