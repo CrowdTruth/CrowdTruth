@@ -17,14 +17,15 @@
 					<div class="panel-body">
 						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'submit'), 'method' => 'POST'))}}
 						<div data-toggle="buttons">
+							<label>Select the platform you want to send your job to:</label>	
 						  <label class="btn btn-primary active">
-						    {{ Form::checkbox('amt', 'false', false, array('id' => 'amt-button') )}} Mechanical Turk
+						    {{ Form::checkbox('amt', 'false', true, array('id' => 'amt-button') )}} Mechanical Turk
 						  </label>
 						  <label class="btn btn-primary">
-						   	{{ Form::checkbox('cf', 'false', false)}} Crowdflower
+						   	{{ Form::checkbox('cf', 'false')}} Crowdflower
 						  </label>
 						</div>
-						<div id="amt-div">
+						<div id="amt-div" style="padding: 10px;">
 							<fieldset>
 								<legend>Qualification Requirements</legend>
 								<?php	$types = array(	'000000000000000000L0' => 'Assignments Approved (%)',
@@ -74,6 +75,36 @@
 								@endforeach				
 								</div>
 							</fieldset>
+							<fieldset>
+								<legend>Assignment Review Policy</legend>
+							</fieldset>
+							<label>AnswerKey</label><br>
+							<?php
+									// $arp = $crowdtask->assignmentReviewPolicy;
+									// foreach($questionids as $qid){
+									// 	$val = '';		
+									// 	if($arp)
+									// 		foreach($arp['AnswerKey'] as $q=>$v)
+									// 			if($q == $qid) $val = $v;
+
+										echo "<label class='col-xs-4'></label><div class='input-group col-xs-4'><input name='answerkey[]' value='$val' class='form-control input-sm'/></div>";
+									// }
+								?>
+							<br>
+							<br>
+							<label>Parameters</label><br>
+							<?php
+									$types = array( 'ApproveIfKnownAnswerScoreIsAtLeast', 'ApproveReason', 'RejectIfKnownAnswerScoreIsLessThan', 
+													'RejectReason', 'ExtendIfKnownAnswerScoreIsLessThan', 
+													'ExtendMaximumAssignments', 'ExtendMinimumTimeInSeconds'); ?>
+							@foreach($types as $type)
+								<span class='col-sm-5'>
+									{{ Form::checkbox("arp[$type][checked]", 'true', false, array('id' => $type)) }}
+									{{ Form::label($type, $type) }}
+								</span>
+									{{ Form::text("arp[$type][0]", '', array('class' => 'col-sm-4')) }}
+								<br><br>
+							@endforeach
 						</div>
 						{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}
 						{{ Form::close()}}					
