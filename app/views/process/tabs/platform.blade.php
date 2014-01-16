@@ -82,16 +82,17 @@
 								<legend>Assignment Review Policy</legend>
 							</fieldset>
 							<label>AnswerKey</label><br>
-							<?php
-									// $arp = $crowdtask->assignmentReviewPolicy;
-									// foreach($questionids as $qid){
-									// 	$val = '';		
-									// 	if($arp)
-									// 		foreach($arp['AnswerKey'] as $q=>$v)
-									// 			if($q == $qid) $val = $v;
 
-										echo "<label class='col-xs-4'></label><div class='input-group col-xs-4'><input name='answerkey[]' value='$val' class='form-control input-sm'/></div>";
-									// }
+							<?php
+									 $arp = $crowdtask->assignmentReviewPolicy;
+									 foreach($questionids as $qid){
+									 	$val = '';		
+									 	if($arp)
+									 		foreach($arp['AnswerKey'] as $q=>$v)
+									 			if($q == $qid) $val = $v;
+
+										echo "<label class='col-xs-4'>$qid</label><div class='input-group col-xs-4'><input name='answerkey[$qid]' value='$val' class='form-control input-sm'/></div>";
+									 }
 								?>
 							<br>
 							<br>

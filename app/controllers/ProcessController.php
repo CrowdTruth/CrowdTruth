@@ -25,7 +25,18 @@ class ProcessController extends BaseController {
 	}
 
 	public function getPlatform() {
-		return View::make('process.tabs.platform')->with('crowdtask', unserialize(Session::get('crowdtask')));
+		$ct = unserialize(Session::get('crowdtask'));
+		$turk = new MechanicalTurkService(base_path() . '/public/templates/');
+		
+		try {
+			$questionids = $turk->findQuestionIds($ct->template);
+		} catch (AMTException $e) {
+			Session::flash('flashError', $e->getMessage());
+		} 
+		
+		return View::make('process.tabs.platform')
+			->with('crowdtask', $ct)
+			->with('questionids', $questionids);
 	}
 
 
@@ -103,8 +114,8 @@ class ProcessController extends BaseController {
 				Session::flash('flashWarning', 'No template selected.');
 			} else {
 				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
-				if(Input::has('qr')) 		$ct->addQualReq(Input::get('qr'));
-				if(Input::has('answerkey')) $ct->addAssRevPol(Input::get('anwerkey'), Input::get('arp'));
+				if(Input::has('qr') and is_array(Input::get('qr'))) 		$ct->addQualReq(Input::get('qr'));
+				if(Input::has('answerkey') and is_array(Input::get('answerkey'))) $ct->addAssRevPol(Input::get('answerkey'), Input::get('arp'));
 			}		
 		}
 

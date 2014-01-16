@@ -35,7 +35,9 @@ class CrowdTask extends Moloquent {
 	}
 
 	public function addAssRevPol($answerkey, $arp){
-		$arpanswerkey = array();	
+		$arpanswerkey = array();
+		if(count($answerkey)==0) return true;
+
 		foreach ($answerkey as $key=>$val)
 			if($val != '') $arpanswerkey[$key]=$val;	
 			
@@ -44,7 +46,7 @@ class CrowdTask extends Moloquent {
 			if(array_key_exists('checked', $val)) $arpparams[$key]=$val[0];
 				
 		if(count($arpanswerkey) > 0)
-			$this->ssignmentReviewPolicy = array(	'AnswerKey' => $arpanswerkey, 
+			$this->assignmentReviewPolicy = array(	'AnswerKey' => $arpanswerkey, 
 													'Parameters' => $arpparams);
 	}
 
