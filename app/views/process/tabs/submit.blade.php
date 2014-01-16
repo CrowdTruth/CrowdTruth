@@ -18,8 +18,11 @@
 							<table class="table table-striped">
 							<!--<tr><th>Property</th><th>Value</th></tr>-->
 							@foreach ($crowdtask->toArray() as $key=>$val)
+								@if (is_array($val))
+								<tr><th>{{ $key }}</th><td><?php print_r($val) ?></td></tr>
+								@else
 								<tr><th>{{ $key }}</th><td>{{ $val }}</td></tr>
-								
+								@endif
 							@endforeach
 							</table>
 						</fieldset>

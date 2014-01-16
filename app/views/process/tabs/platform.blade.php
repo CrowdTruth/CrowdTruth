@@ -24,6 +24,7 @@
 						   	{{ Form::checkbox('cf', 'false', false)}} Crowdflower
 						  </label>
 						</div>
+
 						<div id="amt-div">
 							<fieldset>
 								<legend>Qualification Requirements</legend>
@@ -32,7 +33,10 @@
 														'00000000000000000071' => 'Locale',
 														'00000000000000000060' => 'Adult'		
 												); ?>
+
 								<div class="form-group">
+
+
 								@foreach($types as $key=>$val)	
 								<?php 
 									// standard values.
