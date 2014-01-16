@@ -15,8 +15,12 @@
 						<h4>Select files</h4>
 					</div>
 					<div class="panel-body">
+						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'template'), 'method' => 'POST'))}}
 					
-					
+						
+
+						{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}
+						{{ Form::close()}}					
 				
 					</div>
 				</div>

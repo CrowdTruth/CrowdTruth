@@ -7,7 +7,9 @@
 							<li{{ (Request::segment(2) == 'platform' ? ' class="active"' : '') }} title='platform'>{{ link_to('process/platform', "Platform") }}</li>
 							<li{{ (Request::segment(2) == 'submit' ? ' class="active"' : '') }} title='submit'>{{ link_to('process/submit', "Submit") }}</li>
 							<li{{ (Request::segment(2) == 'amt' ? ' class="active"' : '') }} title='amt'>{{ link_to('process/amt', "AMT") }}</li>
+							<li{{ (Request::segment(2) == 'selectfile' ? ' class="active"' : '') }} title='selectfile'><input value="Reset form" class="btn btn-danger" type='button' onClick='{{Session::forget('crowdtask');}}'</li>
 						</ul>
+
 <!-- END process_nav   -->   
 @section('end_javascript')
 <script>
