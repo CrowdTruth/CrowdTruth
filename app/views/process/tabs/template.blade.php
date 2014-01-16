@@ -19,7 +19,7 @@
 						<fieldset>	
 							{{ Form::select('template', $templates) }}
 							<br><br>
-							<iframe id ="question" src="{{ $templatePath}}{{ $template }}.html" width="720" height="400" seemless></iframe>
+							<iframe id ="question" src="{{ $templatePath}}{{ $currenttemplate }}.html" width="720" height="400" seemless></iframe>
 						</fieldset>
 						<br>
 						<br>
