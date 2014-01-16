@@ -34,7 +34,6 @@ class MechanicalTurkService{
 	* @throws AMTException when one of the files does not exist, or when the parameters and template don't match.
 	*/
 	public function createBatch($templateName, $csvFilename, $templateHit = null){
-		try {
 			$paramsArray = $this->csv_to_array($csvFilename);
 			if(isset($templateHit)) $hit = $templateHit;
 			else $hit = $this->hitFromTemplate($templateName);
@@ -47,11 +46,14 @@ class MechanicalTurkService{
 			}
 			
 			return $created;
-		} catch (AMTException $e) {
-			echo $e->getMessage();
-		}
 	}
 	
+	/**
+	* Inject the parameters of the CSV files into the HTMLquestion. Just for previewing purposes.
+	* @var string $question HTML of the question.
+	* @var string $csvFilename
+	* @return string[] HTML of the question, with parameters injected.
+	*/
 	public function createPreviews($question, $csvFilename){
 		$paramsArray = $this->csv_to_array($csvFilename);
 		$questions = array();

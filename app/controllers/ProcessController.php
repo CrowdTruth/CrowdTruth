@@ -81,8 +81,7 @@ class ProcessController extends BaseController {
 			// Currently, the HIT format is used.
 			$turk = new MechanicalTurkService(base_path() . '/public/templates/');
 			$hit = $turk->hitFromTemplate($template);
-			$task = new CrowdTask;
-			$ct = $task->getFromHit($hit);
+			$ct = CrowdTask::getFromHit($hit);
 			$ct->template = $template;
 			return $ct;
 		} catch (AMTException $e){
@@ -105,7 +104,7 @@ class ProcessController extends BaseController {
 			} else {
 				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
 				if(Input::has('qr')) 		$ct->addQualReq(Input::get('qr'));
-				if(Input::has('answerkey')) $ct->addAssRev(Input::get('anwerkey'), Input::get('arp'));
+				if(Input::has('answerkey')) $ct->addAssRevPol(Input::get('anwerkey'), Input::get('arp'));
 			}		
 		}
 
@@ -136,64 +135,20 @@ class ProcessController extends BaseController {
 	// 	return View::make('process.index')->with('page', 'process.cf.index');
 	// }
 
-	public function postSubmit(){
-		$input = Input::get();
-		$hit = new Hit;
-		$turk = new MechanicalTurkService;
-
-		// Standard fields
-		if (!empty($input ['title'])) 			 			$hit->setTitle						  	($input ['title']); 
-		if (!empty($input ['description'])) 		 		$hit->setDescription					($input ['description']); 
-		if (!empty($input ['maxassignments'])) 				$hit->setMaxAssignments		  			($input ['maxassignments']);
-		if (!empty($input ['assignmentdurationinseconds']))	$hit->setAssignmentDurationInSeconds 	($input ['assignmentdurationinseconds']);
-		if (!empty($input ['lifetimeinseconds'])) 			$hit->setLifetimeInSeconds		  		($input ['lifetimeinseconds']);
-		if (!empty($input ['reward'])) 						$hit->setReward					  		(array('Amount' => $input['reward'], 'CurrencyCode' => 'USD'));
-		if (!empty($input ['keywords'])) 					$hit->setKeywords				  		($input ['keywords']);
-		if (!empty($input ['autoapprovaldelayinseconds'])) 	$hit->setAutoApprovalDelayInSeconds  	($input ['autoapprovaldelayinseconds']); 
-
-		// QualificationRequirements
-		$qarray = array();
-		foreach($input['qr'] as $key=>$val){
-			if(array_key_exists('checked', $val)){
-				$qbuilder = array();
-				$qbuilder['QualificationTypeId'] 	= $key;
-				$qbuilder['Comparator'] 			= $val['comparator'];
-				if	($key=="00000000000000000071")  
-					$qbuilder['LocaleValue'] 		= $val['value'];
-				else							
-					$qbuilder['IntegerValue'] 		= $val['value'];
-
-				$qarray[]=$qbuilder;
-			}
-		}
-		if(count($qarray)>0) $hit->setQualificationRequirement($qarray);
-
-		//AssignmentReviewPolicy
-		$arpanswerkey = array();	
-		foreach ($input['answerkey'] as $key=>$val)
-			if($val != '') $arpanswerkey[$key]=$val;	
-
-		$arpparams = array();
-		foreach ($input['arp'] as $key=>$val)
-			if(array_key_exists('checked', $val)) $arpparams[$key]=$val[0];
-
-		if(count($arpanswerkey) > 0)
-			$hit->setAssignmentReviewPolicy(array(	'AnswerKey' => $arpanswerkey, 
-													'Parameters' => $arpparams));
-
-		// Check if all parameters are set.
-		$paramsset = true;
-		if	 (!empty($input['params'])) 					$paramsset = false; 
-		else foreach($input['params'] as $p) if($p == '') 	$paramsset = false;
-
+	public function postSubmitFinal(){
+		$ct = unserialize(Session::get('crowdtask'));
+		$hit = $ct->toHit();
+		$turk = new MechanicalTurkService(base_path() . '/public/templates/');
+		$csvfilename =base_path() . '/public/csv/test.csv'; //TODO: Set this @ selectfile. Also see below!
+				
 		// Create HIT(s)
 		try {
-			if		(!empty($input['csvfilename'])) Session::flash('flashSuccess', 'Created ' . count($turk->createBatch	($input['template'], $input['csvfilename'], $hit)) . ' HITs.');
-			elseif 	($paramsset) 				    Session::flash('flashSuccess', 'Created HIT ' .   $turk->createSingle	($input['template'], $input['params'], $hit) . '.');
-			else throw new AMTException('Provide either a CSV file or parameters.');
+			$created = ($turk->createBatch($ct->template, $csvfilename, $hit));
+			Session::flash('flashSuccess', 'Created ' . count($created) . ' HITs.');
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
-			return Redirect::to("process/finish");
 		}
+
+		return Redirect::to("process/submit");
 	}
 }

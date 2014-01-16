@@ -19,7 +19,7 @@
 							<!--<tr><th>Property</th><th>Value</th></tr>-->
 							@foreach ($crowdtask->toArray() as $key=>$val)
 								@if (is_array($val))
-								<tr><th>{{ $key }}</th><td><?php print_r($val) ?></td></tr>
+								<tr><th>{{ $key }}</th><td><pre><?php var_dump($val) ?></pre></td></tr>
 								@else
 								<tr><th>{{ $key }}</th><td>{{ $val }}</td></tr>
 								@endif
@@ -66,7 +66,7 @@
 						</fieldset>
 						
 
-						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => 'ProcessController@postSubmit', 'method' => 'POST')) }}
+						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => 'ProcessController@postSubmitFinal', 'method' => 'POST')) }}
 						@if(Session::has('flashError'))
 							{{ Form::submit('Submit', array('class' => 'btn btn-lg btn-primary pull-right', 'disabled')); }}
 						@else 

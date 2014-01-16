@@ -42,7 +42,7 @@ class MechanicalTurk {
 			
 			$this->log("Created HIT $id.");
 			return $id;
-		} catch (InvalidArgumentException $e){
+		} catch (\InvalidArgumentException $e){
 			throw new AMTException('Invalid Argument: ' . $e->getMessage(), $e->getCode(), $e);
 		}
 	
