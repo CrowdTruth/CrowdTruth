@@ -105,4 +105,6 @@
 			});
 		});
 	</script>
+
+	@yield('extra_js')
 @stop
