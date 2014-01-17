@@ -98,9 +98,10 @@ class Chang extends Moloquent {
 
 				$changDocument[$lineNumber]['filters']['commaSeparatedTerms'] =	$commaSeparatedTerms;
 
+
 				$changDocument[$lineNumber]['filters']['parenthesisBetweenTerms'] =
-				(preg_match("/\((" . $firstTerms . ")\)/", $sentenceText) || 
-				 preg_match("/\((" . $secondTerms . ")\)/", $sentenceText)) ? 1 : 0;
+				((strpos($sentenceText, "(" . $firstTerms . ")") !== false) || 
+				 (strpos($sentenceText, "(" . $firstTerms . ")") !== false)) ? 1: 0;
 
 				$firstTermsArray = explode(" ", $firstTerms);
 				$secondTermsArray = explode(" ", $secondTerms);
