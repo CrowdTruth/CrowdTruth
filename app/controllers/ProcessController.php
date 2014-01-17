@@ -15,9 +15,7 @@ class ProcessController extends BaseController {
 	}
 
 	public function getSelectfile() {
-		// Where to forget?
-		Session::forget('crowdtask');
-		return View::make('process.tabs.selectfile');
+		return View::make('process.tabs.selectfile')->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
 
 	public function getDetails() {
@@ -109,6 +107,7 @@ class ProcessController extends BaseController {
 			if (empty($ct) or ($ct->template != $template))
 				$ct = $this->newCTfromTemplate($template);		
 		} else {
+			// perhaps additional logic here depending on which tab you're on
 			if (empty($ct)){
 				$ct = new CrowdTask;
 				Session::flash('flashWarning', 'No template selected.');
