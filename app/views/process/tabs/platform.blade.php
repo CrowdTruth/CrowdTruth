@@ -82,16 +82,17 @@
 								<legend>Assignment Review Policy</legend>
 							</fieldset>
 							<label>AnswerKey</label><br>
-							<?php
-									// $arp = $crowdtask->assignmentReviewPolicy;
-									// foreach($questionids as $qid){
-									// 	$val = '';		
-									// 	if($arp)
-									// 		foreach($arp['AnswerKey'] as $q=>$v)
-									// 			if($q == $qid) $val = $v;
 
-										echo "<label class='col-xs-4'></label><div class='input-group col-xs-4'><input name='answerkey[]' value='$val' class='form-control input-sm'/></div>";
-									// }
+							<?php
+									 $arp = $crowdtask->assignmentReviewPolicy;
+									 foreach($questionids as $qid){
+									 	$val = '';		
+									 	if($arp)
+									 		foreach($arp['AnswerKey'] as $q=>$v)
+									 			if($q == $qid) $val = $v;
+
+										echo "<label class='col-xs-4'>$qid</label><div class='input-group col-xs-4'><input name='answerkey[$qid]' value='$val' class='form-control input-sm'/></div>";
+									 }
 								?>
 							<br>
 							<br>
@@ -101,12 +102,25 @@
 													'RejectReason', 'ExtendIfKnownAnswerScoreIsLessThan', 
 													'ExtendMaximumAssignments', 'ExtendMinimumTimeInSeconds'); ?>
 							@foreach($types as $type)
-								<span class='col-sm-5'>
-									{{ Form::checkbox("arp[$type][checked]", 'true', false, array('id' => $type)) }}
-									{{ Form::label($type, $type) }}
-								</span>
-									{{ Form::text("arp[$type][0]", '', array('class' => 'col-sm-4')) }}
-								<br><br>
+								@if($arp)
+									@foreach($arp['Parameters'] as $p=>$v)
+										<?php 
+										$c = false; $val = '';
+										if($p == $type){
+											$c = true;
+											$val = $v;
+											
+										} 
+										?>
+										<span class='col-sm-5'>
+											{{ Form::checkbox("arp[$type][checked]", 'true', $c, array('id' => $type)) }}
+											{{ Form::label($type, $type) }}
+										</span>
+											{{ Form::text("arp[$type][0]", $val, array('class' => 'col-sm-4')) }}
+										<br><br>
+									
+									@endforeach
+								@endif 
 							@endforeach
 						</div>
 						{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}

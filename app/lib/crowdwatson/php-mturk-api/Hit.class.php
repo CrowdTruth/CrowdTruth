@@ -104,7 +104,7 @@ class Hit {
 		if($this->Reward['Amount'] == 0) throw new InvalidArgumentException('Reward should be larger than 0.');
 		
 		if (!$this->Title || !$this->Description || !$this->Reward['Amount'] || !$this->Reward['CurrencyCode'] || !$this->LifetimeInSeconds || !$this->AssignmentDurationInSeconds)
-			throw new InvalidArgumentException("Fill out the mandatory fields: Title, Description, Reward['Amount'], Reward['CurrencyCode'], LifetimeInSeconds, AssignmentDurationInSeconds.");
+			throw new \InvalidArgumentException("Fill out the mandatory fields: Title, Description, Reward['Amount'], Reward['CurrencyCode'], LifetimeInSeconds, AssignmentDurationInSeconds.");
 
 		$data = array(
 			'Title'							=> $this->Title,
