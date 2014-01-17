@@ -59,6 +59,7 @@ class CrowdTask extends Moloquent {
 			'reward'		=> $hit->getReward()['Amount'],
 			'maxAssignments'=> $hit->getMaxAssignments(),
 			'assignmentDur'	=> $hit->getAssignmentDurationInSeconds(),
+			'lifetimeInSeconds' => $hit->getLifetimeInSeconds(),
 			/* AMT */
 			'autoApprovalDelayInSeconds' => $hit->getAutoApprovalDelayInSeconds(),
 			'qualificationRequirement'=> $hit->getQualificationRequirement(),
