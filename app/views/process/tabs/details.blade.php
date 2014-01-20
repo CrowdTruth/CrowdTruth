@@ -39,7 +39,7 @@
 								array('class' => 'col-xs-4 control-label')) }}
 
 							<div class="input-group col-xs-2">
-								{{ Form::input('number', 'maxAssignments',  $crowdtask->maxAssignments, 
+								{{ Form::input('number', 'maxAssignments',  null, 
 									array('class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
 							</div>
 							<br>
@@ -47,23 +47,10 @@
 								array('class' => 'col-xs-4 control-label')) }}
 
 							<div class="input-group col-xs-2">
-								{{ Form::input('number', 'assignmentDur',  $crowdtask->assignmentDurationInSeconds, 
+								{{ Form::input('number', 'assignmentDur',  null, 
 									array('class' => 'form-control input-sm', 'min' => '1')) }}
 							</div>
-							<br>
-							{{ Form::label('lifetimeInSeconds', 'HIT Lifetime (seconds)', 
-								array('class' => 'col-xs-4 control-label')) }}
-							<div class="input-group col-xs-2">
-								{{ Form::input('number','lifetimeInSeconds',  null, 
-									array('class' => 'form-control input-sm', 'min' => '1')) }}
-							</div>
-							<br>
-							{{ Form::label('autoApprovaldelayInSeconds', 'Auto approval delay (seconds)', 
-								array('class' => 'col-xs-4 control-label')) }}
-							<div class="input-group col-xs-2">
-							{{ Form::input('number','autoApprovalDelayInSeconds',  null, 
-								array('class' => 'form-control input-sm', 'placeholder' => '1 day = 86400', 'min' => '1')) }}
-							</div>
+
 							<br>
 							{{ Form::label('reward', 'Reward', array('class' => 'col-xs-4 control-label')) }}
 							<div class="input-group col-xs-2">
