@@ -14,6 +14,9 @@
 
 <!-- END process_nav   -->   
 @section('end_javascript')
+{{ javascript_include_tag('jstree/jstree.min.js') }}
+{{ javascript_include_tag('jstree/libs/require.js') }}
+<?= stylesheet_link_tag('jstree/style.min.css') ?>
 <script>
 $(document).ready(function(){
 	$("#processtabs > li").click(function(event){
@@ -22,6 +25,26 @@ $(document).ready(function(){
 	       $(".crowdtask").prop("action", "/process/form-part/" + $(this).prop('title')).submit();
 		}
 	});
+
+@if (isset($treejson))
+	$('#jstree').jstree({ 'core' : {
+	"theme" : {
+      "variant" : "large",
+      "icons" : "false"
+    },	
+    'data' : {{ $treejson }},
+
+} }).on('changed.jstree', function (e, data) {
+	var parent =  data.instance.get_node(data.selected).parent;
+	var self = data.instance.get_node(data.selected).id;
+	if(!(data.instance.is_parent(data.selected))){
+		$("#question").attr('src', '/templates/' +parent + '/' + self + '.html');
+		$("#template").val(parent + '/' + self);
+	}
+    //data.instance.get_node(data.selected).text
+  });
+@endif
+
 });
 
 $(window).load(function() {
@@ -31,10 +54,12 @@ $(window).load(function() {
 		
 });
 
-<?php if(isset($templatePath)){ ?>
+@if(isset($templatePath))
 	$("select[name='template']" ).change(function(){
        $("#question").attr('src', "{{ $templatePath }}"+ $( "select[name='template'] option:selected").val()+'.html');
     });
-<?php } ?>
+@endif
+
+
 </script>
 @endsection

@@ -365,7 +365,7 @@ class MechanicalTurk {
 	* @throws AMTException when the server can not be contacted or the request or response isn't in the right format. (bubbles up from getAPIResponse())
 	* @link http://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_BlockWorkerOperation.html
 	*/	
-	public function grantBounus($worker_id, $assignment_id, $reason, $amount, $çurrencyCode = 'USD') {
+	public function grantBonus($worker_id, $assignment_id, $reason, $amount, $currencyCode = 'USD') {
 		$data = array(	'WorkerId' => $worker_id,
 						'AssignmentId' => $assignment_id,
 						'Reason' => $reason,
@@ -374,7 +374,35 @@ class MechanicalTurk {
 		);
 
 		$xml = $this->getAPIResponse('GrantBonus', $data);
-		$this->log("Blocked worker $worker_id (Reason: $reason)");
+		$this->log("Granted $amount $currencyCode to $worker_id (Reason: $reason)");
+	}
+
+	
+	/**
+	* Send an e-mail message to a maximum of 100 workers.
+	* @param string $subject
+	* @param string $body
+	* @param string[] or string $worker_id
+	* @throws AMTException when the server can not be contacted or the request or response isn't in the right format. (bubbles up from getAPIResponse())
+	* @link http://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_BlockWorkerOperation.html
+	*/	
+	public function notifyWorkers($subject, $messageText, $worker_id) {
+		$data = array(	'Subject' => $subject,
+						'MessageText' => $messageText,
+		);
+
+		$count = 1;
+		if(is_array($worker_id)){
+			foreach($worker_id as $wid){
+				$data["WorkerId.$count"] = $wid;
+				$count++;
+			}
+		} else {
+			$data["WorkerId"] = $worker_id;
+		}
+		
+		$xml = $this->getAPIResponse('NotifyWorkers', $data);
+		$this->log("Sent message with subject $subject to $count worker(s).");
 	}
 
 
