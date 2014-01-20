@@ -21,10 +21,10 @@
 						@include('files.browse.layouts.breadcrumb')
 
 						<div class="row">
-						@foreach($domainTypes as $domainType)
+						@foreach($domains as $domain)
 							<div class="col-xs-4">
-								<a href="{{ URL::to('files/browse/text/' .  $domainType) }}" class="thumbnail">
-									<img src="holder.js/100%x200/CW_1/text:{{ $domainType }}" />
+								<a href="{{ URL::to('files/browse/text/' .  $domain) }}" class="thumbnail">
+									<img src="holder.js/100%x200/CW_1/text:{{ $domain }}" />
 								</a>
 							</div>
 						@endforeach

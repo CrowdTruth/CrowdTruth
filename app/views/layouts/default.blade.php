@@ -36,7 +36,7 @@
 			jqxhr.done(function(data) {
 				// alert( data );
 				// console.log('done');
-				// console.log(data);
+				console.log(data);
 				$(_this).closest('.btn-group').find('.dropdown-toggle').click();
 
 				if (href.toLowerCase().indexOf("destroy") >= 0){

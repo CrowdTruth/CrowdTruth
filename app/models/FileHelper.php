@@ -39,7 +39,7 @@ class FileHelper {
 		$this->input = $input;
 	}
 	
-	public function getFileType(){
+	public function getType(){
 		switch ($this->input['file_type']) {
 		    case 'file_type_text':
 		        return $this->fileType = 'text';
@@ -51,7 +51,7 @@ class FileHelper {
 		throw new Exception('No "Type of File" selected');
 	}
 
-	public function getDomainType(){
+	public function getDomain(){
 		switch ($this->input['domain_type']) {
 		    case 'domain_type_medical':
 		        return 'medical';

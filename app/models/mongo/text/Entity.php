@@ -37,39 +37,6 @@ class Entity extends Moloquent {
 		});
 	}
 
-	public static function getDistinctFieldinArray($field, array $conditions){
-		$distinctFieldsWithConditions = Entity::where(function($query) use ($conditions)
-	    {
-	    	foreach($conditions as $conditionKey => $conditionValue)
-	    		$query->where($conditionKey, '=', $conditionValue);
-
-	    })->distinct($field)->get();
-	//    })->distinct($field)->remember(60, 'text_' . md5(serialize($field)))->get();
-
-    	$fieldTypes = array();
-		foreach($distinctFieldsWithConditions as $distinctField)
-			array_push($fieldTypes, $distinctField[0]);
-
-		if(count($fieldTypes) > 0) {
-			sort($fieldTypes);
-			return $fieldTypes;
-		}
-			
-		return false;	    
-	}
-
-	public static function getEntitiesWithFields(array $fields){
-		$entities = Entity::where(function($query) use ($fields)
-	    {
-	    	foreach($fields as $fieldKey => $fieldValue){
-	    		$query->where($fieldKey, '=', $fieldValue);
-	    	}
-	    })->get();
-//	    })->remember(60, 'text_' . md5(serialize($fields)))->get();
-
-	    return $entities;
-	}
-
     public function wasGeneratedBy(){
     	return $this->hasOne('\mongo\text\Activity', '_id', 'activity_id');
     }

@@ -15,7 +15,7 @@
 						</div>
 						<div class='row'>
 							<div class="col-xs-8">
-							@include('files.browse.layouts.breadcrumb', array('fileType' => $entity->fileType, 'domainType' => $entity->domain, 'documentType' => $entity->documentType, 'document' => $entity))
+							@include('files.browse.layouts.breadcrumb', array('type' => $entity->type, 'domain' => $entity->domain, 'documentType' => $entity->documentType, 'document' => $entity))
 							</div>
 							<div class="col-xs-4 text-center">
 								<div class="btn-group tabButtons">
@@ -39,7 +39,7 @@
 											@if($entity->wasDerivedFrom)
 											<tr>
 												<td>Was derived from</td>
-												<td>{{ link_to('files/view/?URI=' . $entity->wasDerivedFrom->_id, $entity->wasDerivedFrom->_id) }}</td>
+												<td>{{ link_to('files/view/?' . $entity->wasDerivedFrom->_id, $entity->wasDerivedFrom->_id) }}</td>
 											</tr>
 											@endif
 											@if($entity->wasGeneratedBy)

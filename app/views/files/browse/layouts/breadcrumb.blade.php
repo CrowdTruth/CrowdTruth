@@ -3,19 +3,19 @@
 	<li {{ (Request::is('files/browse') ? 'class="active"' : '') }} >
 		{{ link_to('files/browse', "Collections") }}
 	</li>
-	@if(isset($fileType))
-	<li {{ (Request::is('files/browse/' . $fileType) ? 'class="active"' : '') }} >
-		{{ link_to('files/browse/'. $fileType, ucfirst($fileType)) }}		
+	@if(isset($type))
+	<li {{ (Request::is('files/browse/' . $type) ? 'class="active"' : '') }} >
+		{{ link_to('files/browse/'. $type, ucfirst($type)) }}		
 	</li>
 	@endif
-	@if(isset($domainType))
-	<li {{ (Request::is('files/browse/' . $fileType . '/' . $domainType) ? 'class="active"' : '') }} >
-		{{ link_to('files/browse/' . $fileType . '/' . $domainType, ucfirst($domainType)) }}		
+	@if(isset($domain))
+	<li {{ (Request::is('files/browse/' . $type . '/' . $domain) ? 'class="active"' : '') }} >
+		{{ link_to('files/browse/' . $type . '/' . $domain, ucfirst($domain)) }}		
 	</li>
 	@endif
 	@if(isset($documentType))
-	<li {{ (Request::is('files/browse/' . $fileType . '/' . $domainType. '/' . $documentType) ? 'class="active"' : '') }} >
-		{{ link_to('files/browse/' . $fileType . '/' . $domainType . '/' . $documentType, ucfirst($documentType)) }}		
+	<li {{ (Request::is('files/browse/' . $type . '/' . $domain. '/' . $documentType) ? 'class="active"' : '') }} >
+		{{ link_to('files/browse/' . $type . '/' . $domain . '/' . $documentType, ucfirst($documentType)) }}		
 	</li>
 	@endif
 	@if(isset($document))

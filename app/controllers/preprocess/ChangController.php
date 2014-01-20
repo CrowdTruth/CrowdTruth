@@ -19,10 +19,15 @@ class ChangController extends BaseController {
 			return Redirect::to('files/browse')->with('flashNotice', 'You have not added any "twrex" items to your selection yet');
 		} else {
 			$entities = array();
+			$repository = new \mongo\Repository;
+
 			foreach($items as $item){
-				if($twrexItem = \mongo\text\Entity::where('_id', $item['id'])->where('documentType', 'twrex')->first()) {
-					$twrexItem['rowid'] = $item['rowid'];
-					array_push($entities, $twrexItem);
+				if($entity = $repository->find($item['id'])) {
+					if($entity->documentType != "twrex")
+						continue;
+
+					$entity['rowid'] = $item['rowid'];
+					array_push($entities, $entity);
 				}
 					
 			}
@@ -32,22 +37,32 @@ class ChangController extends BaseController {
 	}
 
 	public function getPreview(){
-		if($URI = Input::get('URI')){
-			if($entity = \mongo\text\Entity::find($URI)){
+		if($URI = Input::all()) {
+			$repository = new \mongo\Repository;
+			if($entity = $repository->find($URI)) {
+				if($entity->documentType != "twrex")
+					continue;
+
 				$chang = new \preprocess\Chang;
 				$document = $chang->process($entity);
 				// print_r($document);
 				// exit;
 				return View::make('preprocess.chang.pages.view', array('entity' => $entity, 'lines' => $document));
 			}
+
+
 		} else {
 			return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);
 		}	
 	}
 
 	public function getProcess(){
-		if($URI = Input::get('URI')){
-			if($entity = \mongo\text\Entity::find($URI)){
+		if($URI = Input::all()) {
+			$repository = new \mongo\Repository;
+			if($entity = $repository->find($URI)) {
+				if($entity->documentType != "twrex")
+					continue;
+
 				$chang = new \preprocess\Chang;
 				$document = $chang->process($entity);
 				$chang->store($entity, $document);

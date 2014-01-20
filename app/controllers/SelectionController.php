@@ -8,8 +8,8 @@ class SelectionController extends BaseController {
 	}
 
 	public function postAdd(){
-		$documentHelper = new \mongo\DocumentHelper;
-		if($document = $documentHelper->find(Input::get('URI'))){
+		$repository = new \mongo\Repository;
+		if($document = $repository->find(Input::all())){
 			Cart::add($document->_id, $document->title, 1, 1);
 			return View::make('selection.inline_menu');
 		}
@@ -17,8 +17,8 @@ class SelectionController extends BaseController {
 	}
 
 	public function getAdd(){
-		$documentHelper = new \mongo\DocumentHelper;
-		if($document = $documentHelper->find(Input::get('URI'))){
+		$repository = new \mongo\Repository;
+		if($document = $repository->find(Input::all())){
 			Cart::add($document['_id'], $document['title'], 1, 1);
 		}
 		return Redirect::back();
@@ -80,7 +80,7 @@ class SelectionController extends BaseController {
 		}
 	}
 
-	public function returnInlineMenu(){
+	public function getInline(){
 		return View::make('selection.inline_menu');
 	}
 }

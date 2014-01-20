@@ -15,7 +15,7 @@
 								@include('files.layouts.nav')
 							</div>
 							<div class="col-xs-4 text-center">
-								<h2 class='thumbHeader'>{{$domainType}} &nbsp;<small>document-types</small></h2>
+								<h2 class='thumbHeader'>{{$domain}} &nbsp;<small>document-types</small></h2>
 							</div>
 						</div>
 						@include('files.browse.layouts.breadcrumb')
@@ -23,7 +23,7 @@
 						<div class="row">
 						@foreach($documentTypes as $documentType)
 							<div class="col-xs-4">
-								<a href="{{ URL::to('files/browse/text/' . $domainType . '/' . $documentType) }}" class="thumbnail">
+								<a href="{{ URL::to('files/browse/text/' . $domain . '/' . $documentType) }}" class="thumbnail">
 									<img src="holder.js/100%x200/CW_1/text:{{ $documentType }}" />
 								</a>
 							</div>

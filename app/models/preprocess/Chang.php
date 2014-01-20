@@ -33,7 +33,7 @@ class Chang extends Moloquent {
 				$e1 = preg_split("/\s+/", trim($matches[0][0]))[1];
 				$b2 = preg_split("/\s+/", trim($matches[0][1]))[0];
 				$e2 = preg_split("/\s+/", trim($matches[0][1]))[1];
-				$sentenceOffset = strpos($lineValue, $matches[0][1]) + strlen($matches[0][1]);
+				$sentenceOffset = stripos($lineValue, $matches[0][1]) + strlen($matches[0][1]);
 			}
 				$sentenceText = ltrim(substr($lineValue, $sentenceOffset));
 				$firstTerms = substr($sentenceText, $b1, $e1 - $b1);
@@ -58,30 +58,30 @@ class Chang extends Moloquent {
 				$relationWithoutPrefixStemmed = static::simpleStem($relationWithoutPrefix);
 
 				$changDocument[$lineNumber]['filters']['relationInSentence'] = 
-				strpos($sentenceText, $relationWithoutPrefixStemmed) ? 1 : 0;
+				stripos($sentenceText, $relationWithoutPrefixStemmed) ? 1 : 0;
 
 				if($b1 < $b2){
 					$changDocument[$lineNumber]['filters']['relationOutsideTerms'] = 
-					(strpos(substr($sentenceText, 0, $b1), $relationWithoutPrefixStemmed) ||
-					strpos(substr($sentenceText, $b2), $relationWithoutPrefixStemmed)) ? 1 : 0;
+					(stripos(substr($sentenceText, 0, $b1), $relationWithoutPrefixStemmed) ||
+					stripos(substr($sentenceText, $b2), $relationWithoutPrefixStemmed)) ? 1 : 0;
 
 					$changDocument[$lineNumber]['filters']['relationBetweenTerms'] = 
-					strpos(substr($sentenceText, $e1, $b2), $relationWithoutPrefixStemmed) ? 1 : 0;
+					stripos(substr($sentenceText, $e1, $b2), $relationWithoutPrefixStemmed) ? 1 : 0;
 
 					$changDocument[$lineNumber]['filters']['semicolonBetweenTerms'] =	
-					strpos(substr($sentenceText, $e1, $b2), ';') ? 1 : 0;
+					stripos(substr($sentenceText, $e1, $b2), ';') ? 1 : 0;
 
 					$textWithAndBetweenTerms = substr($sentenceText, $b1, $e2);
 				} else {
 					$changDocument[$lineNumber]['filters']['relationOutsideTerms'] = 
-					(strpos(substr($sentenceText, $b1), $relationWithoutPrefixStemmed) ||
-					strpos(substr($sentenceText, 0, $b2), $relationWithoutPrefixStemmed)) ? 1 : 0;
+					(stripos(substr($sentenceText, $b1), $relationWithoutPrefixStemmed) ||
+					stripos(substr($sentenceText, 0, $b2), $relationWithoutPrefixStemmed)) ? 1 : 0;
 
 					$changDocument[$lineNumber]['filters']['relationBetweenTerms'] = 
-					strpos(substr($sentenceText, $e2, $b1), $relationWithoutPrefixStemmed) ? 1 : 0;	
+					stripos(substr($sentenceText, $e2, $b1), $relationWithoutPrefixStemmed) ? 1 : 0;	
 
 					$changDocument[$lineNumber]['filters']['semicolonBetweenTerms'] =	
-					strpos(substr($sentenceText, $e2, $b1), ';') ? 1 : 0;
+					stripos(substr($sentenceText, $e2, $b1), ';') ? 1 : 0;
 
 					$textWithAndBetweenTerms = substr($sentenceText, $b2, $e1);		
 				}
@@ -100,8 +100,8 @@ class Chang extends Moloquent {
 
 
 				$changDocument[$lineNumber]['filters']['parenthesisBetweenTerms'] =
-				((strpos($sentenceText, "(" . $firstTerms . ")") !== false) || 
-				 (strpos($sentenceText, "(" . $firstTerms . ")") !== false)) ? 1: 0;
+				((stripos($sentenceText, "(" . $firstTerms . ")") !== false) || 
+				 (stripos($sentenceText, "(" . $firstTerms . ")") !== false)) ? 1: 0;
 
 				$firstTermsArray = explode(" ", $firstTerms);
 				$secondTermsArray = explode(" ", $secondTerms);
@@ -162,7 +162,7 @@ class Chang extends Moloquent {
 			$entity->_id = strtolower($entityURI);
 			$entity->title = $originalEntity->title . '/chang';
 			$entity->domain = $originalEntity->domain;
-			$entity->fileType = "text";
+			$entity->type = "text";
 			$entity->documentType = "chang";
 			$entity->parent_id = $originalEntity->_id;
 			$entity->ancestors = array($originalEntity->_id);
@@ -197,7 +197,7 @@ class Chang extends Moloquent {
 		$newEntity['appliedFilters'] = $appliedFiltersWithValues;
 
 		foreach($appliedFilters as $appliedFilterKey => $appliedFilterValue){
-			if(strpos($appliedFilterKey, 'line') !== FALSE){
+			if(stripos($appliedFilterKey, 'line') !== FALSE){
 				$lineNumber = explode("_", $appliedFilterKey)[1];
 				$lineValue = $originalEntity['content'][$lineNumber];
 				$newEntity['content'][$lineNumber] = $lineValue;
@@ -236,7 +236,7 @@ class Chang extends Moloquent {
 			$entity->_id = strtolower($entityURI);
 			$entity->title = $originalEntity->title . '_' . $URI_prefix;
 			$entity->domain = $originalEntity->domain;
-			$entity->fileType = "text";
+			$entity->type = "text";
 			$entity->documentType = "chang";
 			$entity->parent_id = $originalEntity->_id;
 			$entity->ancestors = array_merge($originalEntity->ancestors, array($originalEntity->_id));
