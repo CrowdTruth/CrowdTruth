@@ -37,7 +37,6 @@ class CrowdTask extends Moloquent {
 	public function addAssRevPol($answerkey, $arp){
 		$arpanswerkey = array();
 		if(count($answerkey)==0) return true;
-
 		foreach ($answerkey as $key=>$val)
 			if($val != '') $arpanswerkey[$key]=$val;	
 			
@@ -60,6 +59,7 @@ class CrowdTask extends Moloquent {
 			'reward'		=> $hit->getReward()['Amount'],
 			'maxAssignments'=> $hit->getMaxAssignments(),
 			'assignmentDur'	=> $hit->getAssignmentDurationInSeconds(),
+			'lifetimeInSeconds' => $hit->getLifetimeInSeconds(),
 			/* AMT */
 			'autoApprovalDelayInSeconds' => $hit->getAutoApprovalDelayInSeconds(),
 			'qualificationRequirement'=> $hit->getQualificationRequirement(),

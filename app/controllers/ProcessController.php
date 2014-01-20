@@ -25,7 +25,7 @@ class ProcessController extends BaseController {
 	public function getPlatform() {
 		$ct = unserialize(Session::get('crowdtask'));
 		$turk = new MechanicalTurkService(base_path() . '/public/templates/');
-		
+		$questionids = array();
 		try {
 			$questionids = $turk->findQuestionIds($ct->template);
 		} catch (AMTException $e) {
@@ -97,6 +97,11 @@ class ProcessController extends BaseController {
 			Session::flash('flashError', $e->getMessage());
 			return new CrowdTask;
 		}
+	}
+
+	public function getClearTask(){
+		Session::forget('crowdtask');
+		return Redirect::to("process/selectfile");
 	}
 
 	public function postFormPart($next){

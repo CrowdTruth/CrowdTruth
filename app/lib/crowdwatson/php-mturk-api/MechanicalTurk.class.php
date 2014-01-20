@@ -354,7 +354,30 @@ class MechanicalTurk {
 		$this->log("Unblocked worker $worker_id (Reason: $reason)");
 	}
 	
-	
+
+	/**
+	* Pay money from our account to a worker.
+	* @param string $worker_id
+	* @param string $assignment_id
+	* @param string $reason The worker can see this message.
+	* @param double $amount The amount in dollars we pay de workers.
+	* @param string $currencycode.
+	* @throws AMTException when the server can not be contacted or the request or response isn't in the right format. (bubbles up from getAPIResponse())
+	* @link http://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_BlockWorkerOperation.html
+	*/	
+	public function grantBounus($worker_id, $assignment_id, $reason, $amount, $çurrencyCode = 'USD') {
+		$data = array(	'WorkerId' => $worker_id,
+						'AssignmentId' => $assignment_id,
+						'Reason' => $reason,
+						'Reward.1.Amount' => $amount,
+						'Reward.1.CurrencyCode' => $currencyCode,
+		);
+
+		$xml = $this->getAPIResponse('GrantBonus', $data);
+		$this->log("Blocked worker $worker_id (Reason: $reason)");
+	}
+
+
 	/**
 	* Get statistics for the Requester.
 	* @param string $statistic ( NumberAssignmentsAvailable | NumberAssignmentsAccepted | NumberAssignmentsPending | NumberAssignmentsApproved | NumberAssignmentsRejected | 

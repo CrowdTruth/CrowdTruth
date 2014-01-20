@@ -2,7 +2,6 @@
 
 @section('content')
 
-
 <div class="col-xs-10 col-md-offset-1">
 	<div class='maincolumn CW_box_style'>
 
@@ -26,6 +25,35 @@
 						  </label>
 						</div>
 						<div id="amt-div" style="padding: 10px;">
+							<fieldset>
+								<legend>Duration</legend>
+									{{ Form::label('lifetimeInSeconds', 'HIT Lifetime (seconds)', 
+										array('class' => 'col-xs-4 control-label')) }}
+									<div class="input-group col-xs-2">
+										{{ Form::input('number','lifetimeInSeconds',  null, 
+											array('class' => 'form-control input-sm', 'min' => '1')) }}
+									</div>
+									<br>
+									{{ Form::label('autoApprovaldelayInSeconds', 'Auto approval delay (seconds)', 
+										array('class' => 'col-xs-4 control-label')) }}
+									<div class="input-group col-xs-2">
+									{{ Form::input('number','autoApprovalDelayInSeconds',  null, 
+										array('class' => 'form-control input-sm', 'placeholder' => '1 day = 86400', 'min' => '1')) }}
+									</div>
+								</fieldset>
+								<br>
+								<br>
+							<fieldset>
+							<legend>Misc.</legend>
+								{{ Form::label('requesterAnnotation', 'Requester Annotation', 
+									array('class' => 'col-xs-4 control-label')) }}
+								<div class="input-group col-xs-2">
+									{{ Form::text('requesterAnnotation',  null, 
+										array('class' => 'form-control input-sm')) }}
+								</div>
+							</fieldset>
+							<br>
+							<br>
 							<fieldset>
 								<legend>Qualification Requirements</legend>
 								<?php	$types = array(	'000000000000000000L0' => 'Assignments Approved (%)',
@@ -80,7 +108,7 @@
 							</fieldset>
 							<fieldset>
 								<legend>Assignment Review Policy</legend>
-							</fieldset>
+							
 							<label>AnswerKey</label><br>
 
 							<?php
@@ -102,27 +130,22 @@
 													'RejectReason', 'ExtendIfKnownAnswerScoreIsLessThan', 
 													'ExtendMaximumAssignments', 'ExtendMinimumTimeInSeconds'); ?>
 							@foreach($types as $type)
-								@if($arp)
-									@foreach($arp['Parameters'] as $p=>$v)
-										<?php 
-										$c = false; $val = '';
-										if($p == $type){
-											$c = true;
-											$val = $v;
-											
-										} 
-										?>
+								@if(isset($arp['Parameters'][$type]))
+									<?php $c = true; $val = $v; ?>
+								@else 
+									<?php $c = false; $val = ''; ?>		
+								@endif 
 										<span class='col-sm-5'>
 											{{ Form::checkbox("arp[$type][checked]", 'true', $c, array('id' => $type)) }}
 											{{ Form::label($type, $type) }}
 										</span>
 											{{ Form::text("arp[$type][0]", $val, array('class' => 'col-sm-4')) }}
 										<br><br>
-									
-									@endforeach
-								@endif 
 							@endforeach
-						</div>
+							</div>
+							</fieldset>
+							<br>
+							<br>
 						{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}
 						{{ Form::close()}}					
 					</div>

@@ -35,35 +35,22 @@
 						</fieldset>
 						
 						<fieldset>
-								{{ Form::label('maxassignments', 'Max assignments', 
+								{{ Form::label('maxAssignments', 'Max assignments', 
 								array('class' => 'col-xs-4 control-label')) }}
 
 							<div class="input-group col-xs-2">
-								{{ Form::input('number', 'maxassignments',  $crowdtask->maxAssignments, 
+								{{ Form::input('number', 'maxAssignments',  null, 
 									array('class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
 							</div>
 							<br>
-							{{ Form::label('assignmentdurationinseconds', 'Assignment duration (seconds)', 
+							{{ Form::label('assignmentDur', 'Assignment duration (seconds)', 
 								array('class' => 'col-xs-4 control-label')) }}
 
 							<div class="input-group col-xs-2">
-								{{ Form::input('number', 'assignmentdurationinseconds',  $crowdtask->assignmentDurationInSeconds, 
+								{{ Form::input('number', 'assignmentDur',  null, 
 									array('class' => 'form-control input-sm', 'min' => '1')) }}
 							</div>
-							<br>
-							{{ Form::label('lifetimeinseconds', 'HIT Lifetime (seconds)', 
-								array('class' => 'col-xs-4 control-label')) }}
-							<div class="input-group col-xs-2">
-								{{ Form::input('number','lifetimeinseconds',  $crowdtask->lifetimeInSeconds, 
-									array('class' => 'form-control input-sm', 'min' => '1')) }}
-							</div>
-							<br>
-							{{ Form::label('autoapprovaldelayinseconds', 'Auto approval delay (seconds)', 
-								array('class' => 'col-xs-4 control-label')) }}
-							<div class="input-group col-xs-2">
-							{{ Form::input('number','autoapprovaldelayinseconds',  $crowdtask->autoApprovalDelayInSeconds, 
-								array('class' => 'form-control input-sm', 'placeholder' => '1 day = 86400', 'min' => '1')) }}
-							</div>
+
 							<br>
 							{{ Form::label('reward', 'Reward', array('class' => 'col-xs-4 control-label')) }}
 							<div class="input-group col-xs-2">
