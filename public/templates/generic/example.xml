@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<HIT>
+	<Title>This is an example template</Title>
+	<Description>Please edit the files in the templates directory. The xml file follows the official API format.</Description>
+	<Keywords>keywords, separated, by, comma</Keywords>
+	<MaxAssignments>15</MaxAssignments>
+	<Reward>
+		<Amount>0.06</Amount>
+		<CurrencyCode>USD</CurrencyCode>
+	</Reward>
+	<AutoApprovalDelayInSeconds>172800</AutoApprovalDelayInSeconds>
+	<AssignmentDurationInSeconds>60</AssignmentDurationInSeconds>
+	<LifetimeInSeconds>604800</LifetimeInSeconds>
+	<QualificationRequirement>
+		<QualificationTypeId>00000000000000000040</QualificationTypeId>
+		<Comparator>GreaterThan</Comparator>
+		<IntegerValue>1000</IntegerValue>
+	</QualificationRequirement>
+	<QualificationRequirement>
+		<QualificationTypeId>000000000000000000L0</QualificationTypeId>
+		<Comparator>GreaterThan</Comparator>
+		<IntegerValue>85</IntegerValue>
+	</QualificationRequirement>
+	<QualificationRequirement>
+		<QualificationTypeId>00000000000000000071</QualificationTypeId>
+		<Comparator>EqualTo</Comparator>
+		<LocaleValue>
+			<Country>US</Country>
+		</LocaleValue>
+	</QualificationRequirement>
+	<AssignmentReviewPolicy>
+		<PolicyName>ScoreMyKnownAnswers/2011-09-01</PolicyName>
+		<Parameter>
+			<Key>AnswerKey</Key>
+			<MapEntry>
+				<Key>comment</Key>
+				<Value>Not much.</Value>
+			</MapEntry>
+		</Parameter>	
+		<Parameter>
+			<Key>ApproveIfKnownAnswerScoreIsAtLeast</Key>
+			<Value>79</Value>
+		 </Parameter>
+		 <Parameter>
+			<Key>ExtendIfKnownAnswerScoreIsLessThan</Key>
+			<Value>79</Value>
+		 </Parameter>
+		 <Parameter>
+			<Key>ExtendMaximumAssignments</Key>
+			<Value>3</Value>
+		</Parameter>
+ </AssignmentReviewPolicy>
+</HIT>

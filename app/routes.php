@@ -18,6 +18,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('preprocess', 'PreprocessController');
 	Route::controller('selection', 'SelectionController');
 	Route::controller('api', 'apiController');
+	Route::controller('process', 'ProcessController');
 });
 
 
