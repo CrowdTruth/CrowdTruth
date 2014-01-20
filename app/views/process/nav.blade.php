@@ -28,8 +28,16 @@ $(window).load(function() {
   		$('#amt-button').change(function () {                
      		$('#amt-div').toggle(this.checked);
   			}).change(); //ensure visible state matches initially
-		
+				
 });
+
+$(window).load(function() {
+  		$('#cf-button').change(function () {                
+     		$('#cf-div').toggle(this.checked);
+  			}).change(); //ensure visible state matches initially
+				
+});
+
 
 <?php if(isset($templatePath)){ ?>
 	$("select[name='template']" ).change(function(){
