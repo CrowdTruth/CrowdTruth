@@ -38,40 +38,34 @@ class ProcessController extends BaseController {
 	}
 
 
-	private function itDir($startpath, $currenttemplate){
-		$ritit = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($startpath)); 
-		$r = array(); 
-		$cur = '#';
-		foreach ($ritit as $splFileInfo) { 
-		 $path = null;
-		 if($splFileInfo->isDir()){
-		 		$p = $ritit->getSubIterator(0)->current()->getFilename();
-		   		if($p != '.' and $p != '..' and $cur != $p){
-		       		//$r[] = $p;
-		       		$r[] = array('id' => $p, 'parent' => '#', 'text' => $p); 
-		       		$cur = $p;
-		       	}	
-		   } else {
-				$filename = $splFileInfo->getFilename();
-		   		if (substr($filename, -5) == '.html') {
+	private function iterateDirectory($path, $currenttemplate){
+		$r = array();
+		foreach(File::directories($path) as $dir){
+			$dirname = substr($dir, strlen($path));
+		   	$prettydir = ucfirst(str_replace('_', ' ', $dirname));
+			$r[] = array('id' => $dirname, 'parent' => '#', 'text' => $prettydir); 
+			
+			foreach(File::allFiles($dir) as $file){
+				$filename = $file->getFileName();
+				if (substr($filename, -5) == '.html') {
 		   			$filename = substr($filename, 0, -5);
-		   			if("$cur/$filename" == $currenttemplate)
-		   				$r[] = array('id' => $filename, 'parent' => $cur, 'text' => $filename, 'type' => 'file', 'state' => array('selected' => 'true'));
+		   			$prettyname = ucfirst(str_replace('_', ' ', $filename));
+		   			if("$dirname/$filename" == $currenttemplate)
+		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $prettyname, 'state' => array('selected' => 'true'));
 		   			else
-		   				$r[] = array('id' => $filename, 'parent' => $cur, 'text' => $filename, 'type' => 'file');
+		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $prettyname);
 		   		}	
-		   }
-		 }
-		 return json_encode($r);
+			}
+		}
+		return json_encode($r);
 	}
 
-
 	public function getTemplate() {
-		// Create array for the select
+		// Create array for the tree
 		$crowdtask = unserialize(Session::get('crowdtask'));		
 		$currenttemplate = (isset($crowdtask->template) ? $crowdtask->template : 'generic/default');
 		$path = base_path() . '/public/templates/';
-		$treejson = $this->itDir($path, $currenttemplate);
+		$treejson = $this->iterateDirectory($path, $currenttemplate);
 
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
