@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<HIT>
+	<Title>Select pairs of WORD PHRASES that together form a medical RELATION.</Title>
+	<Description>Read the SENTENCE and highlight ALL the pairs of WORD PHRASES that together form a given medical RELATION. To highlight more than one PAIRS, use the "+" button for each next one.</Description>
+	<Keywords>medical relations, medical text, word phrase extraction</Keywords>
+	<MaxAssignments>15</MaxAssignments>
+	<Reward>
+		<Amount>0.03</Amount>
+		<CurrencyCode>USD</CurrencyCode>
+	</Reward>
+	<AutoApprovalDelayInSeconds>172800</AutoApprovalDelayInSeconds>
+	<AssignmentDurationInSeconds>60</AssignmentDurationInSeconds>
+	<LifetimeInSeconds>604800</LifetimeInSeconds>
+	<QualificationRequirement>
+		<QualificationTypeId>00000000000000000040</QualificationTypeId>
+		<Comparator>GreaterThan</Comparator>
+		<IntegerValue>1000</IntegerValue>
+	</QualificationRequirement>
+	<QualificationRequirement>
+		<QualificationTypeId>000000000000000000L0</QualificationTypeId>
+		<Comparator>GreaterThan</Comparator>
+		<IntegerValue>85</IntegerValue>
+	</QualificationRequirement>
+</HIT>

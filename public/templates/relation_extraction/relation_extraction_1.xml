@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<HIT>
+	<Title>Choose the valid RELATION(s) between the TERMS in the SENTENCE</Title>
+	<Description>Read a medical SENTENCE and select all the RELATION TYPE(s) that you think are expressed between the TWO HIGHLIGHTED WORDS in the text.</Description>
+	<Keywords>medical relations, medical text,relation extraction,relation annotation</Keywords>
+	<MaxAssignments>15</MaxAssignments>
+	<Reward>
+		<Amount>0.04</Amount>
+		<CurrencyCode>USD</CurrencyCode>
+	</Reward>
+	<AutoApprovalDelayInSeconds>172800</AutoApprovalDelayInSeconds>
+	<AssignmentDurationInSeconds>240</AssignmentDurationInSeconds>
+	<LifetimeInSeconds>604800</LifetimeInSeconds>
+	<QualificationRequirement>
+		<QualificationTypeId>00000000000000000040</QualificationTypeId>
+		<Comparator>GreaterThanOrEqualTo</Comparator>
+		<IntegerValue>1000</IntegerValue>
+	</QualificationRequirement>
+	<QualificationRequirement>
+		<QualificationTypeId>000000000000000000L0</QualificationTypeId>
+		<Comparator>GreaterThan</Comparator>
+		<IntegerValue>90</IntegerValue>
+	</QualificationRequirement>
+</HIT>
