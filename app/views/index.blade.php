@@ -1,7 +1,6 @@
 @extends('layouts.default')
 
 @section('content')
-
 			<!-- START /index --> 			
 			<div class="col-xs-8 col-md-offset-2">
 				<div class='maincolumn CW_box_style'>
@@ -10,7 +9,6 @@
 					<div class="page-header text-center" style="margin:10px;">
 						<h2>Hi {{ Auth::user()->firstname }}! <small> Welcome to the Crowd-Watson framework </small> </h2>
 					</div>
-
 
 					<div style='padding:10px 30px 20px 10px; text-align:center;'>
 					Post any issues you may find in either Google Docs or Github (Links below).

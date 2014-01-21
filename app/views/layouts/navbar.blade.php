@@ -29,7 +29,7 @@
 							</ul>
 						</li>
 					</ul>
-					@include('layouts.selection_user')
+					@include('layouts.dynamic_selection_user')
 				</div><!--/.nav-collapse -->
 			</div>
 		</div>

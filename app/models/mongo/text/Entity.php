@@ -2,7 +2,7 @@
 
 namespace mongo\text;
 
-use Moloquent, Schema;
+use Moloquent, Schema, Cache;
 
 class Entity extends Moloquent {
 
@@ -11,13 +11,29 @@ class Entity extends Moloquent {
 	protected $softDelete = true;
 	protected static $unguarded = true;
 
+    public static function boot()
+    {
+        parent::boot();
+        static::saved(function($entity)
+        {
+            Cache::flush();
+        });
+
+        static::deleted(function($entity)
+        {
+            Cache::flush();
+        });
+    }
+
 	public static function createSchema(){
 		Schema::connection('mongodb_text')->create('entities', function($collection)
 		{
 		    $collection->index('domain');
-		    $collection->index('type');
+		    $collection->index('documentType');
+		    $collection->index('parent_id');		    
 		    $collection->index('activity_id');
-		    $collection->index('user_id');		    
+		    $collection->index('user_id');
+		    $collection->index('ancestors');
 		});
 	}
 
@@ -26,7 +42,7 @@ class Entity extends Moloquent {
     }
 
     public function wasDerivedFrom(){
-    	return $this->hasOne('\mongo\text\Entity', '_id', 'parent');
+    	return $this->hasOne('\mongo\text\Entity', '_id', 'parent_id');
     }
 
     public function wasAttributedTo(){

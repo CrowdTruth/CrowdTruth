@@ -114,8 +114,8 @@ return array(
 	|	'cache' => new Assetic\Cache\FilesystemCache(storage_path() . '/cache/asset-pipeline'),
 	|
 	*/
-	//'cache' => new Codesleeve\AssetPipeline\Filters\FilesNotCached,
-	'cache' => new Assetic\Cache\FilesystemCache(storage_path() . '/cache/asset-pipeline'),
+	 'cache' => new Codesleeve\AssetPipeline\Filters\FilesNotCached,
+	//'cache' => new Assetic\Cache\FilesystemCache(storage_path() . '/cache/asset-pipeline'),
 	/*
 	|--------------------------------------------------------------------------
 	| concat
@@ -190,5 +190,6 @@ return array(
 	| what is actually going on here.
 	|
 	*/
-	'controller_action' => '\Codesleeve\AssetPipeline\AssetPipelineController@file'
+	 'controller_action' => '\Codesleeve\AssetPipeline\AssetPipelineController@file'
+	//'controller_action' => 'CustomAssetPipelineController@file'
 );

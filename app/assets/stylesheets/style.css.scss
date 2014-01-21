@@ -95,27 +95,29 @@ table .btn-group {
 
 .maincolumn tbody td {
 	vertical-align: middle !important;
-	padding-left:10px !important;
 }
 
-.selectionPopover {
-	max-width:400px;
-	padding:0;
+.selectionPopover, .changFiltersPopover {
+	max-width:none;
+	padding:5;
 	margin:0;
 
 	.popover-content {
-		margin:0;
+		margin:8px 6px;
 		padding:0;
 	}
 
 	.menu_selection {
 		width:350px;
-		padding:10px 8px;
 	}
 
 	.panel, table {
 		margin:0;
 	}
+
+	td {
+		vertical-align:middle !important;
+	}	
 }
 
 .documentOptions {
@@ -153,4 +155,48 @@ hr.message-inner-separator
 
 .tab-content {
 	min-height:300px;
+}
+
+.tab {
+	margin-bottom:5px;
+}
+
+.table-responsive {
+	.tablesorter-header {
+		border:none !important;
+	}
+
+	.tablesorter-filter-row td {
+	}
+}
+
+tr.tablesorter-filter-row input.disabled {
+    display: none;
+}
+
+.changContent {
+	th,
+	td:not(.sentence) {
+		min-width:40px;
+		text-align:center;
+	}
+
+	.changFilters {
+		display:none;
+		max-width:0px !important;
+	}
+}
+
+.changFiltersControls {
+	td {
+		vertical-align: middle;
+	}
+}
+
+.changSubmit {
+	display:none;
+}
+
+.dropdown-menu {
+	text-align:left;
 }

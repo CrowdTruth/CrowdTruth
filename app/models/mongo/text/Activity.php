@@ -15,7 +15,8 @@ class Activity extends Moloquent {
 		Schema::connection('mongodb_text')->create('activities', function($collection)
 		{
 		    $collection->index('type');
-		    $collection->index('user_id');		    
+		    $collection->index('user_id');
+		    $collection->index('software_id');
 		});
 	}
 
@@ -24,6 +25,6 @@ class Activity extends Moloquent {
     }
 
     public function used(){
-    	return $this->hasOne('\mongo\text\Entity', 'activity_id', '_id');
+    	return $this->hasOne('\mongo\text\Entity', '_id', 'entity_used_id');
     }
 }
