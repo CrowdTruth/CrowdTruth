@@ -6,7 +6,6 @@
 							<li{{ (Request::segment(2) == 'details' ? ' class="active"' : '') }} title='details'>{{ link_to('process/details', "Job Details") }}</li>
 							<li{{ (Request::segment(2) == 'platform' ? ' class="active"' : '') }} title='platform'>{{ link_to('process/platform', "Platform") }}</li>
 							<li{{ (Request::segment(2) == 'submit' ? ' class="active"' : '') }} title='submit'>{{ link_to('process/submit', "Submit") }}</li>
-							<li{{ (Request::segment(2) == 'amt' ? ' class="active"' : '') }} title='amt'>{{ link_to('process/amt', "AMT") }}</li>
 							<a href='/process/clear-task' class="btn btn-danger pull-right">Reset form</a></li>
 
 						</ul>
@@ -37,7 +36,6 @@ $(window).load(function() {
   			}).change(); //ensure visible state matches initially
 				
 });
-
 
 <?php if(isset($templatePath)){ ?>
 	$("select[name='template']" ).change(function(){

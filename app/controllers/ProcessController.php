@@ -129,23 +129,23 @@ class ProcessController extends BaseController {
 
 	}
 
-	public function getAmt($template='default') {
-		$hit = new Hit();
-		$questionids= array();
-		try {
-			$turk = new MechanicalTurkService(base_path() . '/public/templates/');
-			$hit = $turk->hitFromTemplate($template);
-			$questionids = $turk->findQuestionIds($template);
-		} catch (AMTException $e) {
-			Session::flash('flashError', $e->getMessage());
-		}
+	// public function getAmt($template='default') {
+	// 	$hit = new Hit();
+	// 	$questionids= array();
+	// 	try {
+	// 		$turk = new MechanicalTurkService(base_path() . '/public/templates/');
+	// 		$hit = $turk->hitFromTemplate($template);
+	// 		$questionids = $turk->findQuestionIds($template);
+	// 	} catch (AMTException $e) {
+	// 		Session::flash('flashError', $e->getMessage());
+	// 	}
 		
-		return View::make('process.tabs.amt')
-			->with('hit', $hit)
-			->with('template', $template)
-			->with('questionids', $questionids)
-			->with('crowdtask', unserialize(Session::get('crowdtask')));
-	}
+	// 	return View::make('process.tabs.amt')
+	// 		->with('hit', $hit)
+	// 		->with('template', $template)
+	// 		->with('questionids', $questionids)
+	// 		->with('crowdtask', unserialize(Session::get('crowdtask')));
+	// }
 
 	// public function getCf(){
 	// 	return View::make('process.index')->with('page', 'process.cf.index');
