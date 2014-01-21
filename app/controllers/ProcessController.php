@@ -38,30 +38,43 @@ class ProcessController extends BaseController {
 	}
 
 
-	// public function getSubmit() {
-	// 	return View::make('process.tabs.submit')->with('crowdtask', unserialize(Session::get('crowdtask')));
-	// }
+	private function itDir($startpath, $currenttemplate){
+		$ritit = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($startpath)); 
+		$r = array(); 
+		$cur = '#';
+		foreach ($ritit as $splFileInfo) { 
+		 $path = null;
+		 if($splFileInfo->isDir()){
+		 		$p = $ritit->getSubIterator(0)->current()->getFilename();
+		   		if($p != '.' and $p != '..' and $cur != $p){
+		       		//$r[] = $p;
+		       		$r[] = array('id' => $p, 'parent' => '#', 'text' => $p); 
+		       		$cur = $p;
+		       	}	
+		   } else {
+				$filename = $splFileInfo->getFilename();
+		   		if (substr($filename, -5) == '.html') {
+		   			$filename = substr($filename, 0, -5);
+		   			if("$cur/$filename" == $currenttemplate)
+		   				$r[] = array('id' => $filename, 'parent' => $cur, 'text' => $filename, 'type' => 'file', 'state' => array('selected' => 'true'));
+		   			else
+		   				$r[] = array('id' => $filename, 'parent' => $cur, 'text' => $filename, 'type' => 'file');
+		   		}	
+		   }
+		 }
+		 return json_encode($r);
+	}
+
 
 	public function getTemplate() {
 		// Create array for the select
 		$crowdtask = unserialize(Session::get('crowdtask'));		
-		$templatePath = '/templates/';
-		$currenttemplate = (isset($crowdtask->template) ? $crowdtask->template : 'default');
-
-		$filesystempath = base_path() . '/public/' . $templatePath;
-		$files = glob($filesystempath . '*.{html}', GLOB_BRACE);
-		$templates = array();
-
-		foreach($files as $file) {
-			$file = str_replace($filesystempath, '', $file);
-			$file = str_replace('.html', '', $file);
-			$prettyname = ucfirst(str_replace('_', ' ', $file));
-			$templates[$file] = $prettyname;
-		}
+		$currenttemplate = (isset($crowdtask->template) ? $crowdtask->template : 'generic/default');
+		$path = base_path() . '/public/templates/';
+		$treejson = $this->itDir($path, $currenttemplate);
 
 		return View::make('process.tabs.template')
-			->with('templatePath', $templatePath)
-			->with('templates', $templates)
+			->with('treejson', $treejson)
 			->with('currenttemplate', $currenttemplate)
 			->with('crowdtask', $crowdtask);
 	}

@@ -16,10 +16,15 @@
 					</div>
 					<div class="panel-body">
 						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
+			  
+						<div id="jstree"></div>
 						<fieldset>	
-							{{ Form::select('template', $templates) }}
+							<style type="text/css">
+							 .jstree li > a > .jstree-icon {  display:none !important; } 
+							</style>
+							{{ Form::hidden('template', $currenttemplate, array('id' => 'template')) }}
 							<br><br>
-							<iframe id ="question" src="{{ $templatePath}}{{ $currenttemplate }}.html" width="720" height="400" seemless></iframe>
+							<iframe id ="question" src="/templates/{{ $currenttemplate }}.html" width="720" height="400" seemless></iframe>
 						</fieldset>
 						<br>
 						<br>
