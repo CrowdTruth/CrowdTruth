@@ -6,7 +6,7 @@ use crowdwatson\Hit;
 class CrowdTask extends Moloquent {
 	//protected $fillable = array('title', 'description', 'keywords', 'template', 'reward', 'maxAssignments', 'assignmentDur');
     protected $fillable = array('title', 'description', 'keywords', 'template', 'reward', 'maxAssignments', 'assignmentDur', 
-    	'autoApprovalDelayInSeconds', 'qualificationRequirement', 'requesterAnnotation' ,'assignmentReviewPolicy', 'lifetimeInSeconds');
+    	'autoApprovalDelayInSeconds', 'qualificationRequirement', 'requesterAnnotation' ,'assignmentReviewPolicy', 'lifetimeInSeconds', 'tasksPerAssignment');
 
 
 	public static $rules = array(
@@ -49,9 +49,8 @@ class CrowdTask extends Moloquent {
 													'Parameters' => $arpparams);
 	}
 
-
+	// TODO: now we use the hitxml format for templating. There should be a more generic system.
 	public static function getFromHit($hit){
-
 		return new CrowdTask(array(
 			'title' 		=> $hit->getTitle(),
 			'description' 	=> $hit->getDescription(),
@@ -60,6 +59,8 @@ class CrowdTask extends Moloquent {
 			'maxAssignments'=> $hit->getMaxAssignments(),
 			'assignmentDur'	=> $hit->getAssignmentDurationInSeconds(),
 			'lifetimeInSeconds' => $hit->getLifetimeInSeconds(),
+			'tasksPerAssignment' => 1, // TODO add this to templating system
+
 			/* AMT */
 			'autoApprovalDelayInSeconds' => $hit->getAutoApprovalDelayInSeconds(),
 			'qualificationRequirement'=> $hit->getQualificationRequirement(),

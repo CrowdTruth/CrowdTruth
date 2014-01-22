@@ -44,7 +44,7 @@ class ProcessController extends BaseController {
 			$dirname = substr($dir, strlen($path));
 		   	$prettydir = ucfirst(str_replace('_', ' ', $dirname));
 			$r[] = array('id' => $dirname, 'parent' => '#', 'text' => $prettydir); 
-			
+
 			foreach(File::allFiles($dir) as $file){
 				$filename = $file->getFileName();
 				if (substr($filename, -5) == '.html') {
@@ -153,9 +153,6 @@ class ProcessController extends BaseController {
 			->with('crowdtask', unserialize(Session::get('crowdtask')));
 	}
 
-	// public function getCf(){
-	// 	return View::make('process.index')->with('page', 'process.cf.index');
-	// }
 
 	public function postSubmitFinal(){
 		$ct = unserialize(Session::get('crowdtask'));
@@ -165,7 +162,10 @@ class ProcessController extends BaseController {
 				
 		// Create HIT(s)
 		try {
-			$created = ($turk->createBatch($ct->template, $csvfilename, $hit));
+			if(isset($ct->tasksPerAssignment) and $ct->tasksPerAssignment > 1)
+				$created = ($turk->createBatch($ct->template, $csvfilename, $hit, $ct->tasksPerAssignment));
+			else
+				$created = ($turk->createBatch($ct->template, $csvfilename, $hit));
 			Session::flash('flashSuccess', 'Created ' . count($created) . ' HITs.');
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());

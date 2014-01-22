@@ -9,10 +9,9 @@
 */
 
 namespace crowdwatson;
-
+	
 require_once(dirname(__FILE__) . '/php-mturk-api/MechanicalTurk.class.php');
 require_once(dirname(__FILE__) . '/simple_html_dom/simple_html_dom.php');
-//use  Sunra\PhpSimple\HtmlDomParser;
 
 class MechanicalTurkService{
 
@@ -30,21 +29,34 @@ class MechanicalTurkService{
 	* @param string $templateName The name of the html and xml template files in the templates directory.
 	* @param string $csvFileName Comma separated parameters to fill the template with.
 	* @param Hit $templateHit Optional. Used instead of the xml template. We still need the templateName for the question.
+	* @param int $assignmentsPerHit Optional. If set, divides the CSV file up into chunks and posts multipage HIT's
 	* @return string[] the HITIds of the created HITs.
-	* @throws AMTException when one of the files does not exist, or when the parameters and template don't match.
+	* @throws AMTException when one of the files does not exist, or when the parameters and template don't match. Also when
+	* you attempted to create a multipage hit with the wrong parameters.
 	*/
-	public function createBatch($templateName, $csvFilename, $templateHit = null){
+	public function createBatch($templateName, $csvFilename, $templateHit = null, $assignmentsPerHit = 1){
 			$paramsArray = $this->csv_to_array($csvFilename);
 			if(isset($templateHit)) $hit = $templateHit;
 			else $hit = $this->hitFromTemplate($templateName);
 			
-			$created = array();			
-			foreach($paramsArray as $params){
-				$hit->setQuestion($this->questionFromHTML($templateName, $params));
-				$id = $this->mturk->createHIT($hit); 
-				$created[] = $id;
+			$created = array();	
+
+			if($assignmentsPerHit == 1){		
+				foreach($paramsArray as $params){
+					$hit->setQuestion($this->questionFromHTML($templateName, $params));
+					$id = $this->mturk->createHIT($hit); 
+					$created[] = $id;
+				}
+			} else {
+				$chunks = array_chunk($paramsArray, $assignmentsPerHit);
+					
+				foreach ($chunks as $chunk){
+					$hit->setQuestion($this->multipageQuestionFromHTML($templateName, $chunk));
+					$id = $this->mturk->createHIT($hit); 
+					$created[] = $id;
+				}
 			}
-			
+		
 			return $created;
 	}
 	
@@ -172,7 +184,80 @@ class MechanicalTurkService{
 		return new Hit($hitxml);
 	}
 	
+	/**
+	* Create the Question for an AMT multipage HIT
+	*/
+	private function multipageQuestionFromHTML($templateName, $paramsArray, $frameheight = 650){
+		$filename = "{$this->templatePath}$templateName.html";
+		if(!file_exists($filename) || !is_readable($filename))
+			throw new AMTException('HTML template file does not exist or is not readable.');
+
+		// Read the file, extract the juice and check if the format is correct.
+		$dom = file_get_html($filename);
+		if(!$div = $dom->find('div[id=wizard]', 0))
+			throw new AMTException('Multipage template has no div with id \'wizard\'. View the readme in the templates directory for more info.');
+		
+		if(!$div->find('h1', 0))
+			throw new AMTException('Multipage template has no <h1>. View the readme in the templates directory for more info.');
+		
+		$questiontemplate = $div->innertext;
+		if(!strpos($questiontemplate, '{x}'))
+			throw new AMTException('Multipage template has no \'{x}\'. View the readme in the templates directory for more info.');
+
+		$questionsbuilder = '';
+		$count = 0;
+		foreach ($paramsArray as $params) {
+			$tempquestiontemplate = str_replace('{x}', $count, $questiontemplate);
+
+			foreach ($params as $key=>$val)	{	
+				$param = '${' . $key . '}';
+				
+				if (strpos($tempquestiontemplate, $param) === false)
+					throw new AMTException('Not all given parameters are in the HTML template.');
+				
+				$tempquestiontemplate = str_replace($param, $val, $tempquestiontemplate);
+			}
+
+			$questionsbuilder .= $tempquestiontemplate;
+			$count++;			
+		}
+
+		$dom->find('div[id=wizard]', 0)->innertext = $questionsbuilder;
+		$html = $dom->save();
+
+		return $this->makeQuestion($html, $frameheight);
+	}
 	
+	/**
+	* Convert the HTML form a template (with parameters injected) to a proper AMT Question.
+	* @param string $html 
+	* @return string AMT HTMLQuestion.
+	*/
+	private function makeQuestion($html, $frameheight = 650){
+		return "<?xml version='1.0' ?>
+			<HTMLQuestion xmlns='http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd'>
+			  <HTMLContent><![CDATA[
+				<!DOCTYPE html>
+				<html>
+				 <head>
+				  <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
+				  <script type='text/javascript' src='https://s3.amazonaws.com/mturk-public/externalHIT_v1.js'></script>
+				 </head>
+				 <body>
+				  <form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit'>
+				  <input type='hidden' value='' name='assignmentId' id='assignmentId'/>
+					$html
+				  <p><input type='submit' id='submitButton' value='Submit' /></p></form>
+				  <script language='Javascript'>turkSetAssignmentID();</script>
+				 </body>
+				</html>
+			]]>
+			  </HTMLContent>
+			  <FrameHeight>$frameheight</FrameHeight>
+			</HTMLQuestion>
+		";
+	}
+
 	/**
 	* Fill a HTML Question template with an associative array of parameters. 
 	* @param string $templateName The name of the html and xml template files in the templates directory (without extension).
@@ -181,7 +266,7 @@ class MechanicalTurkService{
 	* @return string an HTMLQuestion, ready to be added to a Hit object and sent to AMT.
 	* @throws AMTException when the file is not readable or the template and params don't match.
 	*/
-	private function questionFromHTML($templateName, $params, $frameheight = 600){
+	private function questionFromHTML($templateName, $params, $frameheight = 650){
 		$filename = "{$this->templatePath}$templateName.html";
 		
 		if(!file_exists($filename) || !is_readable($filename))
@@ -200,30 +285,7 @@ class MechanicalTurkService{
 		if(preg_match('#\$\{[A-Za-z0-9_.]*\}#', $template) == 1) // ${...}
 			throw new AMTException('HTML contains parameters that are not given.');
 	
-		$question = "<?xml version='1.0' ?>
-			<HTMLQuestion xmlns='http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd'>
-			  <HTMLContent><![CDATA[
-				<!DOCTYPE html>
-				<html>
-				 <head>
-				  <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
-				  <script type='text/javascript' src='https://s3.amazonaws.com/mturk-public/externalHIT_v1.js'></script>
-				 </head>
-				 <body>
-				  <form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit'>
-				  <input type='hidden' value='' name='assignmentId' id='assignmentId'/>
-					$template
-				  <p><input type='submit' id='submitButton' value='Submit' /></p></form>
-				  <script language='Javascript'>turkSetAssignmentID();</script>
-				 </body>
-				</html>
-			]]>
-			  </HTMLContent>
-			  <FrameHeight>$frameheight</FrameHeight>
-			</HTMLQuestion>
-		";
-
-		return $question;
+		return $this->makeQuestion($template, $frameheight);
 	}
 
 	/**

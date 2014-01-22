@@ -8,7 +8,7 @@
 	    "codesleeve/asset-pipeline": "dev-master",
         "jenssegers/mongodb": "*",
 		"gloudemans/shoppingcart": "dev-master",
-		"way/generators": "dev-master"
+		"way/generators": "dev-master",
 	},
 	"autoload": {
 		"classmap": [
