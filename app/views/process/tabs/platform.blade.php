@@ -17,16 +17,25 @@
 						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'submit'), 'method' => 'POST'))}}
 						<div data-toggle="buttons">
 							<label>Select the platform you want to send your job to:</label>	
-						  <label class="btn btn-primary active">
-						    {{ Form::checkbox('amt', 'false', true, array('id' => 'amt-button') )}} Mechanical Turk
-						  </label>
-						  <label class="btn btn-primary">
-						   	{{ Form::checkbox('cf', 'false')}} Crowdflower
-						  </label>
+						  	<label class="btn btn-primary">
+						   		{{ Form::checkbox('cf', 'false', false, array('id' => 'cf-button') )}} Crowdflower
+						  	</label>
+						  	<label class="btn btn-primary">
+						    	{{ Form::checkbox('amt', 'false', false, array('id' => 'amt-button') )}} Mechanical Turk
+						  	</label>
+						</div>
+						<div id="cf-div" style="padding: 10px;">
+							<fieldset>
+								<legend>CrowdFlower</legend> 
+								{{ Form::label('maxJudgmentsPerWorker', 'Maximal judgments per worker', array('class'=>'col-xs-4 control-label')) }}
+								<div class="input-group col-xs-2">
+									{{ Form::input('number', 'maxJudgmentsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1')) }}
+								</div>
+							</fieldset><br>	
 						</div>
 						<div id="amt-div" style="padding: 10px;">
 							<fieldset>
-								<legend>Duration</legend>
+								<legend>AMT Duration</legend>
 									{{ Form::label('lifetimeInSeconds', 'HIT Lifetime (seconds)', 
 										array('class' => 'col-xs-4 control-label')) }}
 									<div class="input-group col-xs-2">
@@ -44,7 +53,7 @@
 								<br>
 								<br>
 							<fieldset>
-							<legend>Misc.</legend>
+								<legend>AMT Misc.</legend>
 								{{ Form::label('requesterAnnotation', 'Requester Annotation', 
 									array('class' => 'col-xs-4 control-label')) }}
 								<div class="input-group col-xs-2">
@@ -55,7 +64,7 @@
 							<br>
 							<br>
 							<fieldset>
-								<legend>Qualification Requirements</legend>
+								<legend>AMT Qualification Requirements</legend>
 								<?php	$types = array(	'000000000000000000L0' => 'Assignments Approved (%)',
 														'00000000000000000040' => 'Number of HITs Approved',
 														'00000000000000000071' => 'Locale',
@@ -107,7 +116,7 @@
 								</div>
 							</fieldset>
 							<fieldset>
-								<legend>Assignment Review Policy</legend>
+								<legend>AMT Assignment Review Policy</legend>
 							
 							<label>AnswerKey</label><br>
 							@if (count($csvfields)>0)

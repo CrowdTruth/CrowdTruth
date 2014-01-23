@@ -133,6 +133,7 @@ class ProcessController extends BaseController {
 				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
 				if(Input::has('qr')) $ct->addQualReq(Input::get('qr'));
 				if(Input::has('arp')) $ct->addAssRevPol(Input::get('answerkey'), Input::get('arp'));
+
 			}		
 		}
 

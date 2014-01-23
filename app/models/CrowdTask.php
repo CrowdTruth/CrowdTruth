@@ -9,8 +9,7 @@ class CrowdTask extends Moloquent {
     	'autoApprovalDelayInSeconds', 'qualificationRequirement', 'requesterAnnotation' ,'assignmentReviewPolicy', 'answerfield',
     	'lifetimeInSeconds', 'tasksPerAssignment', 'csv');
 
-
-	public static $rules = array(
+    public static $rules = array(
 	  'title' => 'required',
 	  'description' => 'required',
 	  'reward' => 'required|numeric',
