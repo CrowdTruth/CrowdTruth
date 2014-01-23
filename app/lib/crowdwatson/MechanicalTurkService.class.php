@@ -73,8 +73,8 @@ class MechanicalTurkService{
 			$basequestion = $question;
 			foreach ($params as $key=>$val)	{
 				$param = '${' . $key . '}';
-				if (strpos($question, $param) === false)
-					throw new AMTException('Not all given parameters are in the HTML template.');
+				/*if (strpos($question, $param) === false)
+					throw new AMTException('Not all given parameters are in the HTML template.');*/
 				$basequestion = str_replace($param, $val, $basequestion);
 			}
 			$questions[] = $basequestion;
@@ -212,8 +212,8 @@ class MechanicalTurkService{
 			foreach ($params as $key=>$val)	{	
 				$param = '${' . $key . '}';
 				
-				if (strpos($tempquestiontemplate, $param) === false)
-					throw new AMTException('Not all given parameters are in the HTML template.');
+			/*	if (strpos($tempquestiontemplate, $param) === false)
+					throw new AMTException('Not all given parameters are in the HTML template.');*/
 				
 				$tempquestiontemplate = str_replace($param, $val, $tempquestiontemplate);
 			}
@@ -276,8 +276,8 @@ class MechanicalTurkService{
 		foreach ($params as $key=>$val)	{	
 			$param = '${' . $key . '}';
 			
-			if (strpos($template, $param) === false)
-				throw new AMTException('Not all given parameters are in the HTML template.');
+			/*if (strpos($template, $param) === false)
+				throw new AMTException('Not all given parameters are in the HTML template.');*/
 			
 			$template = str_replace($param, $val, $template);
 		}

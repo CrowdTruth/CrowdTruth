@@ -6,7 +6,8 @@ use crowdwatson\Hit;
 class CrowdTask extends Moloquent {
 	//protected $fillable = array('title', 'description', 'keywords', 'template', 'reward', 'maxAssignments', 'assignmentDur');
     protected $fillable = array('title', 'description', 'keywords', 'template', 'reward', 'maxAssignments', 'assignmentDur', 
-    	'autoApprovalDelayInSeconds', 'qualificationRequirement', 'requesterAnnotation' ,'assignmentReviewPolicy', 'lifetimeInSeconds', 'tasksPerAssignment');
+    	'autoApprovalDelayInSeconds', 'qualificationRequirement', 'requesterAnnotation' ,'assignmentReviewPolicy', 
+    	'lifetimeInSeconds', 'tasksPerAssignment', 'csv');
 
 
 	public static $rules = array(
@@ -31,7 +32,7 @@ class CrowdTask extends Moloquent {
 				$qarray[]=$qbuilder;
 			}
 		}
-		if(count($qarray)>0) $this->qualificationRequirement = $qarray;
+		$this->qualificationRequirement = $qarray;
 	}
 
 	public function addAssRevPol($answerkey, $arp){
@@ -44,9 +45,8 @@ class CrowdTask extends Moloquent {
 		foreach ($arp as $key=>$val)
 			if(array_key_exists('checked', $val)) $arpparams[$key]=$val[0];
 				
-		if(count($arpanswerkey) > 0)
-			$this->assignmentReviewPolicy = array(	'AnswerKey' => $arpanswerkey, 
-													'Parameters' => $arpparams);
+		$this->assignmentReviewPolicy = array(	'AnswerKey' => $arpanswerkey, 
+												'Parameters' => $arpparams);
 	}
 
 	// TODO: now we use the hitxml format for templating. There should be a more generic system.
