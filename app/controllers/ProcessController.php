@@ -26,15 +26,21 @@ class ProcessController extends BaseController {
 		$ct = unserialize(Session::get('crowdtask'));
 		$turk = new MechanicalTurkService(base_path() . '/public/templates/');
 		$questionids = array();
+		$csvfields = array();
+
 		try {
 			$questionids = $turk->findQuestionIds($ct->template);
+			if($ct->tasksPerAssignment > 1)
+				foreach (array_keys($turk->csv_to_array($ct->csv)[0]) as $key)
+					$csvfields[$key] = $key;
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
 		} 
 		
 		return View::make('process.tabs.platform')
 			->with('crowdtask', $ct)
-			->with('questionids', $questionids);
+			->with('questionids', $questionids)
+			->with('csvfields', $csvfields);
 	}
 
 
@@ -126,7 +132,7 @@ class ProcessController extends BaseController {
 			} else {
 				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
 				if(Input::has('qr')) $ct->addQualReq(Input::get('qr'));
-				if(Input::has('answerkey')) $ct->addAssRevPol(Input::get('answerkey'), Input::get('arp'));
+				if(Input::has('arp')) $ct->addAssRevPol(Input::get('answerkey'), Input::get('arp'));
 			}		
 		}
 
@@ -146,7 +152,7 @@ class ProcessController extends BaseController {
 		// Create HIT(s)
 		try {
 			if(isset($ct->tasksPerAssignment) and $ct->tasksPerAssignment > 1)
-				$created = ($turk->createBatch($ct->template, $ct->csv, $hit, $ct->tasksPerAssignment));
+				$created = ($turk->createBatch($ct->template, $ct->csv, $hit, $ct->tasksPerAssignment, $ct->answerfield));
 			else
 				$created = ($turk->createBatch($ct->template, $ct->csv, $hit));
 			Session::flash('flashSuccess', 'Created ' . count($created) . ' HITs.');

@@ -6,7 +6,7 @@ use crowdwatson\Hit;
 class CrowdTask extends Moloquent {
 	//protected $fillable = array('title', 'description', 'keywords', 'template', 'reward', 'maxAssignments', 'assignmentDur');
     protected $fillable = array('title', 'description', 'keywords', 'template', 'reward', 'maxAssignments', 'assignmentDur', 
-    	'autoApprovalDelayInSeconds', 'qualificationRequirement', 'requesterAnnotation' ,'assignmentReviewPolicy', 
+    	'autoApprovalDelayInSeconds', 'qualificationRequirement', 'requesterAnnotation' ,'assignmentReviewPolicy', 'answerfield',
     	'lifetimeInSeconds', 'tasksPerAssignment', 'csv');
 
 
@@ -32,21 +32,28 @@ class CrowdTask extends Moloquent {
 				$qarray[]=$qbuilder;
 			}
 		}
-		$this->qualificationRequirement = $qarray;
+		if(count($qarray)>0)
+			$this->qualificationRequirement = $qarray;
+		else $this->qualificationRequirement = null;
 	}
 
 	public function addAssRevPol($answerkey, $arp){
+		// Answerkey is not mandatory, because we can use a CSV column.
 		$arpanswerkey = array();
-		if(count($answerkey)==0) return true;
-		foreach ($answerkey as $key=>$val)
-			if($val != '') $arpanswerkey[$key]=$val;	
-			
+		if(count($answerkey)>0) {
+			foreach ($answerkey as $key=>$val)
+				if($val != '') $arpanswerkey[$key]=$val;	
+		}	
+
 		$arpparams = array();
 		foreach ($arp as $key=>$val)
 			if(array_key_exists('checked', $val)) $arpparams[$key]=$val[0];
-				
-		$this->assignmentReviewPolicy = array(	'AnswerKey' => $arpanswerkey, 
-												'Parameters' => $arpparams);
+		
+		// If there are no params, ARP = empty.
+		if(count($arpparams)>0)		
+			$this->assignmentReviewPolicy = array(	'AnswerKey' => $arpanswerkey, 
+													'Parameters' => $arpparams);
+		else $this->assignmentReviewPolicy = null;
 	}
 
 	// TODO: now we use the hitxml format for templating. There should be a more generic system.

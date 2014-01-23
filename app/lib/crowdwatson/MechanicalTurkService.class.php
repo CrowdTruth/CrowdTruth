@@ -34,8 +34,11 @@ class MechanicalTurkService{
 	* @throws AMTException when one of the files does not exist, or when the parameters and template don't match. Also when
 	* you attempted to create a multipage hit with the wrong parameters.
 	*/
-	public function createBatch($templateName, $csvFilename, $templateHit = null, $assignmentsPerHit = 1){
+	public function createBatch($templateName, $csvFilename, $templateHit = null, $assignmentsPerHit = 1, $answerfield = null){
 			$paramsArray = $this->csv_to_array($csvFilename);
+			
+			// can we shuffle? Would be useful for gold questions, but might be bad for continuity?
+
 			if(isset($templateHit)) $hit = $templateHit;
 			else $hit = $this->hitFromTemplate($templateName);
 			
@@ -49,14 +52,16 @@ class MechanicalTurkService{
 				}
 			} else {
 				$chunks = array_chunk($paramsArray, $assignmentsPerHit);
-					
+				
 				foreach ($chunks as $chunk){
-					$hit->setQuestion($this->multipageQuestionFromHTML($templateName, $chunk));
-					$id = $this->mturk->createHIT($hit); 
-					$created[] = $id;
+					$hit = $this->addMultipageQuestion($hit, $templateName, $chunk, $answerfield);
+					//print_r($hit);
+					//echo '\r\n\r\n\r\n';
+					//$id = $this->mturk->createHIT($hit); 
+					//$created[] = $id;
 				}
 			}
-		
+		dd($hit);
 			return $created;
 	}
 	
@@ -79,7 +84,7 @@ class MechanicalTurkService{
 			}
 			$questions[] = $basequestion;
 			if(preg_match('#\$\{[A-Za-z0-9_.]*\}#', $basequestion) == 1) // ${...}
-				throw new AMTException('HTML contains parameters that are not given.');
+				throw new AMTException('HTML contains parameters that are not given in the CSV.');
 		}
 		
 		return $questions;
@@ -187,7 +192,7 @@ class MechanicalTurkService{
 	/**
 	* Create the Question for an AMT multipage HIT
 	*/
-	private function multipageQuestionFromHTML($templateName, $paramsArray, $frameheight = 650){
+	private function addMultipageQuestion($hit, $templateName, $paramsArray, $answerfield, $frameheight = 650){
 		$filename = "{$this->templatePath}$templateName.html";
 		if(!file_exists($filename) || !is_readable($filename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
@@ -201,20 +206,24 @@ class MechanicalTurkService{
 			throw new AMTException('Multipage template has no <h1>. View the readme in the templates directory for more info.');
 		
 		$questiontemplate = $div->innertext;
-		if(!strpos($questiontemplate, '{x}'))
-			throw new AMTException('Multipage template has no \'{x}\'. View the readme in the templates directory for more info.');
+		if(!strpos($questiontemplate, 'Q{x}'))
+			throw new AMTException('Multipage template has no \'Q{x}\'. View the readme in the templates directory for more info.');
 
 		$questionsbuilder = '';
 		$count = 0;
+		$assRevPol = $hit->getAssignmentReviewPolicy();
 		foreach ($paramsArray as $params) {
 			$tempquestiontemplate = str_replace('{x}', $count, $questiontemplate);
 
+			// -- IF isset($hit->getAssignmentReviewPolicy['Parameters'])
+			// ELSE [issue warning? Throw exception?]
+
+			if(isset($params['_golden']) and $params['_golden'] == true and isset($answerfield)) {
+				$assRevPol['AnswerKey']["Q$count"] = $params[$answerfield];
+			}
+
 			foreach ($params as $key=>$val)	{	
 				$param = '${' . $key . '}';
-				
-			/*	if (strpos($tempquestiontemplate, $param) === false)
-					throw new AMTException('Not all given parameters are in the HTML template.');*/
-				
 				$tempquestiontemplate = str_replace($param, $val, $tempquestiontemplate);
 			}
 
@@ -225,9 +234,40 @@ class MechanicalTurkService{
 		$dom->find('div[id=wizard]', 0)->innertext = $questionsbuilder;
 		$html = $dom->save();
 
-		return $this->makeQuestion($html, $frameheight);
+		$hit->setQuestion($this->makeQuestion($html, $frameheight));
+		if(count($assRevPol)>0)
+			$hit->setAssignmentReviewPolicy($assRevPol);
+
+		return $hit;
 	}
 	
+
+	/**
+	* Fill a HTML Question template with an associative array of parameters. 
+	* @param string $templateName The name of the html and xml template files in the templates directory (without extension).
+	* @param string[] $params An associative array of the parameters that will be replaced in the template.
+	* @param int frameheight the height of the questionframe that will be shown to the worker.
+	* @return string an HTMLQuestion, ready to be added to a Hit object and sent to AMT.
+	* @throws AMTException when the file is not readable or the template and params don't match.
+	*/
+	private function questionFromHTML($templateName, $params, $frameheight = 650){
+		$filename = "{$this->templatePath}$templateName.html";
+		if(!file_exists($filename) || !is_readable($filename))
+			throw new AMTException('HTML template file does not exist or is not readable.');
+	
+		$template = file_get_contents($filename);
+		foreach ($params as $key=>$val)	{	
+			$param = '${' . $key . '}';
+			$template = str_replace($param, $val, $template);
+		}
+		
+		if(preg_match('#\$\{[A-Za-z0-9_.]*\}#', $template) == 1) // ${...}
+			throw new AMTException('HTML contains parameters that are not in the CSV.');
+	
+		return $this->makeQuestion($template, $frameheight);
+	}
+
+
 	/**
 	* Convert the HTML form a template (with parameters injected) to a proper AMT Question.
 	* @param string $html 
@@ -258,35 +298,6 @@ class MechanicalTurkService{
 		";
 	}
 
-	/**
-	* Fill a HTML Question template with an associative array of parameters. 
-	* @param string $templateName The name of the html and xml template files in the templates directory (without extension).
-	* @param string[] $params An associative array of the parameters that will be replaced in the template.
-	* @param int frameheight the height of the questionframe that will be shown to the worker.
-	* @return string an HTMLQuestion, ready to be added to a Hit object and sent to AMT.
-	* @throws AMTException when the file is not readable or the template and params don't match.
-	*/
-	private function questionFromHTML($templateName, $params, $frameheight = 650){
-		$filename = "{$this->templatePath}$templateName.html";
-		
-		if(!file_exists($filename) || !is_readable($filename))
-			throw new AMTException('HTML template file does not exist or is not readable.');
-	
-		$template = file_get_contents($filename);
-		foreach ($params as $key=>$val)	{	
-			$param = '${' . $key . '}';
-			
-			/*if (strpos($template, $param) === false)
-				throw new AMTException('Not all given parameters are in the HTML template.');*/
-			
-			$template = str_replace($param, $val, $template);
-		}
-		
-		if(preg_match('#\$\{[A-Za-z0-9_.]*\}#', $template) == 1) // ${...}
-			throw new AMTException('HTML contains parameters that are not given.');
-	
-		return $this->makeQuestion($template, $frameheight);
-	}
 
 	/**
 	* Convert a csv file to an array of associative arrays.
@@ -296,7 +307,7 @@ class MechanicalTurkService{
 	* @throws AMTException if the file is not readable.
 	* @author Jay Williams <http://myd3.com/>
 	*/
-	private function csv_to_array($filename, $delimiter=',')
+	public function csv_to_array($filename, $delimiter=',')
 	{
 		if(!file_exists($filename) || !is_readable($filename))
 			throw new AMTException('CSV file does not exist or is not readable.');
