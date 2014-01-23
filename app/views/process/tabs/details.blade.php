@@ -90,7 +90,7 @@
         var maxAssignments = $('#maxAssignments').val();
         //var sentences = $
 		var cost = reward*maxAssignments;
-        var result = "<strong> $ " + cost + "</strong>";
+		var result = "<strong> $ " + cost.toFixed(2) + "</strong>";
         document.getElementById('totalCost').innerHTML=result;
     } 
 </script>

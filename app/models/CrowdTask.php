@@ -8,8 +8,7 @@ class CrowdTask extends Moloquent {
     protected $fillable = array('title', 'description', 'keywords', 'template', 'reward', 'maxAssignments', 'assignmentDur', 
     	'autoApprovalDelayInSeconds', 'qualificationRequirement', 'requesterAnnotation' ,'assignmentReviewPolicy', 'lifetimeInSeconds');
 
-
-	public static $rules = array(
+    public static $rules = array(
 	  'title' => 'required',
 	  'description' => 'required',
 	  'reward' => 'required|numeric',
