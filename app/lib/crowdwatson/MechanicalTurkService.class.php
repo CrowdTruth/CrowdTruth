@@ -55,13 +55,10 @@ class MechanicalTurkService{
 				
 				foreach ($chunks as $chunk){
 					$hit = $this->addMultipageQuestion($hit, $templateName, $chunk, $answerfield);
-					//print_r($hit);
-					//echo '\r\n\r\n\r\n';
-					//$id = $this->mturk->createHIT($hit); 
-					//$created[] = $id;
+					$id = $this->mturk->createHIT($hit); 
+					$created[] = $id;
 				}
 			}
-		dd($hit);
 			return $created;
 	}
 	

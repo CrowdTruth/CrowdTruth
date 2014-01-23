@@ -85,9 +85,14 @@ class CrowdTask extends Moloquent {
 		if (isset($this->reward)) 						$hit->setReward					  		(array('Amount' => $this->reward, 'CurrencyCode' => 'USD'));
 		if (isset($this->autoapprovaldelayinseconds)) 	$hit->setAutoApprovalDelayInSeconds  	($this->autoapprovaldelayinseconds); 
 		if (isset($this->qualificationRequirement))		$hit->setQualificationRequirement		($this->qualificationRequirement);
-		if (isset($this->assignmentReviewPolicy))		$hit->setAssignmentReviewPolicy			($this->assignmentReviewPolicy);
 		if (isset($this->requesterAnnotation))			$hit->setRequesterAnnotation			($this->requesterAnnotation);
-
+		
+		if (isset($this->assignmentReviewPolicy['AnswerKey']) and 
+			count($this->assignmentReviewPolicy['AnswerKey']) > 0 and
+			isset($this->assignmentReviewPolicy['Parameters']) and
+			count($this->assignmentReviewPolicy['Parameters']) > 0)		
+														$hit->setAssignmentReviewPolicy			($this->assignmentReviewPolicy);
+		
 		return $hit;
 	}
 
