@@ -60,12 +60,5 @@ $(window).load(function() {
 				
 });
 
-@if(isset($templatePath))
-	$("select[name='template']" ).change(function(){
-       $("#question").attr('src', "{{ $templatePath }}"+ $( "select[name='template'] option:selected").val()+'.html');
-    });
-@endif
-
-
 </script>
 @endsection

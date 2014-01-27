@@ -5,6 +5,14 @@ use crowdwatson\AMTException;
 use crowdwatson\Hit;
 
 class ProcessController extends BaseController {
+	protected $templatePath;
+	protected $csvPath;
+	protected $turk;
+
+	public function __construct(){
+		$this->templatePath = base_path() . '/public/templates/';
+		$this->csvPath = base_path() . '/public/csv/';
+	}
 
 	public function getIndex() {
 		// if(!count(Cart::content()) > 0){
@@ -15,7 +23,10 @@ class ProcessController extends BaseController {
 	}
 
 	public function getSelectfile() {
-		return View::make('process.tabs.selectfile')->with('crowdtask', unserialize(Session::get('crowdtask')));
+		$ct = unserialize(Session::get('crowdtask'));
+		$ding = json_encode($ct->toArray(), JSON_PRETTY_PRINT);
+		dd($ding);
+		return View::make('process.tabs.selectfile')->with('crowdtask', $ct);
 	}
 
 	public function getDetails() {
@@ -24,14 +35,13 @@ class ProcessController extends BaseController {
 
 	public function getPlatform() {
 		$ct = unserialize(Session::get('crowdtask'));
-		$turk = new MechanicalTurkService(base_path() . '/public/templates/');
+		$turk = new MechanicalTurkService($this->templatePath);
 		$questionids = array();
 		$csvfields = array();
-
 		try {
 			$questionids = $turk->findQuestionIds($ct->template);
 			if($ct->tasksPerAssignment > 1)
-				foreach (array_keys($turk->csv_to_array($ct->csv)[0]) as $key)
+				foreach (array_keys($turk->csv_to_array("{$this->csvPath}{$ct->csv}")[0]) as $key)
 					$csvfields[$key] = $key;
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
@@ -53,7 +63,7 @@ class ProcessController extends BaseController {
 
 			foreach(File::allFiles($dir) as $file){
 				$filename = $file->getFileName();
-				if (substr($filename, -5) == '.html') {
+				if (substr($filename, -5) == '.json') {
 		   			$filename = substr($filename, 0, -5);
 		   			$prettyname = ucfirst(str_replace('_', ' ', $filename));
 		   			if("$dirname/$filename" == $currenttemplate)
@@ -70,8 +80,8 @@ class ProcessController extends BaseController {
 		// Create array for the tree
 		$crowdtask = unserialize(Session::get('crowdtask'));		
 		$currenttemplate = (isset($crowdtask->template) ? $crowdtask->template : 'generic/default');
-		$path = base_path() . '/public/templates/';
-		$treejson = $this->iterateDirectory($path, $currenttemplate);
+		
+		$treejson = $this->iterateDirectory($this->templatePath, $currenttemplate);
 
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
@@ -85,8 +95,8 @@ class ProcessController extends BaseController {
 		$questions = array();
 
 		try{
-			$question = file_get_contents(base_path() . "/public/templates/{$ct->template}.html");
-			$questions = $turk->createPreviews($question, $ct->csv);
+			$question = file_get_contents("{$this->templatePath}{$ct->template}.html");
+			$questions = $turk->createPreviews($question, "{$this->csvPath}{$ct->csv}");
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
 		} catch (ErrorException $e) {
@@ -101,7 +111,7 @@ class ProcessController extends BaseController {
 	private function newCTfromTemplate($template){
 		try {
 			// Currently, the HIT format is used.
-			$turk = new MechanicalTurkService(base_path() . '/public/templates/');
+			$turk = new MechanicalTurkService($this->templatePath);
 			$hit = $turk->hitFromTemplate($template);
 			$ct = CrowdTask::getFromHit($hit);
 			$ct->template = $template;
@@ -123,7 +133,10 @@ class ProcessController extends BaseController {
 		if(Input::has('template')){
 			$template = Input::get('template');
 			if (empty($ct) or ($ct->template != $template))
-				$ct = $this->newCTfromTemplate($template);	
+				//$ct = $this->newCTfromTemplate($template);
+				//dd("{$this->templatePath}$template");	
+				$ct = CrowdTask::fromJSON("{$this->templatePath}$template.json");
+				$ct->template = $template;
 			} else {
 			// perhaps additional logic here depending on which tab you're on
 			if (empty($ct)){
@@ -138,7 +151,7 @@ class ProcessController extends BaseController {
 		}
 
 			// TODO: get this from 'selectfile'
-			$ct->csv = base_path() . '/public/csv/source359444.csv';
+			$ct->csv = 'source359444.csv';
 
 		Session::put('crowdtask', serialize($ct));
 		return Redirect::to("process/$next");
@@ -148,14 +161,14 @@ class ProcessController extends BaseController {
 	public function postSubmitFinal(){
 		$ct = unserialize(Session::get('crowdtask'));
 		$hit = $ct->toHit();
-		$turk = new MechanicalTurkService(base_path() . '/public/templates/');
+		$turk = new MechanicalTurkService($this->templatePath);
 
 		// Create HIT(s)
 		try {
 			if(isset($ct->tasksPerAssignment) and $ct->tasksPerAssignment > 1)
-				$created = ($turk->createBatch($ct->template, $ct->csv, $hit, $ct->tasksPerAssignment, $ct->answerfield));
+				$created = ($turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit, $ct->tasksPerAssignment, $ct->answerfield));
 			else
-				$created = ($turk->createBatch($ct->template, $ct->csv, $hit));
+				$created = ($turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit));
 			Session::flash('flashSuccess', 'Created ' . count($created) . ' HITs.');
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());

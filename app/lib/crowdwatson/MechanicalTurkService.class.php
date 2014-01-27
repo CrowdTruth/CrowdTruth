@@ -16,7 +16,7 @@ require_once(dirname(__FILE__) . '/simple_html_dom/simple_html_dom.php');
 class MechanicalTurkService{
 
 	private $mturk;
-	private $templatePath = '../res/templates/';
+	private $templatePath = '/public/templates/';
 
 	public function __construct($templatePath = null){
 		$this->mturk = new MechanicalTurk();
@@ -35,31 +35,30 @@ class MechanicalTurkService{
 	* you attempted to create a multipage hit with the wrong parameters.
 	*/
 	public function createBatch($templateName, $csvFilename, $templateHit = null, $assignmentsPerHit = 1, $answerfield = null){
-			$paramsArray = $this->csv_to_array($csvFilename);
-			
-			// can we shuffle? Would be useful for gold questions, but might be bad for continuity?
+		$paramsArray = $this->csv_to_array($csvFilename);
+		shuffle($paramsArray);
 
-			if(isset($templateHit)) $hit = $templateHit;
-			else $hit = $this->hitFromTemplate($templateName);
-			
-			$created = array();	
+		if(isset($templateHit)) $hit = $templateHit;
+		else $hit = $this->hitFromTemplate($templateName);
+		
+		$created = array();	
 
-			if($assignmentsPerHit == 1){		
-				foreach($paramsArray as $params){
-					$hit->setQuestion($this->questionFromHTML($templateName, $params));
-					$id = $this->mturk->createHIT($hit); 
-					$created[] = $id;
-				}
-			} else {
-				$chunks = array_chunk($paramsArray, $assignmentsPerHit);
-				
-				foreach ($chunks as $chunk){
-					$hit = $this->addMultipageQuestion($hit, $templateName, $chunk, $answerfield);
-					$id = $this->mturk->createHIT($hit); 
-					$created[] = $id;
-				}
+		if($assignmentsPerHit == 1){		
+			foreach($paramsArray as $params){
+				$hit->setQuestion($this->questionFromHTML($templateName, $params));
+				$id = $this->mturk->createHIT($hit); 
+				$created[] = $id;
 			}
-			return $created;
+		} else {
+			$chunks = array_chunk($paramsArray, $assignmentsPerHit);
+			
+			foreach ($chunks as $chunk){
+				$hit = $this->addMultipageQuestion($hit, $templateName, $chunk, $answerfield);
+				$id = $this->mturk->createHIT($hit); 
+				$created[] = $id;
+			}
+		}
+		return $created;
 	}
 	
 	/**

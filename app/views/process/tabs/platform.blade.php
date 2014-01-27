@@ -27,27 +27,27 @@
 						<div id="cf-div" style="padding: 10px;">
 							<fieldset>
 								<legend>CrowdFlower</legend> 
-								{{ Form::label('maxJudgmentsPerWorker', 'Maximal judgments per worker', array('class'=>'col-xs-4 control-label')) }}
+								{{ Form::label('judgmentsPerWorker', 'Maximal judgments per worker', array('class'=>'col-xs-4 control-label')) }}
 								<div class="input-group col-xs-2">
-									{{ Form::input('number', 'maxJudgmentsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1')) }}
+									{{ Form::input('number', 'judgmentsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1')) }}
 								</div>
 							</fieldset><br>	
 						</div>
 						<div id="amt-div" style="padding: 10px;">
 							<fieldset>
 								<legend>AMT Duration</legend>
-									{{ Form::label('lifetimeInSeconds', 'HIT Lifetime (seconds)', 
+									{{ Form::label('hitLifetimeInMinutes', 'HIT Lifetime (minutes)', 
 										array('class' => 'col-xs-4 control-label')) }}
 									<div class="input-group col-xs-2">
-										{{ Form::input('number','lifetimeInSeconds',  null, 
+										{{ Form::input('number','hitLifetimeInMinutes',  null, 
 											array('class' => 'form-control input-sm', 'min' => '1')) }}
 									</div>
 									<br>
-									{{ Form::label('autoApprovaldelayInSeconds', 'Auto approval delay (seconds)', 
+									{{ Form::label('autoApprovaldelayInMinutes', 'Auto approval delay (minutes)', 
 										array('class' => 'col-xs-4 control-label')) }}
 									<div class="input-group col-xs-2">
-									{{ Form::input('number','autoApprovalDelayInSeconds',  null, 
-										array('class' => 'form-control input-sm', 'placeholder' => '1 day = 86400', 'min' => '1')) }}
+									{{ Form::input('number','autoApprovaldelayInMinutes',  null, 
+										array('class' => 'form-control input-sm', 'placeholder' => '1 day = 1440', 'min' => '1')) }}
 									</div>
 								</fieldset>
 								<br>
