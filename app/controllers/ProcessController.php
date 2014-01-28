@@ -3,11 +3,11 @@
 use crowdwatson\MechanicalTurkService;
 use crowdwatson\AMTException;
 use crowdwatson\Hit;
+use crowdwatson\CFService;
 
 class ProcessController extends BaseController {
 	protected $templatePath;
 	protected $csvPath;
-	protected $turk;
 
 	public function __construct(){
 		$this->templatePath = base_path() . '/public/templates/';
@@ -24,7 +24,25 @@ class ProcessController extends BaseController {
 
 	public function getSelectfile() {
 		$ct = unserialize(Session::get('crowdtask'));
+		/* 
+		// For testing:
+		$ct = CrowdTask::fromJSON("{$this->templatePath}factor_span/factor_span_1.json");
+		$cf = new CFService;
+		$cf->createJob($ct->toCFData()); 
+		*/
 		return View::make('process.tabs.selectfile')->with('crowdtask', $ct);
+	}
+
+	public function getTemplate() {
+		// Create array for the tree
+		$crowdtask = unserialize(Session::get('crowdtask'));		
+		$currenttemplate = (isset($crowdtask->template) ? $crowdtask->template : 'generic/default');	
+		$treejson = $this->iterateDirectory($this->templatePath, $currenttemplate);
+
+		return View::make('process.tabs.template')
+			->with('treejson', $treejson)
+			->with('currenttemplate', $currenttemplate)
+			->with('crowdtask', $crowdtask);
 	}
 
 	public function getDetails() {
@@ -58,44 +76,6 @@ class ProcessController extends BaseController {
 			->with('crowdtask', $ct)
 			->with('questionids', $questionids)
 			->with('goldfields', $goldfields);
-	}
-
-
-	private function iterateDirectory($path, $currenttemplate, $pretty = true){
-		$r = array();
-		foreach(File::directories($path) as $dir){
-			$dirname = substr($dir, strlen($path));
-		   	if($pretty) $displaydir = ucfirst(str_replace('_', ' ', $dirname));
-		   	else $displaydir = $dirname;
-
-			$r[] = array('id' => $dirname, 'parent' => '#', 'text' => $displaydir); 
-
-			foreach(File::allFiles($dir) as $file){
-				$filename = $file->getFileName();
-				if (substr($filename, -5) == '.json') {
-		   			$filename = substr($filename, 0, -5);
-		   			if($pretty) $displayname = ucfirst(str_replace('_', ' ', $filename));
-		   			else $displayname = $filename;
-		   			if("$dirname/$filename" == $currenttemplate)
-		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $displayname, 'state' => array('selected' => 'true'));
-		   			else
-		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $displayname);
-		   		}	
-			}
-		}
-		return json_encode($r);
-	}
-
-	public function getTemplate() {
-		// Create array for the tree
-		$crowdtask = unserialize(Session::get('crowdtask'));		
-		$currenttemplate = (isset($crowdtask->template) ? $crowdtask->template : 'generic/default');	
-		$treejson = $this->iterateDirectory($this->templatePath, $currenttemplate);
-
-		return View::make('process.tabs.template')
-			->with('treejson', $treejson)
-			->with('currenttemplate', $currenttemplate)
-			->with('crowdtask', $crowdtask);
 	}
 
 	public function getSubmit() {
@@ -142,6 +122,9 @@ class ProcessController extends BaseController {
 		return Redirect::to("process/selectfile");
 	}
 
+	/*
+	* Save the jobdetails to a JSON file (from the button in the Submit tab)
+	*/
 	public function postSaveDetails(){
 		$ct = unserialize(Session::get('crowdtask'));
 		$arr = $ct->toArray();
@@ -150,10 +133,12 @@ class ProcessController extends BaseController {
 		$json = json_encode($arr, JSON_PRETTY_PRINT);
 
 		// Allow only a-z, 0-9, /, _. The rest will be removed.
-		$filename = preg_replace("/[^a-z0-9\/_]+/", "", strtolower(str_replace(' ', '_', Input::get('template'))));
+		$filename = preg_replace("/[^a-z0-9\/_]+/", "", 
+			strtolower(str_replace(' ', '_', Input::get('template'))));
+
 		try {
 			file_put_contents("{$this->templatePath}{$filename}.json", $json);
-			Session::flash('flashSuccess', "Saved jobdetails on server as $filename. Remember to provide an HTML questionfile.");
+			Session::flash('flashSuccess', "Saved jobdetails on server as $filename.json. Remember to provide an HTML questionfile.");
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage());
 		}
@@ -161,41 +146,49 @@ class ProcessController extends BaseController {
 		return Redirect::to("process/submit");
 	}
 
+
+	/*
+	* Every time you click a tab or the 'next' button, this function fires. 
+	* It combines the Input fields with the CrowdTask that we already have in the Session.
+	*/
 	public function postFormPart($next){
 		$ct = unserialize(Session::get('crowdtask'));
 
 		if(Input::has('template')){
+			// Create the CrowdTask object if it doesn't already exist.
 			$template = Input::get('template');
 			if (empty($ct) or ($ct->template != $template))	
 				$ct = CrowdTask::fromJSON("{$this->templatePath}$template.json");
-				$ct->template = $template;
-			} else {
-			// perhaps additional logic here depending on which tab you're on
+			$ct->template = $template;
+		} else {
 			if (empty($ct)){
-				$ct = new CrowdTask;
-				Session::flash('flashWarning', 'No template selected.');
+				// No CrowdTask and no template selected, not good.
+				// (Unfortunately we can't flash a warning when redirecting.)
+				return Redirect::to("process/template");
 			} else {
+				// There already is a CrowdTask object. Merge it with Input!
 				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
+
+				// This means we're leaving the Platform page. So we can check for answerfields as well:
 				if(Input::has('qr')) {
-					$ct->addQualReq(Input::get('qr'));
-	
-					// This means we're leaving the Platform page. So we can check for answerfields as well:
 					$ct->answerfields = Input::get('answerfields', false);
-				}	
-
-				if(Input::has('arp')) $ct->addAssRevPol(Input::get('answerkey'), Input::get('arp'));
-
+					$ct->addQualReq(Input::get('qr'));
+					$ct->addAssRevPol(Input::get('answerkey'), Input::get('arp');
+				}
 			}		
 		}
 
-			// TODO: get this from 'selectfile'
-			$ct->csv = 'source359444.csv';
+		// TODO: get this from 'selectfile'
+		$ct->csv = 'source359444.csv';
 
 		Session::put('crowdtask', serialize($ct));
 		return Redirect::to("process/$next");
 
 	}
 
+	/*
+	* Send it to the platforms.
+	*/
 	public function postSubmitFinal(){
 		$ct = unserialize(Session::get('crowdtask'));
 		$hit = $ct->toHit();
@@ -214,5 +207,34 @@ class ProcessController extends BaseController {
 		}
 
 		return Redirect::to("process/submit");
+	}
+
+
+	/*
+	* Create the JSON necessary for jstree to use.
+	*/
+	private function iterateDirectory($path, $currenttemplate, $pretty = true){
+		$r = array();
+		foreach(File::directories($path) as $dir){
+			$dirname = substr($dir, strlen($path));
+		   	if($pretty) $displaydir = ucfirst(str_replace('_', ' ', $dirname));
+		   	else $displaydir = $dirname;
+
+			$r[] = array('id' => $dirname, 'parent' => '#', 'text' => $displaydir); 
+
+			foreach(File::allFiles($dir) as $file){
+				$filename = $file->getFileName();
+				if (substr($filename, -5) == '.json') {
+		   			$filename = substr($filename, 0, -5);
+		   			if($pretty) $displayname = ucfirst(str_replace('_', ' ', $filename));
+		   			else $displayname = $filename;
+		   			if("$dirname/$filename" == $currenttemplate)
+		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $displayname, 'state' => array('selected' => 'true'));
+		   			else
+		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $displayname);
+		   		}	
+			}
+		}
+		return json_encode($r);
 	}
 }

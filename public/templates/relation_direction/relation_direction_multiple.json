@@ -30,7 +30,9 @@
             "RejectReason": "Sorry, you had our known question wrong."
         }
     },
-    "answerfields": false,
+    "answerfields": [
+        "direction"
+    ],
     "judgmentsPerWorker": "",
     "requesterAnnotation": ""
 }

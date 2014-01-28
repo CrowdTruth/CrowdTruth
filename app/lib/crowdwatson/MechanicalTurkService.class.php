@@ -157,6 +157,7 @@ class MechanicalTurkService{
 			throw new AMTException('HTML template file does not exist or is not readable.');
 	
 		$build = array();
+		$ret = array();
 		$html = file_get_html($filename); //HTMLDomParser::file_get_html($filename)
 		foreach($html->find('input') as $input)
 			if(isset($input->name)) $build[] = $input->name;

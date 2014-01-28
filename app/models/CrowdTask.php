@@ -115,6 +115,21 @@ class CrowdTask extends Moloquent {
 	}
 
 
+	public function toCFData(){
+		// not yet implemented: max_judgments_per_ip, webhook_uri, send_judgments_webhook => true, instructions, css, js, cml
+		$data = array();
+
+		if (isset($this->title)) 			 	$data['title']					 	= $this->title; 
+		//if (isset($this->description)) 		$data['Description']					($this->description); 
+		//if (isset($this->keywords)) 			$data['Keywords']				  		($this->keywords);
+		if (isset($this->judgmentsPerUnit)) 	$data['judgments_per_unit']		  	= $this->judgmentsPerUnit;
+		//if (isset($this->expirationInMinutes))$data['AssignmentDurationInSeconds'] 	($this->expirationInMinutes*60);
+		if (isset($this->reward)) 				$data['payment_cents']				= $this->reward*100;
+		if (isset($this->unitsPerTask))			$data['units_per_assignment']		= $this->unitsPerTask;
+		if (isset($this->judgmentsPerWorker))	$data['max_judgments_per_worker']	= $this->judgmentsPerWorker;
+		return $data;
+	}
+
 
 	// Not used (yet?)
 	public static function getFromHit($hit){
