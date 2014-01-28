@@ -35,20 +35,29 @@ class ProcessController extends BaseController {
 		$ct = unserialize(Session::get('crowdtask'));
 		$turk = new MechanicalTurkService($this->templatePath);
 		$questionids = array();
-		$csvfields = array();
+		$goldfields = array();
 		try {
 			$questionids = $turk->findQuestionIds($ct->template);
-			if($ct->unitsPerTask > 1)
+			if($ct->unitsPerTask > 1) // Admittedly a strange place for this. Should be refactored. (todo)
 				foreach (array_keys($turk->csv_to_array("{$this->csvPath}{$ct->csv}")[0]) as $key)
-					$csvfields[$key] = $key;
+					if ($key != '_golden' and $pos = strpos($key, '_gold') and !strpos($key, '_gold_reason'))
+						$goldfields[$key] = substr($key, 0, $pos);		
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
 		} 
 		
+		// Compare QuestionID's and goldfields.
+		if (count($goldfields)>0)
+			if($diff = array_diff($goldfields, $questionids))
+				if(count($diff) == 1)
+					Session::flash('flashNotice', 'Field \'' . array_values($diff)[0] . '\' is in the answerkey but not in the HTML template.');
+				elseif(count($diff) > 1)
+					Session::flash('flashNotice', 'Fields \'' . implode(', ', $diff) . '\' are in the answerkey but not in the HTML template.');
+
 		return View::make('process.tabs.platform')
 			->with('crowdtask', $ct)
 			->with('questionids', $questionids)
-			->with('csvfields', $csvfields);
+			->with('goldfields', $goldfields);
 	}
 
 
@@ -128,20 +137,6 @@ class ProcessController extends BaseController {
 			->with('questions',  $questions);
 	}
 
-	private function newCTfromTemplate($template){
-		try {
-			// Currently, the HIT format is used.
-			$turk = new MechanicalTurkService($this->templatePath);
-			$hit = $turk->hitFromTemplate($template);
-			$ct = CrowdTask::getFromHit($hit);
-			$ct->template = $template;
-			return $ct;
-		} catch (AMTException $e){
-			Session::flash('flashError', $e->getMessage());
-			return new CrowdTask;
-		}
-	}
-
 	public function getClearTask(){
 		Session::forget('crowdtask');
 		return Redirect::to("process/selectfile");
@@ -149,22 +144,21 @@ class ProcessController extends BaseController {
 
 	public function postSaveDetails(){
 		$ct = unserialize(Session::get('crowdtask'));
-		$json = json_encode($ct->toArray(), JSON_PRETTY_PRINT);
+		$arr = $ct->toArray();
+		unset($arr['csv']);
+		unset($arr['template']);
+		$json = json_encode($arr, JSON_PRETTY_PRINT);
 
-		/* TODO: 
-			$filename = Input::get('template');
-			// (validate and/or de-prettify name)
-			try {
-			// Save file on server
-				Session::flash('flashSuccess', 'Saved jobdetails on server.');
-			} catch (... $e) {
-				Session::flash('flashError', $e->getMessage());
-			}
+		// Allow only a-z, 0-9, /, _. The rest will be removed.
+		$filename = preg_replace("/[^a-z0-9\/_]+/", "", strtolower(str_replace(' ', '_', Input::get('template'))));
+		try {
+			file_put_contents("{$this->templatePath}{$filename}.json", $json);
+			Session::flash('flashSuccess', "Saved jobdetails on server as $filename. Remember to provide an HTML questionfile.");
+		} catch (Exception $e) {
+			Session::flash('flashError', $e->getMessage());
+		}
 
-			return Redirect::to("process/submit");
-		*/
-
-		echo "This would be saved if we would have a function for that: <br><br>\r\n\r\n $json";
+		return Redirect::to("process/submit");
 	}
 
 	public function postFormPart($next){
@@ -172,9 +166,7 @@ class ProcessController extends BaseController {
 
 		if(Input::has('template')){
 			$template = Input::get('template');
-			if (empty($ct) or ($ct->template != $template))
-				//$ct = $this->newCTfromTemplate($template);
-				//dd("{$this->templatePath}$template");	
+			if (empty($ct) or ($ct->template != $template))	
 				$ct = CrowdTask::fromJSON("{$this->templatePath}$template.json");
 				$ct->template = $template;
 			} else {
@@ -184,7 +176,13 @@ class ProcessController extends BaseController {
 				Session::flash('flashWarning', 'No template selected.');
 			} else {
 				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
-				if(Input::has('qr')) $ct->addQualReq(Input::get('qr'));
+				if(Input::has('qr')) {
+					$ct->addQualReq(Input::get('qr'));
+	
+					// This means we're leaving the Platform page. So we can check for answerfields as well:
+					$ct->answerfields = Input::get('answerfields', false);
+				}	
+
 				if(Input::has('arp')) $ct->addAssRevPol(Input::get('answerkey'), Input::get('arp'));
 
 			}		
@@ -202,13 +200,14 @@ class ProcessController extends BaseController {
 		$ct = unserialize(Session::get('crowdtask'));
 		$hit = $ct->toHit();
 		$turk = new MechanicalTurkService($this->templatePath);
+		$upt = $ct->unitsPerTask;
 
 		// Create HIT(s)
 		try {
-			if(isset($ct->tasksPerAssignment) and $ct->tasksPerAssignment > 1)
-				$created = ($turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit, $ct->tasksPerAssignment, $ct->answerfield));
+			if(isset($upt) and $upt > 1)
+				$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit, $upt, $ct->answerfields);
 			else
-				$created = ($turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit));
+				$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit);
 			Session::flash('flashSuccess', 'Created ' . count($created) . ' HITs.');
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());

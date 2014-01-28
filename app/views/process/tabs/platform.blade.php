@@ -120,8 +120,12 @@
 							
 							<label>AnswerKey</label><br>
 							<?php  $arp = $crowdtask->assignmentReviewPolicy; ?>
-							@if (count($csvfields)>0)
-								{{ Form::select('answerfield', $csvfields)}}
+							@if (count($goldfields)>0)
+								Use gold answers for the following fields:<br>
+								@foreach($goldfields as $field)
+									{{ Form::checkbox('answerfields[]', $field, null, array('id' => $field))}}
+									{{ Form::label($field, $field)}} <br>
+								@endforeach
 							@else
 							<?php
 									foreach($questionids as $qid){

@@ -21,13 +21,16 @@
         }
     ],
     "assignmentReviewPolicy": {
+        "AnswerKey": [
+
+        ],
         "Parameters": {
             "ApproveIfKnownAnswerScoreIsAtLeast": "100",
             "RejectIfKnownAnswerScoreIsLessThan": "100",
             "RejectReason": "Sorry, you had our known question wrong."
         }
     },
-    "answerfield": "direction_gold",
+    "answerfields": false,
     "judgmentsPerWorker": "",
     "requesterAnnotation": ""
 }

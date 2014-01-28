@@ -29,7 +29,7 @@ class CrowdTask extends Moloquent {
     	    						'judgmentsPerWorker',
 
     	    						/* for our use */
-    	    						'answerfield', /* The field of the CSV file that contains the gold answers. TODO: checkboxes, limit choices. */
+    	    						'answerfields', /* The field of the CSV file that contains the gold answers. TODO: checkboxes, limit choices. */
     								'template',
     								'csv'
     								);
@@ -81,25 +81,6 @@ class CrowdTask extends Moloquent {
 		else $this->assignmentReviewPolicy = null;
 	}
 
-	// Not used (yet?)
-	public static function getFromHit($hit){
-		return new CrowdTask(array(
-			'title' 				=> $hit->getTitle(),
-			'description' 			=> $hit->getDescription(),
-			'keywords'				=> $hit->getKeywords(),
-			'reward'				=> $hit->getReward()['Amount'],
-			'judgmentsPerUnit'		=> $hit->getMaxAssignments(),
-			'expirationInMinutes'	=> $hit->getAssignmentDurationInSeconds(),
-			'hitLifetimeInMinutes' 	=> $hit->getLifetimeInSeconds() / 60,
-			'unitsPerTask' 			=> 1, /* This is not in the AMT API */
-
-			/* AMT */
-			'autoApprovalDelayInSeconds' 	=> $hit->getAutoApprovalDelayInSeconds(),
-			'qualificationRequirement'		=> $hit->getQualificationRequirement(),
-			'assignmentReviewPolicy' 		=> $hit->getAssignmentReviewPolicy()
-			));
-	}
-
 	public static function fromJSON($filename){
 		if(!file_exists($filename) || !is_readable($filename))
 			throw new Exception('JSON template file does not exist or is not readable.');
@@ -124,15 +105,35 @@ class CrowdTask extends Moloquent {
 		if (isset($this->qualificationRequirement))		$hit->setQualificationRequirement		($this->qualificationRequirement);
 		if (isset($this->requesterAnnotation))			$hit->setRequesterAnnotation			($this->requesterAnnotation);
 		
-		if (isset($this->assignmentReviewPolicy['AnswerKey']) and 
-			count($this->assignmentReviewPolicy['AnswerKey']) > 0 and
+		if (/* isset($this->assignmentReviewPolicy['AnswerKey']) and 
+			count($this->assignmentReviewPolicy['AnswerKey']) > 0 and */
 			isset($this->assignmentReviewPolicy['Parameters']) and
-			count($this->assignmentReviewPolicy['Parameters']) > 0)		
+			count($this->assignmentReviewPolicy['Parameters']) > 0 ) 		
 														$hit->setAssignmentReviewPolicy			($this->assignmentReviewPolicy);
 		
 		return $hit;
 	}
 
+
+
+	// Not used (yet?)
+	public static function getFromHit($hit){
+		return new CrowdTask(array(
+			'title' 				=> $hit->getTitle(),
+			'description' 			=> $hit->getDescription(),
+			'keywords'				=> $hit->getKeywords(),
+			'reward'				=> $hit->getReward()['Amount'],
+			'judgmentsPerUnit'		=> $hit->getMaxAssignments(),
+			'expirationInMinutes'	=> $hit->getAssignmentDurationInSeconds(),
+			'hitLifetimeInMinutes' 	=> $hit->getLifetimeInSeconds() / 60,
+			'unitsPerTask' 			=> 1, /* This is not in the AMT API */
+
+			/* AMT */
+			'autoApprovalDelayInSeconds' 	=> $hit->getAutoApprovalDelayInSeconds(),
+			'qualificationRequirement'		=> $hit->getQualificationRequirement(),
+			'assignmentReviewPolicy' 		=> $hit->getAssignmentReviewPolicy()
+			));
+	}
 }
 
 ?>
