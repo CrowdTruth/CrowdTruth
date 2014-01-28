@@ -38,7 +38,7 @@ class ProcessController extends BaseController {
 		$csvfields = array();
 		try {
 			$questionids = $turk->findQuestionIds($ct->template);
-			if($ct->tasksPerAssignment > 1)
+			if($ct->unitsPerTask > 1)
 				foreach (array_keys($turk->csv_to_array("{$this->csvPath}{$ct->csv}")[0]) as $key)
 					$csvfields[$key] = $key;
 		} catch (AMTException $e) {
@@ -99,7 +99,23 @@ class ProcessController extends BaseController {
 
 		try{
 			$question = file_get_contents("{$this->templatePath}{$ct->template}.html");
-			$questions = $turk->createPreviews($question, "{$this->csvPath}{$ct->csv}");
+			$questionsdirty = $turk->createPreviews($question, "{$this->csvPath}{$ct->csv}");
+
+			// TODO: can probably be done in a better way.
+			foreach($questionsdirty as $q) {
+				$questions[] = strip_tags($q, 
+					"<a><abbr><acronym><address><article><aside><b>
+					<bdo><big><blockquote><br><caption><cite><code>
+					<col><colgroup><dd><del><details><dfn><div>
+					<dl><dt><em><figcaption><figure><font>
+					<h1><h2><h3><h4><h5><h6><hgroup>
+					<hr><i><img><ins><li><map><mark><menu>
+					<meter><ol><p><pre><q><rp><rt><ruby><s><samp>
+					<section><small><span><strong><style><sub>
+					<summary><sup><table><tbody><td><tfoot><th><thead>
+					<time><tr><tt><u><ul><var><wbr>");
+			}
+
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
 		} catch (ErrorException $e) {
@@ -134,6 +150,20 @@ class ProcessController extends BaseController {
 	public function postSaveDetails(){
 		$ct = unserialize(Session::get('crowdtask'));
 		$json = json_encode($ct->toArray(), JSON_PRETTY_PRINT);
+
+		/* TODO: 
+			$filename = Input::get('template');
+			// (validate and/or de-prettify name)
+			try {
+			// Save file on server
+				Session::flash('flashSuccess', 'Saved jobdetails on server.');
+			} catch (... $e) {
+				Session::flash('flashError', $e->getMessage());
+			}
+
+			return Redirect::to("process/submit");
+		*/
+
 		echo "This would be saved if we would have a function for that: <br><br>\r\n\r\n $json";
 	}
 

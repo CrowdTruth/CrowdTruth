@@ -43,7 +43,7 @@
 							 	@foreach($questions as $question)
 							 		<?php $count++; ?>
 									 <div class="item <?php if($count == 1) echo 'active'; ?>">
-									{{ preg_replace('#<script(.*?)>(.*?)</script>#is', '', $question); /* TODO: this is probably not safe ;) */}}
+									{{ $question }}
 									<div class="carousel-caption" style="color:black; font-size:2em;">
 								        {{ $count }}
 								      </div>
@@ -88,7 +88,7 @@
 
 @section("modal")
 						<!-- HIDDEN -->
-						<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+						<div class="modal fade" id="myModal" tabindex="-1">
 						  <div class="modal-dialog">
 						    <div class="modal-content">
 						      <div class="modal-header">

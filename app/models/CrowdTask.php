@@ -107,7 +107,6 @@ class CrowdTask extends Moloquent {
 		$json = file_get_contents($filename);
 		if(!$arr = json_decode($json, true))
 			throw new Exception('JSON incorrectly formatted');
-
 		return new CrowdTask($arr);
 	}
 

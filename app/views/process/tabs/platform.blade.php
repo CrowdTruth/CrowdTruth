@@ -119,12 +119,12 @@
 								<legend>AMT Assignment Review Policy</legend>
 							
 							<label>AnswerKey</label><br>
+							<?php  $arp = $crowdtask->assignmentReviewPolicy; ?>
 							@if (count($csvfields)>0)
 								{{ Form::select('answerfield', $csvfields)}}
 							@else
 							<?php
-									 $arp = $crowdtask->assignmentReviewPolicy;
-									 foreach($questionids as $qid){
+									foreach($questionids as $qid){
 									 	$val = '';		
 									 	if($arp)
 									 		foreach($arp['AnswerKey'] as $q=>$v)
@@ -138,12 +138,10 @@
 							<br>
 							<label>Parameters</label><br>
 							<?php
-									$types = array( 'ApproveIfKnownAnswerScoreIsAtLeast', 'ApproveReason', 'RejectIfKnownAnswerScoreIsLessThan', 
-													'RejectReason', 'ExtendIfKnownAnswerScoreIsLessThan', 
-													'ExtendMaximumAssignments', 'ExtendMinimumTimeInSeconds'); ?>
+									$types = array( 'ApproveIfKnownAnswerScoreIsAtLeast', 'ApproveReason', 'RejectIfKnownAnswerScoreIsLessThan', 'RejectReason', 'ExtendIfKnownAnswerScoreIsLessThan', 'ExtendMaximumAssignments', 'ExtendMinimumTimeInSeconds'); ?>
 							@foreach($types as $type)
 								@if(isset($arp['Parameters'][$type]))
-									<?php $c = true; $val = $v; ?>
+									<?php $c = true; $val = $arp['Parameters'][$type]; ?>
 								@else 
 									<?php $c = false; $val = ''; ?>		
 								@endif 
