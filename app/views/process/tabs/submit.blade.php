@@ -1,6 +1,6 @@
 @extends('layouts.default')
-
 @section('content')
+
 <div class="col-xs-10 col-md-offset-1">
 	<div class='maincolumn CW_box_style'>
 
@@ -64,7 +64,9 @@
 
 
 						</fieldset>
-						
+						<button class="btn btn-default btn-lg pull-left" data-toggle="modal" data-target="#myModal">
+						  Save settings
+						</button>
 
 						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => 'ProcessController@postSubmitFinal', 'method' => 'POST')) }}
 						@if(Session::has('flashError'))
@@ -72,12 +74,49 @@
 						@else 
 							{{ Form::submit('Submit', array('class' => 'btn btn-lg btn-primary pull-right')); }}
 						@endif
-						{{ Form::close()}}					
+						{{ Form::close()}}	
+
+
+				
 					</div>
 				</div>
 			</div>	
 		</div>
 	</div>
 </div>		
+@endsection
+
+@section("modal")
+						<!-- HIDDEN -->
+						<div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+						  <div class="modal-dialog">
+						    <div class="modal-content">
+						      <div class="modal-header">
+						        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						        <h4 class="modal-title">Save job details</h4>
+						      </div>
+						      <div class="modal-body">
+						      	<style type="text/css">
+								 .jstree li > a > .jstree-icon {  display:none !important; } 
+								</style>
+						        <div id="jstree"></div>
+						        <br>
+						        <div>
+						        {{ Form::open(array('action' => 'ProcessController@postSaveDetails'))}}
+						        	{{ Form::label('template', 'Pick a name. Use underscores instead of spaces. NB: there needs to be an HTML template for every jobdetails file.') }}
+						        	<br>
+						        	{{ Form::text('template', $crowdtask->template, array('id' => 'template', 'class' => 'form-control col-xs-6')) }}
+						        </div>
+						      </div>
+						      <br>
+						      <div class="modal-footer">
+						        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						        {{ Form::submit('Save', array('class' => 'btn btn-primary'))}}       
+						        {{ Form::close()}}
+						      </div>
+						    </div><!-- /.modal-content -->
+						  </div><!-- /.modal-dialog -->
+						</div><!-- /.modal -->
+						<!-- /HIDDEN -->
 @endsection
 @stop

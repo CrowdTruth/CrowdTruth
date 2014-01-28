@@ -24,8 +24,6 @@ class ProcessController extends BaseController {
 
 	public function getSelectfile() {
 		$ct = unserialize(Session::get('crowdtask'));
-		$ding = json_encode($ct->toArray(), JSON_PRETTY_PRINT);
-		dd($ding);
 		return View::make('process.tabs.selectfile')->with('crowdtask', $ct);
 	}
 
@@ -54,22 +52,25 @@ class ProcessController extends BaseController {
 	}
 
 
-	private function iterateDirectory($path, $currenttemplate){
+	private function iterateDirectory($path, $currenttemplate, $pretty = true){
 		$r = array();
 		foreach(File::directories($path) as $dir){
 			$dirname = substr($dir, strlen($path));
-		   	$prettydir = ucfirst(str_replace('_', ' ', $dirname));
-			$r[] = array('id' => $dirname, 'parent' => '#', 'text' => $prettydir); 
+		   	if($pretty) $displaydir = ucfirst(str_replace('_', ' ', $dirname));
+		   	else $displaydir = $dirname;
+
+			$r[] = array('id' => $dirname, 'parent' => '#', 'text' => $displaydir); 
 
 			foreach(File::allFiles($dir) as $file){
 				$filename = $file->getFileName();
 				if (substr($filename, -5) == '.json') {
 		   			$filename = substr($filename, 0, -5);
-		   			$prettyname = ucfirst(str_replace('_', ' ', $filename));
+		   			if($pretty) $displayname = ucfirst(str_replace('_', ' ', $filename));
+		   			else $displayname = $filename;
 		   			if("$dirname/$filename" == $currenttemplate)
-		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $prettyname, 'state' => array('selected' => 'true'));
+		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $displayname, 'state' => array('selected' => 'true'));
 		   			else
-		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $prettyname);
+		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $displayname);
 		   		}	
 			}
 		}
@@ -79,8 +80,7 @@ class ProcessController extends BaseController {
 	public function getTemplate() {
 		// Create array for the tree
 		$crowdtask = unserialize(Session::get('crowdtask'));		
-		$currenttemplate = (isset($crowdtask->template) ? $crowdtask->template : 'generic/default');
-		
+		$currenttemplate = (isset($crowdtask->template) ? $crowdtask->template : 'generic/default');	
 		$treejson = $this->iterateDirectory($this->templatePath, $currenttemplate);
 
 		return View::make('process.tabs.template')
@@ -94,6 +94,9 @@ class ProcessController extends BaseController {
 		$turk = new MechanicalTurkService();
 		$questions = array();
 
+		// for template saving
+		$treejson = $this->iterateDirectory($this->templatePath, $ct->template, false);
+
 		try{
 			$question = file_get_contents("{$this->templatePath}{$ct->template}.html");
 			$questions = $turk->createPreviews($question, "{$this->csvPath}{$ct->csv}");
@@ -105,6 +108,7 @@ class ProcessController extends BaseController {
 
 		return View::make('process.tabs.submit')
 			->with('crowdtask', $ct)
+			->with('treejson', $treejson)
 			->with('questions',  $questions);
 	}
 
@@ -125,6 +129,12 @@ class ProcessController extends BaseController {
 	public function getClearTask(){
 		Session::forget('crowdtask');
 		return Redirect::to("process/selectfile");
+	}
+
+	public function postSaveDetails(){
+		$ct = unserialize(Session::get('crowdtask'));
+		$json = json_encode($ct->toArray(), JSON_PRETTY_PRINT);
+		echo "This would be saved if we would have a function for that: <br><br>\r\n\r\n $json";
 	}
 
 	public function postFormPart($next){
