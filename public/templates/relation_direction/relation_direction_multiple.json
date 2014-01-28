@@ -1,0 +1,36 @@
+{
+    "title": "What is the right order of two related WORD PHRASES?",
+    "description": "You are asked to read a SENTENCE containing two related WORD PHRASES, then decide on the correct order of the relation.",
+    "keywords": "medical relations, medical text, relation direction",
+    "reward": "0.03",
+    "judgmentsPerUnit": "15",
+    "hitLifetimeInMinutes": "10080",
+    "expirationInMinutes": "2",
+    "unitsPerTask": "7",
+    "autoApprovalDelayInMinutes": "2880",
+    "qualificationRequirement": [
+        {
+            "QualificationTypeId": "000000000000000000L0",
+            "Comparator": "GreaterThan",
+            "IntegerValue": "90"
+        },
+        {
+            "QualificationTypeId": "00000000000000000040",
+            "Comparator": "GreaterThan",
+            "IntegerValue": "1000"
+        }
+    ],
+    "assignmentReviewPolicy": {
+        "AnswerKey": [
+
+        ],
+        "Parameters": {
+            "ApproveIfKnownAnswerScoreIsAtLeast": "100",
+            "RejectIfKnownAnswerScoreIsLessThan": "100",
+            "RejectReason": "Sorry, you had our known question wrong."
+        }
+    },
+    "answerfields": false,
+    "judgmentsPerWorker": "",
+    "requesterAnnotation": ""
+}

@@ -1,0 +1,25 @@
+{
+    "title": "This is an example jobdetails file + HTML",
+    "description": "",
+    "keywords": "example,demo",
+    "reward": "0.03",
+    "judgmentsPerUnit": "15",
+    "hitLifetimeInMinutes": "10080",
+    "expirationInMinutes": "2",
+    "unitsPerTask": "1",
+    "autoApprovalDelayInMinutes": "2880",
+    "qualificationRequirement": [
+        {
+            "QualificationTypeId": "000000000000000000L0",
+            "Comparator": "GreaterThan",
+            "IntegerValue": "90"
+        },
+        {
+            "QualificationTypeId": "00000000000000000040",
+            "Comparator": "GreaterThan",
+            "IntegerValue": "1000"
+        }
+    ],
+    "judgmentsPerWorker": "",
+    "requesterAnnotation": ""
+}

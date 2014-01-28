@@ -1,4 +1,3 @@
-sentence,relation
-this sentence is just an example,CURES
-sentence 2 is also an example,CAUSES
-fdwhjfdhdh fdhdfhfdh,RELATION
+sentence,relation,term1,term2
+The best remedy against asthma is taking a medicin,CURES,medicin,asthma
+Dust particles are not believed to cause asthma,CAUSES,dust,asthma

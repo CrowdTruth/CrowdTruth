@@ -19,6 +19,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('selection', 'SelectionController');
 	Route::controller('api', 'apiController');
 	Route::controller('process', 'ProcessController');
+	Route::controller('postprocess', 'PostProcessController');
 });
 
 

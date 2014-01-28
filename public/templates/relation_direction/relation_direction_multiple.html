@@ -1,0 +1,80 @@
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://s3.amazonaws.com/crowdwatson/amt/jquery.steps.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://s3.amazonaws.com/crowdwatson/amt/relation_direction_multiple_test.css" />
+<!--<link rel="stylesheet" type="text/css" href="relation_direction_multiple_test.css" />
+    <script src="jquery.steps.min.js"></script>-->
+    <script>
+    $(document).ready(function(){
+        $("#wizard").steps({
+                onFinishing : function(event, currentIndex){
+                  return ($("input[name='Q" + currentIndex + "']:checked").val());},
+                onStepChanging : function(event, currentIndex, newIndex){
+                  if (newIndex > currentIndex)
+                    return ($("input[name='Q" + currentIndex + "']:checked").val());
+                  else
+                    return true;  
+                  },
+                onFinished : function(event, currentIndex){
+                  $("form[name='mturk_form'").submit();
+                  }   
+                });
+
+        $("#submitButton").hide();
+
+    });
+    </script>
+    <div id="wizard">
+        <!-- This is where the magic happens. -->
+        <h1>Sentence {x}</h1>
+        <div>
+            <h3>What is the right order of two related WORD PHRASES?</h3>
+
+            <div class="highlight-box">
+               <p>In the SENTENCE below there are two highlighted WORD PHRASES that we believe are related. Choose one of the options below that according to you expresses their right order.</p>
+
+               <p>Please consider only the capitalized WORD PHRASES (in case one of them appears multiple times in the sentence).</p>
+           </div>
+           <br>
+           <p><em><span style="color:#0000CD;">${sentence}</span></em></p>
+           <p>Which of the following statements is EXPRESSED in the SENTENCE above? (required)</p>
+           <table border="0" cellpadding="0" cellspacing="4">
+               <tbody>
+                  <tr>
+                     <td valign="center">
+                        <input name="direction{x}" type="radio" value="${term1} ${relation} ${term2}" class="required" id="direction{x}0" />
+                    </td>
+                    <td>
+                        <label for="direction{x}0" style="display:inline; line-height:2">
+                           &nbsp;${term1} <span class="relation">${relation}</span> ${term2}</label>
+                       </td>
+                   </tr>
+                   <tr>
+                     <td valign="center">
+                        <input name="direction{x}" type="radio" value="${term2} ${relation} ${term1}" class="required" id="direction{x}1"/>
+                    </td>
+                    <td>
+                        <label for="direction{x}1" style="display:inline; line-height:2">
+                           &nbsp;${term2} <span class="relation">${relation}</span> ${term1}</label>
+                       </td>
+                       <tr>
+                         <td valign="center">
+                            <input name="direction{x}" type="radio" value="no_relation" class="required" id="direction{x}2"/>
+                        </td>
+                        <td>
+                            <label for="direction{x}2" style="display:inline; line-height:2">
+                               &nbsp;${relation} is NOT EXPRESSED between the two WORD PHRASES</label>
+                           </td>			
+                       </tr>
+                   </tbody>
+               </table>
+           </div>
+           <!-- This is where the magic ends... -->
+       </div>
+
+       <p>&nbsp;</p>
+       <style type="text/css">
+       <!--
+       .relation {color:#ff3111;}
+       .highlight-box { border:solid 0px #98BE10; background:#FCF9CE; color:#222222; padding:4px; text-align:left; font-size: smaller;}
+       -->
+       </style>
