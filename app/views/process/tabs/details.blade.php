@@ -53,7 +53,7 @@
 
 							<div class="input-group col-xs-2">
 								{{ Form::input('number', 'unitsPerTask',  null, 
-									array('class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
+									array('onChange' => 'calculate()', 'class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
 							</div>
 							<br>
 							{{ Form::label('expirationInMinutes', 'Duration (minutes)', 

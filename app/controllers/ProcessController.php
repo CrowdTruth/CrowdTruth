@@ -192,16 +192,6 @@ class ProcessController extends BaseController {
 
 		try {
 
-			// CrowdFlower
-			if(in_array('cf', $ct->platform)){
-				$cf = new CFService;
-				dd($cf->readJob('379391'));
-				$cf->createJob($ct->toCFData(), "{$this->csvPath}source359444.csv", 
-					"{$this->templatePath}{$ct->template}", $ct->answerfields, 
-					array('req_ttl_in_seconds' => $ct->expirationInMinutes*60)); 
-				$flash = 'Created CrowdFlower job.<br>';
-			}
-
 			// Mechanical Turk
 			if(in_array('amt', $ct->platform)){
 				$hit = $ct->toHit();
@@ -216,13 +206,26 @@ class ProcessController extends BaseController {
 				$flash .= 'Created ' . count($created) . ' HITs.<br>';
 			}
 
+			// CrowdFlower
+			if(in_array('cf', $ct->platform)){
+				$cf = new CFService;
+				$options = array(	"req_ttl_in_seconds" => $ct->expirationInMinutes*60, 
+									"keywords" => "new-keyword", 
+									"mail_to" => "oana.inel@vu.nl");
+
+				$cf->createJob($ct->toCFData(), "{$this->csvPath}source359444.csv", 
+					"{$this->templatePath}{$ct->template}", $ct->answerfields, $options); 
+				$flash .= 'Created CrowdFlower job.<br>';
+			}
+
 			if(!empty($flash))
 				Session::flash('flashSuccess', $flash);
 
-		} catch (AMTException $e) {
-			Session::flash('flashError', "AMT: {$e->getMessage()}");
-		} catch (CFException $e) {
+		
+		} catch (crowdwatson\CFExceptions $e) {
 			Session::flash('flashError', "CF: {$e->getMessage()}");
+		}catch (AMTException $e) {
+			Session::flash('flashError', "AMT: {$e->getMessage()}");
 		}
 
 		return Redirect::to("process/submit");

@@ -54,7 +54,6 @@ class MechanicalTurkService{
 			
 			foreach ($chunks as $chunk){
 				$hit = $this->addMultipageQuestion($hit, $templateName, $chunk, $answerfields);
-				dd($hit);
 				$id = $this->mturk->createHIT($hit); 
 				$created[] = $id;
 			}
@@ -210,8 +209,8 @@ class MechanicalTurkService{
 			throw new AMTException('Multipage template has no <h1>. View the readme in the templates directory for more info.');
 		
 		$questiontemplate = $div->innertext;
-		if(!strpos($questiontemplate, 'Q{x}'))
-			throw new AMTException('Multipage template has no \'Q{x}\'. View the readme in the templates directory for more info.');
+		if(!strpos($questiontemplate, '{x}'))
+			throw new AMTException('Multipage template has no \'{x}\'. View the readme in the templates directory for more info.');
 
 		$questionsbuilder = '';
 		$count = 0;
@@ -242,6 +241,8 @@ class MechanicalTurkService{
 		$hit->setQuestion($this->makeQuestion($html, $frameheight));
 		if(count($assRevPol)>0)
 			$hit->setAssignmentReviewPolicy($assRevPol);
+		else
+			$hit->setAssignmentReviewPolicy(null);
 
 		return $hit;
 	}

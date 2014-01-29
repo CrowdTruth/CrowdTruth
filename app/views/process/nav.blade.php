@@ -59,8 +59,9 @@ $(window).load(function() {
     function calculate(){
         var reward = $('#reward').val();
         var judgmentsPerUnit = $('#judgmentsPerUnit').val();
+        var unitsPerTask = $('#unitsPerTask').val()
         //var sentences = $
-		var cost = reward*judgmentsPerUnit;
+		var cost = (reward*judgmentsPerUnit)/unitsPerTask;
 		var result = "<strong> $ " + cost.toFixed(2) + "</strong>";
         var el = document.getElementById('totalCost')
         if(el) el.innerHTML=result;
