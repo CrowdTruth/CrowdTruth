@@ -27,27 +27,27 @@
 						<div id="cf-div" style="padding: 10px;">
 							<fieldset>
 								<legend>CrowdFlower</legend> 
-								{{ Form::label('maxJudgmentsPerWorker', 'Maximal judgments per worker', array('class'=>'col-xs-4 control-label')) }}
+								{{ Form::label('judgmentsPerWorker', 'Maximal judgments per worker', array('class'=>'col-xs-4 control-label')) }}
 								<div class="input-group col-xs-2">
-									{{ Form::input('number', 'maxJudgmentsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1')) }}
+									{{ Form::input('number', 'judgmentsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1')) }}
 								</div>
 							</fieldset><br>	
 						</div>
 						<div id="amt-div" style="padding: 10px;">
 							<fieldset>
 								<legend>AMT Duration</legend>
-									{{ Form::label('lifetimeInSeconds', 'HIT Lifetime (seconds)', 
+									{{ Form::label('hitLifetimeInMinutes', 'HIT Lifetime (minutes)', 
 										array('class' => 'col-xs-4 control-label')) }}
 									<div class="input-group col-xs-2">
-										{{ Form::input('number','lifetimeInSeconds',  null, 
+										{{ Form::input('number','hitLifetimeInMinutes',  null, 
 											array('class' => 'form-control input-sm', 'min' => '1')) }}
 									</div>
 									<br>
-									{{ Form::label('autoApprovaldelayInSeconds', 'Auto approval delay (seconds)', 
+									{{ Form::label('autoApprovaldelayInMinutes', 'Auto approval delay (minutes)', 
 										array('class' => 'col-xs-4 control-label')) }}
 									<div class="input-group col-xs-2">
-									{{ Form::input('number','autoApprovalDelayInSeconds',  null, 
-										array('class' => 'form-control input-sm', 'placeholder' => '1 day = 86400', 'min' => '1')) }}
+									{{ Form::input('number','autoApprovaldelayInMinutes',  null, 
+										array('class' => 'form-control input-sm', 'placeholder' => '1 day = 1440', 'min' => '1')) }}
 									</div>
 								</fieldset>
 								<br>
@@ -119,12 +119,16 @@
 								<legend>AMT Assignment Review Policy</legend>
 							
 							<label>AnswerKey</label><br>
-							@if (count($csvfields)>0)
-								{{ Form::select('answerfield', $csvfields)}}
+							<?php  $arp = $crowdtask->assignmentReviewPolicy; ?>
+							@if (count($goldfields)>0)
+								Use gold answers for the following fields:<br>
+								@foreach($goldfields as $field)
+									{{ Form::checkbox('answerfields[]', $field, null, array('id' => $field))}}
+									{{ Form::label($field, $field)}} <br>
+								@endforeach
 							@else
 							<?php
-									 $arp = $crowdtask->assignmentReviewPolicy;
-									 foreach($questionids as $qid){
+									foreach($questionids as $qid){
 									 	$val = '';		
 									 	if($arp)
 									 		foreach($arp['AnswerKey'] as $q=>$v)
@@ -138,12 +142,10 @@
 							<br>
 							<label>Parameters</label><br>
 							<?php
-									$types = array( 'ApproveIfKnownAnswerScoreIsAtLeast', 'ApproveReason', 'RejectIfKnownAnswerScoreIsLessThan', 
-													'RejectReason', 'ExtendIfKnownAnswerScoreIsLessThan', 
-													'ExtendMaximumAssignments', 'ExtendMinimumTimeInSeconds'); ?>
+									$types = array( 'ApproveIfKnownAnswerScoreIsAtLeast', 'ApproveReason', 'RejectIfKnownAnswerScoreIsLessThan', 'RejectReason', 'ExtendIfKnownAnswerScoreIsLessThan', 'ExtendMaximumAssignments', 'ExtendMinimumTimeInSeconds'); ?>
 							@foreach($types as $type)
 								@if(isset($arp['Parameters'][$type]))
-									<?php $c = true; $val = $v; ?>
+									<?php $c = true; $val = $arp['Parameters'][$type]; ?>
 								@else 
 									<?php $c = false; $val = ''; ?>		
 								@endif 

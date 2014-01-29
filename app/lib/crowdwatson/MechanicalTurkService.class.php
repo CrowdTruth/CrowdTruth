@@ -16,7 +16,7 @@ require_once(dirname(__FILE__) . '/simple_html_dom/simple_html_dom.php');
 class MechanicalTurkService{
 
 	private $mturk;
-	private $templatePath = '../res/templates/';
+	private $templatePath = '/public/templates/';
 
 	public function __construct($templatePath = null){
 		$this->mturk = new MechanicalTurk();
@@ -34,32 +34,32 @@ class MechanicalTurkService{
 	* @throws AMTException when one of the files does not exist, or when the parameters and template don't match. Also when
 	* you attempted to create a multipage hit with the wrong parameters.
 	*/
-	public function createBatch($templateName, $csvFilename, $templateHit = null, $assignmentsPerHit = 1, $answerfield = null){
-			$paramsArray = $this->csv_to_array($csvFilename);
-			
-			// can we shuffle? Would be useful for gold questions, but might be bad for continuity?
+	public function createBatch($templateName, $csvFilename, $templateHit = null, $assignmentsPerHit = 1, $answerfields = null){
+		$paramsArray = $this->csv_to_array($csvFilename);
+		shuffle($paramsArray);
 
-			if(isset($templateHit)) $hit = $templateHit;
-			else $hit = $this->hitFromTemplate($templateName);
-			
-			$created = array();	
+		if(isset($templateHit)) $hit = $templateHit;
+		else $hit = $this->hitFromTemplate($templateName);
+		
+		$created = array();	
 
-			if($assignmentsPerHit == 1){		
-				foreach($paramsArray as $params){
-					$hit->setQuestion($this->questionFromHTML($templateName, $params));
-					$id = $this->mturk->createHIT($hit); 
-					$created[] = $id;
-				}
-			} else {
-				$chunks = array_chunk($paramsArray, $assignmentsPerHit);
-				
-				foreach ($chunks as $chunk){
-					$hit = $this->addMultipageQuestion($hit, $templateName, $chunk, $answerfield);
-					$id = $this->mturk->createHIT($hit); 
-					$created[] = $id;
-				}
+		if($assignmentsPerHit == 1){		
+			foreach($paramsArray as $params){
+				$hit->setQuestion($this->questionFromHTML($templateName, $params));
+				$id = $this->mturk->createHIT($hit); 
+				$created[] = $id;
 			}
-			return $created;
+		} else {
+			$chunks = array_chunk($paramsArray, $assignmentsPerHit);
+			
+			foreach ($chunks as $chunk){
+				$hit = $this->addMultipageQuestion($hit, $templateName, $chunk, $answerfields);
+				dd($hit);
+				$id = $this->mturk->createHIT($hit); 
+				$created[] = $id;
+			}
+		}
+		return $created;
 	}
 	
 	/**
@@ -156,14 +156,20 @@ class MechanicalTurkService{
 		if(!file_exists($filename) || !is_readable($filename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
 	
-		$ret = array();
+		$build = array();
 		$html = file_get_html($filename); //HTMLDomParser::file_get_html($filename)
 		foreach($html->find('input') as $input)
-			if(isset($input->name)) $ret[] = $input->name;
+			if(isset($input->name)) $build[] = $input->name;
 		foreach($html->find('textarea') as $input)
-			if(isset($input->name)) $ret[] = $input->name;	
+			if(isset($input->name)) $build[] = $input->name;	
 		foreach($html->find('select') as $input)
-			if(isset($input->name)) $ret[] = $input->name;	
+			if(isset($input->name)) $build[] = $input->name;	
+
+		foreach($build as $id){
+			if($pos = strpos($id, '{x}')) $id = substr($id, 0, $pos);
+			$ret[]=$id;
+		}
+
 		return array_unique($ret); // Unique because checkboxes and radiobuttons have the same name.
 	}
 	
@@ -189,7 +195,7 @@ class MechanicalTurkService{
 	/**
 	* Create the Question for an AMT multipage HIT
 	*/
-	private function addMultipageQuestion($hit, $templateName, $paramsArray, $answerfield, $frameheight = 650){
+	private function addMultipageQuestion($hit, $templateName, $paramsArray, $answerfields, $frameheight = 650){
 		$filename = "{$this->templatePath}$templateName.html";
 		if(!file_exists($filename) || !is_readable($filename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
@@ -215,8 +221,9 @@ class MechanicalTurkService{
 			// -- IF isset($hit->getAssignmentReviewPolicy['Parameters'])
 			// ELSE [issue warning? Throw exception?]
 
-			if(isset($params['_golden']) and $params['_golden'] == true and isset($answerfield)) {
-				$assRevPol['AnswerKey']["Q$count"] = $params[$answerfield];
+			if(isset($params['_golden']) and $params['_golden'] == true and isset($answerfields)) {
+				foreach($answerfields as $answerfield)
+					$assRevPol['AnswerKey']["$answerfield$count"] = $params["{$answerfield}_gold"];
 			}
 
 			foreach ($params as $key=>$val)	{	

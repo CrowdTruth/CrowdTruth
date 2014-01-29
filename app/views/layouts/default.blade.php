@@ -19,8 +19,9 @@
 			</div>   
 		</div>
 	</div>
-	{{ javascript_include_tag() }}
 
+@yield('modal')	
+	{{ javascript_include_tag() }}
 <script type="text/javascript">
 	$(document).ready(function () {
 		$(document).bind('click', function(e) {
@@ -86,7 +87,6 @@
 		});			
 	});
 </script>
-
 @yield('end_javascript')
 @yield('selection_user_javascript')
 	</body>

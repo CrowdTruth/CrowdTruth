@@ -35,27 +35,27 @@
 						</fieldset>
 						
 						<fieldset>
-								{{ Form::label('maxAssignments', 'Max assignments', 
+								{{ Form::label('judgmentsPerUnit', 'Judgments per Unit', 
 								array('class' => 'col-xs-4 control-label')) }}
 
 							<div class="input-group col-xs-2">
-								{{ Form::input('number', 'maxAssignments',  null, 
-									array('onChange' => 'calculate()', 'id'=>'maxAssignments', 'class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
+								{{ Form::input('number', 'judgmentsPerUnit',  null, 
+									array('onChange' => 'calculate()', 'id'=>'judgmentsPerUnit', 'class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
 							</div>
 							<br>
-							{{ Form::label('tasksPerAssignment', 'Tasks per assignment', 
+							{{ Form::label('unitsPerTask', 'Units per task', 
 								array('class' => 'col-xs-4 control-label')) }}
 
 							<div class="input-group col-xs-2">
-								{{ Form::input('number', 'tasksPerAssignment',  null, 
+								{{ Form::input('number', 'unitsPerTask',  null, 
 									array('class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
 							</div>
 							<br>
-							{{ Form::label('assignmentDur', 'Assignment duration (seconds)', 
+							{{ Form::label('expirationInMinutes', 'Duration (minutes)', 
 								array('class' => 'col-xs-4 control-label')) }}
 
 							<div class="input-group col-xs-2">
-								{{ Form::input('number', 'assignmentDur',  null, 
+								{{ Form::input('number', 'expirationInMinutes',  null, 
 									array('class' => 'form-control input-sm', 'min' => '1')) }}
 							</div>
 
@@ -66,7 +66,7 @@
 							{{ Form::input('number', 'reward',  $crowdtask->reward, array('onChange' => 'calculate()', 'class' => 'form-control input-sm','id'=>'reward',  'min' => '0.01', 'step' => '0.01')) }}
 							</div>
 							<br>
-							{{ Form::label('assignmentDur', 'Cost per sentence', 
+							{{ Form::label('totalCost', 'Cost per unit', 
 									array('class' => 'col-xs-4 control-label')) }}
 							<!-- Div totalCost is used for js -->
 							<div id="totalCost" class="col-xs-1 control-label">
@@ -88,7 +88,6 @@
 	</div>
 </div>
 
-<script src="http://codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
 <script>
 	//todo change to cost per job
 	$(document).ready(calculate());

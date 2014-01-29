@@ -4,13 +4,37 @@
 use crowdwatson\Hit;
 
 class CrowdTask extends Moloquent {
-	//protected $fillable = array('title', 'description', 'keywords', 'template', 'reward', 'maxAssignments', 'assignmentDur');
-    protected $fillable = array('title', 'description', 'keywords', 'template', 'reward', 'maxAssignments', 'assignmentDur', 
-    	'autoApprovalDelayInSeconds', 'qualificationRequirement', 'requesterAnnotation' ,'assignmentReviewPolicy', 'answerfield',
-    	'lifetimeInSeconds', 'tasksPerAssignment', 'csv');
+    protected $fillable = array(
+    								'title', 
+    								'description', 
+    								'keywords', 
+    								'judgmentsPerUnit', /* AMT: maxAssignments */
+    								'unitsPerTask', /* AMT: not in API. Would be 'tasks per assignment' */
+    								'reward', 
+    								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
+    								'country', /* TODO: GUI
 
-    protected $collection = 'crowd_tasks';
 
+    								/* Undecided */
+    								'instructions',
+
+    								/* AMT specific */
+    								'requesterAnnotation',
+    	    						'autoApprovalDelayInMinutes', /* AMT API: AutoApprovalDelayInSeconds */
+									'hitLifetimeInMinutes', 
+									'qualificationRequirement',
+									'assignmentReviewPolicy', 
+
+    	    						/* CF specific */
+    	    						'mandatory',
+    	    						'judgmentsPerWorker',
+
+    	    						/* for our use */
+    	    						'answerfields', /* The field of the CSV file that contains the gold answers. TODO: checkboxes, limit choices. */
+    								'template',
+    								'csv'
+    								);
+    
     public function getElapsedTime($created_at){
 	    $time = time() - strtotime($created_at); // to get the time since that moment
 
@@ -31,6 +55,8 @@ class CrowdTask extends Moloquent {
 	    	}
 	}
  
+
+    // TODO: we do nothing with the rules yet.
     public static $rules = array(
 	  'title' => 'required',
 	  'description' => 'required',
@@ -77,6 +103,7 @@ class CrowdTask extends Moloquent {
 		else $this->assignmentReviewPolicy = null;
 	}
 
+
 	// TODO: now we use the hitxml format for templating. There should be a more generic system.
 	public static function getFromHit($hit){
 		return new CrowdTask(array(
@@ -97,31 +124,64 @@ class CrowdTask extends Moloquent {
 			
 			// Which field in the User model for username?
 			));
+
+	public static function fromJSON($filename){
+		if(!file_exists($filename) || !is_readable($filename))
+			throw new Exception('JSON template file does not exist or is not readable.');
+	
+		$json = file_get_contents($filename);
+		if(!$arr = json_decode($json, true))
+			throw new Exception('JSON incorrectly formatted');
+		return new CrowdTask($arr);
 	}
+
 
 	public function toHit(){
 		$hit = new Hit();
 		if (isset($this->title)) 			 			$hit->setTitle						  	($this->title); 
 		if (isset($this->description)) 		 			$hit->setDescription					($this->description); 
 		if (isset($this->keywords)) 					$hit->setKeywords				  		($this->keywords);
-		if (isset($this->maxassignments)) 				$hit->setMaxAssignments		  			($this->maxassignments);
-		if (isset($this->assignmentDur))				$hit->setAssignmentDurationInSeconds 	($this->assignmentDur);
-		if (isset($this->lifetimeInSeconds)) 			$hit->setLifetimeInSeconds		  		($this->lifetimeInSeconds);
+		if (isset($this->judgmentsPerUnit)) 			$hit->setMaxAssignments		  			($this->judgmentsPerUnit);
+		if (isset($this->expirationInMinutes))			$hit->setAssignmentDurationInSeconds 	($this->expirationInMinutes*60);
+		if (isset($this->hitLifetimeInMinutes)) 		$hit->setLifetimeInSeconds		  		($this->hitLifetimeInMinutes*60);
 		if (isset($this->reward)) 						$hit->setReward					  		(array('Amount' => $this->reward, 'CurrencyCode' => 'USD'));
-		if (isset($this->autoapprovaldelayinseconds)) 	$hit->setAutoApprovalDelayInSeconds  	($this->autoapprovaldelayinseconds); 
+		if (isset($this->autoApprovalDelayInMinutes)) 	$hit->setAutoApprovalDelayInSeconds  	($this->autoApprovalDelayInMinutes*60); 
 		if (isset($this->qualificationRequirement))		$hit->setQualificationRequirement		($this->qualificationRequirement);
 		if (isset($this->requesterAnnotation))			$hit->setRequesterAnnotation			($this->requesterAnnotation);
 		
-		if (isset($this->assignmentReviewPolicy['AnswerKey']) and 
-			count($this->assignmentReviewPolicy['AnswerKey']) > 0 and
+		if (/* isset($this->assignmentReviewPolicy['AnswerKey']) and 
+			count($this->assignmentReviewPolicy['AnswerKey']) > 0 and */
 			isset($this->assignmentReviewPolicy['Parameters']) and
-			count($this->assignmentReviewPolicy['Parameters']) > 0)		
+			count($this->assignmentReviewPolicy['Parameters']) > 0 ) 		
 														$hit->setAssignmentReviewPolicy			($this->assignmentReviewPolicy);
 		
 		return $hit;
 	}
 
+<<<<<<< HEAD
 	
+=======
+
+
+	// Not used (yet?)
+	public static function getFromHit($hit){
+		return new CrowdTask(array(
+			'title' 				=> $hit->getTitle(),
+			'description' 			=> $hit->getDescription(),
+			'keywords'				=> $hit->getKeywords(),
+			'reward'				=> $hit->getReward()['Amount'],
+			'judgmentsPerUnit'		=> $hit->getMaxAssignments(),
+			'expirationInMinutes'	=> $hit->getAssignmentDurationInSeconds(),
+			'hitLifetimeInMinutes' 	=> $hit->getLifetimeInSeconds() / 60,
+			'unitsPerTask' 			=> 1, /* This is not in the AMT API */
+
+			/* AMT */
+			'autoApprovalDelayInSeconds' 	=> $hit->getAutoApprovalDelayInSeconds(),
+			'qualificationRequirement'		=> $hit->getQualificationRequirement(),
+			'assignmentReviewPolicy' 		=> $hit->getAssignmentReviewPolicy()
+			));
+	}
+>>>>>>> arne
 }
 	
 
