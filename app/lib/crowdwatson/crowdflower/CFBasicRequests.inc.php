@@ -34,7 +34,7 @@ class CFBasicRequests {
        		$error = $this->getError($ch);
         
         	curl_close($ch);
-		if ($this->fh)
+		if (is_resource($this->fh))
 			fclose($this->fh);
 
 		$retValue["result"] = $result;
@@ -53,7 +53,7 @@ class CFBasicRequests {
 	protected function setRequestOptions($url, $data, $ch) {
         	if (!empty($data)) 
 			if (!isset($data['stringRequest'])) {
-				echo http_build_query($data, '', '&');
+				//echo http_build_query($data, '', '&');
             			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data, '', '&'));
 			}
 			else 
@@ -90,20 +90,18 @@ class CFBasicRequests {
         * @throws 
         */
 	public function setRequestMethod($method, $data, $ch) {
-	        if (strtoupper($method) == "GET") {
-                	curl_setopt($ch, CURLOPT_HTTPGET, true);
-		}
-		else if (strtoupper($method) == "UPLOAD") {
+	    if (strtoupper($method) == "GET") {
+           	curl_setopt($ch, CURLOPT_HTTPGET, true);
+		} else if (strtoupper($method) == "UPLOAD") {
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 			curl_setopt($ch, CURLOPT_UPLOAD, true);
 			$this->fh = fopen($data['file_path'], 'r');
 			curl_setopt($ch, CURLOPT_INFILE, $this->fh);
 			curl_setopt($ch, CURLOPT_INFILESIZE, filesize($data['file_path']));
-		} 	
-            	else {
+		} else {
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        	}
-    	}
+       	}
+    }
 
 	/**
         * Return information related to the cURL request to CrowdFlower.

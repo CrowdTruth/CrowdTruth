@@ -13,9 +13,7 @@
 
 <!-- END process_nav   -->   
 @section('end_javascript')
-{{ javascript_include_tag('jstree/jstree.min.js') }}
-{{ javascript_include_tag('jstree/libs/require.js') }}
-<?= stylesheet_link_tag('jstree/style.min.css') ?>
+
 <script>
 $(document).ready(function(){
 	$("#processtabs > li").click(function(event){
@@ -51,14 +49,22 @@ $(window).load(function() {
      		$('#amt-div').toggle(this.checked);
   			}).change(); //ensure visible state matches initially
 				
-});
-
-$(window).load(function() {
   		$('#cf-button').change(function () {                
      		$('#cf-div').toggle(this.checked);
+     		$('#cflabel').button('toggle');
   			}).change(); //ensure visible state matches initially
-				
+		calculate();
 });
+
+    function calculate(){
+        var reward = $('#reward').val();
+        var judgmentsPerUnit = $('#judgmentsPerUnit').val();
+        //var sentences = $
+		var cost = reward*judgmentsPerUnit;
+		var result = "<strong> $ " + cost.toFixed(2) + "</strong>";
+        var el = document.getElementById('totalCost')
+        if(el) el.innerHTML=result;
+    } 
 
 </script>
 @endsection

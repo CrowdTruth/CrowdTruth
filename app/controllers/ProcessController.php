@@ -24,12 +24,6 @@ class ProcessController extends BaseController {
 
 	public function getSelectfile() {
 		$ct = unserialize(Session::get('crowdtask'));
-		/* 
-		// For testing:
-		$ct = CrowdTask::fromJSON("{$this->templatePath}factor_span/factor_span_1.json");
-		$cf = new CFService;
-		$cf->createJob($ct->toCFData()); 
-		*/
 		return View::make('process.tabs.selectfile')->with('crowdtask', $ct);
 	}
 
@@ -37,7 +31,7 @@ class ProcessController extends BaseController {
 		// Create array for the tree
 		$crowdtask = unserialize(Session::get('crowdtask'));		
 		$currenttemplate = (isset($crowdtask->template) ? $crowdtask->template : 'generic/default');	
-		$treejson = $this->iterateDirectory($this->templatePath, $currenttemplate);
+		$treejson = $this->makeDirTreeJSON($this->templatePath, $currenttemplate);
 
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
@@ -84,7 +78,7 @@ class ProcessController extends BaseController {
 		$questions = array();
 
 		// for template saving
-		$treejson = $this->iterateDirectory($this->templatePath, $ct->template, false);
+		$treejson = $this->makeDirTreeJSON($this->templatePath, $ct->template, false);
 
 		try{
 			$question = file_get_contents("{$this->templatePath}{$ct->template}.html");
@@ -169,11 +163,12 @@ class ProcessController extends BaseController {
 				// There already is a CrowdTask object. Merge it with Input!
 				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
 
-				// This means we're leaving the Platform page. So we can check for answerfields as well:
+				// If leaving the Platform page....:
 				if(Input::has('qr')) {
+					$ct->platform = Input::get('platform', false);
 					$ct->answerfields = Input::get('answerfields', false);
 					$ct->addQualReq(Input::get('qr'));
-					$ct->addAssRevPol(Input::get('answerkey'), Input::get('arp');
+					$ct->addAssRevPol(Input::get('answerkey'), Input::get('arp'));
 				}
 			}		
 		}
@@ -191,29 +186,54 @@ class ProcessController extends BaseController {
 	*/
 	public function postSubmitFinal(){
 		$ct = unserialize(Session::get('crowdtask'));
-		$hit = $ct->toHit();
-		$turk = new MechanicalTurkService($this->templatePath);
-		$upt = $ct->unitsPerTask;
+		$flash = '';
 
-		// Create HIT(s)
+		// TODO: maybe a result page?
+
 		try {
-			if(isset($upt) and $upt > 1)
-				$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit, $upt, $ct->answerfields);
-			else
-				$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit);
-			Session::flash('flashSuccess', 'Created ' . count($created) . ' HITs.');
+
+			// CrowdFlower
+			if(in_array('cf', $ct->platform)){
+				$cf = new CFService;
+				dd($cf->readJob('379391'));
+				$cf->createJob($ct->toCFData(), "{$this->csvPath}source359444.csv", 
+					"{$this->templatePath}{$ct->template}", $ct->answerfields, 
+					array('req_ttl_in_seconds' => $ct->expirationInMinutes*60)); 
+				$flash = 'Created CrowdFlower job.<br>';
+			}
+
+			// Mechanical Turk
+			if(in_array('amt', $ct->platform)){
+				$hit = $ct->toHit();
+				$turk = new MechanicalTurkService($this->templatePath);
+				$upt = $ct->unitsPerTask;
+
+				if(isset($upt) and $upt > 1)
+					$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit, $upt, $ct->answerfields);
+				else
+					$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit);
+				
+				$flash .= 'Created ' . count($created) . ' HITs.<br>';
+			}
+
+			if(!empty($flash))
+				Session::flash('flashSuccess', $flash);
+
 		} catch (AMTException $e) {
-			Session::flash('flashError', $e->getMessage());
+			Session::flash('flashError', "AMT: {$e->getMessage()}");
+		} catch (CFException $e) {
+			Session::flash('flashError', "CF: {$e->getMessage()}");
 		}
 
 		return Redirect::to("process/submit");
+		
 	}
 
 
 	/*
 	* Create the JSON necessary for jstree to use.
 	*/
-	private function iterateDirectory($path, $currenttemplate, $pretty = true){
+	private function makeDirTreeJSON($path, $currenttemplate, $pretty = true){
 		$r = array();
 		foreach(File::directories($path) as $dir){
 			$dirname = substr($dir, strlen($path));

@@ -251,8 +251,7 @@ class Job extends CFBasicRequests {
 	public function setOptions($job_id, $data) {
 		$url = $this->getRequestURL() . $this->getReferenceResource() . "/" . $job_id . ".json";
 		$result = $this->curlRequest($url, "PUT", prefixData($data, "job"));
-		//return $result;
-		print_r($result);
+		return $result;
 	}
 
 	/**
