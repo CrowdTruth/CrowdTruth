@@ -43,6 +43,14 @@
 									array('onChange' => 'calculate()', 'id'=>'maxAssignments', 'class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
 							</div>
 							<br>
+							{{ Form::label('tasksPerAssignment', 'Tasks per assignment', 
+								array('class' => 'col-xs-4 control-label')) }}
+
+							<div class="input-group col-xs-2">
+								{{ Form::input('number', 'tasksPerAssignment',  null, 
+									array('class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
+							</div>
+							<br>
 							{{ Form::label('assignmentDur', 'Assignment duration (seconds)', 
 								array('class' => 'col-xs-4 control-label')) }}
 

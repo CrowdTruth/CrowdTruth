@@ -26,15 +26,21 @@ class ProcessController extends BaseController {
 		$ct = unserialize(Session::get('crowdtask'));
 		$turk = new MechanicalTurkService(base_path() . '/public/templates/');
 		$questionids = array();
+		$csvfields = array();
+
 		try {
 			$questionids = $turk->findQuestionIds($ct->template);
+			if($ct->tasksPerAssignment > 1)
+				foreach (array_keys($turk->csv_to_array($ct->csv)[0]) as $key)
+					$csvfields[$key] = $key;
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
 		} 
 		
 		return View::make('process.tabs.platform')
 			->with('crowdtask', $ct)
-			->with('questionids', $questionids);
+			->with('questionids', $questionids)
+			->with('csvfields', $csvfields);
 	}
 
 
@@ -44,7 +50,7 @@ class ProcessController extends BaseController {
 			$dirname = substr($dir, strlen($path));
 		   	$prettydir = ucfirst(str_replace('_', ' ', $dirname));
 			$r[] = array('id' => $dirname, 'parent' => '#', 'text' => $prettydir); 
-			
+
 			foreach(File::allFiles($dir) as $file){
 				$filename = $file->getFileName();
 				if (substr($filename, -5) == '.html') {
@@ -74,13 +80,13 @@ class ProcessController extends BaseController {
 	}
 
 	public function getSubmit() {
-		$crowdtask = unserialize(Session::get('crowdtask'));
+		$ct = unserialize(Session::get('crowdtask'));
 		$turk = new MechanicalTurkService();
 		$questions = array();
 
 		try{
-			$question = file_get_contents(base_path() . "/public/templates/{$crowdtask->template}.html");
-			$questions = $turk->createPreviews($question, base_path() . '/public/csv/test.csv');
+			$question = file_get_contents(base_path() . "/public/templates/{$ct->template}.html");
+			$questions = $turk->createPreviews($question, $ct->csv);
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
 		} catch (ErrorException $e) {
@@ -88,7 +94,7 @@ class ProcessController extends BaseController {
 		}
 
 		return View::make('process.tabs.submit')
-			->with('crowdtask', $crowdtask)
+			->with('crowdtask', $ct)
 			->with('questions',  $questions);
 	}
 
@@ -117,56 +123,39 @@ class ProcessController extends BaseController {
 		if(Input::has('template')){
 			$template = Input::get('template');
 			if (empty($ct) or ($ct->template != $template))
-				$ct = $this->newCTfromTemplate($template);		
-		} else {
+				$ct = $this->newCTfromTemplate($template);	
+			} else {
 			// perhaps additional logic here depending on which tab you're on
 			if (empty($ct)){
 				$ct = new CrowdTask;
 				Session::flash('flashWarning', 'No template selected.');
 			} else {
 				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
+				if(Input::has('qr')) $ct->addQualReq(Input::get('qr'));
+				if(Input::has('arp')) $ct->addAssRevPol(Input::get('answerkey'), Input::get('arp'));
 
-				if(Input::has('qr') and is_array(Input::get('qr'))) 		$ct->addQualReq(Input::get('qr'));
-				if(Input::has('answerkey') and is_array(Input::get('answerkey'))) $ct->addAssRevPol(Input::get('answerkey'), Input::get('arp'));
 			}		
 		}
+
+			// TODO: get this from 'selectfile'
+			$ct->csv = base_path() . '/public/csv/source359444.csv';
 
 		Session::put('crowdtask', serialize($ct));
 		return Redirect::to("process/$next");
 
 	}
 
-	// public function getAmt($template='default') {
-	// 	$hit = new Hit();
-	// 	$questionids= array();
-	// 	try {
-	// 		$turk = new MechanicalTurkService(base_path() . '/public/templates/');
-	// 		$hit = $turk->hitFromTemplate($template);
-	// 		$questionids = $turk->findQuestionIds($template);
-	// 	} catch (AMTException $e) {
-	// 		Session::flash('flashError', $e->getMessage());
-	// 	}
-		
-	// 	return View::make('process.tabs.amt')
-	// 		->with('hit', $hit)
-	// 		->with('template', $template)
-	// 		->with('questionids', $questionids)
-	// 		->with('crowdtask', unserialize(Session::get('crowdtask')));
-	// }
-
-	// public function getCf(){
-	// 	return View::make('process.index')->with('page', 'process.cf.index');
-	// }
-
 	public function postSubmitFinal(){
 		$ct = unserialize(Session::get('crowdtask'));
 		$hit = $ct->toHit();
 		$turk = new MechanicalTurkService(base_path() . '/public/templates/');
-		$csvfilename =base_path() . '/public/csv/test.csv'; //TODO: Set this @ selectfile. Also see below!
-				
+
 		// Create HIT(s)
 		try {
-			$created = ($turk->createBatch($ct->template, $csvfilename, $hit));
+			if(isset($ct->tasksPerAssignment) and $ct->tasksPerAssignment > 1)
+				$created = ($turk->createBatch($ct->template, $ct->csv, $hit, $ct->tasksPerAssignment, $ct->answerfield));
+			else
+				$created = ($turk->createBatch($ct->template, $ct->csv, $hit));
 			Session::flash('flashSuccess', 'Created ' . count($created) . ' HITs.');
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());

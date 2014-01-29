@@ -119,7 +119,9 @@
 								<legend>AMT Assignment Review Policy</legend>
 							
 							<label>AnswerKey</label><br>
-
+							@if (count($csvfields)>0)
+								{{ Form::select('answerfield', $csvfields)}}
+							@else
 							<?php
 									 $arp = $crowdtask->assignmentReviewPolicy;
 									 foreach($questionids as $qid){
@@ -131,6 +133,7 @@
 										echo "<label class='col-xs-4'>$qid</label><div class='input-group col-xs-4'><input name='answerkey[$qid]' value='$val' class='form-control input-sm'/></div>";
 									 }
 								?>
+							@endif	
 							<br>
 							<br>
 							<label>Parameters</label><br>
