@@ -8,6 +8,28 @@ class CrowdTask extends Moloquent {
     protected $fillable = array('title', 'description', 'keywords', 'template', 'reward', 'maxAssignments', 'assignmentDur', 
     	'autoApprovalDelayInSeconds', 'qualificationRequirement', 'requesterAnnotation' ,'assignmentReviewPolicy', 'lifetimeInSeconds');
 
+    protected $collection = 'crowd_tasks';
+
+    public function getElapsedTime($created_at){
+	    $time = time() - strtotime($created_at); // to get the time since that moment
+
+    	$tokens = array (
+        	31536000 => 'year',
+        	2592000 => 'month',
+        	604800 => 'week',
+        	86400 => 'day',
+        	3600 => 'hour',
+        	60 => 'minute',
+        	1 => 'second'
+	    );
+
+	    foreach ($tokens as $unit => $text) {
+	        if ($time < $unit) continue;
+	        $numberOfUnits = floor($time / $unit);
+	        return $numberOfUnits.' '.$text.(($numberOfUnits>1)?'s':'');
+	    	}
+	}
+ 
     public static $rules = array(
 	  'title' => 'required',
 	  'description' => 'required',
@@ -62,7 +84,10 @@ class CrowdTask extends Moloquent {
 			/* AMT */
 			'autoApprovalDelayInSeconds' => $hit->getAutoApprovalDelayInSeconds(),
 			'qualificationRequirement'=> $hit->getQualificationRequirement(),
-			'assignmentReviewPolicy' => $hit->getAssignmentReviewPolicy()
+			'assignmentReviewPolicy' => $hit->getAssignmentReviewPolicy(),
+			/* General CrowdTask info */
+			
+			// Which field in the User model for username?
 			));
 	}
 
@@ -83,6 +108,8 @@ class CrowdTask extends Moloquent {
 		return $hit;
 	}
 
+	
 }
+	
 
 ?>

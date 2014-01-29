@@ -10,15 +10,17 @@ class PostProcessController extends BaseController {
 
 	public function getListview() {
 		$ct = PostProcessController::newCTfromTemplate('relation_direction/relation_direction_1');
-		$ct->name = 'mock';
+		$ct->name = 'List view mock';
 		$ct->save();
 		$crowdtasks = CrowdTask::all();
 	   	return View::make('postprocess.listview')->with('crowdtasks', $crowdtasks);	
 	}
 	
 	public function getTableview() {
+		// $ct->name = 'Table view mock';
+		// $ct->save();
 	   $crowdtasks = CrowdTask::all();
-	   return View::make('postprocess.tableview');
+	   return View::make('postprocess.tableview')->with('crowdtasks', $crowdtasks);
 	}
 
 	private function newCTfromTemplate($template){
