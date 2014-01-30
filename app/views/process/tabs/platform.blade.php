@@ -40,7 +40,7 @@
 										array('class' => 'col-xs-4 control-label')) }}
 									<div class="input-group col-xs-2">
 										{{ Form::input('number','hitLifetimeInMinutes',  null, 
-											array('class' => 'form-control input-sm', 'min' => '1')) }}
+											array('class' => 'form-control input-sm', 'min' => '1', 'placeholder' => '1 day = 1440')) }}
 									</div>
 									<br>
 									{{ Form::label('autoApprovaldelayInMinutes', 'Auto approval delay (minutes)', 
@@ -49,17 +49,6 @@
 									{{ Form::input('number','autoApprovaldelayInMinutes',  null, 
 										array('class' => 'form-control input-sm', 'placeholder' => '1 day = 1440', 'min' => '1')) }}
 									</div>
-								</fieldset>
-								<br>
-								<br>
-							<fieldset>
-								<legend>AMT Misc.</legend>
-								{{ Form::label('requesterAnnotation', 'Requester Annotation', 
-									array('class' => 'col-xs-4 control-label')) }}
-								<div class="input-group col-xs-2">
-									{{ Form::text('requesterAnnotation',  null, 
-										array('class' => 'form-control input-sm')) }}
-								</div>
 							</fieldset>
 							<br>
 							<br>
@@ -115,48 +104,32 @@
 								@endforeach				
 								</div>
 							</fieldset>
+							<br>
+							<br>
 							<fieldset>
 								<legend>AMT Assignment Review Policy</legend>
-							
-							<label>AnswerKey</label><br>
-							<?php  $arp = $crowdtask->assignmentReviewPolicy; ?>
-							@if (count($goldfields)>0)
-								Use gold answers for the following fields:<br>
-								@foreach($goldfields as $field)
-									{{ Form::checkbox('answerfields[]', $field, null, array('id' => $field))}}
-									{{ Form::label($field, $field)}} <br>
-								@endforeach
-							@else
-							<?php
-									foreach($questionids as $qid){
-									 	$val = '';		
-									 	if($arp)
-									 		foreach($arp['AnswerKey'] as $q=>$v)
-									 			if($q == $qid) $val = $v;
 
-										echo "<label class='col-xs-4'>$qid</label><div class='input-group col-xs-4'><input name='answerkey[$qid]' value='$val' class='form-control input-sm'/></div>";
-									 }
-								?>
-							@endif	
-							<br>
-							<br>
-							<label>Parameters</label><br>
-							<?php
+							<label>Actions to take with gold questions</label><br><br>
+							@if(empty($crowdtask->answerfields))
+								<b>Note: </b>Please specify the gold fields in the details tab first!<br><br>
+							@else
+								<?php
+									$arp = $crowdtask->assignmentReviewPolicy;
 									$types = array( 'ApproveIfKnownAnswerScoreIsAtLeast', 'ApproveReason', 'RejectIfKnownAnswerScoreIsLessThan', 'RejectReason', 'ExtendIfKnownAnswerScoreIsLessThan', 'ExtendMaximumAssignments', 'ExtendMinimumTimeInSeconds'); ?>
-							@foreach($types as $type)
-								@if(isset($arp['Parameters'][$type]))
-									<?php $c = true; $val = $arp['Parameters'][$type]; ?>
-								@else 
-									<?php $c = false; $val = ''; ?>		
-								@endif 
-										<span class='col-sm-5'>
-											{{ Form::checkbox("arp[$type][checked]", 'true', $c, array('id' => $type)) }}
-											{{ Form::label($type, $type) }}
-										</span>
-											{{ Form::text("arp[$type][0]", $val, array('class' => 'col-sm-4')) }}
-										<br><br>
-							@endforeach
-							</div>
+								@foreach($types as $type)
+									@if(isset($arp['Parameters'][$type]))
+										<?php $c = true; $val = $arp['Parameters'][$type]; ?>
+									@else 
+										<?php $c = false; $val = ''; ?>		
+									@endif 
+											<span class='col-sm-5'>
+												{{ Form::checkbox("arp[$type][checked]", 'true', $c, array('id' => $type)) }}
+												{{ Form::label($type, $type) }}
+											</span>
+												{{ Form::text("arp[$type][0]", $val, array('class' => 'col-sm-4')) }}
+											<br><br>
+								@endforeach
+							@endif
 							</fieldset>
 							<br>
 							<br>

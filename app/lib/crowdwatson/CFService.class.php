@@ -53,17 +53,21 @@ class CFService {
 					// TODO: Foreach? 
 					$goldresult = $job->manageGold($id, array('check' => $gold[0]));
 					if(isset($goldresult['result']['errors']))
-						throw new CFExceptions($goldresult['result']['errors']);
+						throw new CFExceptions($goldresult['result']['errors'][0]);
 				}
-			// Failed to create inistial job.
+			// Failed to create initial job.
 			} else {
-				$err = $result['error']['message'];
+				$err = $result['result']['errors'][0];
 				if(isset($err)) $msg = $err;
 				else $msg = 'Unknown error.';
 				throw new CFExceptions($msg);
 			}
 		} catch (ErrorException $e) {
+			if(isset($id)) $job->deleteJob($id);
 			throw new CFExceptions($e->getMessage());
+		} catch (CFExceptions $e){
+			if(isset($id)) $job->deleteJob($id);
+			throw $e;
 		} 
 
 	}

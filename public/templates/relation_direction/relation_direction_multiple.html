@@ -7,10 +7,10 @@
     $(document).ready(function(){
         $("#wizard").steps({
                 onFinishing : function(event, currentIndex){
-                  return ($("input[name='Q" + currentIndex + "']:checked").val());},
+                  return ($("input[name='direction" + currentIndex + "']:checked").val());},
                 onStepChanging : function(event, currentIndex, newIndex){
                   if (newIndex > currentIndex)
-                    return ($("input[name='Q" + currentIndex + "']:checked").val());
+                    return ($("input[name='direction" + currentIndex + "']:checked").val());
                   else
                     return true;  
                   },
@@ -25,7 +25,7 @@
     </script>
     <div id="wizard">
         <!-- This is where the magic happens. -->
-        <h1>Sentence {x}</h1>
+        <h1></h1>
         <div>
             <h3>What is the right order of two related WORD PHRASES?</h3>
 

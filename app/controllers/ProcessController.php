@@ -29,25 +29,22 @@ class ProcessController extends BaseController {
 
 	public function getTemplate() {
 		// Create array for the tree
-		$crowdtask = unserialize(Session::get('crowdtask'));		
-		$currenttemplate = (isset($crowdtask->template) ? $crowdtask->template : 'generic/default');	
+		$ct = unserialize(Session::get('crowdtask'));		
+		$currenttemplate = (isset($ct->template) ? $ct->template : 'generic/default');	
 		$treejson = $this->makeDirTreeJSON($this->templatePath, $currenttemplate);
 
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
 			->with('currenttemplate', $currenttemplate)
-			->with('crowdtask', $crowdtask);
+			->with('crowdtask', $ct);
 	}
 
 	public function getDetails() {
-		return View::make('process.tabs.details')->with('crowdtask', unserialize(Session::get('crowdtask')));
-	}
-
-	public function getPlatform() {
 		$ct = unserialize(Session::get('crowdtask'));
 		$turk = new MechanicalTurkService($this->templatePath);
 		$questionids = array();
 		$goldfields = array();
+
 		try {
 			$questionids = $turk->findQuestionIds($ct->template);
 			if($ct->unitsPerTask > 1) // Admittedly a strange place for this. Should be refactored. (todo)
@@ -66,10 +63,14 @@ class ProcessController extends BaseController {
 				elseif(count($diff) > 1)
 					Session::flash('flashNotice', 'Fields \'' . implode(', ', $diff) . '\' are in the answerkey but not in the HTML template.');
 
-		return View::make('process.tabs.platform')
+		return View::make('process.tabs.details')
 			->with('crowdtask', $ct)
-			->with('questionids', $questionids)
 			->with('goldfields', $goldfields);
+	}
+
+	public function getPlatform() {
+		$ct = unserialize(Session::get('crowdtask'));
+		return View::make('process.tabs.platform')->with('crowdtask', $ct);
 	}
 
 	public function getSubmit() {
@@ -163,12 +164,17 @@ class ProcessController extends BaseController {
 				// There already is a CrowdTask object. Merge it with Input!
 				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
 
+				// If leaving the details page...
+				If(Input::has('title')){
+					$ct->answerfields = Input::get('answerfields', false);
+				}
+
 				// If leaving the Platform page....:
 				if(Input::has('qr')) {
 					$ct->platform = Input::get('platform', false);
-					$ct->answerfields = Input::get('answerfields', false);
 					$ct->addQualReq(Input::get('qr'));
-					$ct->addAssRevPol(Input::get('answerkey'), Input::get('arp'));
+					if(Input::has('arp'))
+						$ct->addAssRevPol(Input::get('arp'));
 				}
 			}		
 		}
@@ -188,8 +194,6 @@ class ProcessController extends BaseController {
 		$ct = unserialize(Session::get('crowdtask'));
 		$flash = '';
 
-		// TODO: maybe a result page?
-
 		try {
 
 			// Mechanical Turk
@@ -199,9 +203,9 @@ class ProcessController extends BaseController {
 				$upt = $ct->unitsPerTask;
 
 				if(isset($upt) and $upt > 1)
-					$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit, $upt, $ct->answerfields);
+					$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit, $upt, $ct->answerfields, $ct->notificationEmail);
 				else
-					$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit);
+					$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit, null, 1, $ct->notificationEmail);
 				
 				$flash .= 'Created ' . count($created) . ' HITs.<br>';
 			}
@@ -209,23 +213,23 @@ class ProcessController extends BaseController {
 			// CrowdFlower
 			if(in_array('cf', $ct->platform)){
 				$cf = new CFService;
-				$options = array(	"req_ttl_in_seconds" => $ct->expirationInMinutes*60, 
-									"keywords" => "new-keyword", 
-									"mail_to" => "oana.inel@vu.nl");
 
 				$cf->createJob($ct->toCFData(), "{$this->csvPath}source359444.csv", 
 					"{$this->templatePath}{$ct->template}", $ct->answerfields, $options); 
 				$flash .= 'Created CrowdFlower job.<br>';
 			}
+				$options = array(	"req_ttl_in_seconds" => $ct->expirationInMinutes*60, 
+									"keywords" => $ct->requesterAnnotation, 
+									"mail_to" => $ct->notificationEmail);
 
 			if(!empty($flash))
 				Session::flash('flashSuccess', $flash);
 
 		
 		} catch (crowdwatson\CFExceptions $e) {
-			Session::flash('flashError', "CF: {$e->getMessage()}");
+			Session::flash('flashError', "{$flash}CF: {$e->getMessage()}");
 		}catch (AMTException $e) {
-			Session::flash('flashError', "AMT: {$e->getMessage()}");
+			Session::flash('flashError', "{$flash}AMT: {$e->getMessage()}");
 		}
 
 		return Redirect::to("process/submit");
