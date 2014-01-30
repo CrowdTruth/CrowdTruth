@@ -223,7 +223,6 @@ class ProcessController extends BaseController {
 
 			if(!empty($flash))
 				Session::flash('flashSuccess', $flash);
-
 		
 		} catch (crowdwatson\CFExceptions $e) {
 			Session::flash('flashError', "{$flash}CF: {$e->getMessage()}");
