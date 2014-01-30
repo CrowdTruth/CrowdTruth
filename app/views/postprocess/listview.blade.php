@@ -33,18 +33,61 @@
 						               	</div>
 						               	<div class="row">
 						               		<div class="col-md-4" style="padding-top:5px; font-size:larger; vertical-align:baseline; border-right: 1px solid #eee; border-top: 1px solid #eee;">
-						               			<strong style="font-size: 18px;"></strong> Sentences<br><strong style="font-size: 18px;">{{ $crowdtask->maxAssignments }}</strong> 
-						               			Judgments/Unit<br>Template: <strong style="font-size: 16px;">{{ $crowdtask->template}}</strong> </div>
-						               		<div class="col-md-2" style="padding-top:5px; border-right: 1px solid #eee; border-top: 1px solid #eee;"> on<br><h2 style="text-align: center;">AMT</h2></div>
+						               			<strong style="font-size: 18px;">{{ $crowdtask->unitsPerTask }}</strong> Sentences<br>
+						               			<strong style="font-size: 18px;">{{ $crowdtask->judgmentsPerUnit }}</strong> Judgments/Unit<br>
+						               			Template: <strong style="font-size: 16px;">{{ $crowdtask->template}}</strong> 
+						               		</div>
+						               		<div class="col-md-1" style="padding-top:5px; border-right: 1px solid #eee; border-top: 1px solid #eee;"> on<br><h2 style="text-align: center;">{{$crowdtask->platform}}</h2></div>
 						               		<div class="col-md-2" style="padding-top:5px; border-right: 1px solid #eee; border-top: 1px solid #eee; text-align: center;" > 
-						               			Max Judgm/Worker<h3 style="text-align: center;">10</h3><button class="btn btn-sm">Workers</button></div>
-						               		<div class="col-md-2" style="padding-top:5px; border-top: 1px solid #eee; text-align: center;" >Payment/Unit:<strong> ${{ $crowdtask->reward }}</strong>
-						               			<strong><br>Total costs:</strong><h2><div id="totalCost"></div></h2></div>
-						               		<div class="col-md-2" style=" padding-top:5px; text-align: center; border-top: 1px solid #eee; border-left: 1px solid #eee;">Completion:<br>
-						               			<strong style="font-size:25px;">55%</strong><br><strong>110/200</strong><br>Judgments</div>
+						               			Flagged workers<h3 style="text-align: center;">{{$crowdtask->flaggedWorkers}}</h3>
+						               			<button class="btn btn-sm">Workers</button></div>
+						               		<div class="col-md-2" style="padding-top:5px; border-top: 1px solid #eee; text-align: center;">Payment/Unit:<strong> ${{ $crowdtask->reward }}</strong>
+						               			<strong><br>Total costs:</strong><h2>{{$crowdtask->totalCost()}}</h2>
+						               		</div>
+						               		<div class="col-md-3" style=" padding-top:5px; text-align: center; border-top: 1px solid #eee; border-left: 1px solid #eee;">Completion:<br>
+						               			<strong style="font-size:25px;">{{($crowdtask->completedJudgments() / $crowdtask->totalJudgments()) * 100}}%</strong><br>
+						               			<strong>{{$crowdtask->completedJudgments()}} / {{$crowdtask->totalJudgments()}}</strong><br>Judgments
+						               		</div>
+						               		<div id="details-<?php echo $id ?>" class="row" style="display: none;">
+				               					    <table class="table table-striped">
+				               					    	@foreach($crowdtask->getDetails() as $key=>$val)
+				               					    		@if (is_array($val))
+															<tr><th>{{ $key }}</th><td><pre><?php var_dump($val) ?></pre></td></tr>
+															@else
+															<tr><th>{{ $key }}</th><td>{{ $val }}</td></tr>
+															@endif
+				               					    	@endforeach
+				               					    </table>
+    
+				               				</div>
 						               	</div>
-               						</div>
-								@endforeach
+               							<div class="panel-footer">
+               								<div class="row">
+               									<div style="padding: 3px; padding-left: 5px; float: left;" >
+               										<button class="btn btn-primary" action="">Analyse</button>
+               									</div>
+									  			<div data-toggle="buttons" style="float:left; padding: 3px;">
+										  			<label class="btn btn-primary">
+											  			<!-- <input type="checkbox" id="detail" name="detail"> -->
+														<input type="checkbox" name="Details" id="detail-<?php echo $id ?>" onChange="showDetails(<?php echo $id ?>)">Details</input>
+													</label>
+												</div>
+									  			<div class="btn-group" style="float: left; padding: 3px;">
+													<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>Actions
+								        			<span class="caret"></span>
+								    				</button>
+								    				<ul class="dropdown-menu" role="menu">
+								        				<li><a href="#"><i class="fa fa-folder-open fa-fw"></i>Pause Job</a></li>
+								        				<li><a href=""><i class="fa fa-sign-out fa-fw"></i>Cancel Job</a></li>
+								        				<li class="divider"></li>
+								        				<li><a href=""><i class="fa fa-sign-out fa-fw"></i>Duplicate Job</a></li>
+								        				<li><a href=""><i class="fa fa-sign-out fa-fw"></i>Delete Job</a></li>
+								    				</ul>
+												</div>
+											</div>
+										</div>
+									</div>								
+									@endforeach
 								</div>
 							</div>
 						</div>
@@ -54,16 +97,9 @@
 @section('end_javascript')
 	<script src="http://codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
 	<script>
-		//todo change to cost per job
-		$(document).ready(calculate());
-	    function calculate(){
-	    var reward = {{$crowdtask->reward}};
-	    var maxAssignments = {{$crowdtask->maxAssignments}};
-	    //var sentences = $
-		var cost = reward*maxAssignments;
-		var result = " $ " + cost.toFixed(2);
-		document.getElementById('totalCost').innerHTML=result;
-		} 
+		function showDetails(id){           
+			$('#details-'+id).toggle(this.checked);
+			}
 	</script>
 
 @stop

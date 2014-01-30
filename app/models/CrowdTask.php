@@ -34,7 +34,11 @@ class CrowdTask extends Moloquent {
     								'template',
     								'csv'
     								);
-    
+
+    public function getDetails(){
+    	return array('keywords' => $this->keywords, 'expirationInMinutes' => $this->expirationInMinutes, 'lifetimeInSeconds' => $this->lifetimeInSeconds, 'autoApprovalDelayInSeconds' => $this->autoApprovalDelayInMinutes, 'qualificationRequirement' => $this->qualificationRequirement, 'assignmentReviewPolicy' => $this->assignmentReviewPolicy );
+    }
+
     public function getElapsedTime($created_at){
 	    $time = time() - strtotime($created_at); // to get the time since that moment
 
@@ -55,14 +59,29 @@ class CrowdTask extends Moloquent {
 	    	}
 	}
  
-
-    // TODO: we do nothing with the rules yet.
+	// TODO: we do nothing with the rules yet.
     public static $rules = array(
 	  'title' => 'required',
 	  'description' => 'required',
 	  'reward' => 'required|numeric',
 	  'maxAssignments' => 'required|numeric'
 	);
+
+    //FIELDS IN LARAVEL -_-
+    public function totalJudgments(){
+    	// return $judgmentsPerUnit*$unitsPerTask;
+    	return 1;
+    }
+
+	public function totalCost(){
+		// $judgments = CrowdTask::totalJudgments();
+		// return $judgments*$reward;
+		return 1;
+	}
+
+	public function completedJudgments(){
+
+	}
 
 	public function addQualReq($qr){
 		$qarray = array();
@@ -124,6 +143,7 @@ class CrowdTask extends Moloquent {
 			
 			// Which field in the User model for username?
 			));
+	}
 
 	public static function fromJSON($filename){
 		if(!file_exists($filename) || !is_readable($filename))
@@ -157,31 +177,6 @@ class CrowdTask extends Moloquent {
 		
 		return $hit;
 	}
-
-<<<<<<< HEAD
-	
-=======
-
-
-	// Not used (yet?)
-	public static function getFromHit($hit){
-		return new CrowdTask(array(
-			'title' 				=> $hit->getTitle(),
-			'description' 			=> $hit->getDescription(),
-			'keywords'				=> $hit->getKeywords(),
-			'reward'				=> $hit->getReward()['Amount'],
-			'judgmentsPerUnit'		=> $hit->getMaxAssignments(),
-			'expirationInMinutes'	=> $hit->getAssignmentDurationInSeconds(),
-			'hitLifetimeInMinutes' 	=> $hit->getLifetimeInSeconds() / 60,
-			'unitsPerTask' 			=> 1, /* This is not in the AMT API */
-
-			/* AMT */
-			'autoApprovalDelayInSeconds' 	=> $hit->getAutoApprovalDelayInSeconds(),
-			'qualificationRequirement'		=> $hit->getQualificationRequirement(),
-			'assignmentReviewPolicy' 		=> $hit->getAssignmentReviewPolicy()
-			));
-	}
->>>>>>> arne
 }
 	
 
