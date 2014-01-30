@@ -13,13 +13,13 @@ class CrowdTask extends Moloquent {
     								'reward', 
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
     								'notificationEmail',
+    								'requesterAnnotation',
     								'country', /* TODO: GUI
 
     								/* Undecided */
     								'instructions',
 
     								/* AMT specific */
-    								'requesterAnnotation',
     	    						'autoApprovalDelayInMinutes', /* AMT API: AutoApprovalDelayInSeconds */
 									'hitLifetimeInMinutes', 
 									'qualificationRequirement',

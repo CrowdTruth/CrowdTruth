@@ -213,14 +213,13 @@ class ProcessController extends BaseController {
 			// CrowdFlower
 			if(in_array('cf', $ct->platform)){
 				$cf = new CFService;
-
+				$options = array(	"req_ttl_in_seconds" => $ct->expirationInMinutes*60, 
+									"keywords" => $ct->requesterAnnotation, 
+									"mail_to" => $ct->notificationEmail);
 				$cf->createJob($ct->toCFData(), "{$this->csvPath}source359444.csv", 
 					"{$this->templatePath}{$ct->template}", $ct->answerfields, $options); 
 				$flash .= 'Created CrowdFlower job.<br>';
 			}
-				$options = array(	"req_ttl_in_seconds" => $ct->expirationInMinutes*60, 
-									"keywords" => $ct->requesterAnnotation, 
-									"mail_to" => $ct->notificationEmail);
 
 			if(!empty($flash))
 				Session::flash('flashSuccess', $flash);

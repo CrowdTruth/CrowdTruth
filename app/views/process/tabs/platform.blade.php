@@ -133,6 +133,7 @@
 							</fieldset>
 							<br>
 							<br>
+						</div>
 						{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}
 						{{ Form::close()}}					
 					</div>
