@@ -16,6 +16,7 @@ class CrowdTask extends Moloquent {
     								'requesterAnnotation',
     								'country', /* TODO: GUI
 
+
     								/* Undecided */
     								'instructions',
 
@@ -36,13 +37,56 @@ class CrowdTask extends Moloquent {
     								'platform'
     								);
 
-    // TODO: we do nothing with the rules yet.
+    public function getDetails(){
+    	return array('keywords' => $this->keywords, 'expirationInMinutes' => $this->expirationInMinutes, 'lifetimeInSeconds' => $this->lifetimeInSeconds, 'autoApprovalDelayInSeconds' => $this->autoApprovalDelayInMinutes, 'qualificationRequirement' => $this->qualificationRequirement, 'assignmentReviewPolicy' => $this->assignmentReviewPolicy );
+    }
+
+    public function getElapsedTime($created_at){
+	    $time = time() - strtotime($created_at); // to get the time since that moment
+
+    	$tokens = array (
+        	31536000 => 'yr',
+        	2592000 => 'm',
+        	604800 => 'w',
+        	86400 => 'day',
+        	3600 => 'hr',
+        	60 => 'min',
+        	1 => 'sec'
+	    );
+
+	    foreach ($tokens as $unit => $text) {
+	        if ($time < $unit) continue;
+	        $numberOfUnits = floor($time / $unit);
+	        return $numberOfUnits.' '.$text.(($numberOfUnits>1)?'s':'');
+	    	}
+	}
+ 
+	// TODO: we do nothing with the rules yet.
     public static $rules = array(
 	  'title' => 'required',
 	  'description' => 'required',
 	  'reward' => 'required|numeric',
 	  'maxAssignments' => 'required|numeric'
 	);
+
+    //FIELDS IN LARAVEL -_-
+    public function totalJudgments(){
+    	return $this->judgmentsPerUnit*$this->unitsPerTask;
+    }
+
+	public function totalCost(){
+		$judgments = CrowdTask::totalJudgments();
+		return '$ ' + round($judgments*$this->reward, 2);
+	}
+
+	public function progressBar(){
+		return round(($this->completedJudgments() / $this->totalJudgments())*100);
+	}
+		
+
+	public function completedJudgments(){
+		return 20;
+	}
 
 	public function addQualReq($qr){
 		$qarray = array();
@@ -74,6 +118,33 @@ class CrowdTask extends Moloquent {
 			$this->assignmentReviewPolicy = array(	'AnswerKey' => null, 
 													'Parameters' => $arpparams);
 		else $this->assignmentReviewPolicy = null;
+	}
+
+
+	// TODO: now we use the hitxml format for templating. There should be a more generic system.
+	public static function getFromHit($hit){
+		return new CrowdTask(array(
+			'title' 		=> $hit->getTitle(),
+			'description' 	=> $hit->getDescription(),
+			'keywords'		=> $hit->getKeywords(),
+			'reward'		=> $hit->getReward()['Amount'],
+			'maxAssignments'=> $hit->getMaxAssignments(),
+			'assignmentDur'	=> $hit->getAssignmentDurationInSeconds(),
+			'lifetimeInSeconds' => $hit->getLifetimeInSeconds(),
+			'tasksPerAssignment' => 1, // TODO add this to templating system
+
+			/* AMT */
+			'autoApprovalDelayInSeconds' => $hit->getAutoApprovalDelayInSeconds(),
+			'qualificationRequirement'=> $hit->getQualificationRequirement(),
+			'assignmentReviewPolicy' => $hit->getAssignmentReviewPolicy(),
+			/* General CrowdTask info */
+			
+			// Which field in the User model for username?
+			));
+	}
+
+	public static function getTemplate(){
+		return implode(",", $template);
 	}
 
 	public static function fromJSON($filename){
@@ -109,7 +180,6 @@ class CrowdTask extends Moloquent {
 		return $hit;
 	}
 
-
 	public function toCFData(){
 		// not yet implemented: max_judgments_per_ip, webhook_uri, send_judgments_webhook => true, instructions, css, js, cml
 		$data = array();
@@ -126,24 +196,7 @@ class CrowdTask extends Moloquent {
 	}
 
 
-	// Not used (yet?)
-	public static function getFromHit($hit){
-		return new CrowdTask(array(
-			'title' 				=> $hit->getTitle(),
-			'description' 			=> $hit->getDescription(),
-			'keywords'				=> $hit->getKeywords(),
-			'reward'				=> $hit->getReward()['Amount'],
-			'judgmentsPerUnit'		=> $hit->getMaxAssignments(),
-			'expirationInMinutes'	=> $hit->getAssignmentDurationInSeconds(),
-			'hitLifetimeInMinutes' 	=> $hit->getLifetimeInSeconds() / 60,
-			'unitsPerTask' 			=> 1, /* This is not in the AMT API */
-
-			/* AMT */
-			'autoApprovalDelayInSeconds' 	=> $hit->getAutoApprovalDelayInSeconds(),
-			'qualificationRequirement'		=> $hit->getQualificationRequirement(),
-			'assignmentReviewPolicy' 		=> $hit->getAssignmentReviewPolicy()
-			));
-	}
 }
+	
 
 ?>
