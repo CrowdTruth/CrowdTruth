@@ -17,10 +17,10 @@
 						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'submit'), 'method' => 'POST'))}}
 						<div data-toggle="buttons">
 							<label>Select the platform you want to send your job to:</label>	
-						  	<label class="btn btn-primary{{ (is_array($crowdtask->platform) and in_array('cf', $crowdtask->platform) ? ' active' :'') }}">
+						  	<label class="btn btn-primary <?php if(is_array($crowdtask->platform) and in_array('cf', $crowdtask->platform)) echo ' active';?>">
 						   		{{ Form::checkbox('platform[]', 'cf', null, array('id' => 'cf-button') )}} Crowdflower
 						  	</label>
-						  	<label class="btn btn-primary{{ (is_array($crowdtask->platform) and in_array('amt', $crowdtask->platform) ? ' active' :'') }}">
+						  	<label class="btn btn-primary <?php if(is_array($crowdtask->platform) and in_array('amt', $crowdtask->platform)) echo ' active';?>">
 						    	{{ Form::checkbox('platform[]', 'amt', null, array('id' => 'amt-button') )}} Mechanical Turk
 						  	</label>
 						</div>
