@@ -32,7 +32,8 @@ class CrowdTask extends Moloquent {
     	    						/* for our use */
     	    						'answerfields', /* The field of the CSV file that contains the gold answers. TODO: checkboxes, limit choices. */
     								'template',
-    								'csv'
+    								'csv',
+    								'platform'
     								);
 
     public function getDetails(){
@@ -43,13 +44,13 @@ class CrowdTask extends Moloquent {
 	    $time = time() - strtotime($created_at); // to get the time since that moment
 
     	$tokens = array (
-        	31536000 => 'year',
-        	2592000 => 'month',
-        	604800 => 'week',
+        	31536000 => 'yr',
+        	2592000 => 'm',
+        	604800 => 'w',
         	86400 => 'day',
-        	3600 => 'hour',
-        	60 => 'minute',
-        	1 => 'second'
+        	3600 => 'hr',
+        	60 => 'min',
+        	1 => 'sec'
 	    );
 
 	    foreach ($tokens as $unit => $text) {
@@ -69,18 +70,21 @@ class CrowdTask extends Moloquent {
 
     //FIELDS IN LARAVEL -_-
     public function totalJudgments(){
-    	// return $judgmentsPerUnit*$unitsPerTask;
-    	return 1;
+    	return $this->judgmentsPerUnit*$this->unitsPerTask;
     }
 
 	public function totalCost(){
-		// $judgments = CrowdTask::totalJudgments();
-		// return $judgments*$reward;
-		return 1;
+		$judgments = CrowdTask::totalJudgments();
+		return '$ ' + round($judgments*$this->reward, 2);
 	}
 
-	public function completedJudgments(){
+	public function progressBar(){
+		return round(($this->completedJudgments() / $this->totalJudgments())*100);
+	}
+		
 
+	public function completedJudgments(){
+		return 20;
 	}
 
 	public function addQualReq($qr){
@@ -145,6 +149,10 @@ class CrowdTask extends Moloquent {
 			));
 	}
 
+	public static function getTemplate(){
+		return implode(",", $template);
+	}
+
 	public static function fromJSON($filename){
 		if(!file_exists($filename) || !is_readable($filename))
 			throw new Exception('JSON template file does not exist or is not readable.');
@@ -158,16 +166,16 @@ class CrowdTask extends Moloquent {
 
 	public function toHit(){
 		$hit = new Hit();
-		if (isset($this->title)) 			 			$hit->setTitle						  	($this->title); 
-		if (isset($this->description)) 		 			$hit->setDescription					($this->description); 
-		if (isset($this->keywords)) 					$hit->setKeywords				  		($this->keywords);
-		if (isset($this->judgmentsPerUnit)) 			$hit->setMaxAssignments		  			($this->judgmentsPerUnit);
-		if (isset($this->expirationInMinutes))			$hit->setAssignmentDurationInSeconds 	($this->expirationInMinutes*60);
-		if (isset($this->hitLifetimeInMinutes)) 		$hit->setLifetimeInSeconds		  		($this->hitLifetimeInMinutes*60);
-		if (isset($this->reward)) 						$hit->setReward					  		(array('Amount' => $this->reward, 'CurrencyCode' => 'USD'));
-		if (isset($this->autoApprovalDelayInMinutes)) 	$hit->setAutoApprovalDelayInSeconds  	($this->autoApprovalDelayInMinutes*60); 
-		if (isset($this->qualificationRequirement))		$hit->setQualificationRequirement		($this->qualificationRequirement);
-		if (isset($this->requesterAnnotation))			$hit->setRequesterAnnotation			($this->requesterAnnotation);
+		if (!empty($this->title)) 			 			$hit->setTitle						  	($this->title); 
+		if (!empty($this->description)) 		 			$hit->setDescription					($this->description); 
+		if (!empty($this->keywords)) 					$hit->setKeywords				  		($this->keywords);
+		if (!empty($this->judgmentsPerUnit)) 			$hit->setMaxAssignments		  			($this->judgmentsPerUnit);
+		if (!empty($this->expirationInMinutes))			$hit->setAssignmentDurationInSeconds 	($this->expirationInMinutes*60);
+		if (!empty($this->hitLifetimeInMinutes)) 		$hit->setLifetimeInSeconds		  		($this->hitLifetimeInMinutes*60);
+		if (!empty($this->reward)) 						$hit->setReward					  		(array('Amount' => $this->reward, 'CurrencyCode' => 'USD'));
+		if (!empty($this->autoApprovalDelayInMinutes)) 	$hit->setAutoApprovalDelayInSeconds  	($this->autoApprovalDelayInMinutes*60); 
+		if (!empty($this->qualificationRequirement))		$hit->setQualificationRequirement		($this->qualificationRequirement);
+		if (!empty($this->requesterAnnotation))			$hit->setRequesterAnnotation			($this->requesterAnnotation);
 		
 		if (/* isset($this->assignmentReviewPolicy['AnswerKey']) and 
 			count($this->assignmentReviewPolicy['AnswerKey']) > 0 and */
@@ -177,6 +185,23 @@ class CrowdTask extends Moloquent {
 		
 		return $hit;
 	}
+
+	public function toCFData(){
+		// not yet implemented: max_judgments_per_ip, webhook_uri, send_judgments_webhook => true, instructions, css, js, cml
+		$data = array();
+
+		if (!empty($this->title)) 			 	$data['title']					 	= $this->title; 
+		if (!empty($this->instructions)) 		$data['instructions']				= $this->instructions; 
+		//if (!empty($this->keywords)) 			$data['Keywords']				  		($this->keywords);
+		if (!empty($this->judgmentsPerUnit)) 	$data['judgments_per_unit']		  	= $this->judgmentsPerUnit;
+		//if (!empty($this->expirationInMinutes))$data['AssignmentDurationInSeconds'] 	($this->expirationInMinutes*60);
+		if (!empty($this->reward)) 				$data['payment_cents']				= $this->reward*100;
+		if (!empty($this->unitsPerTask))		$data['units_per_assignment']		= $this->unitsPerTask;
+		if (!empty($this->judgmentsPerWorker))	$data['max_judgments_per_worker']	= $this->judgmentsPerWorker;
+		return $data;
+	}
+
+
 }
 	
 

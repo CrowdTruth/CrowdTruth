@@ -12,7 +12,7 @@
 			<div>
 				<div class="panel panel-default">		
 					<div class="panel-heading">
-						<h4>Create your AMT-job</h4>
+						<h4>Create your job</h4>
 					</div>
 					<div class="panel-body">
 						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'id'=>'form', 'action' => array('ProcessController@postFormPart', 'platform'), 'method' => 'POST'))}}
@@ -32,6 +32,11 @@
 								{{ Form::textarea('description', null, array('class' => 'form-control col-xs-6', 'rows'=>'3')) }}
 							</div>
 							<br>
+							{{ Form::label('instructions', 'Job instructions', array('class' => 'col-xs-4 control-label')) }}
+							<div class="input-group col-xs-8">
+								{{ Form::textarea('instructions', null, array('class' => 'form-control col-xs-6', 'rows'=>'6')) }}
+							</div>
+							<br>
 						</fieldset>
 						
 						<fieldset>
@@ -48,7 +53,7 @@
 
 							<div class="input-group col-xs-2">
 								{{ Form::input('number', 'unitsPerTask',  null, 
-									array('class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
+									array('onChange' => 'calculate()', 'class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
 							</div>
 							<br>
 							{{ Form::label('expirationInMinutes', 'Duration (minutes)', 
@@ -87,20 +92,5 @@
 		</div>
 	</div>
 </div>
-
-<script>
-	//todo change to cost per job
-	$(document).ready(calculate());
-
-    function calculate(){
-        var reward = $('#reward').val();
-        var maxAssignments = $('#maxAssignments').val();
-        //var sentences = $
-		var cost = reward*maxAssignments;
-		var result = "<strong> $ " + cost.toFixed(2) + "</strong>";
-        document.getElementById('totalCost').innerHTML=result;
-    } 
-</script>
-
 
 @stop
