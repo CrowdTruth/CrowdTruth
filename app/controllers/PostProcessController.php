@@ -9,13 +9,16 @@ class PostProcessController extends BaseController {
 	}
 
 	public function getListview() {
-		$ct = CrowdTask::fromJSON(base_path() . '/public/templates/relation_direction/relation_direction_multiple.json');
-		$ct->name = 'Mock-object #2';
-		$ct->judgmentsPerUnit = 5;
-		$ct->unitsPerTask = 10;
-		$ct->reward = 0.05;
-		$ct->platform = array('cf', 'amt');
-		$ct->save();
+		// Uncomment for mock entry for listview
+		// $ct = CrowdTask::fromJSON(base_path() . '/public/templates/relation_direction/relation_direction_multiple.json');
+		// $ct->name = 'Mock-object #3';
+		// $ct->judgmentsPerUnit = 10;
+		// $ct->unitsPerTask = 25;
+		// $ct->reward = 0.02;
+		// $ct->platform = array('CF');
+		// $ct->flaggedWorkers = 5;
+		// $ct->template = "Relation Direction";
+		// $ct->save();
 		$crowdtasks = CrowdTask::all();
 	   	return View::make('postprocess.listview')->with('crowdtasks', $crowdtasks);	
 	}
