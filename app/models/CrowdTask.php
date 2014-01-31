@@ -12,6 +12,8 @@ class CrowdTask extends Moloquent {
     								'unitsPerTask', /* AMT: not in API. Would be 'tasks per assignment' */
     								'reward', 
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
+    								'notificationEmail',
+    								'requesterAnnotation',
     								'country', /* TODO: GUI
 
 
@@ -19,7 +21,6 @@ class CrowdTask extends Moloquent {
     								'instructions',
 
     								/* AMT specific */
-    								'requesterAnnotation',
     	    						'autoApprovalDelayInMinutes', /* AMT API: AutoApprovalDelayInSeconds */
 									'hitLifetimeInMinutes', 
 									'qualificationRequirement',
@@ -30,7 +31,7 @@ class CrowdTask extends Moloquent {
     	    						'judgmentsPerWorker',
 
     	    						/* for our use */
-    	    						'answerfields', /* The field of the CSV file that contains the gold answers. TODO: checkboxes, limit choices. */
+    	    						'answerfields', /* The fields of the CSV file that contain the gold answers. */
     								'template',
     								'csv',
     								'platform'
@@ -107,21 +108,14 @@ class CrowdTask extends Moloquent {
 		else $this->qualificationRequirement = null;
 	}
 
-	public function addAssRevPol($answerkey, $arp){
-		// Answerkey is not mandatory, because we can use a CSV column.
-		$arpanswerkey = array();
-		if(count($answerkey)>0) {
-			foreach ($answerkey as $key=>$val)
-				if($val != '') $arpanswerkey[$key]=$val;	
-		}	
-
+	public function addAssRevPol($arp){
 		$arpparams = array();
 		foreach ($arp as $key=>$val)
 			if(array_key_exists('checked', $val)) $arpparams[$key]=$val[0];
 		
 		// If there are no params, ARP = empty.
 		if(count($arpparams)>0)		
-			$this->assignmentReviewPolicy = array(	'AnswerKey' => $arpanswerkey, 
+			$this->assignmentReviewPolicy = array(	'AnswerKey' => null, 
 													'Parameters' => $arpparams);
 		else $this->assignmentReviewPolicy = null;
 	}

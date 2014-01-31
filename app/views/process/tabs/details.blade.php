@@ -36,7 +36,7 @@
 							<div class="input-group col-xs-8">
 								{{ Form::textarea('instructions', null, array('class' => 'form-control col-xs-6', 'rows'=>'6')) }}
 							</div>
-							<br>
+							<br>	
 						</fieldset>
 						
 						<fieldset>
@@ -74,13 +74,43 @@
 							{{ Form::label('totalCost', 'Cost per unit', 
 									array('class' => 'col-xs-4 control-label')) }}
 							<!-- Div totalCost is used for js -->
-							<div id="totalCost" class="col-xs-1 control-label">
-
-							</div>
-							<br>	
-								
+							<div id="totalCost" class="col-xs-1 control-label"></div>
 						</fieldset>
+						<br>
+						<br>
 
+						<fieldset>
+							<legend>Gold questions</legend>	
+							@if (count($goldfields)>0)
+							{{ Form::label('answerfields[]', 'Gold fields', 
+									array('class' => 'col-xs-4 control-label')) }}
+							<div class="input-group col-xs-8">
+								@foreach($goldfields as $field)
+									{{ Form::checkbox('answerfields[]', $field, null, array('id' => $field))}}
+									{{ Form::label($field, "&nbsp;$field")}}<br>
+								@endforeach
+								<br>Note: if you want to use AMT, specify the action in the platform tab. Crowdflower handles this automatically.
+							</div>
+							@else
+								No _gold fields found in CSV file.
+							@endif
+						</fieldset>
+						<br>
+						<br>
+						<fieldset>
+							<legend>Administration</legend>							
+							{{ Form::label('notificationEmail', 'Notification e-mail', array('class' => 'col-xs-4 control-label')) }}
+							<div class="input-group col-xs-8">
+								{{ Form::text('notificationEmail', null, array('class' => 'form-control col-xs-6')) }}
+							</div>
+							<br>
+								{{ Form::label('requesterAnnotation', 'Requester Annotation', 
+									array('class' => 'col-xs-4 control-label')) }}
+								<div class="input-group col-xs-2">
+									{{ Form::text('requesterAnnotation',  null, 
+										array('class' => 'form-control input-sm')) }}
+								</div>
+							</fieldset>
 						<br>
 						<br>
 						{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}

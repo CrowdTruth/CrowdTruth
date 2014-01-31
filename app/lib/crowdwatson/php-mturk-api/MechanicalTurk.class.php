@@ -474,7 +474,6 @@ class MechanicalTurk {
 	* @param string $hitTypeId
 	* @param string $emailaddress
 	* @param string $eventType: AssignmentAccepted | AssignmentAbandoned | AssignmentReturned | AssignmentSubmitted | HITReviewable | HITExpired.
-	* @param boolean $test Set to true if you just want to send a test notification.
 	* Note: After you make the call to SetHITTypeNotification, it can take up to five minutes for changes to a HIT type's notification specification to take effect.
 	* @throws AMTException when the server can not be contacted or the request or response isn't in the right format. (bubbles up from getAPIResponse())
 	* @link http://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_SetHITTypeNotificationOperation.html
