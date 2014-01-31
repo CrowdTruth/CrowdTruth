@@ -12,13 +12,14 @@ class CrowdTask extends Moloquent {
     								'unitsPerTask', /* AMT: not in API. Would be 'tasks per assignment' */
     								'reward', 
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
+    								'notificationEmail',
+    								'requesterAnnotation',
     								'country', /* TODO: GUI
 
     								/* Undecided */
     								'instructions',
 
     								/* AMT specific */
-    								'requesterAnnotation',
     	    						'autoApprovalDelayInMinutes', /* AMT API: AutoApprovalDelayInSeconds */
 									'hitLifetimeInMinutes', 
 									'qualificationRequirement',
@@ -29,9 +30,10 @@ class CrowdTask extends Moloquent {
     	    						'judgmentsPerWorker',
 
     	    						/* for our use */
-    	    						'answerfields', /* The field of the CSV file that contains the gold answers. TODO: checkboxes, limit choices. */
+    	    						'answerfields', /* The fields of the CSV file that contain the gold answers. */
     								'template',
-    								'csv'
+    								'csv',
+    								'platform'
     								);
 
     // TODO: we do nothing with the rules yet.
@@ -62,21 +64,14 @@ class CrowdTask extends Moloquent {
 		else $this->qualificationRequirement = null;
 	}
 
-	public function addAssRevPol($answerkey, $arp){
-		// Answerkey is not mandatory, because we can use a CSV column.
-		$arpanswerkey = array();
-		if(count($answerkey)>0) {
-			foreach ($answerkey as $key=>$val)
-				if($val != '') $arpanswerkey[$key]=$val;	
-		}	
-
+	public function addAssRevPol($arp){
 		$arpparams = array();
 		foreach ($arp as $key=>$val)
 			if(array_key_exists('checked', $val)) $arpparams[$key]=$val[0];
 		
 		// If there are no params, ARP = empty.
 		if(count($arpparams)>0)		
-			$this->assignmentReviewPolicy = array(	'AnswerKey' => $arpanswerkey, 
+			$this->assignmentReviewPolicy = array(	'AnswerKey' => null, 
 													'Parameters' => $arpparams);
 		else $this->assignmentReviewPolicy = null;
 	}
@@ -94,16 +89,16 @@ class CrowdTask extends Moloquent {
 
 	public function toHit(){
 		$hit = new Hit();
-		if (isset($this->title)) 			 			$hit->setTitle						  	($this->title); 
-		if (isset($this->description)) 		 			$hit->setDescription					($this->description); 
-		if (isset($this->keywords)) 					$hit->setKeywords				  		($this->keywords);
-		if (isset($this->judgmentsPerUnit)) 			$hit->setMaxAssignments		  			($this->judgmentsPerUnit);
-		if (isset($this->expirationInMinutes))			$hit->setAssignmentDurationInSeconds 	($this->expirationInMinutes*60);
-		if (isset($this->hitLifetimeInMinutes)) 		$hit->setLifetimeInSeconds		  		($this->hitLifetimeInMinutes*60);
-		if (isset($this->reward)) 						$hit->setReward					  		(array('Amount' => $this->reward, 'CurrencyCode' => 'USD'));
-		if (isset($this->autoApprovalDelayInMinutes)) 	$hit->setAutoApprovalDelayInSeconds  	($this->autoApprovalDelayInMinutes*60); 
-		if (isset($this->qualificationRequirement))		$hit->setQualificationRequirement		($this->qualificationRequirement);
-		if (isset($this->requesterAnnotation))			$hit->setRequesterAnnotation			($this->requesterAnnotation);
+		if (!empty($this->title)) 			 			$hit->setTitle						  	($this->title); 
+		if (!empty($this->description)) 		 			$hit->setDescription					($this->description); 
+		if (!empty($this->keywords)) 					$hit->setKeywords				  		($this->keywords);
+		if (!empty($this->judgmentsPerUnit)) 			$hit->setMaxAssignments		  			($this->judgmentsPerUnit);
+		if (!empty($this->expirationInMinutes))			$hit->setAssignmentDurationInSeconds 	($this->expirationInMinutes*60);
+		if (!empty($this->hitLifetimeInMinutes)) 		$hit->setLifetimeInSeconds		  		($this->hitLifetimeInMinutes*60);
+		if (!empty($this->reward)) 						$hit->setReward					  		(array('Amount' => $this->reward, 'CurrencyCode' => 'USD'));
+		if (!empty($this->autoApprovalDelayInMinutes)) 	$hit->setAutoApprovalDelayInSeconds  	($this->autoApprovalDelayInMinutes*60); 
+		if (!empty($this->qualificationRequirement))		$hit->setQualificationRequirement		($this->qualificationRequirement);
+		if (!empty($this->requesterAnnotation))			$hit->setRequesterAnnotation			($this->requesterAnnotation);
 		
 		if (/* isset($this->assignmentReviewPolicy['AnswerKey']) and 
 			count($this->assignmentReviewPolicy['AnswerKey']) > 0 and */
@@ -114,6 +109,21 @@ class CrowdTask extends Moloquent {
 		return $hit;
 	}
 
+
+	public function toCFData(){
+		// not yet implemented: max_judgments_per_ip, webhook_uri, send_judgments_webhook => true, instructions, css, js, cml
+		$data = array();
+
+		if (!empty($this->title)) 			 	$data['title']					 	= $this->title; 
+		if (!empty($this->instructions)) 		$data['instructions']				= $this->instructions; 
+		//if (!empty($this->keywords)) 			$data['Keywords']				  		($this->keywords);
+		if (!empty($this->judgmentsPerUnit)) 	$data['judgments_per_unit']		  	= $this->judgmentsPerUnit;
+		//if (!empty($this->expirationInMinutes))$data['AssignmentDurationInSeconds'] 	($this->expirationInMinutes*60);
+		if (!empty($this->reward)) 				$data['payment_cents']				= $this->reward*100;
+		if (!empty($this->unitsPerTask))		$data['units_per_assignment']		= $this->unitsPerTask;
+		if (!empty($this->judgmentsPerWorker))	$data['max_judgments_per_worker']	= $this->judgmentsPerWorker;
+		return $data;
+	}
 
 
 	// Not used (yet?)

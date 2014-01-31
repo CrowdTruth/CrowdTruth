@@ -19,8 +19,8 @@
 			"app/database/seeds",
 			"app/tests/TestCase.php"
 		],
-		 "psr-0": {
-            "crowdwatson": "app/lib"
+		 "psr-4": {
+            "crowdwatson\\": "app/lib/"
         }
 	},
 	"scripts": {

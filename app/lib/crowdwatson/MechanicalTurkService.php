@@ -29,36 +29,49 @@ class MechanicalTurkService{
 	* @param string $templateName The name of the html and xml template files in the templates directory.
 	* @param string $csvFileName Comma separated parameters to fill the template with.
 	* @param Hit $templateHit Optional. Used instead of the xml template. We still need the templateName for the question.
-	* @param int $assignmentsPerHit Optional. If set, divides the CSV file up into chunks and posts multipage HIT's
+	* @param int $unitsPerAssignment Optional. If set, divides the CSV file up into chunks and posts multipage HIT's
 	* @return string[] the HITIds of the created HITs.
 	* @throws AMTException when one of the files does not exist, or when the parameters and template don't match. Also when
 	* you attempted to create a multipage hit with the wrong parameters.
 	*/
-	public function createBatch($templateName, $csvFilename, $templateHit = null, $assignmentsPerHit = 1, $answerfields = null){
+	public function createBatch($templateName, $csvFilename, $templateHit = null, $unitsPerAssignment = 1, $answerfields = null, $email = null){
 		$paramsArray = $this->csv_to_array($csvFilename);
 		shuffle($paramsArray);
+
+		// TODO: when we have multiple units per assignment, the last one mostly has less units. 
+		// I can think of two solutions, each with their own up- and downside.
+		//	- Change the reward for the last one. This means it's not grouped with the other ones anymore.
+		//	- Top up the $paramsArray with duplicate questions to make it divisible by the number of units per assignment.
 
 		if(isset($templateHit)) $hit = $templateHit;
 		else $hit = $this->hitFromTemplate($templateName);
 		
 		$created = array();	
 
-		if($assignmentsPerHit == 1){		
+		if($unitsPerAssignment == 1){		
 			foreach($paramsArray as $params){
 				$hit->setQuestion($this->questionFromHTML($templateName, $params));
 				$id = $this->mturk->createHIT($hit); 
 				$created[] = $id;
 			}
 		} else {
-			$chunks = array_chunk($paramsArray, $assignmentsPerHit);
+			$chunks = array_chunk($paramsArray, $unitsPerAssignment);
 			
 			foreach ($chunks as $chunk){
 				$hit = $this->addMultipageQuestion($hit, $templateName, $chunk, $answerfields);
-				dd($hit);
 				$id = $this->mturk->createHIT($hit); 
 				$created[] = $id;
 			}
 		}
+
+		// Errors not handled (yet?)
+		if(!empty($email)){
+			$event = 'HITReviewable'; // AssignmentAccepted | AssignmentAbandoned | AssignmentReturned | AssignmentSubmitted | HITReviewable | HITExpired.
+			$h = $this->mturk->getHit($created[0]);
+			if($type = $h->getHITTypeId())
+				$this->mturk->setHITTypeNotification($type, $email, $event);
+		}
+		
 		return $created;
 	}
 	
@@ -157,6 +170,7 @@ class MechanicalTurkService{
 			throw new AMTException('HTML template file does not exist or is not readable.');
 	
 		$build = array();
+		$ret = array();
 		$html = file_get_html($filename); //HTMLDomParser::file_get_html($filename)
 		foreach($html->find('input') as $input)
 			if(isset($input->name)) $build[] = $input->name;
@@ -209,8 +223,8 @@ class MechanicalTurkService{
 			throw new AMTException('Multipage template has no <h1>. View the readme in the templates directory for more info.');
 		
 		$questiontemplate = $div->innertext;
-		if(!strpos($questiontemplate, 'Q{x}'))
-			throw new AMTException('Multipage template has no \'Q{x}\'. View the readme in the templates directory for more info.');
+		if(!strpos($questiontemplate, '{x}'))
+			throw new AMTException('Multipage template has no \'{x}\'. View the readme in the templates directory for more info.');
 
 		$questionsbuilder = '';
 		$count = 0;
@@ -241,6 +255,8 @@ class MechanicalTurkService{
 		$hit->setQuestion($this->makeQuestion($html, $frameheight));
 		if(count($assRevPol)>0)
 			$hit->setAssignmentReviewPolicy($assRevPol);
+		else
+			$hit->setAssignmentReviewPolicy(null);
 
 		return $hit;
 	}
