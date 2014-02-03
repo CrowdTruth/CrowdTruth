@@ -14,13 +14,13 @@
 						<h4>Choose platform-specific options</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'submit'), 'method' => 'POST'))}}
+						{{ Form::model($jobconf, array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postFormPart', 'submit'), 'method' => 'POST'))}}
 						<div data-toggle="buttons">
 							<label>Select the platform you want to send your job to:</label>	
-						  	<label class="btn btn-primary <?php if(is_array($crowdtask->platform) and in_array('cf', $crowdtask->platform)) echo ' active';?>">
+						  	<label class="btn btn-primary <?php if(is_array($jobconf->platform) and in_array('cf', $jobconf->platform)) echo ' active';?>">
 						   		{{ Form::checkbox('platform[]', 'cf', null, array('id' => 'cf-button') )}} Crowdflower
 						  	</label>
-						  	<label class="btn btn-primary <?php if(is_array($crowdtask->platform) and in_array('amt', $crowdtask->platform)) echo ' active';?>">
+						  	<label class="btn btn-primary <?php if(is_array($jobconf->platform) and in_array('amt', $jobconf->platform)) echo ' active';?>">
 						    	{{ Form::checkbox('platform[]', 'amt', null, array('id' => 'amt-button') )}} Mechanical Turk
 						  	</label>
 						</div>
@@ -69,8 +69,8 @@
 									$c = false; $o = 'EqualTo'; $t = '';
 									if($val=='Locale' || $val == 'Adult') $o = 'EqualTo';
 									if($val=='Adult') $t = '1';
-									if($crowdtask->qualificationRequirement){
-											foreach($crowdtask->qualificationRequirement as $q){
+									if($jobconf->qualificationRequirement){
+											foreach($jobconf->qualificationRequirement as $q){
 												if($q['QualificationTypeId'] == $key){
 													$c = true;
 													if(isset($q['Comparator'])) 		$o = $q['Comparator'];
@@ -110,11 +110,11 @@
 								<legend>AMT Assignment Review Policy</legend>
 
 							<label>Actions to take with gold questions</label><br><br>
-							@if(empty($crowdtask->answerfields))
+							@if(empty($jobconf->answerfields))
 								<b>Note: </b>Please specify the gold fields in the details tab first!<br><br>
 							@else
 								<?php
-									$arp = $crowdtask->assignmentReviewPolicy;
+									$arp = $jobconf->assignmentReviewPolicy;
 									$types = array( 'ApproveIfKnownAnswerScoreIsAtLeast', 'ApproveReason', 'RejectIfKnownAnswerScoreIsLessThan', 'RejectReason', 'ExtendIfKnownAnswerScoreIsLessThan', 'ExtendMaximumAssignments', 'ExtendMinimumTimeInSeconds'); ?>
 								@foreach($types as $type)
 									@if(isset($arp['Parameters'][$type]))

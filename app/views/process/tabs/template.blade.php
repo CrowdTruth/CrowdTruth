@@ -15,7 +15,7 @@
 						<h4>Select your template</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
+						{{ Form::model($jobconf, array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
 			  
 						<div id="jstree"></div>
 						<fieldset>	

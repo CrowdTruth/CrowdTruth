@@ -17,9 +17,9 @@
 <script>
 $(document).ready(function(){
 	$("#processtabs > li").click(function(event){
-		if($(".crowdtask").prop("action").length > 0) {
+		if($(".jobconf").prop("action").length > 0) {
 			event.preventDefault();
-	       $(".crowdtask").prop("action", "/process/form-part/" + $(this).prop('title')).submit();
+	       $(".jobconf").prop("action", "/process/form-part/" + $(this).prop('title')).submit();
 		}
 	});
 

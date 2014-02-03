@@ -3,7 +3,7 @@
 //use Jenssegers\Mongodb\Model as Eloquent;
 use crowdwatson\Hit;
 
-class CrowdTask extends Moloquent {
+class JobConfiguration extends Moloquent {
     protected $fillable = array(
     								'title', 
     								'description', 
@@ -31,8 +31,6 @@ class CrowdTask extends Moloquent {
 
     	    						/* for our use */
     	    						'answerfields', /* The fields of the CSV file that contain the gold answers. */
-    								'template',
-    								'csv',
     								'platform'
     								);
 
@@ -83,21 +81,22 @@ class CrowdTask extends Moloquent {
 		$json = file_get_contents($filename);
 		if(!$arr = json_decode($json, true))
 			throw new Exception('JSON incorrectly formatted');
-		return new CrowdTask($arr);
+
+		return new JobConfiguration($arr);
 	}
 
 
 	public function toHit(){
 		$hit = new Hit();
 		if (!empty($this->title)) 			 			$hit->setTitle						  	($this->title); 
-		if (!empty($this->description)) 		 			$hit->setDescription					($this->description); 
+		if (!empty($this->description)) 		 		$hit->setDescription					($this->description); 
 		if (!empty($this->keywords)) 					$hit->setKeywords				  		($this->keywords);
 		if (!empty($this->judgmentsPerUnit)) 			$hit->setMaxAssignments		  			($this->judgmentsPerUnit);
 		if (!empty($this->expirationInMinutes))			$hit->setAssignmentDurationInSeconds 	($this->expirationInMinutes*60);
 		if (!empty($this->hitLifetimeInMinutes)) 		$hit->setLifetimeInSeconds		  		($this->hitLifetimeInMinutes*60);
 		if (!empty($this->reward)) 						$hit->setReward					  		(array('Amount' => $this->reward, 'CurrencyCode' => 'USD'));
 		if (!empty($this->autoApprovalDelayInMinutes)) 	$hit->setAutoApprovalDelayInSeconds  	($this->autoApprovalDelayInMinutes*60); 
-		if (!empty($this->qualificationRequirement))		$hit->setQualificationRequirement		($this->qualificationRequirement);
+		if (!empty($this->qualificationRequirement))	$hit->setQualificationRequirement		($this->qualificationRequirement);
 		if (!empty($this->requesterAnnotation))			$hit->setRequesterAnnotation			($this->requesterAnnotation);
 		
 		if (/* isset($this->assignmentReviewPolicy['AnswerKey']) and 
@@ -128,7 +127,7 @@ class CrowdTask extends Moloquent {
 
 	// Not used (yet?)
 	public static function getFromHit($hit){
-		return new CrowdTask(array(
+		return new JobConfiguration(array(
 			'title' 				=> $hit->getTitle(),
 			'description' 			=> $hit->getDescription(),
 			'keywords'				=> $hit->getKeywords(),

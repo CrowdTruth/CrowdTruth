@@ -16,6 +16,7 @@ class PostProcessController extends BaseController {
 	   	return View::make('postprocess.listview')->with('crowdtasks', $crowdtasks);	
 	}
 	
+
 	public function getTableview() {
 	   $crowdtasks = CrowdTask::all();
 	   return View::make('postprocess.tableview');

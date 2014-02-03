@@ -7,10 +7,10 @@
     $(document).ready(function(){
         $("#wizard").steps({
                 onFinishing : function(event, currentIndex){
-                  return ($("input[name='direction" + currentIndex + "']:checked").val());},
+                  return ($("input[name='direction" + (currentIndex+1) + "']:checked").val());},
                 onStepChanging : function(event, currentIndex, newIndex){
                   if (newIndex > currentIndex)
-                    return ($("input[name='direction" + currentIndex + "']:checked").val());
+                    return ($("input[name='direction" + (currentIndex+1) + "']:checked").val());
                   else
                     return true;  
                   },
