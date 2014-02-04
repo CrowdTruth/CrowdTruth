@@ -133,6 +133,15 @@
 							</fieldset>
 							<br>
 							<br>
+							<fieldset>
+							<legend>AMT Misc.</legend>
+								{{ Form::label('frameheight', 'Frameheight', 
+									array('class' => 'col-xs-4 control-label')) }}
+								<div class="input-group col-xs-2">
+									{{ Form::input('number','frameheight',  null, 
+										array('class' => 'form-control input-sm', 'min' => '300')) }} px
+								</div>
+							</fieldset>		
 						</div>
 						{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}
 						{{ Form::close()}}					

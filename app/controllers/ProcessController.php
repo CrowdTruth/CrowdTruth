@@ -1,8 +1,6 @@
 <?php
 
 use crowdwatson\AMTException;
-use crowdwatson\Hit;
-
 
 class ProcessController extends BaseController {
 	protected $templatePath;
@@ -77,18 +75,25 @@ class ProcessController extends BaseController {
 		$template = Session::get('template');
 		$csv = Session::get('csv');
 		
-
-		// for template saving
 		$treejson = $this->makeDirTreeJSON($this->templatePath, $template, false);
 
 		try {
 			$j = new Job($csv, $template, $jc);
 			$questions = $j->getPreviews();
 		} catch (AMTException $e) {
-			//TODO: sometimes you don't want to upload to AMT and this still produces an error.
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
 		}
+
+		if(!$jc->validate()){
+			$msg = '<ul>';
+			foreach ($jc->getErrors() as $message)
+				$msg .= "<li>$message</li>";
+			$msg .= '</ul>';
+
+			Session::flash('flashError', $msg);
+		}
+
 
 		return View::make('process.tabs.submit')
 			->with('jobconf', $jc)
@@ -226,4 +231,5 @@ class ProcessController extends BaseController {
 		}
 		return json_encode($r);
 	}
+
 }

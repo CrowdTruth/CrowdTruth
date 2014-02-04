@@ -6,7 +6,8 @@ use crowdwatson\Hit;
 class JobConfiguration extends Moloquent {
     protected $fillable = array(
     								'title', 
-    								'description', 
+    								'description',
+    								'instructions', /* AMT: inject into template */ 
     								'keywords', 
     								'judgmentsPerUnit', /* AMT: maxAssignments */
     								'unitsPerTask', /* AMT: not in API. Would be 'tasks per assignment' */
@@ -14,19 +15,17 @@ class JobConfiguration extends Moloquent {
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
     								'notificationEmail',
     								'requesterAnnotation',
-    								'country', /* TODO: GUI
-
-    								/* Undecided */
-    								'instructions',
+    								'country', /* TODO: GUI */
+    								
 
     								/* AMT specific */
     	    						'autoApprovalDelayInMinutes', /* AMT API: AutoApprovalDelayInSeconds */
 									'hitLifetimeInMinutes', 
 									'qualificationRequirement',
 									'assignmentReviewPolicy', 
+									'frameheight',
 
     	    						/* CF specific */
-    	    						'mandatory',
     	    						'judgmentsPerWorker',
 
     	    						/* for our use */
@@ -34,13 +33,58 @@ class JobConfiguration extends Moloquent {
     								'platform'
     								);
 
-    // TODO: we do nothing with the rules yet.
-    public static $rules = array(
-	  'title' => 'required',
-	  'description' => 'required',
-	  'reward' => 'required|numeric',
-	  'maxAssignments' => 'required|numeric'
+    private $errors = array();
+
+    private $commonrules = array(
+		'title' => 'required|between:5,128',
+		'description' => 'required|between:5,2000',		
+		'reward' => 'required|numeric', 
+		'expirationInMinutes' => 'required|numeric', /* AMT: assignmentDurationInSeconds */
+		'platform' => 'required'
 	);
+
+	private $cfrules = array(
+		'judgmentsPerUnit' => 'required|numeric|min:1', /* AMT: defaults to 1 */
+		'unitsPerTask' => 'required|numeric|min:1',
+		'instructions' => 'required',
+		'judgmentsPerWorker' => 'required|numeric|min:1'
+	);	
+
+	private $amtrules = array(
+		'hitLifetimeInMinutes' => 'required|numeric|min:1',
+		'frameheight' => 'min:300'
+	);
+
+
+    public function validate()  {
+    	$rules = $this->commonrules;
+	    $return = true;
+
+	    if(is_array($this->platform)){
+	    	if(in_array('amt', $this->platform))
+	    		$rules = array_merge($rules, $this->amtrules);
+	    	if(in_array('cf', $this->platform))
+	    		$rules = array_merge($rules, $this->cfrules);
+   	 	} else {
+   	 		$this->errors[] = 'Please provide at least one platform.';
+   	 		$return = false;
+   	 	}
+
+        $v = Validator::make($this->toArray(), $rules);
+        if ($v->fails()) {
+            $this->errors = array_merge($this->errors, $v->messages()->all());
+            $return = false;
+        }
+
+        // TODO: add some custom validation rules.
+        // Note: Job->previewQuestions also does some validation.
+
+        return $return;
+    }
+
+    public function getErrors() {
+        return $this->errors;
+    }
 
 	public function addQualReq($qr){
 		$qarray = array();

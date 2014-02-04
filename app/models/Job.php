@@ -11,8 +11,6 @@ use Sunra\PhpSimple\HtmlDomParser;
 // TODO: use ...
 
 class Job { 
-	//extends Moloquent {
-   //  protected $fillable = array('batch', 'template', 'jobConfiguration');
     protected $mturk;
     protected $csv;
     protected $template;
@@ -29,7 +27,7 @@ class Job {
     	$this->mturk = new MechanicalTurk;
     }
 
-
+   
     public function publish(){
 		if(isset($this->jobConfiguration->platform)) $platform = $this->jobConfiguration->platform;
 		else $platform = array();
@@ -56,11 +54,16 @@ class Job {
 
     }
 
-
+    /** 
+    * @return String[] the HTML for every question.
+    */
     public function getPreviews(){
     	return $this->amtPublish($this->csv_to_array(), true);
     }
 
+    /**
+    * @return String[] fields from the CSV that have a gold answer.
+    */
     public function getGoldFields(){
     	$goldfields = array();
     	foreach (array_keys($this->csv_to_array()[0]) as $key)
@@ -100,6 +103,10 @@ class Job {
 
 
     /*	 Private functions    */
+
+    /**
+    * @return String id of published Job
+    */
     private function cfPublish(){
     	$cfJob = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
 
@@ -175,7 +182,7 @@ class Job {
     	if(!file_exists($htmlfilename) || !is_readable($htmlfilename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
 
-		$frameheight = 700;
+		if(isset($c->frameheight)) $frameheight = $c->frameheight; else $frameheight = 700;
 		$questionsbuilder = '';
 		$count = '';
 		$return = array();
@@ -189,6 +196,7 @@ class Job {
 
 		// Do some checks and fill $questiontemplate.
 		if($upt > 1){
+			try {
 			if(!$div = $dom->find('div[id=wizard]', 0))
 				throw new AMTException('Multipage template has no div with id \'wizard\'. View the readme in the templates directory for more info.');
 			
@@ -198,6 +206,10 @@ class Job {
 			$questiontemplate = $div->innertext;
 			if(!strpos($questiontemplate, '{x}'))
 				throw new AMTException('Multipage template has no \'{x}\'. View the readme in the templates directory for more info.');
+			} catch (AMTException $e){
+				if($preview) $questiontemplate = $dom->innertext;
+				else throw $e;
+			}
 		} else {
 			$questiontemplate = $dom->innertext;
 		}
@@ -258,6 +270,7 @@ class Job {
 					else ($hit->setAssignmentReviewPolicy(null));
 					
 					//TODO: is this the right way to propagate unitids?
+					// We could also return them along with the HIT id's.
 					$hit->setRequesterAnnotation(implode(',', $unitids));
 					
 					// Create
@@ -276,7 +289,7 @@ class Job {
 
 
     /**
-	* Convert the HTML form a template (with parameters injected) to a proper AMT Question.
+	* Convert the HTML from a template (with parameters injected) to a proper AMT Question.
 	* @param string $html 
 	* @return string AMT HTMLQuestion.
 	*/
