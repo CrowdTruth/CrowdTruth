@@ -87,18 +87,18 @@ class ProcessController extends BaseController {
 
 		if(!$jc->validate()){
 			$msg = '<ul>';
-			foreach ($jc->getErrors() as $message)
+			foreach ($jc->getErrors()->all() as $message)
 				$msg .= "<li>$message</li>";
 			$msg .= '</ul>';
 
 			Session::flash('flashError', $msg);
 		}
 
-
 		return View::make('process.tabs.submit')
-			->with('jobconf', $jc)
 			->with('treejson', $treejson)
-			->with('questions',  $questions);
+			->with('questions',  $questions)
+			->with('table', $jc->toHTML())
+			->with('template', $jc->template);
 	}
 
 	public function getClearTask(){
