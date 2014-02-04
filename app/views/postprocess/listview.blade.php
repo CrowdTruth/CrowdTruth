@@ -3,11 +3,32 @@
 @section('content')
 	<div class="container">
 		<div class="row">
-			<!-- Left column for filters -->
+			
 			<div  id="filtercolumn" class="col-md-2 ">
+
+			<!-- Left column for sorting -->
+			
 				<div class="panel panel-default">
 					<div class="panel-heading">
-						<h3 class="panel-title">Filter</h3>
+						<h3 class="panel-title">Sort by:</h3>
+					</div>
+					<div class="panel-body" style="border-bottom: 1px solid #eee">
+						<i class="fa fa-check-circle"></i> {{Form::label('user', 'Completion')}}<br>
+					</div>
+					<div class="panel-body" style="border-bottom: 1px solid #eee">
+						<i class="fa fa-dollar"></i> {{Form::label('user', 'Cost incurred')}}<br>
+					</div>
+					<div class="panel-body" style="border-bottom: 1px solid #eee">
+						<i class="fa fa-clock-o"></i> {{Form::label('user', 'Running time')}}<br>
+					</div>
+					<div class="panel-body">
+						<i class="fa fa-gavel"></i> {{Form::label('user', 'Job size')}}<br>
+					</div>
+				</div>
+			<!-- Left column for filters -->
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Apply filter:</h3>
 					</div>
 					<div class="panel-body" style="border-bottom: 1px solid #eee">
 						<i class="fa fa-user"></i> {{Form::label('user', 'Created by:')}}<br>
@@ -20,13 +41,18 @@
 					</div>
 					<seperator/>
 					<div class="panel-body" style="border-bottom: 1px solid #eee">
-						Filter #3
+						<i class="fa fa-file"></i> {{Form::label('user', 'Template:')}}<br>
+						{{Form::checkbox('')}} Relation Direction<br>
+						{{Form::checkbox('')}} Relation Extraction<br>
+						{{Form::checkbox('')}} Factor Span
 					</div>
-					<seperator/>
 					<div class="panel-body">
-						Filter #4
+						More??
 					</div>
 				</div>
+			
+
+			<!-- END OF LEFT COLUMN HERE -->
 			</div>
 
 			<!-- Main column with results -->
@@ -135,10 +161,32 @@
 	<!-- Close container -->
 	</div>
 @section('end_javascript')
+	
+
+
 	<script src="http://codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
 	<script>
 		function showDetails(id){           
 			$('#details-'+id).toggle(this.checked);
 			}
+
+		 $(function() {
+			var cache = {};
+			$( "#birds" ).autocomplete({
+				minLength: 2,
+				source: function( request, response ) {
+							var term = request.term;
+							if ( term in cache ) {
+								response( cache[ term ] );
+								return;
+								}
+							$.getJSON( "search.php", request, function( data, status, xhr ) {
+								cache[ term ] = data;
+								response( data );
+								});
+							}		
+			});
+		});
+
 	</script>
 @stop

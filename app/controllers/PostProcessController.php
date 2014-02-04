@@ -23,6 +23,10 @@ class PostProcessController extends BaseController {
 	   	return View::make('postprocess.listview')->with('crowdtasks', $crowdtasks);	
 	}
 	
+	public function getListModel() {
+		
+	}
+
 	// public function getTableview() {
 	// 	// $ct->name = 'Table view mock';
 	// 	// $ct->save();
