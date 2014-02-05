@@ -15,6 +15,7 @@
 						<h4>Select files</h4>
 					</div>
 					<div class="panel-body">
+						{{ $temp }}
 						{{ Form::model($jobconf, array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postFormPart', 'template'), 'method' => 'POST'))}}
 					
 						

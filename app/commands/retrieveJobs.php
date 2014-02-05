@@ -3,6 +3,7 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use crowdwatson\MechanicalTurk;
 
 class retrieveJobs extends Command {
 
@@ -11,7 +12,7 @@ class retrieveJobs extends Command {
 	 *
 	 * @var string
 	 */
-	protected $name = 'command:name';
+	protected $name = 'command:retrievejobs';
 
 	/**
 	 * The console command description.
@@ -37,7 +38,14 @@ class retrieveJobs extends Command {
 	 */
 	public function fire()
 	{
-		print 'It\'s working!';
+		$turk = new MechanicalTurk;
+		$ids = $turk->searchHITs(1, 1, null, 'Descending');
+		//$pagesize = 50, $pagenumber = 1, $sortproperty = null, $sortdirection = null
+		foreach($ids as $id){
+			$hit =  $turk->getHIT($id);
+			//print_r($hit->getQuestion());
+			// . "\r\n";
+		}
 	}
 
 	/**
@@ -48,7 +56,7 @@ class retrieveJobs extends Command {
 	protected function getArguments()
 	{
 		return array(
-			array('example', InputArgument::REQUIRED, 'An example argument.'),
+			//array('example', InputArgument::REQUIRED, 'An example argument.'),
 		);
 	}
 

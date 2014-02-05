@@ -52,7 +52,7 @@ class JobConfiguration extends Moloquent {
 
 	private $amtrules = array(
 		'hitLifetimeInMinutes' => 'required|numeric|min:1',
-		'frameheight' => 'min:300'
+		'frameheight' => 'numeric|min:300'
 	);
 
 
@@ -170,22 +170,22 @@ class JobConfiguration extends Moloquent {
 	}
 
 	
-	public function toHTML($array = null, $class = "table"){
-		if($array==null) $array = $this->toArray();
+	public function toHTML($array = 'no array', $class = "table"){
+		if($array=='no array') $array = $this->toArray();
 		
-		$ret = "<table class='$class'>";
+		$ret = "<table class='$class'>\r\n";
 		foreach ($array as $key=>$val){
 			$rc = '';
 			if(is_numeric($key)) $head = ''; else $head = "<th>$key</th>";
 			if(is_array($val)) 
-				$ret .= "<tr>$head<td>{$this->toHTML($val, 'table table-condensed table-bordered')}</td></tr>";
+				$ret .= "<tr>$head<td>{$this->toHTML($val, 'table table-condensed table-bordered')}</td></tr>\r\n";
 			else {
 				if(is_object($this->getErrors()) and $this->getErrors()->has($key)) 
 					$rc = " class = 'danger'";
-				$ret .= "<tr$rc>$head<td>$val</td></tr>";
+				$ret .= "<tr$rc>$head<td>$val</td></tr>\r\n";
 			}
 		}
-		return $ret . '</table>';
+		return $ret . "</table>\r\n";
 	} 
 
 

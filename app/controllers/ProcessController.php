@@ -21,7 +21,26 @@ class ProcessController extends BaseController {
 
 	public function getSelectfile() {
 		$jc = unserialize(Session::get('jobconf'));
-		return View::make('process.tabs.selectfile')->with('jobconf', $jc);
+		
+		//$turk = new crowdwatson\MechanicalTurk;
+		//$jc = JobConfiguration::fromJSON("{$this->templatePath}relation_direction/relation_direction_1.json");
+
+/*		$arr = array();
+		$hits = $turk->searchHITs(2, 1, null, 'Descending');
+		foreach ($hits as $hit){
+			$arr[] = $hit->toArray();
+		}*/
+		
+		//dd($turk->getAssignmentsForHIT('2P3Z6R70G5RC7PEQC857ZSST0J2P9T'));
+
+		//$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
+		//$job = $cf->readJob('382004');
+		//$judg = $cf->getUnitJudgments('380640', '406870707');
+		//dd($ass->getHITId());
+		//$temp = "<h1>JobConfiguration</h1><br>" . $jc->toHTML($jc->toArray());
+		//$temp .= "<h1>Assignment</h1>" . $jc->toHTML($ass->toArray());
+		$temp = '';
+		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp);
 	}
 
 	public function getTemplate() {

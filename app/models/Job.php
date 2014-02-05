@@ -21,7 +21,7 @@ class Job {
     	if(!isset($templatePath)) $templatePath = base_path() . '/public/templates/';
 		if(!isset($csvPath)) $csvPath = base_path() . '/public/csv/';
 
-    	$this->csv = "$csvPath$csv"; // What will this be like in the future (with the datamodel)?
+    	$this->csv = "$csvPath$csv";
     	$this->template = "$templatePath$template";
     	$this->jobConfiguration = $jobConfiguration;
     	$this->mturk = new MechanicalTurk;
@@ -94,7 +94,8 @@ class Job {
 			if(isset($input->name)) $build[] = $input->name;	
 
 		foreach($build as $id){
-			if($pos = strpos($id, '{x}')) $id = substr($id, 0, $pos);
+			$pos = strpos($id, '{uid}_');
+			if($pos !== false) $id = substr($id, $pos+6);
 			$ret[]=$id;
 		}
 
@@ -182,9 +183,11 @@ class Job {
     	if(!file_exists($htmlfilename) || !is_readable($htmlfilename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
 
+
+
 		if(isset($c->frameheight)) $frameheight = $c->frameheight; else $frameheight = 700;
 		$questionsbuilder = '';
-		$count = '';
+		$count = 0;
 		$return = array();
 		$unitids = array();
 		$c = $this->jobConfiguration;
@@ -202,10 +205,13 @@ class Job {
 			
 			if(!$div->find('h1', 0))
 				throw new AMTException('Multipage template has no <h1>. View the readme in the templates directory for more info.');
-			
+
 			$questiontemplate = $div->innertext;
 			if(!strpos($questiontemplate, '{x}'))
 				throw new AMTException('Multipage template has no \'{x}\'. View the readme in the templates directory for more info.');
+			if(!strpos($questiontemplate, '{uid}'))
+				throw new AMTException('Multipage template has no \'{uid}\'. View the readme in the templates directory for more info.');
+
 			} catch (AMTException $e){
 				if($preview) $questiontemplate = $dom->innertext;
 				else throw $e;
@@ -215,11 +221,12 @@ class Job {
 		}
 
 		foreach ($csvarray as $params) {
-
+			
 			if($upt>1)	{
 				$count++;
 				$tempquestiontemplate = str_replace('{x}', $count, $questiontemplate);
 			} else {
+				$count = '';
 				$tempquestiontemplate = $questiontemplate;
 			}
 
@@ -229,19 +236,23 @@ class Job {
 				$tempquestiontemplate = str_replace($param, $val, $tempquestiontemplate);
 			}
 
+			// Change {uid} to the unit id. Input fields should have name: "{uid}_$answerfield"
+			if(!array_key_exists('_unit_id', $params))
+				throw new AMTException('CSV file doesn\'t have a \'_unit_id field\'.');
+			$tempquestiontemplate = str_replace('{uid}', $params['_unit_id'], $tempquestiontemplate);
+
 			// Temporarily store the AnswerKey
 			if(isset($params['_golden']) and $params['_golden'] == true and !empty($c->answerfields)) {
 				foreach($c->answerfields as $answerfield)
-					$assRevPol['AnswerKey']["$answerfield$count"] = $params["{$answerfield}_gold"];
+					$assRevPol['AnswerKey']["{$params['_unit_id']}_$answerfield"] = $params["{$answerfield}_gold"];
 			}
 
 			// Check if all parameters have been replaced
 			if(preg_match('#\$\{[A-Za-z0-9_.]*\}#', $tempquestiontemplate) == 1) // ${...}
 				throw new AMTException('HTML contains parameters that are not in the CSV.');
-			
+
 			// Add the current question
 			$questionsbuilder .= $tempquestiontemplate;
-			$unitids[] = $params['_unit_id'];
 
 			// Create a hit every ($upt)
 			if($count % $upt == 0){
@@ -268,11 +279,7 @@ class Job {
 					if(!empty($assRevPol['AnswerKey']))
 						$hit->setAssignmentReviewPolicy($assRevPol);
 					else ($hit->setAssignmentReviewPolicy(null));
-					
-					//TODO: is this the right way to propagate unitids?
-					// We could also return them along with the HIT id's.
-					$hit->setRequesterAnnotation(implode(',', $unitids));
-					
+
 					// Create
 					$return[] = $this->mturk->createHIT($hit); 
 				}
@@ -280,8 +287,23 @@ class Job {
 				$unitids = array();
 				unset($assRevPol['AnswerKey']);
 				$questionsbuilder = '';
-
+				$count = 0;
 			}
+		}
+
+		if(!$preview){
+			// Same for each created HIT.
+			$hittype = $this->mturk->getHIT($return[0])->getHITTypeId();
+
+			// Note: this is for every HIT of this type (same title, reward, etc).
+			if(!empty($c->notificationEmail))
+				$this->mturk->setHITTypeNotification($hittype, $c->notificationEmail, 'HITReviewable');
+
+			/* SAVE TO DB. We have:
+				- HITId
+				- HITTypeId
+				- JobConfiguration
+			*/	
 		}
 
 		return $return;

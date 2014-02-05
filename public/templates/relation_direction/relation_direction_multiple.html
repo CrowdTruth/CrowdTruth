@@ -7,10 +7,10 @@
     $(document).ready(function(){
         $("#wizard").steps({
                 onFinishing : function(event, currentIndex){
-                  return ($("input[name='direction" + (currentIndex+1) + "']:checked").val());},
+                  return ($("input[rel='direction" + (currentIndex+1) + "']:checked").val());},
                 onStepChanging : function(event, currentIndex, newIndex){
                   if (newIndex > currentIndex)
-                    return ($("input[name='direction" + (currentIndex+1) + "']:checked").val());
+                    return ($("input[rel='direction" + (currentIndex+1) + "']:checked").val());
                   else
                     return true;  
                   },
@@ -41,7 +41,7 @@
                <tbody>
                   <tr>
                      <td valign="center">
-                        <input name="direction{x}" type="radio" value="${term1} ${relation} ${term2}" class="required" id="direction{x}0" />
+                        <input name="{uid}_direction" rel="direction{x}" type="radio" value="${term1} ${relation} ${term2}" class="required" id="direction{x}0" />
                     </td>
                     <td>
                         <label for="direction{x}0" style="display:inline; line-height:2">
@@ -50,7 +50,7 @@
                    </tr>
                    <tr>
                      <td valign="center">
-                        <input name="direction{x}" type="radio" value="${term2} ${relation} ${term1}" class="required" id="direction{x}1"/>
+                        <input name="{uid}_direction" rel="direction{x}" type="radio" value="${term2} ${relation} ${term1}" class="required" id="direction{x}1"/>
                     </td>
                     <td>
                         <label for="direction{x}1" style="display:inline; line-height:2">
@@ -58,7 +58,7 @@
                        </td>
                        <tr>
                          <td valign="center">
-                            <input name="direction{x}" type="radio" value="no_relation" class="required" id="direction{x}2"/>
+                            <input name="{uid}_direction" rel="direction{x}" type="radio" value="no_relation" class="required" id="direction{x}2"/>
                         </td>
                         <td>
                             <label for="direction{x}2" style="display:inline; line-height:2">

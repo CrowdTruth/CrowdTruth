@@ -293,7 +293,8 @@ class Job extends CFBasicRequests {
         * @link http://crowdflower.com/docs-api#judgments
         */
 	public function getUnitJudgments($job_id, $unit_id) {
-		$url = $this->getRequestURL() . $this->getReferenceResource() . "/" . $job_id . "/". $unit_id . ".json";
+		$url = $this->getRequestURL() . $this->getReferenceResource() . "/" . $job_id . "/units/". $unit_id . ".json";
+		//$url = $this->getRequestURL() . $this->getReferenceResource() . "/" . $job_id . "/". $unit_id . ".json";
 		$result = $this->curlRequest($url, "GET", null);
 		return $result["result"];
 	}
