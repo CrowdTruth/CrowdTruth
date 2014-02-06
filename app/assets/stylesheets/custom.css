@@ -1,0 +1,16 @@
+.panel-nav-bar {
+	cursor: pointer;
+}
+
+.panel-nav-bar:hover {
+	cursor: pointer;
+	background: #efe;
+}
+
+.panel-nav-bar-active {
+	background: #428bca;
+}
+
+.panel-nav-bar-active:hover {
+	background: #428bca;
+}

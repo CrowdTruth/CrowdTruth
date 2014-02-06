@@ -1,52 +1,124 @@
 @extends('layouts.default')
 
 @section('content')
+	<div id="container" class="container">
+		<div class="row">
+			
+			<div  id="filtercolumn" class="col-md-2 ">
 
-			<div class="col-xs-10 col-md-offset-1">
-				<div class='maincolumn CW_box_style'>
-
-					<div class="tab">
-						@include('postprocess.nav')
-						
-						@foreach($crowdtasks as $crowdtask)
-	            		<div class="panel panel-default" style="margin:15px;">
-	  						<div style="padding:5px; padding-left:10px;">
-			    				<div class="row" style="padding: 0px;">
-			            			<div class="col-md-2" style="border-right: 1px solid transparent;"><a class="">123456</a></div>
-			              			<div class="col-md-10">Created on 6-1-2013 by Jelle</div>
-			               		</div>	
-			  					<div class="row">
-				               		<div class="col-md-10"><h4>{{ $crowdtask->name }}</h4><p>Here you could fit the job description. Based on an analysis of the output table this block should give the most important information, please let me know if you miss something or prefer to see it placed differently. Next to this, we can of course keep the table format via the tab above when more specific queries are needed.</p></div>
-				               		<div class="col-md-2 pull-right" style="text-align: center; border-left: 1px solid #eee;">Days running:<p style="font-size: 20px;"><strong>2</strong></div>	
-				               	</div>
-				               	<div class="row">
-				               		<div class="col-md-4" style="padding-top:5px; font-size:larger; vertical-align:baseline; border-right: 1px solid #eee; border-top: 1px solid #eee;"><strong style="font-size: 18px;">20</strong> Sentences<br><strong style="font-size: 18px;">10</strong> Judgments/Unit<br><strong style="font-size: 25px;">T1</strong> Template</div>
-				               		<div class="col-md-2" style="padding-top:5px; border-right: 1px solid #eee; border-top: 1px solid #eee;"> on<br><h2 style="text-align: center;">AMT</h2></div>
-				               		<div class="col-md-2" style="padding-top:5px; border-right: 1px solid #eee; border-top: 1px solid #eee; text-align: center;" > Max Judgm/Worker<h3 style="text-align: center;">10</h3><button class="btn btn-sm">Workers</button></div>
-				               		<div class="col-md-2" style="padding-top:5px; border-top: 1px solid #eee; text-align: center;" >Payment/Unit:<strong> $0.02</strong><strong><br>Total costs:</strong><h2>$23.08</h2></div>
-				               		<div class="col-md-2" style=" padding-top:5px; text-align: center; border-top: 1px solid #eee; border-left: 1px solid #eee;">Completion:<br><strong style="font-size:25px;">55%</strong><br><strong>110/200</strong><br>Judgments</div>
-				               	</div>
-	  						</div>
-			  				<div class="panel-footer">
-			  					<button class="btn btn-primary" action="">Analyse</button>
-			  					<button class="btn btn-primary" action="">Details</button>
-								<div class="btn-group">
-			    					<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>Actions
-			        				<span class="caret"></span>
-			    					</button>
-			    					<ul class="dropdown-menu pull-right" role="menu">
-			        					<li><a href="#"><i class="fa fa-folder-open fa-fw"></i>Pause Job</a></li>
-			        					<li><a href=""><i class="fa fa-sign-out fa-fw"></i>Cancel Job</a></li>
-			        					<li class="divider"></li>
-			        					<li><a href=""><i class="fa fa-sign-out fa-fw"></i>Duplicate Job</a></li>
-			        					<li><a href=""><i class="fa fa-sign-out fa-fw"></i>Delete Job</a></li>
-			    					</ul>
-								</div>
-							</div>	
-						</div>
-						@endforeach
-					
-					</div> 
+			<!-- Left column for sorting -->
+			
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Sort by:</h3>
+					</div>
+					<div class="panel-body panel-nav-bar panel-nav-bar-active" id="completion" style="border-bottom: 1px solid #eee" onClick="sortModel('completion')">
+						<i class="fa fa-check-circle"></i> Completion<br>
+					</div>
+					<div class="panel-body panel-nav-bar" id="cost" style="border-bottom: 1px solid #eee" onClick="sortModel('cost')">
+						<i class="fa fa-dollar"></i> Total cost<br>
+					</div>
+					<div class="panel-body panel-nav-bar" id="runningtime" style="border-bottom: 1px solid #eee" onClick="sortModel('runningtime')">
+						<i class="fa fa-clock-o"></i> Running time<br>
+					</div>
+					<div class="panel-body panel-nav-bar" id="flagged" style="border-bottom: 1px solid #eee" onClick="sortModel('flagged')">
+						<i class="fa fa-flag"></i> Flagged workers<br>
+					</div>
+					<div class="panel-body panel-nav-bar" id="jobsize" onClick="sortModel('jobsize')">
+						<i class="fa fa-gavel"></i> Job size<br>
+					</div>
 				</div>
+			
+			<!-- Left column for filters -->
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">Apply filter:</h3>
+					</div>
+					<div class="panel-body" style="border-bottom: 1px solid #eee">
+						<i class="fa fa-user"></i> {{Form::label('user', 'Created by:')}}<br>
+						{{Form::input('','')}}
+					</div>
+					<div class="panel-body" style="border-bottom: 1px solid #eee">
+						<i class="fa fa-users"></i> {{Form::label('user', 'Platform:')}}<br>
+						{{Form::checkbox('')}} CrowdFlower<br>
+						{{Form::checkbox('')}} Amazon MTurk
+					</div>
+					<seperator/>
+					<div class="panel-body" style="border-bottom: 1px solid #eee">
+						<i class="fa fa-file"></i> {{Form::label('user', 'Template:')}}<br>
+						{{Form::checkbox('')}} Relation Direction<br>
+						{{Form::checkbox('')}} Relation Extraction<br>
+						{{Form::checkbox('')}} Factor Span
+					</div>
+					<div class="panel-body">
+						More??
+					</div>
+				</div>
+			<!-- END OF LEFT COLUMN HERE -->
 			</div>
+
+
+			<!-- Main column with results -->
+			<div id="results">
+			@include('postprocess.results')
+			<!-- Close results column -->
+			</div>
+
+
+		<!-- Close row -->
+		</div>
+	<!-- Close container -->
+	</div>
+@section('end_javascript')
+	
+	<script>
+		function showDetails(id){           
+			$('#details-'+id).toggle(this.checked);
+			}
+
+		function sortModel(method){
+			$.ajax({
+				url: 'sort/' + method,
+				type: 'GET'
+			}).done(function( data ) {
+            	console.log( data );
+            	$("#results").html(data);
+
+            	$(".panel-nav-bar").removeClass("panel-nav-bar-active");
+            	$("#"+method).addClass("panel-nav-bar-active");
+        	});
+
+
+		}
+
+		
+			// ON HOLD: AUTOCOMPLETE FUNCTION WITH CREATEDBY
+
+		// //autocomplete function for createdBy
+		// $("#AccountNumber").autocomplete({
+  //   	// This GET Request returns an Array of Objects used for Auto-Complete:
+  //   	// [ { label: "Choice1", value: "value1" }, ... ]
+  //   		source: '/api/Customers/AccountNumsAuto',
+  //   		});
+
+		// //METHOD WITH CACHING
+		//  $(function() {
+		// 	var cache = {};
+		// 	$( "#createdBy" ).autocomplete({
+		// 		minLength: 2,
+		// 		source: function( request, response ) {
+		// 					var term = request.term;
+		// 					if ( term in cache ) {
+		// 						response( cache[ term ] );
+		// 						return;
+		// 						}
+		// 					$.getJSON( "createdBy.php", request, function( data, status, xhr ) {
+		// 						cache[ term ] = data;
+		// 						response( data );
+		// 						});
+		// 					}		
+		// 	});
+		// });
+
+	</script>
 @stop
