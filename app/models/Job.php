@@ -4,6 +4,8 @@ use crowdwatson\MechanicalTurk;
 use crowdwatson\AMTException;
 use crowdwatson\CFExceptions;
 use Sunra\PhpSimple\HtmlDomParser;
+use \mongo\text\Entity;
+use \mongo\text\Activity;
 
 //use crowdwatson\simple_html_dom\simple_html_dom;
 //require_once(base_path() . '/app/lib/crowdwatson/simple_html_dom/simple_html_dom.php');
@@ -15,6 +17,7 @@ class Job {
     protected $csv;
     protected $template;
     protected $jobConfiguration;
+    protected $jcid;
 
 
     public function __construct($csv, $template, $jobConfiguration, $templatePath = null, $csvPath = null){
@@ -34,6 +37,10 @@ class Job {
 		
 		$ids = array();
 		try {
+			
+			// Save JobConfiguration (or reference existing. Throws error if not possible.
+			$this->jcid = $this->jobConfiguration->store();
+
 			if(in_array('amt', $platform)){
 				$csvarray = $this->csv_to_array();
 				shuffle($csvarray);
@@ -157,6 +164,8 @@ class Job {
 					if(isset($goldresult['result']['errors']))
 						throw new CFExceptions($goldresult['result']['errors'][0]);
 
+				$this->store(null, $result['result']);
+
 				return $id;
 			}
 			// Failed to create initial job.
@@ -190,6 +199,7 @@ class Job {
 		$count = 0;
 		$return = array();
 		$unitids = array();
+		$hittypeid = '';
 		$c = $this->jobConfiguration;
 		$hit = $c->toHit();
 		$upt = $c->unitsPerTask;
@@ -263,16 +273,13 @@ class Job {
 
 				if($preview){
 					$return[] = strip_tags($questionsbuilder, 
-					"<a><abbr><acronym><address><article><aside><b>
-					<bdo><big><blockquote><br><caption><cite><code>
-					<col><colgroup><dd><del><details><dfn><div>
-					<dl><dt><em><figcaption><figure><font>
-					<h1><h2><h3><h4><h5><h6><hgroup>
-					<hr><i><img><input><ins><li><map><mark><menu>
-					<meter><ol><p><pre><q><rp><rt><ruby><s><samp>
-					<section><select><small><span><strong><style><sub>
-					<summary><sup><table><tbody><td><textarea><tfoot><th><thead>
-					<time><tr><tt><u><ul><var><wbr>");
+					"<a><abbr><acronym><address><article><aside><b><bdo><big><blockquote><br>
+					<caption><cite><code><col><colgroup><dd><del><details><dfn><div><dl><dt>
+					<em><figcaption><figure><font><h1><h2><h3><h4><h5><h6><hgroup><hr><i><img>
+					<input><ins><li><map><mark><menu><meter><ol><p><pre><q><rp><rt><ruby><s>
+					<script><samp><section><select><small><span><strong><style><sub><summary>
+					<sup><table><tbody><td><textarea><tfoot><th><thead><time><tr><tt><u><ul>
+					<var><wbr>");
 				} else {
 					// Set the questions and optionally the gold answers
 				 	$hit->setQuestion($this->amtAddQuestionXML($questionsbuilder, $frameheight));
@@ -281,7 +288,14 @@ class Job {
 					else ($hit->setAssignmentReviewPolicy(null));
 
 					// Create
-					$return[] = $this->mturk->createHIT($hit); 
+					$created = $this->mturk->createHIT($hit);
+
+					// Save to DB
+					$this->store($created, null);
+
+					// Add ID to returnarray
+					$return[] = $created['HITId'];
+					$hittypeid = $created['HITTypeId'];
 				}
 
 				$unitids = array();
@@ -291,23 +305,73 @@ class Job {
 			}
 		}
 
-		if(!$preview){
-			// Same for each created HIT.
-			$hittype = $this->mturk->getHIT($return[0])->getHITTypeId();
-
-			// Note: this is for every HIT of this type (same title, reward, etc).
-			if(!empty($c->notificationEmail))
-				$this->mturk->setHITTypeNotification($hittype, $c->notificationEmail, 'HITReviewable');
-
-			/* SAVE TO DB. We have:
-				- HITId
-				- HITTypeId
-				- JobConfiguration
-			*/	
-		}
+		// Notification E-Mail
+		if((!$preview) and (!empty($c->notificationEmail)) and (!empty($hittypeid)))
+			$this->mturk->setHITTypeNotification($hittypeid, $c->notificationEmail, 'HITReviewable');
 
 		return $return;
     }
+
+
+    /**
+    * Save Job to database
+    */
+    private function store($hitdata = null, $cfdata = null){
+
+    	// TODO: set tags, domain, type, subtype, URI, template, etc
+
+    	// Sanity check. Only one platform.
+    	if(!(is_array($hitdata) xor is_array($cfdata)))
+    		throw new Exception('Provide either HITdata or CFData.');
+
+
+		if(is_array($hitdata)) {
+			$platformJobId = $hitdata['HITId'];
+			$platformId = 'todo';
+			$platform = 'amt';
+		} elseif (is_array($cfdata)) {
+			$platformJobId = $cfdata['id'];
+			$platformId = 'todo';
+			$platform = 'cf';
+		}	
+
+		$user = Auth::user();
+		$entityURI = "/job/$platform/$platformJobId";
+		$activityURI = "/createjob/$platform/$platformJobId"; //TODO		
+
+		$activity = new Activity;
+		$activity->_id = $activityURI;
+		$activity->type = "createjob";
+		$activity->label = "Job is uploaded to crowdsourcing platform.";
+		$activity->agent_id = $user->_id;
+		$activity->software_id = URL::to('process');
+		$activity->save();
+		
+		try {
+			$entity = new Entity;
+			$entity->_id = $entityURI;
+			$entity->documentType = "job";
+			$entity->activity_id = $activityURI;
+			$entity->user_id = $user->_id;
+
+			$entity->jobConfigurationId = $this->jcid;
+			$entity->templateId = 'todo';
+			$entity->platformId = $platformId; 
+			$entity->platformJobId = $platformJobId;
+			$entity->status = 'todo';
+
+			if($platform == 'amt')
+				$entity->hitTypeId = $hitdata['HITTypeId'];
+			$entity->save();
+			return true;
+		} catch (Exception $e) {
+			// Something went wrong with creating the Entity
+			$activity->forceDelete();
+			$entity->forceDelete();
+			throw $e;
+		}
+    }
+
 
 
     /**

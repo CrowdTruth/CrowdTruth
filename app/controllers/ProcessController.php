@@ -21,25 +21,32 @@ class ProcessController extends BaseController {
 
 	public function getSelectfile() {
 		$jc = unserialize(Session::get('jobconf'));
-		
-		//$turk = new crowdwatson\MechanicalTurk;
-		//$jc = JobConfiguration::fromJSON("{$this->templatePath}relation_direction/relation_direction_1.json");
+/*		$temp = '';
 
-/*		$arr = array();
+		$turk = new crowdwatson\MechanicalTurk;
+		//$hit = $turk->getHIT($first->platformJobId));
+
 		$hits = $turk->searchHITs(2, 1, null, 'Descending');
 		foreach ($hits as $hit){
-			$arr[] = $hit->toArray();
+			$h = $hit->toArray();
+			$entity = \mongo\text\Entity::where('platformJobId', $h['HITId'])->first();
+			$entity->HITStatus = $h['HITStatus']; // TODO: combine CF and AMT, add new status to array.
+			$entity->HITGroupId = $h['HITGroupId'];
+			$entity->HITReviewStatus = $h['HITReviewStatus']; 
+			$entity->Expiration = $h['Expiration'];
+			$entity->save();
+			$assignments = $turk->getAssignmentsForHIT($h['HITId'])
+			
+			foreach ($assignments as $ass){
+				// Save or update assignment.
+			}
 		}*/
-		
-		//dd($turk->getAssignmentsForHIT('2P3Z6R70G5RC7PEQC857ZSST0J2P9T'));
+
 
 		//$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
 		//$job = $cf->readJob('382004');
 		//$judg = $cf->getUnitJudgments('380640', '406870707');
-		//dd($ass->getHITId());
-		//$temp = "<h1>JobConfiguration</h1><br>" . $jc->toHTML($jc->toArray());
-		//$temp .= "<h1>Assignment</h1>" . $jc->toHTML($ass->toArray());
-		$temp = '';
+
 		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp);
 	}
 
@@ -111,7 +118,7 @@ class ProcessController extends BaseController {
 			$msg .= '</ul>';
 
 			Session::flash('flashError', $msg);
-		}
+		} 
 
 		return View::make('process.tabs.submit')
 			->with('treejson', $treejson)
@@ -122,26 +129,21 @@ class ProcessController extends BaseController {
 
 	public function getClearTask(){
 		Session::forget('jobconf');
+		Session::forget('origjobconf');
 		Session::forget('template');
 		Session::forget('csv');
 		return Redirect::to("process/selectfile");
 	}
 
 	/*
-	* Save the jobdetails to a JSON file (from the button in the Submit tab)
+	* Save the jobdetails to the database.
 	*/
 	public function postSaveDetails(){
-		$jc = unserialize(Session::get('jobconf'));
-		$arr = $jc->toArray();
-		$json = json_encode($arr, JSON_PRETTY_PRINT);
-
-		// Allow only a-z, 0-9, /, _. The rest will be removed.
-		$filename = preg_replace("/[^a-z0-9\/_]+/", "", 
-			strtolower(str_replace(' ', '_', Input::get('template'))));
-
 		try {
-			file_put_contents("{$this->templatePath}{$filename}.json", $json);
-			Session::flash('flashSuccess', "Saved jobdetails on server as $filename.json. Remember to provide an HTML questionfile.");
+			$jc = unserialize(Session::get('jobconf'));
+			if($jc->store())
+				Session::flash('flashSuccess', 'Saved Job configuration to database!');
+			else Session::flash('flashNotice', 'This Job configuration already exists.');
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage());
 		}
@@ -163,10 +165,11 @@ class ProcessController extends BaseController {
 			if (empty($template) or ($template != $ntemplate))	
 				$jc = JobConfiguration::fromJSON("{$this->templatePath}$ntemplate.json");
 			$template = $ntemplate;
+			$origjobconf = 'jcid'; // TODO!
 		} else {
 			if (empty($jc)){
 				// No JobConfiguration and no template selected, not good.
-				// (Unfortunately we can't flash a warning when redirecting.)
+				Session::flash('flashNotice', 'Please select a template first.');
 				return Redirect::to("process/template");
 			} else {
 				// There already is a JobConfiguration object. Merge it with Input!

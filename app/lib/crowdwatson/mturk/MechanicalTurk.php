@@ -29,7 +29,7 @@ class MechanicalTurk {
 	/**
 	* Upload a HIT to the AMT server. It will be available for workers immediately.
 	* @param Hit $hit	
-	* @return string HITId.
+	* @return Array(HITId, HITTypeId).
 	* @throws AMTException when the arguments are invalid. Also when the server can not be contacted or the 
 	* request or response isn't in the right format. (bubbles up from getAPIResponse())
 	* @link http://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_CreateHITOperation.html
@@ -38,11 +38,12 @@ class MechanicalTurk {
 		try {
 			$data = $hit->toPOSTdata();
 			$xml = $this->getAPIResponse('CreateHIT', $data);
-			$id = (string) $xml->HIT->HITId;	
+			$id = (string) $xml->HIT->HITId;
+			$hitTypeid = (string) $xml->HIT->HITTypeId;	
 			// The only values we get back from the server are the HITId and the HITTypeId.
 
 			$this->log("Created HIT $id.");
-			return $id;
+			return array('HITId' => $id, 'HITTypeId' => $hitTypeid);
 		} catch (\InvalidArgumentException $e){
 			throw new AMTException('Invalid Argument: ' . $e->getMessage(), $e->getCode(), $e);
 		}

@@ -2,6 +2,8 @@
 
 //use Jenssegers\Mongodb\Model as Eloquent;
 use crowdwatson\Hit;
+use \mongo\text\Entity;
+use \mongo\text\Activity;
 
 class JobConfiguration extends Moloquent {
     protected $fillable = array(
@@ -52,7 +54,7 @@ class JobConfiguration extends Moloquent {
 
 	private $amtrules = array(
 		'hitLifetimeInMinutes' => 'required|numeric|min:1',
-		'frameheight' => 'numeric|min:300'
+		'frameheight' => 'numeric|min:300' // not required because we have a default value.
 	);
 
 
@@ -170,8 +172,7 @@ class JobConfiguration extends Moloquent {
 		else $this->assignmentReviewPolicy = null;
 	}
 
-
-	// TODO: now we use the hitxml format for templating. There should be a more generic system.
+	// Not used (yet?)
 	public static function getFromHit($hit){
 		return new CrowdTask(array(
 			'title' 		=> $hit->getTitle(),
@@ -287,12 +288,8 @@ class JobConfiguration extends Moloquent {
 	        $array = array($array);
 	    }
 	 
-	    // Start the table
-	    $table = "<table>\n";
-	 
-	    // The header
-	    $table .= "\t<tr>";
-	    // Take the keys from the first row as the headings
+	    // Header row
+	    $table = "<table>\n\t<tr>";
 	    foreach (array_keys($array[0]) as $heading) {
 	        $table .= '<th>' . $heading . '</th>';
 	    }
@@ -324,6 +321,71 @@ class JobConfiguration extends Moloquent {
 	 
 	    $table .= '</table>';
 	    return $table;
+	}
+
+	/**
+	* Saves the JobConfiguration, along with an activity, to the DB.
+	* @return entity id (existing or new one)
+	* @throws Exception
+	*/
+	public function store($originalEntity = null){
+		
+		// TODO: set tags, subtype, URI
+
+		$user = Auth::user();
+		$newEntityContent = $this->toArray();
+
+		// What if we want to save the same JobConf with different tags?
+		// Option: make an updateTags() function or something.
+		$hash = md5(serialize($newEntityContent));
+		$existing = Entity::where('hash', $hash)->pluck('_id');
+		if($existing) 
+			return $existing;
+
+		if(is_null($originalEntity)) {
+			$activityURI = mt_rand(0, 1000); //TODO
+			$entityURI = mt_rand(0, 1000);
+		} else {
+			$activityURI = $originalEntity->wasGeneratedBy->_id . '/edit';
+			$entityURI = $originalEntity->_id . '/edit';
+		}
+	
+		$activity = new Activity;
+		$activity->_id = strtolower($activityURI);
+		$activity->type = "jobconf";
+		$activity->label = "JobConfiguration is saved.";
+		if(!is_null($originalEntity))
+			$activity->entity_used_id = $originalEntity->_id;
+		$activity->agent_id = $user->_id;
+		$activity->software_id = URL::to('process');
+		$activity->save();
+		
+		try {
+			$entity = new Entity;
+			$entity->_id = strtolower($entityURI);
+			$entity->documentType = "jobconf";
+			$entity->domain = "medical";
+			$entity->type = "text";
+			$entity->subtype = "factor_span";
+			$entity->tags = array('bla', 'bla', 'bla');
+			$entity->activity_id = strtolower($activityURI);
+			$entity->user_id = $user->_id;
+			$entity->content = $newEntityContent;
+			$entity->hash = $hash;
+
+			if(!is_null($originalEntity)){
+				$entity->parent_id = $originalEntity->_id;
+				$entity->ancestors = array($originalEntity->_id);
+			} 
+
+			$entity->save();
+			return $entity->_id;
+		} catch (Exception $e) {
+			// Something went wrong with creating the Entity
+			$activity->forceDelete();
+			$entity->forceDelete();
+			throw $e;
+		}
 	}
 
 }
