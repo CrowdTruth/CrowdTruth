@@ -26,7 +26,7 @@ class PostProcessController extends BaseController {
 		$jobConfigurations = JobConfiguration::orderBy('judgmentsPerUnit','asc')->paginate(15);
 		return View::make('postprocess.listview')->with('jobConfigurations', $jobConfigurations);
 	}
-	
+
 	/** via routes this method for sorting is called
 	param 1 is the sorting method and param 2 is desc/asc in string
 	based on params  the result is returned in the right way **/
@@ -38,5 +38,35 @@ class PostProcessController extends BaseController {
 	public function createdBy($term){
 		// TODO refine query 
 		return View::make('postprocess.results')->with(JobConfiguration::where('createdBy', '=', $term ));
+
+	public function sortModel($method){
+		
+	 switch ($method) {
+	    case "completion":
+	        $crowdtasks = CrowdTask::orderBy('completion','desc')->paginate(15);
+	        return View::make('postprocess.results')->with('crowdtasks', $crowdtasks);
+	        break;
+	    case "cost":
+	        $crowdtasks = CrowdTask::orderBy('totalCost','desc')->paginate(15);;
+	        return View::make('postprocess.results')->with('crowdtasks', $crowdtasks);
+	        break;
+	    case "runningtime":
+	        $crowdtasks = CrowdTask::orderBy('created_at','asc')->paginate(15);
+	        return View::make('postprocess.results')->with('crowdtasks', $crowdtasks);
+	        break;
+	    case "jobsize":
+	        $crowdtasks = CrowdTask::orderBy('jobSize','desc')->paginate(15);
+	        return View::make('postprocess.results')->with('crowdtasks', $crowdtasks);
+	        break;
+	    case "flagged":
+	        $crowdtasks = CrowdTask::orderBy('flaggedWorkers','desc')->paginate(15);
+	        return View::make('postprocess.results')->with('crowdtasks', $crowdtasks);
+	        break;
+	    default:
+	    	$crowdtasks = CrowdTask::orderBy('completion','asc')->paginate(15);
+	        return View::make('postprocess.results')->with('crowdtasks', $crowdtasks);
+	        break;
+		}
+
 	}
 }

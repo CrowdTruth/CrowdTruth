@@ -130,7 +130,6 @@ class JobConfiguration extends Moloquent {
         return $this->errors;
     }
 
-
 	public function addQualReq($qr){
 		$qarray = array();
 		foreach($qr as $key=>$val){
