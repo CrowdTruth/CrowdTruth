@@ -3,10 +3,11 @@
 //use Jenssegers\Mongodb\Model as Eloquent;
 use crowdwatson\Hit;
 
-class CrowdTask extends Moloquent {
+class JobConfiguration extends Moloquent {
     protected $fillable = array(
     								'title', 
-    								'description', 
+    								'description',
+    								'instructions', /* AMT: inject into template */ 
     								'keywords', 
     								'judgmentsPerUnit', /* AMT: maxAssignments */
     								'unitsPerTask', /* AMT: not in API. Would be 'tasks per assignment' */
@@ -14,10 +15,7 @@ class CrowdTask extends Moloquent {
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
     								'notificationEmail',
     								'requesterAnnotation',
-    								'country', /* TODO: GUI
-
-
-    								/* Undecided */
+    								'country', 
     								'instructions',
 
     								/* AMT specific */
@@ -25,15 +23,13 @@ class CrowdTask extends Moloquent {
 									'hitLifetimeInMinutes', 
 									'qualificationRequirement',
 									'assignmentReviewPolicy', 
+									'frameheight',
 
     	    						/* CF specific */
-    	    						'mandatory',
     	    						'judgmentsPerWorker',
 
     	    						/* for our use */
     	    						'answerfields', /* The fields of the CSV file that contain the gold answers. */
-    								'template',
-    								'csv',
     								'platform'
     								);
 
@@ -61,21 +57,13 @@ class CrowdTask extends Moloquent {
 	    	}
 	}
  
-	// TODO: we do nothing with the rules yet.
-    public static $rules = array(
-	  'title' => 'required',
-	  'description' => 'required',
-	  'reward' => 'required|numeric',
-	  'maxAssignments' => 'required|numeric'
-	);
-
     //FIELDS IN LARAVEL -_-
     public function totalJudgments(){
     	return $this->judgmentsPerUnit*$this->unitsPerTask;
     }
 
 	public function totalCost(){
-		$judgments = CrowdTask::totalJudgments();
+		$judgments = JobConfiguration::totalJudgments();
 		return '$ ' + round($judgments*$this->reward, 2);
 	}
 
@@ -85,8 +73,63 @@ class CrowdTask extends Moloquent {
 		
 
 	public function completedJudgments(){
-		return 20;
+		return 25;
 	}
+
+    private $errors;
+
+    private $commonrules = array(
+		'title' => 'required|between:5,128',
+		'description' => 'required|between:5,2000',		
+		'reward' => 'required|numeric', 
+		'expirationInMinutes' => 'required|numeric', /* AMT: assignmentDurationInSeconds */
+		'platform' => 'required'
+	);
+
+	private $cfrules = array(
+		'judgmentsPerUnit' => 'required|numeric|min:1', /* AMT: defaults to 1 */
+		'unitsPerTask' => 'required|numeric|min:1',
+		'instructions' => 'required',
+		'judgmentsPerWorker' => 'required|numeric|min:1'
+	);	
+
+	private $amtrules = array(
+		'hitLifetimeInMinutes' => 'required|numeric|min:1',
+		'frameheight' => 'numeric|min:300'
+	);
+
+
+    public function validate()  {
+    	$rules = $this->commonrules;
+    	$this->errors = new Illuminate\Support\MessageBag();
+	    $return = true;
+
+	    if(is_array($this->platform)){
+	    	if(in_array('amt', $this->platform))
+	    		$rules = array_merge($rules, $this->amtrules);
+	    	if(in_array('cf', $this->platform))
+	    		$rules = array_merge($rules, $this->cfrules);
+   	 	} else {
+   	 		$this->errors->add('platform', 'Please provide at least one platform.');
+   	 		$return = false;
+   	 	}
+
+        $v = Validator::make($this->toArray(), $rules);
+        if ($v->fails()) {
+            $this->errors->merge($v->messages()->toArray());
+            $return = false;
+        }
+
+        // TODO: add some custom validation rules.
+        // Note: Job->previewQuestions also does some validation.
+
+        return $return;
+    }
+
+    public function getErrors() {
+        return $this->errors;
+    }
+
 
 	public function addQualReq($qr){
 		$qarray = array();
@@ -154,21 +197,22 @@ class CrowdTask extends Moloquent {
 		$json = file_get_contents($filename);
 		if(!$arr = json_decode($json, true))
 			throw new Exception('JSON incorrectly formatted');
-		return new CrowdTask($arr);
+
+		return new JobConfiguration($arr);
 	}
 
 
 	public function toHit(){
 		$hit = new Hit();
 		if (!empty($this->title)) 			 			$hit->setTitle						  	($this->title); 
-		if (!empty($this->description)) 		 			$hit->setDescription					($this->description); 
+		if (!empty($this->description)) 		 		$hit->setDescription					($this->description); 
 		if (!empty($this->keywords)) 					$hit->setKeywords				  		($this->keywords);
 		if (!empty($this->judgmentsPerUnit)) 			$hit->setMaxAssignments		  			($this->judgmentsPerUnit);
 		if (!empty($this->expirationInMinutes))			$hit->setAssignmentDurationInSeconds 	($this->expirationInMinutes*60);
 		if (!empty($this->hitLifetimeInMinutes)) 		$hit->setLifetimeInSeconds		  		($this->hitLifetimeInMinutes*60);
 		if (!empty($this->reward)) 						$hit->setReward					  		(array('Amount' => $this->reward, 'CurrencyCode' => 'USD'));
 		if (!empty($this->autoApprovalDelayInMinutes)) 	$hit->setAutoApprovalDelayInSeconds  	($this->autoApprovalDelayInMinutes*60); 
-		if (!empty($this->qualificationRequirement))		$hit->setQualificationRequirement		($this->qualificationRequirement);
+		if (!empty($this->qualificationRequirement))	$hit->setQualificationRequirement		($this->qualificationRequirement);
 		if (!empty($this->requesterAnnotation))			$hit->setRequesterAnnotation			($this->requesterAnnotation);
 		
 		if (/* isset($this->assignmentReviewPolicy['AnswerKey']) and 
@@ -195,6 +239,85 @@ class CrowdTask extends Moloquent {
 		return $data;
 	}
 
+	
+	public function toHTML($array = 'no array', $class = "table"){
+		if($array=='no array') $array = $this->toArray();
+		
+		$ret = "<table class='$class'>\r\n";
+		foreach ($array as $key=>$val){
+			$rc = '';
+			if(is_numeric($key)) $head = ''; else $head = "<th>$key</th>";
+			if(is_array($val)) 
+				$ret .= "<tr>$head<td>{$this->toHTML($val, 'table table-condensed table-bordered')}</td></tr>\r\n";
+			else {
+				if(is_object($this->getErrors()) and $this->getErrors()->has($key)) 
+					$rc = " class = 'danger'";
+				$ret .= "<tr$rc>$head<td>$val</td></tr>\r\n";
+			}
+		}
+		return $ret . "</table>\r\n";
+	} 
+
+
+	/**
+	 * Translate a result array into a HTML table
+	 *
+	 * @author      Aidan Lister <aidan@php.net>
+	 * @version     1.3.2
+	 * @link        http://aidanlister.com/2004/04/converting-arrays-to-human-readable-tables/
+	 * @param       array  $array      The result (numericaly keyed, associative inner) array.
+	 * @param       bool   $recursive  Recursively generate tables for multi-dimensional arrays
+	 * @param       string $null       String to output for blank cells
+	 */
+	function array2table($array, $recursive = false, $null = '&nbsp;')
+	{
+	    // Sanity check
+	    if (empty($array) || !is_array($array)) {
+	        return false;
+	    }
+	 
+	    if (!isset($array[0]) || !is_array($array[0])) {
+	        $array = array($array);
+	    }
+	 
+	    // Start the table
+	    $table = "<table>\n";
+	 
+	    // The header
+	    $table .= "\t<tr>";
+	    // Take the keys from the first row as the headings
+	    foreach (array_keys($array[0]) as $heading) {
+	        $table .= '<th>' . $heading . '</th>';
+	    }
+	    $table .= "</tr>\n";
+	 
+	    // The body
+	    foreach ($array as $row) {
+	        $table .= "\t<tr>" ;
+	        foreach ($row as $cell) {
+	            $table .= '<td>';
+	 
+	            // Cast objects
+	            if (is_object($cell)) { $cell = (array) $cell; }
+	             
+	            if ($recursive === true && is_array($cell) && !empty($cell)) {
+	                // Recursive mode
+	                $table .= "\n" . $this->array2table($cell, true, true) . "\n";
+	            } else {
+	                $table .= (strlen($cell) > 0) ?
+	                    htmlspecialchars((string) $cell) :
+	                    $null;
+	            }
+	 
+	            $table .= '</td>';
+	        }
+	 
+	        $table .= "</tr>\n";
+	    }
+	 
+	    $table .= '</table>';
+	    return $table;
+	}
 
 }
 	

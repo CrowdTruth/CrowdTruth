@@ -7,7 +7,11 @@
 	background: #efe;
 }
 
-.panel-nav-bar-active {
+.panel-nav-bar-ascending {
+	background: #428bca;
+}
+
+.panel-nav-bar-descending {
 	background: #428bca;
 }
 

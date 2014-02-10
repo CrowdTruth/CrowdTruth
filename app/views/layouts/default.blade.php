@@ -7,6 +7,7 @@
 		<meta name="description" content="">
 		<meta name="author" content="">
 		<title>Crowd-Watson</title>
+		<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 		{{ stylesheet_link_tag() }}
 @yield('head')
 	</head>

@@ -1,9 +1,6 @@
 <?php
 
-use crowdwatson\MechanicalTurkService;
 use crowdwatson\AMTException;
-use crowdwatson\Hit;
-use crowdwatson\CFService;
 
 class ProcessController extends BaseController {
 	protected $templatePath;
@@ -23,97 +20,110 @@ class ProcessController extends BaseController {
 	}
 
 	public function getSelectfile() {
-		$ct = unserialize(Session::get('crowdtask'));
-		return View::make('process.tabs.selectfile')->with('crowdtask', $ct);
+		$jc = unserialize(Session::get('jobconf'));
+		
+		//$turk = new crowdwatson\MechanicalTurk;
+		//$jc = JobConfiguration::fromJSON("{$this->templatePath}relation_direction/relation_direction_1.json");
+
+/*		$arr = array();
+		$hits = $turk->searchHITs(2, 1, null, 'Descending');
+		foreach ($hits as $hit){
+			$arr[] = $hit->toArray();
+		}*/
+		
+		//dd($turk->getAssignmentsForHIT('2P3Z6R70G5RC7PEQC857ZSST0J2P9T'));
+
+		//$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
+		//$job = $cf->readJob('382004');
+		//$judg = $cf->getUnitJudgments('380640', '406870707');
+		//dd($ass->getHITId());
+		//$temp = "<h1>JobConfiguration</h1><br>" . $jc->toHTML($jc->toArray());
+		//$temp .= "<h1>Assignment</h1>" . $jc->toHTML($ass->toArray());
+		$temp = '';
+		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp);
 	}
 
 	public function getTemplate() {
 		// Create array for the tree
-		$ct = unserialize(Session::get('crowdtask'));		
-		$currenttemplate = (isset($ct->template) ? $ct->template : 'generic/default');	
+		$jc = unserialize(Session::get('jobconf'));	
+		$currenttemplate = Session::get('template');
+		if(empty($currenttemplate)) $currenttemplate = 'generic/default';
 		$treejson = $this->makeDirTreeJSON($this->templatePath, $currenttemplate);
 
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
 			->with('currenttemplate', $currenttemplate)
-			->with('crowdtask', $ct);
+			->with('jobconf', $jc);
 	}
 
 	public function getDetails() {
-		$ct = unserialize(Session::get('crowdtask'));
-		$turk = new MechanicalTurkService($this->templatePath);
+		$jc = unserialize(Session::get('jobconf'));
+		$template = Session::get('template');
+		$csv = Session::get('csv');
+
+		$j = new Job($csv, $template, $jc);
 		$questionids = array();
 		$goldfields = array();
 
 		try {
-			$questionids = $turk->findQuestionIds($ct->template);
-			if($ct->unitsPerTask > 1) // Admittedly a strange place for this. Should be refactored. (todo)
-				foreach (array_keys($turk->csv_to_array("{$this->csvPath}{$ct->csv}")[0]) as $key)
-					if ($key != '_golden' and $pos = strpos($key, '_gold') and !strpos($key, '_gold_reason'))
-						$goldfields[$key] = substr($key, 0, $pos);		
+			$questionids = $j->getQuestionIds();
+			$goldfields = $j->getGoldFields();	
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
 		} 
-		
 		// Compare QuestionID's and goldfields.
-		if (count($goldfields)>0)
-			if($diff = array_diff($goldfields, $questionids))
-				if(count($diff) == 1)
-					Session::flash('flashNotice', 'Field \'' . array_values($diff)[0] . '\' is in the answerkey but not in the HTML template.');
-				elseif(count($diff) > 1)
-					Session::flash('flashNotice', 'Fields \'' . implode(', ', $diff) . '\' are in the answerkey but not in the HTML template.');
+		//if (count($goldfields)>0)
+		if($diff = array_diff($goldfields, $questionids))
+			if(count($diff) == 1)
+				Session::flash('flashNotice', 'Field \'' . array_values($diff)[0] . '\' is in the answerkey but not in the HTML template.');
+			elseif(count($diff) > 1)
+				Session::flash('flashNotice', 'Fields \'' . implode('\', \'', $diff) . '\' are in the answerkey but not in the HTML template.');
 
 		return View::make('process.tabs.details')
-			->with('crowdtask', $ct)
+			->with('jobconf', $jc)
 			->with('goldfields', $goldfields);
 	}
 
 	public function getPlatform() {
-		$ct = unserialize(Session::get('crowdtask'));
-		return View::make('process.tabs.platform')->with('crowdtask', $ct);
+		$jc = unserialize(Session::get('jobconf'));
+		return View::make('process.tabs.platform')->with('jobconf', $jc);
 	}
 
 	public function getSubmit() {
-		$ct = unserialize(Session::get('crowdtask'));
-		$turk = new MechanicalTurkService();
-		$questions = array();
+		$jc = unserialize(Session::get('jobconf'));
+		$template = Session::get('template');
+		$csv = Session::get('csv');
+		
+		$treejson = $this->makeDirTreeJSON($this->templatePath, $template, false);
 
-		// for template saving
-		$treejson = $this->makeDirTreeJSON($this->templatePath, $ct->template, false);
-
-		try{
-			$question = file_get_contents("{$this->templatePath}{$ct->template}.html");
-			$questionsdirty = $turk->createPreviews($question, "{$this->csvPath}{$ct->csv}");
-
-			// TODO: can probably be done in a better way.
-			foreach($questionsdirty as $q) {
-				$questions[] = strip_tags($q, 
-					"<a><abbr><acronym><address><article><aside><b>
-					<bdo><big><blockquote><br><caption><cite><code>
-					<col><colgroup><dd><del><details><dfn><div>
-					<dl><dt><em><figcaption><figure><font>
-					<h1><h2><h3><h4><h5><h6><hgroup>
-					<hr><i><img><ins><li><map><mark><menu>
-					<meter><ol><p><pre><q><rp><rt><ruby><s><samp>
-					<section><small><span><strong><style><sub>
-					<summary><sup><table><tbody><td><tfoot><th><thead>
-					<time><tr><tt><u><ul><var><wbr>");
-			}
-
+		try {
+			$j = new Job($csv, $template, $jc);
+			$questions = $j->getPreviews();
 		} catch (AMTException $e) {
-			Session::flash('flashError', $e->getMessage());
-		} catch (ErrorException $e) {
-			Session::flash('flashError', 'Error reading templatefile.');
+			$questions = array('couldn\'t generate previews.');
+			Session::flash('flashNotice', $e->getMessage());
+		}
+
+		if(!$jc->validate()){
+			$msg = '<ul>';
+			foreach ($jc->getErrors()->all() as $message)
+				$msg .= "<li>$message</li>";
+			$msg .= '</ul>';
+
+			Session::flash('flashError', $msg);
 		}
 
 		return View::make('process.tabs.submit')
-			->with('crowdtask', $ct)
 			->with('treejson', $treejson)
-			->with('questions',  $questions);
+			->with('questions',  $questions)
+			->with('table', $jc->toHTML())
+			->with('template', $jc->template);
 	}
 
 	public function getClearTask(){
-		Session::forget('crowdtask');
+		Session::forget('jobconf');
+		Session::forget('template');
+		Session::forget('csv');
 		return Redirect::to("process/selectfile");
 	}
 
@@ -121,10 +131,8 @@ class ProcessController extends BaseController {
 	* Save the jobdetails to a JSON file (from the button in the Submit tab)
 	*/
 	public function postSaveDetails(){
-		$ct = unserialize(Session::get('crowdtask'));
-		$arr = $ct->toArray();
-		unset($arr['csv']);
-		unset($arr['template']);
+		$jc = unserialize(Session::get('jobconf'));
+		$arr = $jc->toArray();
 		$json = json_encode($arr, JSON_PRETTY_PRINT);
 
 		// Allow only a-z, 0-9, /, _. The rest will be removed.
@@ -144,45 +152,47 @@ class ProcessController extends BaseController {
 
 	/*
 	* Every time you click a tab or the 'next' button, this function fires. 
-	* It combines the Input fields with the CrowdTask that we already have in the Session.
+	* It combines the Input fields with the JobConfiguration that we already have in the Session.
 	*/
 	public function postFormPart($next){
-		$ct = unserialize(Session::get('crowdtask'));
-
+		$jc = unserialize(Session::get('jobconf'));
+		$template = Session::get('template');
 		if(Input::has('template')){
-			// Create the CrowdTask object if it doesn't already exist.
-			$template = Input::get('template');
-			if (empty($ct) or ($ct->template != $template))	
-				$ct = CrowdTask::fromJSON("{$this->templatePath}$template.json");
-			$ct->template = $template;
+			// Create the JobConfiguration object if it doesn't already exist.
+			$ntemplate = Input::get('template');
+			if (empty($template) or ($template != $ntemplate))	
+				$jc = JobConfiguration::fromJSON("{$this->templatePath}$ntemplate.json");
+			$template = $ntemplate;
 		} else {
-			if (empty($ct)){
-				// No CrowdTask and no template selected, not good.
+			if (empty($jc)){
+				// No JobConfiguration and no template selected, not good.
 				// (Unfortunately we can't flash a warning when redirecting.)
 				return Redirect::to("process/template");
 			} else {
-				// There already is a CrowdTask object. Merge it with Input!
-				$ct = new CrowdTask(array_merge($ct->toArray(), Input::get()));	
+				// There already is a JobConfiguration object. Merge it with Input!
+				$jc = new JobConfiguration(array_merge($jc->toArray(), Input::get()));	
 
 				// If leaving the details page...
 				If(Input::has('title')){
-					$ct->answerfields = Input::get('answerfields', false);
+					$jc->answerfields = Input::get('answerfields', false);
 				}
 
 				// If leaving the Platform page....:
 				if(Input::has('qr')) {
-					$ct->platform = Input::get('platform', false);
-					$ct->addQualReq(Input::get('qr'));
+					$jc->platform = Input::get('platform', false);
+					$jc->addQualReq(Input::get('qr'));
 					if(Input::has('arp'))
-						$ct->addAssRevPol(Input::get('arp'));
+						$jc->addAssRevPol(Input::get('arp'));
 				}
 			}		
 		}
 
 		// TODO: get this from 'selectfile'
-		$ct->csv = 'source359444.csv';
+		$csv = 'source359444.csv';
 
-		Session::put('crowdtask', serialize($ct));
+		Session::put('jobconf', serialize($jc));
+		Session::put('template', $template);
+		Session::put('csv', $csv);
 		return Redirect::to("process/$next");
 
 	}
@@ -191,43 +201,21 @@ class ProcessController extends BaseController {
 	* Send it to the platforms.
 	*/
 	public function postSubmitFinal(){
-		$ct = unserialize(Session::get('crowdtask'));
-		$flash = '';
-
-		try {
-
-			// Mechanical Turk
-			if(in_array('amt', $ct->platform)){
-				$hit = $ct->toHit();
-				$turk = new MechanicalTurkService($this->templatePath);
-				$upt = $ct->unitsPerTask;
-
-				if(isset($upt) and $upt > 1)
-					$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit, $upt, $ct->answerfields, $ct->notificationEmail);
-				else
-					$created = $turk->createBatch($ct->template, "{$this->csvPath}{$ct->csv}", $hit, null, 1, $ct->notificationEmail);
-				
-				$flash .= 'Created ' . count($created) . ' HITs.<br>';
-			}
-
-			// CrowdFlower
-			if(in_array('cf', $ct->platform)){
-				$cf = new CFService;
-				$options = array(	"req_ttl_in_seconds" => $ct->expirationInMinutes*60, 
-									"keywords" => $ct->requesterAnnotation, 
-									"mail_to" => $ct->notificationEmail);
-				$cf->createJob($ct->toCFData(), "{$this->csvPath}source359444.csv", 
-					"{$this->templatePath}{$ct->template}", $ct->answerfields, $options); 
-				$flash .= 'Created CrowdFlower job.<br>';
-			}
-
-			if(!empty($flash))
-				Session::flash('flashSuccess', $flash);
+		$jc = unserialize(Session::get('jobconf'));
+		$template = Session::get('template');
+		$csv = Session::get('csv');
 		
-		} catch (crowdwatson\CFExceptions $e) {
-			Session::flash('flashError', "{$flash}CF: {$e->getMessage()}");
-		}catch (AMTException $e) {
-			Session::flash('flashError', "{$flash}AMT: {$e->getMessage()}");
+		try {
+			$j = new Job($csv, $template, $jc);
+			$ids = $j->publish();
+			$msg = 'Created ' .
+			(isset($ids['amt']) ? count($ids['amt']) : 0) .
+			 ' jobs on AMT and ' .
+			(isset($ids['cf']) ? count($ids['cf']) : 0) .
+			 ' on CF.';
+			Session::flash('flashSuccess', $msg);
+		} catch (Exception $e) {
+			Session::flash('flashError', $e->getMessage());
 		}
 
 		return Redirect::to("process/submit");
@@ -262,4 +250,5 @@ class ProcessController extends BaseController {
 		}
 		return json_encode($r);
 	}
+
 }

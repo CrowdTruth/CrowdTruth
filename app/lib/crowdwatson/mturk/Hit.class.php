@@ -101,7 +101,7 @@ class Hit {
 	public function toPOSTdata() {
 	
 		// Check if the mandatory fields are filled out. (note: these would not be mandatory if you would be using a HITTypeId, but this functionality is not yet implemented).
-		if($this->Reward['Amount'] == 0) throw new InvalidArgumentException('Reward should be larger than 0.');
+		if($this->Reward['Amount'] == 0) throw new \InvalidArgumentException('Reward should be larger than 0.');
 		
 		if (!$this->Title || !$this->Description || !$this->Reward['Amount'] || !$this->Reward['CurrencyCode'] || !$this->LifetimeInSeconds || !$this->AssignmentDurationInSeconds)
 			throw new \InvalidArgumentException("Fill out the mandatory fields: Title, Description, Reward['Amount'], Reward['CurrencyCode'], LifetimeInSeconds, AssignmentDurationInSeconds.");
@@ -182,6 +182,38 @@ class Hit {
 		return $data;
 	}
 	
+	public function toArray(){
+		return array(	'HITId' => $this->HITId, 						
+						'HITLayoutId' => $this->HITLayoutId,
+						'LayoutParameters' => $this->LayoutParameters,				
+						'Title' => $this->Title,
+						'Description' => $this->Description,
+						'Keywords' => $this->Keywords, 	
+						'Reward' => $this->Reward,				 	
+						'LifetimeInSeconds' => $this->LifetimeInSeconds,		
+						'AssignmentDurationInSeconds' => $this->AssignmentDurationInSeconds,
+						'MaxAssignments' => $this->MaxAssignments, 
+						'AutoApprovalDelayInSeconds' => $this->AutoApprovalDelayInSeconds,
+						'QualificationRequirement' => $this->QualificationRequirement,
+						'Question' => $this->Question, 
+						'RequesterAnnotation' => $this->RequesterAnnotation, 
+						'AssignmentReviewPolicy' => $this->AssignmentReviewPolicy,
+						
+						// Fields that can not be set.
+						'HITTypeId' => $this->HITTypeId, 							
+						'NumberOfSimilarHITs' => $this->NumberOfSimilarHITs, 
+						'HITReviewStatus' => $this->HITReviewStatus, 				
+						'HITStatus' => $this->HITStatus, 				
+						'HITGroupId' => $this->HITGroupId, 	
+						'CreationTime' => $this->CreationTime, 
+						'Expiration' => $this->Expiration, 							
+
+						// Only filled if the HITAssignmentSummary 
+						// response group is specified:
+						'NumberofAssignmentsPending' => $this->NumberofAssignmentsPending, 
+						'NumberofAssignmentsAvailable' => $this->NumberofAssignmentsAvailable,
+						'NumberofAssignmentsCompleted' => $this->NumberofAssignmentsCompleted);	
+	}
 	
 	public function getHITId(){
 		return $this->HITId;

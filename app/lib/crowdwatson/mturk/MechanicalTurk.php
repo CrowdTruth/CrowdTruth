@@ -39,7 +39,8 @@ class MechanicalTurk {
 			$data = $hit->toPOSTdata();
 			$xml = $this->getAPIResponse('CreateHIT', $data);
 			$id = (string) $xml->HIT->HITId;	
-			
+			// The only values we get back from the server are the HITId and the HITTypeId.
+
 			$this->log("Created HIT $id.");
 			return $id;
 		} catch (\InvalidArgumentException $e){
@@ -53,7 +54,7 @@ class MechanicalTurk {
 	* Poll the server for your HITs that have been submitted by workers.
 	* @param int $pagesize
 	* @param int $pagenumber
-	* @return string[] HIT ID's
+	* @return Array of HITs.
 	* @throws AMTException when the server can not be contacted or the request or response isn't in the right format. (bubbles up from getAPIResponse())
 	* @link http://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_GetReviewableHITsOperation.html
 	*/	
@@ -66,7 +67,7 @@ class MechanicalTurk {
 		$hits = $xml->xpath('/GetReviewableHITsResponse/GetReviewableHITsResult/HIT');
 		
 		foreach ($hits as $hitxml)
-			$ret[] = (string) $hitxml->HITId;
+			$ret[] = new Hit($hitxml);//(string) $hitxml->HITId;
 		
 		$this->log("Retrieved " . count($ret) . " reviewable HITs" );
 		return $ret;
@@ -76,8 +77,8 @@ class MechanicalTurk {
 	/**
 	* @alias searchHITs()
 	*/
-	public function getAllHITs( $pagesize = 50, $pagenumber = 1){
-		return $this->searchHITs($pagesize, $pagenumber);
+	public function getAllHITs( $pagesize = 50, $pagenumber = 1, $sortproperty = null, $sortdirection = null){
+		return $this->searchHITs($pagesize, $pagenumber, $sortproperty, $sortdirection);
 	}
 
 	
@@ -85,20 +86,27 @@ class MechanicalTurk {
 	* Poll the server for ALL your HITs (no queries possible). The name is misleading, I apologize on behalf of the AMT team ;). 
 	* @param int $pagesize
 	* @param int $pagenumber
-	* @return string[] HIT ID's
+	* @param string $sortproperty Title | Reward | Expiration | CreationTime | Enumeration
+	* @param string $sortdirection  Ascending | Descending
+	* @param string $responsegroup Request, Minimal, HITDetail, HITQuestion, HITAssignmentSummary
+	* @return Array of HIT's.
 	* @throws AMTException when the server can not be contacted or the request or response isn't in the right format. (bubbles up from getAPIResponse())
 	* @link http://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_SearchHITsOperation.html
 	*/	
-	public function searchHITs($pagesize = 50, $pagenumber = 1) {
+	public function searchHITs($pagesize = 50, $pagenumber = 1, $sortproperty = null, $sortdirection = null, $responsegroup = null) {
 		$data = array(	'PageSize' 		=> $pagesize, 
 						'PageNumber'    => $pagenumber );
+
+		if(isset($sortproperty)) $data['SortProperty'] = $sortproperty;
+		if(isset($sortdirection)) $data['SortDirection'] = $sortdirection;
+		if(isset($responsegroup)) $data['ResponseGroup'] = $responsegroup;
+
 		$xml = $this->getAPIResponse('SearchHITs', $data);
 	
 		$ret = array();
 		$hits = $xml->xpath('SearchHITsResult/HIT');
-
 		foreach ($hits as $hitxml)
-			$ret[] = (string) $hitxml->HITId;
+			$ret[] = new Hit($hitxml);//(string) $hitxml->HITId;
 		
 		$this->log("Retrieved " . count($ret) . " hits." );
 		return $ret;
@@ -190,7 +198,8 @@ class MechanicalTurk {
 		$assignments = $xml->xpath('/GetAssignmentsForHITResponse/GetAssignmentsForHITResult/Assignment');
 		
 		foreach ($assignments as $assxml)
-			$ret[] = (string) $xml->GetAssignmentsForHITResult->Assignment->AssignmentId;
+			$ret[] = new Assignment($assxml);
+			//$ret[] = (string) $xml->GetAssignmentsForHITResult->Assignment->AssignmentId;
 		
 		$this->log("Retrieved " . count($ret) . " assignments for hit $hit_id." );
 		return $ret;
@@ -208,8 +217,7 @@ class MechanicalTurk {
 	public function getAssignment($assignment_id, $responsegroup = null) {
 		$data = array('AssignmentId' => $assignment_id);
 		$xml = $this->getAPIResponse('GetAssignment', $data, $responsegroup);	
-		$assxml = $xml->xpath('/GetAssignmentResult/Assignment');
-		
+		$assxml = $xml->xpath('GetAssignmentResult/Assignment');
 		$this->log("Retrieved $assignment_id from server.");
 		return new Assignment($assxml);
 	}

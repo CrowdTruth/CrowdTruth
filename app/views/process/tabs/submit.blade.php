@@ -15,16 +15,7 @@
 					<div class="panel-body">
 						<fieldset>
 							<legend>Properties</legend>
-							<table class="table table-striped">
-							<!--<tr><th>Property</th><th>Value</th></tr>-->
-							@foreach ($crowdtask->toArray() as $key=>$val)
-								@if (is_array($val))
-								<tr><th>{{ $key }}</th><td><pre><?php var_dump($val) ?></pre></td></tr>
-								@else
-								<tr><th>{{ $key }}</th><td>{{ $val }}</td></tr>
-								@endif
-							@endforeach
-							</table>
+							{{ $table }}
 						</fieldset>
 						<br>
 						<fieldset>	
@@ -68,7 +59,7 @@
 						  Save settings
 						</button>
 
-						{{ Form::model($crowdtask, array('class' => 'form-horizontal crowdtask', 'action' => 'ProcessController@postSubmitFinal', 'method' => 'POST')) }}
+						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => 'ProcessController@postSubmitFinal', 'method' => 'POST')) }}
 						@if(Session::has('flashError'))
 							{{ Form::submit('Submit', array('class' => 'btn btn-lg btn-primary pull-right', 'disabled')); }}
 						@else 
@@ -76,8 +67,6 @@
 						@endif
 						{{ Form::close()}}	
 
-
-				
 					</div>
 				</div>
 			</div>	
@@ -105,7 +94,7 @@
 						        {{ Form::open(array('action' => 'ProcessController@postSaveDetails'))}}
 						        	{{ Form::label('template', 'Pick a name. Use underscores instead of spaces. NB: there needs to be an HTML template for every jobdetails file.') }}
 						        	<br>
-						        	{{ Form::text('template', $crowdtask->template, array('id' => 'template', 'class' => 'form-control col-xs-6')) }}
+						        	{{ Form::text('template', $template, array('id' => 'template', 'class' => 'form-control col-xs-6')) }}
 						        </div>
 						      </div>
 						      <br>

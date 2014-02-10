@@ -66,8 +66,8 @@ class Worker extends CFBasicRequests {
 }
 
 /* use case for flagging a worker */
-/* argument: api key */
+/* argument: api key 
 $worker = new Worker("c6b735ba497e64428c6c61b488759583298c2cf3"); 
 $worker->blockWorker("365837", "3603786", "You performed as spammer on this job.");
-
+*/
 ?>
