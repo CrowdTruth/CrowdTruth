@@ -22,6 +22,24 @@ class ProcessController extends BaseController {
 	public function getSelectfile() {
 		$jc = unserialize(Session::get('jobconf'));
 		
+
+		// Here starts retrieve file code
+		// Items should be batches, either from database or out of the cart. In case of batches they need to be created in previous step.
+		$items =  array();// Cart::content(); or Batch::all();
+		$entities = array();
+		$repository = new \mongo\Repository;
+
+		foreach($items as $item){
+			if($entity = $repository->find($item['id'])) {
+				// TODO Adjust to the datatype that goes into this phase
+				if($entity->documentType != "twrex")
+					continue;
+
+				$entity['rowid'] = $item['rowid'];
+				array_push($entities, $entity);
+			}
+		}
+		
 		//$turk = new crowdwatson\MechanicalTurk;
 		//$jc = JobConfiguration::fromJSON("{$this->templatePath}relation_direction/relation_direction_1.json");
 
@@ -40,7 +58,7 @@ class ProcessController extends BaseController {
 		//$temp = "<h1>JobConfiguration</h1><br>" . $jc->toHTML($jc->toArray());
 		//$temp .= "<h1>Assignment</h1>" . $jc->toHTML($ass->toArray());
 		$temp = '';
-		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp);
+		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp)->with('entities', $entities);
 	}
 
 	public function getTemplate() {
