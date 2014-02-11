@@ -36,7 +36,7 @@
 												<!-- Below href is meant for view but left empty, see line 45 -->
 												<a class='btn btn-default btn-sm col-xs-9' href=''>
 													<i class='fa fa-file-text fa-fw'></i>
-													<span>{{ $entity['title'] }}</span>
+													<span>{{ $entity->title }}</span>
 												</a>
 												<a class='btn btn-default btn-sm col-xs-3 dropdown-toggle' data-toggle='dropdown' href='#'>
 													<span class='fa fa-caret-down fa-fw'></span>

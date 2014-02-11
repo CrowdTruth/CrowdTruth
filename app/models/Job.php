@@ -10,7 +10,7 @@ use Sunra\PhpSimple\HtmlDomParser;
 
 // TODO: use ...
 
-class Job { 
+class Job extends Entity { 
     protected $mturk;
     protected $csv;
     protected $template;

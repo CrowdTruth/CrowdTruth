@@ -1,6 +1,8 @@
 <?php
 
 use crowdwatson\AMTException;
+use crowdwatson\batch;
+use crowdwatson\sentence;
 
 class ProcessController extends BaseController {
 	protected $templatePath;
@@ -22,43 +24,26 @@ class ProcessController extends BaseController {
 	public function getSelectfile() {
 		$jc = unserialize(Session::get('jobconf'));
 		
-
-		// Here starts retrieve file code
-		// Items should be batches, either from database or out of the cart. In case of batches they need to be created in previous step.
-		$items =  array();// Cart::content(); or Batch::all();
-		$entities = array();
-		$repository = new \mongo\Repository;
-
-		foreach($items as $item){
-			if($entity = $repository->find($item['id'])) {
-				// TODO Adjust to the datatype that goes into this phase
-				if($entity->documentType != "twrex")
-					continue;
-
-				$entity['rowid'] = $item['rowid'];
-				array_push($entities, $entity);
-			}
-		}
+		//TEST CODE
+		$sentence1 = new Sentence();
+		$sentence1->save();
+		$sentence2 = new Sentence();
+		$sentence2->save();
+		$sentences = array($sentece1, $sentence2);
+		$batch = new Batch($sentences, "This is a new batch");
+		$batch->save();
+		$sentence3 = new Sentence;
+		$sentence4 = new Sentence;
+		$sentences1 = array($sentece3, $sentence4);
+		$batch1 = new Batch($sentences1, "This is the second batch");
+		$batch1->save();
+		// END TEST CODE
 		
-		//$turk = new crowdwatson\MechanicalTurk;
-		//$jc = JobConfiguration::fromJSON("{$this->templatePath}relation_direction/relation_direction_1.json");
-
-/*		$arr = array();
-		$hits = $turk->searchHITs(2, 1, null, 'Descending');
-		foreach ($hits as $hit){
-			$arr[] = $hit->toArray();
-		}*/
+		$entities =  Batch::all(); 
 		
-		//dd($turk->getAssignmentsForHIT('2P3Z6R70G5RC7PEQC857ZSST0J2P9T'));
-
-		//$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
-		//$job = $cf->readJob('382004');
-		//$judg = $cf->getUnitJudgments('380640', '406870707');
-		//dd($ass->getHITId());
-		//$temp = "<h1>JobConfiguration</h1><br>" . $jc->toHTML($jc->toArray());
-		//$temp .= "<h1>Assignment</h1>" . $jc->toHTML($ass->toArray());
-		$temp = '';
 		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp)->with('entities', $entities);
+
+		
 	}
 
 	public function getTemplate() {
