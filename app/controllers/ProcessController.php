@@ -3,13 +3,6 @@
 use crowdwatson\AMTException;
 
 class ProcessController extends BaseController {
-	protected $templatePath;
-	protected $csvPath;
-
-	public function __construct(){
-		$this->templatePath = base_path() . '/public/templates/';
-		$this->csvPath = base_path() . '/public/csv/';
-	}
 
 	public function getIndex() {
 		// if(!count(Cart::content()) > 0){
@@ -21,8 +14,9 @@ class ProcessController extends BaseController {
 
 	public function getSelectfile() {
 		$jc = unserialize(Session::get('jobconf'));
-/*		$temp = '';
-
+		$temp = '';
+		$temp = Config::get('config.templatedir');
+/*
 		$turk = new crowdwatson\MechanicalTurk;
 		//$hit = $turk->getHIT($first->platformJobId));
 
@@ -55,7 +49,7 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));	
 		$currenttemplate = Session::get('template');
 		if(empty($currenttemplate)) $currenttemplate = 'generic/default';
-		$treejson = $this->makeDirTreeJSON($this->templatePath, $currenttemplate);
+		$treejson = $this->makeDirTreeJSON($currenttemplate);
 
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
@@ -101,7 +95,7 @@ class ProcessController extends BaseController {
 		$template = Session::get('template');
 		$csv = Session::get('csv');
 		
-		$treejson = $this->makeDirTreeJSON($this->templatePath, $template, false);
+		$treejson = $this->makeDirTreeJSON($template, false);
 
 		try {
 			$j = new Job($csv, $template, $jc);
@@ -163,7 +157,7 @@ class ProcessController extends BaseController {
 			// Create the JobConfiguration object if it doesn't already exist.
 			$ntemplate = Input::get('template');
 			if (empty($template) or ($template != $ntemplate))	
-				$jc = JobConfiguration::fromJSON("{$this->templatePath}$ntemplate.json");
+				$jc = JobConfiguration::fromJSON(Config::get('config.templatedir') . "$ntemplate.json");
 			$template = $ntemplate;
 			$origjobconf = 'jcid'; // TODO!
 		} else {
@@ -229,8 +223,9 @@ class ProcessController extends BaseController {
 	/*
 	* Create the JSON necessary for jstree to use.
 	*/
-	private function makeDirTreeJSON($path, $currenttemplate, $pretty = true){
+	private function makeDirTreeJSON($currenttemplate, $pretty = true){
 		$r = array();
+		$path = Config::get('config.templatedir');
 		foreach(File::directories($path) as $dir){
 			$dirname = substr($dir, strlen($path));
 		   	if($pretty) $displaydir = ucfirst(str_replace('_', ' ', $dirname));

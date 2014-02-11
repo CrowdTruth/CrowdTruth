@@ -7,25 +7,19 @@ use Sunra\PhpSimple\HtmlDomParser;
 use \mongo\text\Entity;
 use \mongo\text\Activity;
 
-//use crowdwatson\simple_html_dom\simple_html_dom;
-//require_once(base_path() . '/app/lib/crowdwatson/simple_html_dom/simple_html_dom.php');
-
-// TODO: use ...
-
 class Job { 
     protected $mturk;
     protected $csv;
     protected $template;
     protected $jobConfiguration;
     protected $jcid;
+    protected $activityURI;
 
 
-    public function __construct($csv, $template, $jobConfiguration, $templatePath = null, $csvPath = null){
-    	if(!isset($templatePath)) $templatePath = base_path() . '/public/templates/';
-		if(!isset($csvPath)) $csvPath = base_path() . '/public/csv/';
-
-    	$this->csv = "$csvPath$csv";
-    	$this->template = "$templatePath$template";
+    public function __construct($csv, $template, $jobConfiguration){
+    	$this->csv = Config::get('config.csvdir') . $csv;
+    	$this->template = Config::get('config.templatedir') . $template;
+    	$this->CFApiKey = Config::get('config.cfapikey');
     	$this->jobConfiguration = $jobConfiguration;
     	$this->mturk = new MechanicalTurk;
     }
@@ -38,8 +32,19 @@ class Job {
 		$ids = array();
 		try {
 			
-			// Save JobConfiguration (or reference existing. Throws error if not possible.
-			$this->jcid = $this->jobConfiguration->store();
+			// Create a new activity for this action.
+			$this->activityURI = "/createjob/" . mt_rand(0, 10000); //TODO		
+			$activity = new Activity;
+			$activity->_id = $this->activityURI;
+			$activity->type = "createjob";
+			$activity->label = "Job is uploaded to crowdsourcing platform.";
+			$activity->agent_id = $user->_id;
+			$activity->software_id = URL::to('process');
+			$activity->save();
+
+			// Save JobConfiguration (or reference existing). Throws error if not possible.
+			// TODO: might have a parent.
+			$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
 
 			if(in_array('amt', $platform)){
 				$csvarray = $this->csv_to_array();
@@ -116,7 +121,7 @@ class Job {
     * @return String id of published Job
     */
     private function cfPublish(){
-    	$cfJob = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
+    	$cfJob = new crowdwatson\Job($this->CFApiKey);
 
     	$c = $this->jobConfiguration;
 		$data = $c->toCFData();
@@ -337,21 +342,12 @@ class Job {
 
 		$user = Auth::user();
 		$entityURI = "/job/$platform/$platformJobId";
-		$activityURI = "/createjob/$platform/$platformJobId"; //TODO		
-
-		$activity = new Activity;
-		$activity->_id = $activityURI;
-		$activity->type = "createjob";
-		$activity->label = "Job is uploaded to crowdsourcing platform.";
-		$activity->agent_id = $user->_id;
-		$activity->software_id = URL::to('process');
-		$activity->save();
 		
 		try {
 			$entity = new Entity;
 			$entity->_id = $entityURI;
 			$entity->documentType = "job";
-			$entity->activity_id = $activityURI;
+			$entity->activity_id = $this->activityURI;
 			$entity->user_id = $user->_id;
 
 			$entity->jobConfigurationId = $this->jcid;

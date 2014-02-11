@@ -328,7 +328,7 @@ class JobConfiguration extends Moloquent {
 	* @return entity id (existing or new one)
 	* @throws Exception
 	*/
-	public function store($originalEntity = null){
+	public function store($originalEntity = null, $activityURI = null){
 		
 		// TODO: set tags, subtype, URI
 
@@ -341,28 +341,30 @@ class JobConfiguration extends Moloquent {
 		$existing = Entity::where('hash', $hash)->pluck('_id');
 		if($existing) 
 			return $existing;
+	 	
+	 	// Create a new activity, but only if there isn't one in the parameters.
+		if (is_null($activityURI)){
+			$activity = new Activity;
 
-		if(is_null($originalEntity)) {
-			$activityURI = mt_rand(0, 1000); //TODO
-			$entityURI = mt_rand(0, 1000);
-		} else {
-			$activityURI = $originalEntity->wasGeneratedBy->_id . '/edit';
-			$entityURI = $originalEntity->_id . '/edit';
+			if(is_null($originalEntity)) {
+				$activity->_id = mt_rand(0, 1000); //TODO
+				$activity->entity_used_id = $originalEntity->_id;
+			} else {
+				$activity->_id =  $originalEntity->wasGeneratedBy->_id . '/edit';
+			}
+
+			$activity->type = "jobconf";
+			$activity->label = "JobConfiguration is saved.";
+			$activity->agent_id = $user->_id;
+			$activity->software_id = URL::to('process');
+			$activity->save();
 		}
-	
-		$activity = new Activity;
-		$activity->_id = strtolower($activityURI);
-		$activity->type = "jobconf";
-		$activity->label = "JobConfiguration is saved.";
-		if(!is_null($originalEntity))
-			$activity->entity_used_id = $originalEntity->_id;
-		$activity->agent_id = $user->_id;
-		$activity->software_id = URL::to('process');
-		$activity->save();
-		
+
 		try {
 			$entity = new Entity;
-			$entity->_id = strtolower($entityURI);
+			if(is_null($originalEntity))
+				$entity->_id = strtolower($entityURI);
+			else $entity->_id = $entityURI = $originalEntity->_id . '/edit';
 			$entity->documentType = "jobconf";
 			$entity->domain = "medical";
 			$entity->type = "text";
