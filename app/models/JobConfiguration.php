@@ -112,14 +112,6 @@ class JobConfiguration extends Moloquent {
 	        return $numberOfUnits.' '.$text.(($numberOfUnits>1)?'s':'');
 	    	}
 	}
- 
-	// TODO: we do nothing with the rules yet.
-    public static $rules = array(
-	  'title' => 'required',
-	  'description' => 'required',
-	  'reward' => 'required|numeric',
-	  'maxAssignments' => 'required|numeric'
-	);
 
     //FIELDS IN LARAVEL -_-
     public function totalJudgments(){
@@ -172,25 +164,23 @@ class JobConfiguration extends Moloquent {
 		else $this->assignmentReviewPolicy = null;
 	}
 
-	// Not used (yet?)
+	// Used now, for HITs that don't come from our own platform
 	public static function getFromHit($hit){
-		return new CrowdTask(array(
+		return new JobConfiguration(array(
 			'title' 		=> $hit->getTitle(),
 			'description' 	=> $hit->getDescription(),
 			'keywords'		=> $hit->getKeywords(),
 			'reward'		=> $hit->getReward()['Amount'],
-			'maxAssignments'=> $hit->getMaxAssignments(),
-			'assignmentDur'	=> $hit->getAssignmentDurationInSeconds(),
-			'lifetimeInSeconds' => $hit->getLifetimeInSeconds(),
-			'tasksPerAssignment' => 1, // TODO add this to templating system
+			'judgmentsPerUnit'=> $hit->getMaxAssignments(),
+			'expirationInMinutes'	=> intval($hit->getAssignmentDurationInSeconds())/60,
+			'hitLifetimeInMinutes' => intval($hit->getLifetimeInSeconds())/60,
+			'unitsPerTask' => 1, 
 
 			/* AMT */
-			'autoApprovalDelayInSeconds' => $hit->getAutoApprovalDelayInSeconds(),
+			'autoApprovalDelayInMinutes' => intval($hit->getAutoApprovalDelayInSeconds())/60,
 			'qualificationRequirement'=> $hit->getQualificationRequirement(),
 			'assignmentReviewPolicy' => $hit->getAssignmentReviewPolicy(),
-			/* General CrowdTask info */
-			
-			// Which field in the User model for username?
+			'platform' => array('amt')		
 			));
 	}
 
@@ -331,9 +321,10 @@ class JobConfiguration extends Moloquent {
 	public function store($originalEntity = null, $activityURI = null){
 		
 		// TODO: set tags, subtype, URI
-
+		$entityURI = mt_rand(0, 10000);
 		$user = Auth::user();
 		$newEntityContent = $this->toArray();
+		$activity = new Activity;
 
 		// What if we want to save the same JobConf with different tags?
 		// Option: make an updateTags() function or something.
@@ -344,8 +335,6 @@ class JobConfiguration extends Moloquent {
 	 	
 	 	// Create a new activity, but only if there isn't one in the parameters.
 		if (is_null($activityURI)){
-			$activity = new Activity;
-
 			if(is_null($originalEntity)) {
 				$activity->_id = mt_rand(0, 1000); //TODO
 				$activity->entity_used_id = $originalEntity->_id;
@@ -355,7 +344,7 @@ class JobConfiguration extends Moloquent {
 
 			$activity->type = "jobconf";
 			$activity->label = "JobConfiguration is saved.";
-			$activity->agent_id = $user->_id;
+			$activity->agent_id = $user->_id; // TODO: has to be $user->agentId or something
 			$activity->software_id = URL::to('process');
 			$activity->save();
 		}
@@ -371,7 +360,7 @@ class JobConfiguration extends Moloquent {
 			$entity->subtype = "factor_span";
 			$entity->tags = array('bla', 'bla', 'bla');
 			$entity->activity_id = strtolower($activityURI);
-			$entity->user_id = $user->_id;
+			$entity->user_id = 'todo_userid';
 			$entity->content = $newEntityContent;
 			$entity->hash = $hash;
 

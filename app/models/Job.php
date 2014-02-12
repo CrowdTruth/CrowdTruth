@@ -33,24 +33,24 @@ class Job {
 		try {
 			
 			// Create a new activity for this action.
+			$user = Auth::user();
 			$this->activityURI = "/createjob/" . mt_rand(0, 10000); //TODO		
 			$activity = new Activity;
 			$activity->_id = $this->activityURI;
-			$activity->type = "createjob";
-			$activity->label = "Job is uploaded to crowdsourcing platform.";
-			$activity->agent_id = $user->_id;
+			$activity->label = "Job is uploaded to crowdsourcing platform(s).";
+			$activity->agent_id = $user->_id; // TODO: has to be $user->agentId or something.
 			$activity->software_id = URL::to('process');
 			$activity->save();
 
 			// Save JobConfiguration (or reference existing). Throws error if not possible.
 			// TODO: might have a parent.
+			// Problem: on error the activity gets deleted (even if some entities were created...)
 			$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
 
 			if(in_array('amt', $platform)){
 				$csvarray = $this->csv_to_array();
 				shuffle($csvarray);
 				$ids['amt'] = $this->amtPublish($csvarray);
-
 			}
 
 			if(in_array('cf', $platform)){	
@@ -59,9 +59,12 @@ class Job {
 
 			return $ids;
 		} catch (AMTException $e) {
+			// TODO: what if there's an error halfway through?
 			throw new Exception("AMT: {$e->getMessage()}");
 		} catch (CFExceptions $e) {
 			throw new Exception("CF: {$e->getMessage()}");
+		} catch (Exception $e) {
+			throw $e; // Error in store().
 		}
 
     }
@@ -169,7 +172,7 @@ class Job {
 					if(isset($goldresult['result']['errors']))
 						throw new CFExceptions($goldresult['result']['errors'][0]);
 
-				$this->store(null, $result['result']);
+				$this->store('cf', $result['result']);
 
 				return $id;
 			}
@@ -203,7 +206,7 @@ class Job {
 		$questionsbuilder = '';
 		$count = 0;
 		$return = array();
-		$unitids = array();
+		$unitids = array('TODO');
 		$hittypeid = '';
 		$c = $this->jobConfiguration;
 		$hit = $c->toHit();
@@ -296,7 +299,7 @@ class Job {
 					$created = $this->mturk->createHIT($hit);
 
 					// Save to DB
-					$this->store($created, null);
+					$this->store('amt', $created);
 
 					// Add ID to returnarray
 					$return[] = $created['HITId'];
@@ -321,48 +324,46 @@ class Job {
     /**
     * Save Job to database
     */
-    private function store($hitdata = null, $cfdata = null){
+    private function store($platform, $data){
 
-    	// TODO: set tags, domain, type, subtype, URI, template, etc
+    	// TODO: set tags, domain, format, type, URI, template, etc
 
-    	// Sanity check. Only one platform.
-    	if(!(is_array($hitdata) xor is_array($cfdata)))
-    		throw new Exception('Provide either HITdata or CFData.');
-
-
-		if(is_array($hitdata)) {
-			$platformJobId = $hitdata['HITId'];
+		if($platform == 'amt') {
+			$platformJobId = $data['HITId'];
 			$platformId = 'todo';
-			$platform = 'amt';
-		} elseif (is_array($cfdata)) {
-			$platformJobId = $cfdata['id'];
+			$status = 'running';
+		} elseif ($platform == 'cf') {
+			$platformJobId = $data['id'];
 			$platformId = 'todo';
-			$platform = 'cf';
+			$status = 'unordered';
 		}	
 
 		$user = Auth::user();
-		$entityURI = "/job/$platform/$platformJobId";
+		$entityURI = "/job/$platform/$platformJobId"; //TODO
 		
 		try {
 			$entity = new Entity;
 			$entity->_id = $entityURI;
-			$entity->documentType = "job";
+			$entity->documentType = 'job';
 			$entity->activity_id = $this->activityURI;
-			$entity->user_id = $user->_id;
+			$entity->agent_id = $user->_id; // TODO: has to be $user->agentId or something.
 
 			$entity->jobConfigurationId = $this->jcid;
-			$entity->templateId = 'todo';
+			$entity->templateId = $this->template; // TODO [part of jobconf?]
+			$entity->batchId = $this->csv;			// TODO
 			$entity->platformId = $platformId; 
 			$entity->platformJobId = $platformJobId;
-			$entity->status = 'todo';
+			$entity->status = $status;
 
 			if($platform == 'amt')
-				$entity->hitTypeId = $hitdata['HITTypeId'];
+				$entity->hitTypeId = $data['HITTypeId'];
 			$entity->save();
 			return true;
 		} catch (Exception $e) {
 			// Something went wrong with creating the Entity
-			$activity->forceDelete();
+
+			// TODO Delete more? handle this in publish().
+			Log::warning("Error saving {$entity->_id} to DB.");
 			$entity->forceDelete();
 			throw $e;
 		}

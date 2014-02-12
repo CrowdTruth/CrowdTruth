@@ -16,25 +16,11 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$temp = '';
 		$temp = Config::get('config.templatedir');
-/*
-		$turk = new crowdwatson\MechanicalTurk;
-		//$hit = $turk->getHIT($first->platformJobId));
 
-		$hits = $turk->searchHITs(2, 1, null, 'Descending');
-		foreach ($hits as $hit){
-			$h = $hit->toArray();
-			$entity = \mongo\text\Entity::where('platformJobId', $h['HITId'])->first();
-			$entity->HITStatus = $h['HITStatus']; // TODO: combine CF and AMT, add new status to array.
-			$entity->HITGroupId = $h['HITGroupId'];
-			$entity->HITReviewStatus = $h['HITReviewStatus']; 
-			$entity->Expiration = $h['Expiration'];
-			$entity->save();
-			$assignments = $turk->getAssignmentsForHIT($h['HITId'])
-			
-			foreach ($assignments as $ass){
-				// Save or update assignment.
-			}
-		}*/
+		$hit = new crowdwatson\Hit;
+		$hit->setTitle('test');
+		$j = JobConfiguration::getFromHit($hit);
+		dd($j);
 
 
 		//$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
@@ -190,8 +176,12 @@ class ProcessController extends BaseController {
 		Session::put('jobconf', serialize($jc));
 		Session::put('template', $template);
 		Session::put('csv', $csv);
-		return Redirect::to("process/$next");
 
+		try {
+			return Redirect::to("process/$next");
+		} catch (NotFoundHttpException $e) {
+			return Redirect::to("process");
+		}
 	}
 
 	/*
@@ -202,7 +192,7 @@ class ProcessController extends BaseController {
 		$template = Session::get('template');
 		$csv = Session::get('csv');
 		
-		try {
+		//try {
 			$j = new Job($csv, $template, $jc);
 			$ids = $j->publish();
 			$msg = 'Created ' .
@@ -211,9 +201,9 @@ class ProcessController extends BaseController {
 			(isset($ids['cf']) ? count($ids['cf']) : 0) .
 			 ' on CF.';
 			Session::flash('flashSuccess', $msg);
-		} catch (Exception $e) {
-			Session::flash('flashError', $e->getMessage());
-		}
+	//	} catch (Exception $e) {
+	//		Session::flash('flashError', $e->getMessage());
+	//	}
 
 		return Redirect::to("process/submit");
 		

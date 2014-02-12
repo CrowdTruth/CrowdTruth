@@ -21,21 +21,21 @@ class MechanicalTurk {
 	protected $debug;
 	protected $rootURL;
 
-	public function construct__($accesskey = null, $secretkey = null, $rootURL = null, $debug = false){
+	public function __construct($accesskey = null, $secretkey = null, $rootURL = null, $debug = true){
 		if(is_null($accesskey)) 
-			$this->accesskey = Config::get('config.amtaccesskey');
+			$this->accesskey = \Config::get('config.amtaccesskey');
 		else 
 			$this->accesskey = $accesskey;
 
 		if(is_null($secretkey))
-			$this->secretkey = Config::get('config.amtsecretkey');
+			$this->secretkey = \Config::get('config.amtsecretkey');
 		else	
 			$this->secretkey = $secretkey;
 		if(is_null($rootURL))
-			$this->rootURL = Config::get('config.amtrooturl');
+			$this->rootURL = \Config::get('config.amtrooturl');
 		else
 			$this->rootURL = $rootURL;
-		
+
 		$this->debug = $debug;
 	}
 
@@ -44,7 +44,7 @@ class MechanicalTurk {
 	* @param string $message
 	*/
 	private function log($message){
-		if($this->debug) echo "\r\n<br>$message<br>\r\n";
+		if($this->debug) \Log::debug($message);
 	}
 	
 	
@@ -594,7 +594,7 @@ class MechanicalTurk {
 		);
 		
 		$context  = stream_context_create($options);
-		
+
 		// Get the response and load it into SimpleXML
 		@$response = file_get_contents($this->rootURL, false, $context);
 		if(!$response) throw new AMTException('Could not contact AMT server.');
