@@ -4,9 +4,9 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use crowdwatson\MechanicalTurk;
-use \mongo\text\Entity;
-use \mongo\text\Activity;
-use \mongo\text\Agent;
+use \mongoDB\Entity;
+use \mongoDB\Activity;
+use \mongoDB\Agent;
 
 class retrieveJobs extends Command {
 

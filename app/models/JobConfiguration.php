@@ -2,8 +2,8 @@
 
 //use Jenssegers\Mongodb\Model as Eloquent;
 use crowdwatson\Hit;
-use \mongo\text\Entity;
-use \mongo\text\Activity;
+use \mongoDB\Entity;
+use \mongoDB\Activity;
 
 class JobConfiguration extends Moloquent {
     protected $fillable = array(

@@ -4,8 +4,8 @@ use crowdwatson\MechanicalTurk;
 use crowdwatson\AMTException;
 use crowdwatson\CFExceptions;
 use Sunra\PhpSimple\HtmlDomParser;
-use \mongo\text\Entity;
-use \mongo\text\Activity;
+use \mongoDB\Entity;
+use \mongoDB\Activity;
 
 class Job extends Entity { 
     protected $mturk;
@@ -328,7 +328,7 @@ class Job extends Entity {
 
     	// TODO: set tags, domain, format, type, URI, template, etc
 
-    	// Create SoftwareAgent (als in FileUpload.php)
+    	// TODO: Create SoftwareAgent (als in FileUpload.php)
 
 		if($platform == 'amt') {
 			$platformJobId = $data['HITId'];
