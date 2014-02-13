@@ -2,7 +2,7 @@
 
 use crowdwatson\AMTException;
 use crowdwatson\batch;
-use crowdwatson\sentence;
+use crowdwatson\mongo\text\sentence;
 
 class ProcessController extends BaseController {
 	protected $templatePath;
