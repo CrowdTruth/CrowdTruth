@@ -15,7 +15,7 @@
 						</div>
 						<div class='row'>
 							<div class="col-xs-8">
-							@include('files.browse.layouts.breadcrumb', array('type' => $entity->type, 'domain' => $entity->domain, 'documentType' => $entity->documentType, 'document' => $entity))
+							@include('files.browse.layouts.breadcrumb', array('format' => $entity->format, 'domain' => $entity->domain, 'documentType' => $entity->documentType, 'document' => $entity))
 							</div>
 							<div class="col-xs-4 text-center">
 								<div class="btn-group tabButtons">
@@ -39,7 +39,7 @@
 											@if($entity->wasDerivedFrom)
 											<tr>
 												<td>Was derived from</td>
-												<td>{{ link_to('files/view/?' . $entity->wasDerivedFrom->_id, $entity->wasDerivedFrom->_id) }}</td>
+												<td>{{ link_to('files/view/?URI=' . $entity->wasDerivedFrom->_id, $entity->wasDerivedFrom->_id) }}</td>
 											</tr>
 											@endif
 											@if($entity->wasGeneratedBy)
@@ -59,8 +59,8 @@
 											</tr>
 											@endif
 											<tr>
-												<td>Collection</td>
-												<td>{{ link_to('files/browse/text/', $entity->fileType) }}</td>
+												<td>Format</td>
+												<td>{{ link_to('files/browse/text/', $entity->format) }}</td>
 											</tr>
 											<tr>
 												<td>Domain</td>
@@ -72,7 +72,7 @@
 											</tr>
 											<tr>
 												<td>Created by</td>
-												<td>{{ link_to('#', $entity->wasAttributedTo->firstname . ' '. $entity->wasAttributedTo->lastname) }}</td>
+												<td>{{ link_to('#', $entity->wasAttributedToUserAgent->firstname . ' '. $entity->wasAttributedToUserAgent->lastname) }}</td>
 											</tr>
 										</tbody>
 									</table>

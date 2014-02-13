@@ -3,8 +3,8 @@
 class FileHelper {
 
 	protected $input;
-	protected $fileType;	
-	protected $collectionType;
+	protected $format;	
+
 	protected $validationRules = array(
 		'text' => array(
 					'file' => 'mimes:txt|max:2000'
@@ -40,13 +40,13 @@ class FileHelper {
 	}
 	
 	public function getType(){
-		switch ($this->input['file_type']) {
-		    case 'file_type_text':
-		        return $this->fileType = 'text';
-		    case 'file_type_image':
-		        return $this->fileType = 'image';
-		    case 'file_type_video':
-		        return $this->fileType = 'video';
+		switch ($this->input['file_format']) {
+		    case 'file_format_text':
+		        return $this->format = 'text';
+		    case 'file_format_image':
+		        return $this->format = 'image';
+		    case 'file_format_video':
+		        return $this->format = 'video';
 		}
 		throw new Exception('No "Type of File" selected');
 	}
@@ -83,14 +83,14 @@ class FileHelper {
 		$validatedFiles = array();
     	foreach($files as $fileKey => $file){
 
-    		$validator = Validator::make(array('file' => $file), $this->validationRules[$this->fileType]);
+    		$validator = Validator::make(array('file' => $file), $this->validationRules[$this->format]);
 
     		if($validator->passes()){
     			$validatedFiles['passed'][$fileKey] = $file;
     		} else {
 	        	// Sometimes the Validator fails because it does not recognize all MimeTypes
 	        	// To solve this we check the MimeTypes in the uploaded files against our own list of allowed MimeTypes (extraAllowedMimeTypes)
-	        	if(in_array($file->getMimeType(), $this->extraAllowedMimeTypes[$this->fileType])){
+	        	if(in_array($file->getMimeType(), $this->extraAllowedMimeTypes[$this->format])){
     				$validatedFiles['passed'][$fileKey] = $file;
 	        	} else {
     				$validatedFiles['failed'][$fileKey] = $file;

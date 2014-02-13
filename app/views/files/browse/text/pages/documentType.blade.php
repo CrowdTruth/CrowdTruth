@@ -24,32 +24,34 @@
 								<thead>
 									<th>Title</th>
 									<th>Created on</th>
-									<th>Creator</th>									
+									<th>Created by</th>
 								</thead>
 								<tbody>
 
-
 							@foreach ($entities as $entity)
-							
 									<tr>
 										<td class='file_id'>
 											<div class='btn-group'>
-												<a class='btn btn-default btn-sm col-xs-9' href='{{ URL::to('files/view?' . $entity['_id']) }}'>
+												<a class='btn btn-default btn-sm col-xs-9' href='{{ URL::to('files/view?URI=' . $entity['_id']) }}'>
 													<i class='fa fa-file-text fa-fw'></i>{{ $entity['title'] }}
 												</a>
 												<a class='btn btn-default btn-sm col-xs-3 dropdown-toggle' data-toggle='dropdown' href='#'>
 													<span class='fa fa-caret-down fa-fw'></span>
 												</a>
 												<ul class='dropdown-menu pull-right'>
-													<li><a class='update_selection' href='{{ URL::to('selection/add?' . $entity['_id']) }}'><i class='fa fa-plus-circle fa-fw'></i>Add to selection</a></li>
+													<li><a class='update_selection' href='{{ URL::to('selection/add?URI=' . $entity['_id']) }}'><i class='fa fa-plus-circle fa-fw'></i>Add to selection</a></li>
 													<li class='disabled'><a href='#'><i class='fa fa-pencil fa-fw'></i>Edit</a></li>
-													<li><a href='{{ URL::to('files/view?' . $entity['_id']) }}'><i class='fa fa-file-text-o fa-fw'></i>View</a></li>
-													<li><a class='delete_document' href='{{ URL::to('files/delete?' . $entity['_id']) }}'><i class='fa fa-trash-o fa-fw'></i>Delete document</a></li>
+													<li><a href='{{ URL::to('files/view?URI=' . $entity['_id']) }}'><i class='fa fa-file-text-o fa-fw'></i>View</a></li>
+													<li><a class='delete_document' href='{{ URL::to('files/delete?URI=' . $entity['_id']) }}'><i class='fa fa-trash-o fa-fw'></i>Delete document</a></li>
 												</ul>
 											</div>
 										</td>
+
+										@if($entity->wasAttributedToUserAgent)
 										<td>{{ $entity['created_at'] }}</td>
-										<td>{{ link_to('#', $entity->wasAttributedTo->firstname . ' ' . $entity->wasAttributedTo->lastname) }}</td>										
+										<td>{{ link_to('#', $entity->wasAttributedToUserAgent->firstname . ' ' . $entity->wasAttributedToUserAgent->lastname) }}</td>										
+										@endif
+
 									</tr>
 							@endforeach
 

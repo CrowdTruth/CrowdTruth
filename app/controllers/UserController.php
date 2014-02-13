@@ -9,14 +9,6 @@ class UserController extends BaseController {
 	   $this->beforeFilter('csrf', array('on'=>'post'));
 	}
 
-	protected function createSchema(){
-		Schema::create('users', function($collection)
-		{
-		    $collection->unique('username');
-		    $collection->unique('email');
-		});
-	}
-
 	public function getIndex(){
 		return Redirect::to('user/login');
 	}
@@ -89,9 +81,6 @@ class UserController extends BaseController {
 
 	    unset($userdata['confirm_password']);
 	    $userdata['password'] = Hash::make($userdata['password']);
-
-		if(!Schema::hasCollection('users'))
-			$this->createSchema();
 
 	    $user = new User($userdata);
 	    $user->save();

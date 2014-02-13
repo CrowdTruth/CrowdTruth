@@ -47,13 +47,13 @@
 								<div class="form-horizontal">
 
 									<div class="form-group">
-										<label for="file_type" class="col-sm-3 control-label">Type of File</label>
+										<label for="file_format" class="col-sm-3 control-label">Type of File</label>
 										<div class="col-sm-5">
-											<select name="file_type" class="form-control" id="file_type">
+											<select name="file_format" class="form-control" id="file_format">
 												<option value="">--</option>
-												<option value="file_type_text">Text</option>
-												<option value="file_type_image">Image</option>
-												<option value="file_type_video">Video</option>
+												<option value="file_format_text">Text</option>
+												<option value="file_format_image">Image</option>
+												<option value="file_format_video">Video</option>
 											</select>
 										</div>
 									</div>
@@ -63,9 +63,9 @@
 										<div class="col-sm-5">
 											<select name="domain_type" class="form-control" id="domain_type">
 												<option value="">--</option>
-												<option value="domain_type_medical" class="file_type_text">Medical</option>
-												<option value="domain_type_news" class="file_type_text">News</option>
-												<option value="domain_type_other" class="file_type_text">Other</option>
+												<option value="domain_type_medical" class="file_format_text">Medical</option>
+												<option value="domain_type_news" class="file_format_text">News</option>
+												<option value="domain_type_other" class="file_format_text">Other</option>
 											</select>
 										</div>
 									</div>
@@ -90,12 +90,12 @@
 										</div>
 									</div>
 
-									<div class="form-group">
+<!-- 									<div class="form-group">
 										<label class="col-sm-3 control-label">Increment Filename/URI if entry already exists</label>
 										<div class="col-sm-6" style="line-height:40px;">
 											<input type="checkbox" name="increment" value="true" />
 										</div>
-									</div>
+									</div> -->
 
 									<div class="form-group">
 										<div class="col-sm-offset-3 col-sm-5">
@@ -119,7 +119,7 @@
 
 	<script type="text/javascript">
 		$(document).ready(function () {
-			$("#domain_type").chainedTo("#file_type");
+			$("#domain_type").chainedTo("#file_format");
 			$("#document_type").chainedTo("#domain_type");
 		});
 	</script>

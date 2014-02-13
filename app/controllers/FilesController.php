@@ -1,6 +1,15 @@
 <?php
 
+use \MongoDB\Repository as Repository;
+
 class FilesController extends BaseController {
+
+	protected $repository;
+
+	public function __construct(Repository $repository)
+	{
+		$this->repository = $repository;
+	}
 
 	public function getIndex()
 	{
@@ -15,24 +24,15 @@ class FilesController extends BaseController {
 	public function postUpload()
 	{
 		$fileHelper = new FileHelper(Input::all());
-		$incrementIfExists = (Input::get('increment') ? true : false);
 
 		try {
-			$type = $fileHelper->getType();
+			$format = $fileHelper->getType();
 			$domain = $fileHelper->getDomain();
 			$documentType = $fileHelper->getDocumentType();
 			$validatedFiles = $fileHelper->performValidation();
 
-			if($type == 'text'){
-				$mongoHelper = new \mongo\text\Helper;
-			} elseif($type == 'images'){
-				$mongoHelper = new \mongo\images\Helper;
-			} elseif($type == 'videos'){
-				$mongoHelper = new \mongo\videos\Helper;
-			}
-
-			$status_upload = $mongoHelper->storeFiles($validatedFiles['passed'], $domain, $documentType, $incrementIfExists);
-			
+			$mongoDBFileUpload = new \MongoDB\FileUpload;
+			$status_upload = $mongoDBFileUpload->store($validatedFiles['passed'], $domain, $documentType);
 		} catch (Exception $e){
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}
@@ -40,58 +40,57 @@ class FilesController extends BaseController {
 		return View::make('files.pages.upload', compact('status_upload'));
 	}	
 
-	public function getBrowse($type = 'none', $domain = 'none', $documentType = 'none', $documentURI = 'none')
+	public function getBrowse($format = 'none', $domain = 'none', $documentType = 'none', $documentURI = 'none')
 	{
-		if($type == 'none')
+		if($format == 'none')
 			return View::make('files.browse.pages.collections');
 
-		$repository = new \mongo\Repository;
-
-		if(!$Entity = $repository->returnCollectionObjectFor($type, 'Entity')){
-			Session::reflash();
-			return Redirect::to('files/browse');
-		}
-
-		if(!$domains = $repository->getDistinctFieldinCollection($Entity, 'domain', array()))
-			return Redirect::to('files/browse/')->with('flashNotice', 'No documents for this file type have been uploaded yet.');
+		if(!$domains = \MongoDB\Entity::getDistinctValuesForField('domain'))
+			return Redirect::to('files/browse/')->with('flashNotice', 'No documents for this file format have been uploaded yet.');
 
 		if($domain == 'none')
-			return View::make('files.browse.' . $type . '.pages.domains', compact('type', 'domains'));
+			return View::make('files.browse.' . $format . '.pages.domains', compact('format', 'domains'));
 
 		if(!in_array(strtolower($domain), $domains))
-			return Redirect::to('files/browse/' . $type)->with('flashNotice', 'Documents within this domain do not exist.');
+			return Redirect::to('files/browse/' . $format)->with('flashNotice', 'Documents within this domain do not exist.');
 
-		if(!$documentTypes = $repository->getDistinctFieldinCollection($Entity, 'documentType', array('domain' => $domain)))
-			return Redirect::to('files/browse/')->with('flashNotice', 'No documents for this file type have been uploaded yet.');
+		if(!$documentTypes = \MongoDB\Entity::getDistinctValuesForField('documentType', array('domain' => $domain)))
+			return Redirect::to('files/browse/')->with('flashNotice', 'No documents for this file format have been uploaded yet.');
 
 		if($documentType == 'none')
-			return View::make('files.browse.' . $type . '.pages.documentTypes', compact('type', 'domain', 'documentTypes'));
+			return View::make('files.browse.' . $format . '.pages.documentTypes', compact('format', 'domain', 'documentTypes'));
 
 		if(!in_array(strtolower($documentType), $documentTypes))
-			return Redirect::to('files/browse/' . $type . '/' . $domain)->with('flashNotice', 'Documents for this domain do not exist.');
+			return Redirect::to('files/browse/' . $format . '/' . $domain)->with('flashNotice', 'Documents for this domain do not exist.');
 
-		$entities = $repository->getDocumentsWithFieldsInCollection($Entity, array('domain' => $domain, 'documentType' => $documentType));
-		return View::make('files.browse.' . $type . '.pages.documentType' ,  compact('type', 'domain', 'documentType', 'entities'));
+		$entities = \MongoDB\Entity::where('domain', $domain)->where('documentType', $documentType)->get();
+		return View::make('files.browse.' . $format . '.pages.documentType' ,  compact('format', 'domain', 'documentType', 'entities'));
 	}
 
 	public function getView(){
-		if(!$URI = Input::all())
+		if(!$URI = Input::get('URI'))
+		{
 			return Redirect::back()->with('flashError', 'No URI given');
-
-		$repository = new \mongo\Repository;
-		if($entity = $repository->find($URI)){
-			$documentType_view = 'files.view.' . $entity->type . '.pages.' . $entity->documentType;
-			if(View::exists($documentType_view))
-				return View::make($documentType_view, compact('entity'));
+		}
 			
+		if($entity = $this->repository->find($URI))
+		{
+			$documentType_view = 'files.view.' . $entity->format . '.pages.' . $entity->documentType;
+
+			if(View::exists($documentType_view))
+			{
+				return View::make($documentType_view, compact('entity'));
+			}
+
 			return View::make('files/view/text/pages/entity', compact('entity'));
 		}
 
-		return Redirect::to('files/browse')->with('flashError', 'No document found at given URI: ' . http_build_query($URI));
+		return Redirect::to('files/browse')->with('flashError', "No document found at given URI: {$URI}");
 	}
 
 	public function getDelete(){
-		if(!$URI = Input::get('URI')){
+		if(!$URI = Input::get('URI'))
+		{
 			Session::flash('flashError', 'No URI given');
 			return Redirect::back();
 		}
@@ -111,8 +110,9 @@ class FilesController extends BaseController {
 
 	public function postDelete(){
 		if($URI = Input::get('URI')){
-			$repository = new \mongo\Repository;
-			if($repository->delete($URI)){
+
+			if($this->repository->delete($URI))
+			{
 				$selection = App::make('SelectionController');
 				$selection->removeByURI($URI);
 				return $selection->returnInlineMenu();	
@@ -121,18 +121,19 @@ class FilesController extends BaseController {
 		return false;		
 	}
 
-	public function postCreate(){
-		dd(Input::all());
-		if(($fromURI = Input::get('fromURI')) && $appliedFilters = Input::all()){
-			$repository = new \mongo\Repository;
-			if($fromEntity = $repository->find($fromURI)){
-				$chang = new \preprocess\Chang;
-				if($changChildURI = $chang->createAndStoreChangChild($fromEntity, $appliedFilters)){
-					return Redirect::to('files/view?URI=' . $changChildURI);
-				} else {
-					dd('failed to create chang child..');
-				}
-			}
+	public function getSearch($format = null, $domain = null)
+	{
+
+		if($format == null)
+		{
+			return Redirect::to('files/search/text/');
 		}
+		
+		$searchFields = $this->repository->getSearchFieldsAndValues($format, $domain);
+
+		// dd($searchFields);
+
+
+		return View::make('files.search.pages.index', compact('searchFields'));
 	}
 }

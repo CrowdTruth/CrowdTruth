@@ -3,15 +3,14 @@
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableInterface;
 
-class User extends Moloquent implements UserInterface, RemindableInterface {
+class User extends Moloquent implements UserInterface {
 
 	/**
 	 * The database table used by the model.
 	 *
 	 * @var string
 	 */
-	protected $connection = 'mongodb_app';
-	protected $collection = 'users';
+	protected $collection = 'useragents';
 	protected static $unguarded = true;
 	
 	/**
@@ -51,27 +50,32 @@ class User extends Moloquent implements UserInterface, RemindableInterface {
 		return $this->email;
 	}
 
-    public function associatedTextActivities(){
-    	return $this->hasMany('\mongo\text\Activity', 'user_id', '_id');
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function($activity)
+        {
+            if(!Schema::hasCollection('useragents'))
+            {
+                static::createSchema();
+            }   
+        });
     }
 
-    public function associatedImageActivities(){
-    	return $this->hasMany('\mongo\image\Activity', 'user_id', '_id');
+    public static function createSchema(){
+		Schema::create('useragents', function($collection)
+		{
+		    $collection->unique('username');
+		    $collection->unique('email');
+		});    	
+    }	
+
+    public function associatedActivities(){
+    	return $this->hasMany('\MongoDB\Activity', 'user_id', '_id');
     }
 
-    public function associatedVideoActivities(){
-    	return $this->hasMany('\mongo\video\Activity', 'user_id', '_id');
-    }
-
-    public function associatedTextEntities(){
-    	return $this->hasMany('\mongo\text\Entity', 'user_id', '_id');
-    }
-
-    public function associatedImageEntities(){
-    	return $this->hasMany('\mongo\image\Entity', 'user_id', '_id');
-    }
-
-    public function associatedVideoEntities(){
-    	return $this->hasMany('\mongo\video\Entity', 'user_id', '_id');
+    public function associatedEntities(){
+    	return $this->hasMany('\MongoDB\Entity', 'user_id', '_id');
     }
 }
