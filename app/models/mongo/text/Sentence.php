@@ -1,5 +1,5 @@
 <?php
-namespace crowd-watson;
+namespace mongo\text;
 
 class Sentence extends Entity {
 

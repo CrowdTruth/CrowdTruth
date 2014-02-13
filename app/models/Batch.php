@@ -1,12 +1,10 @@
 <?php
-namespace crowdwatson;
 
-use crowdwatson\sentence;
+use mongo\text\sentence;
 use mongo\text\entity;
 
 class Batch extends Entity {
 
-	public $entities = array();
 	public $title;
 
 	public function __construct($entities, $title){
