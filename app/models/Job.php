@@ -7,7 +7,7 @@ use Sunra\PhpSimple\HtmlDomParser;
 use \mongo\text\Entity;
 use \mongo\text\Activity;
 
-class Job { 
+class Job extends Entity { 
     protected $mturk;
     protected $csv;
     protected $template;

@@ -17,7 +17,7 @@ class JobConfiguration extends Moloquent {
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
     								'notificationEmail',
     								'requesterAnnotation',
-    								'country', // TODO: GUI
+    								'country', /* TODO: UI */
     								'instructions',
 
     								/* AMT specific */
@@ -88,6 +88,7 @@ class JobConfiguration extends Moloquent {
     public function getErrors() {
         return $this->errors;
     }
+
 
     public function getDetails(){
     	return array('keywords' => $this->keywords, 'expirationInMinutes' => $this->expirationInMinutes, 'lifetimeInSeconds' => $this->lifetimeInSeconds, 'autoApprovalDelayInSeconds' => $this->autoApprovalDelayInMinutes, 'qualificationRequirement' => $this->qualificationRequirement, 'assignmentReviewPolicy' => $this->assignmentReviewPolicy );

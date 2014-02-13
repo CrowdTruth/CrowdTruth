@@ -12,19 +12,24 @@
 					<div class="panel-heading">
 						<h3 class="panel-title">Sort by:</h3>
 					</div>
-					<div class="panel-body panel-nav-bar panel-nav-bar-active" id="completion" style="border-bottom: 1px solid #eee" onClick="sortModel('completion')">
+					
+					 <!-- Sorting functionality works by checking the css class of the div, and on click it renders the results again.
+					 onClick the method of sorting is passed as a parameter. It is important however, that the div has the same name as the 
+					 parameter for the js to function properly -->
+
+					<div class="panel-body panel-nav-bar panel-nav-bar-ascending" id="judgmentsPerUnit" style="border-bottom: 1px solid #eee" onClick="sortModel('judgmentsPerUnit')">
 						<i class="fa fa-check-circle"></i> Completion<br>
 					</div>
-					<div class="panel-body panel-nav-bar" id="cost" style="border-bottom: 1px solid #eee" onClick="sortModel('cost')">
+					<div class="panel-body panel-nav-bar" id="totalCost" style="border-bottom: 1px solid #eee" onClick="sortModel('totalCost')">
 						<i class="fa fa-dollar"></i> Total cost<br>
 					</div>
-					<div class="panel-body panel-nav-bar" id="runningtime" style="border-bottom: 1px solid #eee" onClick="sortModel('runningtime')">
+					<div class="panel-body panel-nav-bar" id="created_at" style="border-bottom: 1px solid #eee" onClick="sortModel('created_at')">
 						<i class="fa fa-clock-o"></i> Running time<br>
 					</div>
-					<div class="panel-body panel-nav-bar" id="flagged" style="border-bottom: 1px solid #eee" onClick="sortModel('flagged')">
+					<div class="panel-body panel-nav-bar" id="flaggedWorkers" style="border-bottom: 1px solid #eee" onClick="sortModel('flaggedWorkers')">
 						<i class="fa fa-flag"></i> Flagged workers<br>
 					</div>
-					<div class="panel-body panel-nav-bar" id="jobsize" onClick="sortModel('jobsize')">
+					<div class="panel-body panel-nav-bar" id="jobSize" onClick="sortModel('jobSize')">
 						<i class="fa fa-gavel"></i> Job size<br>
 					</div>
 				</div>
@@ -35,8 +40,8 @@
 						<h3 class="panel-title">Apply filter:</h3>
 					</div>
 					<div class="panel-body" style="border-bottom: 1px solid #eee">
-						<i class="fa fa-user"></i> {{Form::label('user', 'Created by:')}}<br>
-						{{Form::input('','')}}
+						<i class="fa fa-user"></i> {{Form::label('createdBy', 'Created by:')}}<br>
+						{{Form::input('createdBy','createdBy')}}
 					</div>
 					<div class="panel-body" style="border-bottom: 1px solid #eee">
 						<i class="fa fa-users"></i> {{Form::label('user', 'Platform:')}}<br>
@@ -77,48 +82,47 @@
 			}
 
 		function sortModel(method){
+			// checks whether current method is on descend or ascend and stores it in variable
+			var sort = 'none';
+			if($("#"+method).hasClass("panel-nav-bar-ascending"))
+				{sort = 'desc';}
+			if($('#'+method).hasClass("panel-nav-bar-descending"))
+				{sort = 'asc';}
+			// ajax request with the method of sorting and the ascend/descend option, response is the result view
 			$.ajax({
-				url: 'sort/' + method,
+				url: 'sort/' + method + "/" + sort,
 				type: 'GET'
 			}).done(function( data ) {
-            	console.log( data );
-            	$("#results").html(data);
-
-            	$(".panel-nav-bar").removeClass("panel-nav-bar-active");
-            	$("#"+method).addClass("panel-nav-bar-active");
+				// put the response in the results div
+               	$("#results").html(data);
+               	// reset the styling of the sorting panel
+            	$(".panel-nav-bar").removeClass("panel-nav-bar-ascending panel-nav-bar-descending");
+            	// set the styling on the sorting panel and remember whether it is descending or ascending
+            	if (sort == "desc")
+					{$("#"+method).addClass("panel-nav-bar-descending");}				
+	       		else {$("#"+method).addClass("panel-nav-bar-ascending");}
         	});
-
-
 		}
 
 		
 			// ON HOLD: AUTOCOMPLETE FUNCTION WITH CREATEDBY
-
-		// //autocomplete function for createdBy
-		// $("#AccountNumber").autocomplete({
-  //   	// This GET Request returns an Array of Objects used for Auto-Complete:
-  //   	// [ { label: "Choice1", value: "value1" }, ... ]
-  //   		source: '/api/Customers/AccountNumsAuto',
-  //   		});
-
-		// //METHOD WITH CACHING
-		//  $(function() {
-		// 	var cache = {};
-		// 	$( "#createdBy" ).autocomplete({
-		// 		minLength: 2,
-		// 		source: function( request, response ) {
-		// 					var term = request.term;
-		// 					if ( term in cache ) {
-		// 						response( cache[ term ] );
-		// 						return;
-		// 						}
-		// 					$.getJSON( "createdBy.php", request, function( data, status, xhr ) {
-		// 						cache[ term ] = data;
-		// 						response( data );
-		// 						});
-		// 					}		
-		// 	});
-		// });
+		$("#createdBy").autocomplete({
+			minLength: 2,
+			source: ["Oana", "Jelle", "Lora", "Arne"]})
+			.done(console.log(term));
+			// function(request, response) {
+			// 	var term = request.term;
+			// 	console.log(term);
+			// 	$.ajax({
+			// 		url: 'createdBy/' + term,
+			// 		type: 'GET'
+			// 		}).done(function (data){
+			// 			console.log(data);
+			// 			$('#results').html(data);
+			// 		});
+			// 	}
+	
+		
 
 	</script>
 @stop
