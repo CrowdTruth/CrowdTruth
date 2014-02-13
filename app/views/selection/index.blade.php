@@ -24,29 +24,29 @@
 
 								@foreach ($items as $item)
 								<?php 
-									$repository = new \mongo\Repository;
-									$entity = $repository->find($item['id']); 
+									$repository = App::make('\MongoDB\Repository');
+									$entity = $repository->find($item['id']);
 								?>
 									<tr>
 										<td>
 											<div class='btn-group'>
-												<a class='btn btn-default btn-sm col-xs-9' href='{{ URL::to('files/view?' . $entity->_id) }}'>
+												<a class='btn btn-default btn-sm col-xs-9' href='{{ URL::to('files/view?URI=' . $entity->_id) }}'>
 													<i class='fa fa-file-text fa-fw'></i>{{ $entity->title }}
 												</a>
 												<a class='btn btn-default btn-sm col-xs-3 dropdown-toggle' data-toggle='dropdown' href='#'>
 													<span class='fa fa-caret-down fa-fw'></span>
 												</a>
 												<ul class='dropdown-menu pull-right'>
-													<li><a href='{{ URL::to('files/view?' . $entity->_id) }}'><i class='fa fa-file-text-o fa-fw'></i>View</a></li>
+													<li><a href='{{ URL::to('files/view?URI=' . $entity->_id) }}'><i class='fa fa-file-text-o fa-fw'></i>View</a></li>
 													<li><a class='update_selection' href='{{ URL::to('selection/remove?selectionID=' . $item['rowid']) }}'><i class='fa fa-trash-o fa-fw'></i>Remove from selection</a></li>
 												</ul>
 												</div>
 										</td>
-										<td>{{ link_to('files/browse/' . $entity->type, $entity->type) }}</td>										
-										<td>{{ link_to('files/browse/' . $entity->type . '/' . $entity->domain, $entity->domain) }}</td>										
-										<td>{{ link_to('files/browse/' . $entity->type . '/' . $entity->domain . '/' . $entity->documentType, $entity->documentType) }}</td>										
+										<td>{{ link_to('files/browse/' . $entity->format, $entity->format) }}</td>										
+										<td>{{ link_to('files/browse/' . $entity->format . '/' . $entity->domain, $entity->domain) }}</td>										
+										<td>{{ link_to('files/browse/' . $entity->format . '/' . $entity->domain . '/' . $entity->documentType, $entity->documentType) }}</td>										
 										<td>{{ $entity->created_at }}</td>
-										<td>{{ link_to('#', $entity->wasAttributedTo->firstname . ' ' . $entity->wasAttributedTo->lastname) }}</td>										
+										<td>{{ link_to('#', $entity->wasAttributedToUserAgent->firstname . ' ' . $entity->wasAttributedToUserAgent->lastname) }}</td>										
 									</tr>
 								@endforeach
 									</tbody>

@@ -9,12 +9,12 @@
 								@include('preprocess.nav')
 							</div>
 							<div class="col-xs-4 text-center">
-								<h2 class='thumbHeader'> Chang &nbsp;<small> {{ Request::segment(3); }}</small></h2>
+								<h2 class='thumbHeader'> Twrex &nbsp;<small> {{ Request::segment(3); }}</small></h2>
 							</div>
 						</div>					
-						@include('preprocess.chang.layouts.breadcrumb')						
+						@include('preprocess.twrex.layouts.breadcrumb')						
 						<div class='tab'>
-							@yield('changContent')									
+							@yield('twrexContent')									
 						</div>
 					</div>
 				</div>		

@@ -48,6 +48,10 @@ outline: 0;
 	.list-group {
 		margin:-15px -16px -16px -16px;
 	}
+
+	a {
+
+	}
 }
 
 table .btn-group {
@@ -97,7 +101,7 @@ table .btn-group {
 	vertical-align: middle !important;
 }
 
-.selectionPopover, .changFiltersPopover {
+.selectionPopover, .twrexFiltersPopover {
 	max-width:none;
 	padding:5;
 	margin:0;
@@ -174,26 +178,26 @@ tr.tablesorter-filter-row input.disabled {
     display: none;
 }
 
-.changContent {
+.twrexContent {
 	th,
 	td:not(.sentence) {
 		min-width:40px;
 		text-align:center;
 	}
 
-	.changFilters {
+	.twrexFilters {
 		display:none;
 		max-width:0px !important;
 	}
 }
 
-.changFiltersControls {
+.twrexFiltersControls {
 	td {
 		vertical-align: middle;
 	}
 }
 
-.changSubmit {
+.twrexSubmit {
 	display:none;
 }
 
