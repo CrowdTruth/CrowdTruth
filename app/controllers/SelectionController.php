@@ -7,57 +7,73 @@ class SelectionController extends BaseController {
         return View::make('selection.index',  compact('documents'));
 	}
 
-	public function postAdd(){
-		$repository = new \mongo\Repository;
-		if($document = $repository->find(Input::all())){
+	public function postAdd()
+	{
+		$repository = App::make('\MongoDB\Repository');
+
+		if($document = $repository->find(Input::get('URI')))
+		{
 			Cart::add($document->_id, $document->title, 1, 1);
 			return View::make('selection.inline_menu');
 		}
+
 		return false;
 	}
 
-	public function getAdd(){
-		$repository = new \mongo\Repository;
-		if($document = $repository->find(Input::all())){
-			Cart::add($document['_id'], $document['title'], 1, 1);
+	public function getAdd()
+	{
+		$repository = App::make('\MongoDB\Repository');
+
+		if($document = $repository->find(Input::get('URI')))
+		{
+			Cart::add($document->_id, $document->title, 1, 1);
 		}
+
 		return Redirect::back();
 	}
 
-	public function postRemove(){
-		try{
+	public function postRemove()
+	{
+		try {
 			Cart::remove(Input::get('selectionID'));
 			return View::make('selection.inline_menu');
-		} Catch(Exception $e){
+		} Catch(Exception $e)
+		{
 			return "No document at selectionID";
 		}
 	}
 
-	public function getRemove(){
+	public function getRemove()
+	{
 		try {
 			Cart::remove(Input::get('selectionID'));
 			return Redirect::back();
-		} Catch(Exception $e){
+		} Catch(Exception $e)
+		{
 			return "No document at selectionID";
 		}
 	}	
 
-	public function getView(){
+	public function getView()
+	{
 		echo "<pre>";
 		print_r(Cart::content());
 		echo "</pre>";
 	}
 
-	public function postDestroy(){
+	public function postDestroy()
+	{
 		try{
 			Cart::destroy();
 			return View::make('selection.inline_menu');
-		} Catch(Exception $e){
+		} Catch(Exception $e)
+		{
 			return "Error emptying cart";
 		}		
 	}
 
-	public function getDestroy(){
+	public function getDestroy()
+	{
 		try{
 			Cart::destroy();
 			Session::flash('flashSuccess', 'Successfully emptied selection');
@@ -67,7 +83,8 @@ class SelectionController extends BaseController {
 		return Redirect::to('files/browse');
 	}
 
-	public function removeByURI($URI){
+	public function removeByURI($URI)
+	{
 		foreach(Cart::content() as $item){
 			if($item['id'] == $URI){
 				try{

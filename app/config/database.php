@@ -26,7 +26,7 @@ return array(
 	|
 	*/
 
-	'default' => 'mongodb_app',
+	'default' => 'CrowdWatson',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -83,41 +83,14 @@ return array(
 			'prefix'   => '',
 		),
 
-		'mongodb_app' => array(
+		'CrowdWatson' => array(
 		    'driver'   => 'mongodb',
 		    'host'     => 'localhost',
 		    'port'     => 27017,
 		    'username' => '',
 		    'password' => '',
-		    'database' => 'app'
-		),		
-
-		'mongodb_text' => array(
-		    'driver'   => 'mongodb',
-		    'host'     => 'localhost',
-		    'port'     => 27017,
-		    'username' => '',
-		    'password' => '',
-		    'database' => 'text'
-		),		
-
-		'mongodb_images' => array(
-		    'driver'   => 'mongodb',
-		    'host'     => 'localhost',
-		    'port'     => 27017,
-		    'username' => '',
-		    'password' => '',
-		    'database' => 'images'
-		),		
-
-		'mongodb_videos' => array(
-		    'driver'   => 'mongodb',
-		    'host'     => 'localhost',
-		    'port'     => 27017,
-		    'username' => '',
-		    'password' => '',
-		    'database' => 'videos'
-		),		
+		    'database' => 'CrowdWatson'
+		),
 
 	),
 

@@ -1,11 +1,11 @@
 @section('dynamicButton')
-	<a href='#' class="btn btn-success changFiltersButton"><i class="fa fa-filter fa-fw"></i>Filter</a>
+	<a href='#' class="btn btn-success twrexFiltersButton"><i class="fa fa-filter fa-fw"></i>Filter</a>
 @stop
 
-<div class='changFiltersContainer' style='display:none'>
-<table class='table table-striped table-condensed changFiltersControls'>
+<div class='twrexFiltersContainer' style='display:none'>
+<table class='table table-striped table-condensed twrexFiltersControls'>
 	<tbody>
-			@foreach ($lines[0]['filters'] as $filterKey => $filterValue)
+			@foreach ($lines[0]['properties'] as $filterKey => $filterValue)
 				@if($filterKey == "sentenceWordCount")
 					<?php continue; ?>
 				@endif
@@ -14,9 +14,9 @@
 					<td>{{ $filterKey }}</td>
 					<td>
 						<div class="btn-group" id='{{ $filterKey }}'>
-						  <button type="button" class="btn btn-info changOn">With</button>
-						  <button type="button" class="btn btn-info changOff">Without</button>
-						  <button type="button" class="btn btn-success active changNone">Not Applied</button>
+						  <button type="button" class="btn btn-info twrexOn">With</button>
+						  <button type="button" class="btn btn-info twrexOff">Without</button>
+						  <button type="button" class="btn btn-success active twrexNone">Not Applied</button>
 						</div>
 					</td>
 				</tr>
@@ -28,7 +28,7 @@
 
 		{{ Form::open(array('url' => 'files/create?fromURI=' . $entity->_id)) }}
 		<div class='table-responsive'>
-			<table class='table table-striped table-condensed changContent'>
+			<table class='table table-striped table-condensed twrexContent'>
 				<thead>
 					<tr>
 						<th class="filter-false"><input type="checkbox" class="check_filtered_sentences" /></th>						
@@ -43,12 +43,12 @@
 						<th>Sentence</th>
 						<th>Sentence word count</th>
 
-						@foreach ($lines[0]['filters'] as $filterKey => $filterValue)
+						@foreach ($lines[0]['properties'] as $filterKey => $filterValue)
 							@if($filterKey == "sentenceWordCount")
 								<?php continue; ?>
 							@endif
 
-							<th class='changFilters {{  $filterKey }}'>
+							<th class='twrexFilters {{  $filterKey }}'>
 								relationInSentence
 								<input type='text' name='{{  $filterKey }}' />
 							</th>
@@ -69,21 +69,21 @@
 						<td>{{ $lineValue['terms']['second']['startIndex'] }}</td>
 						<td>{{ $lineValue['terms']['second']['endIndex'] }}</td>
 						<td class='sentence'>{{ $lineValue['sentence']['text'] }}</td>
-						<td>{{ $lineValue['filters']['sentenceWordCount'] }}</td>
+						<td>{{ $lineValue['properties']['sentenceWordCount'] }}</td>
 
-						<td class='changFilters'>{{ $lineValue['filters']['relationInSentence'] }}</td>
-						<td class='changFilters'>{{ $lineValue['filters']['relationOutsideTerms'] }}</td>
-						<td class='changFilters'>{{ $lineValue['filters']['relationBetweenTerms'] }}</td>
-						<td class='changFilters'>{{ $lineValue['filters']['semicolonBetweenTerms'] }}</td>
-						<td class='changFilters'>{{ $lineValue['filters']['commaSeparatedTerms'] }}</td>
-						<td class='changFilters'>{{ $lineValue['filters']['parenthesisBetweenTerms'] }}</td>
-						<td class='changFilters'>{{ $lineValue['filters']['overlappingTerms'] }}</td>
+						<td class='twrexFilters'>{{ $lineValue['properties']['relationInSentence'] }}</td>
+						<td class='twrexFilters'>{{ $lineValue['properties']['relationOutsideTerms'] }}</td>
+						<td class='twrexFilters'>{{ $lineValue['properties']['relationBetweenTerms'] }}</td>
+						<td class='twrexFilters'>{{ $lineValue['properties']['semicolonBetweenTerms'] }}</td>
+						<td class='twrexFilters'>{{ $lineValue['properties']['commaSeparatedTerms'] }}</td>
+						<td class='twrexFilters'>{{ $lineValue['properties']['parenthesisBetweenTerms'] }}</td>
+						<td class='twrexFilters'>{{ $lineValue['properties']['overlappingTerms'] }}</td>
 					</tr>
 					@endforeach
 				</tbody>
 			</table>
 		</div>
-		<input type="submit" value="Submit" class='changSubmit'>
+		<input type="submit" value="Submit" class='twrexSubmit'>
 		{{ Form::close() }}				
 
 @section('extra_js')
@@ -95,12 +95,12 @@
 			$('table').bind('filterEnd', function(e){
 				console.log($.tablesorter.getFilters( this ));
 
-				$('.tablesorter-headerRow th.changFilters').each(function (){
+				$('.tablesorter-headerRow th.twrexFilters').each(function (){
 					// console.log($(".tablesorter-filter input[data-column='" + $(this).attr('data-column') + "']"));
 					$("input.tablesorter-filter[data-column='" + $(this).attr('data-column') + "']").parent().hide();
 				});
 
-				$('.changContent input:checkbox').prop('checked', false);
+				$('.twrexContent input:checkbox').prop('checked', false);
 				
 			}).tablesorter({
 					theme : 'bootstrap',
@@ -121,13 +121,13 @@
 				}
 			});
 
-            $(".changFiltersButton").popover({
+            $(".twrexFiltersButton").popover({
                 trigger: "manual",
                 html: true,
                 'animation' : false,
-                'content' : function(){ return $('.changFiltersContainer').html() },
+                'content' : function(){ return $('.twrexFiltersContainer').html() },
                 'placement' : 'bottom',
-                 template: '<div class="popover changFiltersPopover"><div class="arrow"></div><div class="popover-content"></div></div>'
+                 template: '<div class="popover twrexFiltersPopover"><div class="arrow"></div><div class="popover-content"></div></div>'
             }).on("mouseenter", function () {
                 var _this = this;
                 $(this).popover("show");
@@ -143,41 +143,41 @@
                 }, 100);
             });   			
 
-			$('body').on('click', '.changFiltersControls button', function(e) {
-				var clickedChangFilter = $(this).parent().attr('id');
-				$('.changFiltersControls #' + clickedChangFilter + ' button').removeClass('active');
+			$('body').on('click', '.twrexFiltersControls button', function(e) {
+				var clickedtwrexFilter = $(this).parent().attr('id');
+				$('.twrexFiltersControls #' + clickedtwrexFilter + ' button').removeClass('active');
 
-				var dataColumn = $('th.' + clickedChangFilter).attr('data-column');
-				var changInputFilter = $(".tablesorter-filter[data-column='" + dataColumn + "']");
-				var changInputText = $('th.' + clickedChangFilter + ' input');
+				var dataColumn = $('th.' + clickedtwrexFilter).attr('data-column');
+				var twrexInputFilter = $(".tablesorter-filter[data-column='" + dataColumn + "']");
+				var twrexInputText = $('th.' + clickedtwrexFilter + ' input');
 
-				$('.changFiltersControls #' + clickedChangFilter + ' button').removeClass('btn-success active').addClass('btn-info');
+				$('.twrexFiltersControls #' + clickedtwrexFilter + ' button').removeClass('btn-success active').addClass('btn-info');
 
-				if($(this).hasClass('changOn')){
-					$(changInputFilter).add(changInputText).val('1');
-				} else if($(this).hasClass('changOff')){
-					$(changInputFilter).add(changInputText).val('0');
-				} else if($(this).hasClass('changNone')){
-					$(changInputFilter).add(changInputText).val('');
+				if($(this).hasClass('twrexOn')){
+					$(twrexInputFilter).add(twrexInputText).val('1');
+				} else if($(this).hasClass('twrexOff')){
+					$(twrexInputFilter).add(twrexInputText).val('0');
+				} else if($(this).hasClass('twrexNone')){
+					$(twrexInputFilter).add(twrexInputText).val('');
 				}
 
-				$('.changFiltersControls #' + clickedChangFilter + ' .' + $(this).attr('class').split(' ').join('.')).removeClass('btn-info').addClass('btn-success active');
+				$('.twrexFiltersControls #' + clickedtwrexFilter + ' .' + $(this).attr('class').split(' ').join('.')).removeClass('btn-info').addClass('btn-success active');
 
-				console.log(changInputText.val());
+				console.log(twrexInputText.val());
 
 			    $('table').trigger('search', false);
 			});
 
 			$('input.check_filtered_sentences').click(function(e){
-			    $('.changContent td input:checkbox').filter(':visible').prop('checked',this.checked);
+			    $('.twrexContent td input:checkbox').filter(':visible').prop('checked',this.checked);
 			});
 
 			$('a.check_filtered_sentences').click(function(e){
-			    $('.changContent input:checkbox').filter(':visible').prop('checked', true);
+			    $('.twrexContent input:checkbox').filter(':visible').prop('checked', true);
 			});
 
-			$('#create_new_changDocument').click(function(e){
-			    $('input.changSubmit').click();
+			$('#create_new_twrexDocument').click(function(e){
+			    $('input.twrexSubmit').click();
 			});
 
 		});
