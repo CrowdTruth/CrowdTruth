@@ -2,6 +2,7 @@
 
 use crowdwatson\AMTException;
 use crowdwatson\Batch;
+use mongo\text\sentence;
 use crowdwatson\Sentence;
 
 class ProcessController extends BaseController {
@@ -38,12 +39,12 @@ class ProcessController extends BaseController {
 		$sentence1->save();
 		$sentence2 = new Sentence();
 		$sentence2->save();
-		$sentences = array($sentece1, $sentence2);
+		$sentences = array($sentence1, $sentence2);
 		$batch = new Batch($sentences, "This is a new batch");
 		$batch->save();
 		$sentence3 = new Sentence;
 		$sentence4 = new Sentence;
-		$sentences1 = array($sentece3, $sentence4);
+		$sentences1 = array($sentence3, $sentence4);
 		$batch1 = new Batch($sentences1, "This is the second batch");
 		$batch1->save();
 		// END TEST CODE
