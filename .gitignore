@@ -8,3 +8,5 @@ Thumbs.db
 /.idea
 # backwards compatability
 /app/lib/crowdwatson/php-mturk-api/config.php
+crowd-watson.sublime-project
+crowd-watson.sublime-workspace
