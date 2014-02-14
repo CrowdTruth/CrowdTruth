@@ -1,8 +1,8 @@
 <?php
 
 use crowdwatson\AMTException;
-use crowdwatson\batch;
-use crowdwatson\sentence;
+use crowdwatson\Batch;
+use crowdwatson\Sentence;
 
 class ProcessController extends BaseController {
 
@@ -16,9 +16,9 @@ class ProcessController extends BaseController {
 
 	public function getSelectfile() {
 		$jc = unserialize(Session::get('jobconf'));
-/*
+
 		$temp = '';
-		$temp = Config::get('config.templatedir');
+/*		$temp = Config::get('config.templatedir');
 
 		$hit = new crowdwatson\Hit;
 		$hit->setTitle('test');
@@ -33,7 +33,7 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp);
 =======*/
 		
-/*		//TEST CODE
+		//TEST CODE
 		$sentence1 = new Sentence();
 		$sentence1->save();
 		$sentence2 = new Sentence();
@@ -46,11 +46,11 @@ class ProcessController extends BaseController {
 		$sentences1 = array($sentece3, $sentence4);
 		$batch1 = new Batch($sentences1, "This is the second batch");
 		$batch1->save();
-		// END TEST CODE*/
+		// END TEST CODE
 		
 		$entities =  Batch::all(); 
 		
-		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp)->with('entities', $entities);
+		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp);//->with('entities', $entities);
 
 	}
 

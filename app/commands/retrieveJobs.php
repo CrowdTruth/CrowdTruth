@@ -103,7 +103,7 @@ class retrieveJobs extends Command {
 			else
 				$newstatus = 'unknown';
 
-			$entity->HITStatus = $newstatus; 
+			$entity->status = $newstatus; 
 
 			if($newstatus != $oldstatus)
 				Log::debug("Status of job {$entity->_id} changed from $oldstatus to $newstatus");

@@ -1,6 +1,5 @@
 <?php
 
-//use Jenssegers\Mongodb\Model as Eloquent;
 use crowdwatson\Hit;
 use \mongoDB\Entity;
 use \mongoDB\Activity;
