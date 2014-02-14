@@ -136,7 +136,7 @@ class Entity extends Moloquent {
     }    
 
     public function wasGeneratedBy(){
-    	return $this->hasMany('\MongoDB\Activity', '_id', 'activity_id');
+    	return $this->hasOne('\MongoDB\Activity', '_id', 'activity_id');
     }
 
     public function wasDerivedFrom(){
