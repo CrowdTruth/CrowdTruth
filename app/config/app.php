@@ -109,7 +109,8 @@ return array(
 		// added
 		'Codesleeve\AssetPipeline\AssetPipelineServiceProvider',
 		'Jenssegers\Mongodb\MongodbServiceProvider',
-		'Gloudemans\Shoppingcart\ShoppingcartServiceProvider'
+		'Gloudemans\Shoppingcart\ShoppingcartServiceProvider',
+		'Way\Generators\GeneratorsServiceProvider'
 	),
 
 	/*

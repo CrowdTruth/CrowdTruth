@@ -62,7 +62,8 @@ class FileUpload extends Moloquent {
 			$softwareAgent = new \MongoDB\SoftwareAgent;
 			$softwareAgent->_id = "fileuploader";
 			$softwareAgent->label = "This component is used for storing files as documents within MongoDB";
-			$softwareAgent->save();
+			$softwareAgent->save();			
+
 		}
 	}
 }

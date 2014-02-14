@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "bb67d85737662fec363a04166ea4776f",
+    "hash": "dabfdbd42d48f237e6d01186ca4e2d34",
     "packages": [
         {
             "name": "cilex/console-service-provider",
@@ -337,20 +337,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Crinsane/LaravelShoppingcart.git",
-                "reference": "dac5143fb4a8dc731aaa7fa83fdc16f2286afc26"
+                "reference": "40d596c266424c4280190798db430811d34e8887"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Crinsane/LaravelShoppingcart/zipball/dac5143fb4a8dc731aaa7fa83fdc16f2286afc26",
-                "reference": "dac5143fb4a8dc731aaa7fa83fdc16f2286afc26",
+                "url": "https://api.github.com/repos/Crinsane/LaravelShoppingcart/zipball/40d596c266424c4280190798db430811d34e8887",
+                "reference": "40d596c266424c4280190798db430811d34e8887",
                 "shasum": ""
             },
             "require": {
                 "illuminate/support": "~4",
                 "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "mockery/mockery": "0.9.*"
             },
             "type": "library",
             "autoload": {
@@ -359,9 +356,6 @@
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
             "authors": [
                 {
                     "name": "Rob Gloudemans",
@@ -373,7 +367,7 @@
                 "laravel",
                 "shoppingcart"
             ],
-            "time": "2014-02-12 19:47:44"
+            "time": "2013-12-30 21:07:51"
         },
         {
             "name": "igorw/config-service-provider",
@@ -716,12 +710,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "5a8ab7847be8fd48bf84c727e2173d47fd8d742e"
+                "reference": "d37946f13f72b3b3cc2bd5cb4665dc1bd5d69164"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/5a8ab7847be8fd48bf84c727e2173d47fd8d742e",
-                "reference": "5a8ab7847be8fd48bf84c727e2173d47fd8d742e",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/d37946f13f72b3b3cc2bd5cb4665dc1bd5d69164",
+                "reference": "d37946f13f72b3b3cc2bd5cb4665dc1bd5d69164",
                 "shasum": ""
             },
             "require": {
@@ -825,7 +819,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2014-02-13 00:46:16"
+            "time": "2014-02-12 03:39:16"
         },
         {
             "name": "leafo/lessphp",
@@ -1121,32 +1115,32 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "0.9.x-dev",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "118f28344daf154e47e73e79779a60bc7430a40f"
+                "reference": "5cab2a78442f4c690866c85017f4e99f732602ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/118f28344daf154e47e73e79779a60bc7430a40f",
-                "reference": "118f28344daf154e47e73e79779a60bc7430a40f",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/5cab2a78442f4c690866c85017f4e99f732602ce",
+                "reference": "5cab2a78442f4c690866c85017f4e99f732602ce",
                 "shasum": ""
             },
             "require": {
                 "ext-tokenizer": "*",
-                "php": ">=5.2"
+                "php": ">=5.3"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.9-dev"
+                    "dev-master": "1.0-dev"
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "PHPParser": "lib/"
-                }
+                "files": [
+                    "lib/bootstrap.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -1162,7 +1156,7 @@
                 "parser",
                 "php"
             ],
-            "time": "2014-02-12 19:19:48"
+            "time": "2014-02-06 20:39:57"
         },
         {
             "name": "nitra/php-min",
@@ -1500,12 +1494,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silexphp/Silex.git",
-                "reference": "b7df67ff364eabec89033b433bbe449ee72301d4"
+                "reference": "3c5e0bbe4cb1c0dbee9181437f16ed13bea8bb1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silexphp/Silex/zipball/b7df67ff364eabec89033b433bbe449ee72301d4",
-                "reference": "b7df67ff364eabec89033b433bbe449ee72301d4",
+                "url": "https://api.github.com/repos/silexphp/Silex/zipball/3c5e0bbe4cb1c0dbee9181437f16ed13bea8bb1a",
+                "reference": "3c5e0bbe4cb1c0dbee9181437f16ed13bea8bb1a",
                 "shasum": ""
             },
             "require": {
@@ -1563,9 +1557,7 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com",
-                    "homepage": "http://fabien.potencier.org",
-                    "role": "Lead Developer"
+                    "email": "fabien@symfony.com"
                 },
                 {
                     "name": "Igor Wiedler",
@@ -1578,7 +1570,56 @@
             "keywords": [
                 "microframework"
             ],
-            "time": "2014-02-11 09:00:06"
+            "time": "2014-02-05 06:19:22"
+        },
+        {
+            "name": "soapbox/laravel-formatter",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SoapBox/laravel-formatter.git",
+                "reference": "197dc75ea87699a975fc73301d3789a803c0d1f6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SoapBox/laravel-formatter/zipball/197dc75ea87699a975fc73301d3789a803c0d1f6",
+                "reference": "197dc75ea87699a975fc73301d3789a803c0d1f6",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "4.*",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Spyc": "src/spyc/",
+                    "SoapBox\\Formatter": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Graham McCarthy",
+                    "email": "graham@soapboxhq.com",
+                    "homepage": "http://grahammccarthy.com"
+                }
+            ],
+            "description": "A Laravel 4 formatting library. Convert data output between XML/CSV/JSON/TXT/YAML/etc. The project builds on the work of Daniel Berry's Laravel 3 Formatter Bundle.",
+            "homepage": "http://github.com/SoapBox/laravel-formatter",
+            "keywords": [
+                "convert",
+                "csv",
+                "data",
+                "formatter",
+                "laravel",
+                "xml",
+                "yaml"
+            ],
+            "time": "2014-01-07 22:36:23"
         },
         {
             "name": "stack/builder",
@@ -2215,12 +2256,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/HttpKernel.git",
-                "reference": "1e1a8e4f1040d744086e9bdaa979f015789b4af6"
+                "reference": "f3ea215ed582747a9fbdb6c00ff42b3b2320b39e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/HttpKernel/zipball/1e1a8e4f1040d744086e9bdaa979f015789b4af6",
-                "reference": "1e1a8e4f1040d744086e9bdaa979f015789b4af6",
+                "url": "https://api.github.com/repos/symfony/HttpKernel/zipball/f3ea215ed582747a9fbdb6c00ff42b3b2320b39e",
+                "reference": "f3ea215ed582747a9fbdb6c00ff42b3b2320b39e",
                 "shasum": ""
             },
             "require": {
@@ -2279,7 +2320,7 @@
             ],
             "description": "Symfony HttpKernel Component",
             "homepage": "http://symfony.com",
-            "time": "2014-02-12 21:00:41"
+            "time": "2014-02-11 15:39:28"
         },
         {
             "name": "symfony/routing",
@@ -2519,7 +2560,8 @@
     "stability-flags": {
         "codesleeve/asset-pipeline": 20,
         "gloudemans/shoppingcart": 20,
-        "way/generators": 20
+        "way/generators": 20,
+        "soapbox/laravel-formatter": 20
     },
     "platform": [
 

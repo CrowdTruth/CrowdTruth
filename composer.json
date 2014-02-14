@@ -9,7 +9,9 @@
 		"laravel/framework": "4.1.*",
 	    "codesleeve/asset-pipeline": "dev-master",
         "jenssegers/mongodb": "*",
-		"gloudemans/shoppingcart": "dev-master"
+		"gloudemans/shoppingcart": "dev-master",
+		"way/generators": "dev-master",
+		"soapbox/laravel-formatter": "dev-master"
 	},
 	"autoload": {
 		"classmap": [
