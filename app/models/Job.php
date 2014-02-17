@@ -51,22 +51,48 @@ class Job extends Entity {
 				$csvarray = $this->csv_to_array();
 				shuffle($csvarray);
 				$ids['amt'] = $this->amtPublish($csvarray);
+				$this->store('amt', $ids['amt']);
 			}
 
 			if(in_array('cf', $platform)){	
 				$ids['cf'] = $this->cfPublish();
 			}	
 
+
+
 			return $ids;
 		} catch (AMTException $e) {
-			// TODO: what if there's an error halfway through?
+			
+
 			throw new Exception("AMT: {$e->getMessage()}");
 		} catch (CFExceptions $e) {
+			
+
 			throw new Exception("CF: {$e->getMessage()}");
 		} catch (Exception $e) {
 			throw $e; // Error in store().
 		}
 
+    }
+
+
+    private function undoCreation($ids){
+    	Log::warning("Error saving {$entity->_id} to DB.");
+
+    	if(isset($ids['amt']) and is_array($ids['amt']) and count($ids['amt']) > 0)
+			foreach($ids['amt'] as $id){
+				$this->mturk->disableHIT($id);
+			}	
+
+		if(isset($ids['cf'])){
+			$id = $ids['cf'];
+			$cfJob = new crowdwatson\Job($this->CFApiKey);	
+			$cfJob->cancelJob($id);
+			$cfJob->deleteJob($id);
+		}
+		
+		$activity = 
+		// Delete MONGO activity.	
     }
 
     /** 
@@ -171,8 +197,6 @@ class Job extends Entity {
 					$goldresult = $cfJob->manageGold($id, array('check' => $gold[0]));
 					if(isset($goldresult['result']['errors']))
 						throw new CFExceptions($goldresult['result']['errors'][0]);
-
-				$this->store('cf', $result['result']);
 
 				return $id;
 			}
@@ -298,9 +322,6 @@ class Job extends Entity {
 					// Create
 					$created = $this->mturk->createHIT($hit);
 
-					// Save to DB
-					$this->store('amt', $created);
-
 					// Add ID to returnarray
 					$return[] = $created['HITId'];
 					$hittypeid = $created['HITTypeId'];
@@ -323,48 +344,48 @@ class Job extends Entity {
 
     /**
     * Save Job to database
+    * @param $platform string amt | cf
+    * @param $platformjobid array if $platform = amt, int if $platform = cf.
     */
-    private function store($platform, $data){
+    private function store($platform, $platformjobid){
 
     	// TODO: set tags, domain, format, type, URI, template, etc
 
     	// TODO: Create SoftwareAgent (als in FileUpload.php)
-
 		if($platform == 'amt') {
 			$platformJobId = $data['HITId'];
-			$platformId = 'todo';
 			$status = 'running';
 		} elseif ($platform == 'cf') {
 			$platformJobId = $data['id'];
-			$platformId = 'todo';
-			$status = 'unordered';
+			$status = 'unordered'; // TODO: this might change when we include the preview option to the GUI.
 		}	
+
 
 		$user = Auth::user();
 		$entityURI = "/job/$platform/$platformJobId"; //TODO
 		
 		try {
 			$entity = new Entity;
-			$entity->_id = $entityURI;
+			$entity->domain = 'medical';
 			$entity->documentType = 'job';
-			$entity->activity_id = $this->activityURI;
 			$entity->agent_id = $user->_id; // TODO: has to be $user->agentId or something.
-
-			$entity->jobConfigurationId = $this->jcid;
-			$entity->templateId = $this->template; // TODO [part of jobconf?]
+			$entity->activity_id = $this->activityURI;
+			
+			$entity->jobConf_id = $this->jcid;
+			//$entity->template_id = $this->template; // Will probably be part of jobconf
 			$entity->batchId = $this->csv;			// TODO
-			$entity->platformId = $platformId; 
+			$entity->platformId = $platform; 
 			$entity->platformJobId = $platformJobId;
 			$entity->status = $status;
 
 			if($platform == 'amt')
 				$entity->hitTypeId = $data['HITTypeId'];
+
 			$entity->save();
 			return true;
 		} catch (Exception $e) {
 			// Something went wrong with creating the Entity
 
-			// TODO Delete more? handle this in publish().
 			Log::warning("Error saving {$entity->_id} to DB.");
 			$entity->forceDelete();
 			throw $e;

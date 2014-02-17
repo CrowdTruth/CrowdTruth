@@ -4,9 +4,8 @@
 	"keywords": ["framework", "laravel"],
 	"license": "MIT",
 	"require": {
-
-		"laravel/framework": "4.1.*"
 		"laravel/framework": "4.1.*",
+		"sunra/php-simple-html-dom-parser": "v1.5.0",
 	    "codesleeve/asset-pipeline": "dev-master",
         "jenssegers/mongodb": "*",
 		"gloudemans/shoppingcart": "dev-master"
@@ -19,7 +18,10 @@
 			"app/database/migrations",
 			"app/database/seeds",
 			"app/tests/TestCase.php"
-		]
+		],
+		 "psr-4": {
+            "crowdwatson\\": "app/lib/"
+        }
 	},
 	"scripts": {
 		"post-install-cmd": [
@@ -36,5 +38,5 @@
 	"config": {
 		"preferred-install": "dist"
 	},
-	"minimum-stability": "stable"
+	"minimum-stability": "dev"
 }

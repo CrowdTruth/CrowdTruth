@@ -321,7 +321,7 @@ class JobConfiguration extends Moloquent {
 	public function store($originalEntity = null, $activityURI = null){
 		
 		// TODO: set tags, subtype, URI
-		$entityURI = mt_rand(0, 10000);
+	
 		$user = Auth::user();
 		$newEntityContent = $this->toArray();
 		$activity = new Activity;
@@ -335,41 +335,49 @@ class JobConfiguration extends Moloquent {
 	 	
 	 	// Create a new activity, but only if there isn't one in the parameters.
 		if (is_null($activityURI)){
-			if(is_null($originalEntity)) {
-				$activity->_id = mt_rand(0, 1000); //TODO
-				$activity->entity_used_id = $originalEntity->_id;
-			} else {
-				$activity->_id =  $originalEntity->wasGeneratedBy->_id . '/edit';
-			}
-
 			$activity->type = "jobconf";
 			$activity->label = "JobConfiguration is saved.";
 			$activity->agent_id = $user->_id; // TODO: has to be $user->agentId or something
 			$activity->software_id = URL::to('process');
+			if(!is_null($originalEntity)) 
+				$activity->entity_used_id = $originalEntity->_id;
 			$activity->save();
 		}
 
 		try {
 			$entity = new Entity;
-			if(is_null($originalEntity))
-				$entity->_id = strtolower($entityURI);
-			else $entity->_id = $entityURI = $originalEntity->_id . '/edit';
-			$entity->documentType = "jobconf";
+
+			// Mandatory
 			$entity->domain = "medical";
-			$entity->type = "text";
-			$entity->subtype = "factor_span";
-			$entity->tags = array('bla', 'bla', 'bla');
+			$entity->format = "text";
+			$entity->documentType = "jobconf"; // OK? 'TWREX' also is a documenttype...
 			$entity->activity_id = strtolower($activityURI);
-			$entity->user_id = 'todo_userid';
-			$entity->content = $newEntityContent;
+			$entity->agent_id = $user->_id; // TODO: has to be $user->agentId or something
+			
+			// Further identification
+			$entity->type = "factor_span";
+			$entity->tags = array('bla', 'bla', 'bla');
 			$entity->hash = $hash;
 
+			// TODO: questionTemplate_id
+			$entity->content = $newEntityContent;
+			
+			// Ancestors
 			if(!is_null($originalEntity)){
 				$entity->parent_id = $originalEntity->_id;
-				$entity->ancestors = array($originalEntity->_id);
+				
+				$ancestors = $originalEntity->ancestors;
+				if(is_array($ancestors))
+					array_push($ancestors, $originalEntity->_id)
+				else
+					$ancestors = array($originalEntity->_id);
+
+				$entity->ancestors = $ancestors;
 			} 
 
 			$entity->save();
+			Log::debug("Saved entity {$entity->_id}");
+
 			return $entity->_id;
 		} catch (Exception $e) {
 			// Something went wrong with creating the Entity
