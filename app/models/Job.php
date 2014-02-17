@@ -56,43 +56,69 @@ class Job extends Entity {
 
 			if(in_array('cf', $platform)){	
 				$ids['cf'] = $this->cfPublish();
+				$this->store('cf', $ids['cf']);
 			}	
 
 
 
 			return $ids;
 		} catch (AMTException $e) {
-			
-
+			$this->undoCreation($ids, $e);
 			throw new Exception("AMT: {$e->getMessage()}");
 		} catch (CFExceptions $e) {
-			
-
+			$this->undoCreation($ids, $e);
 			throw new Exception("CF: {$e->getMessage()}");
 		} catch (Exception $e) {
-			throw $e; // Error in store().
+			$this->undoCreation($ids, $e);
+			throw $e; // Error in store(). Todo: make a MongoException.
 		}
 
     }
 
+    /** 
+    * In case of exception: undo everything.
+    * @throws Exception if even the undo isn't working. 
+    */
+    private function undoCreation($ids, $error){
+    	
+    	// TODO: TEST!
 
-    private function undoCreation($ids){
-    	Log::warning("Error saving {$entity->_id} to DB.");
+    	Log::warning("Error in creating jobs. Id's: " . serialize($ids) . ". Attempting to delete jobs from crowdsourcing platform(s).");
 
-    	if(isset($ids['amt']) and is_array($ids['amt']) and count($ids['amt']) > 0)
-			foreach($ids['amt'] as $id){
-				$this->mturk->disableHIT($id);
-			}	
+    	try {
+	    	if(isset($ids['amt']) and is_array($ids['amt']) and count($ids['amt']) > 0)
+				foreach($ids['amt'] as $id){
+					$this->mturk->disableHIT($id);
+					$entity = Entity::where('platformJobId', $id);
+					if(!empty($entity)) $entity->forceDelete();
+				}
 
-		if(isset($ids['cf'])){
-			$id = $ids['cf'];
-			$cfJob = new crowdwatson\Job($this->CFApiKey);	
-			$cfJob->cancelJob($id);
-			$cfJob->deleteJob($id);
+			if(isset($ids['cf'])){
+				$id = $ids['cf'];
+				$cfJob = new crowdwatson\Job($this->CFApiKey);	
+				$cfJob->cancelJob($id);
+				$cfJob->deleteJob($id);
+				$entity = Entity::where('platformJobId', $id);
+				if(!empty($entity)) $entity->forceDelete();
+			}
+
+			$activity = Activity::where('_id', $this->activityURI)->first();
+			if(!empty($activity)) $activity->forceDelete();
+
+		} catch (Exception $e){
+
+			// This is bad.
+			$orige = $error->getMessage();
+			$newe = $e->getMessage();
+			throw new Exception("WARNING. There was an error in uploading the jobs. We could not undo all the steps. 
+				Please check the platforms manually and delete any uploaded jobs.
+				<br>Initial exception: $orige
+				<br>Deletion error: $newe
+				<br>Please contact an administrator.");
+			Log::error("Couldn't delete jobs. Please manually check the platforms and database.\r\nInitial exception: $orige
+				\r\nDeletion error: $newe\r\nActivity: {$this->activityURI}\r\nJob ID's: " . serialize($ids));
+
 		}
-		
-		$activity = 
-		// Delete MONGO activity.	
     }
 
     /** 
@@ -347,39 +373,39 @@ class Job extends Entity {
     * @param $platform string amt | cf
     * @param $platformjobid array if $platform = amt, int if $platform = cf.
     */
-    private function store($platform, $platformjobid){
+    private function store($platform, $platformJobId){
 
-    	// TODO: set tags, domain, format, type, URI, template, etc
 
-    	// TODO: Create SoftwareAgent (als in FileUpload.php)
+    	// TODO: Create SoftwareAgent (as in FileUpload.php)
 		if($platform == 'amt') {
-			$platformJobId = $data['HITId'];
+
+			// Create an array with id and status.
+			$temppjid = array();
+			foreach($platformJobId as $id)
+				array_push($temppjid, array('id' => $id, 'status' => 'running'));
+
+			$platformJobId = $temppjid;
+
 			$status = 'running';
 		} elseif ($platform == 'cf') {
-			$platformJobId = $data['id'];
 			$status = 'unordered'; // TODO: this might change when we include the preview option to the GUI.
 		}	
 
-
 		$user = Auth::user();
-		$entityURI = "/job/$platform/$platformJobId"; //TODO
-		
 		try {
 			$entity = new Entity;
 			$entity->domain = 'medical';
+			$entity->format = 'text';
 			$entity->documentType = 'job';
-			$entity->agent_id = $user->_id; // TODO: has to be $user->agentId or something.
+			$entity->useragent_id = $user->_id;
 			$entity->activity_id = $this->activityURI;
 			
 			$entity->jobConf_id = $this->jcid;
 			//$entity->template_id = $this->template; // Will probably be part of jobconf
 			$entity->batchId = $this->csv;			// TODO
 			$entity->platformId = $platform; 
-			$entity->platformJobId = $platformJobId;
+			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's.
 			$entity->status = $status;
-
-			if($platform == 'amt')
-				$entity->hitTypeId = $data['HITTypeId'];
 
 			$entity->save();
 			return true;

@@ -2,7 +2,6 @@
 
 use crowdwatson\AMTException;
 use crowdwatson\Batch;
-use mongo\text\sentence;
 use crowdwatson\Sentence;
 
 class ProcessController extends BaseController {

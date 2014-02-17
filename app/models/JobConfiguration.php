@@ -338,7 +338,7 @@ class JobConfiguration extends Moloquent {
 			$activity->type = "jobconf";
 			$activity->label = "JobConfiguration is saved.";
 			$activity->agent_id = $user->_id; // TODO: has to be $user->agentId or something
-			$activity->software_id = URL::to('process');
+			$activity->software_id = 'process';
 			if(!is_null($originalEntity)) 
 				$activity->entity_used_id = $originalEntity->_id;
 			$activity->save();
@@ -368,7 +368,7 @@ class JobConfiguration extends Moloquent {
 				
 				$ancestors = $originalEntity->ancestors;
 				if(is_array($ancestors))
-					array_push($ancestors, $originalEntity->_id)
+					array_push($ancestors, $originalEntity->_id);
 				else
 					$ancestors = array($originalEntity->_id);
 
