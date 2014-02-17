@@ -1,7 +1,8 @@
 <?php
 
-//use Jenssegers\Mongodb\Model as Eloquent;
 use crowdwatson\Hit;
+use \mongoDB\Entity;
+use \mongoDB\Activity;
 
 class JobConfiguration extends Moloquent {
     protected $fillable = array(
@@ -15,7 +16,7 @@ class JobConfiguration extends Moloquent {
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
     								'notificationEmail',
     								'requesterAnnotation',
-    								'country', 
+    								'country', /* TODO: UI */
     								'instructions',
 
     								/* AMT specific */
@@ -32,49 +33,6 @@ class JobConfiguration extends Moloquent {
     	    						'answerfields', /* The fields of the CSV file that contain the gold answers. */
     								'platform'
     								);
-
-    public function getDetails(){
-    	return array('keywords' => $this->keywords, 'expirationInMinutes' => $this->expirationInMinutes, 'lifetimeInSeconds' => $this->lifetimeInSeconds, 'autoApprovalDelayInSeconds' => $this->autoApprovalDelayInMinutes, 'qualificationRequirement' => $this->qualificationRequirement, 'assignmentReviewPolicy' => $this->assignmentReviewPolicy );
-    }
-
-    public function getElapsedTime($created_at){
-	    $time = time() - strtotime($created_at); // to get the time since that moment
-
-    	$tokens = array (
-        	31536000 => 'yr',
-        	2592000 => 'm',
-        	604800 => 'w',
-        	86400 => 'day',
-        	3600 => 'hr',
-        	60 => 'min',
-        	1 => 'sec'
-	    );
-
-	    foreach ($tokens as $unit => $text) {
-	        if ($time < $unit) continue;
-	        $numberOfUnits = floor($time / $unit);
-	        return $numberOfUnits.' '.$text.(($numberOfUnits>1)?'s':'');
-	    	}
-	}
- 
-    //FIELDS IN LARAVEL -_-
-    public function totalJudgments(){
-    	return $this->judgmentsPerUnit*$this->unitsPerTask;
-    }
-
-	public function totalCost(){
-		$judgments = JobConfiguration::totalJudgments();
-		return '$ ' + round($judgments*$this->reward, 2);
-	}
-
-	public function progressBar(){
-		return round(($this->completedJudgments() / $this->totalJudgments())*100);
-	}
-		
-
-	public function completedJudgments(){
-		return 25;
-	}
 
     private $errors;
 
@@ -95,7 +53,7 @@ class JobConfiguration extends Moloquent {
 
 	private $amtrules = array(
 		'hitLifetimeInMinutes' => 'required|numeric|min:1',
-		'frameheight' => 'numeric|min:300'
+		'frameheight' => 'numeric|min:300' // not required because we have a default value.
 	);
 
 
@@ -130,6 +88,50 @@ class JobConfiguration extends Moloquent {
         return $this->errors;
     }
 
+
+    public function getDetails(){
+    	return array('keywords' => $this->keywords, 'expirationInMinutes' => $this->expirationInMinutes, 'lifetimeInSeconds' => $this->lifetimeInSeconds, 'autoApprovalDelayInSeconds' => $this->autoApprovalDelayInMinutes, 'qualificationRequirement' => $this->qualificationRequirement, 'assignmentReviewPolicy' => $this->assignmentReviewPolicy );
+    }
+
+    public function getElapsedTime($created_at){
+	    $time = time() - strtotime($created_at); // to get the time since that moment
+
+    	$tokens = array (
+        	31536000 => 'yr',
+        	2592000 => 'm',
+        	604800 => 'w',
+        	86400 => 'day',
+        	3600 => 'hr',
+        	60 => 'min',
+        	1 => 'sec'
+	    );
+
+	    foreach ($tokens as $unit => $text) {
+	        if ($time < $unit) continue;
+	        $numberOfUnits = floor($time / $unit);
+	        return $numberOfUnits.' '.$text.(($numberOfUnits>1)?'s':'');
+	    	}
+	}
+
+    //FIELDS IN LARAVEL -_-
+    public function totalJudgments(){
+    	return $this->judgmentsPerUnit*$this->unitsPerTask;
+    }
+
+	public function totalCost(){
+		$judgments = CrowdTask::totalJudgments();
+		return '$ ' + round($judgments*$this->reward, 2);
+	}
+
+	public function progressBar(){
+		return round(($this->completedJudgments() / $this->totalJudgments())*100);
+	}
+		
+
+	public function completedJudgments(){
+		return 20;
+	}
+
 	public function addQualReq($qr){
 		$qarray = array();
 		foreach($qr as $key=>$val){
@@ -162,26 +164,23 @@ class JobConfiguration extends Moloquent {
 		else $this->assignmentReviewPolicy = null;
 	}
 
-
-	// TODO: now we use the hitxml format for templating. There should be a more generic system.
+	// Used now, for HITs that don't come from our own platform
 	public static function getFromHit($hit){
-		return new CrowdTask(array(
+		return new JobConfiguration(array(
 			'title' 		=> $hit->getTitle(),
 			'description' 	=> $hit->getDescription(),
 			'keywords'		=> $hit->getKeywords(),
 			'reward'		=> $hit->getReward()['Amount'],
-			'maxAssignments'=> $hit->getMaxAssignments(),
-			'assignmentDur'	=> $hit->getAssignmentDurationInSeconds(),
-			'lifetimeInSeconds' => $hit->getLifetimeInSeconds(),
-			'tasksPerAssignment' => 1, // TODO add this to templating system
+			'judgmentsPerUnit'=> $hit->getMaxAssignments(),
+			'expirationInMinutes'	=> intval($hit->getAssignmentDurationInSeconds())/60,
+			'hitLifetimeInMinutes' => intval($hit->getLifetimeInSeconds())/60,
+			'unitsPerTask' => 1, 
 
 			/* AMT */
-			'autoApprovalDelayInSeconds' => $hit->getAutoApprovalDelayInSeconds(),
+			'autoApprovalDelayInMinutes' => intval($hit->getAutoApprovalDelayInSeconds())/60,
 			'qualificationRequirement'=> $hit->getQualificationRequirement(),
 			'assignmentReviewPolicy' => $hit->getAssignmentReviewPolicy(),
-			/* General CrowdTask info */
-			
-			// Which field in the User model for username?
+			'platform' => array('amt')		
 			));
 	}
 
@@ -279,12 +278,8 @@ class JobConfiguration extends Moloquent {
 	        $array = array($array);
 	    }
 	 
-	    // Start the table
-	    $table = "<table>\n";
-	 
-	    // The header
-	    $table .= "\t<tr>";
-	    // Take the keys from the first row as the headings
+	    // Header row
+	    $table = "<table>\n\t<tr>";
 	    foreach (array_keys($array[0]) as $heading) {
 	        $table .= '<th>' . $heading . '</th>';
 	    }
@@ -316,6 +311,72 @@ class JobConfiguration extends Moloquent {
 	 
 	    $table .= '</table>';
 	    return $table;
+	}
+
+	/**
+	* Saves the JobConfiguration, along with an activity, to the DB.
+	* @return entity id (existing or new one)
+	* @throws Exception
+	*/
+	public function store($originalEntity = null, $activityURI = null){
+		
+		// TODO: set tags, subtype, URI
+		$entityURI = mt_rand(0, 10000);
+		$user = Auth::user();
+		$newEntityContent = $this->toArray();
+		$activity = new Activity;
+
+		// What if we want to save the same JobConf with different tags?
+		// Option: make an updateTags() function or something.
+		$hash = md5(serialize($newEntityContent));
+		$existing = Entity::where('hash', $hash)->pluck('_id');
+		if($existing) 
+			return $existing;
+	 	
+	 	// Create a new activity, but only if there isn't one in the parameters.
+		if (is_null($activityURI)){
+			if(is_null($originalEntity)) {
+				$activity->_id = mt_rand(0, 1000); //TODO
+				$activity->entity_used_id = $originalEntity->_id;
+			} else {
+				$activity->_id =  $originalEntity->wasGeneratedBy->_id . '/edit';
+			}
+
+			$activity->type = "jobconf";
+			$activity->label = "JobConfiguration is saved.";
+			$activity->agent_id = $user->_id; // TODO: has to be $user->agentId or something
+			$activity->software_id = URL::to('process');
+			$activity->save();
+		}
+
+		try {
+			$entity = new Entity;
+			if(is_null($originalEntity))
+				$entity->_id = strtolower($entityURI);
+			else $entity->_id = $entityURI = $originalEntity->_id . '/edit';
+			$entity->documentType = "jobconf";
+			$entity->domain = "medical";
+			$entity->type = "text";
+			$entity->subtype = "factor_span";
+			$entity->tags = array('bla', 'bla', 'bla');
+			$entity->activity_id = strtolower($activityURI);
+			$entity->user_id = 'todo_userid';
+			$entity->content = $newEntityContent;
+			$entity->hash = $hash;
+
+			if(!is_null($originalEntity)){
+				$entity->parent_id = $originalEntity->_id;
+				$entity->ancestors = array($originalEntity->_id);
+			} 
+
+			$entity->save();
+			return $entity->_id;
+		} catch (Exception $e) {
+			// Something went wrong with creating the Entity
+			$activity->forceDelete();
+			$entity->forceDelete();
+			throw $e;
+		}
 	}
 
 }

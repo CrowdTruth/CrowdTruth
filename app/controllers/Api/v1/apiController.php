@@ -4,6 +4,8 @@ namespace Api\v1;
 
 use \BaseController as BaseController;
 use \Input as Input;
+use \URL as URL;
+use \Response as Response;
 
 use \MongoDB\Repository as Repository;
 use \MongoDB\Entity as Entity;
@@ -11,13 +13,20 @@ use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDB\CrowdAgent as CrowdAgent;
 
-class apiController extends \BaseController {
+class apiController extends BaseController {
 
 	protected $repository;
 
 	public function __construct(Repository $repository){
 		$this->repository = $repository;
 	}
+
+    protected $operators = array(
+        '=', '<', '>', '<=', '>=', '<>', '!=',
+        'like', 'not like', 'between', 'ilike',
+        '&', '|', '^', '<<', '>>',
+        'exists', 'type', 'mod', 'where', 'all', 'size', 'regex',
+    );
 
 	/**
 	 * Display a listing of the resource.
@@ -26,57 +35,69 @@ class apiController extends \BaseController {
 	 */
 	public function index()
 	{
+		// echo "<pre>";
+
+		// dd(Input::all());
+
 		if(!$limit = (int) Input::get('limit'))
 		{
 			$limit = 100;
-		}
-
-		echo "<pre>";
-
-		$input = Input::except("provtype", "limit");
-
-		if($dots = Input::get('dots'))
-		{
-			if(is_array($dots))
-			{
-				$input = array_merge($input, $dots);
-				unset($input['dots']);				
-			}
 		}
 
 		// $doc = \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->where('content.properties.semicolonBetweenTerms', "1")->get();
 
 		// dd($doc->toArray());
 
-		if(!$provType = Input::get('provtype'))
+		if(!$collection = strtolower(Input::get('collection')))
 		{
-			$provType = "entity";
+			$collection = "entity";
 		}
 
-		$Collection = $this->repository->returnCollectionObjectFor($provType);
+		$documents = $this->repository->returnCollectionObjectFor($collection);
 
-		$documents = new $Collection;
+		// dd(Input::all());
 
-		foreach($input as $field => $value)
+		if(Input::has('field'))
 		{
-			if(is_numeric($value))
+
+			foreach(Input::get('field') as $field => $value)
 			{
-				$documents = $documents->where($field, (int) $value);
-				continue;
+				if(is_numeric($value))
+				{
+					$documents = $documents->where($field, (int) $value);
+					continue;
+				}
+
+				if($field == "userAgent")
+				{
+					$field = "user_id";
+				}			
+
+				if(is_array($value))
+				{
+
+					foreach($value as $operator => $subvalue)
+					{
+						if(in_array($operator, $this->operators))
+						{
+							if(is_numeric($subvalue))
+							{
+								$subvalue = (int) $subvalue;
+							}
+
+							$documents = $documents->where($field, $operator, $subvalue);
+						}
+					}
+
+					continue;
+				}
+				else
+				{
+					$value = array($value);
+				}
+
+				$documents = $documents->whereIn($field, $value);
 			}
-
-			if(!is_array($value))
-			{
-				$value = array($value);
-			}
-
-			if($field == "userAgent")
-			{
-				$documents = $documents->whereIn("user_id", $value);
-				continue;
-			}			
-
-			$documents = $documents->whereIn($field, $value);
 		}
 
 		// if($format = Input::get('format'))
@@ -115,8 +136,30 @@ class apiController extends \BaseController {
 		// }
 
 
-	//	return $documents->remember(999999, md5(serialize(Input::all() + array($limit))))->take($limit)->get()->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		return $documents->take($limit)->get()->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+//		return $documents->remember(999999, md5(serialize(Input::all() + array($limit))))->take($limit)->get()->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+
+		if($collection == "entity" || $collection == "entities")
+		{
+			if(Input::has('wasGeneratedBy'))
+			{
+
+				$entities = $documents->with('wasGeneratedBy')->limit($limit)->get(array('activity_id'));
+
+				$activities = array();
+
+				foreach($entities as $entity)
+				{
+					array_push($activities, $entity->wasGeneratedBy->toArray());
+				}
+				
+				return Response::json($activities);
+			}
+		}
+
+		return Response::json($documents->take($limit)->get());
+
+
 	}
 
 	/**

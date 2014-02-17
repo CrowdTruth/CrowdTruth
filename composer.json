@@ -4,14 +4,16 @@
 	"keywords": ["framework", "laravel"],
 	"license": "MIT",
 	"require": {
-
-		"laravel/framework": "4.1.*"
 		"laravel/framework": "4.1.*",
 	    "codesleeve/asset-pipeline": "dev-master",
         "jenssegers/mongodb": "*",
 		"gloudemans/shoppingcart": "dev-master",
+<<<<<<< HEAD
 		"way/generators": "dev-master",
 		"soapbox/laravel-formatter": "dev-master"
+=======
+		"way/generators": "dev-master"
+>>>>>>> 869cd4f788d8b05c657a001f659b2f27ccc56f18
 	},
 	"autoload": {
 		"classmap": [

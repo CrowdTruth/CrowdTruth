@@ -10,26 +10,48 @@
 */
 
 namespace crowdwatson;
-require_once(dirname(__FILE__) . '/config.php');
 require_once(dirname(__FILE__) . '/Hit.class.php');
 require_once(dirname(__FILE__) . '/Assignment.class.php');
 require_once(dirname(__FILE__) . '/AMTException.class.php');
 
 class MechanicalTurk {
 	
+	protected $accesskey;
+	protected $secretkey;
+	protected $debug;
+	protected $rootURL;
+
+	public function __construct($accesskey = null, $secretkey = null, $rootURL = null, $debug = true){
+		if(is_null($accesskey)) 
+			$this->accesskey = \Config::get('config.amtaccesskey');
+		else 
+			$this->accesskey = $accesskey;
+
+		if(is_null($secretkey))
+			$this->secretkey = \Config::get('config.amtsecretkey');
+		else	
+			$this->secretkey = $secretkey;
+		if(is_null($rootURL))
+			$this->rootURL = \Config::get('config.amtrooturl');
+		else
+			$this->rootURL = $rootURL;
+
+		$this->debug = $debug;
+	}
+
 	/**
 	* Point this to your own logger.
 	* @param string $message
 	*/
 	private function log($message){
-		if(DEBUG) echo "\r\n<br>$message<br>\r\n";
+		if($this->debug) \Log::debug($message);
 	}
 	
 	
 	/**
 	* Upload a HIT to the AMT server. It will be available for workers immediately.
 	* @param Hit $hit	
-	* @return string HITId.
+	* @return Array(HITId, HITTypeId).
 	* @throws AMTException when the arguments are invalid. Also when the server can not be contacted or the 
 	* request or response isn't in the right format. (bubbles up from getAPIResponse())
 	* @link http://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_CreateHITOperation.html
@@ -38,11 +60,12 @@ class MechanicalTurk {
 		try {
 			$data = $hit->toPOSTdata();
 			$xml = $this->getAPIResponse('CreateHIT', $data);
-			$id = (string) $xml->HIT->HITId;	
+			$id = (string) $xml->HIT->HITId;
+			$hitTypeid = (string) $xml->HIT->HITTypeId;	
 			// The only values we get back from the server are the HITId and the HITTypeId.
 
 			$this->log("Created HIT $id.");
-			return $id;
+			return array('HITId' => $id, 'HITTypeId' => $hitTypeid);
 		} catch (\InvalidArgumentException $e){
 			throw new AMTException('Invalid Argument: ' . $e->getMessage(), $e->getCode(), $e);
 		}
@@ -555,7 +578,7 @@ class MechanicalTurk {
 	private function getAPIResponse($operation, $data = array(), $responsegroup = null){
 		// Add the common parameters
 		$data['Operation']		= $operation;	
-		$data['AWSAccessKeyId']	= AWS_ACCESS_KEY;
+		$data['AWSAccessKeyId']	= $this->accesskey;
 		$data['Signature'] 		= $this->generateSignature("AWSMechanicalTurkRequester", $operation, time(), false);
 		$data['Timestamp']		= time();
 		
@@ -571,9 +594,9 @@ class MechanicalTurk {
 		);
 		
 		$context  = stream_context_create($options);
-		
+
 		// Get the response and load it into SimpleXML
-		@$response = file_get_contents(AMT_ROOT_URL, false, $context);
+		@$response = file_get_contents($this->rootURL, false, $context);
 		if(!$response) throw new AMTException('Could not contact AMT server.');
 		@$xml = simplexml_load_string($response);
 		if(!$xml) throw new UnexpectedValueException('Invalid response from AMT server.');
@@ -612,7 +635,7 @@ class MechanicalTurk {
 	* Algorithm adapted (stolen) from http://pear.php.net/package/Crypt_HMAC/ (via http://code.google.com/p/php-aws/)
 	*/
 	private function hasher($data) {
-		$key = AWS_SECRET_KEY;
+		$key = $this->secretkey;
 		if(strlen($key) > 64)
 			$key = pack('H40', sha1($key));
 		if(strlen($key) < 64)

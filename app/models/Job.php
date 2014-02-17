@@ -4,25 +4,22 @@ use crowdwatson\MechanicalTurk;
 use crowdwatson\AMTException;
 use crowdwatson\CFExceptions;
 use Sunra\PhpSimple\HtmlDomParser;
-
-//use crowdwatson\simple_html_dom\simple_html_dom;
-//require_once(base_path() . '/app/lib/crowdwatson/simple_html_dom/simple_html_dom.php');
-
-// TODO: use ...
+use \mongoDB\Entity;
+use \mongoDB\Activity;
 
 class Job extends Entity { 
     protected $mturk;
     protected $csv;
     protected $template;
     protected $jobConfiguration;
+    protected $jcid;
+    protected $activityURI;
 
 
-    public function __construct($csv, $template, $jobConfiguration, $templatePath = null, $csvPath = null){
-    	if(!isset($templatePath)) $templatePath = base_path() . '/public/templates/';
-		if(!isset($csvPath)) $csvPath = base_path() . '/public/csv/';
-
-    	$this->csv = "$csvPath$csv";
-    	$this->template = "$templatePath$template";
+    public function __construct($csv, $template, $jobConfiguration){
+    	$this->csv = Config::get('config.csvdir') . $csv;
+    	$this->template = Config::get('config.templatedir') . $template;
+    	$this->CFApiKey = Config::get('config.cfapikey');
     	$this->jobConfiguration = $jobConfiguration;
     	$this->mturk = new MechanicalTurk;
     }
@@ -34,11 +31,26 @@ class Job extends Entity {
 		
 		$ids = array();
 		try {
+			
+			// Create a new activity for this action.
+			$user = Auth::user();
+			$this->activityURI = "/createjob/" . mt_rand(0, 10000); //TODO		
+			$activity = new Activity;
+			$activity->_id = $this->activityURI;
+			$activity->label = "Job is uploaded to crowdsourcing platform(s).";
+			$activity->agent_id = $user->_id; // TODO: has to be $user->agentId or something.
+			$activity->software_id = URL::to('process');
+			$activity->save();
+
+			// Save JobConfiguration (or reference existing). Throws error if not possible.
+			// TODO: might have a parent.
+			// Problem: on error the activity gets deleted (even if some entities were created...)
+			$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
+
 			if(in_array('amt', $platform)){
 				$csvarray = $this->csv_to_array();
 				shuffle($csvarray);
 				$ids['amt'] = $this->amtPublish($csvarray);
-
 			}
 
 			if(in_array('cf', $platform)){	
@@ -47,9 +59,12 @@ class Job extends Entity {
 
 			return $ids;
 		} catch (AMTException $e) {
+			// TODO: what if there's an error halfway through?
 			throw new Exception("AMT: {$e->getMessage()}");
 		} catch (CFExceptions $e) {
 			throw new Exception("CF: {$e->getMessage()}");
+		} catch (Exception $e) {
+			throw $e; // Error in store().
 		}
 
     }
@@ -109,7 +124,7 @@ class Job extends Entity {
     * @return String id of published Job
     */
     private function cfPublish(){
-    	$cfJob = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
+    	$cfJob = new crowdwatson\Job($this->CFApiKey);
 
     	$c = $this->jobConfiguration;
 		$data = $c->toCFData();
@@ -157,6 +172,8 @@ class Job extends Entity {
 					if(isset($goldresult['result']['errors']))
 						throw new CFExceptions($goldresult['result']['errors'][0]);
 
+				$this->store('cf', $result['result']);
+
 				return $id;
 			}
 			// Failed to create initial job.
@@ -189,7 +206,8 @@ class Job extends Entity {
 		$questionsbuilder = '';
 		$count = 0;
 		$return = array();
-		$unitids = array();
+		$unitids = array('TODO');
+		$hittypeid = '';
 		$c = $this->jobConfiguration;
 		$hit = $c->toHit();
 		$upt = $c->unitsPerTask;
@@ -263,16 +281,13 @@ class Job extends Entity {
 
 				if($preview){
 					$return[] = strip_tags($questionsbuilder, 
-					"<a><abbr><acronym><address><article><aside><b>
-					<bdo><big><blockquote><br><caption><cite><code>
-					<col><colgroup><dd><del><details><dfn><div>
-					<dl><dt><em><figcaption><figure><font>
-					<h1><h2><h3><h4><h5><h6><hgroup>
-					<hr><i><img><input><ins><li><map><mark><menu>
-					<meter><ol><p><pre><q><rp><rt><ruby><s><samp>
-					<section><select><small><span><strong><style><sub>
-					<summary><sup><table><tbody><td><textarea><tfoot><th><thead>
-					<time><tr><tt><u><ul><var><wbr>");
+					"<a><abbr><acronym><address><article><aside><b><bdo><big><blockquote><br>
+					<caption><cite><code><col><colgroup><dd><del><details><dfn><div><dl><dt>
+					<em><figcaption><figure><font><h1><h2><h3><h4><h5><h6><hgroup><hr><i><img>
+					<input><ins><li><map><mark><menu><meter><ol><p><pre><q><rp><rt><ruby><s>
+					<script><samp><section><select><small><span><strong><style><sub><summary>
+					<sup><table><tbody><td><textarea><tfoot><th><thead><time><tr><tt><u><ul>
+					<var><wbr>");
 				} else {
 					// Set the questions and optionally the gold answers
 				 	$hit->setQuestion($this->amtAddQuestionXML($questionsbuilder, $frameheight));
@@ -281,7 +296,14 @@ class Job extends Entity {
 					else ($hit->setAssignmentReviewPolicy(null));
 
 					// Create
-					$return[] = $this->mturk->createHIT($hit); 
+					$created = $this->mturk->createHIT($hit);
+
+					// Save to DB
+					$this->store('amt', $created);
+
+					// Add ID to returnarray
+					$return[] = $created['HITId'];
+					$hittypeid = $created['HITTypeId'];
 				}
 
 				$unitids = array();
@@ -291,23 +313,64 @@ class Job extends Entity {
 			}
 		}
 
-		if(!$preview){
-			// Same for each created HIT.
-			$hittype = $this->mturk->getHIT($return[0])->getHITTypeId();
-
-			// Note: this is for every HIT of this type (same title, reward, etc).
-			if(!empty($c->notificationEmail))
-				$this->mturk->setHITTypeNotification($hittype, $c->notificationEmail, 'HITReviewable');
-
-			/* SAVE TO DB. We have:
-				- HITId
-				- HITTypeId
-				- JobConfiguration
-			*/	
-		}
+		// Notification E-Mail
+		if((!$preview) and (!empty($c->notificationEmail)) and (!empty($hittypeid)))
+			$this->mturk->setHITTypeNotification($hittypeid, $c->notificationEmail, 'HITReviewable');
 
 		return $return;
     }
+
+
+    /**
+    * Save Job to database
+    */
+    private function store($platform, $data){
+
+    	// TODO: set tags, domain, format, type, URI, template, etc
+
+    	// TODO: Create SoftwareAgent (als in FileUpload.php)
+
+		if($platform == 'amt') {
+			$platformJobId = $data['HITId'];
+			$platformId = 'todo';
+			$status = 'running';
+		} elseif ($platform == 'cf') {
+			$platformJobId = $data['id'];
+			$platformId = 'todo';
+			$status = 'unordered';
+		}	
+
+		$user = Auth::user();
+		$entityURI = "/job/$platform/$platformJobId"; //TODO
+		
+		try {
+			$entity = new Entity;
+			$entity->_id = $entityURI;
+			$entity->documentType = 'job';
+			$entity->activity_id = $this->activityURI;
+			$entity->agent_id = $user->_id; // TODO: has to be $user->agentId or something.
+
+			$entity->jobConfigurationId = $this->jcid;
+			$entity->templateId = $this->template; // TODO [part of jobconf?]
+			$entity->batchId = $this->csv;			// TODO
+			$entity->platformId = $platformId; 
+			$entity->platformJobId = $platformJobId;
+			$entity->status = $status;
+
+			if($platform == 'amt')
+				$entity->hitTypeId = $data['HITTypeId'];
+			$entity->save();
+			return true;
+		} catch (Exception $e) {
+			// Something went wrong with creating the Entity
+
+			// TODO Delete more? handle this in publish().
+			Log::warning("Error saving {$entity->_id} to DB.");
+			$entity->forceDelete();
+			throw $e;
+		}
+    }
+
 
 
     /**

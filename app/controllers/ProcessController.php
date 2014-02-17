@@ -1,16 +1,10 @@
 <?php
 
 use crowdwatson\AMTException;
+use crowdwatson\Batch;
 use mongo\text\sentence;
 
 class ProcessController extends BaseController {
-	protected $templatePath;
-	protected $csvPath;
-
-	public function __construct(){
-		$this->templatePath = base_path() . '/public/templates/';
-		$this->csvPath = base_path() . '/public/csv/';
-	}
 
 	public function getIndex() {
 		// if(!count(Cart::content()) > 0){
@@ -22,6 +16,22 @@ class ProcessController extends BaseController {
 
 	public function getSelectfile() {
 		$jc = unserialize(Session::get('jobconf'));
+
+		$temp = '';
+/*		$temp = Config::get('config.templatedir');
+
+		$hit = new crowdwatson\Hit;
+		$hit->setTitle('test');
+		$j = JobConfiguration::getFromHit($hit);
+		dd($j);
+
+
+		//$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
+		//$job = $cf->readJob('382004');
+		//$judg = $cf->getUnitJudgments('380640', '406870707');
+
+		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp);
+=======*/
 		
 		//TEST CODE
 		$sentence1 = new Sentence();
@@ -40,9 +50,8 @@ class ProcessController extends BaseController {
 		
 		$entities =  Batch::all(); 
 		
-		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp)->with('entities', $entities);
+		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp);//->with('entities', $entities);
 
-		
 	}
 
 	public function getTemplate() {
@@ -50,7 +59,7 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));	
 		$currenttemplate = Session::get('template');
 		if(empty($currenttemplate)) $currenttemplate = 'generic/default';
-		$treejson = $this->makeDirTreeJSON($this->templatePath, $currenttemplate);
+		$treejson = $this->makeDirTreeJSON($currenttemplate);
 
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
@@ -96,7 +105,7 @@ class ProcessController extends BaseController {
 		$template = Session::get('template');
 		$csv = Session::get('csv');
 		
-		$treejson = $this->makeDirTreeJSON($this->templatePath, $template, false);
+		$treejson = $this->makeDirTreeJSON($template, false);
 
 		try {
 			$j = new Job($csv, $template, $jc);
@@ -113,7 +122,7 @@ class ProcessController extends BaseController {
 			$msg .= '</ul>';
 
 			Session::flash('flashError', $msg);
-		}
+		} 
 
 		return View::make('process.tabs.submit')
 			->with('treejson', $treejson)
@@ -124,26 +133,21 @@ class ProcessController extends BaseController {
 
 	public function getClearTask(){
 		Session::forget('jobconf');
+		Session::forget('origjobconf');
 		Session::forget('template');
 		Session::forget('csv');
 		return Redirect::to("process/selectfile");
 	}
 
 	/*
-	* Save the jobdetails to a JSON file (from the button in the Submit tab)
+	* Save the jobdetails to the database.
 	*/
 	public function postSaveDetails(){
-		$jc = unserialize(Session::get('jobconf'));
-		$arr = $jc->toArray();
-		$json = json_encode($arr, JSON_PRETTY_PRINT);
-
-		// Allow only a-z, 0-9, /, _. The rest will be removed.
-		$filename = preg_replace("/[^a-z0-9\/_]+/", "", 
-			strtolower(str_replace(' ', '_', Input::get('template'))));
-
 		try {
-			file_put_contents("{$this->templatePath}{$filename}.json", $json);
-			Session::flash('flashSuccess', "Saved jobdetails on server as $filename.json. Remember to provide an HTML questionfile.");
+			$jc = unserialize(Session::get('jobconf'));
+			if($jc->store())
+				Session::flash('flashSuccess', 'Saved Job configuration to database!');
+			else Session::flash('flashNotice', 'This Job configuration already exists.');
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage());
 		}
@@ -163,12 +167,13 @@ class ProcessController extends BaseController {
 			// Create the JobConfiguration object if it doesn't already exist.
 			$ntemplate = Input::get('template');
 			if (empty($template) or ($template != $ntemplate))	
-				$jc = JobConfiguration::fromJSON("{$this->templatePath}$ntemplate.json");
+				$jc = JobConfiguration::fromJSON(Config::get('config.templatedir') . "$ntemplate.json");
 			$template = $ntemplate;
+			$origjobconf = 'jcid'; // TODO!
 		} else {
 			if (empty($jc)){
 				// No JobConfiguration and no template selected, not good.
-				// (Unfortunately we can't flash a warning when redirecting.)
+				Session::flash('flashNotice', 'Please select a template first.');
 				return Redirect::to("process/template");
 			} else {
 				// There already is a JobConfiguration object. Merge it with Input!
@@ -195,8 +200,12 @@ class ProcessController extends BaseController {
 		Session::put('jobconf', serialize($jc));
 		Session::put('template', $template);
 		Session::put('csv', $csv);
-		return Redirect::to("process/$next");
 
+		try {
+			return Redirect::to("process/$next");
+		} catch (NotFoundHttpException $e) {
+			return Redirect::to("process");
+		}
 	}
 
 	/*
@@ -207,7 +216,7 @@ class ProcessController extends BaseController {
 		$template = Session::get('template');
 		$csv = Session::get('csv');
 		
-		try {
+		//try {
 			$j = new Job($csv, $template, $jc);
 			$ids = $j->publish();
 			$msg = 'Created ' .
@@ -216,9 +225,9 @@ class ProcessController extends BaseController {
 			(isset($ids['cf']) ? count($ids['cf']) : 0) .
 			 ' on CF.';
 			Session::flash('flashSuccess', $msg);
-		} catch (Exception $e) {
-			Session::flash('flashError', $e->getMessage());
-		}
+	//	} catch (Exception $e) {
+	//		Session::flash('flashError', $e->getMessage());
+	//	}
 
 		return Redirect::to("process/submit");
 		
@@ -228,8 +237,9 @@ class ProcessController extends BaseController {
 	/*
 	* Create the JSON necessary for jstree to use.
 	*/
-	private function makeDirTreeJSON($path, $currenttemplate, $pretty = true){
+	private function makeDirTreeJSON($currenttemplate, $pretty = true){
 		$r = array();
+		$path = Config::get('config.templatedir');
 		foreach(File::directories($path) as $dir){
 			$dirname = substr($dir, strlen($path));
 		   	if($pretty) $displaydir = ucfirst(str_replace('_', ' ', $dirname));

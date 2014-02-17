@@ -1,3 +1,4 @@
+/app/config/config.php
 /bootstrap/compiled.php
 /vendor
 composer.phar
@@ -5,3 +6,7 @@ composer.lock
 .DS_Store
 Thumbs.db
 /.idea
+# backwards compatability
+/app/lib/crowdwatson/php-mturk-api/config.php
+crowd-watson.sublime-project
+crowd-watson.sublime-workspace
