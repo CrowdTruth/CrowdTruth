@@ -105,24 +105,5 @@
 		}
 
 		
-			// ON HOLD: AUTOCOMPLETE FUNCTION WITH CREATEDBY
-		$("#createdBy").autocomplete({
-			minLength: 2,
-			source: ["Oana", "Jelle", "Lora", "Arne"]})
-			.done(console.log(term));
-			// function(request, response) {
-			// 	var term = request.term;
-			// 	console.log(term);
-			// 	$.ajax({
-			// 		url: 'createdBy/' + term,
-			// 		type: 'GET'
-			// 		}).done(function (data){
-			// 			console.log(data);
-			// 			$('#results').html(data);
-			// 		});
-			// 	}
-	
-		
-
 	</script>
 @stop

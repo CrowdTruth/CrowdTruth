@@ -7,13 +7,11 @@
 		"laravel/framework": "4.1.*",
 	    "codesleeve/asset-pipeline": "dev-master",
         "jenssegers/mongodb": "*",
+        "sunra/php-simple-html-dom-parser": "v1.5.0",
 		"gloudemans/shoppingcart": "dev-master",
-<<<<<<< HEAD
 		"way/generators": "dev-master",
-		"soapbox/laravel-formatter": "dev-master"
-=======
+		"soapbox/laravel-formatter": "dev-master",
 		"way/generators": "dev-master"
->>>>>>> 869cd4f788d8b05c657a001f659b2f27ccc56f18
 	},
 	"autoload": {
 		"classmap": [
@@ -23,7 +21,10 @@
 			"app/database/migrations",
 			"app/database/seeds",
 			"app/tests/TestCase.php"
-		]
+		],
+		"psr-4": {
+            "crowdwatson\\": "app/lib/"
+        }
 	},
 	"scripts": {
 		"post-install-cmd": [
