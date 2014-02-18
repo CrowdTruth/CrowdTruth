@@ -6,6 +6,7 @@ use crowdwatson\CFExceptions;
 use Sunra\PhpSimple\HtmlDomParser;
 use \mongoDB\Entity;
 use \mongoDB\Activity;
+use \MongoDB\SoftwareAgent;
 
 class Job extends Entity { 
     protected $mturk;
@@ -51,22 +52,72 @@ class Job extends Entity {
 				$csvarray = $this->csv_to_array();
 				shuffle($csvarray);
 				$ids['amt'] = $this->amtPublish($csvarray);
+				$this->store('amt', $ids['amt']);
 			}
 
 			if(in_array('cf', $platform)){	
 				$ids['cf'] = $this->cfPublish();
+				$this->store('cf', $ids['cf']);
 			}	
+
+
 
 			return $ids;
 		} catch (AMTException $e) {
-			// TODO: what if there's an error halfway through?
+			$this->undoCreation($ids, $e);
 			throw new Exception("AMT: {$e->getMessage()}");
 		} catch (CFExceptions $e) {
+			$this->undoCreation($ids, $e);
 			throw new Exception("CF: {$e->getMessage()}");
 		} catch (Exception $e) {
+			$this->undoCreation($ids, $e);
 			throw $e; // Error in store().
 		}
 
+    }
+
+    /** 
+    * In case of exception: undo everything.
+    * @throws Exception if even the undo isn't working. 
+    */
+    private function undoCreation($ids, $error){
+    	
+    	Log::warning("Error in creating jobs. Id's: " . serialize($ids) . ". Attempting to delete jobs from crowdsourcing platform(s).");
+
+    	try {
+	    	if(isset($ids['amt']) and is_array($ids['amt']) and count($ids['amt']) > 0)
+				foreach($ids['amt'] as $id){
+					$this->mturk->disableHIT($id);
+					$entity = Entity::where('platformJobId', $id);
+					if(!empty($entity)) $entity->forceDelete();
+				}
+
+			if(isset($ids['cf'])){
+				$id = $ids['cf'];
+				$cfJob = new crowdwatson\Job($this->CFApiKey);	
+				$cfJob->cancelJob($id);
+				$cfJob->deleteJob($id);
+				$entity = Entity::where('platformJobId', $id);
+				if(!empty($entity)) $entity->forceDelete();
+			}
+
+			$activity = Activity::where('_id', $this->activityURI)->first();
+			if(!empty($activity)) $activity->forceDelete();
+
+		} catch (Exception $e){
+
+			// This is bad.
+			$orige = $error->getMessage();
+			$newe = $e->getMessage();
+			throw new Exception("WARNING. There was an error in uploading the jobs. We could not undo all the steps. 
+				Please check the platforms manually and delete any uploaded jobs.
+				<br>Initial exception: $orige
+				<br>Deletion error: $newe
+				<br>Please contact an administrator.");
+			Log::error("Couldn't delete jobs. Please manually check the platforms and database.\r\nInitial exception: $orige
+				\r\nDeletion error: $newe\r\nActivity: {$this->activityURI}\r\nJob ID's: " . serialize($ids));
+
+		}
     }
 
     /** 
@@ -152,7 +203,7 @@ class Job extends Entity {
 
 			// Add CSV and options
 			if(isset($id)) {
-				// TODO: countries, workerskills, expiration, keywords
+				// TODO: countries, expiration
 
 				$optionsresult = $cfJob->setOptions($id, array('options' => $options));
 				if(isset($optionsresult['result']['errors']))
@@ -171,8 +222,6 @@ class Job extends Entity {
 					$goldresult = $cfJob->manageGold($id, array('check' => $gold[0]));
 					if(isset($goldresult['result']['errors']))
 						throw new CFExceptions($goldresult['result']['errors'][0]);
-
-				$this->store('cf', $result['result']);
 
 				return $id;
 			}
@@ -298,9 +347,6 @@ class Job extends Entity {
 					// Create
 					$created = $this->mturk->createHIT($hit);
 
-					// Save to DB
-					$this->store('amt', $created);
-
 					// Add ID to returnarray
 					$return[] = $created['HITId'];
 					$hittypeid = $created['HITTypeId'];
@@ -323,53 +369,68 @@ class Job extends Entity {
 
     /**
     * Save Job to database
+    * @param $platform string amt | cf
+    * @param $platformjobid array if $platform = amt, int if $platform = cf.
     */
-    private function store($platform, $data){
+    private function store($platform, $platformJobId){
 
-    	// TODO: set tags, domain, format, type, URI, template, etc
-
-    	// TODO: Create SoftwareAgent (als in FileUpload.php)
+    	$this->createPlatformSoftwareAgent($platform);
 
 		if($platform == 'amt') {
-			$platformJobId = $data['HITId'];
-			$platformId = 'todo';
+
+			// Create an array with HITid and status.
+			$temppjid = array();
+			foreach($platformJobId as $id)
+				array_push($temppjid, array('id' => $id, 'status' => 'running'));
+
+			$platformJobId = $temppjid;
+
 			$status = 'running';
 		} elseif ($platform == 'cf') {
-			$platformJobId = $data['id'];
-			$platformId = 'todo';
-			$status = 'unordered';
-		}	
+			$status = 'unordered'; // TODO: this might change when we include the preview option to the GUI.
+		}
 
 		$user = Auth::user();
-		$entityURI = "/job/$platform/$platformJobId"; //TODO
-		
 		try {
 			$entity = new Entity;
-			$entity->_id = $entityURI;
+			$entity->domain = 'medical';
+			$entity->format = 'text';
 			$entity->documentType = 'job';
+			$entity->useragent_id = $user->_id;
 			$entity->activity_id = $this->activityURI;
-			$entity->agent_id = $user->_id; // TODO: has to be $user->agentId or something.
-
-			$entity->jobConfigurationId = $this->jcid;
-			$entity->templateId = $this->template; // TODO [part of jobconf?]
-			$entity->batchId = $this->csv;			// TODO
-			$entity->platformId = $platformId; 
-			$entity->platformJobId = $platformJobId;
+			
+			$entity->jobConf_id = $this->jcid;
+			//$entity->template_id = $this->template; // Will probably be part of jobconf
+			$entity->batch_id = $this->csv;			// TODO
+			$entity->software_id = $platform; 
+			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's.
 			$entity->status = $status;
 
-			if($platform == 'amt')
-				$entity->hitTypeId = $data['HITTypeId'];
 			$entity->save();
 			return true;
 		} catch (Exception $e) {
 			// Something went wrong with creating the Entity
-
-			// TODO Delete more? handle this in publish().
-			Log::warning("Error saving {$entity->_id} to DB.");
 			$entity->forceDelete();
 			throw $e;
 		}
     }
+
+    private function createPlatformSoftwareAgent($platform){
+		if(!SoftwareAgent::find($platform))
+		{
+			$softwareAgent = new SoftwareAgent;
+			$softwareAgent->_id = $platform;
+
+			if($platform == 'amt'){
+				$softwareAgent->label = "Crowdsourcing platform: Amazon Mechanical Turk";
+				// More?
+			} elseif ($platform == 'cf'){
+				$softwareAgent->label = "Crowdsourcing platform: CrowdFlower";
+			}
+
+			$softwareAgent->save();
+		}
+	}
 
 
 
