@@ -6,6 +6,7 @@ use crowdwatson\CFExceptions;
 use Sunra\PhpSimple\HtmlDomParser;
 use \mongoDB\Entity;
 use \mongoDB\Activity;
+use \MongoDB\SoftwareAgent;
 
 class Job extends Entity { 
     protected $mturk;
@@ -70,7 +71,7 @@ class Job extends Entity {
 			throw new Exception("CF: {$e->getMessage()}");
 		} catch (Exception $e) {
 			$this->undoCreation($ids, $e);
-			throw $e; // Error in store(). Todo: make a MongoException.
+			throw $e; // Error in store().
 		}
 
     }
@@ -81,8 +82,6 @@ class Job extends Entity {
     */
     private function undoCreation($ids, $error){
     	
-    	// TODO: TEST!
-
     	Log::warning("Error in creating jobs. Id's: " . serialize($ids) . ". Attempting to delete jobs from crowdsourcing platform(s).");
 
     	try {
@@ -204,7 +203,7 @@ class Job extends Entity {
 
 			// Add CSV and options
 			if(isset($id)) {
-				// TODO: countries, workerskills, expiration, keywords
+				// TODO: countries, expiration
 
 				$optionsresult = $cfJob->setOptions($id, array('options' => $options));
 				if(isset($optionsresult['result']['errors']))
@@ -375,11 +374,11 @@ class Job extends Entity {
     */
     private function store($platform, $platformJobId){
 
+    	$this->createPlatformSoftwareAgent($platform);
 
-    	// TODO: Create SoftwareAgent (as in FileUpload.php)
 		if($platform == 'amt') {
 
-			// Create an array with id and status.
+			// Create an array with HITid and status.
 			$temppjid = array();
 			foreach($platformJobId as $id)
 				array_push($temppjid, array('id' => $id, 'status' => 'running'));
@@ -389,7 +388,7 @@ class Job extends Entity {
 			$status = 'running';
 		} elseif ($platform == 'cf') {
 			$status = 'unordered'; // TODO: this might change when we include the preview option to the GUI.
-		}	
+		}
 
 		$user = Auth::user();
 		try {
@@ -402,8 +401,8 @@ class Job extends Entity {
 			
 			$entity->jobConf_id = $this->jcid;
 			//$entity->template_id = $this->template; // Will probably be part of jobconf
-			$entity->batchId = $this->csv;			// TODO
-			$entity->platformId = $platform; 
+			$entity->batch_id = $this->csv;			// TODO
+			$entity->software_id = $platform; 
 			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's.
 			$entity->status = $status;
 
@@ -411,12 +410,27 @@ class Job extends Entity {
 			return true;
 		} catch (Exception $e) {
 			// Something went wrong with creating the Entity
-
-			Log::warning("Error saving {$entity->_id} to DB.");
 			$entity->forceDelete();
 			throw $e;
 		}
     }
+
+    private function createPlatformSoftwareAgent($platform){
+		if(!SoftwareAgent::find($platform))
+		{
+			$softwareAgent = new SoftwareAgent;
+			$softwareAgent->_id = $platform;
+
+			if($platform == 'amt'){
+				$softwareAgent->label = "Crowdsourcing platform: Amazon Mechanical Turk";
+				// More?
+			} elseif ($platform == 'cf'){
+				$softwareAgent->label = "Crowdsourcing platform: CrowdFlower";
+			}
+
+			$softwareAgent->save();
+		}
+	}
 
 
 

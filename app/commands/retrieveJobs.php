@@ -43,11 +43,14 @@ class retrieveJobs extends Command {
 	 */
 	public function fire()
 	{
+
+		// TODO: Try/catch blocks, UNITID
+
 		print("Retrieving jobs....");
 		$turk = new MechanicalTurk;
 
 		// Todo optimize query.
-		$jobs = Entity::where('documentType', 'job')->where('platformId', 'amt')->orderBy('created_at', 'desc')->get();
+		$jobs = Entity::where('documentType', 'job')->where('software_id', 'amt')->orderBy('created_at', 'desc')->get();
 		foreach($jobs as $entity){
 
 			$newplatformhitid = array();
@@ -64,7 +67,7 @@ class retrieveJobs extends Command {
 					//Do this once:
 					if(empty($entity->HITGroupId)) $entity->HITGroupId = $h['HITGroupId'];
 					if(empty($entity->Expiration)) $entity->Expiration = $h['Expiration'];
-					if(empty($entity->HITTypeId)) $entity->Expiration = $h['HITTypeId'];
+					if(empty($entity->HITTypeId)) $entity->HITTypeId = $h['HITTypeId'];
 
 
 					if($h['HITStatus'] == 'Assignable' or $h['HITStatus'] == 'Unassignable')
@@ -91,10 +94,12 @@ class retrieveJobs extends Command {
 					print 'Got ' . count($assignments) . " Assignments for {$hitid['id']}\n";
 					
 					foreach ($assignments as $ass){
-						// TODO: TRY/CATCH WITH REMOVAL FOR ROBUSTNESS?
 						$assignment = $ass->toArray();
+
 						$aentity = Entity::where('job_id', $jobId)->where('platformAnnotationId', $assignment['AssignmentId'])->first();
 						
+						// Sometimes, there's more entities. But if there's at least one, we know we retrieved the Assignment.
+
 						if($aentity) { // ASSIGNMENT already in DB.
 							
 							$oldstatus = $aentity->status;
@@ -122,21 +127,34 @@ class retrieveJobs extends Command {
 							$activity->software_id = 'amt';
 							$activity->save();
 
-							// Create entity
-							$aentity = new Entity;
-							$aentity->documentType = 'annotation';
-							$aentity->domain = $entity->domain;
-							$aentity->format = $entity->format;
-							$aentity->activity_id = $activity->_id;
-							$aentity->agent_id = $agentId;
-							$aentity->software_id = 'amt';
-							$aentity->job_id = $jobId;
-							$aentity->unitId = 'todo';
-							$aentity->platformAnnotationId = $assignment['AssignmentId'];
-							$aentity->acceptTime = $assignment['AcceptTime'];
-							$aentity->content = $assignment['Answer'];
-							$aentity->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
-							$aentity->save();
+							// Create entity FOR EACH UNIT
+
+							// OPTIONAL: we could create an ASSIGNMENT entity to hold the metadata.
+
+							foreach ($assignment['Answer'] as $q=>$ans){
+								// TODO Do some tricks with UNITID's; Sometimes there are more answerfields in 1 UNIT.
+
+								$aentity = new Entity;
+								$aentity->documentType = 'annotation';
+								$aentity->domain = $entity->domain;
+								$aentity->format = $entity->format;
+								$aentity->activity_id = $activity->_id;
+								$aentity->agent_id = $agentId;
+								$aentity->software_id = 'amt';
+								$aentity->job_id = $jobId;
+								$aentity->unit_id = 'todo';
+								$aentity->platformAnnotationId = $assignment['AssignmentId'];
+								$aentity->acceptTime = $assignment['AcceptTime'];
+								$aentity->content = $ans;
+								$aentity->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
+								$aentity->save();
+
+							}
+
+
+
+
+
 							/*
 								Possibly also:
 
@@ -151,7 +169,6 @@ class retrieveJobs extends Command {
 							*/
 							$newassignmentscount++;
 
-							// Todo: Change HIT status based on ASSIGNMENT statuses?
 						}
 
 						if($newassignmentscount>0)
@@ -173,8 +190,9 @@ class retrieveJobs extends Command {
 			// CF is not (yet?) needed here -> webhook.
 		}	
 
-		if($id = Entity::where('platformAgentId', $data['WorkerId'])->where('platform_id', $platform)->pluck('_id')) 
+		if($id = CrowdAgent::where('platformAgentId', $workerId)->where('platform_id', $platform)->pluck('_id')) 
 			return $id;
+
 		else {
 			$agent = new CrowdAgent;
 			$agent->_id= "/crowdagent/$platform/$workerId";

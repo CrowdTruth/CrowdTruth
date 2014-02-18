@@ -119,7 +119,7 @@ class JobConfiguration extends Moloquent {
     }
 
 	public function totalCost(){
-		$judgments = CrowdTask::totalJudgments();
+		$judgments = JobConfiguration::totalJudgments();
 		return '$ ' + round($judgments*$this->reward, 2);
 	}
 
