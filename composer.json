@@ -8,9 +8,7 @@
 		"sunra/php-simple-html-dom-parser": "v1.5.0",
 		"codesleeve/asset-pipeline": "dev-master",
         	"jenssegers/mongodb": "*",
-        	"sunra/php-simple-html-dom-parser": "v1.5.0",
-		"gloudemans/shoppingcart": "dev-master",
-		"way/generators": "dev-master",
+		"gloudemans/shoppingcart": "dev-master"
 		},
 	"autoload": {
 		"classmap": [
