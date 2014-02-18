@@ -6,14 +6,12 @@
 	"require": {
 		"laravel/framework": "4.1.*",
 		"sunra/php-simple-html-dom-parser": "v1.5.0",
-	    "codesleeve/asset-pipeline": "dev-master",
-        "jenssegers/mongodb": "*",
-        "sunra/php-simple-html-dom-parser": "v1.5.0",
+		"codesleeve/asset-pipeline": "dev-master",
+        	"jenssegers/mongodb": "*",
+        	"sunra/php-simple-html-dom-parser": "v1.5.0",
 		"gloudemans/shoppingcart": "dev-master",
 		"way/generators": "dev-master",
-		"soapbox/laravel-formatter": "dev-master",
-		"way/generators": "dev-master"
-	},
+		},
 	"autoload": {
 		"classmap": [
 			"app/commands",
