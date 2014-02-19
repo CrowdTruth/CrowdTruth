@@ -223,17 +223,20 @@ class JobConfiguration extends Moloquent {
 	}
 
 	public function toCFData(){
-		// not yet implemented: max_judgments_per_ip, webhook_uri, send_judgments_webhook => true, instructions, css, js, cml
 		$data = array();
 
 		if (!empty($this->title)) 			 	$data['title']					 	= $this->title; 
 		if (!empty($this->instructions)) 		$data['instructions']				= $this->instructions; 
-		//if (!empty($this->keywords)) 			$data['Keywords']				  		($this->keywords);
 		if (!empty($this->judgmentsPerUnit)) 	$data['judgments_per_unit']		  	= $this->judgmentsPerUnit;
-		//if (!empty($this->expirationInMinutes))$data['AssignmentDurationInSeconds'] 	($this->expirationInMinutes*60);
-		if (!empty($this->reward)) 				$data['payment_cents']				= $this->reward*100;
+
 		if (!empty($this->unitsPerTask))		$data['units_per_assignment']		= $this->unitsPerTask;
-		if (!empty($this->judgmentsPerWorker))	$data['max_judgments_per_worker']	= $this->judgmentsPerWorker;
+		if (!empty($this->judgmentsPerWorker))	{
+			$data['max_judgments_per_worker']	= $this->judgmentsPerWorker;
+			$data['max_judgments_per_ip']		= $this->judgmentsPerWorker; // We choose to keep this the same.
+		}
+
+		$data['webhook_uri'] = Config::get('config.cfwebhookuri');
+		$data['send_judgments_webhook'] = 'true';
 		return $data;
 	}
 

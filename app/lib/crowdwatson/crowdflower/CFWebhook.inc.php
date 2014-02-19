@@ -13,8 +13,8 @@
 		$payload = $_POST["payload"];
 		if ($signal == "new_judgments")	{
 			$retValue = objectToArray(json_decode($payload));
-			$job_id = $retValue[0]["job_id"];
-			handleNewJudgment($job_id);
+			//$job_id = $retValue[0]["job_id"];
+			handleNewJudgments($retValue);
 		}
 		if ($signal == "job_complete") {
 			$retValue = objectToArray(json_decode($payload));
@@ -27,9 +27,9 @@
         * TODO: update the number of judgments for a job and the completion percentage
         * @link http://crowdflower.com/docs-api#webhooks
         */ 
-	function handleNewJudgments($job_id) {
-		//here we should update in the DB the number of judgments for a job
-		//update the job with the following id (increment by 1 the number of judgments made and then recompute the job completion percentage)
+	function handleNewJudgments($judgments) {
+		foreach($judgments as $judgment)
+			Artisan::call('command:retrievecfjobs', array('--judgment' => $judgment));
 	}
 
 	/**

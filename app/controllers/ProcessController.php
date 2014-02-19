@@ -18,6 +18,13 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 
 		$temp = '';
+/*		$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
+		$judg = $cf->getUnitJudgments('380640', '406870708');
+		$temp = serialize($judg['results']['judgments'][1]);
+
+
+Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
+		//$temp = $judg;
 /*		$temp = Config::get('config.templatedir');
 
 		$hit = new crowdwatson\Hit;

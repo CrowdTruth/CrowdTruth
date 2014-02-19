@@ -15,7 +15,7 @@
 						<h4>Select files</h4>
 					</div>
 					<div class="panel-body">
-
+{{ $temp or '' }}
 					</div>
 				</div>
 			</div>	

@@ -8,7 +8,7 @@ use \mongoDB\Entity;
 use \mongoDB\Activity;
 use \MongoDB\SoftwareAgent;
 
-class Job extends Entity { 
+class Job { 
     protected $mturk;
     protected $csv;
     protected $template;
@@ -45,7 +45,6 @@ class Job extends Entity {
 
 			// Save JobConfiguration (or reference existing). Throws error if not possible.
 			// TODO: might have a parent.
-			// Problem: on error the activity gets deleted (even if some entities were created...)
 			$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
 
 			if(in_array('amt', $platform)){
@@ -222,9 +221,10 @@ class Job extends Entity {
 					$goldresult = $cfJob->manageGold($id, array('check' => $gold[0]));
 					if(isset($goldresult['result']['errors']))
 						throw new CFExceptions($goldresult['result']['errors'][0]);
+				}
 
 				return $id;
-			}
+
 			// Failed to create initial job.
 			} else {
 				$err = $result['result']['errors'][0];
@@ -248,8 +248,6 @@ class Job extends Entity {
     	$htmlfilename = "{$this->template}.html";
     	if(!file_exists($htmlfilename) || !is_readable($htmlfilename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
-
-
 
 		if(isset($c->frameheight)) $frameheight = $c->frameheight; else $frameheight = 700;
 		$questionsbuilder = '';
@@ -404,6 +402,11 @@ class Job extends Entity {
 			$entity->batch_id = $this->csv;			// TODO
 			$entity->software_id = $platform; 
 			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's.
+
+			$entity->unitsCount = 42; // TODO
+			$entity->annotationsCount = 0;
+			$entity->completion = 0.00; // 0.00-1.00
+
 			$entity->status = $status;
 
 			$entity->save();
