@@ -227,6 +227,12 @@ class Job {
 						throw new CFExceptions($goldresult['result']['errors'][0]);
 				}
 
+				if(is_array($c->countries) and count($c->countries) > 0){
+					$countriesresult = $cfJob->setIncludedCountries($id, $c->countries);
+					if(isset($countriesresult['result']['errors']))
+						throw new CFExceptions($countriesresult['result']['errors'][0]);
+				}
+
 				// TODO: IF NOT SANDBOX, ORDER
 
 				return $id;

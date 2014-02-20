@@ -16,7 +16,7 @@ class JobConfiguration extends Moloquent {
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
     								'notificationEmail',
     								'requesterAnnotation',
-    								'country', /* TODO: UI */
+    								'countries',
     								'instructions',
 
     								/* AMT specific */

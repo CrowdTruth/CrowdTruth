@@ -72,9 +72,9 @@
 
 						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => 'ProcessController@postSubmitSandbox', 'method' => 'POST')) }}
 						@if(Session::has('flashError'))
-							{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg pull-right', 'disabled', 'style' => 'margin-right:20px')); }}
+							{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg btn-default pull-right', 'disabled', 'style' => 'margin-right:20px')); }}
 						@else 
-							{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg pull-right', 'style' => 'margin-right:20px')); }}
+							{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }}
 						@endif
 						{{ Form::close()}}
 

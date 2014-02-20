@@ -107,7 +107,7 @@
 							{{ Form::label('eventType', 'Send e-mail on (AMT only!):', 
 									array('class' => 'col-xs-4 control-label')) }}
 								<div class="input-group col-xs-2">
-									{{ Form::select('eventType',  array('AssignmentAccepted' => 'AssignmentAccepted', 'AssignmentAbandoned' => 'AssignmentAbandoned', 'AssignmentReturned' => 'AssignmentReturned', 'AssignmentSubmitted' => 'AssignmentSubmitted', 'HITReviewable' => 'HITReviewable', 'HITExpired'=>'HITExpired')) }}
+									{{ Form::select('eventType',  array('AssignmentAccepted' => 'AssignmentAccepted', 'AssignmentAbandoned' => 'AssignmentAbandoned', 'AssignmentReturned' => 'AssignmentReturned', 'AssignmentSubmitted' => 'AssignmentSubmitted', 'HITReviewable' => 'HITReviewable', 'HITExpired'=>'HITExpired'), null, array('class' => 'selectpicker')) }}
 								</div>
 							<!--note: removed RequesterAnnotation as it doesn't show up in the response (and we can have our tags locally)-->
 						</fieldset>

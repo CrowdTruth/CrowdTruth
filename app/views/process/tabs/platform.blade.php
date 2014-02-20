@@ -31,6 +31,16 @@
 								<div class="input-group col-xs-2">
 									{{ Form::input('number', 'judgmentsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1')) }}
 								</div>
+								<br>
+								{{ Form::label('countries[]', 'Countries', array('class'=>'col-xs-4 control-label')) }}
+								<div class="input-group col-xs-2">
+									{{ Form::select('countries[]', $countries, null, array('id' => 'countries', 'class'=>'selectpicker', 'data-live-search' => 'true', 'multiple', 'title' => 'Select countries...', 'data-selected-text-format' => 'count>3')) }}
+								<br>
+								<a id="deselectcountries" class='btn btn-small'>None</a>
+								<a id="englishcountries" class='btn btn-small'>English</a>
+								<a id="dutchcountries" class='btn btn-small'>Dutch</a>
+								</div>
+
 							</fieldset><br>	
 						</div>
 						<div id="amt-div" style="padding: 10px;">
@@ -97,7 +107,7 @@
 										'EqualTo' => '==',
 										'NotEqualTo' => '!=',
 										'Exists' => '&exist;'
-									), $o, array('style' => 'margin-right:10px; line-height:29px; height:29px')) }}
+									), $o, array('style' => 'margin-right:10px; line-height:29px; height:29px; width:40px; float:left')) }}
 
 									{{ Form::text("qr[$key][value]", $t, array('class' => 'form-control input-sm', 'style' => 'width:100px')) }}
 									</div>		
