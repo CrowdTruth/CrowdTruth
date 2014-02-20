@@ -359,7 +359,7 @@ class Job {
 
 		// Notification E-Mail
 		if((!$preview) and (!empty($c->notificationEmail)) and (!empty($hittypeid)))
-			$this->mturk->setHITTypeNotification($hittypeid, $c->notificationEmail, 'HITReviewable');
+			$this->mturk->setHITTypeNotification($hittypeid, $c->notificationEmail, $c->eventType);
 
 		return $return;
     }

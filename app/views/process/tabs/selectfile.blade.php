@@ -15,7 +15,10 @@
 						<h4>Select files</h4>
 					</div>
 					<div class="panel-body">
+{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postFormPart', 'submit'), 'method' => 'POST'))}}
 {{ $temp or '' }}
+						{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}
+						{{ Form::close()}}		
 					</div>
 				</div>
 			</div>	

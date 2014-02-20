@@ -177,6 +177,7 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 				$jc = JobConfiguration::fromJSON(Config::get('config.templatedir') . "$ntemplate.json");
 			$template = $ntemplate;
 			$origjobconf = 'jcid'; // TODO!
+			if(empty($jc->eventType)) $jc->eventType = 'HITReviewable'; // Could do more default values here.
 		} else {
 			if (empty($jc)){
 				// No JobConfiguration and no template selected, not good.
@@ -210,7 +211,8 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 
 		try {
 			return Redirect::to("process/$next");
-		} catch (NotFoundHttpException $e) {
+		} catch (Exception $e) {
+			Session::flash('flashError', $e->getMessage()); // Todo: is this a good way? -> logging out due to timeout
 			return Redirect::to("process");
 		}
 	}

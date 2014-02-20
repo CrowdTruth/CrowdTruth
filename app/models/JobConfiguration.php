@@ -25,6 +25,7 @@ class JobConfiguration extends Moloquent {
 									'qualificationRequirement',
 									'assignmentReviewPolicy', 
 									'frameheight',
+									'eventType',
 
     	    						/* CF specific */
     	    						'judgmentsPerWorker',

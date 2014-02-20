@@ -44,7 +44,7 @@ class retrieveAMTJobs extends Command {
 	public function fire()
 	{
 
-		// TODO: Try/catch blocks, UNITID
+		// TODO:  UNITID
 		print("Retrieving jobs....");
 		$turk = new MechanicalTurk;
 
