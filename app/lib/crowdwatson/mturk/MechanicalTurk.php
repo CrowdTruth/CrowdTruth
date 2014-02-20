@@ -21,7 +21,14 @@ class MechanicalTurk {
 	protected $debug;
 	protected $rootURL;
 
-	public function __construct($accesskey = null, $secretkey = null, $rootURL = null, $debug = true){
+	public function __construct($rootURL = null, $debug = true, $accesskey = null, $secretkey = null){
+		if(is_null($rootURL))
+			$this->rootURL = \Config::get('config.amtrooturl');
+		else
+			$this->rootURL = $rootURL;
+
+		$this->debug = $debug;
+
 		if(is_null($accesskey)) 
 			$this->accesskey = \Config::get('config.amtaccesskey');
 		else 
@@ -31,12 +38,14 @@ class MechanicalTurk {
 			$this->secretkey = \Config::get('config.amtsecretkey');
 		else	
 			$this->secretkey = $secretkey;
-		if(is_null($rootURL))
-			$this->rootURL = \Config::get('config.amtrooturl');
-		else
-			$this->rootURL = $rootURL;
 
-		$this->debug = $debug;
+	}
+
+	/**
+	*	Change the root URL, for switching between sandbox and production.
+	*/
+	public function setRootURL($rootURL){
+		$this->rootURL = $rootURL;
 	}
 
 	/**

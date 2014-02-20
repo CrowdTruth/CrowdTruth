@@ -135,7 +135,8 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 			->with('treejson', $treejson)
 			->with('questions',  $questions)
 			->with('table', $jc->toHTML())
-			->with('template', $jc->template);
+			->with('template', $jc->template)
+			->with('frameheight', $jc->frameheight);
 	}
 
 	public function getClearTask(){
@@ -177,7 +178,10 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 				$jc = JobConfiguration::fromJSON(Config::get('config.templatedir') . "$ntemplate.json");
 			$template = $ntemplate;
 			$origjobconf = 'jcid'; // TODO!
-			if(empty($jc->eventType)) $jc->eventType = 'HITReviewable'; // Could do more default values here.
+
+			// DEFAULT VALUES
+			if(empty($jc->eventType)) $jc->eventType = 'HITReviewable'; 
+			if(empty($jc->frameheight)) $jc->frameheight = 650; 
 		} else {
 			if (empty($jc)){
 				// No JobConfiguration and no template selected, not good.
@@ -225,7 +229,7 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 		$template = Session::get('template');
 		$csv = Session::get('csv');
 		
-		//try {
+		try {
 			$j = new Job($csv, $template, $jc);
 			$ids = $j->publish();
 			$msg = 'Created ' .
@@ -234,9 +238,35 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 			(isset($ids['cf']) ? count($ids['cf']) : 0) .
 			 ' on CF.';
 			Session::flash('flashSuccess', $msg);
-	//	} catch (Exception $e) {
-	//		Session::flash('flashError', $e->getMessage());
-	//	}
+		} catch (Exception $e) {
+			Session::flash('flashError', $e->getMessage());
+		}
+
+		return Redirect::to("process/submit");
+		
+	}
+
+	/*
+	* SANDBOX PREVIEW
+	*/
+	public function postSubmitSandbox(){
+		$jc = unserialize(Session::get('jobconf'));
+		$template = Session::get('template');
+		$csv = Session::get('csv');
+		
+		try {
+			$j = new Job($csv, $template, $jc);
+			$ids = $j->publish(true);
+
+			$msg = 'Created ' .
+			(isset($ids['amt']) ? count($ids['amt']) : 0) .
+			 ' jobs on <a href="https://requestersandbox.mturk.com/manage" target="_blank">AMT SANDBOX</a> and ' .
+			(isset($ids['cf']) ? count($ids['cf']) : 0) .
+			 ' UNORDERED jobs on <a href="http://www.crowdflower.com" target="_blank">CF</a>. After previewing them on the platform, click \'Submit and order\' below to submit them for real.';
+			Session::flash('flashSuccess', $msg);
+		} catch (Exception $e) {
+			Session::flash('flashError', $e->getMessage());
+		}
 
 		return Redirect::to("process/submit");
 		

@@ -26,37 +26,41 @@ class Job {
     }
 
    
-    public function publish(){
+    public function publish($sandbox = false){
 		if(isset($this->jobConfiguration->platform)) $platform = $this->jobConfiguration->platform;
 		else $platform = array();
-		
+
 		$ids = array();
 		try {
 			
-			// Create a new activity for this action.
-			$user = Auth::user();
-			$this->activityURI = "/createjob/" . mt_rand(0, 10000); //TODO		
-			$activity = new Activity;
-			$activity->_id = $this->activityURI;
-			$activity->label = "Job is uploaded to crowdsourcing platform(s).";
-			$activity->agent_id = $user->_id; // TODO: has to be $user->agentId or something.
-			$activity->software_id = URL::to('process');
-			$activity->save();
+			if($sandbox)
+				$this->mturk->setRootURL(Config::get('config.amtsandboxurl'));
+			else {	
+				// Create a new activity for this action.
+				$user = Auth::user();
+				$this->activityURI = "/createjob/" . mt_rand(0, 10000); //TODO		
+				$activity = new Activity;
+				$activity->_id = $this->activityURI;
+				$activity->label = "Job is uploaded to crowdsourcing platform(s).";
+				$activity->agent_id = $user->_id; // TODO: has to be $user->agentId or something.
+				$activity->software_id = URL::to('process');
+				$activity->save();
 
-			// Save JobConfiguration (or reference existing). Throws error if not possible.
-			// TODO: might have a parent.
-			$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
+				// Save JobConfiguration (or reference existing). Throws error if not possible.
+				// TODO: might have a parent.
+				$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
+			}
 
 			if(in_array('amt', $platform)){
 				$csvarray = $this->csv_to_array();
 				shuffle($csvarray);
-				$ids['amt'] = $this->amtPublish($csvarray);
-				$this->store('amt', $ids['amt']);
+				$ids['amt'] = $this->amtPublish($csvarray, false);
+				if(!$sandbox) $this->store('amt', $ids['amt']);
 			}
 
 			if(in_array('cf', $platform)){	
-				$ids['cf'] = $this->cfPublish();
-				$this->store('cf', $ids['cf']);
+				$ids['cf'] = $this->cfPublish($sandbox);
+				if(!$sandbox) $this->store('cf', $ids['cf']);
 			}	
 
 
@@ -173,7 +177,7 @@ class Job {
     /**
     * @return String id of published Job
     */
-    private function cfPublish(){
+    private function cfPublish($sandbox){
     	$cfJob = new crowdwatson\Job($this->CFApiKey);
 
     	$c = $this->jobConfiguration;
@@ -223,6 +227,8 @@ class Job {
 						throw new CFExceptions($goldresult['result']['errors'][0]);
 				}
 
+				// TODO: IF NOT SANDBOX, ORDER
+
 				return $id;
 
 			// Failed to create initial job.
@@ -249,7 +255,6 @@ class Job {
     	if(!file_exists($htmlfilename) || !is_readable($htmlfilename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
 
-		if(isset($c->frameheight)) $frameheight = $c->frameheight; else $frameheight = 700;
 		$questionsbuilder = '';
 		$count = 0;
 		$return = array();
@@ -327,17 +332,18 @@ class Job {
 				}
 
 				if($preview){
-					$return[] = strip_tags($questionsbuilder, 
+					$return[] = $questionsbuilder;
+/*					$return[] = strip_tags($questionsbuilder, 
 					"<a><abbr><acronym><address><article><aside><b><bdo><big><blockquote><br>
 					<caption><cite><code><col><colgroup><dd><del><details><dfn><div><dl><dt>
 					<em><figcaption><figure><font><h1><h2><h3><h4><h5><h6><hgroup><hr><i><img>
 					<input><ins><li><map><mark><menu><meter><ol><p><pre><q><rp><rt><ruby><s>
 					<script><samp><section><select><small><span><strong><style><sub><summary>
 					<sup><table><tbody><td><textarea><tfoot><th><thead><time><tr><tt><u><ul>
-					<var><wbr>");
+					<var><wbr>");*/
 				} else {
 					// Set the questions and optionally the gold answers
-				 	$hit->setQuestion($this->amtAddQuestionXML($questionsbuilder, $frameheight));
+				 	$hit->setQuestion($this->amtAddQuestionXML($questionsbuilder, $c->frameheight));
 					if(!empty($assRevPol['AnswerKey']))
 						$hit->setAssignmentReviewPolicy($assRevPol);
 					else ($hit->setAssignmentReviewPolicy(null));
