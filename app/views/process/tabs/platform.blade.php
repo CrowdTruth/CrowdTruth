@@ -136,7 +136,7 @@
 												{{ Form::checkbox("arp[$type][checked]", 'true', $c, array('id' => $type)) }}
 												{{ Form::label($type, $type) }}
 											</span>
-												{{ Form::text("arp[$type][0]", $val, array('class' => 'col-sm-4')) }}
+												{{ Form::text("arp[$type][0]", $val, array('class' => 'col-sm-4 input-sm')) }}
 											<br><br>
 								@endforeach
 							@endif
@@ -145,11 +145,11 @@
 							<br>
 							<fieldset>
 							<legend>AMT Misc.</legend>
-								{{ Form::label('frameheight', 'Frameheight', 
+								{{ Form::label('frameheight', 'Frameheight (px)', 
 									array('class' => 'col-xs-4 control-label')) }}
 								<div class="input-group col-xs-2">
 									{{ Form::input('number','frameheight',  null, 
-										array('class' => 'form-control input-sm', 'min' => '300')) }} px
+										array('class' => 'form-control input-sm', 'min' => '300')) }}
 								</div>
 							</fieldset>		
 						</div>

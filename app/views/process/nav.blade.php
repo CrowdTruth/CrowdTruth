@@ -15,7 +15,7 @@
 <!-- END process_nav   -->   
 <!-- TODO: put this in a better place. -->
 @section('end_javascript')
-<script src="/custom_assets/bootstrap-select.js"></script>
+<script src="/custom_assets/bootstrap-select.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/custom_assets/bootstrap-select.min.css">
 
 <script>
