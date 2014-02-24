@@ -32,7 +32,8 @@ class JobConfiguration extends Moloquent {
 
     	    						/* for our use */
     	    						'answerfields', /* The fields of the CSV file that contain the gold answers. */
-    								'platform'
+    								'platform',
+    								'questionTemplate_id'
     								);
 
     private $errors;
@@ -236,8 +237,8 @@ class JobConfiguration extends Moloquent {
 			$data['max_judgments_per_ip']		= $this->judgmentsPerWorker; // We choose to keep this the same.
 		}
 
-		$data['webhook_uri'] = Config::get('config.cfwebhookuri');
-		$data['send_judgments_webhook'] = 'true';
+/*		$data['webhook_uri'] = Config::get('config.cfwebhookuri');
+		$data['send_judgments_webhook'] = 'true';*/
 		return $data;
 	}
 
@@ -354,7 +355,6 @@ class JobConfiguration extends Moloquent {
 			$entity->tags = array('bla', 'bla', 'bla');
 			$entity->hash = $hash;
 
-			// TODO: questionTemplate_id
 			$entity->content = $newEntityContent;
 			
 			// Ancestors

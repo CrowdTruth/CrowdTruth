@@ -10,7 +10,7 @@ class Entity extends Moloquent {
 	protected $softDelete = true;
 	protected static $unguarded = true;
 
-    public static function boot()
+    protected static function boot()
     {
         parent::boot();
 

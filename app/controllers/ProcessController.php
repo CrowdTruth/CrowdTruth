@@ -16,8 +16,9 @@ class ProcessController extends BaseController {
 
 	public function getSelectfile() {
 		$jc = unserialize(Session::get('jobconf'));
-$batch = Batch::testBatch();
-dd($batch->toArray());
+		$qt = new QuestionTemplate(array('question'=>'question', 
+										'replace' => array('sentence.noPrefix' => array('cause' => 'causes'))));//)
+		$qt->save();
 		$temp = '';
 /*		$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
 		$judg = $cf->getUnitJudgments('380640', '406870708');
