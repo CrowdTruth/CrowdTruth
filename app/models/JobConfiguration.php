@@ -274,13 +274,11 @@ class JobConfiguration extends Moloquent {
 	function array2table($array, $recursive = false, $null = '&nbsp;')
 	{
 	    // Sanity check
-	    if (empty($array) || !is_array($array)) {
+	    if (empty($array) || !is_array($array))
 	        return false;
-	    }
 	 
-	    if (!isset($array[0]) || !is_array($array[0])) {
+	    if (!isset($array[0]) || !is_array($array[0]))
 	        $array = array($array);
-	    }
 	 
 	    // Header row
 	    $table = "<table>\n\t<tr>";
@@ -296,16 +294,11 @@ class JobConfiguration extends Moloquent {
 	            $table .= '<td>';
 	 
 	            // Cast objects
-	            if (is_object($cell)) { $cell = (array) $cell; }
-	             
-	            if ($recursive === true && is_array($cell) && !empty($cell)) {
-	                // Recursive mode
+	            if (is_object($cell)) $cell = (array) $cell;
+	            if ($recursive === true && is_array($cell) && !empty($cell))
 	                $table .= "\n" . $this->array2table($cell, true, true) . "\n";
-	            } else {
-	                $table .= (strlen($cell) > 0) ?
-	                    htmlspecialchars((string) $cell) :
-	                    $null;
-	            }
+	            else
+	                $table .= (strlen($cell) > 0) ? htmlspecialchars((string) $cell) : $null;
 	 
 	            $table .= '</td>';
 	        }
@@ -339,13 +332,12 @@ class JobConfiguration extends Moloquent {
 	 	
 	 	// Create a new activity, but only if there isn't one in the parameters.
 		if (is_null($activityURI)){
-			$activity->type = "jobconf";
 			$activity->label = "JobConfiguration is saved.";
-			$activity->agent_id = $user->_id; // TODO: has to be $user->agentId or something
 			$activity->software_id = 'process';
 			if(!is_null($originalEntity)) 
 				$activity->entity_used_id = $originalEntity->_id;
 			$activity->save();
+			$activityURI = $activity->_id;
 		}
 
 		try {
@@ -354,9 +346,8 @@ class JobConfiguration extends Moloquent {
 			// Mandatory
 			$entity->domain = "medical";
 			$entity->format = "text";
-			$entity->documentType = "jobconf"; // OK? 'TWREX' also is a documenttype...
-			$entity->activity_id = strtolower($activityURI);
-			$entity->agent_id = $user->_id; // TODO: has to be $user->agentId or something
+			$entity->documentType = "jobconf";
+			$entity->activity_id = $activityURI;
 			
 			// Further identification
 			$entity->type = "factor_span";
@@ -368,8 +359,6 @@ class JobConfiguration extends Moloquent {
 			
 			// Ancestors
 			if(!is_null($originalEntity)){
-				$entity->parent_id = $originalEntity->_id;
-				
 				$ancestors = $originalEntity->ancestors;
 				if(is_array($ancestors))
 					array_push($ancestors, $originalEntity->_id);

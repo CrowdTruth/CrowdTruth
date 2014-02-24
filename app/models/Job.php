@@ -8,17 +8,18 @@ use \mongoDB\Entity;
 use \mongoDB\Activity;
 use \MongoDB\SoftwareAgent;
 
-class Job { 
+class Job extends Entity { 
     protected $mturk;
     protected $csv;
+    protected $batch;
     protected $template;
     protected $jobConfiguration;
     protected $jcid;
     protected $activityURI;
 
 
-    public function __construct($csv, $template, $jobConfiguration){
-    	$this->csv = Config::get('config.csvdir') . $csv;
+    public function __construct($batch, $template, $jobConfiguration){
+    	$this->batch = $batch;
     	$this->template = Config::get('config.templatedir') . $template;
     	$this->CFApiKey = Config::get('config.cfapikey');
     	$this->jobConfiguration = $jobConfiguration;
@@ -36,25 +37,21 @@ class Job {
 			if($sandbox)
 				$this->mturk->setRootURL(Config::get('config.amtsandboxurl'));
 			else {	
+								
 				// Create a new activity for this action.
-				$user = Auth::user();
-				$this->activityURI = "/createjob/" . mt_rand(0, 10000); //TODO		
 				$activity = new Activity;
-				$activity->_id = $this->activityURI;
 				$activity->label = "Job is uploaded to crowdsourcing platform(s).";
-				$activity->agent_id = $user->_id; // TODO: has to be $user->agentId or something.
-				$activity->software_id = URL::to('process');
+				$activity->software_id = 'jobcreator';
 				$activity->save();
 
+				$this->activityURI = $activity->_id;
 				// Save JobConfiguration (or reference existing). Throws error if not possible.
 				// TODO: might have a parent.
 				$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
 			}
 
 			if(in_array('amt', $platform)){
-				$csvarray = $this->csv_to_array();
-				shuffle($csvarray);
-				$ids['amt'] = $this->amtPublish($csvarray, false);
+				$ids['amt'] = $this->amtPublish(false);
 				if(!$sandbox) $this->store('amt', $ids['amt']);
 			}
 
@@ -127,15 +124,17 @@ class Job {
     * @return String[] the HTML for every question.
     */
     public function getPreviews(){
-    	return $this->amtPublish($this->csv_to_array(), true);
+    	return $this->amtPublish(true);
     }
 
     /**
     * @return String[] fields from the CSV that have a gold answer.
     */
     public function getGoldFields(){
+
+    	// TODO //
     	$goldfields = array();
-    	foreach (array_keys($this->csv_to_array()[0]) as $key)
+    	foreach (array_keys($this->batch->toArray()[0]) as $key)
 			if ($key != '_golden' and $pos = strpos($key, '_gold') and !strpos($key, '_gold_reason'))
 				$goldfields[$key] = substr($key, 0, $pos);	
     	return $goldfields;
@@ -183,12 +182,14 @@ class Job {
     	$c = $this->jobConfiguration;
 		$data = $c->toCFData();
 		$gold = $c->answerfields;
-		$csv = $this->csv;
+		$csv = $this->batch->toCFCSV();
 		$template = $this->template;
 		$options = array(	"req_ttl_in_seconds" => $c->expirationInMinutes*60, 
 							"keywords" => $c->requesterAnnotation, 
 							"mail_to" => $c->notificationEmail);
     	try {
+
+    		// TODO: check if all the parameters are in the csv.
 
 			// Read the files
 			foreach(array('cml', 'css', 'js') as $ext){
@@ -213,6 +214,7 @@ class Job {
 					throw new CFExceptions($optionsresult['result']['errors'][0]);
 
 				$csvresult = $cfJob->uploadInputFile($id, $csv);
+				//unlink($csv); // DELETE temporary CSV.
 				if(isset($csvresult['result']['errors']))
 					throw new CFExceptions($csvresult['result']['errors'][0]);
 
@@ -256,15 +258,17 @@ class Job {
     /**
     * @return String[] HIT id's or an array of questions in HTML format (if $preview = true)
     */
-    private function amtPublish($csvarray, $preview = false){
+    private function amtPublish($preview = false){
     	$htmlfilename = "{$this->template}.html";
     	if(!file_exists($htmlfilename) || !is_readable($htmlfilename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
 
+		$batch = $this->batch->attributes;
+		shuffle($batch);
+
 		$questionsbuilder = '';
 		$count = 0;
 		$return = array();
-		$unitids = array('TODO');
 		$hittypeid = '';
 		$c = $this->jobConfiguration;
 		$hit = $c->toHit();
@@ -296,8 +300,12 @@ class Job {
 			$questiontemplate = $dom->innertext;
 		}
 
-		foreach ($csvarray as $params) {
-			
+		foreach ($batch as $parameters) {
+			$params = array_dot($parameters['content']);
+
+			$replacerules=array('cause' => 'causes'); // TODO: get these from QUESTIONTEMPLATE
+			$params = str_replace(array_keys($replacerules), $replacerules, $params);
+
 			if($upt>1)	{
 				$count++;
 				$tempquestiontemplate = str_replace('{x}', $count, $questiontemplate);
@@ -307,17 +315,21 @@ class Job {
 			}
 
 			// Insert the parameters
+
 			foreach ($params as $key=>$val)	{	
 				$param = '${' . $key . '}';
 				$tempquestiontemplate = str_replace($param, $val, $tempquestiontemplate);
 			}
 
-			// Change {uid} to the unit id. Input fields should have name: "{uid}_$answerfield"
-			if(!array_key_exists('_unit_id', $params))
-				throw new AMTException('CSV file doesn\'t have a \'_unit_id field\'.');
-			$tempquestiontemplate = str_replace('{uid}', $params['_unit_id'], $tempquestiontemplate);
+			$tempquestiontemplate = str_replace('{uid}', $parameters['_id'], $tempquestiontemplate);
+			
+			/*if(!strpos($questiontemplate, '{instructions}'))
+				throw new AMTException('Template has no {instructions}');*/
+			$tempquestiontemplate = str_replace('{instructions}', nl2br($c->instructions), $tempquestiontemplate);
 
 			// Temporarily store the AnswerKey
+
+			// TODO!
 			if(isset($params['_golden']) and $params['_golden'] == true and !empty($c->answerfields)) {
 				foreach($c->answerfields as $answerfield)
 					$assRevPol['AnswerKey']["{$params['_unit_id']}_$answerfield"] = $params["{$answerfield}_gold"];
@@ -337,17 +349,8 @@ class Job {
 					$questionsbuilder = $dom->save();
 				}
 
-				if($preview){
-					$return[] = $questionsbuilder;
-/*					$return[] = strip_tags($questionsbuilder, 
-					"<a><abbr><acronym><address><article><aside><b><bdo><big><blockquote><br>
-					<caption><cite><code><col><colgroup><dd><del><details><dfn><div><dl><dt>
-					<em><figcaption><figure><font><h1><h2><h3><h4><h5><h6><hgroup><hr><i><img>
-					<input><ins><li><map><mark><menu><meter><ol><p><pre><q><rp><rt><ruby><s>
-					<script><samp><section><select><small><span><strong><style><sub><summary>
-					<sup><table><tbody><td><textarea><tfoot><th><thead><time><tr><tt><u><ul>
-					<var><wbr>");*/
-				} else {
+				if($preview) $return[] = $questionsbuilder;
+				else {
 					// Set the questions and optionally the gold answers
 				 	$hit->setQuestion($this->amtAddQuestionXML($questionsbuilder, $c->frameheight));
 					if(!empty($assRevPol['AnswerKey']))
@@ -362,7 +365,6 @@ class Job {
 					$hittypeid = $created['HITTypeId'];
 				}
 
-				$unitids = array();
 				unset($assRevPol['AnswerKey']);
 				$questionsbuilder = '';
 				$count = 0;
@@ -406,12 +408,11 @@ class Job {
 			$entity->domain = 'medical';
 			$entity->format = 'text';
 			$entity->documentType = 'job';
-			$entity->useragent_id = $user->_id;
 			$entity->activity_id = $this->activityURI;
 			
 			$entity->jobConf_id = $this->jcid;
 			//$entity->template_id = $this->template; // Will probably be part of jobconf
-			$entity->batch_id = $this->csv;			// TODO
+			$entity->batch_id = $this->batch->_id;
 			$entity->software_id = $platform; 
 			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's.
 
@@ -448,7 +449,6 @@ class Job {
 	}
 
 
-
     /**
 	* Convert the HTML from a template (with parameters injected) to a proper AMT Question.
 	* @param string $html 
@@ -480,34 +480,6 @@ class Job {
 	}
 
 
-	/**
-	* Convert a csv file to an array of associative arrays.
-	* @param string $filename Path to the CSV file
-	* @param string $delimiter The separator used in the file
-	* @return array[][]
-	* @throws AMTException if the file is not readable.
-	* @author Jay Williams <http://myd3.com/>
-	*/
-	private function csv_to_array($delimiter=',') {
-		$filename = $this->csv;
-		if(!file_exists($filename) || !is_readable($filename))
-			throw new AMTException('CSV file does not exist or is not readable.');
-
-		$header = NULL;
-		$data = array();
-		if (($handle = fopen($filename, 'r')) !== FALSE)
-		{
-			while (($row = fgetcsv($handle, 1000, $delimiter)) !== FALSE)
-			{
-				if(!$header)
-					$header = $row;
-				else
-					$data[] = array_combine($header, $row);
-			}
-			fclose($handle);
-		} else throw new AMTException('Failed to open CSV file for reading.');
-		return $data;
-	}
 
 }
 ?>

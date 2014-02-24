@@ -1,8 +1,8 @@
 <?php
 
 use crowdwatson\AMTException;
-use crowdwatson\Batch;
-use crowdwatson\Sentence;
+//use MongoDB\Batch;
+use MongoDB\Sentence;
 
 class ProcessController extends BaseController {
 
@@ -16,7 +16,8 @@ class ProcessController extends BaseController {
 
 	public function getSelectfile() {
 		$jc = unserialize(Session::get('jobconf'));
-
+$batch = Batch::testBatch();
+dd($batch->toArray());
 		$temp = '';
 /*		$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
 		$judg = $cf->getUnitJudgments('380640', '406870708');
@@ -77,9 +78,9 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 	public function getDetails() {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
-		$csv = Session::get('csv');
+		$batch = unserialize(Session::get('batch'));
 
-		$j = new Job($csv, $template, $jc);
+		$j = new Job($batch, $template, $jc);
 		$questionids = array();
 		$goldfields = array();
 
@@ -110,12 +111,12 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 	public function getSubmit() {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
-		$csv = Session::get('csv');
-		
+		$batch = unserialize(Session::get('batch'));
+
 		$treejson = $this->makeDirTreeJSON($template, false);
 
 		try {
-			$j = new Job($csv, $template, $jc);
+			$j = new Job($batch, $template, $jc);
 			$questions = $j->getPreviews();
 		} catch (AMTException $e) {
 			$questions = array('couldn\'t generate previews.');
@@ -143,7 +144,7 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 		Session::forget('jobconf');
 		Session::forget('origjobconf');
 		Session::forget('template');
-		Session::forget('csv');
+		Session::forget('batch');
 		return Redirect::to("process/selectfile");
 	}
 
@@ -207,11 +208,12 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 		}
 
 		// TODO: get this from 'selectfile'
-		$csv = 'source359444.csv';
+		$batch = Batch::testBatch();
+		//$csv = 'source359444.csv';
 
 		Session::put('jobconf', serialize($jc));
 		Session::put('template', $template);
-		Session::put('csv', $csv);
+		Session::put('batch', serialize($batch));
 
 		try {
 			return Redirect::to("process/$next");
@@ -227,10 +229,10 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 	public function postSubmitFinal(){
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
-		$csv = Session::get('csv');
+		$batch = unserialize(Session::get('batch'));
 		
 		try {
-			$j = new Job($csv, $template, $jc);
+			$j = new Job($batch, $template, $jc);
 			$ids = $j->publish();
 			$msg = 'Created ' .
 			(isset($ids['amt']) ? count($ids['amt']) : 0) .
@@ -252,10 +254,10 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 	public function postSubmitSandbox(){
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
-		$csv = Session::get('csv');
+		$batch = unserialize(Session::get('batch'));
 		
 		try {
-			$j = new Job($csv, $template, $jc);
+			$j = new Job($batch, $template, $jc);
 			$ids = $j->publish(true);
 
 			$msg = 'Created ' .

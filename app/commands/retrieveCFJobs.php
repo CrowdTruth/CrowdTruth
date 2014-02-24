@@ -112,7 +112,6 @@ class retrieveCFJobs extends Command {
 			if(!$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('platform_id', 'cf')->first()){
 				$agent = new CrowdAgent;
 				$agent->_id= "/crowdagent/cf/{$judgment['worker_id']}";
-				$agent->used = 'todo. UnitId?';
 				$agent->platform_id= 'cf';
 				$agent->platformAgentId = $judgment['worker_id'];
 				$agent->country = $judgment['country'];
@@ -126,10 +125,9 @@ class retrieveCFJobs extends Command {
 			// Create activity: annotate
 			// TODO: (possibly) check if exists?
 			$activity = new Activity;
-			$activity->_id = mt_rand(0,10000);
 			$activity->label = "Unit is annotated on crowdsourcing platform.";
-			$activity->agent_id = $agent->_id; 
-			$activity->used = 'todo. UnitId?';
+			$activity->crowdAgent_id = $agent->_id; 
+			$activity->used = $job->_id;
 			$activity->software_id = 'cf';
 			$activity->save();
 
@@ -139,7 +137,7 @@ class retrieveCFJobs extends Command {
 			$aentity->format = $job->format;
 			$aentity->job_id = $job->_id;
 			$aentity->activity_id = $activity->_id;
-			$aentity->agent_id = $agent->_id;
+			$aentity->crowdAgent_id = $agent->_id;
 			$aentity->software_id = 'cf';
 			$aentity->unit_id = 'todo';
 			$aentity->platformAnnotationId = $judgment['id'];

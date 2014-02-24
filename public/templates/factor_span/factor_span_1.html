@@ -8,29 +8,29 @@ If you choose YES, highlight all the pairs of WORD PHRASES which can be put toge
 <br />
 If you choose NO, give a brief motivation for your choice.</div>
 
-<p style="color:#0000CD; border-style:dotted; border-color:black;"><em><span class="senval" id="senval" style="span:hover { background-color:silver; }">${sentence}</span></em></p>
+<p style="color:#0000CD; border-style:dotted; border-color:black;"><em><span class="senval" id="senval" style="span:hover { background-color:silver; }">${sentence.text}</span></em></p>
 
-<p>In the SENTENCE above, can you identify any WORD PHRASES that form a <span style="color:#0000CD;"><em>${relation}</em></span> relation?</p>
+<p>In the SENTENCE above, can you identify any WORD PHRASES that form a <span style="color:#0000CD;"><em>${relation.noPrefix}</em></span> relation?</p>
 
 <p><input checked="checked" id="WPFound" name="WPFound" onclick="answersFound();" type="radio" value="Found" /> YES, the following WORD PHRASE(S) can be found:</p>
 
 <div id="wordphrases">
-<p id="P1"><input id="Q1" name="Q1" size="20" type="text" value="" /> <span style="color:#0000CD;"><em>${relation}</em></span> <input id="Q2" name="Q2" size="20" type="text" value="" /> <img height="20" id="BM1" name="BM1" onclick="minusButton(1);" src="http://www.ancad.ro/wp-content/uploads/2013/12/minus-icon.png" style="visibility:hidden;" type="image" width="20" /> <img height="20" id="BP1" name="BP1" onclick="plusButton(1);" src="http://www.ancad.ro/wp-content/uploads/2013/12/plus-icon.png" type="image" width="20" /><br />
+<p id="P1"><input id="Q1" name="Q1" size="20" type="text" value="" /> <span style="color:#0000CD;"><em>${relation.noPrefix}</em></span> <input id="Q2" name="Q2" size="20" type="text" value="" /> <img height="20" id="BM1" name="BM1" onclick="minusButton(1);" src="http://www.ancad.ro/wp-content/uploads/2013/12/minus-icon.png" style="visibility:hidden;" type="image" width="20" /> <img height="20" id="BP1" name="BP1" onclick="plusButton(1);" src="http://www.ancad.ro/wp-content/uploads/2013/12/plus-icon.png" type="image" width="20" /><br />
 <input id="nextWP1" name="nextWP1" type="checkbox" value="nextWP1" />Done with the first argument <input id="A1span" name="A1span" type="hidden" /> <input id="A2span" name="A2span" type="hidden" /></p>
 
-<p id="P2" style="visibility:hidden;"><input id="Q3" name="Q3" size="20" type="text" value="" /> <span style="color:#0000CD;"><em>${relation}</em></span> <input id="Q4" name="Q4" size="20" type="text" value="" /> <img id="BM2" name="BM2" onclick="minusButton(2);" src="http://www.ancad.ro/wp-content/uploads/2013/12/minus-icon.png" type="image" width="20" /> <img height="20" id="BP2" name="BP2" onclick="plusButton(2);" src="http://www.ancad.ro/wp-content/uploads/2013/12/plus-icon.png" type="image" width="20" /><br />
+<p id="P2" style="visibility:hidden;"><input id="Q3" name="Q3" size="20" type="text" value="" /> <span style="color:#0000CD;"><em>${relation.noPrefix}</em></span> <input id="Q4" name="Q4" size="20" type="text" value="" /> <img id="BM2" name="BM2" onclick="minusButton(2);" src="http://www.ancad.ro/wp-content/uploads/2013/12/minus-icon.png" type="image" width="20" /> <img height="20" id="BP2" name="BP2" onclick="plusButton(2);" src="http://www.ancad.ro/wp-content/uploads/2013/12/plus-icon.png" type="image" width="20" /><br />
 <input id="nextWP2" name="nextWP2" type="checkbox" value="nextWP2" />Done with the first argument <input id="A3span" name="A3span" type="hidden" /> <input id="A4span" name="A3span" type="hidden" /></p>
 
-<p id="P3" style="visibility:hidden;"><input id="Q5" name="Q5" size="20" type="text" value="" /> <span style="color:#0000CD;"><em>${relation}</em></span> <input id="Q6" name="Q6" size="20" type="text" value="" /> <img id="BM3" name="BM3" onclick="minusButton(3);" src="http://www.ancad.ro/wp-content/uploads/2013/12/minus-icon.png" type="image" width="20" /><br />
+<p id="P3" style="visibility:hidden;"><input id="Q5" name="Q5" size="20" type="text" value="" /> <span style="color:#0000CD;"><em>${relation.noPrefix}</em></span> <input id="Q6" name="Q6" size="20" type="text" value="" /> <img id="BM3" name="BM3" onclick="minusButton(3);" src="http://www.ancad.ro/wp-content/uploads/2013/12/minus-icon.png" type="image" width="20" /><br />
 <input id="nextWP3" name="nextWP3" type="checkbox" value="nextWP3" />Done with the first argument <input id="A5span" name="A5span" type="hidden" /> <input id="A6span" name="A6span" type="hidden" /></p>
 </div>
 
-<p><input id="WPNotFound" name="WPFound" onclick="answersNotFound();" type="radio" value="NotFound" /> NO WORD PHRASES can be found in connection with the ${relation} relation.</p>
+<p><input id="WPNotFound" name="WPFound" onclick="answersNotFound();" type="radio" value="NotFound" /> NO WORD PHRASES can be found in connection with the ${relation.noPrefix} relation.</p>
 
 <p>Motivate your choice:<br />
 <textarea cols="50" id="NotFoundReason" name="NotFoundReason" rows="5"></textarea></p>
 
-<p><span id="relval" style="visibility:hidden;">${relation}</span> <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script> <script type="text/javascript">
+<p><span id="relval" style="visibility:hidden;">${relation.noPrefix}</span> <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script> <script type="text/javascript">
 			
 			var answers = 1;
 			var colors = new Array("yellow", "orange", "greenyellow", "aqua", "bisque", "plum");

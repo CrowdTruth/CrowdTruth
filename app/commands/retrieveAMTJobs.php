@@ -91,7 +91,7 @@ class retrieveAMTJobs extends Command {
 						// Sometimes, there's more entities. But if there's at least one, we know we retrieved the Assignment.
 
 						if($aentity) { // ASSIGNMENT already in DB.
-							
+							// TODO: THIS is not aligned to the new situation.
 							$oldstatus = $aentity->status;
 							$newstatus = $assignment['AssignmentStatus'];
 
@@ -110,40 +110,47 @@ class retrieveAMTJobs extends Command {
 							
 							// Create activity: annotate
 							$activity = new Activity;
-							$activity->_id = mt_rand(0,10000);
 							$activity->label = "Unit is annotated on crowdsourcing platform.";
-							$activity->agent_id = $agentId; 
-							$activity->used = 'todo. UnitId?';
+							$activity->crowdAgent_id = $agentId; 
+							$activity->used = $jobId;
 							$activity->software_id = 'amt';
 							$activity->save();
 
 							// Create entity FOR EACH UNIT
-
-							// OPTIONAL: we could create an ASSIGNMENT entity to hold the metadata.
-
+														// OPTIONAL: we could create an ASSIGNMENT entity to hold the metadata.
+							$sortedbyid = array();
 							foreach ($assignment['Answer'] as $q=>$ans){
-								// TODO Do some tricks with UNITID's; Sometimes there are more answerfields in 1 UNIT.
+								// Retrieve the unitID and the QuestionId from the name of the input field.
+								//$unitid_qid = explode("_", $q);
+								$split = strrpos($q, "_");
+								$unitid = substr($q, 0, $split);
+								$qid = substr($q, $split+1);
+								$sortedbyid[$unitid][$qid] = $ans;
+								// sortedbyid[unitid][questionid] = answer
+							}
+							
 
+							foreach($sortedbyid as $uid=>$qidansarray){
+								// create hash, check hash.
 								$aentity = new Entity;
 								$aentity->documentType = 'annotation';
-								$aentity->domain = $entity->domain;
-								$aentity->format = $entity->format;
+								$aentity->domain = $job->domain;
+								$aentity->format = $job->format;
 								$aentity->activity_id = $activity->_id;
-								$aentity->agent_id = $agentId;
+								$aentity->crowdAgent_id = $agentId;
 								$aentity->software_id = 'amt';
 								$aentity->job_id = $jobId;
-								$aentity->unit_id = 'todo';
+								$aentity->unit_id = $uid;
 								$aentity->platformAnnotationId = $assignment['AssignmentId'];
 								$aentity->acceptTime = $assignment['AcceptTime'];
 								$aentity->submitTime = $assignment['SubmitTime'];
-								$aentity->content = $ans;
+								$aentity->content = $qidansarray;
 								$aentity->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
 								$aentity->save();
 
 								$newannotationscount++;
 
 							}
-
 
 							/*
 								Possibly also:
