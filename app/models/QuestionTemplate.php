@@ -7,7 +7,7 @@ use MongoDB\Activity;
 class QuestionTemplate extends Entity {
 
 	
-	protected $fillable = array('question', 'replace', 'format', 'documentType', 'domain');
+	//protected $fillable = array('question', 'replace', 'format', 'documentType', 'domain');
 	protected $attributes = array('format' => 'text', 'domain' => 'medical', 'documentType' => 'questiontemplate');
 	
     public static function boot ()
@@ -32,8 +32,6 @@ class QuestionTemplate extends Entity {
                     throw new Exception('Error saving activity.');
                 }
             }
-            //$this->$format = 'text';
-            //$this->$domain = 'medical';
         });
     }
 
