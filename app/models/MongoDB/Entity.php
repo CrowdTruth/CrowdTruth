@@ -49,18 +49,20 @@ class Entity extends Moloquent {
 
             if(empty($entity->_id))
                 $entity->_id = 'entity/' . $baseURI;
-        //    dd($entity->_id);
+           
             $entity->hash = $hash;
+
+        });
+
+        static::saved(function($entity)
+        {
+            $baseURI = static::generateIncrementedBaseURI($entity);
 
             if(is_null($entity->activity_id))
             {
                 $entity->activity_id = 'activity/' . $baseURI;
             }
-            
-        });
 
-        static::saved(function($entity)
-        {
             Cache::flush();
         });
 
@@ -71,11 +73,12 @@ class Entity extends Moloquent {
     }
 
     public static function generateIncrementedBaseURI($entity){
-        $lastMongoURIUsed = Entity::where('domain', $entity->domain)->where("documentType", $entity->documentType)->get(array("_id"))->sortBy(function($entity)
+   
+        $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->get(array("_id"))->sortBy(function($entity)
         {
             return $entity->_id;
         }, SORT_NATURAL)->toArray();
-
+ 
         if(!end($lastMongoURIUsed)){
             $id = 0;
         } else {
