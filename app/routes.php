@@ -45,4 +45,7 @@ Route::group(array('before' => 'auth'), function()
 Route::resource('api/v1/', '\Api\v1\apiController', array('only' => array('index', 'show')));
 Route::resource('api/v2/', '\Api\v2\apiController', array('only' => array('index', 'show')));
 
+Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
+
+
 Route::controller('user', 'UserController');
