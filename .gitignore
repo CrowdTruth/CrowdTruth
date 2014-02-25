@@ -1,8 +1,8 @@
 /app/config/config.php
 /bootstrap/compiled.php
 /vendor
-composer.phar
-composer.lock
+/composer.phar
+/composer.lock
 .DS_Store
 Thumbs.db
 /.idea

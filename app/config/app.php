@@ -65,7 +65,7 @@ return array(
 	|
 	*/
 
-	'key' => 'LrySHCazG5tOuWHrR0C9AGnA86BW65tk',
+	'key' => 'r4nD4pTDU3maRLkWvAkWMYlfmrzp6QXq',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -110,7 +110,6 @@ return array(
 		'Codesleeve\AssetPipeline\AssetPipelineServiceProvider',
 		'Jenssegers\Mongodb\MongodbServiceProvider',
 		'Gloudemans\Shoppingcart\ShoppingcartServiceProvider',
-		'Way\Generators\GeneratorsServiceProvider'
 	),
 
 	/*

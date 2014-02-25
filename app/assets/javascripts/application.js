@@ -14,4 +14,4 @@
 //= require bootstrap.min.js
 //= require holder.js
 //= require jstree.min.js
-//= require_directory angular
+//= require_tree angular

@@ -17,7 +17,7 @@ class QuestionTemplate extends Entity {
         static::saving(function ( $questiontemplate )
         {
             if(empty($questiontemplate->activity_id)){
-                try {
+               // try {
                     $activity = new Activity;
                     $activity->label = "Questiontemplate is saved.";
                     $activity->software_id = 'templatebuilder';
@@ -26,11 +26,11 @@ class QuestionTemplate extends Entity {
                     $activity->save();
                     $questiontemplate->activity_id = $activity->_id;
 
-                } catch (Exception $e) {
+               // } catch (Exception $e) {
 
-                    if($activity) $activity->forceDelete();
-                    throw new Exception('Error saving activity.');
-                }
+                //    if($activity) $activity->forceDelete();
+                 //   throw new Exception('Error saving activity.');
+             //   }
             }
         });
     }
