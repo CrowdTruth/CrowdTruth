@@ -1,41 +1,30 @@
 @extends('layouts.default')
+@section('head')
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+<script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/restangular/1.3.1/restangular.min.js"></script>
+<!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js"></script> -->
+@stop
 
 @section('content')
-
-			<div class="col-xs-10 col-md-offset-1">
-				<div class='maincolumn CW_box_style'>
-
-					<div class="tab">
-						@include('postprocess.nav')
-						<strong>Table view for crowdtasks: </strong>
-						@foreach($crowdtasks as $crowdtask)
-	              			<table>
-	              				<tr>
-	              					<td>{{$crowdtask->title}}</td><td> {{$crowdtask->template}}</td>
-	              				</tr>
-	              			</table>
-
-
-						@endforeach
-						
-						<script src="http://codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
-							<script>
-								//todo change to cost per job
-								$(document).ready(calculate());
-
-							    function calculate(){
-							        var reward = {{$crowdtask->reward}};
-							        var maxAssignments = {{$crowdtask->maxAssignments}};
-							        //var sentences = $
-									var cost = reward*maxAssignments;
-									var result = " $ " + cost.toFixed(2);
-							        document.getElementById('totalCost').innerHTML=result;
-							    } 
-							</script>
-
-
-
-					</div> 
+	<div class="container" ng-app="dataRetrieval">
+		<div class"row">
+			<div class="col-md-10">
+				<div ng-controller="restangularCtrl">
+					@{{job}}
 				</div>
+				
+				<div></div>
 			</div>
+		</div>
+	</div>
+
 @stop
+
+@section('end_javascript')
+<script>
+
+</script>
+
+@stop
+
