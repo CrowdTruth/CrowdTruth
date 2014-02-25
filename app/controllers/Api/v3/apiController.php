@@ -6,6 +6,7 @@ use \BaseController as BaseController;
 use \Input as Input;
 use \URL as URL;
 use \Response as Response;
+use \Paginator as Paginator;
 
 use \MongoDB\Repository as Repository;
 use \MongoDB\Entity as Entity;
@@ -13,6 +14,13 @@ use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDB\CrowdAgent as CrowdAgent;
 
+/**
+ * This apiController is used merely in the result view,
+ *
+ * it therefore only retrieves jobConfigurations + jobs.
+ *
+ * Optimal url for : /page/1/creator/jelle/sort/completion/ or /?page=1&sort=completion&filter[creator]=jelle
+ */
 class apiController extends BaseController {
 
 	protected $repository;
@@ -34,25 +42,19 @@ class apiController extends BaseController {
 	 * @return Response
 	 */
 	public function index()
-	{	// Create new JobResult Object
+	{	//Get all job-object
+		
+		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job');
 
-			//Get jobconf-object
+		// Append jobconf-object
+		$jobs = array();
 
-			//Array_push job-object
-
-			//Calculate
-				//totalJudgments
-
-				//Elapsed time
-
-				//totalCost
-
-
-				//Completions
-
-		// Paginate them, current page, page of choice etc.
-
-
+		foreach($documents as $job)
+		{	
+			//todo hasConfiguration method is added to Entity until we have a new job class 
+			array_push($jobs, $job->hasConfiguration->toArray());
+		}
+		
 		// Make sort possible on 
 			//completion
 
@@ -64,7 +66,22 @@ class apiController extends BaseController {
 
 			//Job size
 		
-		return Response::json($documents);
+		//Filter on wished for fields using using field of v2 
+
+
+		// Paginate results, current page, page of choice etc.
+
+		if(!$perPage = (int) Input::get('perpage'))
+		{
+			$perPage = 15;
+		}
+		
+		
+		$paginator = Paginator::make($jobs, count($documents), $perPage);
+
+		//Return paginator
+
+		return Response::json($paginator);
 
 
 	}
