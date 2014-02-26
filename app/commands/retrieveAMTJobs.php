@@ -9,21 +9,21 @@ use \mongoDB\CrowdAgent;
 use \mongoDB\Activity;
 use \mongoDB\Agent;
 
-class retrieveJobs extends Command {
+class retrieveAMTJobs extends Command {
 
 	/**
 	 * The console command name.
 	 *
 	 * @var string
 	 */
-	protected $name = 'command:retrievejobs';
+	protected $name = 'command:retrieveamtjobs';
 
 	/**
 	 * The console command description.
 	 *
 	 * @var string
 	 */
-	protected $description = 'Retrieve the information on the jobs from the different platforms.';
+	protected $description = 'Retrieve the information on the jobs from Mechanical Turk.';
 
 	/**
 	 * Create a new command instance.
@@ -44,18 +44,17 @@ class retrieveJobs extends Command {
 	public function fire()
 	{
 
-		// TODO: Try/catch blocks, UNITID
-
+		// TODO:  UNITID
 		print("Retrieving jobs....");
 		$turk = new MechanicalTurk;
 
 		// Todo optimize query.
 		$jobs = Entity::where('documentType', 'job')->where('software_id', 'amt')->orderBy('created_at', 'desc')->get();
-		foreach($jobs as $entity){
-
+		foreach($jobs as $job){
+			$newannotationscount = 0;
 			$newplatformhitid = array();
 			$newstatus = 'review'; // if this doesn't change, nothing is running anymore, so 'review'. This doesn't work with disposed yet..
-			foreach($entity->platformJobId as $hitid){
+			foreach($job->platformJobId as $hitid){
 				
 				if($hitid['status'] == 'Disposed') // Can't recover from that.
 					$newplatformhitid[] = $hitid;
@@ -65,9 +64,9 @@ class retrieveJobs extends Command {
 					$h = $hit->toArray();
 
 					//Do this once:
-					if(empty($entity->HITGroupId)) $entity->HITGroupId = $h['HITGroupId'];
-					if(empty($entity->Expiration)) $entity->Expiration = $h['Expiration'];
-					if(empty($entity->HITTypeId)) $entity->HITTypeId = $h['HITTypeId'];
+					if(empty($job->HITGroupId)) $job->HITGroupId = $h['HITGroupId'];
+					if(empty($job->Expiration)) $job->Expiration = $h['Expiration'];
+					if(empty($job->HITTypeId)) $job->HITTypeId = $h['HITTypeId'];
 
 
 					if($h['HITStatus'] == 'Assignable' or $h['HITStatus'] == 'Unassignable')
@@ -78,18 +77,9 @@ class retrieveJobs extends Command {
 					
 					// todo: IF each is disposed, newstatus = deleted.
 
-					// Change status and save.
-					$oldstatus = $entity->status;
-					$entity->status = $newstatus; 
-					if($newstatus != $oldstatus)
-						Log::debug("Status of job {$entity->_id} changed from $oldstatus to $newstatus");
-
-					// Save JOB with new status.
-					$entity->update();
 
 					// Get Assignments.
-					$newassignmentscount = 0;
-					$jobId = $entity->_id;
+					$jobId = $job->_id;
 					$assignments = $turk->getAssignmentsForHIT($hitid['id']);
 					print 'Got ' . count($assignments) . " Assignments for {$hitid['id']}\n";
 					
@@ -101,7 +91,7 @@ class retrieveJobs extends Command {
 						// Sometimes, there's more entities. But if there's at least one, we know we retrieved the Assignment.
 
 						if($aentity) { // ASSIGNMENT already in DB.
-							
+							// TODO: THIS is not aligned to the new situation.
 							$oldstatus = $aentity->status;
 							$newstatus = $assignment['AssignmentStatus'];
 
@@ -120,62 +110,94 @@ class retrieveJobs extends Command {
 							
 							// Create activity: annotate
 							$activity = new Activity;
-							$activity->_id = mt_rand(0,10000);
 							$activity->label = "Unit is annotated on crowdsourcing platform.";
-							$activity->agent_id = $agentId; 
-							$activity->used = 'todo. UnitId?';
+							$activity->crowdAgent_id = $agentId; 
+							$activity->used = $jobId;
 							$activity->software_id = 'amt';
 							$activity->save();
 
 							// Create entity FOR EACH UNIT
-
-							// OPTIONAL: we could create an ASSIGNMENT entity to hold the metadata.
-
+														// OPTIONAL: we could create an ASSIGNMENT entity to hold the metadata.
+							$sortedbyid = array();
 							foreach ($assignment['Answer'] as $q=>$ans){
-								// TODO Do some tricks with UNITID's; Sometimes there are more answerfields in 1 UNIT.
+								// Retrieve the unitID and the QuestionId from the name of the input field.
+								//$unitid_qid = explode("_", $q);
+								$split = strrpos($q, "_");
+								$unitid = substr($q, 0, $split);
+								$qid = substr($q, $split+1);
+								$sortedbyid[$unitid][$qid] = $ans;
+								// sortedbyid[unitid][questionid] = answer
+							}
+							
 
+							foreach($sortedbyid as $uid=>$qidansarray){
+								// create hash, check hash.
 								$aentity = new Entity;
 								$aentity->documentType = 'annotation';
-								$aentity->domain = $entity->domain;
-								$aentity->format = $entity->format;
+								$aentity->domain = $job->domain;
+								$aentity->format = $job->format;
 								$aentity->activity_id = $activity->_id;
-								$aentity->agent_id = $agentId;
+								$aentity->crowdAgent_id = $agentId;
 								$aentity->software_id = 'amt';
 								$aentity->job_id = $jobId;
-								$aentity->unit_id = 'todo';
+								$aentity->unit_id = $uid;
 								$aentity->platformAnnotationId = $assignment['AssignmentId'];
 								$aentity->acceptTime = $assignment['AcceptTime'];
-								$aentity->content = $ans;
+								$aentity->submitTime = $assignment['SubmitTime'];
+								$aentity->content = $qidansarray;
 								$aentity->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
 								$aentity->save();
 
+								$newannotationscount++;
+
 							}
-
-
-
-
 
 							/*
 								Possibly also:
 
 								HITId				2P3Z6R70G5RC7PEQC857ZSST0J2P9T
 								AutoApprovalTime	2014-02-06T13:10:01Z
-								AcceptTime			2014-02-04T13:08:00Z
-								SubmitTime			2014-02-04T13:10:01Z
 								ApprovalTime		2014-02-04T13:11:00Z
 								RejectionTime	
 								Deadline	
 								// or our own field: the difference between accept and submit.
 							*/
-							$newassignmentscount++;
+							
 
 						}
 
-						if($newassignmentscount>0)
-							Log::debug("Got $newassignmentscount new Assignments for {$h['HITId']} - total " . count($assignments));
+						if($newannotationscount>0){
+							Log::debug("Got $newannotationscount new Assignments for {$h['HITId']} - total " . count($assignments));
+
+						}
+						
+
+
 					} // foreach assignment
 				} // if / else				
 			} // foreach hit
+
+
+
+			$job->annotationsCount = intval($job->annotationsCount)+$newannotationscount;
+			$jpu = intval(Entity::find($job->jobConf_id)->first()->content['judgmentsPerUnit']);
+			$uc = intval($job->unitsCount);
+			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
+			else $job->completion = 0.00;
+
+			// Change status and save.
+			$oldstatus = $job->status;
+			$job->status = $newstatus;
+			// if($job->completion == 1) $newstatus = 'finished';
+			if($newstatus != $oldstatus)
+				Log::debug("Status of job {$job->_id} changed from $oldstatus to $newstatus");
+
+			// Save JOB with new status and completion.
+			$job->save();
+
+
+
+
 		} // foreach JOB
 	}		
 

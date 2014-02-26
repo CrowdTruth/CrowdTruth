@@ -16,7 +16,7 @@ class JobConfiguration extends Moloquent {
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
     								'notificationEmail',
     								'requesterAnnotation',
-    								'country', /* TODO: UI */
+    								'countries',
     								'instructions',
 
     								/* AMT specific */
@@ -25,13 +25,15 @@ class JobConfiguration extends Moloquent {
 									'qualificationRequirement',
 									'assignmentReviewPolicy', 
 									'frameheight',
+									'eventType',
 
     	    						/* CF specific */
     	    						'judgmentsPerWorker',
 
     	    						/* for our use */
     	    						'answerfields', /* The fields of the CSV file that contain the gold answers. */
-    								'platform'
+    								'platform',
+    								'questionTemplate_id'
     								);
 
     private $errors;
@@ -223,17 +225,20 @@ class JobConfiguration extends Moloquent {
 	}
 
 	public function toCFData(){
-		// not yet implemented: max_judgments_per_ip, webhook_uri, send_judgments_webhook => true, instructions, css, js, cml
 		$data = array();
 
 		if (!empty($this->title)) 			 	$data['title']					 	= $this->title; 
 		if (!empty($this->instructions)) 		$data['instructions']				= $this->instructions; 
-		//if (!empty($this->keywords)) 			$data['Keywords']				  		($this->keywords);
 		if (!empty($this->judgmentsPerUnit)) 	$data['judgments_per_unit']		  	= $this->judgmentsPerUnit;
-		//if (!empty($this->expirationInMinutes))$data['AssignmentDurationInSeconds'] 	($this->expirationInMinutes*60);
-		if (!empty($this->reward)) 				$data['payment_cents']				= $this->reward*100;
+
 		if (!empty($this->unitsPerTask))		$data['units_per_assignment']		= $this->unitsPerTask;
-		if (!empty($this->judgmentsPerWorker))	$data['max_judgments_per_worker']	= $this->judgmentsPerWorker;
+		if (!empty($this->judgmentsPerWorker))	{
+			$data['max_judgments_per_worker']	= $this->judgmentsPerWorker;
+			$data['max_judgments_per_ip']		= $this->judgmentsPerWorker; // We choose to keep this the same.
+		}
+
+/*		$data['webhook_uri'] = Config::get('config.cfwebhookuri');
+		$data['send_judgments_webhook'] = 'true';*/
 		return $data;
 	}
 
@@ -270,13 +275,11 @@ class JobConfiguration extends Moloquent {
 	function array2table($array, $recursive = false, $null = '&nbsp;')
 	{
 	    // Sanity check
-	    if (empty($array) || !is_array($array)) {
+	    if (empty($array) || !is_array($array))
 	        return false;
-	    }
 	 
-	    if (!isset($array[0]) || !is_array($array[0])) {
+	    if (!isset($array[0]) || !is_array($array[0]))
 	        $array = array($array);
-	    }
 	 
 	    // Header row
 	    $table = "<table>\n\t<tr>";
@@ -292,16 +295,11 @@ class JobConfiguration extends Moloquent {
 	            $table .= '<td>';
 	 
 	            // Cast objects
-	            if (is_object($cell)) { $cell = (array) $cell; }
-	             
-	            if ($recursive === true && is_array($cell) && !empty($cell)) {
-	                // Recursive mode
+	            if (is_object($cell)) $cell = (array) $cell;
+	            if ($recursive === true && is_array($cell) && !empty($cell))
 	                $table .= "\n" . $this->array2table($cell, true, true) . "\n";
-	            } else {
-	                $table .= (strlen($cell) > 0) ?
-	                    htmlspecialchars((string) $cell) :
-	                    $null;
-	            }
+	            else
+	                $table .= (strlen($cell) > 0) ? htmlspecialchars((string) $cell) : $null;
 	 
 	            $table .= '</td>';
 	        }
@@ -335,13 +333,12 @@ class JobConfiguration extends Moloquent {
 	 	
 	 	// Create a new activity, but only if there isn't one in the parameters.
 		if (is_null($activityURI)){
-			$activity->type = "jobconf";
 			$activity->label = "JobConfiguration is saved.";
-			$activity->agent_id = $user->_id; // TODO: has to be $user->agentId or something
 			$activity->software_id = 'process';
 			if(!is_null($originalEntity)) 
 				$activity->entity_used_id = $originalEntity->_id;
 			$activity->save();
+			$activityURI = $activity->_id;
 		}
 
 		try {
@@ -350,22 +347,18 @@ class JobConfiguration extends Moloquent {
 			// Mandatory
 			$entity->domain = "medical";
 			$entity->format = "text";
-			$entity->documentType = "jobconf"; // OK? 'TWREX' also is a documenttype...
-			$entity->activity_id = strtolower($activityURI);
-			$entity->agent_id = $user->_id; // TODO: has to be $user->agentId or something
+			$entity->documentType = "jobconf";
+			$entity->activity_id = $activityURI;
 			
 			// Further identification
 			$entity->type = "factor_span";
 			$entity->tags = array('bla', 'bla', 'bla');
 			$entity->hash = $hash;
 
-			// TODO: questionTemplate_id
 			$entity->content = $newEntityContent;
 			
 			// Ancestors
 			if(!is_null($originalEntity)){
-				$entity->parent_id = $originalEntity->_id;
-				
 				$ancestors = $originalEntity->ancestors;
 				if(is_array($ancestors))
 					array_push($ancestors, $originalEntity->_id);

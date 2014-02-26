@@ -20,6 +20,8 @@
 						<br>
 						<fieldset>	
 							<legend>Questions</legend>
+							This is based on the AMT HTML template.<br><br>
+
 							<div id="question-carousel" class="carousel slide" data-ride="carousel">
 							  <!-- Indicators -->
 							  <ol class="carousel-indicators">
@@ -34,7 +36,8 @@
 							 	@foreach($questions as $question)
 							 		<?php $count++; ?>
 									 <div class="item <?php if($count == 1) echo 'active'; ?>">
-									{{ $question }}
+									
+							<iframe width="890"; height="{{ $frameheight }}" seamless sandbox="allow-scripts" srcdoc="{{ htmlentities($question) }}"></iframe>
 									<div class="carousel-caption" style="color:black; font-size:2em;">
 								        {{ $count }}
 								      </div>
@@ -45,27 +48,38 @@
 							  </div>
 
 							  <!-- Controls -->
-							  <a class="left carousel-control" href="#question-carousel" data-slide="prev" style="background:none">
+							  <a class="left carousel-control" href="#question-carousel" data-slide="prev" style="background:none; height:50px; top:45%">
 							    <span class="fa fa-chevron-left" style="color:black; position:absolute; top:50%"></span>
 							  </a>
-							  <a class="right carousel-control" href="#question-carousel" data-slide="next" style="background:none">
+							  <a class="right carousel-control" href="#question-carousel" data-slide="next" style="background:none; height:50px; top:45%">
 							    <span class="fa fa-chevron-right" style="color:black; position:absolute; top:50%"></span>
 							  </a>
 							</div>
 
 
-						</fieldset>
+
+						</fieldset><br><br>
 						<button class="btn btn-default btn-lg pull-left" data-toggle="modal" data-target="#myModal">
 						  Save settings
 						</button>
-
 						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => 'ProcessController@postSubmitFinal', 'method' => 'POST')) }}
 						@if(Session::has('flashError'))
-							{{ Form::submit('Submit', array('class' => 'btn btn-lg btn-primary pull-right', 'disabled')); }}
+							{{ Form::submit('Submit and order', array('class' => 'btn btn-lg btn-primary pull-right', 'disabled')); }}
 						@else 
-							{{ Form::submit('Submit', array('class' => 'btn btn-lg btn-primary pull-right')); }}
+							{{ Form::submit('Submit and order', array('class' => 'btn btn-lg btn-primary pull-right')); }}
 						@endif
 						{{ Form::close()}}	
+
+						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => 'ProcessController@postSubmitSandbox', 'method' => 'POST')) }}
+						@if(Session::has('flashError'))
+							{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg btn-default pull-right', 'disabled', 'style' => 'margin-right:20px')); }}
+						@else 
+							{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }}
+						@endif
+						{{ Form::close()}}
+
+
+
 
 					</div>
 				</div>

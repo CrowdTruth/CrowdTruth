@@ -11,4 +11,5 @@
 |
 */
 
-Artisan::add(new retrieveJobs);
+Artisan::add(new retrieveAMTJobs);
+Artisan::add(new retrieveCFJobs);

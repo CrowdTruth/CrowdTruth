@@ -1,5 +1,6 @@
 
 <!-- START process_nav -->   
+
 						<ul class="nav nav-tabs" id="processtabs">
 							<li{{ (Request::segment(2) == 'selectfile' ? ' class="active"' : '') }} title='selectfile'>{{ link_to('process/selectfile', "Select file") }}</li>
 							<li{{ (Request::segment(2) == 'template' ? ' class="active"' : '') }} title='template'>{{ link_to('process/template', "Pick/build Template") }}</li>
@@ -12,9 +13,28 @@
 
 
 <!-- END process_nav   -->   
+<!-- TODO: put this in a better place. -->
 @section('end_javascript')
+<script src="/custom_assets/bootstrap-select.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/custom_assets/bootstrap-select.min.css">
 
 <script>
+$('.selectpicker').selectpicker();
+
+$('#deselectcountries').click(function(){
+	$('#countries').selectpicker('deselectAll');
+})
+
+$('#englishcountries').click(function(){
+	$('#countries').selectpicker('val', ['GB','US', 'CA', 'AU', 'IE', 'NZ', 'JA']);
+})
+
+$('#dutchcountries').click(function(){
+	$('#countries').selectpicker('val', ['AW', 'BE', 'AN', 'NL', 'SR']);
+})
+
+
+
 $(document).ready(function(){
 	$("#processtabs > li").click(function(event){
 		if($(".jobconf").prop("action").length > 0) {
@@ -22,6 +42,8 @@ $(document).ready(function(){
 	       $(".jobconf").prop("action", "/process/form-part/" + $(this).prop('title')).submit();
 		}
 	});
+
+
 
 @if (isset($treejson))
 	$('#jstree').jstree({ 'core' : {

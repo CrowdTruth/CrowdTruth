@@ -104,13 +104,13 @@
 								{{ Form::text('notificationEmail', null, array('class' => 'form-control col-xs-6')) }}
 							</div>
 							<br>
-								{{ Form::label('requesterAnnotation', 'Requester Annotation', 
+							{{ Form::label('eventType', 'Send e-mail on (AMT only!):', 
 									array('class' => 'col-xs-4 control-label')) }}
 								<div class="input-group col-xs-2">
-									{{ Form::text('requesterAnnotation',  null, 
-										array('class' => 'form-control input-sm')) }}
+									{{ Form::select('eventType',  array('AssignmentAccepted' => 'AssignmentAccepted', 'AssignmentAbandoned' => 'AssignmentAbandoned', 'AssignmentReturned' => 'AssignmentReturned', 'AssignmentSubmitted' => 'AssignmentSubmitted', 'HITReviewable' => 'HITReviewable', 'HITExpired'=>'HITExpired'), null, array('class' => 'selectpicker')) }}
 								</div>
-							</fieldset>
+							<!--note: removed RequesterAnnotation as it doesn't show up in the response (and we can have our tags locally)-->
+						</fieldset>
 						<br>
 						<br>
 						{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}

@@ -42,7 +42,7 @@ class FileUpload extends Moloquent {
 			try {
 				$activity = new Activity;
 				$activity->_id = $entity->activity_id;
-				$activity->softwareAgent_id = "fileuploader";
+				$activity->software_id = "fileuploader";
 				$activity->save();
 
 			} catch (Exception $e) {

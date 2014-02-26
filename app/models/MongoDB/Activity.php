@@ -23,7 +23,8 @@ class Activity extends Moloquent {
 
             if(is_null($activity->_id))
             {
-                Throw new Exception("Activity ID is null");
+               $activity->_id = static::generateIncrementedBaseURI($activity);
+               // Throw new Exception("Activity ID is null");
             }
 
             if (Auth::check())
@@ -35,6 +36,22 @@ class Activity extends Moloquent {
             }                
         });
     }	
+
+    public static function generateIncrementedBaseURI($activity){
+        $lastMongoURIUsed = Activity::where('software_id', $activity->software_id)->get(array("_id"))->sortBy(function($entity)
+        {
+            return $entity->_id;
+        }, SORT_NATURAL)->toArray();
+
+        if(!end($lastMongoURIUsed)){
+            $id = 0;
+        } else {
+            $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
+            $id = end($lastMongoIDUsed) + 1;
+        }
+       
+        return 'activity' . '/' . $activity->software_id . '/' . $id;
+    }
 
 	public static function createSchema(){
 		Schema::create('activities', function($collection)
@@ -54,7 +71,7 @@ class Activity extends Moloquent {
     }    
 
     public function wasAssociatedWithSoftwareAgent(){
-        return $this->hasOne('\MongoDB\SoftwareAgent', '_id', 'softwareAgent_id');
+        return $this->hasOne('\MongoDB\SoftwareAgent', '_id', 'software_id');
     }
 
     public function used(){
