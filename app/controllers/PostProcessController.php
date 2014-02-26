@@ -23,7 +23,6 @@ class PostProcessController extends BaseController {
 		// $ct->flaggedWorkers = 3;
 		// $ct->template = "Relation Direction";
 		// $ct->save();
-
 		$jobConfigurations = JobConfiguration::orderBy('judgmentsPerUnit','asc')->paginate(15);
 		return View::make('postprocess.listview')->with('jobConfigurations', $jobConfigurations);
 	}

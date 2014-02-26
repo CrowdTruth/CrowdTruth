@@ -151,4 +151,8 @@ class Entity extends Moloquent {
     public function wasAttributedToCrowdAgent(){
         return $this->hasOne('CrowdAgent', '_id', 'crowdagent_id');
     }
+
+    public function hasConfiguration(){
+        return $this->hasOne('\MongoDB\Entity', '_id', 'jobConf_id');
+    }
 }
