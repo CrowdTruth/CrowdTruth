@@ -43,18 +43,18 @@ class apiController extends BaseController {
 	 */
 	public function index()
 	{	//Get all job-object
-		
 		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job');
-
-		// Append jobconf-object
+		
+		//Eager load jobConfiguration into job entity
+		$entities = $documents->with('hasConfiguration')->get();
+		
 		$jobs = array();
 
-		foreach($documents as $job)
-		{	
-			//todo hasConfiguration method is added to Entity until we have a new job class 
-			array_push($jobs, $job->hasConfiguration->toArray());
+		//Push entity objects into array for paginator
+		foreach($entities as $entity)
+		{
+			array_push($jobs, $entity);
 		}
-		
 		// Make sort possible on 
 			//completion
 
@@ -70,13 +70,12 @@ class apiController extends BaseController {
 
 
 		// Paginate results, current page, page of choice etc.
-
+		
 		if(!$perPage = (int) Input::get('perpage'))
 		{
 			$perPage = 15;
 		}
-		
-		
+			
 		$paginator = Paginator::make($jobs, count($documents), $perPage);
 
 		//Return paginator

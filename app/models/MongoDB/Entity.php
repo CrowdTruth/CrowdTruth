@@ -153,6 +153,6 @@ class Entity extends Moloquent {
     }
 
     public function hasConfiguration(){
-        return $this->hasOne('Entity', '_id', 'jobConf_id');
+        return $this->hasOne('\MongoDB\Entity', '_id', 'jobConf_id');
     }
 }
