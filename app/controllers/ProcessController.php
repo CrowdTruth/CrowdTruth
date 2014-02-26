@@ -14,6 +14,12 @@ class ProcessController extends BaseController {
         return Redirect::to('process/selectfile');
 	}
 
+	public function getTemplatebuilder(){
+		return View::make('process.tabs.templatebuilder');
+
+	}
+
+
 	public function getSelectfile() {
 		$jc = unserialize(Session::get('jobconf'));
 		$qt = new QuestionTemplate(array('question'=>'question', 
