@@ -39,7 +39,7 @@ class Batch extends Entity {
 	* @return path to the csv, ready to be sent to the CrowdFlower API.
 	*/
 	public function toCFCSV($path = null){
-		if(empty($path)) $path = base_path() . '/app/storage/tmp/crowdflower.csv';
+		if(empty($path)) $path = base_path() . '/app/storage/temp/crowdflower.csv';
 		//$tmpfname = tempnam("/tmp", "csv");
 		$out = fopen($path, 'w');
 		//$out = fopen('php://memory', 'r+');
