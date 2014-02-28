@@ -79,7 +79,7 @@ class apiController extends BaseController {
 		$paginator = Paginator::make($jobs, count($documents), $perPage);
 
 		//Return paginator
-
+		
 		return Response::json($paginator);
 
 

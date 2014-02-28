@@ -1,5 +1,7 @@
 .panel-nav-bar {
 	cursor: pointer;
+	padding: 10px;
+	margin-bottom: 10px;
 }
 
 .panel-nav-bar:hover {
