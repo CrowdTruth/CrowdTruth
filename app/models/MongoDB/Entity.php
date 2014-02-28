@@ -74,8 +74,8 @@ class Entity extends Moloquent {
 
     public static function generateIncrementedBaseURI($entity){
    
-        $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->get(array("_id"))->sortBy(function($entity)
-        {
+        $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->get(array("_id"));
+        if(is_object($lastMongoURIUsed)) $lastMongoURIUsed->sortBy(function($entity) {
             return $entity->_id;
         }, SORT_NATURAL)->toArray();
  
