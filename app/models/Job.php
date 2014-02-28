@@ -4,8 +4,8 @@ use crowdwatson\MechanicalTurk;
 use crowdwatson\AMTException;
 use crowdwatson\CFExceptions;
 use Sunra\PhpSimple\HtmlDomParser;
-use \mongoDB\Entity;
-use \mongoDB\Activity;
+use \MongoDB\Entity;
+use \MongoDB\Activity;
 use \MongoDB\SoftwareAgent;
 
 class Job extends Entity { 
