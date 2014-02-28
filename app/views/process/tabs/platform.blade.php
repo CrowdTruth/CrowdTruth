@@ -36,9 +36,9 @@
 								<div class="input-group col-xs-2">
 									{{ Form::select('countries[]', $countries, null, array('id' => 'countries', 'class'=>'selectpicker', 'data-live-search' => 'true', 'multiple', 'title' => 'Select countries...', 'data-selected-text-format' => 'count>3')) }}
 								<br>
-								<a id="deselectcountries" class='btn btn-small'>None</a>
-								<a id="englishcountries" class='btn btn-small'>English</a>
-								<a id="dutchcountries" class='btn btn-small'>Dutch</a>
+								<a id='deselectcountries' class='btn btn-small'>None</a>
+								<a id='englishcountries' class='btn btn-small' title='{{ Config::get('config.englishcountries')}}'>English</a>
+								<a id='customcountries' class='btn btn-small' title='{{ Config::get('config.customcountries')['countries'] }}'>{{ Config::get('config.customcountries')['language'] }}</a>
 								</div>
 
 							</fieldset><br>	
