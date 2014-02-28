@@ -206,10 +206,11 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 
 				// If leaving the Platform page....:
 				if(Input::has('qr')) {
-					$jc->platform = Input::get('platform', false);
+					$jc->platform = Input::get('platform', array());
 					$jc->addQualReq(Input::get('qr'));
 					if(Input::has('arp'))
 						$jc->addAssRevPol(Input::get('arp'));
+					$jc->countries = Input::get('countries', array());
 				}
 			}		
 		}

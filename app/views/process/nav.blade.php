@@ -26,11 +26,11 @@ $('#deselectcountries').click(function(){
 })
 
 $('#englishcountries').click(function(){
-	$('#countries').selectpicker('val', ['GB','US', 'CA', 'AU', 'IE', 'NZ', 'JA']);
+	$('#countries').selectpicker('val', ['GB','US', 'CA', 'AU']); //'IE', 'NZ', 'JA'
 })
 
 $('#dutchcountries').click(function(){
-	$('#countries').selectpicker('val', ['AW', 'BE', 'AN', 'NL', 'SR']);
+	$('#countries').selectpicker('val', ['BE', 'AN', 'NL', 'SR']); //'AW', 
 })
 
 
