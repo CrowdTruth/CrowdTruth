@@ -1,6 +1,8 @@
 <?php
-// namespace crowdwatson;
+ namespace crowdwatson;
 	require_once 'CFAddFunctions.php';
+
+class CFWebhook {	
 
 	/**
         * The -signal- parameter describes the type of event that has occurred. 
@@ -8,7 +10,7 @@
         * @return type of signal, job id
         * @link http://crowdflower.com/docs-api#webhooks
         */ 
-	function getSignal() {
+	public function getSignal() {
 		$signal = $_POST["signal"];
 		$payload = $_POST["payload"];
 		if ($signal == "new_judgments")	{
@@ -27,7 +29,7 @@
         * TODO: update the number of judgments for a job and the completion percentage
         * @link http://crowdflower.com/docs-api#webhooks
         */ 
-	function handleNewJudgments($judgments) {
+	private function handleNewJudgments($judgments) {
 		foreach($judgments as $judgment)
 			Artisan::call('command:retrievecfjobs', array('--judgment' => $judgment));
 	}
@@ -36,10 +38,9 @@
         * TODO: update the running time for a job and based on the type of job apply the sentence and worker metrics
         * @link http://crowdflower.com/docs-api#webhooks
         */ 
-	function handleJobComplete($job_id) {
+	private function handleJobComplete($job_id) {
 		return ;
 	}
 
-	getSignal();
-
+}
 ?>
