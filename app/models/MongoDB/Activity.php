@@ -39,10 +39,11 @@ class Activity extends Moloquent {
 
     public static function generateIncrementedBaseURI($activity){
         $lastMongoURIUsed = Activity::where('software_id', $activity->software_id)->get(array("_id"));
-        if(is_object($lastMongoURIUsed)) $lastMongoURIUsed->sortBy(function($entity)
-        {
-            return $entity->_id;
-        }, SORT_NATURAL)->toArray();
+        if(is_object($lastMongoURIUsed)) {
+        	$lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
+	            return $entity->_id;
+	        }, SORT_NATURAL)->toArray();
+        }
 
         if(!end($lastMongoURIUsed)){
             $id = 0;
