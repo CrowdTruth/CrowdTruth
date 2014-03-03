@@ -48,24 +48,26 @@ class retrieveCFJobs extends Command {
 
 			foreach(unserialize($this->option('judgments')) as $judgment){
 				//$judgment = unserialize($this->option('judgments'));
-				$job = Entity::where('documentType', 'job')
+
+				// Try to retrieve the job
+				if(!$job = Entity::where('documentType', 'job')
 						->where('software_id', 'cf')
 						->where('platformJobId', intval($judgment['job_id'])) // Mongo queries are strictly typed! We saved it as int in Job->store
-						->first();
-
-				if(!$job) {
+						->first())		
+				{
 					$job = Entity::where('documentType', 'job')
 						->where('software_id', 'cf')
 						->where('platformJobId', $judgment['job_id']) // Try this to be sure.
 						->first();
+				}
 
-
-					if(!$job){
-						Log::warning("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
-						throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
-					}
+				// Still no job found, this job is probably not made in our platform (or something went wrong earlier)
+				if(!$job){ 
+					Log::warning("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
+					throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
 				}
 dd($job);
+
 				$this->storeJudgment($judgment, $job);
 				$newJudgmentsCount++;
 				// TODO: error handling.
@@ -77,7 +79,7 @@ dd($job);
 			if(is_object($jpuquery))
 				$jpu = intval($jpuquery->first()->content['judgmentsPerUnit']);
 			else 
-				$jpu = 1; // Didn't find jobconf, something's wrong				
+				$jpu = 1; // TODO: Didn't find jobconf, something's wrong				
 			$uc = intval($job->unitsCount);
 			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
 			else $job->completion = 0.00;
