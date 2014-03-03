@@ -1,6 +1,7 @@
 #.gitignore
 /app/config/database.php
 /app/config/config.php
+/app/storage/temp/*
 /bootstrap/compiled.php
 /vendor
 /composer.phar

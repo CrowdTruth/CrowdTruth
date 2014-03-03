@@ -97,8 +97,8 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
 		} 
+
 		// Compare QuestionID's and goldfields.
-		//if (count($goldfields)>0)
 		if($diff = array_diff($goldfields, $questionids))
 			if(count($diff) == 1)
 				Session::flash('flashNotice', 'Field \'' . array_values($diff)[0] . '\' is in the answerkey but not in the HTML template.');

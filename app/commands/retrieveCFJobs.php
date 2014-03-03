@@ -66,7 +66,6 @@ class retrieveCFJobs extends Command {
 					Log::warning("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
 					throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
 				}
-dd($job);
 
 				$this->storeJudgment($judgment, $job);
 				$newJudgmentsCount++;
