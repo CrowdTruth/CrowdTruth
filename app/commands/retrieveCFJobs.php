@@ -53,14 +53,14 @@ class retrieveCFJobs extends Command {
 						->where('platformJobId', intval($judgment['job_id'])) // Mongo queries are strictly typed! We saved it as int in Job->store
 						->first();
 
-				if(!is_object($job)) {
+				if(!$job) {
 					$job = Entity::where('documentType', 'job')
 						->where('software_id', 'cf')
 						->where('platformJobId', $judgment['job_id']) // Try this to be sure.
 						->first();
 
 
-					if(!is_object($job)){
+					if(!$job){
 						Log::warning("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
 						throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
 					}
@@ -93,7 +93,7 @@ class retrieveCFJobs extends Command {
 				->where('platformJobId', $jobid)
 				->first();
 
-			if(!is_object($job))
+			if(!$job)
 				throw new CFExceptions('Job not in local database; retrieving it would break provenance.');
 
 			//foreach unitid
@@ -145,15 +145,15 @@ class retrieveCFJobs extends Command {
 			$activity = new Activity;
 			$activity->label = "Unit is annotated on crowdsourcing platform.";
 			$activity->crowdAgent_id = $agent->_id; 
-			$activity->used = $job->_id;
+			$activity->used = $job['_id'];
 			$activity->software_id = 'cf';
 			$activity->save();
 
 			$aentity = new Entity;
 			$aentity->documentType = 'annotation';
-			$aentity->domain = $job->domain;
-			$aentity->format = $job->format;
-			$aentity->job_id = $job->_id;
+			$aentity->domain = $job['domain'];
+			$aentity->format = $job['format'];
+			$aentity->job_id = $job['_id'];
 			$aentity->activity_id = $activity->_id;
 			$aentity->crowdAgent_id = $agent->_id;
 			$aentity->software_id = 'cf';
