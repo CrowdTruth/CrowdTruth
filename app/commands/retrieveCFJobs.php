@@ -43,21 +43,28 @@ class retrieveCFJobs extends Command {
 	 */
 	public function fire()
 	{
-		if($this->option('judgment')) {
-			$judgment = unserialize($this->option('judgment'));
+		if($this->option('judgments')) {
+			$newJudgmentsCount = 0;
+			foreach(unserialize($this->option('judgments')) as $judgment){
+				//$judgment = unserialize($this->option('judgments'));
 
-			$job = Entity::where('documentType', 'job')
-				->where('software_id', 'cf')
-				->where('platformJobId', $judgment['job_id'])
-				->first();
+				$job = Entity::where('documentType', 'job')
+					->where('software_id', 'cf')
+					->where('platformJobId', $judgment['job_id'])
+					->first();
 
-			if(!$job)
-				throw new CFExceptions('Job not in local database; retrieving it would break provenance.');
+				if(!$job) {
+					Log::warning("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
+					throw new CFExceptions('Job not in local database; retrieving it would break provenance.');
+				}
 
-			$this->storeJudgment($judgment, $job);
+				$this->storeJudgment($judgment, $job);
+				$newJudgmentsCount++;
+				// TODO: error handling.
+			}
 
 			// Update count and completion
-			$job->annotationsCount = intval($job->annotationsCount)+1;
+			$job->annotationsCount = intval($job->annotationsCount)+$newJudgmentsCount;
 			$jpu = intval(Entity::find($job->jobConf_id)->first()->content['judgmentsPerUnit']);
 			$uc = intval($job->unitsCount);
 			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
@@ -193,7 +200,7 @@ class retrieveCFJobs extends Command {
 	protected function getOptions()
 	{
 		return array(
-			array('judgments', null, InputOption::VALUE_OPTIONAL, 'A full serialized judgment from the CF API. Will insert into DB.', null),
+			array('judgments', null, InputOption::VALUE_OPTIONAL, 'A full serialized collection of judgments from the CF API. Will insert into DB.', null),
 			array('jobid', null, InputOption::VALUE_OPTIONAL, 'CF Job ID.', null)
 		);
 	}

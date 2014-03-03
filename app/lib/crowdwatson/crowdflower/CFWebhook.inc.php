@@ -11,8 +11,8 @@ class CFWebhook {
         * @link http://crowdflower.com/docs-api#webhooks
         */ 
 	public function getSignal() {
-		$signal = $_POST["signal"];
-		$payload = $_POST["payload"];
+		 $signal = \Input::get('signal');//$_POST["signal"];
+		 $payload =\Input::get('payload');
 		if ($signal == "new_judgments")	{
 			$retValue = objectToArray(json_decode($payload));
 			//$job_id = $retValue[0]["job_id"];
@@ -30,8 +30,8 @@ class CFWebhook {
         * @link http://crowdflower.com/docs-api#webhooks
         */ 
 	private function handleNewJudgments($judgments) {
-		foreach($judgments as $judgment)
-			Artisan::call('command:retrievecfjobs', array('--judgment' => $judgment));
+		//foreach($judgments as $judgment)
+		Artisan::call('command:retrievecfjobs', array('--judgments' => $judgments));
 	}
 
 	/**
