@@ -48,15 +48,22 @@ class retrieveCFJobs extends Command {
 
 			foreach(unserialize($this->option('judgments')) as $judgment){
 				//$judgment = unserialize($this->option('judgments'));
-
 				$job = Entity::where('documentType', 'job')
-					->where('software_id', 'cf')
-					->where('platformJobId', $judgment['job_id'])
-					->first();
+						->where('software_id', 'cf')
+						->where('platformJobId', intval($judgment['job_id'])) // Mongo queries are strictly typed! We saved it as int in Job->store
+						->first();
 
 				if(!$job) {
-					Log::warning("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
-					throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
+					$job = Entity::where('documentType', 'job')
+						->where('software_id', 'cf')
+						->where('platformJobId', $judgment['job_id']) // Try this to be sure.
+						->first();
+
+
+					if(!$job){
+						Log::warning("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
+						throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
+					}
 				}
 
 				$this->storeJudgment($judgment, $job);
