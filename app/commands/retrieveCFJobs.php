@@ -45,6 +45,7 @@ class retrieveCFJobs extends Command {
 	{
 		if($this->option('judgments')) {
 			$newJudgmentsCount = 0;
+
 			foreach(unserialize($this->option('judgments')) as $judgment){
 				//$judgment = unserialize($this->option('judgments'));
 
@@ -55,7 +56,7 @@ class retrieveCFJobs extends Command {
 
 				if(!$job) {
 					Log::warning("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
-					throw new CFExceptions('Job not in local database; retrieving it would break provenance.');
+					throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
 				}
 
 				$this->storeJudgment($judgment, $job);
