@@ -53,14 +53,14 @@ class retrieveCFJobs extends Command {
 						->where('platformJobId', intval($judgment['job_id'])) // Mongo queries are strictly typed! We saved it as int in Job->store
 						->first();
 
-				if(!$job) {
+				if(!is_object($job)) {
 					$job = Entity::where('documentType', 'job')
 						->where('software_id', 'cf')
 						->where('platformJobId', $judgment['job_id']) // Try this to be sure.
 						->first();
 
 
-					if(!$job){
+					if(!is_object($job)){
 						Log::warning("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
 						throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
 					}
@@ -93,7 +93,7 @@ class retrieveCFJobs extends Command {
 				->where('platformJobId', $jobid)
 				->first();
 
-			if(!$job)
+			if(!is_object($job))
 				throw new CFExceptions('Job not in local database; retrieving it would break provenance.');
 
 			//foreach unitid
@@ -122,7 +122,10 @@ class retrieveCFJobs extends Command {
 	private function storeJudgment($judgment, $job)
 	{
 
-		try {
+		//try {
+			$agent = null;
+			$activity = null;
+			$entity = null;
 
 			if(!$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('platform_id', 'cf')->first()){
 				$agent = new CrowdAgent;
@@ -180,11 +183,11 @@ class retrieveCFJobs extends Command {
 			// TODO: update job status, judgment count
 
 			Log::debug("Saved annotation {$aentity->_id} to DB.");	
-		} catch (Exception $e) {
-			Log::debug("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
-			if($activity) $activity->forceDelete();
-			if($aentity) $aentity->forceDelete();
-		}
+		//} catch (Exception $e) {
+		//	Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
+		//	if($activity) $activity->forceDelete();
+		//	if($aentity) $aentity->forceDelete();
+		//}
 	}
 
 
