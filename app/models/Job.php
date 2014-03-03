@@ -416,7 +416,7 @@ class Job extends Entity {
 			$entity->software_id = $platform; 
 			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's.
 
-			$entity->unitsCount = 42; // TODO
+			$entity->unitsCount = 42; // TODO ()
 			$entity->annotationsCount = 0;
 			$entity->completion = 0.00; // 0.00-1.00
 

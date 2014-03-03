@@ -10,7 +10,7 @@ class JobConfiguration extends Moloquent {
     								'description',
     								'instructions', /* AMT: inject into template */ 
     								'keywords', 
-    								'judgmentsPerUnit', /* AMT: maxAssignments */
+    								'annotationsPerUnit', /* AMT: maxAssignments */
     								'unitsPerTask', /* AMT: not in API. Would be 'tasks per assignment' */
     								'reward', 
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
@@ -28,7 +28,7 @@ class JobConfiguration extends Moloquent {
 									'eventType',
 
     	    						/* CF specific */
-    	    						'judgmentsPerWorker',
+    	    						'annotationsPerWorker',
 
     	    						/* for our use */
     	    						'answerfields', /* The fields of the CSV file that contain the gold answers. */
@@ -47,10 +47,10 @@ class JobConfiguration extends Moloquent {
 	);
 
 	private $cfrules = array(
-		'judgmentsPerUnit' => 'required|numeric|min:1', /* AMT: defaults to 1 */
+		'annotationsPerUnit' => 'required|numeric|min:1', /* AMT: defaults to 1 */
 		'unitsPerTask' => 'required|numeric|min:1',
 		'instructions' => 'required',
-		'judgmentsPerWorker' => 'required|numeric|min:1'
+		'annotationsPerWorker' => 'required|numeric|min:1'
 	);	
 
 	private $amtrules = array(
@@ -117,7 +117,7 @@ class JobConfiguration extends Moloquent {
 
     //FIELDS IN LARAVEL -_-
     public function totalJudgments(){
-    	return $this->judgmentsPerUnit*$this->unitsPerTask;
+    	return $this->annotationsPerUnit*$this->unitsPerTask;
     }
 
 	public function totalCost(){
@@ -173,7 +173,7 @@ class JobConfiguration extends Moloquent {
 			'description' 	=> $hit->getDescription(),
 			'keywords'		=> $hit->getKeywords(),
 			'reward'		=> $hit->getReward()['Amount'],
-			'judgmentsPerUnit'=> $hit->getMaxAssignments(),
+			'annotationsPerUnit'=> $hit->getMaxAssignments(),
 			'expirationInMinutes'	=> intval($hit->getAssignmentDurationInSeconds())/60,
 			'hitLifetimeInMinutes' => intval($hit->getLifetimeInSeconds())/60,
 			'unitsPerTask' => 1, 
@@ -207,7 +207,7 @@ class JobConfiguration extends Moloquent {
 		if (!empty($this->title)) 			 			$hit->setTitle						  	($this->title); 
 		if (!empty($this->description)) 		 		$hit->setDescription					($this->description); 
 		if (!empty($this->keywords)) 					$hit->setKeywords				  		($this->keywords);
-		if (!empty($this->judgmentsPerUnit)) 			$hit->setMaxAssignments		  			($this->judgmentsPerUnit);
+		if (!empty($this->annotationsPerUnit)) 			$hit->setMaxAssignments		  			($this->annotationsPerUnit);
 		if (!empty($this->expirationInMinutes))			$hit->setAssignmentDurationInSeconds 	($this->expirationInMinutes*60);
 		if (!empty($this->hitLifetimeInMinutes)) 		$hit->setLifetimeInSeconds		  		($this->hitLifetimeInMinutes*60);
 		if (!empty($this->reward)) 						$hit->setReward					  		(array('Amount' => $this->reward, 'CurrencyCode' => 'USD'));
@@ -229,12 +229,12 @@ class JobConfiguration extends Moloquent {
 
 		if (!empty($this->title)) 			 	$data['title']					 	= $this->title; 
 		if (!empty($this->instructions)) 		$data['instructions']				= $this->instructions; 
-		if (!empty($this->judgmentsPerUnit)) 	$data['judgments_per_unit']		  	= $this->judgmentsPerUnit;
+		if (!empty($this->annotationsPerUnit)) 	$data['judgments_per_unit']		  	= $this->annotationsPerUnit;
 
 		if (!empty($this->unitsPerTask))		$data['units_per_assignment']		= $this->unitsPerTask;
-		if (!empty($this->judgmentsPerWorker))	{
-			$data['max_judgments_per_worker']	= $this->judgmentsPerWorker;
-			$data['max_judgments_per_ip']		= $this->judgmentsPerWorker; // We choose to keep this the same.
+		if (!empty($this->annotationsPerWorker))	{
+			$data['max_judgments_per_worker']	= $this->annotationsPerWorker;
+			$data['max_judgments_per_ip']		= $this->annotationsPerWorker; // We choose to keep this the same.
 		}
 
 		$data['webhook_uri'] = Config::get('config.cfwebhookuri');

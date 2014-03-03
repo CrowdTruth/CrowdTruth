@@ -76,7 +76,7 @@ class retrieveCFJobs extends Command {
 			$job->annotationsCount = intval($job->annotationsCount)+$newJudgmentsCount;
 			$jpuquery = Entity::find($job->jobConf_id);
 			if(is_object($jpuquery))
-				$jpu = intval($jpuquery->first()->content['judgmentsPerUnit']);
+				$jpu = intval($jpuquery->first()->content['annotationsPerUnit']);
 			else 
 				$jpu = 1; // TODO: Didn't find jobconf, something's wrong				
 			$uc = intval($job->unitsCount);

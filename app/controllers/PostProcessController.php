@@ -16,14 +16,14 @@ class PostProcessController extends BaseController {
 		// $ct = JobConfiguration::fromJSON(base_path() . '/public/templates/relation_direction/relation_direction_multiple.json');
 		// $ct->createdBy = 'Oana';
 		// $ct->name = 'Mock-object #4';
-		// $ct->judgmentsPerUnit = 12;
+		// $ct->annotationsPerUnit = 12;
 		// $ct->unitsPerTask = 8;
 		// $ct->reward = 0.02;
 		// $ct->platform = array('CF');
 		// $ct->flaggedWorkers = 3;
 		// $ct->template = "Relation Direction";
 		// $ct->save();
-		$jobConfigurations = JobConfiguration::orderBy('judgmentsPerUnit','asc')->paginate(15);
+		$jobConfigurations = JobConfiguration::orderBy('annotationsPerUnit','asc')->paginate(15);
 		return View::make('postprocess.listview')->with('jobConfigurations', $jobConfigurations);
 	}
 
