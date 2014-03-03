@@ -4,10 +4,10 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use crowdwatson\MechanicalTurk;
-use \mongoDB\Entity;
-use \mongoDB\CrowdAgent;
-use \mongoDB\Activity;
-use \mongoDB\Agent;
+use \MongoDB\Entity;
+use \MongoDB\CrowdAgent;
+use \MongoDB\Activity;
+use \MongoDB\Agent;
 
 class retrieveAMTJobs extends Command {
 
