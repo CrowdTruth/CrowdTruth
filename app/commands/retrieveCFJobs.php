@@ -65,7 +65,7 @@ class retrieveCFJobs extends Command {
 						throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
 					}
 				}
-
+dd($job);
 				$this->storeJudgment($judgment, $job);
 				$newJudgmentsCount++;
 				// TODO: error handling.
@@ -73,7 +73,11 @@ class retrieveCFJobs extends Command {
 
 			// Update count and completion
 			$job->annotationsCount = intval($job->annotationsCount)+$newJudgmentsCount;
-			$jpu = intval(Entity::find($job->jobConf_id)->first()->content['judgmentsPerUnit']);
+			$jpuquery = Entity::find($job->jobConf_id);
+			if(is_object($jpuquery))
+				$jpu = intval($jpuquery->first()->content['judgmentsPerUnit']);
+			else 
+				$jpu = 1; // Didn't find jobconf, something's wrong				
 			$uc = intval($job->unitsCount);
 			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
 			else $job->completion = 0.00;
@@ -145,15 +149,15 @@ class retrieveCFJobs extends Command {
 			$activity = new Activity;
 			$activity->label = "Unit is annotated on crowdsourcing platform.";
 			$activity->crowdAgent_id = $agent->_id; 
-			$activity->used = $job['_id'];
+			$activity->used = $job->_id;
 			$activity->software_id = 'cf';
 			$activity->save();
 
 			$aentity = new Entity;
 			$aentity->documentType = 'annotation';
-			$aentity->domain = $job['domain'];
-			$aentity->format = $job['format'];
-			$aentity->job_id = $job['_id'];
+			$aentity->domain = $job->domain;
+			$aentity->format = $job->format;
+			$aentity->job_id = $job->_id;
 			$aentity->activity_id = $activity->_id;
 			$aentity->crowdAgent_id = $agent->_id;
 			$aentity->software_id = 'cf';
