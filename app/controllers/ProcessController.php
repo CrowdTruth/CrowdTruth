@@ -24,7 +24,7 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$qt = new QuestionTemplate(array('question'=>'question', 
 										'replace' => array('sentence.noPrefix' => array('cause' => 'causes'))));//)
-		$qt->save();
+		//$qt->save();
 		$temp = '';
 /*		$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
 		$judg = $cf->getUnitJudgments('380640', '406870708');
@@ -206,10 +206,11 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 
 				// If leaving the Platform page....:
 				if(Input::has('qr')) {
-					$jc->platform = Input::get('platform', false);
+					$jc->platform = Input::get('platform', array());
 					$jc->addQualReq(Input::get('qr'));
 					if(Input::has('arp'))
 						$jc->addAssRevPol(Input::get('arp'));
+					$jc->countries = Input::get('countries', array());
 				}
 			}		
 		}

@@ -237,8 +237,8 @@ class JobConfiguration extends Moloquent {
 			$data['max_judgments_per_ip']		= $this->judgmentsPerWorker; // We choose to keep this the same.
 		}
 
-/*		$data['webhook_uri'] = Config::get('config.cfwebhookuri');
-		$data['send_judgments_webhook'] = 'true';*/
+		$data['webhook_uri'] = Config::get('config.cfwebhookuri');
+		$data['send_judgments_webhook'] = 'true';
 		return $data;
 	}
 

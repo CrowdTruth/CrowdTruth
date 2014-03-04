@@ -133,6 +133,7 @@
         $scope.input = [];
       }
       return $scope.$watch('form', function() {
+        $scope.$emit('formchanged', $scope.form); // CROWDWATSON CUSTOM
         if ($scope.input.length > $scope.form.length) {
           $scope.input.splice($scope.form.length);
         }
@@ -169,7 +170,8 @@
   angular.module('builder.directive', ['builder.provider', 'builder.controller', 'builder.drag', 'validator']).directive('fbBuilder', [
     '$injector', function($injector) {
       return {
-        restrict: 'A',
+        restrict: 'A', // was: A
+        //scope: {test : '&'}, // CROWDWATSON
         template: "<div class='form-horizontal'>\n    <div class='fb-form-object-editable' ng-repeat=\"object in formObjects\"\n        fb-form-object-editable=\"object\"></div>\n</div>",
         link: function(scope, element, attrs) {
           var $builder, $drag, beginMove, _base, _name;
@@ -486,6 +488,10 @@
           });
           view = $compile($template)(scope);
           $(element).append(view);
+                   //CW
+        //  $scope.test=view;
+           //scope.$emit('testchanged',view); // CROWDWATSON CUSTOM
+          //console.log(view);
           if (!component.arrayToText && scope.formObject.options.length > 0) {
             scope.inputText = scope.formObject.options[0];
           }

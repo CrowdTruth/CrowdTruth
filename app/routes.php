@@ -42,6 +42,10 @@ Route::group(array('before' => 'auth'), function()
 	
 });
 
+Route::any('cfwebhook.php', function(){
+	$cfwebhook = new crowdwatson\CFWebhook();
+	$cfwebhook->getSignal();
+});
 Route::resource('api/v1/', '\Api\v1\apiController', array('only' => array('index', 'show')));
 Route::resource('api/v2/', '\Api\v2\apiController', array('only' => array('index', 'show')));
 

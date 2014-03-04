@@ -4,8 +4,8 @@ use crowdwatson\MechanicalTurk;
 use crowdwatson\AMTException;
 use crowdwatson\CFExceptions;
 use Sunra\PhpSimple\HtmlDomParser;
-use \mongoDB\Entity;
-use \mongoDB\Activity;
+use \MongoDB\Entity;
+use \MongoDB\Activity;
 use \MongoDB\SoftwareAgent;
 
 class Job extends Entity { 
@@ -102,7 +102,7 @@ class Job extends Entity {
 			}
 
 			$activity = Activity::where('_id', $this->activityURI)->first();
-			if(!empty($activity)) $activity->forceDelete();
+			if(is_object($activity)) $activity->forceDelete(); // !empty doesn't work..
 
 		} catch (Exception $e){
 
