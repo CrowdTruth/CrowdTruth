@@ -4,10 +4,10 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use crowdwatson\CFExceptions;
-use \mongoDB\Entity;
-use \mongoDB\CrowdAgent;
-use \mongoDB\Activity;
-use \mongoDB\Agent;
+use \MongoDB\Entity;
+use \MongoDB\CrowdAgent;
+use \MongoDB\Activity;
+use \MongoDB\Agent;
 
 class retrieveCFJobs extends Command {
 
@@ -43,22 +43,42 @@ class retrieveCFJobs extends Command {
 	 */
 	public function fire()
 	{
-		if($this->option('judgment')) {
-			$judgment = unserialize($this->option('judgment'));
+		if($this->option('judgments')) {
+			$newJudgmentsCount = 0;
 
-			$job = Entity::where('documentType', 'job')
-				->where('software_id', 'cf')
-				->where('platformJobId', $judgment['job_id'])
-				->first();
+			foreach(unserialize($this->option('judgments')) as $judgment){
+				//$judgment = unserialize($this->option('judgments'));
 
-			if(!$job)
-				throw new CFExceptions('Job not in local database; retrieving it would break provenance.');
+				// Try to retrieve the job
+				if(!$job = Entity::where('documentType', 'job')
+						->where('software_id', 'cf')
+						->where('platformJobId', intval($judgment['job_id'])) // Mongo queries are strictly typed! We saved it as int in Job->store
+						->first())		
+				{
+					$job = Entity::where('documentType', 'job')
+						->where('software_id', 'cf')
+						->where('platformJobId', $judgment['job_id']) // Try this to be sure.
+						->first();
+				}
 
-			$this->storeJudgment($judgment, $job);
+				// Still no job found, this job is probably not made in our platform (or something went wrong earlier)
+				if(!$job){ 
+					Log::warning("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
+					throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
+				}
+
+				$this->storeJudgment($judgment, $job);
+				$newJudgmentsCount++;
+				// TODO: error handling.
+			}
 
 			// Update count and completion
-			$job->annotationsCount = intval($job->annotationsCount)+1;
-			$jpu = intval(Entity::find($job->jobConf_id)->first()->content['judgmentsPerUnit']);
+			$job->annotationsCount = intval($job->annotationsCount)+$newJudgmentsCount;
+			$jpuquery = Entity::find($job->jobConf_id);
+			if(is_object($jpuquery))
+				$jpu = intval($jpuquery->first()->content['annotationsPerUnit']);
+			else 
+				$jpu = 1; // TODO: Didn't find jobconf, something's wrong				
 			$uc = intval($job->unitsCount);
 			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
 			else $job->completion = 0.00;
@@ -107,7 +127,10 @@ class retrieveCFJobs extends Command {
 	private function storeJudgment($judgment, $job)
 	{
 
-		try {
+		//try {
+			$agent = null;
+			$activity = null;
+			$entity = null;
 
 			if(!$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('platform_id', 'cf')->first()){
 				$agent = new CrowdAgent;
@@ -165,11 +188,11 @@ class retrieveCFJobs extends Command {
 			// TODO: update job status, judgment count
 
 			Log::debug("Saved annotation {$aentity->_id} to DB.");	
-		} catch (Exception $e) {
-			Log::debug("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
-			if($activity) $activity->forceDelete();
-			if($aentity) $aentity->forceDelete();
-		}
+		//} catch (Exception $e) {
+		//	Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
+		//	if($activity) $activity->forceDelete();
+		//	if($aentity) $aentity->forceDelete();
+		//}
 	}
 
 
@@ -193,7 +216,7 @@ class retrieveCFJobs extends Command {
 	protected function getOptions()
 	{
 		return array(
-			array('judgments', null, InputOption::VALUE_OPTIONAL, 'A full serialized judgment from the CF API. Will insert into DB.', null),
+			array('judgments', null, InputOption::VALUE_OPTIONAL, 'A full serialized collection of judgments from the CF API. Will insert into DB.', null),
 			array('jobid', null, InputOption::VALUE_OPTIONAL, 'CF Job ID.', null)
 		);
 	}

@@ -89,7 +89,7 @@ class Job extends Entity {
 				foreach($ids['amt'] as $id){
 					$this->mturk->disableHIT($id);
 					$entity = Entity::where('platformJobId', $id);
-					if(!empty($entity)) $entity->forceDelete();
+					if(is_object($entity)) $entity->forceDelete();
 				}
 
 			if(isset($ids['cf'])){
@@ -97,8 +97,8 @@ class Job extends Entity {
 				$cfJob = new crowdwatson\Job($this->CFApiKey);	
 				$cfJob->cancelJob($id);
 				$cfJob->deleteJob($id);
-				$entity = Entity::where('platformJobId', $id);
-				if(!empty($entity)) $entity->forceDelete();
+				$entity = Entity::where('platformJobId', intval($id));
+				if(is_object($entity)) $entity->forceDelete();
 			}
 
 			$activity = Activity::where('_id', $this->activityURI)->first();
@@ -416,7 +416,7 @@ class Job extends Entity {
 			$entity->software_id = $platform; 
 			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's.
 
-			$entity->unitsCount = 42; // TODO
+			$entity->unitsCount = 42; // TODO ()
 			$entity->annotationsCount = 0;
 			$entity->completion = 0.00; // 0.00-1.00
 

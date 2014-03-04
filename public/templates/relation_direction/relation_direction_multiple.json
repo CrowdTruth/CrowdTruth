@@ -3,7 +3,7 @@
     "description": "You are asked to read a SENTENCE containing two related WORD PHRASES, then decide on the correct order of the relation.",
     "keywords": "medical relations, medical text, relation direction",
     "reward": "0.03",
-    "judgmentsPerUnit": "15",
+    "annotationsPerUnit": "15",
     "hitLifetimeInMinutes": "10080",
     "expirationInMinutes": "2",
     "unitsPerTask": "7",
@@ -34,7 +34,7 @@
         "direction"
     ],
     "eventType": "HITExpired",
-    "judgmentsPerWorker": "28",
+    "annotationsPerWorker": "28",
     "requesterAnnotation": "",
     "instructions": "In the SENTENCE below there are two highlighted WORD PHRASES that we believe are related. Choose one of the options below that according to you expresses their right order.\r\n\r\nPlease consider only the capitalized WORD PHRASES (in case one of them appears multiple times in the sentence).",
     "platform": [

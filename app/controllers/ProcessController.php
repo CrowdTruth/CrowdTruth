@@ -24,8 +24,12 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$qt = new QuestionTemplate(array('question'=>'question', 
 										'replace' => array('sentence.noPrefix' => array('cause' => 'causes'))));//)
-		//$qt->save();
-		$temp = '';
+/*		//$qt->save();
+
+		$cfjob = new \crowdwatson\Job(Config::get('config.cfapikey'));
+		$ret = $cfjob->setChannels("395908", array('cf_internal'));
+dd($ret);
+		$temp = '';*/
 /*		$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
 		$judg = $cf->getUnitJudgments('380640', '406870708');
 		$temp = serialize($judg['results']['judgments'][1]);
@@ -97,8 +101,8 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 		} catch (AMTException $e) {
 			Session::flash('flashError', $e->getMessage());
 		} 
+
 		// Compare QuestionID's and goldfields.
-		//if (count($goldfields)>0)
 		if($diff = array_diff($goldfields, $questionids))
 			if(count($diff) == 1)
 				Session::flash('flashNotice', 'Field \'' . array_values($diff)[0] . '\' is in the answerkey but not in the HTML template.');

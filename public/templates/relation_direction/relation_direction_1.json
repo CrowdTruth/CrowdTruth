@@ -3,7 +3,7 @@
 	"description": "You are asked to read a SENTENCE containing two related WORD PHRASES, then decide on the correct order of the relation.",
 	"keywords": "medical relations, medical text, relation direction",
 	"reward": "0.03",
-	"judgmentsPerUnit": "15",
+	"annotationsPerUnit": "15",
 	"hitLifetimeInMinutes": "10080",
 	"expirationInMinutes": "2",
 	"unitsPerTask": "1",

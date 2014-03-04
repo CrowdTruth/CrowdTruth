@@ -21,7 +21,7 @@
 					 onClick the method of sorting is passed as a parameter. It is important however, that the div has the same name as the 
 					 parameter for the js to function properly -->
 
-					<div class="panel-body panel-nav-bar panel-nav-bar-ascending" id="judgmentsPerUnit" style="border-bottom: 1px solid #eee" onClick="sortModel('judgmentsPerUnit')">
+					<div class="panel-body panel-nav-bar panel-nav-bar-ascending" id="annotationsPerUnit" style="border-bottom: 1px solid #eee" onClick="sortModel('annotationsPerUnit')">
 						<i class="fa fa-check-circle"></i> Completion<br>
 					</div>
 					<div class="panel-body panel-nav-bar" id="totalCost" style="border-bottom: 1px solid #eee" onClick="sortModel('totalCost')">

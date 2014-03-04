@@ -4,10 +4,10 @@ use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use crowdwatson\MechanicalTurk;
-use \mongoDB\Entity;
-use \mongoDB\CrowdAgent;
-use \mongoDB\Activity;
-use \mongoDB\Agent;
+use \MongoDB\Entity;
+use \MongoDB\CrowdAgent;
+use \MongoDB\Activity;
+use \MongoDB\Agent;
 
 class retrieveAMTJobs extends Command {
 
@@ -180,7 +180,7 @@ class retrieveAMTJobs extends Command {
 
 
 			$job->annotationsCount = intval($job->annotationsCount)+$newannotationscount;
-			$jpu = intval(Entity::find($job->jobConf_id)->first()->content['judgmentsPerUnit']);
+			$jpu = intval(Entity::find($job->jobConf_id)->first()->content['annotationsPerUnit']);
 			$uc = intval($job->unitsCount);
 			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
 			else $job->completion = 0.00;
