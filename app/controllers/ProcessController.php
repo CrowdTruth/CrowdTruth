@@ -22,14 +22,20 @@ class ProcessController extends BaseController {
 
 	public function getSelectfile() {
 		$jc = unserialize(Session::get('jobconf'));
+		$temp = '';
+	//$cfwebhook = new crowdwatson\CFWebhook();
+	//$cfwebhook->test(396621);die();
 		$qt = new QuestionTemplate(array('question'=>'question', 
 										'replace' => array('sentence.noPrefix' => array('cause' => 'causes'))));//)
+
+		//\Artisan::call('command:retrieveamtjobs');
+
 /*		//$qt->save();
 
 		$cfjob = new \crowdwatson\Job(Config::get('config.cfapikey'));
 		$ret = $cfjob->setChannels("395908", array('cf_internal'));
 dd($ret);
-		$temp = '';*/
+		*/
 /*		$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
 		$judg = $cf->getUnitJudgments('380640', '406870708');
 		$temp = serialize($judg['results']['judgments'][1]);
@@ -197,7 +203,8 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 		} else {
 			if (empty($jc)){
 				// No JobConfiguration and no template selected, not good.
-				Session::flash('flashNotice', 'Please select a template first.');
+				if($next != 'template')
+					Session::flash('flashNotice', 'Please select a template first.');
 				return Redirect::to("process/template");
 			} else {
 				// There already is a JobConfiguration object. Merge it with Input!
@@ -254,6 +261,7 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 			Session::flash('flashSuccess', $msg);
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage());
+			//throw $e; //debug
 		}
 
 		return Redirect::to("process/submit");
@@ -276,7 +284,7 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 			(isset($ids['amt']) ? count($ids['amt']) : 0) .
 			 ' jobs on <a href="https://requestersandbox.mturk.com/manage" target="_blank">AMT SANDBOX</a> and ' .
 			(isset($ids['cf']) ? count($ids['cf']) : 0) .
-			 ' UNORDERED jobs on <a href="http://www.crowdflower.com" target="_blank">CF</a>. After previewing them on the platform, click \'Submit and order\' below to submit them for real.';
+			 ' UNORDERED jobs on <a href="http://www.crowdflower.com" target="_blank">CF</a>. After previewing them on the platform, go to the Jobs tab to order them.';
 			Session::flash('flashSuccess', $msg);
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage());

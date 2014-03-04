@@ -237,8 +237,12 @@ class JobConfiguration extends Moloquent {
 			$data['max_judgments_per_ip']		= $this->annotationsPerWorker; // We choose to keep this the same.
 		}
 
-		$data['webhook_uri'] = Config::get('config.cfwebhookuri');
-		$data['send_judgments_webhook'] = 'true';
+		// Webhook doesn't work on localhost and we the uri should be set. 
+		if((App::environment() != 'local') and (Config::get('config.cfwebhookuri')) != ''){
+			
+			$data['webhook_uri'] = Config::get('config.cfwebhookuri');
+			$data['send_judgments_webhook'] = 'true';
+		}
 		return $data;
 	}
 
@@ -314,36 +318,38 @@ class JobConfiguration extends Moloquent {
 	/**
 	* Saves the JobConfiguration, along with an activity, to the DB.
 	* @return entity id (existing or new one)
-	* @throws Exception
+	* @throws Exception (deletes the created entities when exception is thrown)
 	*/
 	public function store($originalEntity = null, $activityURI = null){
-		
-		// TODO: set tags, subtype, URI
-	
-		$user = Auth::user();
-		$newEntityContent = $this->toArray();
+		$entity = new Entity;
 		$activity = new Activity;
 
-		// What if we want to save the same JobConf with different tags?
-		// Option: make an updateTags() function or something.
-		$hash = md5(serialize($newEntityContent));
-		$existing = Entity::where('hash', $hash)->pluck('_id');
-		if($existing) 
-			return $existing;
-	 	
-	 	// Create a new activity, but only if there isn't one in the parameters.
-		if (is_null($activityURI)){
-			$activity->label = "JobConfiguration is saved.";
-			$activity->software_id = 'process';
-			if(!is_null($originalEntity)) 
-				$activity->entity_used_id = $originalEntity->_id;
-			$activity->save();
-			$activityURI = $activity->_id;
-		}
-
 		try {
-			$entity = new Entity;
 
+			$newEntityContent = $this->toArray();
+			
+			// Return the existing entity URI if it exists already.
+			// What if we want to save the same JobConf with different tags / title?
+			// Option: make an updateTags() function or something.
+			$hash = md5(serialize($newEntityContent));
+			$existing = Entity::where('hash', $hash)->pluck('_id');
+			if($existing) 
+				return $existing;
+		 	
+		 	// Create a new activity, but only if there isn't one in the parameters.
+			if (is_null($activityURI)){
+				$activity->label = "JobConfiguration is saved.";
+				$activity->software_id = 'jobcreator';
+
+				if(!is_null($originalEntity)) 
+					$activity->entity_used_id = $originalEntity->_id;
+
+				$activity->save();
+				$activityURI = $activity->_id;
+			}
+
+			// Create the entity
+			
 			// Mandatory
 			$entity->domain = "medical";
 			$entity->format = "text";
@@ -352,12 +358,13 @@ class JobConfiguration extends Moloquent {
 			
 			// Further identification
 			$entity->type = "factor_span";
-			$entity->tags = array('bla', 'bla', 'bla');
-			$entity->hash = $hash;
+			//$entity->tags = array('bla', 'bla', 'bla'); // OR: title
 
 			$entity->content = $newEntityContent;
+			$entity->hash = $hash;
 			
-			// Ancestors
+			// Ancestors 
+			// TODO: move this to ENTITY?
 			if(!is_null($originalEntity)){
 				$ancestors = $originalEntity->ancestors;
 				if(is_array($ancestors))
@@ -369,7 +376,7 @@ class JobConfiguration extends Moloquent {
 			} 
 
 			$entity->save();
-			Log::debug("Saved entity {$entity->_id}");
+			Log::debug("Saved entity {$entity->_id} and activity $activityURI.");
 
 			return $entity->_id;
 		} catch (Exception $e) {
