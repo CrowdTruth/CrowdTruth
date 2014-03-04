@@ -56,6 +56,7 @@ class apiController extends BaseController {
 			array_push($jobs, $entity);
 		}
 		// Make sort possible on 
+		
 			//completion
 
 			//totalCost
