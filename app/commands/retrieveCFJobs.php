@@ -62,7 +62,7 @@ class retrieveCFJobs extends Command {
 			}
 			
 			$judgment = $judgments[0];
-			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('platform_id', 'cf')->first()
+			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('platform_id', 'cf')->first();
 			if(!$agent){
 				$agent = new CrowdAgent;
 				$agent->_id= "/crowdagent/cf/{$judgment['worker_id']}";
