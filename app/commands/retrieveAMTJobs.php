@@ -100,7 +100,7 @@ class retrieveAMTJobs extends Command {
 						
 						//print_r($annentities); die();
 						if(count($annentities)>0) { 
-							$annnoldstatus = $annentity[0]->status;
+							$annnoldstatus = $annentity[0]['status'];
 							$annnewstatus = $assignment['AssignmentStatus'];
 
 							if($annoldstatus != $annnewstatus){
