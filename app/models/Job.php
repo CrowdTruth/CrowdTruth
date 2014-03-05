@@ -250,7 +250,6 @@ class Job extends Entity {
 					$orderresult = $cfJob->sendOrder($id, count($this->batch->attributes), array("cf_internal"));
 					if(isset($orderresult['result']['errors']))
 						throw new CFExceptions($orderresult['result']['errors'][0]);
-					dd($orderresult);
 				}
 
 				return $id;
