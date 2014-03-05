@@ -100,7 +100,7 @@ class retrieveAMTJobs extends Command {
 						
 						//print_r($annentities); die();
 						if(count($annentities)>0) { 
-							$annnoldstatus = $annentity[0]['status'];
+							$annoldstatus = $annentity[0]['status'];
 							$annnewstatus = $assignment['AssignmentStatus'];
 
 							if($annoldstatus != $annnewstatus){
@@ -109,7 +109,7 @@ class retrieveAMTJobs extends Command {
 									$annentity->update();
 								}
 
-								Log::debug("Status of Annotation {$annentity->_id} changed from $annnoldstatus to $annnewstatus");
+								Log::debug("Status of Annotation {$annentity->_id} changed from $annoldstatus to $annnewstatus");
 							}
 						} else { // ASSIGNMENT entity not in DB: create activity, entity and refer to or create agent.
 
