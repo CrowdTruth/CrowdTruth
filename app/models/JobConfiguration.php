@@ -16,7 +16,6 @@ class JobConfiguration extends Moloquent {
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
     								'notificationEmail',
     								'requesterAnnotation',
-    								'countries',
     								'instructions',
 
     								/* AMT specific */
@@ -29,6 +28,7 @@ class JobConfiguration extends Moloquent {
 
     	    						/* CF specific */
     	    						'annotationsPerWorker',
+    	    						'countries',
 
     	    						/* for our use */
     	    						'answerfields', /* The fields of the CSV file that contain the gold answers. */

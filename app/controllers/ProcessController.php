@@ -28,6 +28,9 @@ class ProcessController extends BaseController {
 		$qt = new QuestionTemplate(array('question'=>'question', 
 										'replace' => array('sentence.noPrefix' => array('cause' => 'causes'))));//)
 
+//		$cfJob = new crowdwatson\Job(Config::get('config.cfapikey'));
+//		$orderresult = $cfJob->sendOrder('397578', 22, array("cf_internal"));
+//dd($orderresult);
 		//\Artisan::call('command:retrieveamtjobs');
 
 /*		//$qt->save();

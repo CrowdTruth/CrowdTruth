@@ -23,7 +23,7 @@ class retrieveCFJobs extends Command {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Retrieve the information on the jobs from CrowdFlower.';
+	protected $description = 'Retrieve annotations from CrowdFlower and update job status.';
 
 	/**
 	 * Create a new command instance.
@@ -65,7 +65,7 @@ class retrieveCFJobs extends Command {
 			if(!$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('platform_id', 'cf')->first()){
 				$agent = new CrowdAgent;
 				$agent->_id= "/crowdagent/cf/{$judgment['worker_id']}";
-				$agent->platform_id= 'cf';
+				$agent->software_id= 'cf';
 				$agent->platformAgentId = $judgment['worker_id'];
 				$agent->country = $judgment['country'];
 				$agent->region = $judgment['region'];
@@ -77,7 +77,7 @@ class retrieveCFJobs extends Command {
 				$agent->save();
 			}
 
-			// TODO: check if exists? How?
+			// TODO: check if exists. How?
 			// For now this hacks helps: else a new activity would be created even if this 
 			// command was called as the job is finished. It doesn't work against manual calling the command though.
 			if($this->option('judgments')) {
@@ -144,7 +144,9 @@ class retrieveCFJobs extends Command {
 	private function storeJudgment($judgment, $job, $activityId, $agentId)
 	{
 
-		//try {
+		// TODO: check hash. 
+
+		try {
 			$aentity = new Entity;
 			$aentity->documentType = 'annotation';
 			$aentity->domain = $job->domain;
@@ -153,7 +155,7 @@ class retrieveCFJobs extends Command {
 			$aentity->activity_id = $activityId;
 			$aentity->crowdAgent_id = $agentId;
 			$aentity->software_id = 'cf';
-			$aentity->unit_id = 'todo';
+			$aentity->unit_id = $judgment['unit_data']['uid']; // uid field in the csv we created in $batch->toCFCSV().
 			$aentity->platformAnnotationId = $judgment['id'];
 			$aentity->cfChannel = $judgment['external_type'];
 			$aentity->acceptTime = new MongoDate(strtotime($judgment['started_at']));
@@ -176,11 +178,11 @@ class retrieveCFJobs extends Command {
 
 			*/
 
-		//} catch (Exception $e) {
-		//	Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
-		//	if($activity) $activity->forceDelete();
-		//	if($aentity) $aentity->forceDelete();
-		//}
+		} catch (Exception $e) {
+			Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
+			if($activity) $activity->forceDelete();
+			if($aentity) $aentity->forceDelete();
+		}
 	}
 
 

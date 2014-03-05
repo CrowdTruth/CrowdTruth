@@ -201,7 +201,7 @@ class retrieveAMTJobs extends Command {
 			//	Log::debug("Status of job {$job->_id} changed from $oldstatus to $newstatus");
 
 			// Save JOB with new status and completion.
-			$job->platformJobId = $newplatformhitid;// TODO
+			$job->platformJobId = $newplatformhitid;
 			if($job->completion == 1) $job->status = 'finished'; // Todo: Not sure if this works
 			$job->save();
 		} // foreach JOB
@@ -215,7 +215,7 @@ class retrieveAMTJobs extends Command {
 			$workerId = $data['WorkerId'];
 		} else {
 			throw new Exception("Unknown platform $platform");
-			// CF is not (yet?) needed here -> webhook.
+			// CF is not needed here -> webhook.
 		}	
 
 		if($id = CrowdAgent::where('platformAgentId', $workerId)->where('platform_id', $platform)->pluck('_id')) 
@@ -224,8 +224,7 @@ class retrieveAMTJobs extends Command {
 		else {
 			$agent = new CrowdAgent;
 			$agent->_id= "/crowdagent/$platform/$workerId";
-			$agent->used = 'todo. UnitId?';
-			$agent->platform_id= $platform;
+			$agent->software_id= $platform;
 			$agent->platformAgentId = $workerId;
 			$agent->save();
 			

@@ -42,8 +42,9 @@ class Job extends Entity {
 			// Create a new activity for this action.
 			$activity = new Activity;
 			$platformstring = implode($platform, ', ');
+			//$activity->used = 
 			$activity->label = "Job is uploaded to crowdsourcing platform(s): $platformstring.";
-			$activity->software_id = 'jobcreator'; // JOB software_id = $platform. Does this need to be the same?
+			$activity->software_id = 'jobcreator'; // TODO: JOB software_id = $platform. Does this need to be the same?
 			$activity->save();
 
 			$this->activityURI = $activity->_id;
@@ -212,7 +213,12 @@ class Job extends Entity {
 
 			// Add CSV and options
 			if(isset($id)) {
-				// TODO: countries, expiration
+				// TODO: expiration
+
+				// Not in API or problems with API: 
+				// 	- Channels (we can only order on cf_internal)
+				//  - Tags / keywords
+				//  - Worker levels
 
 				$optionsresult = $cfJob->setOptions($id, array('options' => $options));
 				if(isset($optionsresult['result']['errors']))
@@ -225,7 +231,7 @@ class Job extends Entity {
 
 				$channelsresult = $cfJob->setChannels($id, array('cf_internal'));
 				if(isset($channelsresult['result']['errors']))
-					throw new CFExceptions($goldresult['result']['errors'][0]);
+					throw new CFExceptions($goldresult['result']['errors'][0]); 
 
 				if(is_array($gold) and count($gold) > 0){
 					// TODO: Foreach? 
@@ -240,7 +246,12 @@ class Job extends Entity {
 						throw new CFExceptions($countriesresult['result']['errors'][0]);
 				}
 
-				// TODO: IF NOT SANDBOX, ORDER
+				if(!$sandbox){
+					$orderresult = $cfJob->sendOrder($id, count($this->batch->attributes), array("cf_internal"));
+					if(isset($orderresult['result']['errors']))
+						throw new CFExceptions($orderresult['result']['errors'][0]);
+					dd($orderresult);
+				}
 
 				return $id;
 
