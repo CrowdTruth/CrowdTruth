@@ -43,6 +43,7 @@ class apiController extends BaseController {
 	 */
 	public function index()
 	{	//Get all job-object
+
 		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job');
 		
 		//Filter on wished for fields using using field of v2 
@@ -51,6 +52,7 @@ class apiController extends BaseController {
 
 			foreach(Input::get('filter') as $filter => $value)
 			{
+
 				if(is_numeric($value))
 				{
 					$documents = $documents->where($filter, (int) $value);
@@ -67,6 +69,19 @@ class apiController extends BaseController {
 
 					foreach($value as $operator => $subvalue)
 					{
+						if($filter == "user_id"){
+							$user = \User::where('username', 'like', '%' . $subvalue . '%')->first();
+
+							// return $user;
+							$user_id = $user->_id;
+
+							// dd($user_id);
+
+							$documents = $documents->where('user_id', $user_id);
+
+							continue;
+						}
+
 						if(in_array($operator, $this->operators))
 						{
 							if(is_numeric($subvalue))

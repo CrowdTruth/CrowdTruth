@@ -1,15 +1,12 @@
 @extends('layouts.default')
 
 @section('container', 'full-container')
+
 @section('head')
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
 <script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
-<!-- <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/restangular/1.3.1/restangular.min.js"></script> -->
 <script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
-<!-- <script data-require="ng-table@*" data-semver="0.3.0" src="http://bazalt-cms.com/assets/ng-table/0.3.0/ng-table.js"></script> -->
 <script type="text/javascript" src="/custom_assets/dataretrieval.js"></script>
-
-
 @stop
 
 @section('content')
@@ -91,7 +88,7 @@
 							<tr>
 								<td></td>
 								<td><input type="datetime" ng-model="filter.created_at"></td>
-								<td><input type="text" ng-model="filter.user_id"></td>
+								<td><input type="text" ng-keyup="setFilter('user_id')" ng-model="filter.user_id"></td>
 								<td><input type="text" ng-model="filter.domain"></td>
 								<td><input type="text"></td>
 								<td><input type="text"></td>
@@ -111,7 +108,7 @@
 						</thead>
 						<tbody>
 							<tr ng-repeat="result in results.data">
-						        <td>{{Form::checkbox('')}}</td>
+						        <td><input type="checkbox" name="selectedJobs[]" value="@{{result._id}}" ng-model="result.selected"></td>
 						        <td>@{{result.created_at}}</td>
 						        <td>@{{result.user_id}}</td>
 						        <td>@{{result.domain}}</td>
@@ -135,36 +132,12 @@
 					
 					@{{filter}}
 					
-				</div>
-					@{{test}}
+				</div>			
 		
 @stop
 
 @section('end_javascript')
 <script>
-
-function sortModel(method){
-			// checks whether current method is on descend or ascend and stores it in variable
-			var sort = 'none';
-			if($("#"+method).hasClass("panel-nav-bar-ascending"))
-				{sort = 'desc';}
-			if($('#'+method).hasClass("panel-nav-bar-descending"))
-				{sort = 'asc';}
-			// ajax request with the method of sorting and the ascend/descend option, response is the result view
-			$.ajax({
-				url: 'sort/' + method + "/" + sort,
-				type: 'GET'
-			}).done(function( data ) {
-				// put the response in the results div
-               	$("#results").html(data);
-               	// reset the styling of the sorting panel
-            	$(".panel-nav-bar").removeClass("panel-nav-bar-ascending panel-nav-bar-descending");
-            	// set the styling on the sorting panel and remember whether it is descending or ascending
-            	if (sort == "desc")
-					{$("#"+method).addClass("panel-nav-bar-descending");}				
-	       		else {$("#"+method).addClass("panel-nav-bar-ascending");}
-        	});
-		}
 
 </script>
 
