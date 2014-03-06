@@ -1,5 +1,7 @@
 #.gitignore
 /app/config/database.php
+#
+/app/storage/temp/crowdflower.csv
 /app/config/config.php
 /app/storage/temp/*
 /bootstrap/compiled.php
