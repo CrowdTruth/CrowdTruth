@@ -23,7 +23,7 @@ class retrieveCFJobs extends Command {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Retrieve the information on the jobs from CrowdFlower.';
+	protected $description = 'Retrieve annotations from CrowdFlower and update job status.';
 
 	/**
 	 * Create a new command instance.
@@ -43,129 +43,123 @@ class retrieveCFJobs extends Command {
 	 */
 	public function fire()
 	{
-		if($this->option('judgments')) {
-			$newJudgmentsCount = 0;
+		$newJudgmentsCount = 0;
 
-			foreach(unserialize($this->option('judgments')) as $judgment){
-				//$judgment = unserialize($this->option('judgments'));
+		try {
+			if($this->option('jobid')){
+				die('not yet implemented');
+				// We could check for each annotation and add it if somehow it didn't get added earlier.
+				// For this, we should add ifexists checks in the storeJudgment method.
+				$job = $this->getJob($this->option('jobid'));
+				$cf = new crowdwatson\Job(Config::get('config.cfapikey'));
 
-				// Try to retrieve the job
-				if(!$job = Entity::where('documentType', 'job')
-						->where('software_id', 'cf')
-						->where('platformJobId', intval($judgment['job_id'])) // Mongo queries are strictly typed! We saved it as int in Job->store
-						->first())		
-				{
-					$job = Entity::where('documentType', 'job')
-						->where('software_id', 'cf')
-						->where('platformJobId', $judgment['job_id']) // Try this to be sure.
-						->first();
-				}
-
-				// Still no job found, this job is probably not made in our platform (or something went wrong earlier)
-				if(!$job){ 
-					Log::warning("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
-					throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
-				}
-
-				$this->storeJudgment($judgment, $job);
-				$newJudgmentsCount++;
-				// TODO: error handling.
+				$judgments = ''; //todo			
 			}
 
-			// Update count and completion
-			$job->annotationsCount = intval($job->annotationsCount)+$newJudgmentsCount;
-			$jpuquery = Entity::find($job->jobConf_id);
-			if(is_object($jpuquery))
-				$jpu = intval($jpuquery->first()->content['annotationsPerUnit']);
-			else 
-				$jpu = 1; // TODO: Didn't find jobconf, something's wrong				
-			$uc = intval($job->unitsCount);
-			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
-			else $job->completion = 0.00;
-
-			$job->save();
-		}
-
-
-		if($this->option('jobid')){
-			die('not yet implemented');
-			// We could check for each annotation and add it if somehow it didn't get added earlier.
-			// For this, we should add ifexists checks in the storeJudgment method.
-			$cf = new crowdwatson\Job(Config::get('config.cfapikey'));
-			$jobid = $this->option('jobid');
-			$job = Entity::where('documentType', 'job')
-				->where('software_id', 'cf')
-				->where('platformJobId', $jobid)
-				->first();
-
-			if(!$job)
-				throw new CFExceptions('Job not in local database; retrieving it would break provenance.');
-
-			//foreach unitid
-
-		}
-
-
-
-
-		/*$cf = new crowdwatson\Job(Config::get('config.cfapikey'));
-		//$jobid = $this->argument('jobid');
-		$jobid = '351526';
-		$result = $cf->readJob($jobid);
-
-		if(isset($result['result']['errors']))
-			throw new CFExceptions($result['result']['errors'][0]);
-
-
-		$cfjob = array_keys($result['result']);
-		
-		//$job->annotationsCount = $cfjob['judgments_count'];
-		*/
-	}		
-
-
-	private function storeJudgment($judgment, $job)
-	{
-
-		//try {
-			$agent = null;
-			$activity = null;
-			$entity = null;
-
-			if(!$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('platform_id', 'cf')->first()){
+			if($this->option('judgments')) {
+				$judgments = unserialize($this->option('judgments'));
+				$job = $this->getJob($judgments[0]['job_id']);
+			}
+			
+			$judgment = $judgments[0];
+			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('software_id', 'cf')->first();
+			if(!$agent){
 				$agent = new CrowdAgent;
-				$agent->_id= "/crowdagent/cf/{$judgment['worker_id']}";
-				$agent->platform_id= 'cf';
+				$agent->_id= "crowdagent/cf/{$judgment['worker_id']}";
+				$agent->software_id= 'cf';
 				$agent->platformAgentId = $judgment['worker_id'];
 				$agent->country = $judgment['country'];
 				$agent->region = $judgment['region'];
 				$agent->city = $judgment['city'];
 			}	
-				
-			$agent->cfWorkerTrust = $judgment['worker_trust'];
-			$agent->save();
+			
+			if( $agent->cfWorkerTrust != $judgment['worker_trust']){
+				$agent->cfWorkerTrust = $judgment['worker_trust'];
+				$agent->save();
+			}
 
-			// Create activity: annotate
-			// TODO: (possibly) check if exists?
-			$activity = new Activity;
-			$activity->label = "Unit is annotated on crowdsourcing platform.";
-			$activity->crowdAgent_id = $agent->_id; 
-			$activity->used = $job->_id;
-			$activity->software_id = 'cf';
-			$activity->save();
+			// TODO: check if exists. How?
+			// For now this hacks helps: else a new activity would be created even if this 
+			// command was called as the job is finished. It doesn't work against manual calling the command though.
+			if($this->option('judgments')) {
+				$activity = new Activity;
+				$activity->label = "Units are annotated on crowdsourcing platform.";
+				$activity->crowdAgent_id = $agent->_id; 
+				$activity->used = $job->_id;
+				$activity->software_id = 'cf';
+				$activity->save();
+			}
 
+			foreach($judgments as $judgment){
+				// TODO: error handling.
+				$this->storeJudgment($judgment, $job, $activity->_id, $agent->_id);
+				$newJudgmentsCount++;
+			}
+
+			// Update count and completion
+			// TODO: robustness
+			$job->annotationsCount = intval($job->annotationsCount)+$newJudgmentsCount;
+			$jpu = intval(Entity::where('_id', $job->jobConf_id)->first()->content['annotationsPerUnit']);		
+			$uc = intval($job->unitsCount);
+			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
+			else $job->completion = 0.00;
+
+			$job->save();
+			Log::debug("Saved $newJudgmentsCount new annotations to {$job->_id} to DB.");	
+		} catch (CFExceptions $e){
+			Log::warning($e->getMessage());
+			throw $e;
+		} catch (Exception $e) {
+			Log::warning($e->getMessage());
+			throw $e;
+		}
+		// If we throw an error, crowdflower will recieve HTTP 500 (internal server error) from us and send an e-mail.
+		// We could also choose to just die(), but we'll need heavier error reporting on our side.
+
+	}		
+
+	/**
+	* Retrieve Job from database. 
+	* @return Entity (documentType:job)
+	* @throws CFExceptions when not job is not found. 
+	*/
+	private function getJob($jobid){
+		if(!$job = Entity::where('documentType', 'job')
+					->where('software_id', 'cf')
+					->where('platformJobId', intval($jobid)) /* Mongo queries are strictly typed! We saved it as int in Job->store */
+					->first())
+		{
+			$job = Entity::where('documentType', 'job')
+				->where('software_id', 'cf')
+				->where('platformJobId', (string) $jobid) /* Try this to be sure. */
+				->first();
+		}
+
+		// Still no job found, this job is probably not made in our platform (or something went wrong earlier)
+		if(!$job)
+			throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
+
+		return $job;
+	}
+
+	private function storeJudgment($judgment, $job, $activityId, $agentId)
+	{
+
+		// TODO: check hash. 
+
+		try {
 			$aentity = new Entity;
 			$aentity->documentType = 'annotation';
 			$aentity->domain = $job->domain;
 			$aentity->format = $job->format;
 			$aentity->job_id = $job->_id;
-			$aentity->activity_id = $activity->_id;
-			$aentity->crowdAgent_id = $agent->_id;
+			$aentity->activity_id = $activityId;
+			$aentity->crowdAgent_id = $agentId;
 			$aentity->software_id = 'cf';
-			$aentity->unit_id = 'todo';
+			$aentity->unit_id = $judgment['unit_data']['uid']; // uid field in the csv we created in $batch->toCFCSV().
 			$aentity->platformAnnotationId = $judgment['id'];
 			$aentity->cfChannel = $judgment['external_type'];
-			$aentity->acceptTime = $judgment['started_at'];
+			$aentity->acceptTime = new MongoDate(strtotime($judgment['started_at']));
 			$aentity->cfTrust = $judgment['trust'];
 			$aentity->content = $judgment['data'];
 
@@ -185,14 +179,11 @@ class retrieveCFJobs extends Command {
 
 			*/
 
-			// TODO: update job status, judgment count
-
-			Log::debug("Saved annotation {$aentity->_id} to DB.");	
-		//} catch (Exception $e) {
-		//	Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
-		//	if($activity) $activity->forceDelete();
-		//	if($aentity) $aentity->forceDelete();
-		//}
+		} catch (Exception $e) {
+			Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
+			if($activity) $activity->forceDelete();
+			if($aentity) $aentity->forceDelete();
+		}
 	}
 
 

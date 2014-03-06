@@ -26,7 +26,8 @@ $app = new Illuminate\Foundation\Application;
 
 $env = $app->detectEnvironment(array(
 
-	'local' => array('PCl', 'localhost', 'jolicrowd'),
+	'local' => array('PCl', 'localhost'),
+	'jolicrowd' => array('jolicrowd')
 
 ));
 

@@ -6,7 +6,7 @@
 <p>Please consider only the capitalized WORD PHRASES (in case one of them appears multiple times in the sentence).</p>
 </div>
 
-<p><em><span style="color:#0000CD;">${sentence}</span></em></p>
+<p><em><span style="color:#0000CD;">${sentence.text}</span></em></p>
 
 <p>Which of the following statements is EXPRESSED in the SENTENCE above? (required)</p>
 
@@ -14,15 +14,15 @@
 	<tbody>
 		<tr>
 			<td valign="center"><input name="Q1" type="radio" value="Choice1" /></td>
-			<td><span class="answertext">${term1} ${relation} ${term2}</span></td>
+			<td><span class="answertext">${terms.first.text} ${relation.noPrefix} ${terms.second.text}</span></td>
 		</tr>
 		<tr>
 			<td valign="center"><input name="Q1" type="radio" value="Choice2" /></td>
-			<td><span class="answertext">${term2} ${relation} ${term1}</span></td>
+			<td><span class="answertext">${terms.second.text} ${relation.noPrefix} ${terms.first.text}</span></td>
 		</tr>
 		<tr>
 			<td valign="center"><input name="Q1" type="radio" value="Choice3" /></td>
-			<td><span class="answertext">${relation} is NOT EXPRESSED between the two WORD PHRASES</span></td>
+			<td><span class="answertext">${relation.noPrefix} is NOT EXPRESSED between the two WORD PHRASES</span></td>
 		</tr>
 	</tbody>
 </table>

@@ -21,7 +21,7 @@ class Batch extends Entity {
 	}
 
 	public function toArray(){
-		$array = $this->attributes;
+		$array = $this->wasDerivedFromMany;
 		$return = array();
 		foreach ($array as $row){
 			$content = $row['content'];

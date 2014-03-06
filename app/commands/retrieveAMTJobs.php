@@ -23,7 +23,7 @@ class retrieveAMTJobs extends Command {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Retrieve the information on the jobs from Mechanical Turk.';
+	protected $description = 'Retrieve annotations from Mechanical Turk and update job status.';
 
 	/**
 	 * Create a new command instance.
@@ -44,19 +44,23 @@ class retrieveAMTJobs extends Command {
 	public function fire()
 	{
 
-		// TODO:  UNITID
 		print("Retrieving jobs....");
 		$turk = new MechanicalTurk;
 
 		// Todo optimize query.
-		$jobs = Entity::where('documentType', 'job')->where('software_id', 'amt')->orderBy('created_at', 'desc')->get();
+		$jobs = Entity::where('documentType', 'job')
+						->where('software_id', 'amt')
+						->orderBy('created_at', 'desc')
+						->where('status', '!=', 'finished')
+						->get();
+
 		foreach($jobs as $job){
 			$newannotationscount = 0;
 			$newplatformhitid = array();
-			$newstatus = 'review'; // if this doesn't change, nothing is running anymore, so 'review'. This doesn't work with disposed yet..
+
 			foreach($job->platformJobId as $hitid){
 				
-				if($hitid['status'] == 'Disposed') // Can't recover from that.
+				if($hitid['status'] == 'deleted') // Can't recover from that. Don't update.
 					$newplatformhitid[] = $hitid;
 				else {
 
@@ -64,19 +68,23 @@ class retrieveAMTJobs extends Command {
 					$h = $hit->toArray();
 
 					//Do this once:
+					if(empty($job->Expiration)) $job->Expiration = new MongoDate(strtotime($h['Expiration']));
 					if(empty($job->HITGroupId)) $job->HITGroupId = $h['HITGroupId'];
-					if(empty($job->Expiration)) $job->Expiration = $h['Expiration'];
-					if(empty($job->HITTypeId)) $job->HITTypeId = $h['HITTypeId'];
+					if(empty($job->HITTypeId)) 	$job->HITTypeId  = $h['HITTypeId'];
 
 
-					if($h['HITStatus'] == 'Assignable' or $h['HITStatus'] == 'Unassignable')
+					if(($h['HITStatus'] == 'Assignable' or $h['HITStatus'] == 'Unassignable')
+					and ($job->Expiration->sec > time())) // Not yet expired. TODO: Timezones
 						$newstatus = 'running';
+					elseif($h['HITStatus'] == 'Reviewable' or $h['HITStatus'] == 'Reviewing')
+						$newstatus = 'review';
+					elseif($h['HITStatus'] == 'Disposed')
+						$newstatus = 'deleted';
 
 					$newplatformhitid[] = array('id' => $hitid['id'], 
-												'status' => $h['HITStatus']);
+												'status' => $newstatus);
 					
 					// todo: IF each is disposed, newstatus = deleted.
-
 
 					// Get Assignments.
 					$jobId = $job->_id;
@@ -86,23 +94,23 @@ class retrieveAMTJobs extends Command {
 					foreach ($assignments as $ass){
 						$assignment = $ass->toArray();
 
-						$aentity = Entity::where('job_id', $jobId)->where('platformAnnotationId', $assignment['AssignmentId'])->first();
+						$annentities = Entity::where('job_id', $jobId)
+										->where('platformAnnotationId', $assignment['AssignmentId'])
+										->get();
 						
-						// Sometimes, there's more entities. But if there's at least one, we know we retrieved the Assignment.
+						//print_r($annentities); die();
+						if(count($annentities)>0) { 
+							$annoldstatus = $annentities[0]['status'];
+							$annnewstatus = $assignment['AssignmentStatus'];
 
-						if($aentity) { // ASSIGNMENT already in DB.
-							// TODO: THIS is not aligned to the new situation.
-							$oldstatus = $aentity->status;
-							$newstatus = $assignment['AssignmentStatus'];
+							if($annoldstatus != $annnewstatus){
+								foreach($annentities as $annentity){
+									$annentity->status = $annnewstatus;
+									$annentity->update();
+								}
 
-							if($oldstatus != $newstatus){
-								Log::debug("Status of Annotation {$aentity->_id} changed from $oldstatus to $newstatus");
-								
-								$aentity->status = $newstatus;
-								$aentity->update();
+								Log::debug("Status of Annotation {$annentity->_id} changed from $annoldstatus to $annnewstatus");
 							}
-						
-
 						} else { // ASSIGNMENT entity not in DB: create activity, entity and refer to or create agent.
 
 							// Create or retrieve Agent
@@ -110,43 +118,51 @@ class retrieveAMTJobs extends Command {
 							
 							// Create activity: annotate
 							$activity = new Activity;
-							$activity->label = "Unit is annotated on crowdsourcing platform.";
+							$activity->label = "Units are annotated on crowdsourcing platform.";
 							$activity->crowdAgent_id = $agentId; 
 							$activity->used = $jobId;
 							$activity->software_id = 'amt';
 							$activity->save();
 
-							// Create entity FOR EACH UNIT
-														// OPTIONAL: we could create an ASSIGNMENT entity to hold the metadata.
-							$sortedbyid = array();
+							
+							// OPTIONAL: we could create an ASSIGNMENT entity to hold the metadata.
+							$groupedbyid = array();
 							foreach ($assignment['Answer'] as $q=>$ans){
 								// Retrieve the unitID and the QuestionId from the name of the input field.
-								//$unitid_qid = explode("_", $q);
 								$split = strrpos($q, "_");
-								$unitid = substr($q, 0, $split);
-								$qid = substr($q, $split+1);
-								$sortedbyid[$unitid][$qid] = $ans;
-								// sortedbyid[unitid][questionid] = answer
+								$unitid = substr($q, 0, $split); 	 // after the last _
+								$qid = substr($q, $split+1);		// before the last _
+								$groupedbyid[$unitid][$qid] = $ans;// grouped to create an entity for every ID.
 							}
 							
+							// Create entity FOR EACH UNIT
+							foreach($groupedbyid as $uid=>$qidansarray){
+								$annentity = new Entity;
+								$annentity->documentType = 'annotation';
+								$annentity->domain = $job->domain;
+								$annentity->format = $job->format;
+								//$annentity->type = $job->type;
+								$annentity->activity_id = $activity->_id;
+								$annentity->crowdAgent_id = $agentId;
+								$annentity->software_id = 'amt';
+								$annentity->job_id = $jobId;
+								$annentity->unit_id = $uid;
+								$annentity->platformAnnotationId = $assignment['AssignmentId'];
+								$annentity->acceptTime = new MongoDate(strtotime($assignment['AcceptTime']));
+								$annentity->submitTime = new MongoDate(strtotime($assignment['SubmitTime']));
+								//
+								// Todo: Optionally compute time spent doing the assignment here.
+								//
+								if(!empty($assignment['AutoApprovalTime']))
+									$annentity->autoApprovalTime = new MongoDate(strtotime($assignment['AutoApprovalTime']));
+								if(!empty($assignment['ApprovalTime']))
+									$annentity->autoApprovalTime = new MongoDate(strtotime($assignment['ApprovalTime']));
+								if(!empty($assignment['RejectionTime']))
+									$annentity->autoApprovalTime = new MongoDate(strtotime($assignment['RejectionTime']));
 
-							foreach($sortedbyid as $uid=>$qidansarray){
-								// create hash, check hash.
-								$aentity = new Entity;
-								$aentity->documentType = 'annotation';
-								$aentity->domain = $job->domain;
-								$aentity->format = $job->format;
-								$aentity->activity_id = $activity->_id;
-								$aentity->crowdAgent_id = $agentId;
-								$aentity->software_id = 'amt';
-								$aentity->job_id = $jobId;
-								$aentity->unit_id = $uid;
-								$aentity->platformAnnotationId = $assignment['AssignmentId'];
-								$aentity->acceptTime = $assignment['AcceptTime'];
-								$aentity->submitTime = $assignment['SubmitTime'];
-								$aentity->content = $qidansarray;
-								$aentity->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
-								$aentity->save();
+								$annentity->content = $qidansarray;
+								$annentity->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
+								$annentity->save();
 
 								$newannotationscount++;
 
@@ -156,48 +172,38 @@ class retrieveAMTJobs extends Command {
 								Possibly also:
 
 								HITId				2P3Z6R70G5RC7PEQC857ZSST0J2P9T
-								AutoApprovalTime	2014-02-06T13:10:01Z
-								ApprovalTime		2014-02-04T13:11:00Z
-								RejectionTime	
 								Deadline	
-								// or our own field: the difference between accept and submit.
 							*/
 							
 
 						}
 
-						if($newannotationscount>0){
-							Log::debug("Got $newannotationscount new Assignments for {$h['HITId']} - total " . count($assignments));
-
-						}
-						
-
+						if($newannotationscount>0)
+							Log::debug("Got $newannotationscount new annotations for {$h['HITId']} - total " . count($assignments) . " annotations.");
 
 					} // foreach assignment
 				} // if / else				
 			} // foreach hit
 
 
-
+			// TODO: robustness
 			$job->annotationsCount = intval($job->annotationsCount)+$newannotationscount;
-			$jpu = intval(Entity::find($job->jobConf_id)->first()->content['annotationsPerUnit']);
+			$jpu = intval(Entity::where('_id', $job->jobConf_id)->first()->content['annotationsPerUnit']);
 			$uc = intval($job->unitsCount);
 			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
 			else $job->completion = 0.00;
 
 			// Change status and save.
-			$oldstatus = $job->status;
-			$job->status = $newstatus;
-			// if($job->completion == 1) $newstatus = 'finished';
-			if($newstatus != $oldstatus)
-				Log::debug("Status of job {$job->_id} changed from $oldstatus to $newstatus");
+			//$oldstatus = $job->status;
+			//$job->status = $newstatus;
+			
+			//if($newstatus != $oldstatus)
+			//	Log::debug("Status of job {$job->_id} changed from $oldstatus to $newstatus");
 
 			// Save JOB with new status and completion.
+			$job->platformJobId = $newplatformhitid;
+			if($job->completion == 1) $job->status = 'finished'; // Todo: Not sure if this works
 			$job->save();
-
-
-
-
 		} // foreach JOB
 	}		
 
@@ -209,7 +215,7 @@ class retrieveAMTJobs extends Command {
 			$workerId = $data['WorkerId'];
 		} else {
 			throw new Exception("Unknown platform $platform");
-			// CF is not (yet?) needed here -> webhook.
+			// CF is not needed here -> webhook.
 		}	
 
 		if($id = CrowdAgent::where('platformAgentId', $workerId)->where('platform_id', $platform)->pluck('_id')) 
@@ -217,9 +223,8 @@ class retrieveAMTJobs extends Command {
 
 		else {
 			$agent = new CrowdAgent;
-			$agent->_id= "/crowdagent/$platform/$workerId";
-			$agent->used = 'todo. UnitId?';
-			$agent->platform_id= $platform;
+			$agent->_id= "crowdagent/$platform/$workerId";
+			$agent->software_id= $platform;
 			$agent->platformAgentId = $workerId;
 			$agent->save();
 			
