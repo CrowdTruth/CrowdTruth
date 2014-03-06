@@ -4,9 +4,10 @@
 @section('head')
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
 <script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
-<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/restangular/1.3.1/restangular.min.js"></script>
+<!-- <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/restangular/1.3.1/restangular.min.js"></script> -->
 <script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
-<script data-require="ng-table@*" data-semver="0.3.0" src="http://bazalt-cms.com/assets/ng-table/0.3.0/ng-table.js"></script>
+<!-- <script data-require="ng-table@*" data-semver="0.3.0" src="http://bazalt-cms.com/assets/ng-table/0.3.0/ng-table.js"></script> -->
+<script type="text/javascript" src="/custom_assets/dataretrieval.js"></script>
 
 
 @stop
@@ -18,23 +19,74 @@
 						<thead>
 							<tr>
 								<th><i class="fa fa-check-square-o"></i></th>
-								<th><i ng-click="setSortDesc('created_at')" class="fa fa-caret-down"><i ng-click="setSortAsc('created_at')" class="fa fa-caret-up"></i> Created at</th>
-								<th><i ng-click="setSortDesc('user_id')" class="fa fa-caret-down"><i ng-click="setSortAsc('user_id')" class="fa fa-caret-up"></i> Creator</th>
-								<th><i ng-click="setSortDesc('domain')" class="fa fa-caret-down"><i ng-click="setSortAsc('domain')" class="fa fa-caret-up"></i> Domain</th>
-								<th><i ng-click="setSortDesc('format')" class="fa fa-caret-down"><i ng-click="setSortAsc('format')" class="fa fa-caret-up"></i> Format</th>
-								<th><i ng-click="setSortDesc('type')" class="fa fa-caret-down"><i ng-click="setSortAsc('type')" class="fa fa-caret-up"></i> Template</th>
-								<th><i ng-click="setSortDesc('has_configuration.content.unitsPerTask')" class="fa fa-caret-down"><i ng-click="setSortAsc('has_configuration.content.unitsPerTask')" class="fa fa-caret-up"></i> Units</th>
-								<th><i ng-click="setSortDesc('hasGold')" class="fa fa-caret-down"><i ng-click="setSortAsc('hasGold')" class="fa fa-caret-up"></i> Has Gold</th>
-								<th><i ng-click="setSortDesc('has_configuration.platform')" class="fa fa-caret-down"><i ng-click="setSortAsc('has_configuration.platform')" class="fa fa-caret-up"></i> Platform</th>
-								<th><i ng-click="setSortDesc('has_configuration.content.reward')" class="fa fa-caret-down"><i ng-click="setSortAsc('has_configuration.content.reward')" class="fa fa-caret-up"></i> Reward</th>
-								<th><i ng-click="setSortDesc('has_configuration.content.rewardPerHour')" class="fa fa-caret-down"><i ng-click="setSortAsc('has_configuration.content.rewardPerHour')" class="fa fa-caret-up"></i> Reward hourly</th>
-								<th><i ng-click="setSortDesc('has_configuration.content.totalCost')" class="fa fa-caret-down"><i ng-click="setSortAsc('has_configuration.content.totalCost')" class="fa fa-caret-up"></i> Total Cost</th>
-								<th><i ng-click="setSortDesc('flaggedPercentage')" class="fa fa-caret-down"><i ng-click="setSortAsc('flaggedPercentage')" class="fa fa-caret-up"></i> Flagged %</th>
-								<th><i ng-click="setSortDesc('flaggedWorkers')" class="fa fa-caret-down"><i ng-click="setSortAsc('flaggedWorkers')" class="fa fa-caret-up"></i> Flagged abs</th>
-								<th><i ng-click="setSortDesc('has_configuration.content.judgmentsPerUnit')" class="fa fa-caret-down"><i ng-click="setSortAsc('has_configuration.content.judgmentsPerUnit')" class="fa fa-caret-up"></i> Judgments</th>
-								<th><i ng-click="setSortDesc('totalJudgments')" class="fa fa-caret-down"><i ng-click="setSortAsc('totalJudgments')" class="fa fa-caret-up"></i> Total Judgments</th>
-								<th><i ng-click="setSortDesc('status')" class="fa fa-caret-down"><i ng-click="setSortAsc('status')" class="fa fa-caret-up"></i> Status</th>
-								<th><i ng-click="setSortDesc('completion')" class="fa fa-caret-down"><i ng-click="setSortAsc('completion')" class="fa fa-caret-up"></i> Completion</th>
+								<th>
+									<i ng-click="setSortDesc('created_at')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('created_at')" class="fa fa-caret-up"></i> Created at 
+								</th>
+								<th>
+									<i ng-click="setSortDesc('user_id')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('user_id')" class="fa fa-caret-up"></i> Creator
+								</th>
+								<th>
+									<i ng-click="setSortDesc('domain')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('domain')" class="fa fa-caret-up"></i> Domain
+								</th>
+								<th>
+									<i ng-click="setSortDesc('format')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('format')" class="fa fa-caret-up"></i> Format
+								</th>
+								<th>
+									<i ng-click="setSortDesc('type')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('type')" class="fa fa-caret-up"></i> Template
+								</th>
+								<th>
+									<i ng-click="setSortDesc('has_configuration.content.unitsPerTask')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('has_configuration.content.unitsPerTask')" class="fa fa-caret-up"></i> Units
+								</th>
+								<th>
+									<i ng-click="setSortDesc('hasGold')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('hasGold')" class="fa fa-caret-up"></i> Has Gold
+								</th>
+								<th>
+									<i ng-click="setSortDesc('has_configuration.platform')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('has_configuration.platform')" class="fa fa-caret-up"></i> Platform
+								</th>
+								<th>
+									<i ng-click="setSortDesc('has_configuration.content.reward')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('has_configuration.content.reward')" class="fa fa-caret-up"></i> Reward
+								</th>
+								<th>
+									<i ng-click="setSortDesc('has_configuration.content.rewardPerHour')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('has_configuration.content.rewardPerHour')" class="fa fa-caret-up"></i> Reward hourly
+								</th>
+								<th>
+									<i ng-click="setSortDesc('has_configuration.content.totalCost')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('has_configuration.content.totalCost')" class="fa fa-caret-up"></i> Total Cost
+								</th>
+								<th>
+									<i ng-click="setSortDesc('flaggedPercentage')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('flaggedPercentage')" class="fa fa-caret-up"></i> Flagged %
+								</th>
+								<th>
+									<i ng-click="setSortDesc('flaggedWorkers')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('flaggedWorkers')" class="fa fa-caret-up"></i> Flagged abs
+								</th>
+								<th>
+									<i ng-click="setSortDesc('has_configuration.content.judgmentsPerUnit')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('has_configuration.content.judgmentsPerUnit')" class="fa fa-caret-up"></i> Judgments
+								</th>
+								<th>
+									<i ng-click="setSortDesc('totalJudgments')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('totalJudgments')" class="fa fa-caret-up"></i> Total Judgments
+								</th>
+								<th>
+									<i ng-click="setSortDesc('status')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('status')" class="fa fa-caret-up"></i> Status
+								</th>
+								<th>
+									<i ng-click="setSortDesc('completion')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('completion')" class="fa fa-caret-up"></i> Completion
+								</th>
 							</tr>
 							<tr>
 								<td></td>
@@ -58,7 +110,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr ng-repeat="result in results">
+							<tr ng-repeat="result in results.data">
 						        <td>{{Form::checkbox('')}}</td>
 						        <td>@{{result.created_at}}</td>
 						        <td>@{{result.user_id}}</td>
@@ -80,9 +132,11 @@
 						   	</tr>
     					</tbody>
 					</table>
+					
 					@{{filter}}
-					@{{result}}
+					
 				</div>
+					@{{test}}
 		
 @stop
 
