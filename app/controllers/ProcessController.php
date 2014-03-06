@@ -11,7 +11,7 @@ class ProcessController extends BaseController {
 		// 	Session::flash('flashNotice', 'You have not added any items to your selection yet');
 		// 	return Redirect::to('files/browse');
 		// }
-        return Redirect::to('process/selectfile');
+        return Redirect::to('process/batch');
 	}
 
 	public function getTemplatebuilder(){
@@ -20,66 +20,12 @@ class ProcessController extends BaseController {
 	}
 
 
-	public function getSelectfile() {
-		$jc = unserialize(Session::get('jobconf'));
-		$temp = '';
-	//$cfwebhook = new crowdwatson\CFWebhook();
-	//$cfwebhook->test(396621);die();
-		$qt = new QuestionTemplate(array('question'=>'question', 
-										'replace' => array('sentence.noPrefix' => array('cause' => 'causes'))));//)
-
-//		$cfJob = new crowdwatson\Job(Config::get('config.cfapikey'));
-//		$orderresult = $cfJob->sendOrder('397578', 22, array("cf_internal"));
-//dd($orderresult);
-		//\Artisan::call('command:retrieveamtjobs');
-
-/*		//$qt->save();
-
-		$cfjob = new \crowdwatson\Job(Config::get('config.cfapikey'));
-		$ret = $cfjob->setChannels("395908", array('cf_internal'));
-dd($ret);
-		*/
-/*		$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
-		$judg = $cf->getUnitJudgments('380640', '406870708');
-		$temp = serialize($judg['results']['judgments'][1]);
-
-
-Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
-		//$temp = $judg;
-/*		$temp = Config::get('config.templatedir');
-
-		$hit = new crowdwatson\Hit;
-		$hit->setTitle('test');
-		$j = JobConfiguration::getFromHit($hit);
-		dd($j);
-
-
-		//$cf = new crowdwatson\Job("c6b735ba497e64428c6c61b488759583298c2cf3");
-		//$job = $cf->readJob('382004');
-		//$judg = $cf->getUnitJudgments('380640', '406870707');
-
-		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp);
-=======*/
-		
-/*		//TEST CODE
-		$sentence1 = new Sentence();
-		$sentence1->save();
-		$sentence2 = new Sentence();
-		$sentence2->save();
-		$sentences = array($sentence1, $sentence2);
-		$batch = new Batch($sentences, "This is a new batch");
-		$batch->save();
-		$sentence3 = new Sentence;
-		$sentence4 = new Sentence;
-		$sentences1 = array($sentence3, $sentence4);
-		$batch1 = new Batch($sentences1, "This is the second batch");
-		$batch1->save();
-		$entities =  Batch::all();
-		// END TEST CODE*/
-		 
-		
-		return View::make('process.tabs.selectfile')->with('jobconf', $jc)->with('temp', $temp);//->with('entities', $entities);
-
+	public function getBatch() {
+		$batches = Batch::where('documentType', 'batch')->get(); 
+		$batch = unserialize(Session::get('batch'));
+		if(!$batch) $selectedbatchid = ''; 
+		else $selectedbatchid = $batch->_id;
+		return View::make('process.tabs.batch')->with('batches', $batches)->with('selectedbatchid', $selectedbatchid);
 	}
 
 	public function getTemplate() {
@@ -103,6 +49,7 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 		$j = new Job($batch, $template, $jc);
 		$questionids = array();
 		$goldfields = array();
+		$unitscount = count($batch->wasDerivedFromMany);
 
 		try {
 			$questionids = $j->getQuestionIds();
@@ -120,7 +67,8 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 
 		return View::make('process.tabs.details')
 			->with('jobconf', $jc)
-			->with('goldfields', $goldfields);
+			->with('goldfields', $goldfields)
+			->with('unitscount', $unitscount);
 	}
 
 	public function getPlatform() {
@@ -165,7 +113,7 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 		Session::forget('origjobconf');
 		Session::forget('template');
 		Session::forget('batch');
-		return Redirect::to("process/selectfile");
+		return Redirect::to("process/batch");
 	}
 
 	/*
@@ -192,6 +140,15 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 	public function postFormPart($next){
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
+
+		if(Input::has('batch')){
+			// TODO: CSRF
+			$batch = Batch::where('documentType', 'batch') /* TODO find a way to assume this */
+							->where('_id', Input::get('batch'))
+							->first(); 
+			Session::put('batch', serialize($batch));
+		}
+
 		if(Input::has('template')){
 			// Create the JobConfiguration object if it doesn't already exist.
 			$ntemplate = Input::get('template');
@@ -229,13 +186,8 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 			}		
 		}
 
-		// TODO: get this from 'selectfile'
-		$batch = Batch::testBatch();
-		//$csv = 'source359444.csv';
-
 		Session::put('jobconf', serialize($jc));
 		Session::put('template', $template);
-		Session::put('batch', serialize($batch));
 
 		try {
 			return Redirect::to("process/$next");
@@ -326,6 +278,13 @@ Artisan::call('command:retrievecfjobs', array('--jobid' => '380640'));*/
 		}
 		return json_encode($r);
 	}
+
+	// catch all
+	public function missingMethod($parameters = array())
+	{
+	   return Redirect::to("process/batch");
+	}
+
 
 	protected $countries = array(
 	'AF' => 'Afghanistan',

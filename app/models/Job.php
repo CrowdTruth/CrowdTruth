@@ -18,10 +18,13 @@ class Job extends Entity {
     protected $jcid;
     protected $activityURI;
 
-
+    /**
+    * @param $batch Batch
+    * @param $template string just the name of the template
+    * @param $jobConfiguration JobConfiguration
+    */
     public function __construct($batch, $template, $jobConfiguration){
-    	$this->batch = $batch;//->content
-    	$this->batchid = $batch->_id;
+    	$this->batch = $batch;
     	$this->template = Config::get('config.templatedir') . $template;
     	$this->CFApiKey = Config::get('config.cfapikey');
     	$this->jobConfiguration = $jobConfiguration;
@@ -196,7 +199,6 @@ class Job extends Entity {
     	try {
 
     		// TODO: check if all the parameters are in the csv.
-
 			// Read the files
 			foreach(array('cml', 'css', 'js') as $ext){
 				$filename = "$template.$ext";
@@ -247,7 +249,7 @@ class Job extends Entity {
 				}
 
 				if(!$sandbox){
-					$orderresult = $cfJob->sendOrder($id, count($this->batch->attributes), array("cf_internal"));
+					$orderresult = $cfJob->sendOrder($id, count($this->batch->wasDerivedFromMany), array("cf_internal"));
 					if(isset($orderresult['result']['errors']))
 						throw new CFExceptions($orderresult['result']['errors'][0]);
 				}
@@ -278,8 +280,8 @@ class Job extends Entity {
     	if(!file_exists($htmlfilename) || !is_readable($htmlfilename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
 
-		$batch = $this->batch->attributes;
-		shuffle($batch);
+		$units = $this->batch->wasDerivedFromMany;
+		shuffle($units);
 
 		$questionsbuilder = '';
 		$count = 0;
@@ -289,12 +291,13 @@ class Job extends Entity {
 		$hit = $c->toHit();
 		$upt = $c->unitsPerTask;
 		$assRevPol = $hit->getAssignmentReviewPolicy();
-		
+		$previewmultisingleerror = false;
 		$dom = HtmlDomParser::file_get_html($htmlfilename);
 
 		// Do some checks and fill $questiontemplate.
 		if($upt > 1){
 			try {
+				
 			if(!$div = $dom->find('div[id=wizard]', 0))
 				throw new AMTException('Multipage template has no div with id \'wizard\'. View the readme in the templates directory for more info.');
 			
@@ -308,14 +311,14 @@ class Job extends Entity {
 				throw new AMTException('Multipage template has no \'{uid}\'. View the readme in the templates directory for more info.');
 
 			} catch (AMTException $e){
-				if($preview) $questiontemplate = $dom->innertext;
+				if($preview) {$questiontemplate = $dom->innertext; $previewmultisingleerror = true;}
 				else throw $e;
 			}
 		} else {
 			$questiontemplate = $dom->innertext;
 		}
 
-		foreach ($batch as $parameters) {
+		foreach ($units as $parameters) {
 			$params = array_dot($parameters['content']);
 
 			$replacerules=array('cause' => 'causes'); // TODO: get these from QUESTIONTEMPLATE
@@ -360,8 +363,10 @@ class Job extends Entity {
 			// Create a hit every ($upt)
 			if($count % $upt == 0){
 				if($upt>1){
-					$dom->find('div[id=wizard]', 0)->innertext = $questionsbuilder;
-					$questionsbuilder = $dom->save();
+					if(!$previewmultisingleerror){
+						$dom->find('div[id=wizard]', 0)->innertext = $questionsbuilder;
+						$questionsbuilder = $dom->save();
+					}
 				}
 
 				if($preview) $return[] = $questionsbuilder;
@@ -400,7 +405,7 @@ class Job extends Entity {
     * @param $platformjobid array if $platform = amt, int if $platform = cf.
     * @param $preview boolean sets the status to 'unordered'
     */
-    private function store($platform, $platformJobId, $preview = false){
+    public function store($platform, $platformJobId, $preview = false){
 
     	$this->createSoftwareAgent($platform);
 
@@ -418,6 +423,12 @@ class Job extends Entity {
 		}
 
 		try {
+			$reward = $this->jobConfiguration->reward;
+			$annotationsPerUnit = intval($this->jobConfiguration->annotationsPerUnit);
+			$unitsPerTask = intval($this->jobConfiguration->unitsPerTask);
+			$unitsCount = count($this->batch->wasDerivedFromMany);
+			$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
+
 			$entity = new Entity;
 			$entity->domain = 'medical';
 			$entity->format = 'text';
@@ -427,13 +438,14 @@ class Job extends Entity {
 			
 			$entity->jobConf_id = $this->jcid;
 			//$entity->template_id = $this->template; // Will probably be part of jobconf
-			$entity->batch_id = $this->batchid;
+			$entity->batch_id = $this->batch->_id;
 			$entity->software_id = $platform;
 			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's!!!
 
-			$entity->unitsCount = count($this->batch->attributes);
+			$entity->unitsCount = $unitsCount;
 			$entity->annotationsCount = 0;
 			$entity->completion = 0.00; // 0.00-1.00
+			$entity->projectedCost = $projectedCost;
 
 			$entity->status = $status;
 

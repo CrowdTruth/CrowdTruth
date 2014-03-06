@@ -2,8 +2,8 @@
 <!-- START process_nav -->   
 
 						<ul class="nav nav-tabs" id="processtabs">
-							<li{{ (Request::segment(2) == 'selectfile' ? ' class="active"' : '') }} title='selectfile'>{{ link_to('process/selectfile', "Select file") }}</li>
-							<li{{ (Request::segment(2) == 'template' ? ' class="active"' : '') }} title='template'>{{ link_to('process/template', "Pick/build Template") }}</li>
+							<li{{ (Request::segment(2) == 'batch' ? ' class="active"' : '') }} title='batch'>{{ link_to('process/selectbatch', "Select batch") }}</li>
+							<li{{ (Request::segment(2) == 'template' ? ' class="active"' : '') }} title='template'>{{ link_to('process/template', "Pick Template") }}</li>
 							<li{{ (Request::segment(2) == 'details' ? ' class="active"' : '') }} title='details'>{{ link_to('process/details', "Job Details") }}</li>
 							<li{{ (Request::segment(2) == 'platform' ? ' class="active"' : '') }} title='platform'>{{ link_to('process/platform', "Platform") }}</li>
 							<li{{ (Request::segment(2) == 'submit' ? ' class="active"' : '') }} title='submit'>{{ link_to('process/submit', "Submit") }}</li>
@@ -81,12 +81,18 @@ $(window).load(function() {
     function calculate(){
         var reward = $('#reward').val();
         var annotationsPerUnit = $('#annotationsPerUnit').val();
-        var unitsPerTask = $('#unitsPerTask').val()
-        //var sentences = $
-		var cost = (reward*annotationsPerUnit)/unitsPerTask;
-		var result = "<strong> $ " + cost.toFixed(2) + "</strong>";
-        var el = document.getElementById('totalCost')
-        if(el) el.innerHTML=result;
+        var unitsPerTask = $('#unitsPerTask').val();
+        var unitsCount = {{ $unitscount or 0}};
+		var costPerUnit = (reward/unitsPerTask)*annotationsPerUnit;
+
+        var el = document.getElementById('costPerUnit');
+	    if(el) el.innerHTML= "$" + costPerUnit.toFixed(2);
+	    
+	    if(unitsCount > 0) {
+	    	var totalCost = (reward/unitsPerTask)*(unitsCount*annotationsPerUnit);
+	        var el1 = document.getElementById('totalCost');
+	        if(el1) el1.innerHTML= "<strong>$" + totalCost.toFixed(2)  + "</strong>";
+    	}
     } 
 
 </script>
