@@ -45,8 +45,72 @@ class apiController extends BaseController {
 	{	//Get all job-object
 		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job');
 		
+		//Filter on wished for fields using using field of v2 
+		if(Input::has('filter'))
+		{
+
+			foreach(Input::get('filter') as $filter => $value)
+			{
+				if(is_numeric($value))
+				{
+					$documents = $documents->where($filter, (int) $value);
+					continue;
+				}
+
+				if($filter == "userAgent")
+				{
+					$filter = "user_id";
+				}			
+
+				if(is_array($value))
+				{
+
+					foreach($value as $operator => $subvalue)
+					{
+						if(in_array($operator, $this->operators))
+						{
+							if(is_numeric($subvalue))
+							{
+								$subvalue = (int) $subvalue;
+							}
+
+							$documents = $documents->where($filter, $operator, $subvalue);
+						}
+					}
+
+					continue;
+				}
+				else
+				{
+					$value = array($value);
+				}
+
+				$documents = $documents->whereIn($filter, $value);
+			}
+		}
+
+		// Make sort possible on 
+		if(Input::has('sortBy'))
+		{
+			$sortBy = Input::get('sortBy');
+			
+			if(Input::has('order'))
+			
+				{$order = Input::get('order');}
+
+			$documents = $documents->OrderBy($sortBy, $order);
+
+		}			
+
+		// Take limit of 100 unless otherwise indicated
+
+		if(!$limit = (int) Input::get('limit'))
+		{
+			$limit = 100;
+		}
+
 		//Eager load jobConfiguration into job entity
-		$entities = $documents->with('hasConfiguration')->get();
+		$entities = $documents->with('hasConfiguration')->take($limit)->get();
 		
 		$jobs = array();
 
@@ -55,31 +119,20 @@ class apiController extends BaseController {
 		{
 			array_push($jobs, $entity);
 		}
-		// Make sort possible on 
-			//completion
-
-			//totalCost
-
-			//Date/Running time
-
-			//Flagged workers %
-
-			//Job size
 		
-		//Filter on wished for fields using using field of v2 
-
-
+		
 		// Paginate results, current page, page of choice etc.
 		
 		if(!$perPage = (int) Input::get('perpage'))
 		{
-			$perPage = 15;
+			$perPage = 2;
 		}
 			
-		$paginator = Paginator::make($jobs, count($documents), $perPage);
+		$paginator = Paginator::make($jobs, count($entities), $perPage);
 
+		
 		//Return paginator
-
+		
 		return Response::json($paginator);
 
 
