@@ -10,13 +10,12 @@ class JobConfiguration extends Moloquent {
     								'description',
     								'instructions', /* AMT: inject into template */ 
     								'keywords', 
-    								'judgmentsPerUnit', /* AMT: maxAssignments */
+    								'annotationsPerUnit', /* AMT: maxAssignments */
     								'unitsPerTask', /* AMT: not in API. Would be 'tasks per assignment' */
     								'reward', 
     								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
     								'notificationEmail',
     								'requesterAnnotation',
-    								'countries',
     								'instructions',
 
     								/* AMT specific */
@@ -28,7 +27,8 @@ class JobConfiguration extends Moloquent {
 									'eventType',
 
     	    						/* CF specific */
-    	    						'judgmentsPerWorker',
+    	    						'annotationsPerWorker',
+    	    						'countries',
 
     	    						/* for our use */
     	    						'answerfields', /* The fields of the CSV file that contain the gold answers. */
@@ -47,10 +47,10 @@ class JobConfiguration extends Moloquent {
 	);
 
 	private $cfrules = array(
-		'judgmentsPerUnit' => 'required|numeric|min:1', /* AMT: defaults to 1 */
+		'annotationsPerUnit' => 'required|numeric|min:1', /* AMT: defaults to 1 */
 		'unitsPerTask' => 'required|numeric|min:1',
 		'instructions' => 'required',
-		'judgmentsPerWorker' => 'required|numeric|min:1'
+		'annotationsPerWorker' => 'required|numeric|min:1'
 	);	
 
 	private $amtrules = array(
@@ -117,7 +117,7 @@ class JobConfiguration extends Moloquent {
 
     //FIELDS IN LARAVEL -_-
     public function totalJudgments(){
-    	return $this->judgmentsPerUnit*$this->unitsPerTask;
+    	return $this->annotationsPerUnit*$this->unitsPerTask;
     }
 
 	public function totalCost(){
@@ -173,7 +173,7 @@ class JobConfiguration extends Moloquent {
 			'description' 	=> $hit->getDescription(),
 			'keywords'		=> $hit->getKeywords(),
 			'reward'		=> $hit->getReward()['Amount'],
-			'judgmentsPerUnit'=> $hit->getMaxAssignments(),
+			'annotationsPerUnit'=> $hit->getMaxAssignments(),
 			'expirationInMinutes'	=> intval($hit->getAssignmentDurationInSeconds())/60,
 			'hitLifetimeInMinutes' => intval($hit->getLifetimeInSeconds())/60,
 			'unitsPerTask' => 1, 
@@ -207,7 +207,7 @@ class JobConfiguration extends Moloquent {
 		if (!empty($this->title)) 			 			$hit->setTitle						  	($this->title); 
 		if (!empty($this->description)) 		 		$hit->setDescription					($this->description); 
 		if (!empty($this->keywords)) 					$hit->setKeywords				  		($this->keywords);
-		if (!empty($this->judgmentsPerUnit)) 			$hit->setMaxAssignments		  			($this->judgmentsPerUnit);
+		if (!empty($this->annotationsPerUnit)) 			$hit->setMaxAssignments		  			($this->annotationsPerUnit);
 		if (!empty($this->expirationInMinutes))			$hit->setAssignmentDurationInSeconds 	($this->expirationInMinutes*60);
 		if (!empty($this->hitLifetimeInMinutes)) 		$hit->setLifetimeInSeconds		  		($this->hitLifetimeInMinutes*60);
 		if (!empty($this->reward)) 						$hit->setReward					  		(array('Amount' => $this->reward, 'CurrencyCode' => 'USD'));
@@ -229,16 +229,20 @@ class JobConfiguration extends Moloquent {
 
 		if (!empty($this->title)) 			 	$data['title']					 	= $this->title; 
 		if (!empty($this->instructions)) 		$data['instructions']				= $this->instructions; 
-		if (!empty($this->judgmentsPerUnit)) 	$data['judgments_per_unit']		  	= $this->judgmentsPerUnit;
+		if (!empty($this->annotationsPerUnit)) 	$data['judgments_per_unit']		  	= $this->annotationsPerUnit;
 
 		if (!empty($this->unitsPerTask))		$data['units_per_assignment']		= $this->unitsPerTask;
-		if (!empty($this->judgmentsPerWorker))	{
-			$data['max_judgments_per_worker']	= $this->judgmentsPerWorker;
-			$data['max_judgments_per_ip']		= $this->judgmentsPerWorker; // We choose to keep this the same.
+		if (!empty($this->annotationsPerWorker))	{
+			$data['max_judgments_per_worker']	= $this->annotationsPerWorker;
+			$data['max_judgments_per_ip']		= $this->annotationsPerWorker; // We choose to keep this the same.
 		}
 
-		$data['webhook_uri'] = Config::get('config.cfwebhookuri');
-		$data['send_judgments_webhook'] = 'true';
+		// Webhook doesn't work on localhost and we the uri should be set. 
+		if((App::environment() != 'local') and (Config::get('config.cfwebhookuri')) != ''){
+			
+			$data['webhook_uri'] = Config::get('config.cfwebhookuri');
+			$data['send_judgments_webhook'] = 'true';
+		}
 		return $data;
 	}
 
@@ -314,36 +318,38 @@ class JobConfiguration extends Moloquent {
 	/**
 	* Saves the JobConfiguration, along with an activity, to the DB.
 	* @return entity id (existing or new one)
-	* @throws Exception
+	* @throws Exception (deletes the created entities when exception is thrown)
 	*/
 	public function store($originalEntity = null, $activityURI = null){
-		
-		// TODO: set tags, subtype, URI
-	
-		$user = Auth::user();
-		$newEntityContent = $this->toArray();
+		$entity = new Entity;
 		$activity = new Activity;
 
-		// What if we want to save the same JobConf with different tags?
-		// Option: make an updateTags() function or something.
-		$hash = md5(serialize($newEntityContent));
-		$existing = Entity::where('hash', $hash)->pluck('_id');
-		if($existing) 
-			return $existing;
-	 	
-	 	// Create a new activity, but only if there isn't one in the parameters.
-		if (is_null($activityURI)){
-			$activity->label = "JobConfiguration is saved.";
-			$activity->software_id = 'process';
-			if(!is_null($originalEntity)) 
-				$activity->entity_used_id = $originalEntity->_id;
-			$activity->save();
-			$activityURI = $activity->_id;
-		}
-
 		try {
-			$entity = new Entity;
 
+			$newEntityContent = $this->toArray();
+			
+			// Return the existing entity URI if it exists already.
+			// What if we want to save the same JobConf with different tags / title?
+			// Option: make an updateTags() function or something.
+			$hash = md5(serialize($newEntityContent));
+			$existing = Entity::where('hash', $hash)->pluck('_id');
+			if($existing) 
+				return $existing;
+		 	
+		 	// Create a new activity, but only if there isn't one in the parameters.
+			if (is_null($activityURI)){
+				$activity->label = "JobConfiguration is saved.";
+				$activity->software_id = 'jobcreator';
+
+				if(!is_null($originalEntity)) 
+					$activity->entity_used_id = $originalEntity->_id;
+
+				$activity->save();
+				$activityURI = $activity->_id;
+			}
+
+			// Create the entity
+			
 			// Mandatory
 			$entity->domain = "medical";
 			$entity->format = "text";
@@ -352,12 +358,13 @@ class JobConfiguration extends Moloquent {
 			
 			// Further identification
 			$entity->type = "factor_span";
-			$entity->tags = array('bla', 'bla', 'bla');
-			$entity->hash = $hash;
+			//$entity->tags = array('bla', 'bla', 'bla'); // OR: title
 
 			$entity->content = $newEntityContent;
+			$entity->hash = $hash;
 			
-			// Ancestors
+			// Ancestors 
+			// TODO: move this to ENTITY?
 			if(!is_null($originalEntity)){
 				$ancestors = $originalEntity->ancestors;
 				if(is_array($ancestors))
@@ -369,7 +376,7 @@ class JobConfiguration extends Moloquent {
 			} 
 
 			$entity->save();
-			Log::debug("Saved entity {$entity->_id}");
+			Log::debug("Saved entity {$entity->_id} and activity $activityURI.");
 
 			return $entity->_id;
 		} catch (Exception $e) {

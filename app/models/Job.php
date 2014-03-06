@@ -12,6 +12,7 @@ class Job extends Entity {
     protected $mturk;
     protected $csv;
     protected $batch;
+    protected $batchid;
     protected $template;
     protected $jobConfiguration;
     protected $jcid;
@@ -19,7 +20,8 @@ class Job extends Entity {
 
 
     public function __construct($batch, $template, $jobConfiguration){
-    	$this->batch = $batch;
+    	$this->batch = $batch;//->content
+    	$this->batchid = $batch->_id;
     	$this->template = Config::get('config.templatedir') . $template;
     	$this->CFApiKey = Config::get('config.cfapikey');
     	$this->jobConfiguration = $jobConfiguration;
@@ -33,36 +35,40 @@ class Job extends Entity {
 
 		$ids = array();
 		try {
-			
-			if($sandbox)
-				$this->mturk->setRootURL(Config::get('config.amtsandboxurl'));
-			else {	
-								
-				// Create a new activity for this action.
-				$activity = new Activity;
-				$activity->label = "Job is uploaded to crowdsourcing platform(s).";
-				$activity->software_id = 'jobcreator';
-				$activity->save();
+				
 
-				$this->activityURI = $activity->_id;
-				// Save JobConfiguration (or reference existing). Throws error if not possible.
-				// TODO: might have a parent.
-				$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
-			}
+			$this->createSoftwareAgent('jobcreator');
+								
+			// Create a new activity for this action.
+			$activity = new Activity;
+			$platformstring = implode($platform, ', ');
+			//$activity->used = 
+			$activity->label = "Job is uploaded to crowdsourcing platform(s): $platformstring.";
+			$activity->software_id = 'jobcreator'; // TODO: JOB software_id = $platform. Does this need to be the same?
+			$activity->save();
+
+			$this->activityURI = $activity->_id;
+			// Save JobConfiguration (or reference existing). Throws error if not possible.
+			// TODO: might have a parent.
+			$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
+			
 
 			if(in_array('amt', $platform)){
+				// Upload to sandbox or to real AMT.
+				if($sandbox) $this->mturk->setRootURL(Config::get('config.amtsandboxurl'));
+				else $this->mturk->setRootURL(Config::get('config.amtrooturl')); // TODO change this to real one.
+
 				$ids['amt'] = $this->amtPublish(false);
-				if(!$sandbox) $this->store('amt', $ids['amt']);
+				$this->store('amt', $ids['amt'], $sandbox);
 			}
 
 			if(in_array('cf', $platform)){	
 				$ids['cf'] = $this->cfPublish($sandbox);
-				if(!$sandbox) $this->store('cf', $ids['cf']);
+				$this->store('cf', $ids['cf'], $sandbox);
 			}	
 
-
-
 			return $ids;
+
 		} catch (AMTException $e) {
 			$this->undoCreation($ids, $e);
 			throw new Exception("AMT: {$e->getMessage()}");
@@ -71,7 +77,7 @@ class Job extends Entity {
 			throw new Exception("CF: {$e->getMessage()}");
 		} catch (Exception $e) {
 			$this->undoCreation($ids, $e);
-			throw $e; // Error in store().
+			throw $e; // (probably) error in store().
 		}
 
     }
@@ -89,7 +95,7 @@ class Job extends Entity {
 				foreach($ids['amt'] as $id){
 					$this->mturk->disableHIT($id);
 					$entity = Entity::where('platformJobId', $id);
-					if(!empty($entity)) $entity->forceDelete();
+					if(is_object($entity)) $entity->forceDelete();
 				}
 
 			if(isset($ids['cf'])){
@@ -97,8 +103,8 @@ class Job extends Entity {
 				$cfJob = new crowdwatson\Job($this->CFApiKey);	
 				$cfJob->cancelJob($id);
 				$cfJob->deleteJob($id);
-				$entity = Entity::where('platformJobId', $id);
-				if(!empty($entity)) $entity->forceDelete();
+				$entity = Entity::where('platformJobId', intval($id));
+				if(is_object($entity)) $entity->forceDelete();
 			}
 
 			$activity = Activity::where('_id', $this->activityURI)->first();
@@ -207,7 +213,12 @@ class Job extends Entity {
 
 			// Add CSV and options
 			if(isset($id)) {
-				// TODO: countries, expiration
+				// TODO: expiration
+
+				// Not in API or problems with API: 
+				// 	- Channels (we can only order on cf_internal)
+				//  - Tags / keywords
+				//  - Worker levels
 
 				$optionsresult = $cfJob->setOptions($id, array('options' => $options));
 				if(isset($optionsresult['result']['errors']))
@@ -220,7 +231,7 @@ class Job extends Entity {
 
 				$channelsresult = $cfJob->setChannels($id, array('cf_internal'));
 				if(isset($channelsresult['result']['errors']))
-					throw new CFExceptions($goldresult['result']['errors'][0]);
+					throw new CFExceptions($goldresult['result']['errors'][0]); 
 
 				if(is_array($gold) and count($gold) > 0){
 					// TODO: Foreach? 
@@ -235,7 +246,11 @@ class Job extends Entity {
 						throw new CFExceptions($countriesresult['result']['errors'][0]);
 				}
 
-				// TODO: IF NOT SANDBOX, ORDER
+				if(!$sandbox){
+					$orderresult = $cfJob->sendOrder($id, count($this->batch->attributes), array("cf_internal"));
+					if(isset($orderresult['result']['errors']))
+						throw new CFExceptions($orderresult['result']['errors'][0]);
+				}
 
 				return $id;
 
@@ -383,40 +398,40 @@ class Job extends Entity {
     * Save Job to database
     * @param $platform string amt | cf
     * @param $platformjobid array if $platform = amt, int if $platform = cf.
+    * @param $preview boolean sets the status to 'unordered'
     */
-    private function store($platform, $platformJobId){
+    private function store($platform, $platformJobId, $preview = false){
 
-    	$this->createPlatformSoftwareAgent($platform);
+    	$this->createSoftwareAgent($platform);
+
+		if($preview) $status = 'unordered'; // For AMT this means that it's in the sandbox
+		else $status = 'running';
 
 		if($platform == 'amt') {
 
 			// Create an array with HITid and status.
 			$temppjid = array();
 			foreach($platformJobId as $id)
-				array_push($temppjid, array('id' => $id, 'status' => 'running'));
+				array_push($temppjid, array('id' => $id, 'status' => $status));
 
 			$platformJobId = $temppjid;
-
-			$status = 'running';
-		} elseif ($platform == 'cf') {
-			$status = 'unordered'; // TODO: this might change when we include the preview option to the GUI.
 		}
 
-		$user = Auth::user();
 		try {
 			$entity = new Entity;
 			$entity->domain = 'medical';
 			$entity->format = 'text';
+			// $entity->type = 'factor_span'; // todo?
 			$entity->documentType = 'job';
 			$entity->activity_id = $this->activityURI;
 			
 			$entity->jobConf_id = $this->jcid;
 			//$entity->template_id = $this->template; // Will probably be part of jobconf
-			$entity->batch_id = $this->batch->_id;
-			$entity->software_id = $platform; 
-			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's.
+			$entity->batch_id = $this->batchid;
+			$entity->software_id = $platform;
+			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's!!!
 
-			$entity->unitsCount = 42; // TODO
+			$entity->unitsCount = count($this->batch->attributes);
 			$entity->annotationsCount = 0;
 			$entity->completion = 0.00; // 0.00-1.00
 
@@ -431,19 +446,19 @@ class Job extends Entity {
 		}
     }
 
-    private function createPlatformSoftwareAgent($platform){
-		if(!SoftwareAgent::find($platform))
+    private function createSoftwareAgent($agentid){
+		if(!SoftwareAgent::find($agentid))
 		{
 			$softwareAgent = new SoftwareAgent;
-			$softwareAgent->_id = $platform;
+			$softwareAgent->_id = $agentid;
 
-			if($platform == 'amt'){
+			if($agentid == 'amt')
 				$softwareAgent->label = "Crowdsourcing platform: Amazon Mechanical Turk";
-				// More?
-			} elseif ($platform == 'cf'){
+			elseif ($agentid == 'cf')
 				$softwareAgent->label = "Crowdsourcing platform: CrowdFlower";
-			}
-
+			elseif ($agentid = 'jobcreator')
+				$softwareAgent->label = "Job creation";
+	
 			$softwareAgent->save();
 		}
 	}

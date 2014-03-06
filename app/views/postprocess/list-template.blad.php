@@ -34,7 +34,7 @@
 						               	<div class="row">
 						               		<div class="col-md-4" style="padding-top:5px; font-size:larger; vertical-align:baseline; border-right: 1px solid #eee; border-top: 1px solid #eee;">
 						               			<strong style="font-size: 18px;">{{ $crowdtask->unitsPerTask }}</strong> Sentences<br>
-						               			<strong style="font-size: 18px;">{{ $crowdtask->judgmentsPerUnit }}</strong> Judgments/Unit<br>
+						               			<strong style="font-size: 18px;">{{ $crowdtask->annotationsPerUnit }}</strong> Judgments/Unit<br>
 						               			Template: <strong style="font-size: 16px;">{{ $crowdtask->template}}</strong> 
 						               		</div>
 						               		<div class="col-md-1" style="padding-top:5px; border-right: 1px solid #eee; border-top: 1px solid #eee;"> on<br><h2 style="text-align: center;">{{implode(",", $crowdtask->platform)}}</h2></div>

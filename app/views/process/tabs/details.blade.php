@@ -40,12 +40,12 @@
 						</fieldset>
 						
 						<fieldset>
-								{{ Form::label('judgmentsPerUnit', 'Judgments per Unit', 
+								{{ Form::label('annotationsPerUnit', 'Annotations per Unit', 
 								array('class' => 'col-xs-4 control-label')) }}
 
 							<div class="input-group col-xs-2">
-								{{ Form::input('number', 'judgmentsPerUnit',  null, 
-									array('onChange' => 'calculate()', 'id'=>'judgmentsPerUnit', 'class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
+								{{ Form::input('number', 'annotationsPerUnit',  null, 
+									array('onChange' => 'calculate()', 'id'=>'annotationsPerUnit', 'class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
 							</div>
 							<br>
 							{{ Form::label('unitsPerTask', 'Units per task', 
@@ -68,7 +68,7 @@
 							{{ Form::label('reward', 'Reward', array('class' => 'col-xs-4 control-label')) }}
 							<div class="input-group col-xs-2">
 							<span class="input-group-addon">$</span> 
-							{{ Form::input('number', 'reward',  $jobconf->reward, array('onChange' => 'calculate()', 'class' => 'form-control input-sm','id'=>'reward',  'min' => '0.01', 'step' => '0.01')) }}
+							{{ Form::input('number', 'reward',  null, array('onChange' => 'calculate()', 'class' => 'form-control input-sm','id'=>'reward',  'min' => '0.01', 'step' => '0.01')) }}
 							</div>
 							<br>
 							{{ Form::label('totalCost', 'Cost per unit', 

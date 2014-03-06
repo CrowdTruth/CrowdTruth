@@ -27,9 +27,9 @@
 						<div id="cf-div" style="padding: 10px;">
 							<fieldset>
 								<legend>CrowdFlower</legend> 
-								{{ Form::label('judgmentsPerWorker', 'Maximal judgments per worker', array('class'=>'col-xs-4 control-label')) }}
+								{{ Form::label('annotationsPerWorker', 'Max annotations per worker', array('class'=>'col-xs-4 control-label')) }}
 								<div class="input-group col-xs-2">
-									{{ Form::input('number', 'judgmentsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1')) }}
+									{{ Form::input('number', 'annotationsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1')) }}
 								</div>
 								<br>
 								{{ Form::label('countries[]', 'Countries', array('class'=>'col-xs-4 control-label')) }}

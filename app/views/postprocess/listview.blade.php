@@ -1,13 +1,17 @@
 @extends('layouts.default')
 
-@section('content')
-	<div id="container" class="container">
-		<div class="row">
-			
-			<div  id="filtercolumn" class="col-md-2 ">
+@section('head')
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+<script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/restangular/1.3.1/restangular.min.js"></script>
+<script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
+@stop
 
+
+@section('content')
+			<div  id="filtercolumn" class="col-md-2 ">
 			<!-- Left column for sorting -->
-			
+
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title">Sort by:</h3>
@@ -17,7 +21,7 @@
 					 onClick the method of sorting is passed as a parameter. It is important however, that the div has the same name as the 
 					 parameter for the js to function properly -->
 
-					<div class="panel-body panel-nav-bar panel-nav-bar-ascending" id="judgmentsPerUnit" style="border-bottom: 1px solid #eee" onClick="sortModel('judgmentsPerUnit')">
+					<div class="panel-body panel-nav-bar panel-nav-bar-ascending" id="annotationsPerUnit" style="border-bottom: 1px solid #eee" onClick="sortModel('annotationsPerUnit')">
 						<i class="fa fa-check-circle"></i> Completion<br>
 					</div>
 					<div class="panel-body panel-nav-bar" id="totalCost" style="border-bottom: 1px solid #eee" onClick="sortModel('totalCost')">
@@ -56,7 +60,7 @@
 						{{Form::checkbox('')}} Factor Span
 					</div>
 					<div class="panel-body">
-						More??
+						Domain, Type, Status (Running, Completed)
 					</div>
 				</div>
 			<!-- END OF LEFT COLUMN HERE -->
@@ -69,11 +73,6 @@
 			<!-- Close results column -->
 			</div>
 
-
-		<!-- Close row -->
-		</div>
-	<!-- Close container -->
-	</div>
 @section('end_javascript')
 	
 	<script>

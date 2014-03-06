@@ -14,7 +14,9 @@
 	<body>
 		@include('layouts.navbar')
 		
-		<div class="container CW_{{Request::segment(2)}}">
+		<div class="
+		@yield('container', 'container') 
+		CW_{{Request::segment(2)}}">
 			<div class="row">
 @yield('content')
 			</div>   
