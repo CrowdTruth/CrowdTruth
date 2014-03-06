@@ -100,7 +100,7 @@ class retrieveAMTJobs extends Command {
 						
 						//print_r($annentities); die();
 						if(count($annentities)>0) { 
-							$annoldstatus = $annentity[0]['status'];
+							$annoldstatus = $annentities[0]['status'];
 							$annnewstatus = $assignment['AssignmentStatus'];
 
 							if($annoldstatus != $annnewstatus){
@@ -188,7 +188,7 @@ class retrieveAMTJobs extends Command {
 
 			// TODO: robustness
 			$job->annotationsCount = intval($job->annotationsCount)+$newannotationscount;
-			$jpu = intval(Entity::find($job->jobConf_id)->first()->content['annotationsPerUnit']);
+			$jpu = intval(Entity::where('_id', $job->jobConf_id)->first()->content['annotationsPerUnit']);
 			$uc = intval($job->unitsCount);
 			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
 			else $job->completion = 0.00;
@@ -223,7 +223,7 @@ class retrieveAMTJobs extends Command {
 
 		else {
 			$agent = new CrowdAgent;
-			$agent->_id= "/crowdagent/$platform/$workerId";
+			$agent->_id= "crowdagent/$platform/$workerId";
 			$agent->software_id= $platform;
 			$agent->platformAgentId = $workerId;
 			$agent->save();

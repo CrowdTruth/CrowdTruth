@@ -65,7 +65,7 @@ class retrieveCFJobs extends Command {
 			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('platform_id', 'cf')->first();
 			if(!$agent){
 				$agent = new CrowdAgent;
-				$agent->_id= "/crowdagent/cf/{$judgment['worker_id']}";
+				$agent->_id= "crowdagent/cf/{$judgment['worker_id']}";
 				$agent->software_id= 'cf';
 				$agent->platformAgentId = $judgment['worker_id'];
 				$agent->country = $judgment['country'];
@@ -99,7 +99,7 @@ class retrieveCFJobs extends Command {
 			// Update count and completion
 			// TODO: robustness
 			$job->annotationsCount = intval($job->annotationsCount)+$newJudgmentsCount;
-			$jpu = intval(Entity::find($job->jobConf_id)->first()->content['annotationsPerUnit']);			
+			$jpu = intval(Entity::where('_id', $job->jobConf_id)->first()->content['annotationsPerUnit']);		
 			$uc = intval($job->unitsCount);
 			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
 			else $job->completion = 0.00;
