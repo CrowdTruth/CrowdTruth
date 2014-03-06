@@ -15,31 +15,34 @@
 					<div class="panel-heading">
 						<h3 class="panel-title">Sort by:</h3>
 					</div>
-					<div class="panel-body panel-nav-bar panel-nav-bar-ascending" id="annotationsPerUnit" style="border-bottom: 1px solid #eee">
+					<div class="panel-body" id="annotationsPerUnit" style="border-bottom: 1px solid #eee">
 						<i class="fa fa-check-circle"></i> Completion <div class="pull-right"> <i ng-click="setSortDesc('completion')" class="fa fa-caret-down"></i>
 									<i ng-click="setSortAsc('completion')" class="fa fa-caret-up"></i></div><br>
 					</div>
-					<div class="panel-body panel-nav-bar" id="totalCost" style="border-bottom: 1px solid #eee">
+					<div class="panel-body" id="totalCost" style="border-bottom: 1px solid #eee">
 						<i class="fa fa-dollar"></i> Projected cost <div class="pull-right"> <i ng-click="setSortDesc('projectedCost')" class="fa fa-caret-down"></i>
 									<i ng-click="setSortAsc('projectedCost')" class="fa fa-caret-up"></i></div><br>
 					</div>
-					<div class="panel-body panel-nav-bar" id="created_at" style="border-bottom: 1px solid #eee">
+					<div class="panel-body" id="created_at" style="border-bottom: 1px solid #eee">
 						<i class="fa fa-clock-o"></i> Created at <div class="pull-right"> <i ng-click="setSortDesc('created_at')" class="fa fa-caret-down"></i>
 									<i ng-click="setSortAsc('created_at')" class="fa fa-caret-up"></i> </div><br>
 					</div>
-					<div class="panel-body panel-nav-bar" id="flaggedWorkers" style="border-bottom: 1px solid #eee">
+					<div class="panel-body" id="flaggedWorkers" style="border-bottom: 1px solid #eee">
 						<i class="fa fa-flag"></i> Flagged workers <div class="pull-right"> <i ng-click="setSortDesc('flaggedWorkers')" class="fa fa-caret-down"></i>
 									<i ng-click="setSortAsc('flaggedWorkers')" class="fa fa-caret-up"></i></div><br>
 					</div>
-					<div class="panel-body panel-nav-bar" id="jobSize">
+					<div class="panel-body" id="jobSize">
 						<i class="fa fa-gavel"></i> Job size <div class="pull-right"> <i ng-click="setSortDesc('unitsCount')" class="fa fa-caret-down"></i>
 									<i ng-click="setSortAsc('unitsCount')" class="fa fa-caret-up"></i></div><br>
 					</div>
-					<div class="panel-body panel-nav-bar" id="jobSize">
+					<div class="panel-body" id="jobSize">
 						<i class="fa fa-gavel"></i> Created by <div class="pull-right"> <i ng-click="setSortDesc('user_id')" class="fa fa-caret-down"></i>
 									<i ng-click="setSortAsc('user_id')" class="fa fa-caret-up"></i></div><br>
 					</div>
 				</div>
+				<div >
+	               	<button class="btn btn-primary btn-lg" style="width: 100%;" ng-click="analyze()">Analyse</button>
+	            </div>
 			
 			<!-- Left column for filters -->
 				<!-- <div class="panel panel-default">
@@ -75,7 +78,7 @@
 						<!-- Top row is panel heading with creation date and creator -->
 						<div class="panel-heading clearfix">
 							<div style="width: 25%; float:left;">
-								<input ng-model=""></a>
+								<input type="checkbox" ng-model="result.checked"></a>
 							</div>
 	              			<div style="float:left;">
 	              				Created on @{{result.created_at}} by @{{result.user_id}}
@@ -111,7 +114,7 @@
 			               		</div>
 			               		<div class="col-md-2" style="border-right: 1px solid #eee; text-align: center; display: table-cell; padding-top: 5px; font-size: 32px; vertical-align: middle;"> 
 			                   		<i class="fa fa-flag"></i>  %</strong><br>
-			                   		<button class="btn btn-sm">Workers</button>
+			                   		<!-- <button class="btn btn-sm">Workers</button> -->
 				               	</div>
 							    <div class="col-md-2" style="border-right: 1px solid #eee; height: 100%; text-align: center; display: table-cell; padding-top: 10px; vertical-align: middle;">
 							    	<i class="fa fa-dollar"></i><strong> /</strong> <i class="fa fa-gavel"></i> <strong> $ @{{result.has_configuration.content.reward}}</strong>
@@ -132,15 +135,10 @@
 						<!-- Here starts the panel footer -->
 	               		<div class="panel-footer">
 	               			<div class="row">
-	               				<div style="padding: 3px; padding-left: 5px; float: left;" >
-	               					<button class="btn btn-primary" action="">Analyse</button>
-	               				</div>
-					  			<div data-toggle="buttons" style="float:left; padding: 3px;">
-						  			<label class="btn btn-primary">
-										<input type="checkbox" name="Details" id="" onChange="">Details
-									</label>
+	               				<div style="float:left; padding: 3px;">
+						  			<input class="btn btn-primary" type="button" id="" ng-click="showDetail(result)" value="Details">
 								</div>
-								<div class="btn-group" style="float: left; padding: 3px;">
+								<!-- <div class="btn-group" style="float: left; padding: 3px;">
 									<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>Actions
 						    			<span class="caret"></span>
 					   				</button>
@@ -152,13 +150,10 @@
 					       				<li><a href=""><i class="fa fa-sign-out fa-fw"></i>Delete Job</a></li>
 					   				</ul>
 								</div>
-							</div>
+ -->							</div>
 						</div>								
 					<!--End of panel  -->
 					</div>	
-				
-			<!-- Close results column -->
-			
 			<!-- Close results column -->
 			</div>
 </div>

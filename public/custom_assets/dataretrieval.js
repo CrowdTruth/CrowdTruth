@@ -27,13 +27,16 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
  		});
  	} 
 
- 	$scope.setFilter = function (column){
- 		var filter = "filter[" + column + "][like]=" + $scope.filter.user_id;
+ 	$scope.setFilter = function (column, input){
+ 		
+ 		var filter = "filter[" + column + "][like]=" + input;
+ 		
  		$scope.$watch('filter', function(n,o){
- 			if($scope.filter.user_id == "")
+ 			if(input == "")
  				filter = "";
  				$scope.results = getResource($resource, page, perPage, sort, filter);
  		})
+ 		
  		$scope.$watch('filter', function(n,o){
  			$scope.results = getResource($resource, "", "", sort, filter );
  			
@@ -43,17 +46,21 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
  	//The following part concerns selection of jobs for analysis
  	$scope.selection = [];
 
- 	$scope.selectedJobs = function selectedJobs( ) {
- 		return filterFilter($scope.results, {selected:true});
- 	};
-
- 	$scope.$watch('results|filter:{selected:true}', function(nv, ov, $scope){
- 		$scope.selection = nv.map(function (job){
- 			return result._id;
- 			console.log(selection);
- 		});
+ 	$scope.$watch('results.data|filter:{checked:true}', function(n,o){
+ 		if(n != undefined)
+ 			$scope.selection = n.map(function (result){
+				return result._id;
+ 			});
  	}, true);
-  	  	
+ 	
+ 	$scope.analyze = function(){
+ 		alert('Redirect to analyze: ' + $scope.selection);
+ 	}
+
+ 	$scope.showDetail = function(result){
+ 		alert(result);
+ 	}
+ 
 });
 
 

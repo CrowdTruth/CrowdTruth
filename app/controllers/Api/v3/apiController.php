@@ -91,6 +91,8 @@ class apiController extends BaseController {
 
 							$documents = $documents->where($filter, $operator, $subvalue);
 						}
+
+						
 					}
 
 					continue;
