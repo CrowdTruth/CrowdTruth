@@ -83,6 +83,13 @@
 							<div class="input-group col-xs-2">
 							<div id="totalCost" class="control-label" style="text-align:left"></div>
 							</div>
+							<br>
+							{{ Form::label('minRewardPerHour', 'Minimum reward per hour', 
+									array('class' => 'col-xs-4 control-label')) }}
+							<div class="input-group col-xs-2">
+							<div id="minRewardPerHour" class="control-label" style="text-align:left"></div>
+							</div>	
+							<br>	
 
 						</fieldset>
 						<br>

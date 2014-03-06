@@ -82,11 +82,16 @@ $(window).load(function() {
         var reward = $('#reward').val();
         var annotationsPerUnit = $('#annotationsPerUnit').val();
         var unitsPerTask = $('#unitsPerTask').val();
+        var expirationInMinutes = $('#expirationInMinutes').val();
         var unitsCount = {{ $unitscount or 0}};
 		var costPerUnit = (reward/unitsPerTask)*annotationsPerUnit;
+		var rph = (reward/expirationInMinutes)*60;
 
         var el = document.getElementById('costPerUnit');
 	    if(el) el.innerHTML= "$" + costPerUnit.toFixed(2);
+
+	    var el0 = document.getElementById('minRewardPerHour');
+	    if(el0) el0.innerHTML= "$" + rph.toFixed(2);
 	    
 	    if(unitsCount > 0) {
 	    	var totalCost = (reward/unitsPerTask)*(unitsCount*annotationsPerUnit);
