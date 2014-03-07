@@ -20,7 +20,7 @@ class QuestionTemplate extends Entity {
                // try {
                     $activity = new Activity;
                     $activity->label = "Questiontemplate is saved.";
-                    $activity->software_id = 'templatebuilder';
+                    $activity->softwareAgent_id = 'templatebuilder';
                     if(!is_null($questiontemplate->ancestors))
                         $activity->entity_used_id = end($questiontemplate->ancestors);
                     $activity->save();

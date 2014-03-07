@@ -2,13 +2,33 @@
 
 namespace MongoDB;
 
-use Moloquent, Schema, Cache, Input, Exception, Auth, User;
+use Moloquent, Schema, Cache, Input, Exception, Auth, User, Session;
 
 class Entity extends Moloquent {
 
-	protected $collection = 'entities';
-	protected $softDelete = true;
-	protected static $unguarded = true;
+    protected $collection = 'entities';
+    protected $softDelete = true;
+    protected static $unguarded = true;
+    public static $snakeAttributes = false;
+
+    public function __construct()
+    {
+        $this->filterResults();
+        parent::__construct();
+    }
+
+    public function filterResults()
+    {
+        $input = Input::all();
+        if(array_key_exists('wasDerivedFrom', $input))    array_push($this->appends, 'wasDerivedFrom');
+        if(array_key_exists('wasGeneratedBy', $input))    array_push($this->with, 'wasGeneratedBy');
+        if(array_key_exists('wasAttributedTo', $input))    $this->with = array_merge($this->with, array('wasAttributedToUserAgent', 'wasAttributedToCrowdAgent'));
+        if(array_key_exists('wasAttributedToUserAgent', $input))    array_push($this->with, 'wasAttributedToUserAgent');
+        if(array_key_exists('wasAttributedToCrowdAgent', $input))    array_push($this->with, 'wasAttributedToCrowdAgent');        
+    
+        if(isset($input['wasDerivedFrom']['without'])) $this->hidden = array_merge($this->hidden, array_flatten(array($input['wasDerivedFrom']['without'])));
+
+    }       
 
     protected static function boot()
     {
@@ -16,6 +36,11 @@ class Entity extends Moloquent {
 
         static::saving(function($entity)
         {
+            $entity->_id = strtolower($entity->_id);
+            $entity->domain = strtolower($entity->domain);
+            $entity->format = strtolower($entity->format);
+            $entity->documentType = strtolower($entity->documentType);
+
             static::validateEntity($entity);
 
             if(!Schema::hasCollection('entities'))
@@ -23,18 +48,21 @@ class Entity extends Moloquent {
                 static::createSchema();
             }
 
-            if(is_array($entity->content))
+            if(is_null($entity->hash))
             {
-                $hash = md5(serialize($entity->content));
-            } 
-            else
-            {
-                $hash = md5($entity->content);
-            }
+                if(is_array($entity->content))
+                {
+                    $entity->hash = md5(serialize($entity->content));
+                } 
+                else
+                {
+                    $entity->hash = md5($entity->content);
+                }
+            }            
 
-            if(Entity::withTrashed()->where('hash', $hash)->first())
+            if(Entity::withTrashed()->where('hash', $entity->hash)->first())
             {
-                //throw new Exception("Hash already exists for: " . $entity->title);
+                throw new Exception("Hash already exists for: " . $entity->title);
             }
 
             $baseURI = static::generateIncrementedBaseURI($entity);
@@ -50,8 +78,6 @@ class Entity extends Moloquent {
             if(empty($entity->_id))
                 $entity->_id = 'entity/' . $baseURI;
            
-            $entity->hash = $hash;
-
         });
 
         static::saved(function($entity)
@@ -72,12 +98,31 @@ class Entity extends Moloquent {
         });
     }
 
+    // public static function generateIncrementedBaseURI($entity){
+    //     $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->orderBy('natural', 'desc')->take(1)->get(array("_id"));
+
+    //     if(isset($lastMongoURIUsed[0])){
+    //         $lastMongoIDUsed = explode("/", $lastMongoURIUsed[0]['_id']);
+    //         $id = end($lastMongoIDUsed) + 1;
+    //     } else {
+    //         $id = 0;
+    //     }
+        
+    //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
+    // } 
+
     public static function generateIncrementedBaseURI($entity){
+        // if(Session::has('lastMongoIDUsed'))
+        // {
+        //     $id = (Session::get('lastMongoIDUsed') + 1);
+        //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
+        // }
+
         $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->get(array("_id"));
         if(is_object($lastMongoURIUsed)) {
-        	$lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
-	            return $entity->_id;
-	        }, SORT_NATURAL)->toArray();
+            $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
+                return $entity->_id;
+            }, SORT_NATURAL)->toArray();
         }
         
         if(!end($lastMongoURIUsed)){
@@ -86,9 +131,12 @@ class Entity extends Moloquent {
             $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
             $id = end($lastMongoIDUsed) + 1;
         }
+
+        // if($entity->documentType == "twrex-structured-sentence")
+        //     Session::put('lastMongoIDUsed', $id);
        
         return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
-    }
+    }    
 
     public static function validateEntity($entity){
         if(($entity->format == "text" || $entity->format == "image" || $entity->format == "video") == FALSE){
@@ -153,10 +201,18 @@ class Entity extends Moloquent {
     }
 
     public function wasAttributedToCrowdAgent(){
-        return $this->hasOne('CrowdAgent', '_id', 'crowdagent_id');
+        return $this->hasOne('\MongoDB\CrowdAgent', '_id', 'crowdagent_id');
     }
 
     public function hasConfiguration(){
         return $this->hasOne('\MongoDB\Entity', '_id', 'jobConf_id');
     }
+
+    public function getWasDerivedFromAttribute()
+    {
+        if(isset($this->ancestors))
+        {
+            return Entity::whereIn('_id', $this->ancestors)->remember(1)->get()->toArray();         
+        }
+    }    
 }

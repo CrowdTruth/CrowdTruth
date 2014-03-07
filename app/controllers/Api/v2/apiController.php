@@ -22,154 +22,144 @@ class apiController extends BaseController {
 	}
 
     protected $operators = array(
-        '=', '<', '>', '<=', '>=', '<>', '!=',
-        'like', 'not like', 'between', 'ilike',
-        '&', '|', '^', '<<', '>>',
-        'exists', 'type', 'mod', 'where', 'all', 'size', 'regex',
-    );
+    	'=' , '<', '>', '<>'
+    );	
+
+    // protected $operators = array(
+    //     '=', '<', '>', '<=', '>=', '<>', '!=',
+    //     'like', 'not like', 'between', 'ilike',
+    //     '&', '|', '^', '<<', '>>',
+    //     'exists', 'type', 'mod', 'where', 'all', 'size', 'regex',
+    // );
+
+  //   public function getDistinct($field = null)
+  //   {
+		// $c = Input::get('collection', 'Entity');
+
+		// $collection = $this->repository->returnCollectionObjectFor($c);
+
+		// if($collection->getTable() == "useragents")
+		// {
+		// 	return Response::json(\User::all());
+		// }		
+
+  //   	if(Input::has('field'))
+  //   	{
+  //   		$collection = $this->processFields($collection);
+  //   	}
+    	
+  //   	$collection = array_flatten($collection->distinct($field)->get()->toArray());
+  //   	return Response::json($collection);
+  //   }
 
 	/**
 	 * Display a listing of the resource.
 	 *
 	 * @return Response
 	 */
-	public function index()
+	public function getIndex()
 	{
 		// echo "<pre>";
-
 		// dd(Input::all());
 
-		if(!$limit = (int) Input::get('limit'))
-		{
-			$limit = 100;
+		$c = Input::get('collection', 'Entity');
+
+		$collection = $this->repository->returnCollectionObjectFor($c);
+
+    	if(Input::has('field'))
+    	{
+			$collection = $this->processFields($collection);
 		}
 
-		// $doc = \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->where('content.properties.semicolonBetweenTerms', "1")->get();
-
-		// dd($doc->toArray());
-
-		if(!$collection = strtolower(Input::get('collection')))
+		if(!array_key_exists('noCache', Input::all()))
 		{
-			$collection = "entity";
+			$collection = $collection->remember(1, md5(serialize(array_values(Input::except('pretty')))));
 		}
 
-		$documents = $this->repository->returnCollectionObjectFor($collection);
+		$start = (int) Input::get('start', 0);
+		$limit = (int) Input::get('limit', 100);
+		$only = Input::get('only', array());
 
-		 // dd(Input::all());
-
-		if(Input::has('field'))
+		if(Input::has('datatables'))
 		{
+			$start = (int) Input::get('iDisplayStart', 0);
+			$limit = (int) Input::get('iDisplayLength', 100);
 
-			foreach(Input::get('field') as $field => $value)
-			{
-				if(is_numeric($value))
-				{
-					$documents = $documents->where($field, (int) $value);
-					continue;
-				}
+			$sortingColumnIndex = (int) Input::get('iSortCol_0', 0);
+			$sortingColumnName = Input::get('mDataProp_' . $sortingColumnIndex, '_id');
+			$sortingDirection = Input::get('sSortDir_0', 'asc');
 
-				if($field == "userAgent")
-				{
-					$field = "user_id";
-				}			
+			$sortingColumnName = $sortingColumnName == "_id" ? "natural" : $sortingColumnName;
 
-				if(is_array($value))
-				{
+			$count = new \MongoDB\Entity;
+			$count = $this->processFields($count);
+			$count = $count->count();
 
-					foreach($value as $operator => $subvalue)
-					{
-						if(in_array($operator, $this->operators))
-						{
-							if(is_numeric($subvalue))
-							{
-								$subvalue = (int) $subvalue;
-							}
+			$collection = $collection->skip($start)->orderBy($sortingColumnName, $sortingDirection)->take($limit)->get($only);
 
-							$documents = $documents->where($field, $operator, $subvalue);
-						}
-					}
-
-					continue;
-				}
-				else
-				{
-					$value = array($value);
-				}
-
-				$documents = $documents->whereIn($field, $value);
-			}
+			return Response::json([
+		        "sEcho" => Input::get('sEcho', 10),
+		        "iTotalRecords" => $count,
+		        "iTotalDisplayRecords" => $count,
+		        "aaData" => $collection->toArray()
+		   ]);			
 		}
 
-		// if($format = Input::get('format'))
-		// {
-		// 	$documents = $Collection::where('format', $format);
-		// }
+		$collection = $collection->skip($start)->take($limit)->get($only);
 
-		// if($domains = Input::get('domain'))
-		// {
-		// 	if(!is_array($domains))
-		// 	{
-		// 		$domains = array($domains);
-		// 	}
-
-		// 	$documents = $documents->whereIn('domain', $domains);
-		// }		
-
-		// if($documentTypes = Input::get('documentType'))
-		// {
-		// 	if(!is_array($documentTypes))
-		// 	{
-		// 		$documentTypes = array($documentTypes);
-		// 	}
-
-		// 	$documents = $documents->whereIn('documentType', $documentTypes);
-		// }
-
-		// if($userAgents = Input::get('userAgent'))
-		// {
-		// 	if(!is_array($userAgents))
-		// 	{
-		// 		$userAgents = array($userAgents);
-		// 	}
-
-		// 	$documents = $documents->whereIn('user_id', $userAgents);
-		// }
-
-
-//		return $documents->remember(999999, md5(serialize(Input::all() + array($limit))))->take($limit)->get()->toJson(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
-
-		if($collection == "entity" || $collection == "entities")
+		if(array_key_exists('getQueryLog', Input::all()))
 		{
-			if(Input::has('wasGeneratedBy'))
-			{
+			return Response::json(\DB::getQueryLog());
+		}		
 
-				$entities = $documents->with('wasGeneratedBy')->limit($limit)->get(array('activity_id'));
-
-				$activities = array();
-
-				foreach($entities as $entity)
-				{
-					array_push($activities, $entity->wasGeneratedBy->toArray());
-				}
-				
-				return Response::json($activities);
-			}
+		if(array_key_exists('pretty', Input::all()))
+		{	
+			echo "<pre>";
+			return json_encode($collection->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		}
 
-		return Response::json($documents->take($limit)->get());
-
+		return Response::json($collection);
 
 	}
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
+	protected function processFields($collection)
 	{
-		//
+		foreach(Input::get('field') as $field => $value)
+		{
+			if(is_array($value))
+			{
+				foreach($value as $operator => $subvalue)
+				{
+					if(is_int($operator) || $operator == "")
+					{
+						$collection = $collection->whereIn($field, array($subvalue));
+						continue;
+					}
+
+					if(in_array($operator, $this->operators))
+					{
+						if(is_numeric($subvalue))
+						{
+							$subvalue = (int) $subvalue;
+						}
+
+						$collection = $collection->where($field, $operator, $subvalue);
+					}
+				}
+
+			}
+			else
+			{
+				if(is_numeric($value))
+				{
+					$value = (int) $value;
+				}					
+
+				$collection = $collection->whereIn($field, array($value));
+			}
+
+		}
+
+		return $collection;		
 	}
 }

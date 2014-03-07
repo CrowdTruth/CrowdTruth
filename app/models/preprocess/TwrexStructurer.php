@@ -40,16 +40,16 @@ class TwrexStructurer {
 
 				$twrexDocument[$lineNumber]['relation']['original'] = strtolower($TWrexRelation);
 				$twrexDocument[$lineNumber]['relation']['noPrefix'] = strtolower($relationWithoutPrefix);
-				$twrexDocument[$lineNumber]['terms']['first']['startIndex'] = $b1;
-				$twrexDocument[$lineNumber]['terms']['first']['endIndex'] = $e1;
+				$twrexDocument[$lineNumber]['terms']['first']['startIndex'] = (int) $b1;
+				$twrexDocument[$lineNumber]['terms']['first']['endIndex'] = (int) $e1;
 				$twrexDocument[$lineNumber]['terms']['first']['text'] = $firstTerms;
-				$twrexDocument[$lineNumber]['terms']['second']['startIndex'] = $b2;
-				$twrexDocument[$lineNumber]['terms']['second']['endIndex'] = $e2;
+				$twrexDocument[$lineNumber]['terms']['second']['startIndex'] = (int) $b2;
+				$twrexDocument[$lineNumber]['terms']['second']['endIndex'] = (int) $e2;
 				$twrexDocument[$lineNumber]['terms']['second']['text'] = $secondTerms;
 
 			//	$twrexDocument[$lineNumber]['Terms'][1] = substr($sentenceText, $offsets['b1'], $offsets['e1']);
 			//	$twrexDocument[$lineNumber]['Terms'][2] = substr($sentenceText, $offsets['e1'], $offsets['e2']);
-				$twrexDocument[$lineNumber]['sentence']['startIndex'] = $sentenceOffset;
+				$twrexDocument[$lineNumber]['sentence']['startIndex'] = (int) $sentenceOffset;
 				$twrexDocument[$lineNumber]['sentence']['text'] = $sentenceText;
 				$twrexDocument[$lineNumber]['properties']['sentenceWordCount'] = str_word_count($sentenceText);
 
@@ -145,7 +145,17 @@ class TwrexStructurer {
 			return $status;
 		}
 
-		$activity_id = null;
+		try {
+			$activity = new Activity;
+			$activity->softwareAgent_id = "twrexstructurer";
+			$activity->save();
+
+		} catch (Exception $e) {
+			// Something went wrong with creating the Activity
+			$activity->forceDelete();
+			$status['error'][$title] = $e->getMessage();
+			return $status;
+		}
 
 		foreach($twrexStructuredSentences as $twrexStructuredSentenceKey => $twrexStructuredSentenceKeyVal){
 			$title = $parentEntity->title . "_index_" . $twrexStructuredSentenceKey;
@@ -153,13 +163,15 @@ class TwrexStructurer {
 			try {
 				$entity = new Entity;
 				$entity->title = strtolower($title);
-				$entity->domain = strtolower($parentEntity->domain);
-				$entity->format = strtolower($parentEntity->format);
+				$entity->domain = $parentEntity->domain;
+				$entity->format = $parentEntity->format;
 				$entity->documentType = "twrex-structured-sentence";
-				$entity->parent_id = $parentEntity->_id;
 				$entity->ancestors = array($parentEntity->_id);
 				$entity->content = $twrexStructuredSentenceKeyVal;
-				$entity->activity_id = $activity_id;
+
+				unset($twrexStructuredSentenceKeyVal['properties']);
+				$entity->hash = md5(serialize($twrexStructuredSentenceKeyVal));
+				$entity->activity_id = $activity->_id;
 				$entity->save();
 
 				$status['success'][$title] = $title . " was successfully processed into a twrex-structured-sentence. (URI: {$entity->_id})";
@@ -167,148 +179,14 @@ class TwrexStructurer {
 				// Something went wrong with creating the Entity
 				$entity->forceDelete();
 				$status['error'][$title] = $e->getMessage();
-				continue;
 			}
 
-			$activity_id = $entity->activity_id; // Get activity_id from entity saving event.
 		}
 
-		try {
-			$activity = new Activity;
-			$activity->_id = $activity_id;
-			$activity->softwareAgent_id = "twrexstructurer";
-			$activity->save();
-
-		} catch (Exception $e) {
-			// Something went wrong with creating the Activity
-			$activity->forceDelete();
-			$entity->forceDelete();
-			$status['error'][$title] = $e->getMessage();
-		}
+		// Session::forget('lastMongoIDUsed');
 
 		return $status;
 
-	}
-
-	public static function store2($originalEntity, $newEntityContent){
-		$user = Auth::user();
-
-		$activityURI = $originalEntity->wasGeneratedBy->_id . '/twrex';
-
-		try {
-			$activity = new \mongo\text\Activity;
-			$activity->_id = strtolower($activityURI);
-			$activity->type = "twrex";
-			$activity->label = '"' . $originalEntity->title . '" was converted to a twrex document';
-			$activity->entity_used_id = $originalEntity->_id;
-			$activity->user_id = $user->_id;
-			$activity->software_id = URL::to('preprocess/twrex');
-			$activity->save();
-		} catch (Exception $e) {
-			// Something went wrong with creating the Activity
-			Session::flash('flashError', $e->getMessage());
-			return;
-		}
-
-		$entityURI = $originalEntity->_id . '/twrex';
-
-		try {
-			$entity = new \mongo\text\Entity;
-			$entity->_id = strtolower($entityURI);
-			$entity->title = $originalEntity->title . '/twrex';
-			$entity->domain = $originalEntity->domain;
-			$entity->type = "text";
-			$entity->documentType = "twrex";
-			$entity->parent_id = $originalEntity->_id;
-			$entity->ancestors = array($originalEntity->_id);
-			$entity->activity_id = strtolower($activityURI);
-			$entity->user_id = $user->_id;
-			$entity->content = $newEntityContent;
-			$entity->save();
-
-			Session::flash('flashSuccess', '"' . $originalEntity->title . '" was successfully converted to a twrex document. URI: ' . $entityURI);
-		} catch (Exception $e) {
-			// Something went wrong with creating the Entity
-			$activity->forceDelete();
-			$entity->forceDelete();
-			Session::flash('flashError', $e->getMessage());
-		}
-	}
-
-	public static function createAndStoretwrexChild($originalEntity, array $appliedFilters){
-		if($originalEntity->documentType !== 'twrex')
-			return false;
-
-		$appliedFiltersWithValues = array();
-
-		foreach($originalEntity['content'][0]['properties'] as $filterKey => $filterValue){
-			foreach($appliedFilters as $appliedFilterKey => $appliedFilterValue){
-				if($appliedFilterKey == $filterKey){
-					$appliedFiltersWithValues[$appliedFilterKey] = $appliedFilterValue;
-				}
-			}
-		}
-
-		$newEntity['appliedFilters'] = $appliedFiltersWithValues;
-
-		foreach($appliedFilters as $appliedFilterKey => $appliedFilterValue){
-			if(stripos($appliedFilterKey, 'line') !== FALSE){
-				$lineNumber = explode("_", $appliedFilterKey)[1];
-				$lineValue = $originalEntity['content'][$lineNumber];
-				$newEntity['content'][$lineNumber] = $lineValue;
-			}
-		}
-
-		$URI_prefix = "";
-		foreach($appliedFiltersWithValues as $val){
-			$URI_prefix .=  $val;
-		}
-
-		$user = Auth::user();
-
-		$activityURI = $originalEntity->wasGeneratedBy->_id . '_' . $URI_prefix;
-
-		try {
-			$activity = new \mongo\text\Activity;
-			$activity->_id = strtolower($activityURI);
-			$activity->type = "twrex";
-			$activity->label = 'Created filtered subdocument based on "' . $originalEntity->title . '"';
-			$activity->entity_used_id = $originalEntity->_id;
-			$activity->user_id = $user->_id;
-			$activity->software_id = URL::to('files/create');
-			$activity->configuration = $appliedFiltersWithValues;
-			$activity->save();
-		} catch (Exception $e) {
-			// Something went wrong with creating the Activity
-			Session::flash('flashError', $e->getMessage());
-			return;
-		}
-
-		$entityURI = $originalEntity->_id . '_' . $URI_prefix;
-
-		try {
-			$entity = new \mongo\text\Entity;
-			$entity->_id = strtolower($entityURI);
-			$entity->title = $originalEntity->title . '_' . $URI_prefix;
-			$entity->domain = $originalEntity->domain;
-			$entity->type = "text";
-			$entity->documentType = "twrex";
-			$entity->parent_id = $originalEntity->_id;
-			$entity->ancestors = array_merge($originalEntity->ancestors, array($originalEntity->_id));
-			$entity->activity_id = strtolower($activityURI);
-			$entity->user_id = $user->_id;
-			$entity->content = $newEntity['content'];
-			$entity->save();
-
-			Session::flash('flashSuccess', '"' . $originalEntity->title . '" was successfully converted to a twrex document. URI: ' . $entityURI);
-		} catch (Exception $e) {
-			// Something went wrong with creating the Entity
-			$activity->forceDelete();
-			$entity->forceDelete();
-			Session::flash('flashError', $e->getMessage());
-		}
-
-		return $entityURI;
 	}
 
 	public function createTwrexStructurerSoftwareAgent(){

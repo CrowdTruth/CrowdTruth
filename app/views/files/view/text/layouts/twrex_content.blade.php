@@ -76,7 +76,7 @@
 						<td class='twrexFilters'>{{ $lineValue['properties']['relationBetweenTerms'] }}</td>
 						<td class='twrexFilters'>{{ $lineValue['properties']['semicolonBetweenTerms'] }}</td>
 						<td class='twrexFilters'>{{ $lineValue['properties']['commaSeparatedTerms'] }}</td>
-						<td class='twrexFilters'>{{ $lineValue['properties']['parenthesisBetweenTerms'] }}</td>
+						<td class='twrexFilters'>{{ $lineValue['properties']['parenthesisAroundTerms'] }}</td>
 						<td class='twrexFilters'>{{ $lineValue['properties']['overlappingTerms'] }}</td>
 					</tr>
 					@endforeach

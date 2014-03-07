@@ -136,4 +136,25 @@ class FilesController extends BaseController {
 
 		return View::make('files.search.pages.index', compact('searchFields'));
 	}
+
+	public function getFacetedsearch(){
+		$facetedSearch = App::make('FacetedSearch');
+		$mainSearchFilters = $facetedSearch->getMainSearchFilters();
+
+		return View::make('files.search.pages.v2', compact('mainSearchFilters'));
+	}
+
+	public function anyBatch(){
+		if(Input::has('batch_description'))
+		{
+			$batchCreator = App::make('BatchCreator');
+			$status = $batchCreator->store(Input::all());
+			return Redirect::to('files/facetedsearch');
+		}
+
+		$units = json_decode(Input::get('selection'));
+		$fields = explode("/", $units[0]);
+
+		return View::make('files.pages.createbatch', compact('units', 'fields'));
+	}
 }

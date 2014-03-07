@@ -16,6 +16,17 @@ class FileUpload extends Moloquent {
 			return $status;
 		}
 
+		try {
+			$activity = new Activity;
+			$activity->softwareAgent_id = "fileuploader";
+			$activity->save();
+
+		} catch (Exception $e) {
+			// Something went wrong with creating the Activity
+			$activity->forceDelete();				
+			return $status;
+		}
+
 		foreach($files as $file){
 			$title = $file->getClientOriginalName();
 
@@ -23,32 +34,18 @@ class FileUpload extends Moloquent {
 				$entity = new Entity;
 				$entity->title = strtolower($title);
 				// $entity->extension = $file->getClientOriginalExtension();
-				$entity->domain = strtolower($domain);
+				$entity->domain = $domain;
 				$entity->format = "text";
-				$entity->documentType = strtolower($documentType);
-				$entity->parent_id = null;
-				$entity->ancestors = null;
+				$entity->documentType = $documentType;
 				$entity->content = File::get($file->getRealPath());
+				$entity->activity_id = $activity->_id;
 				$entity->save();
 
 				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
 			} catch (Exception $e) {
 				// Something went wrong with creating the Entity
-				$entity->forceDelete();
-				$status['error'][$title] = $e->getMessage();
-				continue;
-			}
-
-			try {
-				$activity = new Activity;
-				$activity->_id = $entity->activity_id;
-				$activity->software_id = "fileuploader";
-				$activity->save();
-
-			} catch (Exception $e) {
-				// Something went wrong with creating the Activity
 				$activity->forceDelete();
-				$entity->forceDelete();				
+				$entity->forceDelete();
 				$status['error'][$title] = $e->getMessage();
 			}			
 		}
@@ -62,8 +59,7 @@ class FileUpload extends Moloquent {
 			$softwareAgent = new \MongoDB\SoftwareAgent;
 			$softwareAgent->_id = "fileuploader";
 			$softwareAgent->label = "This component is used for storing files as documents within MongoDB";
-			$softwareAgent->save();			
-
+			$softwareAgent->save();
 		}
 	}
 }

@@ -47,7 +47,7 @@ class Job extends Entity {
 			$platformstring = implode($platform, ', ');
 			//$activity->used = 
 			$activity->label = "Job is uploaded to crowdsourcing platform(s): $platformstring.";
-			$activity->software_id = 'jobcreator'; // TODO: JOB software_id = $platform. Does this need to be the same?
+			$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB software_id = $platform. Does this need to be the same?
 			$activity->save();
 
 			$this->activityURI = $activity->_id;
@@ -439,7 +439,7 @@ class Job extends Entity {
 			$entity->jobConf_id = $this->jcid;
 			//$entity->template_id = $this->template; // Will probably be part of jobconf
 			$entity->batch_id = $this->batch->_id;
-			$entity->software_id = $platform;
+			$entity->softwareAgent_id = $platform;
 			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's!!!
 
 			$entity->unitsCount = $unitsCount;

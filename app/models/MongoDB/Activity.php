@@ -35,14 +35,14 @@ class Activity extends Moloquent {
                 $activity->user_id = "CrowdWatson";
             }                
         });
-    }	
+    }
 
     public static function generateIncrementedBaseURI($activity){
-        $lastMongoURIUsed = Activity::where('software_id', $activity->software_id)->get(array("_id"));
+        $lastMongoURIUsed = Activity::where('softwareAgent_id', $activity->softwareAgent_id)->get(array("_id"));
         if(is_object($lastMongoURIUsed)) {
-        	$lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
-	            return $entity->_id;
-	        }, SORT_NATURAL)->toArray();
+            $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
+                return $entity->_id;
+            }, SORT_NATURAL)->toArray();
         }
 
         if(!end($lastMongoURIUsed)){
@@ -52,15 +52,15 @@ class Activity extends Moloquent {
             $id = end($lastMongoIDUsed) + 1;
         }
        
-        return 'activity' . '/' . $activity->software_id . '/' . $id;
-    }
+        return 'activity' . '/' . $activity->softwareAgent_id . '/' . $id;
+    }    
 
 	public static function createSchema(){
 		Schema::create('activities', function($collection)
 		{
 		    $collection->index('type');
 		    $collection->index('user_id');
-		    $collection->index('software_id');
+		    $collection->index('softwareAgent_id');
 		});
 	}
 
@@ -73,7 +73,7 @@ class Activity extends Moloquent {
     }    
 
     public function wasAssociatedWithSoftwareAgent(){
-        return $this->hasOne('\MongoDB\SoftwareAgent', '_id', 'software_id');
+        return $this->hasOne('\MongoDB\SoftwareAgent', '_id', 'softwareAgent_id');
     }
 
     public function used(){

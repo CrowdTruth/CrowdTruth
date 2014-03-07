@@ -10,6 +10,9 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('/', function()
 	{
 
+        // $result = \MongoDB\Entity::where('format', 'text')->where('domain', 'medical')->where("documentType", 'twrex-structured-sentence')->orderBy('natural', 'asc')->get(array("_id"));
+
+        // return $result;
 		// echo "<pre>";
 
 		// User::whereIn('age', array(16, 18, 20))->get();
@@ -47,7 +50,7 @@ Route::any('cfwebhook.php', function(){
 	$cfwebhook->getSignal();
 });
 Route::resource('api/v1/', '\Api\v1\apiController', array('only' => array('index', 'show')));
-Route::resource('api/v2/', '\Api\v2\apiController', array('only' => array('index', 'show')));
+Route::controller('api/v2', '\Api\v2\apiController');
 
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
 

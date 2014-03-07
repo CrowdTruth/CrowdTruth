@@ -2,6 +2,7 @@
 
 @section('head')
 		{{ stylesheet_link_tag('custom/file.css') }}
+		{{ javascript_include_tag('holder.js') }}
 @stop
 
 @section('content')

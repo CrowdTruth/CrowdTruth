@@ -339,7 +339,7 @@ class JobConfiguration extends Moloquent {
 		 	// Create a new activity, but only if there isn't one in the parameters.
 			if (is_null($activityURI)){
 				$activity->label = "JobConfiguration is saved.";
-				$activity->software_id = 'jobcreator';
+				$activity->softwareAgent_id = 'jobcreator';
 
 				if(!is_null($originalEntity)) 
 					$activity->entity_used_id = $originalEntity->_id;
