@@ -7,19 +7,6 @@ class Batch extends Entity {
 
 	public $title;
 
-	public function __construct($entities = null, $title = null){
-		if(!empty($entities) and (!empty($title))){ // Added the if for testing.
-			foreach ($entities as $newEntity) {
-				array_push($this->entities, $newEntity);
-			}
-			$this->title = $title;
-		}
-	}
-
-	public function addEntity($entity){
-		$this->entities = array_push($this->entities, $entity);
-	}
-
 	public function toCFArray(){
 		$array = $this->wasDerivedFrom;
 		$return = array();
@@ -43,7 +30,7 @@ class Batch extends Entity {
 		//$tmpfname = tempnam("/tmp", "csv");
 		$out = fopen($path, 'w');
 		//$out = fopen('php://memory', 'r+');
-		$array = $this->toArray();
+		$array = $this->toCFArray();
 		$headers = $array[0];
 
 		fputcsv($out, array_change_key_case(str_replace('.', '_', array_keys(array_dot($headers))), CASE_LOWER));
