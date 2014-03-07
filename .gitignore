@@ -1,9 +1,8 @@
-#.gitignore
-/app/config/database.php
 #
-/app/storage/temp/crowdflower.csv
+/app/config/database.php
 /app/config/config.php
 /app/storage/temp/*
+/app/storage/temp/crowdflower.csv
 /bootstrap/compiled.php
 /vendor
 /composer.phar
