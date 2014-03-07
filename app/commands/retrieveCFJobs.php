@@ -62,7 +62,7 @@ class retrieveCFJobs extends Command {
 			}
 			
 			$judgment = $judgments[0];
-			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('software_id', 'cf')->first();
+			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('softwareb_id', 'cf')->first();
 			if(!$agent){
 				$agent = new CrowdAgent;
 				$agent->_id= "crowdagent/cf/{$judgment['worker_id']}";
@@ -137,7 +137,7 @@ class retrieveCFJobs extends Command {
 
 		// Still no job found, this job is probably not made in our platform (or something went wrong earlier)
 		if(!$job)
-			throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
+			throw new CFExceptions("CFJob not in local database; retrieving it would break provenance.");
 
 		return $job;
 	}

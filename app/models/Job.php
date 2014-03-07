@@ -143,7 +143,7 @@ class Job extends Entity {
 
     	// TODO //
     	$goldfields = array();
-    	foreach (array_keys($this->batch->toArray()[0]) as $key)
+    	foreach (array_keys($this->batch->toCFArray()[0]) as $key)
 			if ($key != '_golden' and $pos = strpos($key, '_gold') and !strpos($key, '_gold_reason'))
 				$goldfields[$key] = substr($key, 0, $pos);	
     	return $goldfields;
@@ -249,7 +249,7 @@ class Job extends Entity {
 				}
 
 				if(!$sandbox){
-					$orderresult = $cfJob->sendOrder($id, count($this->batch->wasDerivedFromMany), array("cf_internal"));
+					$orderresult = $cfJob->sendOrder($id, count($this->batch->wasDerivedFrom), array("cf_internal"));
 					if(isset($orderresult['result']['errors']))
 						throw new CFExceptions($orderresult['result']['errors'][0]);
 				}
@@ -280,7 +280,7 @@ class Job extends Entity {
     	if(!file_exists($htmlfilename) || !is_readable($htmlfilename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
 
-		$units = $this->batch->wasDerivedFromMany;
+		$units = $this->batch->wasDerivedFrom;
 		shuffle($units);
 
 		$questionsbuilder = '';
@@ -426,7 +426,7 @@ class Job extends Entity {
 			$reward = $this->jobConfiguration->reward;
 			$annotationsPerUnit = intval($this->jobConfiguration->annotationsPerUnit);
 			$unitsPerTask = intval($this->jobConfiguration->unitsPerTask);
-			$unitsCount = count($this->batch->wasDerivedFromMany);
+			$unitsCount = count($this->batch->wasDerivedFrom);
 			$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
 
 			$entity = new Entity;

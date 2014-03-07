@@ -23,24 +23,28 @@
 										<tr>
 											<th></th>
 											<th>ID</th>
+											<th>title</th>
 											<th>Format</th>
 											<th>DocumentType</th>
 										</tr>
 									</thead>
 									<tbody>
-										@foreach($batches as $batch)
+										@foreach($batches as $batch->toArray())
 										<tr>
 											<td>
-												{{ Form::radio("batch", $batch->_id, ($selectedbatchid==$batch->_id ? true : false)) }}
+												{{ Form::radio("batch", $batch['_id'], ($selectedbatchid==$batch['_id'] ? true : false)) }}
 											</td>
 											<td>
-												{{ $batch->_id }}
+												{{ $batch['_id'] }}
 											</td>
 											<td>
-												{{ $batch->format }}
+												{{ $batch['title'] }}
 											</td>
 											<td>
-												{{ $batch->documentType }}
+												{{ $batch['format'] }}
+											</td>
+											<td>
+												{{ $batch['documentType'] }}
 											</td>
 										</tr>
 										@endforeach

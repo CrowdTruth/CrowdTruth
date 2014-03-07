@@ -20,8 +20,8 @@ class Batch extends Entity {
 		$this->entities = array_push($this->entities, $entity);
 	}
 
-	public function toArray(){
-		$array = $this->wasDerivedFromMany;
+	public function toCFArray(){
+		$array = $this->wasDerivedFrom;
 		$return = array();
 		foreach ($array as $row){
 			$content = $row['content'];
