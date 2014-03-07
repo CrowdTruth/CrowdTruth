@@ -66,7 +66,7 @@ class retrieveCFJobs extends Command {
 			if(!$agent){
 				$agent = new CrowdAgent;
 				$agent->_id= "crowdagent/cf/{$judgment['worker_id']}";
-				$agent->software_id= 'cf';
+				$agent->softwareAgent_id= 'cf';
 				$agent->platformAgentId = $judgment['worker_id'];
 				$agent->country = $judgment['country'];
 				$agent->region = $judgment['region'];
@@ -86,7 +86,7 @@ class retrieveCFJobs extends Command {
 				$activity->label = "Units are annotated on crowdsourcing platform.";
 				$activity->crowdAgent_id = $agent->_id; 
 				$activity->used = $job->_id;
-				$activity->software_id = 'cf';
+				$activity->softwareAgent_id = 'cf';
 				$activity->save();
 			}
 
@@ -125,12 +125,12 @@ class retrieveCFJobs extends Command {
 	*/
 	private function getJob($jobid){
 		if(!$job = Entity::where('documentType', 'job')
-					->where('software_id', 'cf')
+					->where('softwareAgent_id', 'cf')
 					->where('platformJobId', intval($jobid)) /* Mongo queries are strictly typed! We saved it as int in Job->store */
 					->first())
 		{
 			$job = Entity::where('documentType', 'job')
-				->where('software_id', 'cf')
+				->where('softwareAgent_id', 'cf')
 				->where('platformJobId', (string) $jobid) /* Try this to be sure. */
 				->first();
 		}
@@ -155,7 +155,7 @@ class retrieveCFJobs extends Command {
 			$aentity->job_id = $job->_id;
 			$aentity->activity_id = $activityId;
 			$aentity->crowdAgent_id = $agentId;
-			$aentity->software_id = 'cf';
+			$aentity->softwareAgent_id = 'cf';
 			$aentity->unit_id = $judgment['unit_data']['uid']; // uid field in the csv we created in $batch->toCFCSV().
 			$aentity->platformAnnotationId = $judgment['id'];
 			$aentity->cfChannel = $judgment['external_type'];
