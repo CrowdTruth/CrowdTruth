@@ -95,9 +95,9 @@
 	               		<div class="panel-body" style="padding-top: 0px; padding-bottom: 0px;">
 		               		<div class="row" style="border-bottom: 1px solid #eee;">
 			               		<div class="col-md-10" style="border-right: 1px solid #eee;">
-			               			<h4>@{{result.has_configuration.content.title}}</h4>
-			               			<p>@{{result.has_configuration.content.description }}</p>
-			               			<strong style="font-size: 18px;"><i class="fa fa-file"></i> @{{result.has_configuration.type}}</strong> 
+			               			<h4>@{{result.hasConfiguration.content.title}}</h4>
+			               			<p>@{{result.hasConfiguration.content.description }}</p>
+			               			<strong style="font-size: 18px;"><i class="fa fa-file"></i> @{{result.hasConfiguration.type}}</strong> 
 			               		</div>
 			               		<div class="col-md-2" style="text-align: center; padding-top: 15px;">
 			               			<strong style="font-size: 24px; "><i class="fa fa-clock-o fa-2x"></i><br> @{{ElapsedTime}}</strong></p>
@@ -106,18 +106,18 @@
 			               	<div class="row" style="height: 90px;">
 			               		<!-- This row has the following content: #sentences, judgments/unit and template info; block with worker info; block of costs, block of completion percentage; -->
 			               		<div class="col-md-2" style="border-right: 1px solid #eee; height: 100%; text-align: center; display: table-cell; vertical-align: middle; padding-top: 10px;">
-			               			<strong style="font-size: 24px;"><i class="fa fa-bars"></i> @{{result.has_configuration.content.judgmentsPerUnit}}</strong><br>
-			               			<strong style="font-size: 24px;"><i class="fa fa-gavel"></i> @{{result.has_configuration.content.unitsPerTask}}</strong><br>
+			               			<strong style="font-size: 24px;"><i class="fa fa-bars"></i> @{{result.hasConfiguration.content.judgmentsPerUnit}}</strong><br>
+			               			<strong style="font-size: 24px;"><i class="fa fa-gavel"></i> @{{result.hasConfiguration.content.unitsPerTask}}</strong><br>
 			               		</div>
 			               		<div class="col-md-4" style="border-right: 1px solid #eee; height: 100%; text-align: center; display: table-cell; padding-top: 10px; vertical-align: middle;"> 
-			               			<h2><i class="fa fa-users"></i> @{{result.has_configuration.content.platform}} </h2>
+			               			<h2><i class="fa fa-users"></i> @{{result.hasConfiguration.content.platform}} </h2>
 			               		</div>
 			               		<div class="col-md-2" style="border-right: 1px solid #eee; text-align: center; display: table-cell; padding-top: 5px; font-size: 32px; vertical-align: middle;"> 
 			                   		<i class="fa fa-flag"></i>  %</strong><br>
 			                   		<!-- <button class="btn btn-sm">Workers</button> -->
 				               	</div>
 							    <div class="col-md-2" style="border-right: 1px solid #eee; height: 100%; text-align: center; display: table-cell; padding-top: 10px; vertical-align: middle;">
-							    	<i class="fa fa-dollar"></i><strong> /</strong> <i class="fa fa-gavel"></i> <strong> $ @{{result.has_configuration.content.reward}}</strong>
+							    	<i class="fa fa-dollar"></i><strong> /</strong> <i class="fa fa-gavel"></i> <strong> $ @{{result.hasConfiguration.content.reward}}</strong>
 							       	<h2><i class="fa fa-dollar"></i>@{{result.projectedCost}}</h2>
 							    </div>
 							    <div class="col-md-2" style="text-align: center; height: 100%; display: table-cell; vertical-align: middle; padding-top: 10px;">

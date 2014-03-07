@@ -38,28 +38,28 @@
 									<i ng-click="setSortAsc('type')" class="fa fa-caret-up"></i> Template
 								</th>
 								<th>
-									<i ng-click="setSortDesc('has_configuration.content.unitsPerTask')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('has_configuration.content.unitsPerTask')" class="fa fa-caret-up"></i> Units
+									<i ng-click="setSortDesc('hasConfiguration.content.unitsPerTask')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('hasConfiguration.content.unitsPerTask')" class="fa fa-caret-up"></i> Units
 								</th>
 								<th>
 									<i ng-click="setSortDesc('hasGold')" class="fa fa-caret-down"></i>
 									<i ng-click="setSortAsc('hasGold')" class="fa fa-caret-up"></i> Has Gold
 								</th>
 								<th>
-									<i ng-click="setSortDesc('has_configuration.platform')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('has_configuration.platform')" class="fa fa-caret-up"></i> Platform
+									<i ng-click="setSortDesc('hasConfiguration.platform')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('hasConfiguration.platform')" class="fa fa-caret-up"></i> Platform
 								</th>
 								<th>
-									<i ng-click="setSortDesc('has_configuration.content.reward')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('has_configuration.content.reward')" class="fa fa-caret-up"></i> Reward
+									<i ng-click="setSortDesc('hasConfiguration.content.reward')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('hasConfiguration.content.reward')" class="fa fa-caret-up"></i> Reward
 								</th>
 								<th>
-									<i ng-click="setSortDesc('has_configuration.content.rewardPerHour')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('has_configuration.content.rewardPerHour')" class="fa fa-caret-up"></i> Reward hourly
+									<i ng-click="setSortDesc('hasConfiguration.content.rewardPerHour')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('hasConfiguration.content.rewardPerHour')" class="fa fa-caret-up"></i> Reward hourly
 								</th>
 								<th>
-									<i ng-click="setSortDesc('has_configuration.content.projectedCost')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('has_configuration.content.projectedCost')" class="fa fa-caret-up"></i> Total Cost
+									<i ng-click="setSortDesc('hasConfiguration.content.projectedCost')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('hasConfiguration.content.projectedCost')" class="fa fa-caret-up"></i> Total Cost
 								</th>
 								<th>
 									<i ng-click="setSortDesc('flaggedPercentage')" class="fa fa-caret-down"></i>
@@ -70,8 +70,8 @@
 									<i ng-click="setSortAsc('flaggedWorkers')" class="fa fa-caret-up"></i> Flagged abs
 								</th>
 								<th>
-									<i ng-click="setSortDesc('has_configuration.content.judgmentsPerUnit')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('has_configuration.content.judgmentsPerUnit')" class="fa fa-caret-up"></i> Judgments
+									<i ng-click="setSortDesc('hasConfiguration.content.judgmentsPerUnit')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('hasConfiguration.content.judgmentsPerUnit')" class="fa fa-caret-up"></i> Judgments
 								</th>
 								<th>
 									<i ng-click="setSortDesc('totalJudgments')" class="fa fa-caret-down"></i>
@@ -93,15 +93,15 @@
 								<td><input type="text" ng-keyup="setFilter('domain', filter.domain)" ng-model="filter.domain"></td>
 								<td><input type="text" ng-keyup="setFilter('format', filter.format)" ng-model="filter.format"></td>
 								<td><input type="text" ng-keyup="setFilter('type')" ng-model="filter.type" ></td>
-								<td><input type="number" ng-keyup="setFilter('has_configuration.content.unitsPerTask' filter.has_configuration.content.unitsPerTask)" ng-model="filter.has_configuration.content.unitsPerTask"></td>
+								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.unitsPerTask' filter.hasConfiguration.content.unitsPerTask)" ng-model="filter.hasConfiguration.content.unitsPerTask"></td>
 								<td><input type="checkbox" ng-keyup="setFilter('hasGold', filter.hasGold)" ng-model="filter.hasGold"></td>
-								<td><input type="text" ng-keyup="setFilter('has_configuration.platform', filter.has_configuration.platform)" ng-model="filter.has_configuration.platform"></td>
-								<td><input type="number" ng-keyup="setFilter('has_configuration.content.reward', filter.has_configuration.content.reward)" ng-model="filter.has_configuration.content.reward"></td>
-								<td><input type="number" ng-keyup="setFilter('has_configuration.content.rewardPerHour', filter.has_configuration.content.rewardPerHour)" ng-model="filter.has_configuration.content.rewardPerHour"></td>
-								<td><input type="number" ng-keyup="setFilter('has_configuration.content.projectedCost', filter.has_configuration.content.projectedCost)" ng-model="filter.has_configuration.content.projectedCost"></td>
+								<td><input type="text" ng-keyup="setFilter('hasConfiguration.platform', filter.hasConfiguration.platform)" ng-model="filter.hasConfiguration.platform"></td>
+								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.reward', filter.hasConfiguration.content.reward)" ng-model="filter.hasConfiguration.content.reward"></td>
+								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.rewardPerHour', filter.hasConfiguration.content.rewardPerHour)" ng-model="filter.hasConfiguration.content.rewardPerHour"></td>
+								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.projectedCost', filter.hasConfiguration.content.projectedCost)" ng-model="filter.hasConfiguration.content.projectedCost"></td>
 								<td><input type="number" ng-keyup="setFilter('flaggedPercentage', filter.flaggedPercentage)" ng-model="filter.flaggedPercentage"></td>
 								<td><input type="number" ng-keyup="setFilter('flaggedWorkers', filter.flaggedWorkers)" ng-model="filter.flaggedWorkers"></td>
-								<td><input type="number" ng-keyup="setFilter('has_configuration.content.judgmentsPerUnit', filter.has_configuration.content.judgmentsPerUnit)" ng-model="filter.has_configuration.content.judgmentsPerUnit"></td>
+								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.judgmentsPerUnit', filter.hasConfiguration.content.judgmentsPerUnit)" ng-model="filter.hasConfiguration.content.judgmentsPerUnit"></td>
 								<td><input type="number" ng-keyup="setFilter('unitsCount', filter.unitsCount)" ng-model="filter.unitsCount"></td>
 								<td><input type="text" ng-keyup="setFilter('status', filter.status)" ng-model="filter.status"></td>
 								<td><input type="number" ng-keyup="setFilter('completion', filter.completion)" ng-model="filter.completion"></td>
@@ -114,16 +114,16 @@
 						        <td>@{{result.user_id}}</td>
 						        <td>@{{result.domain}}</td>
 						        <td>@{{result.format}}</td>
-						        <td>@{{result.has_configuration.type}}</td>
-						        <td>@{{result.has_configuration.content.unitsPerTask}}</td>
+						        <td>@{{result.hasConfiguration.type}}</td>
+						        <td>@{{result.hasConfiguration.content.unitsPerTask}}</td>
 						        <td>@{{hasGold}}</td>
-						        <td>@{{result.has_configuration.content.platform}}</td>
-						        <td>@{{result.has_configuration.content.reward}}</td>
-						        <td>@{{result.has_configuration.content.rewardPerHour}}</td>
-						        <td>@{{result.has_configuration.content.totalCost}}</td>
+						        <td>@{{result.hasConfiguration.content.platform}}</td>
+						        <td>@{{result.hasConfiguration.content.reward}}</td>
+						        <td>@{{result.hasConfiguration.content.rewardPerHour}}</td>
+						        <td>@{{result.hasConfiguration.content.totalCost}}</td>
 						        <td>@{{result.flaggedPercentage}}</td>
 						        <td>@{{result.flaggedWorkers}}</td>
-						        <td>@{{result.has_configuration.content.judgmentsPerUnit}}</td>
+						        <td>@{{result.hasConfiguration.content.judgmentsPerUnit}}</td>
 						        <td>@{{result.totalJudgments}}</td>
 						        <td>@{{result.status}}</td>
 						        <td>@{{result.completion}}</td>
