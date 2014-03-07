@@ -29,22 +29,22 @@
 										</tr>
 									</thead>
 									<tbody>
-										@foreach($batches as $batch->toArray())
+										@foreach($batches as $batch)
 										<tr>
 											<td>
-												{{ Form::radio("batch", $batch['_id'], ($selectedbatchid==$batch['_id'] ? true : false)) }}
+												{{ Form::radio("batch", $batch->_id, ($selectedbatchid==$batch->_id ? true : false)) }}
 											</td>
 											<td>
-												{{ $batch['_id'] }}
+												{{ $batch->_id }}
 											</td>
 											<td>
-												{{ $batch['title'] }}
+												{{ $batch->title }}
 											</td>
 											<td>
-												{{ $batch['format'] }}
+												{{ $batch->format }}
 											</td>
 											<td>
-												{{ $batch['documentType'] }}
+												{{ $batch->documentType }}
 											</td>
 										</tr>
 										@endforeach
