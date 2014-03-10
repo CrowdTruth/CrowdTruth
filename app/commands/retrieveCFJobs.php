@@ -93,7 +93,7 @@ class retrieveCFJobs extends Command {
 			}
 
 			foreach($judgments as $judgment){
-					if($this->storeJudgment($judgment, $job, $activity->_id, $agent->_id)))
+					if($this->storeJudgment($judgment, $job, $activity->_id, $agent->_id))
 						$newJudgmentsCount++;
 			}
 
