@@ -93,13 +93,8 @@ class retrieveCFJobs extends Command {
 			}
 
 			foreach($judgments as $judgment){
-				// TODO: error handling.
-				try {
-					$this->storeJudgment($judgment, $job, $activity->_id, $agent->_id);
-					$newJudgmentsCount++;
-				} catch(Exception $e){
-
-				}
+					if($this->storeJudgment($judgment, $job, $activity->_id, $agent->_id)))
+						$newJudgmentsCount++;
 			}
 
 			// Update count and completion
@@ -141,16 +136,26 @@ class retrieveCFJobs extends Command {
 		}
 
 		// Still no job found, this job is probably not made in our platform (or something went wrong earlier)
-		if(!$job)
+		if(!$job) {
+			Log::warning("Callback from CF to our server for Job $jobid, which is not in our DB.");
 			throw new CFExceptions("CFJob not in local database; retrieving it would break provenance.");
-
+		}
 		return $job;
 	}
 
+
+	/**
+	* @return true if created, false if exists
+	*/
 	private function storeJudgment($judgment, $job, $activityId, $agentId)
 	{
 
-		// TODO: check hash. 
+		// If exists return false. 
+		if(Entity::where('documentType', 'annotation')
+			->where('softwareAgent_id', 'cf')
+			->where('platformAnnotationId', $judgment['id'])
+			->first())
+			return false;	
 
 		try {
 			$aentity = new Entity;
@@ -165,7 +170,7 @@ class retrieveCFJobs extends Command {
 			$aentity->platformAnnotationId = $judgment['id'];
 			$aentity->cfChannel = $judgment['external_type'];
 			$aentity->acceptTime = new MongoDate(strtotime($judgment['started_at']));
-			$aentity->finishTime = new MongoDate(strtotime($judgment['created_at']));
+			$aentity->submitTime = new MongoDate(strtotime($judgment['created_at']));
 			$aentity->cfTrust = $judgment['trust'];
 			$aentity->content = $judgment['data'];
 
@@ -184,10 +189,11 @@ class retrieveCFJobs extends Command {
 				webhook_sent_at
 
 			*/
-
+			return true;
 		} catch (Exception $e) {
 			Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
 			if($aentity) $aentity->forceDelete();
+			// TODO: more?
 		}
 	}
 

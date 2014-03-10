@@ -218,7 +218,7 @@ class retrieveAMTJobs extends Command {
 			// CF is not needed here -> webhook.
 		}	
 
-		if($id = CrowdAgent::where('platformAgentId', $workerId)->where('platform_id', $platform)->pluck('_id')) 
+		if($id = CrowdAgent::where('platformAgentId', $workerId)->where('softwareAgent_id', $platform)->pluck('_id')) 
 			return $id;
 
 		else {

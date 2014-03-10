@@ -58,6 +58,12 @@ class Job  {
 			// TODO: might have a parent.
 			$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
 			
+			// We do CF first because it seems to throw more errors
+			if(in_array('cf', $platform)){	
+				$ids['cf'] = $this->cfPublish($sandbox);
+				$cfentityid = $this->store('cf', $ids['cf'], $sandbox);
+				array_push($entityids, $cfentityid);
+			}
 
 			if(in_array('amt', $platform)){
 				// Upload to sandbox or to real AMT.
@@ -67,12 +73,6 @@ class Job  {
 				$ids['amt'] = $this->amtPublish(false);
 				$amtentityid = $this->store('amt', $ids['amt'], $sandbox);
 				array_push($entityids, $amtentityid);
-			}
-
-			if(in_array('cf', $platform)){	
-				$ids['cf'] = $this->cfPublish($sandbox);
-				$cfentityid = $this->store('cf', $ids['cf'], $sandbox);
-				array_push($entityids, $cfentityid);
 			}	
 
 			return $ids;
@@ -132,7 +132,7 @@ class Job  {
 				<br>Deletion error: $newe
 				<br>Please contact an administrator.");
 			Log::error("Couldn't delete jobs. Please manually check the platforms and database.\r\nInitial exception: $orige
-				\r\nDeletion error: $newe\r\nActivity: {$this->activityURI}\r\nJob ID's: " . serialize($ids));
+				\r\nDeletion error: $newe\r\nActivity: {$this->activityURI}\r\nJob ID's: " . json_encode($ids));
 
 		}
     }
@@ -257,7 +257,7 @@ class Job  {
 				}
 
 				if(!$sandbox){
-					$orderresult = $cfJob->sendOrder($id, count($this->batch->wasDerivedFrom), array("cf_internal"));
+					$orderresult = $cfJob->sendOrder($id, count($this->batch->ancestors), array("cf_internal"));
 					if(isset($orderresult['result']['error']))
 						throw new CFExceptions("Order: " . $orderresult['result']['error']['message']);
 				}
