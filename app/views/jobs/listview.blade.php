@@ -9,8 +9,16 @@
 
 @section('content')
 <div ng-app="dataRetrieval" ng-controller="resourceCtrl">
+
 			<div  id="filtercolumn" class="col-md-3 ">
 			<!-- Left column for sorting -->
+				<div>
+	               	<a href="/process"><button class="btn btn-success btn-lg" style="width: 100%; margin-bottom:10px;">Create Job</button></a>
+	            </div>
+
+				<div>
+	               	<button class="btn btn-primary btn-lg" style="width: 100%; margin-bottom:10px;" ng-click="analyze()">Analyse</button>
+	            </div>
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title">Sort by:</h3>
@@ -40,9 +48,7 @@
 									<i ng-click="setSortAsc('user_id')" class="fa fa-caret-up"></i></div><br>
 					</div>
 				</div>
-				<div >
-	               	<button class="btn btn-primary btn-lg" style="width: 100%;" ng-click="analyze()">Analyse</button>
-	            </div>
+
 			
 			<!-- Left column for filters -->
 				<!-- <div class="panel panel-default">
@@ -74,6 +80,7 @@
 
 			<!-- Main column with results -->
 			<div id="results" class="col-md-9">
+				@include('layouts.flashdata')	
 						<div class="panel panel-default" ng-repeat="result in results.data">
 						<!-- Top row is panel heading with creation date and creator -->
 						<div class="panel-heading clearfix">

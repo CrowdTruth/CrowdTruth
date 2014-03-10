@@ -228,10 +228,10 @@ class ProcessController extends BaseController {
 			Session::flash('flashSuccess', $msg);
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage());
-			//throw $e; //debug
+			return Redirect::to("process/submit");
 		}
 
-		return Redirect::to("process/submit");
+		return Redirect::to("jobs/listview");
 		
 	}
 
@@ -257,7 +257,7 @@ class ProcessController extends BaseController {
 			Session::flash('flashError', $e->getMessage());
 		}
 
-		return Redirect::to("process/submit");
+		return Redirect::to("jobs/listview");
 		
 	}
 
