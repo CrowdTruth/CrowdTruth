@@ -234,7 +234,7 @@ class Job extends Entity {
 
 				$channelsresult = $cfJob->setChannels($id, array('cf_internal'));
 				if(isset($channelsresult['result']['error']))
-					throw new CFExceptions($goldresult['result']['error']['message']); 
+					throw new CFExceptions($channelsresult['result']['error']['message']); 
 
 				if(is_array($gold) and count($gold) > 0){
 					// TODO: Foreach? 
