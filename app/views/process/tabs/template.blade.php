@@ -24,7 +24,7 @@
 							</style>
 							{{ Form::hidden('template', $currenttemplate, array('id' => 'template')) }}
 							<br><br>
-							<iframe id ="question" src="/templates/{{ $currenttemplate }}.html" seamless sandbox="allow-scripts" width="890" height="600" seemless></iframe>
+							<iframe id ="question" src="/templates/{{ $currenttemplate }}.html" seamless sandbox="allow-scripts" width="890" height="600"></iframe>
 						</fieldset>
 						<br>
 						<br>

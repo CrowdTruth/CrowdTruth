@@ -47,10 +47,11 @@ class Job extends Entity {
 			$platformstring = implode($platform, ', ');
 			//$activity->used = 
 			$activity->label = "Job is uploaded to crowdsourcing platform(s): $platformstring.";
-			$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB software_id = $platform. Does this need to be the same?
+			$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB softwareAgent_id = $platform. Does this need to be the same?
 			$activity->save();
 
 			$this->activityURI = $activity->_id;
+			
 			// Save JobConfiguration (or reference existing). Throws error if not possible.
 			// TODO: might have a parent.
 			$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
@@ -96,8 +97,8 @@ class Job extends Entity {
     	try {
 	    	if(isset($ids['amt']) and is_array($ids['amt']) and count($ids['amt']) > 0)
 				foreach($ids['amt'] as $id){
-					$this->mturk->disableHIT($id);
-					$entity = Entity::where('platformJobId', $id);
+					$this->mturk->disableHIT($id); // This fully deletes the HIT.
+					$entity = Entity::where('platformJobId', $id)->first();
 					if(is_object($entity)) $entity->forceDelete();
 				}
 
@@ -106,7 +107,7 @@ class Job extends Entity {
 				$cfJob = new crowdwatson\Job($this->CFApiKey);	
 				$cfJob->cancelJob($id);
 				$cfJob->deleteJob($id);
-				$entity = Entity::where('platformJobId', intval($id));
+				$entity = Entity::where('platformJobId', intval($id))->first();
 				if(is_object($entity)) $entity->forceDelete();
 			}
 
@@ -215,50 +216,50 @@ class Job extends Entity {
 
 			// Add CSV and options
 			if(isset($id)) {
-				// TODO: expiration
-
+				
 				// Not in API or problems with API: 
 				// 	- Channels (we can only order on cf_internal)
 				//  - Tags / keywords
-				//  - Worker levels
+				//  - Worker levels (defaults to '1')
+				//  - Expiration?
 
 				$optionsresult = $cfJob->setOptions($id, array('options' => $options));
-				if(isset($optionsresult['result']['errors']))
-					throw new CFExceptions($optionsresult['result']['errors'][0]);
+				if(isset($optionsresult['result']['error']))
+					throw new CFExceptions($optionsresult['result']['error']['message']);
 
 				$csvresult = $cfJob->uploadInputFile($id, $csv);
-				//unlink($csv); // DELETE temporary CSV.
-				if(isset($csvresult['result']['errors']))
-					throw new CFExceptions($csvresult['result']['errors'][0]);
+				unlink($csv); // DELETE temporary CSV.
+				if(isset($csvresult['result']['error']))
+					throw new CFExceptions($csvresult['result']['error']['message']);
 
 				$channelsresult = $cfJob->setChannels($id, array('cf_internal'));
-				if(isset($channelsresult['result']['errors']))
-					throw new CFExceptions($goldresult['result']['errors'][0]); 
+				if(isset($channelsresult['result']['error']))
+					throw new CFExceptions($goldresult['result']['error']['message']); 
 
 				if(is_array($gold) and count($gold) > 0){
 					// TODO: Foreach? 
 					$goldresult = $cfJob->manageGold($id, array('check' => $gold[0]));
-					if(isset($goldresult['result']['errors']))
-						throw new CFExceptions($goldresult['result']['errors'][0]);
+					if(isset($goldresult['result']['error']))
+						throw new CFExceptions($goldresult['result']['error']['message']);
 				}
 
 				if(is_array($c->countries) and count($c->countries) > 0){
 					$countriesresult = $cfJob->setIncludedCountries($id, $c->countries);
-					if(isset($countriesresult['result']['errors']))
-						throw new CFExceptions($countriesresult['result']['errors'][0]);
+					if(isset($countriesresult['result']['error']))
+						throw new CFExceptions($countriesresult['result']['error']['message']);
 				}
 
 				if(!$sandbox){
 					$orderresult = $cfJob->sendOrder($id, count($this->batch->wasDerivedFrom), array("cf_internal"));
-					if(isset($orderresult['result']['errors']))
-						throw new CFExceptions($orderresult['result']['errors'][0]);
+					if(isset($orderresult['result']['error']))
+						throw new CFExceptions($orderresult['result']['error']['message']);
 				}
 
 				return $id;
 
 			// Failed to create initial job.
 			} else {
-				$err = $result['result']['errors'][0];
+				$err = $result['result']['error']['message'];
 				if(isset($err)) $msg = $err;
 				else $msg = 'Unknown error.';
 				throw new CFExceptions($msg);
@@ -417,7 +418,7 @@ class Job extends Entity {
 			// Create an array with HITid and status.
 			$temppjid = array();
 			foreach($platformJobId as $id)
-				array_push($temppjid, array('id' => $id, 'status' => $status));
+				array_push($temppjid, array('id' => $id, 'status' => $status, 'timestamp' => time()));
 
 			$platformJobId = $temppjid;
 		}

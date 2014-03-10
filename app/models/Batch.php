@@ -5,8 +5,6 @@ use MongoDB\Entity;
 
 class Batch extends Entity {
 
-	public $title;
-
 	public function toCFArray(){
 		$array = $this->wasDerivedFrom;
 		$return = array();

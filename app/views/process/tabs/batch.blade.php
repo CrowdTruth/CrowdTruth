@@ -23,7 +23,8 @@
 										<tr>
 											<th></th>
 											<th>ID</th>
-											<th>title</th>
+											<th>Title</th>
+											<th>Description</th>
 											<th>Format</th>
 											<th>DocumentType</th>
 										</tr>
@@ -40,6 +41,9 @@
 											<td>
 												{{ $batch->title }}
 											</td>
+											<td>
+ 												{{ $batch->description }}
+											</td>	
 											<td>
 												{{ $batch->format }}
 											</td>

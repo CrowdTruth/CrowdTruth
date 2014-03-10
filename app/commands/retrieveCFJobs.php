@@ -62,7 +62,7 @@ class retrieveCFJobs extends Command {
 			}
 			
 			$judgment = $judgments[0];
-			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('softwareb_id', 'cf')->first();
+			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('softwareAgent_id', 'cf')->first();
 			if(!$agent){
 				$agent = new CrowdAgent;
 				$agent->_id= "crowdagent/cf/{$judgment['worker_id']}";
@@ -113,7 +113,7 @@ class retrieveCFJobs extends Command {
 			Log::warning($e->getMessage());
 			throw $e;
 		}
-		// If we throw an error, crowdflower will recieve HTTP 500 (internal server error) from us and send an e-mail.
+		// If we throw an error, crowdflower will recieve HTTP 500 (internal server error) from us (and send an e-mail?).
 		// We could also choose to just die(), but we'll need heavier error reporting on our side.
 
 	}		
