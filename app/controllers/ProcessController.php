@@ -216,14 +216,14 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
-		
+				
 		try {
 			$j = new Job($batch, $template, $jc);
 			$ids = $j->publish();
 			$msg = 'Created ' .
-			(isset($ids['amt']) ? count($ids['amt']) : 0) .
+			(isset($ids['amt']) ? count($ids['amt']) : 'no') .
 			 ' jobs on AMT and ' .
-			(isset($ids['cf']) ? count($ids['cf']) : 0) .
+			(isset($ids['cf']) ? count($ids['cf']) : 'none') .
 			 ' on CF.';
 			Session::flash('flashSuccess', $msg);
 		} catch (Exception $e) {
@@ -242,9 +242,9 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
-		
 		try {
 			$j = new Job($batch, $template, $jc);
+
 			$ids = $j->publish(true);
 
 			$msg = 'Created ' .

@@ -62,7 +62,9 @@ class retrieveCFJobs extends Command {
 			}
 			
 			$judgment = $judgments[0];
-			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('softwareAgent_id', 'cf')->first();
+			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])
+								->where('softwareAgent_id', 'cf')
+								->first();
 			if(!$agent){
 				$agent = new CrowdAgent;
 				$agent->_id= "crowdagent/cf/{$judgment['worker_id']}";
@@ -92,8 +94,12 @@ class retrieveCFJobs extends Command {
 
 			foreach($judgments as $judgment){
 				// TODO: error handling.
-				$this->storeJudgment($judgment, $job, $activity->_id, $agent->_id);
-				$newJudgmentsCount++;
+				try {
+					$this->storeJudgment($judgment, $job, $activity->_id, $agent->_id);
+					$newJudgmentsCount++;
+				} catch(Exception $e){
+
+				}
 			}
 
 			// Update count and completion
@@ -103,7 +109,6 @@ class retrieveCFJobs extends Command {
 			$uc = intval($job->unitsCount);
 			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
 			else $job->completion = 0.00;
-
 			$job->save();
 			Log::debug("Saved $newJudgmentsCount new annotations to {$job->_id} to DB.");	
 		} catch (CFExceptions $e){
@@ -121,7 +126,7 @@ class retrieveCFJobs extends Command {
 	/**
 	* Retrieve Job from database. 
 	* @return Entity (documentType:job)
-	* @throws CFExceptions when not job is not found. 
+	* @throws CFExceptions when no job is found. 
 	*/
 	private function getJob($jobid){
 		if(!$job = Entity::where('documentType', 'job')
@@ -160,6 +165,7 @@ class retrieveCFJobs extends Command {
 			$aentity->platformAnnotationId = $judgment['id'];
 			$aentity->cfChannel = $judgment['external_type'];
 			$aentity->acceptTime = new MongoDate(strtotime($judgment['started_at']));
+			$aentity->finishTime = new MongoDate(strtotime($judgment['created_at']));
 			$aentity->cfTrust = $judgment['trust'];
 			$aentity->content = $judgment['data'];
 
@@ -181,7 +187,6 @@ class retrieveCFJobs extends Command {
 
 		} catch (Exception $e) {
 			Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
-			if($activity) $activity->forceDelete();
 			if($aentity) $aentity->forceDelete();
 		}
 	}
