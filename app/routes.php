@@ -10,6 +10,10 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('/', function()
 	{
 
+		// $result = \MongoDB\Entity::where('_id', 'entity/text/medical/batch/2')->first();
+
+		// return $result->wasDerivedFrom;
+
         // $result = \MongoDB\Entity::where('format', 'text')->where('domain', 'medical')->where("documentType", 'twrex-structured-sentence')->orderBy('natural', 'asc')->get(array("_id"));
 
         // return $result;
