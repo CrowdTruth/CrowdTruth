@@ -99,6 +99,7 @@ class retrieveCFJobs extends Command {
 
 			// Update count and completion
 			// TODO: robustness
+			// TODO: know bug: AnnotationsCount lags behind. 
 			$job->annotationsCount = intval($job->annotationsCount)+$newJudgmentsCount;
 			$jpu = intval(Entity::where('_id', $job->jobConf_id)->first()->content['annotationsPerUnit']);		
 			$uc = intval($job->unitsCount);

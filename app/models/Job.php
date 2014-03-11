@@ -217,6 +217,9 @@ class Job  {
 			if(empty($data['cml']))
 				throw new CFExceptions('CML file does not exist or is not readable.');
 
+
+			/*if(!$sandbox) $data['auto_order'] = true;*/
+
 			// Create the job with the initial data
 			$result = $cfJob->createJob($data);
 			$id = $result['result']['id'];
@@ -256,6 +259,8 @@ class Job  {
 						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
 				}
 
+				//TODO: this only works half the time. Get error: need unordered units.
+				// Maybe we need to build in a waiting period.
 				if(!$sandbox){
 					$orderresult = $cfJob->sendOrder($id, count($this->batch->ancestors), array("cf_internal"));
 					if(isset($orderresult['result']['error']))
