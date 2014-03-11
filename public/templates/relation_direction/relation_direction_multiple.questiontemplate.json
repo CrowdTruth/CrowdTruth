@@ -1,43 +1,54 @@
 {
-    "title": "What is the right order of two related WORD PHRASES?",
-    "description": "You are asked to read a SENTENCE containing two related WORD PHRASES, then decide on the correct order of the relation.",
-    "keywords": "medical relations, medical text, relation direction",
-    "reward": "0.03",
-    "annotationsPerUnit": "15",
-    "hitLifetimeInMinutes": "10080",
-    "expirationInMinutes": "2",
-    "unitsPerTask": "7",
-    "autoApprovalDelayInMinutes": "2880",
-    "qualificationRequirement": [
-        {
-            "QualificationTypeId": "000000000000000000L0",
-            "Comparator": "GreaterThan",
-            "IntegerValue": "90"
+    "defaultThresholds": {
+        "sent_filter_thresholds": {
+            "name": 7
         },
-        {
-            "QualificationTypeId": "00000000000000000040",
-            "Comparator": "GreaterThan",
-            "IntegerValue": "1000"
-        }
-    ],
-    "assignmentReviewPolicy": {
-        "AnswerKey": [
-
+        "default_filter": [
+            4,
+            7
         ],
-        "Parameters": {
-            "ApproveIfKnownAnswerScoreIsAtLeast": "100",
-            "RejectIfKnownAnswerScoreIsLessThan": "100",
-            "RejectReason": "Sorry, you had our known question wrong."
+        "worker_threshold": {
+            "name": [
+                6,
+                8
+            ]
         }
     },
-    "answerfields": [
-        "direction"
+    "replaceValues": [
+        {
+            "relation.noPrefix": [
+                {
+                    "cause": "causes"
+                },
+                {
+                    "contraindicate": "contraindicates"
+                }
+            ]
+        }
     ],
-    "eventType": "HITExpired",
-    "annotationsPerWorker": "28",
-    "requesterAnnotation": "",
-    "instructions": "In the SENTENCE below there are two highlighted WORD PHRASES that we believe are related. Choose one of the options below that according to you expresses their right order.\r\n\r\nPlease consider only the capitalized WORD PHRASES (in case one of them appears multiple times in the sentence).",
-    "platform": [
-        "cf"
+    "questionTemplate": [
+        {
+            "component": "label",
+            "value": "{{description}}"
+        },
+        {
+            "component": "label",
+            "class": "well",
+            "value": "{{sentence_text}}"
+        },
+        {
+            "id": "direction",
+            "component": "radio",
+            "editable": true,
+            "index": 0,
+            "label": "Which of the following statements is EXPRESSED in the SENTENCE above?",
+            "options": {
+                "{{terms_first_text}} {{relation_noprefix}} {{terms_second_text}}": "{{terms_first_text}} {{relation_noprefix}} {{terms_second_text}}",
+                "{{terms_second_text}} {{relation_noprefix}} {{terms_first_text}}": "{{terms_second_text}} {{relation_noprefix}} {{terms_first_text}}",
+                "no_relation": "-{{relation_noprefix}}- is NOT EXPRESSED between the two PHRASES"
+            },
+            "required": false,
+            "gold": true
+        }
     ]
 }
