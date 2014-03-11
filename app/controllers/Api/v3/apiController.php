@@ -44,15 +44,16 @@ class apiController extends BaseController {
 	public function index()
 	{	//Get all job-object
 
-		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job');
+		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job')->with('hasConfiguration')->with('wasAttributedToUserAgent');
 		
-		//Filter on wished for fields using using field of v2 
+		//Filter on wished for fields using using field of v2
+		json_encode($documents);
+
 		if(Input::has('filter'))
 		{
 
 			foreach(Input::get('filter') as $filter => $value)
-			{
-
+			{	
 				if(is_numeric($value))
 				{
 					$documents = $documents->where($filter, (int) $value);
@@ -65,11 +66,10 @@ class apiController extends BaseController {
 				}			
 
 				if(is_array($value))
-				{
-
+				{	
 					foreach($value as $operator => $subvalue)
-					{
-						if($filter == "user_id"){
+					{	
+						if($filter == "username"){
 							$user = \User::where('username', 'like', '%' . $subvalue . '%')->first();
 
 							// return $user;
@@ -82,19 +82,25 @@ class apiController extends BaseController {
 							continue;
 						}
 
-						if(in_array($operator, $this->operators))
-						{
+						if(in_array($operator, $this->operators)){
+						
 							if(is_numeric($subvalue))
 							{
 								$subvalue = (int) $subvalue;
 							}
 
-							$documents = $documents->where($filter, $operator, $subvalue);
-						}
+							if($operator == 'like')
+							{
+								$subvalue = '%' . $subvalue . '%'; 
+								
+							}
 
+							$documents = $documents->where($filter, $operator, $subvalue);
+
+							}
 						
 					}
-
+					
 					continue;
 				}
 				else
@@ -127,7 +133,7 @@ class apiController extends BaseController {
 		}
 
 		//Eager load jobConfiguration into job entity
-		$entities = $documents->with('hasConfiguration')->take($limit)->get();
+		$entities = $documents->take($limit)->get();
 		
 		$jobs = array();
 
@@ -136,7 +142,6 @@ class apiController extends BaseController {
 		{
 			array_push($jobs, $entity);
 		}
-		
 		
 		// Paginate results, current page, page of choice etc.
 		
