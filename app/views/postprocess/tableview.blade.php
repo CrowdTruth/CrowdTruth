@@ -22,8 +22,8 @@
 									<i ng-click="setSortAsc('created_at')" class="fa fa-caret-up"></i> Created at 
 								</th>
 								<th>
-									<i ng-click="setSortDesc('user_id')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('user_id')" class="fa fa-caret-up"></i> Creator
+									<i ng-click="setSortDesc('wasAttributedToUserAgent.username')" class="fa fa-caret-down"></i>
+									<i ng-click="setSortAsc('wasAttributedToUserAgent.username')" class="fa fa-caret-up"></i> Creator
 								</th>
 								<th>
 									<i ng-click="setSortDesc('domain')" class="fa fa-caret-down"></i>
@@ -59,7 +59,7 @@
 								</th>
 								<th>
 									<i ng-click="setSortDesc('hasConfiguration.content.projectedCost')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('hasConfiguration.content.projectedCost')" class="fa fa-caret-up"></i> Total Cost
+									<i ng-click="setSortAsc('hasConfiguration.content.projectedCost')" class="fa fa-caret-up"></i> Projected Cost
 								</th>
 								<th>
 									<i ng-click="setSortDesc('flaggedPercentage')" class="fa fa-caret-down"></i>
@@ -89,11 +89,11 @@
 							<tr>
 								<td></td>
 								<td><input type="datetime" ng-keyup="setFilter('created_at', filter.created_at)" ng-model="filter.created_at"></td>
-								<td><input type="text" ng-keyup="setFilter('user_id', filter.user_id)" ng-model="filter.user_id"></td>
+								<td><input type="text" ng-keyup="setFilter('wasAttributedToUserAgent.username', filter.wasAttributedToUserAgent.username)" ng-model="filter.wasAttributedToUserAgent.username"></td>
 								<td><input type="text" ng-keyup="setFilter('domain', filter.domain)" ng-model="filter.domain"></td>
 								<td><input type="text" ng-keyup="setFilter('format', filter.format)" ng-model="filter.format"></td>
-								<td><input type="text" ng-keyup="setFilter('type')" ng-model="filter.type" ></td>
-								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.unitsPerTask' filter.hasConfiguration.content.unitsPerTask)" ng-model="filter.hasConfiguration.content.unitsPerTask"></td>
+								<td><input type="text" ng-keyup="setFilter('hasConfiguration.type', filter.hasConfiguration.type)" ng-model="filter.hasConfiguration.type"></td>
+								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.unitsPerTask', filter.hasConfiguration.content.unitsPerTask)" ng-model="filter.hasConfiguration.content.unitsPerTask"></td>
 								<td><input type="checkbox" ng-keyup="setFilter('hasGold', filter.hasGold)" ng-model="filter.hasGold"></td>
 								<td><input type="text" ng-keyup="setFilter('hasConfiguration.platform', filter.hasConfiguration.platform)" ng-model="filter.hasConfiguration.platform"></td>
 								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.reward', filter.hasConfiguration.content.reward)" ng-model="filter.hasConfiguration.content.reward"></td>
@@ -111,12 +111,12 @@
 							<tr ng-repeat="result in results.data">
 						        <td><input type="checkbox" ng-model="result.checked"></td>
 						        <td>@{{result.created_at}}</td>
-						        <td>@{{result.user_id}}</td>
+						        <td>@{{result.wasAttributedToUserAgent.username}}</td>
 						        <td>@{{result.domain}}</td>
 						        <td>@{{result.format}}</td>
 						        <td>@{{result.hasConfiguration.type}}</td>
 						        <td>@{{result.hasConfiguration.content.unitsPerTask}}</td>
-						        <td>@{{hasGold}}</td>
+						        <td>@{{result.hasGold}}</td>
 						        <td>@{{result.hasConfiguration.content.platform}}</td>
 						        <td>@{{result.hasConfiguration.content.reward}}</td>
 						        <td>@{{result.hasConfiguration.content.rewardPerHour}}</td>

@@ -5,7 +5,10 @@
 <script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
 <script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
 <script type="text/javascript" src="/custom_assets/dataretrieval.js"></script>	
+<script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
+<script type="text/javascript" src="/custom_assets/moment.js"></script>
 @stop
+
 
 @section('content')
 <div ng-app="dataRetrieval" ng-controller="resourceCtrl">
@@ -36,7 +39,7 @@
 									<i ng-click="setSortAsc('unitsCount')" class="fa fa-caret-up"></i></div><br>
 					</div>
 					<div class="panel-body" id="jobSize">
-						<i class="fa fa-gavel"></i> Created by <div class="pull-right"> <i ng-click="setSortDesc('user_id')" class="fa fa-caret-down"></i>
+						<i class="fa fa-user"></i> Created by <div class="pull-right"> <i ng-click="setSortDesc('user_id')" class="fa fa-caret-down"></i>
 									<i ng-click="setSortAsc('user_id')" class="fa fa-caret-up"></i></div><br>
 					</div>
 				</div>
@@ -77,7 +80,7 @@
 						<div class="panel panel-default" ng-repeat="result in results.data">
 						<!-- Top row is panel heading with creation date and creator -->
 						<div class="panel-heading clearfix">
-							<div style="width: 25%; float:left;">
+							<div style="width: 5%; float:left;">
 								<input type="checkbox" ng-model="result.checked"></a>
 							</div>
 	              			<div style="float:left;">
@@ -100,7 +103,7 @@
 			               			<strong style="font-size: 18px;"><i class="fa fa-file"></i> @{{result.hasConfiguration.type}}</strong> 
 			               		</div>
 			               		<div class="col-md-2" style="text-align: center; padding-top: 15px;">
-			               			<strong style="font-size: 24px; "><i class="fa fa-clock-o fa-2x"></i><br> @{{ElapsedTime}}</strong></p>
+			               			<strong style="font-size: 20px; "><i class="fa fa-clock-o fa-2x"></i><br> <span am-time-ago="result.created_at"></span></strong></p>
 			               		</div>	
 			               	</div>
 			               	<div class="row" style="height: 90px;">
@@ -112,12 +115,11 @@
 			               		<div class="col-md-4" style="border-right: 1px solid #eee; height: 100%; text-align: center; display: table-cell; padding-top: 10px; vertical-align: middle;"> 
 			               			<h2><i class="fa fa-users"></i> @{{result.hasConfiguration.content.platform}} </h2>
 			               		</div>
-			               		<div class="col-md-2" style="border-right: 1px solid #eee; text-align: center; display: table-cell; padding-top: 5px; font-size: 32px; vertical-align: middle;"> 
-			                   		<i class="fa fa-flag"></i>  %</strong><br>
-			                   		<!-- <button class="btn btn-sm">Workers</button> -->
-				               	</div>
+			               		<div class="col-md-2" style="border-right: 1px solid #eee; height:100%; text-align: center; display: table-cell; padding-top: 5px; font-size: 26px; vertical-align: middle;"> 
+			                   		<i class="fa fa-flag"></i> <br> %</strong>
+			                   	</div>
 							    <div class="col-md-2" style="border-right: 1px solid #eee; height: 100%; text-align: center; display: table-cell; padding-top: 10px; vertical-align: middle;">
-							    	<i class="fa fa-dollar"></i><strong> /</strong> <i class="fa fa-gavel"></i> <strong> $ @{{result.hasConfiguration.content.reward}}</strong>
+							    	<i class="fa fa-dollar"></i><strong> /</strong> <i class="fa fa-gavel"></i> <strong> @{{result.hasConfiguration.content.reward}}</strong>
 							       	<h2><i class="fa fa-dollar"></i>@{{result.projectedCost}}</h2>
 							    </div>
 							    <div class="col-md-2" style="text-align: center; height: 100%; display: table-cell; vertical-align: middle; padding-top: 10px;">
@@ -135,7 +137,7 @@
 						<!-- Here starts the panel footer -->
 	               		<div class="panel-footer">
 	               			<div class="row">
-	               				<div style="float:left; padding: 3px;">
+	               				<div style="float:left; padding: 3px; padding-left:8px;">
 						  			<input class="btn btn-primary" type="button" id="" ng-click="showDetail(result)" value="Details">
 								</div>
 								<!-- <div class="btn-group" style="float: left; padding: 3px;">
