@@ -49,7 +49,7 @@ class retrieveAMTJobs extends Command {
 
 		// Todo optimize query.
 		$jobs = Entity::where('documentType', 'job')
-						->where('software_id', 'amt')
+						->where('softwareAgent_id', 'amt')
 						->orderBy('created_at', 'desc')
 						->where('status', '!=', 'finished')
 						->get();
@@ -121,7 +121,7 @@ class retrieveAMTJobs extends Command {
 							$activity->label = "Units are annotated on crowdsourcing platform.";
 							$activity->crowdAgent_id = $agentId; 
 							$activity->used = $jobId;
-							$activity->software_id = 'amt';
+							$activity->softwareAgent_id = 'amt';
 							$activity->save();
 
 							
@@ -144,7 +144,7 @@ class retrieveAMTJobs extends Command {
 								//$annentity->type = $job->type;
 								$annentity->activity_id = $activity->_id;
 								$annentity->crowdAgent_id = $agentId;
-								$annentity->software_id = 'amt';
+								$annentity->softwareAgent_id = 'amt';
 								$annentity->job_id = $jobId;
 								$annentity->unit_id = $uid;
 								$annentity->platformAnnotationId = $assignment['AssignmentId'];
@@ -218,13 +218,13 @@ class retrieveAMTJobs extends Command {
 			// CF is not needed here -> webhook.
 		}	
 
-		if($id = CrowdAgent::where('platformAgentId', $workerId)->where('platform_id', $platform)->pluck('_id')) 
+		if($id = CrowdAgent::where('platformAgentId', $workerId)->where('softwareAgent_id', $platform)->pluck('_id')) 
 			return $id;
 
 		else {
 			$agent = new CrowdAgent;
 			$agent->_id= "crowdagent/$platform/$workerId";
-			$agent->software_id= $platform;
+			$agent->softwareAgent_id= $platform;
 			$agent->platformAgentId = $workerId;
 			$agent->save();
 			

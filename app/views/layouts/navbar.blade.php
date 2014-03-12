@@ -16,8 +16,7 @@
 						<li{{ (Request::segment(1) == 'home' ? ' class="active"' : '') }}>{{ link_to('/', "Home") }}</li>
 						<li{{ (Request::segment(1) == 'files' ? ' class="active"' : '') }}>{{ link_to('files', "Files") }}</li>
 						<li{{ (Request::segment(1) == 'preprocess' ? ' class="active"' : '') }}>{{ link_to('preprocess', "Pre-Process") }}</li>
-						<li{{ (Request::segment(1) == 'process' ? ' class="active"' : '') }}>{{ link_to('process', "Process") }}</li>
-						<li{{ (Request::segment(1) == 'postprocess' ? ' class="active"' : '') }}>{{ link_to('postprocess', "Post-Process") }}</li>
+						<li{{ (Request::segment(1) == 'jobs' ? ' class="active"' : '') }}>{{ link_to('jobs', "Jobs") }}</li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown">More <b class="caret"></b></a>
 							<ul class="dropdown-menu">

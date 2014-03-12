@@ -2,11 +2,11 @@
 <!-- START process_nav -->   
 
 						<ul class="nav nav-tabs" id="processtabs">
-							<li{{ (Request::segment(2) == 'batch' ? ' class="active"' : '') }} title='batch'>{{ link_to('process/selectbatch', "Select batch") }}</li>
-							<li{{ (Request::segment(2) == 'template' ? ' class="active"' : '') }} title='template'>{{ link_to('process/template', "Pick Template") }}</li>
-							<li{{ (Request::segment(2) == 'details' ? ' class="active"' : '') }} title='details'>{{ link_to('process/details', "Job Details") }}</li>
-							<li{{ (Request::segment(2) == 'platform' ? ' class="active"' : '') }} title='platform'>{{ link_to('process/platform', "Platform") }}</li>
-							<li{{ (Request::segment(2) == 'submit' ? ' class="active"' : '') }} title='submit'>{{ link_to('process/submit', "Submit") }}</li>
+							<li{{ (Request::segment(2) == 'batch' ? ' class="active"' : '') }} title='batch'>{{ link_to('process/selectbatch', "1. Batch") }}</li>
+							<li{{ (Request::segment(2) == 'template' ? ' class="active"' : '') }} title='template'>{{ link_to('process/template', "2. Template") }}</li>
+							<li{{ (Request::segment(2) == 'details' ? ' class="active"' : '') }} title='details'>{{ link_to('process/details', "3. Job Details") }}</li>
+							<li{{ (Request::segment(2) == 'platform' ? ' class="active"' : '') }} title='platform'>{{ link_to('process/platform', "4. Platform") }}</li>
+							<li{{ (Request::segment(2) == 'submit' ? ' class="active"' : '') }} title='submit'>{{ link_to('process/submit', "5. Submit") }}</li>
 							<a href='/process/clear-task' class="btn btn-danger pull-right">Reset form</a></li>
 
 						</ul>

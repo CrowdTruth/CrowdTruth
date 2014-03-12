@@ -7,10 +7,6 @@ use MongoDB\Sentence;
 class ProcessController extends BaseController {
 
 	public function getIndex() {
-		// if(!count(Cart::content()) > 0){
-		// 	Session::flash('flashNotice', 'You have not added any items to your selection yet');
-		// 	return Redirect::to('files/browse');
-		// }
         return Redirect::to('process/batch');
 	}
 
@@ -49,7 +45,7 @@ class ProcessController extends BaseController {
 		$j = new Job($batch, $template, $jc);
 		$questionids = array();
 		$goldfields = array();
-		$unitscount = count($batch->wasDerivedFromMany);
+		$unitscount = count($batch->wasDerivedFrom);
 
 		try {
 			$questionids = $j->getQuestionIds();
@@ -145,8 +141,20 @@ class ProcessController extends BaseController {
 			// TODO: CSRF
 			$batch = Batch::where('documentType', 'batch') /* TODO find a way to assume this */
 							->where('_id', Input::get('batch'))
-							->first(); 
+							->first();
+
+//			$batch->wasDerivedFromMany = $batch->wasDerivedFrom;
+			//dd('asdsad');
+			// if(isset($batch->ancestors)){
+			// 	// $batch->wasDerivedFromManyTest = 
+
+			// 	$batch->wasDerivedFromManyTest = \MongoDB\Entity::whereIn('_id', $batch->ancestors)->get()->toArray();
+
+			// 	// dd($batch->toArray());
+			// }			
+
 			Session::put('batch', serialize($batch));
+		
 		}
 
 		if(Input::has('template')){
@@ -204,22 +212,22 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
-		
+				
 		try {
 			$j = new Job($batch, $template, $jc);
 			$ids = $j->publish();
 			$msg = 'Created ' .
-			(isset($ids['amt']) ? count($ids['amt']) : 0) .
+			(isset($ids['amt']) ? count($ids['amt']) : 'no') .
 			 ' jobs on AMT and ' .
-			(isset($ids['cf']) ? count($ids['cf']) : 0) .
+			(isset($ids['cf']) ? count($ids['cf']) : 'none') .
 			 ' on CF.';
 			Session::flash('flashSuccess', $msg);
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage());
-			//throw $e; //debug
+			return Redirect::to("process/submit");
 		}
 
-		return Redirect::to("process/submit");
+		return Redirect::to("jobs/listview");
 		
 	}
 
@@ -230,9 +238,9 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
-		
 		try {
 			$j = new Job($batch, $template, $jc);
+
 			$ids = $j->publish(true);
 
 			$msg = 'Created ' .
@@ -245,7 +253,7 @@ class ProcessController extends BaseController {
 			Session::flash('flashError', $e->getMessage());
 		}
 
-		return Redirect::to("process/submit");
+		return Redirect::to("jobs/listview");
 		
 	}
 

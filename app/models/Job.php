@@ -8,7 +8,8 @@ use \MongoDB\Entity;
 use \MongoDB\Activity;
 use \MongoDB\SoftwareAgent;
 
-class Job extends Entity { 
+class Job  { 
+	/* Taken out: extends Entity */
     protected $mturk;
     protected $csv;
     protected $batch;
@@ -37,6 +38,7 @@ class Job extends Entity {
 		else $platform = array();
 
 		$ids = array();
+		$entityids = array();
 		try {
 				
 
@@ -47,14 +49,21 @@ class Job extends Entity {
 			$platformstring = implode($platform, ', ');
 			//$activity->used = 
 			$activity->label = "Job is uploaded to crowdsourcing platform(s): $platformstring.";
-			$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB software_id = $platform. Does this need to be the same?
+			$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB softwareAgent_id = $platform. Does this need to be the same?
 			$activity->save();
 
 			$this->activityURI = $activity->_id;
+			
 			// Save JobConfiguration (or reference existing). Throws error if not possible.
 			// TODO: might have a parent.
 			$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
 			
+			// We do CF first because it seems to throw more errors
+			if(in_array('cf', $platform)){	
+				$ids['cf'] = $this->cfPublish($sandbox);
+				$cfentityid = $this->store('cf', $ids['cf'], $sandbox);
+				array_push($entityids, $cfentityid);
+			}
 
 			if(in_array('amt', $platform)){
 				// Upload to sandbox or to real AMT.
@@ -62,25 +71,21 @@ class Job extends Entity {
 				else $this->mturk->setRootURL(Config::get('config.amtrooturl')); // TODO change this to real one.
 
 				$ids['amt'] = $this->amtPublish(false);
-				$this->store('amt', $ids['amt'], $sandbox);
-			}
-
-			if(in_array('cf', $platform)){	
-				$ids['cf'] = $this->cfPublish($sandbox);
-				$this->store('cf', $ids['cf'], $sandbox);
+				$amtentityid = $this->store('amt', $ids['amt'], $sandbox);
+				array_push($entityids, $amtentityid);
 			}	
 
 			return $ids;
 
 		} catch (AMTException $e) {
-			$this->undoCreation($ids, $e);
-			throw new Exception("AMT: {$e->getMessage()}");
+			$this->undoCreation($ids, $e, $entityids);
+			throw new Exception("AMT: {$e->getMessage()} Job(s) not created.");
 		} catch (CFExceptions $e) {
-			$this->undoCreation($ids, $e);
-			throw new Exception("CF: {$e->getMessage()}");
+			$this->undoCreation($ids, $e, $entityids);
+			throw new Exception("CF: {$e->getMessage()} Job(s) not created.");
 		} catch (Exception $e) {
-			$this->undoCreation($ids, $e);
-			throw $e; // (probably) error in store().
+			$this->undoCreation($ids, $e, $entityids);
+			throw new Exception($e->getMessage() . " Jobs(s) not created."); // (probably) error in store().
 		}
 
     }
@@ -89,30 +94,33 @@ class Job extends Entity {
     * In case of exception: undo everything.
     * @throws Exception if even the undo isn't working. 
     */
-    private function undoCreation($ids, $error){
-    	
-    	Log::warning("Error in creating jobs. Id's: " . serialize($ids) . ". Attempting to delete jobs from crowdsourcing platform(s).");
+    private function undoCreation($ids, $error, $entityids = null){
+    					
+    	Log::warning("Error in creating jobs. Id's: " . json_encode($ids) . ". Attempting to delete jobs from crowdsourcing platform(s).");
 
     	try {
-	    	if(isset($ids['amt']) and is_array($ids['amt']) and count($ids['amt']) > 0)
+	    	if(isset($ids['amt']) and is_array($ids['amt']) and count($ids['amt']) > 0) {
 				foreach($ids['amt'] as $id){
-					$this->mturk->disableHIT($id);
-					$entity = Entity::where('platformJobId', $id);
-					if(is_object($entity)) $entity->forceDelete();
+					$this->mturk->disableHIT($id); // This fully deletes the HIT.
 				}
+			}
 
 			if(isset($ids['cf'])){
 				$id = $ids['cf'];
 				$cfJob = new crowdwatson\Job($this->CFApiKey);	
 				$cfJob->cancelJob($id);
 				$cfJob->deleteJob($id);
-				$entity = Entity::where('platformJobId', intval($id));
-				if(is_object($entity)) $entity->forceDelete();
 			}
 
 			$activity = Activity::where('_id', $this->activityURI)->first();
-			if(is_object($activity)) $activity->forceDelete(); // !empty doesn't work..
+			if($activity) $activity->forceDelete();
 
+			if(!empty($entityids)){
+				foreach($entityids as $eid){
+					$entity = Entity::where('_id', $eid)->first();
+					if($entity) $entity->forceDelete();
+				}
+			}
 		} catch (Exception $e){
 
 			// This is bad.
@@ -124,7 +132,7 @@ class Job extends Entity {
 				<br>Deletion error: $newe
 				<br>Please contact an administrator.");
 			Log::error("Couldn't delete jobs. Please manually check the platforms and database.\r\nInitial exception: $orige
-				\r\nDeletion error: $newe\r\nActivity: {$this->activityURI}\r\nJob ID's: " . serialize($ids));
+				\r\nDeletion error: $newe\r\nActivity: {$this->activityURI}\r\nJob ID's: " . json_encode($ids));
 
 		}
     }
@@ -143,7 +151,7 @@ class Job extends Entity {
 
     	// TODO //
     	$goldfields = array();
-    	foreach (array_keys($this->batch->toArray()[0]) as $key)
+    	foreach (array_keys($this->batch->toCFArray()[0]) as $key)
 			if ($key != '_golden' and $pos = strpos($key, '_gold') and !strpos($key, '_gold_reason'))
 				$goldfields[$key] = substr($key, 0, $pos);	
     	return $goldfields;
@@ -209,56 +217,60 @@ class Job extends Entity {
 			if(empty($data['cml']))
 				throw new CFExceptions('CML file does not exist or is not readable.');
 
+
+			/*if(!$sandbox) $data['auto_order'] = true;*/
+
 			// Create the job with the initial data
 			$result = $cfJob->createJob($data);
 			$id = $result['result']['id'];
 
 			// Add CSV and options
 			if(isset($id)) {
-				// TODO: expiration
-
+				
 				// Not in API or problems with API: 
-				// 	- Channels (we can only order on cf_internal)
+				//  - Channels (we can only order on cf_internal)
 				//  - Tags / keywords
-				//  - Worker levels
-
-				$optionsresult = $cfJob->setOptions($id, array('options' => $options));
-				if(isset($optionsresult['result']['errors']))
-					throw new CFExceptions($optionsresult['result']['errors'][0]);
+				//  - Worker levels (defaults to '1')
+				//  - Expiration?
 
 				$csvresult = $cfJob->uploadInputFile($id, $csv);
-				//unlink($csv); // DELETE temporary CSV.
-				if(isset($csvresult['result']['errors']))
-					throw new CFExceptions($csvresult['result']['errors'][0]);
+				unlink($csv); // DELETE temporary CSV.
+				if(isset($csvresult['result']['error']))
+					throw new CFExceptions("CSV: " . $csvresult['result']['error']['message']);
+
+				$optionsresult = $cfJob->setOptions($id, array('options' => $options));
+				if(isset($optionsresult['result']['error']))
+					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
 
 				$channelsresult = $cfJob->setChannels($id, array('cf_internal'));
-				if(isset($channelsresult['result']['errors']))
-					throw new CFExceptions($goldresult['result']['errors'][0]); 
+				if(isset($channelsresult['result']['error']))
+					throw new CFExceptions($channelsresult['result']['error']['message']); 
 
 				if(is_array($gold) and count($gold) > 0){
 					// TODO: Foreach? 
 					$goldresult = $cfJob->manageGold($id, array('check' => $gold[0]));
-					if(isset($goldresult['result']['errors']))
-						throw new CFExceptions($goldresult['result']['errors'][0]);
+					if(isset($goldresult['result']['error']))
+						throw new CFExceptions("Gold: " . $goldresult['result']['error']['message']);
 				}
 
 				if(is_array($c->countries) and count($c->countries) > 0){
 					$countriesresult = $cfJob->setIncludedCountries($id, $c->countries);
-					if(isset($countriesresult['result']['errors']))
-						throw new CFExceptions($countriesresult['result']['errors'][0]);
+					if(isset($countriesresult['result']['error']))
+						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
 				}
 
+
 				if(!$sandbox){
-					$orderresult = $cfJob->sendOrder($id, count($this->batch->wasDerivedFromMany), array("cf_internal"));
-					if(isset($orderresult['result']['errors']))
-						throw new CFExceptions($orderresult['result']['errors'][0]);
+					$orderresult = $cfJob->sendOrder($id, count($this->batch->ancestors), array("cf_internal"));
+					if(isset($orderresult['result']['error']))
+						throw new CFExceptions("Order: " . $orderresult['result']['error']['message']);
 				}
 
 				return $id;
 
 			// Failed to create initial job.
 			} else {
-				$err = $result['result']['errors'][0];
+				$err = $result['result']['error']['message'];
 				if(isset($err)) $msg = $err;
 				else $msg = 'Unknown error.';
 				throw new CFExceptions($msg);
@@ -280,7 +292,7 @@ class Job extends Entity {
     	if(!file_exists($htmlfilename) || !is_readable($htmlfilename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
 
-		$units = $this->batch->wasDerivedFromMany;
+		$units = $this->batch->wasDerivedFrom;
 		shuffle($units);
 
 		$questionsbuilder = '';
@@ -417,7 +429,7 @@ class Job extends Entity {
 			// Create an array with HITid and status.
 			$temppjid = array();
 			foreach($platformJobId as $id)
-				array_push($temppjid, array('id' => $id, 'status' => $status));
+				array_push($temppjid, array('id' => $id, 'status' => $status, 'timestamp' => time()));
 
 			$platformJobId = $temppjid;
 		}
@@ -426,7 +438,7 @@ class Job extends Entity {
 			$reward = $this->jobConfiguration->reward;
 			$annotationsPerUnit = intval($this->jobConfiguration->annotationsPerUnit);
 			$unitsPerTask = intval($this->jobConfiguration->unitsPerTask);
-			$unitsCount = count($this->batch->wasDerivedFromMany);
+			$unitsCount = count($this->batch->wasDerivedFrom);
 			$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
 
 			$entity = new Entity;
@@ -450,7 +462,7 @@ class Job extends Entity {
 			$entity->status = $status;
 
 			$entity->save();
-			return true;
+			return $entity->_id;
 		} catch (Exception $e) {
 			// Something went wrong with creating the Entity
 			$entity->forceDelete();

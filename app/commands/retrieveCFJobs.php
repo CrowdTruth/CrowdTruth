@@ -62,11 +62,13 @@ class retrieveCFJobs extends Command {
 			}
 			
 			$judgment = $judgments[0];
-			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])->where('software_id', 'cf')->first();
+			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])
+								->where('softwareAgent_id', 'cf')
+								->first();
 			if(!$agent){
 				$agent = new CrowdAgent;
 				$agent->_id= "crowdagent/cf/{$judgment['worker_id']}";
-				$agent->software_id= 'cf';
+				$agent->softwareAgent_id= 'cf';
 				$agent->platformAgentId = $judgment['worker_id'];
 				$agent->country = $judgment['country'];
 				$agent->region = $judgment['region'];
@@ -86,24 +88,23 @@ class retrieveCFJobs extends Command {
 				$activity->label = "Units are annotated on crowdsourcing platform.";
 				$activity->crowdAgent_id = $agent->_id; 
 				$activity->used = $job->_id;
-				$activity->software_id = 'cf';
+				$activity->softwareAgent_id = 'cf';
 				$activity->save();
 			}
 
 			foreach($judgments as $judgment){
-				// TODO: error handling.
-				$this->storeJudgment($judgment, $job, $activity->_id, $agent->_id);
-				$newJudgmentsCount++;
+					if($this->storeJudgment($judgment, $job, $activity->_id, $agent->_id))
+						$newJudgmentsCount++;
 			}
 
 			// Update count and completion
 			// TODO: robustness
+			// TODO: know bug: AnnotationsCount lags behind. 
 			$job->annotationsCount = intval($job->annotationsCount)+$newJudgmentsCount;
 			$jpu = intval(Entity::where('_id', $job->jobConf_id)->first()->content['annotationsPerUnit']);		
 			$uc = intval($job->unitsCount);
 			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
 			else $job->completion = 0.00;
-
 			$job->save();
 			Log::debug("Saved $newJudgmentsCount new annotations to {$job->_id} to DB.");	
 		} catch (CFExceptions $e){
@@ -113,7 +114,7 @@ class retrieveCFJobs extends Command {
 			Log::warning($e->getMessage());
 			throw $e;
 		}
-		// If we throw an error, crowdflower will recieve HTTP 500 (internal server error) from us and send an e-mail.
+		// If we throw an error, crowdflower will recieve HTTP 500 (internal server error) from us (and send an e-mail?).
 		// We could also choose to just die(), but we'll need heavier error reporting on our side.
 
 	}		
@@ -121,31 +122,41 @@ class retrieveCFJobs extends Command {
 	/**
 	* Retrieve Job from database. 
 	* @return Entity (documentType:job)
-	* @throws CFExceptions when not job is not found. 
+	* @throws CFExceptions when no job is found. 
 	*/
 	private function getJob($jobid){
 		if(!$job = Entity::where('documentType', 'job')
-					->where('software_id', 'cf')
+					->where('softwareAgent_id', 'cf')
 					->where('platformJobId', intval($jobid)) /* Mongo queries are strictly typed! We saved it as int in Job->store */
 					->first())
 		{
 			$job = Entity::where('documentType', 'job')
-				->where('software_id', 'cf')
+				->where('softwareAgent_id', 'cf')
 				->where('platformJobId', (string) $jobid) /* Try this to be sure. */
 				->first();
 		}
 
 		// Still no job found, this job is probably not made in our platform (or something went wrong earlier)
-		if(!$job)
-			throw new CFExceptions("CFJob {$judgment['job_id']} not in local database; retrieving it would break provenance.");
-
+		if(!$job) {
+			Log::warning("Callback from CF to our server for Job $jobid, which is not in our DB.");
+			throw new CFExceptions("CFJob not in local database; retrieving it would break provenance.");
+		}
 		return $job;
 	}
 
+
+	/**
+	* @return true if created, false if exists
+	*/
 	private function storeJudgment($judgment, $job, $activityId, $agentId)
 	{
 
-		// TODO: check hash. 
+		// If exists return false. 
+		if(Entity::where('documentType', 'annotation')
+			->where('softwareAgent_id', 'cf')
+			->where('platformAnnotationId', $judgment['id'])
+			->first())
+			return false;	
 
 		try {
 			$aentity = new Entity;
@@ -155,11 +166,12 @@ class retrieveCFJobs extends Command {
 			$aentity->job_id = $job->_id;
 			$aentity->activity_id = $activityId;
 			$aentity->crowdAgent_id = $agentId;
-			$aentity->software_id = 'cf';
+			$aentity->softwareAgent_id = 'cf';
 			$aentity->unit_id = $judgment['unit_data']['uid']; // uid field in the csv we created in $batch->toCFCSV().
 			$aentity->platformAnnotationId = $judgment['id'];
 			$aentity->cfChannel = $judgment['external_type'];
 			$aentity->acceptTime = new MongoDate(strtotime($judgment['started_at']));
+			$aentity->submitTime = new MongoDate(strtotime($judgment['created_at']));
 			$aentity->cfTrust = $judgment['trust'];
 			$aentity->content = $judgment['data'];
 
@@ -178,11 +190,11 @@ class retrieveCFJobs extends Command {
 				webhook_sent_at
 
 			*/
-
+			return true;
 		} catch (Exception $e) {
 			Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
-			if($activity) $activity->forceDelete();
 			if($aentity) $aentity->forceDelete();
+			// TODO: more?
 		}
 	}
 

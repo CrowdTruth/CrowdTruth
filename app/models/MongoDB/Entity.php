@@ -66,7 +66,7 @@ class Entity extends Moloquent {
 
             if(Entity::withTrashed()->where('hash', $entity->hash)->first())
             {
-                throw new Exception("Hash already exists for: " . $entity->title);
+                //throw new Exception("Hash already exists for: " . $entity->title);
             }
 
             $baseURI = static::generateIncrementedBaseURI($entity);

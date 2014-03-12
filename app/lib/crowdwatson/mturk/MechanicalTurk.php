@@ -191,7 +191,7 @@ class MechanicalTurk {
 	*/
 	public function disableHIT($hit_id) {	
 		$data = array('HITId' => $hit_id);
-		$this->getAPIResponse('DisableHIT', $data);
+		dd($this->getAPIResponse('DisableHIT', $data));
 		$this->log("Disabled HIT $hit_id.");
 	}
 	
