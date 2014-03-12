@@ -19,7 +19,7 @@ class TwrexController extends BaseController {
 
 	public function getIndex()
 	{
-		return Redirect::to('preprocess/twrex/info');
+		return Redirect::to('preprocess/twrex/actions');
 	}
 
 	public function getInfo()

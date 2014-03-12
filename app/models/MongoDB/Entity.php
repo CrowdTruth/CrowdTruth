@@ -52,22 +52,21 @@ class Entity extends Moloquent {
                 static::createSchema();
             }
 
-            if(is_null($entity->hash))
+            if(!empty($entity->hash))
             {
-                if(is_array($entity->content))
+                if(Entity::withTrashed()->where('hash', $entity->hash)->first())
                 {
-                    $entity->hash = md5(serialize($entity->content));
-                } 
-                else
-                {
-                    $entity->hash = md5($entity->content);
-                }
+                    throw new Exception("Hash already exists for: " . $entity->title);
+                }                
+                // if(is_array($entity->content))
+                // {
+                //     $entity->hash = md5(serialize($entity->content));
+                // } 
+                // else
+                // {
+                //     $entity->hash = md5($entity->content);
+                // }
             }            
-
-            if(Entity::withTrashed()->where('hash', $entity->hash)->first())
-            {
-                //throw new Exception("Hash already exists for: " . $entity->title);
-            }
 
             $baseURI = static::generateIncrementedBaseURI($entity);
 
