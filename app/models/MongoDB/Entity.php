@@ -36,6 +36,10 @@ class Entity extends Moloquent {
 
         static::saving(function($entity)
         {
+            if(empty($entity->inc)){
+                $entity->inc = 0;
+            }
+
             $entity->_id = strtolower($entity->_id);
             $entity->domain = strtolower($entity->domain);
             $entity->format = strtolower($entity->format);
@@ -98,8 +102,20 @@ class Entity extends Moloquent {
         });
     }
 
+    public static function generateIncrementedBaseURI($entity){
+        $lastMongoIncUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->max('inc');
+
+        if(isset($lastMongoIncUsed)){
+            $entity->inc = $lastMongoIncUsed + 1;
+        }
+
+        // dd($entity->inc);
+
+        return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $entity->inc;
+    }    
+
     // public static function generateIncrementedBaseURI($entity){
-    //     $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->orderBy('natural', 'desc')->take(1)->get(array("_id"));
+    //     $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->orderBy('created_at', 'desc')->take(1)->get(array("_id"));
 
     //     if(isset($lastMongoURIUsed[0])){
     //         $lastMongoIDUsed = explode("/", $lastMongoURIUsed[0]['_id']);
@@ -111,32 +127,32 @@ class Entity extends Moloquent {
     //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
     // } 
 
-    public static function generateIncrementedBaseURI($entity){
-        // if(Session::has('lastMongoIDUsed'))
-        // {
-        //     $id = (Session::get('lastMongoIDUsed') + 1);
-        //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
-        // }
+    // public static function generateIncrementedBaseURI($entity){
+    //     // if(Session::has('lastMongoIDUsed'))
+    //     // {
+    //     //     $id = (Session::get('lastMongoIDUsed') + 1);
+    //     //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
+    //     // }
 
-        $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->get(array("_id"));
-        if(is_object($lastMongoURIUsed)) {
-            $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
-                return $entity->_id;
-            }, SORT_NATURAL)->toArray();
-        }
+    //     $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->get(array("_id"));
+    //     if(is_object($lastMongoURIUsed)) {
+    //         $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
+    //             return $entity->_id;
+    //         }, SORT_NATURAL)->toArray();
+    //     }
         
-        if(!end($lastMongoURIUsed)){
-            $id = 0;
-        } else {
-            $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
-            $id = end($lastMongoIDUsed) + 1;
-        }
+    //     if(!end($lastMongoURIUsed)){
+    //         $id = 0;
+    //     } else {
+    //         $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
+    //         $id = end($lastMongoIDUsed) + 1;
+    //     }
 
-        // if($entity->documentType == "twrex-structured-sentence")
-        //     Session::put('lastMongoIDUsed', $id);
+    //     // if($entity->documentType == "twrex-structured-sentence")
+    //     //     Session::put('lastMongoIDUsed', $id);
        
-        return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
-    }    
+    //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
+    // }    
 
     public static function validateEntity($entity){
         if(($entity->format == "text" || $entity->format == "image" || $entity->format == "video") == FALSE){
@@ -214,5 +230,5 @@ class Entity extends Moloquent {
         {
             return Entity::whereIn('_id', $this->ancestors)->remember(1)->get()->toArray();         
         }
-    }    
+    } 
 }
