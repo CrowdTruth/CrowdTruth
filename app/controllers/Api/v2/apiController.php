@@ -22,7 +22,7 @@ class apiController extends BaseController {
 	}
 
     protected $operators = array(
-    	'=' , '<', '>', '<>'
+    	'=' , '<', '>', '<=', '>=', '<>', 'like'
     );	
 
     // protected $operators = array(
@@ -91,16 +91,17 @@ class apiController extends BaseController {
 
 			$sortingColumnName = $sortingColumnName == "_id" ? "natural" : $sortingColumnName;
 
-			$count = new \MongoDB\Entity;
-			$count = $this->processFields($count);
-			$count = $count->count();
+			$iTotalDisplayRecords = new \MongoDB\Entity;
+			$iTotalDisplayRecords = $this->processFields($iTotalDisplayRecords);
+			$iTotalDisplayRecords = $iTotalDisplayRecords->count();
 
+			$iTotalRecords = \MongoDB\Entity::whereIn('documentType', array_flatten([Input::get('field')['documentType']]))->count();
 			$collection = $collection->skip($start)->orderBy($sortingColumnName, $sortingDirection)->take($limit)->get($only);
 
 			return Response::json([
 		        "sEcho" => Input::get('sEcho', 10),
-		        "iTotalRecords" => $count,
-		        "iTotalDisplayRecords" => $count,
+		        "iTotalRecords" => $iTotalRecords,
+		        "iTotalDisplayRecords" => $iTotalDisplayRecords,
 		        "aaData" => $collection->toArray()
 		   ]);			
 		}
@@ -120,6 +121,40 @@ class apiController extends BaseController {
 
 		return Response::json($collection);
 
+	}
+
+	public function anyPost()
+	{
+		$c = Input::get('collection', 'Entity');
+
+		$collection = $this->repository->returnCollectionObjectFor($c);
+
+    	if(Input::has('field'))
+    	{
+			$collection = $this->processFields($collection);
+		}
+
+		if($data = Input::get('data'))
+		{
+			$data = json_decode($data, true);
+
+			// dd($data);
+
+			// dd(key($data));
+
+			$collection->update($data, array('upsert' => true));
+
+			// foreach($data as $dataKey => $dataValue)
+			// {
+			// 	$dataValue = json_decode($dataValue, true);
+
+			// 	dd($dataValue);
+
+			// 	$collection->update($dataKey, $dataValue);
+			// }
+		}
+
+		return $collection->get();
 	}
 
 	protected function processFields($collection)
@@ -143,7 +178,14 @@ class apiController extends BaseController {
 							$subvalue = (int) $subvalue;
 						}
 
-						$collection = $collection->where($field, $operator, $subvalue);
+						if($operator == "like")
+						{
+							$collection = $collection->where($field, $operator, "%" . $subvalue . "%");
+						}
+						else
+						{
+							$collection = $collection->where($field, $operator, $subvalue);
+						}						
 					}
 				}
 

@@ -14,24 +14,26 @@ class ChangController extends BaseController {
 	}
 
 	public function getActions(){
-		$items = Cart::content();
-		if(!count($items) > 0){
-			return Redirect::to('files/browse')->with('flashNotice', 'You have not added any "twrex" items to your selection yet');
-		} else {
-			$entities = array();
-			$repository = new \mongo\Repository;
+		// $items = Cart::content();
+		// if(!count($items) > 0){
+		// 	return Redirect::to('files/browse')->with('flashNotice', 'You have not added any "twrex" items to your selection yet');
+		// } else {
+		// 	$entities = array();
+		// 	$repository = new \mongo\Repository;
 
-			foreach($items as $item){
-				if($entity = $repository->find($item['id'])) {
-					if($entity->documentType != "twrex")
-						continue;
+		// 	foreach($items as $item){
+		// 		if($entity = $repository->find($item['id'])) {
+		// 			if($entity->documentType != "twrex")
+		// 				continue;
 
-					$entity['rowid'] = $item['rowid'];
-					array_push($entities, $entity);
-				}
+		// 			$entity['rowid'] = $item['rowid'];
+		// 			array_push($entities, $entity);
+		// 		}
 					
-			}
-		}
+		// 	}
+		// }
+
+		
 
 		return View::make('preprocess.chang.pages.actions', compact('entities'));
 	}

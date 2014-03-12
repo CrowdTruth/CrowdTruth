@@ -29,6 +29,13 @@ class TwrexController extends BaseController {
 
 	public function getActions()
 	{
+
+
+		$entities = \MongoDB\Entity::where('documentType', 'twrex')->get();
+
+		return View::make('preprocess.twrex.pages.actions', compact('entities'));
+
+
 		$items = Cart::content();
 
 		if(count($items) > 0)

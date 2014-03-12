@@ -10,6 +10,10 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('/', function()
 	{
 
+		// $results = \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->max('created_at');
+
+		// dd($results);
+
         // $result = \MongoDB\Entity::where('format', 'text')->where('domain', 'medical')->where("documentType", 'twrex-structured-sentence')->orderBy('natural', 'asc')->get(array("_id"));
 
         // return $result;
