@@ -31,7 +31,7 @@ class FilesController extends BaseController {
 			$documentType = $fileHelper->getDocumentType();
 			$validatedFiles = $fileHelper->performValidation();
 
-			$mongoDBFileUpload = new \MongoDB\FileUpload;
+			$mongoDBFileUpload = new \FileUpload;
 			$status_upload = $mongoDBFileUpload->store($validatedFiles['passed'], $domain, $documentType);
 		} catch (Exception $e){
 			return Redirect::back()->with('flashError', $e->getMessage());

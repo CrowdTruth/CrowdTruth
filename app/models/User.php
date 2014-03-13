@@ -66,7 +66,6 @@ class User extends Moloquent implements UserInterface {
     public static function createSchema(){
 		Schema::create('useragents', function($collection)
 		{
-		    $collection->unique('username');
 		    $collection->unique('email');
 		});    	
     }	

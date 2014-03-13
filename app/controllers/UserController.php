@@ -40,7 +40,7 @@ class UserController extends BaseController {
 	        'password' => Input::get('password'),
 	    );
 
-	    if($user = User::where('username', '=', strtolower($userdata['username']))->orWhere('email', '=', strtolower($userdata['email']))->first())
+	    if($user = User::where('_id', '=', strtolower($userdata['username']))->orWhere('email', '=', strtolower($userdata['email']))->first())
 	    	if(Auth::attempt(array('email' => $user['email'], 'password' => $userdata['password'])))
 	    		return Redirect::intended('/');
 
@@ -55,18 +55,18 @@ class UserController extends BaseController {
 		}
 
 	    $userdata = array(
+	    	'_id' => strtolower(Input::get('username')),
 	        'firstname' => ucfirst(strtolower(Input::get('firstname'))),
 	        'lastname' => ucfirst(strtolower(Input::get('lastname'))),
-	        'username' => strtolower(Input::get('username')),
 	        'email' => strtolower(Input::get('email')),
 	        'password' => Input::get('password'),
 	        'confirm_password' => Input::get('confirm_password'),
 	    );
 
         $rules = array(
+            '_id' => 'required|min:3|unique:users',        	
             'firstname' => 'required|min:3',
             'lastname' => 'required|min:1',
-            'username' => 'required|min:3|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:5',
             'confirm_password' => 'required|same:password'
@@ -81,11 +81,15 @@ class UserController extends BaseController {
 
 	    unset($userdata['confirm_password']);
 	    $userdata['password'] = Hash::make($userdata['password']);
-
 	    $user = new User($userdata);
-	    $user->save();
-	    Auth::login($user);
 
+	    try {
+		    $user->save();
+	    } catch (Exception $e) {
+	    	return Redirect::back()->with('flashError', $e->getMessage());
+	    }
+
+	    Auth::login($user);
 	    return Redirect::to('/');
 	}
 }

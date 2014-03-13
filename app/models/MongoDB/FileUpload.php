@@ -1,65 +1,65 @@
-<?php
+// <?php
 
-namespace MongoDB;
+// namespace MongoDB;
 
-use Moloquent, Schema, URL, File, Exception;
+// use Moloquent, Schema, URL, File, Exception;
 
-class FileUpload extends Moloquent {
+// class FileUpload extends Moloquent {
 
-	public function store(array $files, $domain, $documentType){
-		$status = array();
+// 	public function store(array $files, $domain, $documentType){
+// 		$status = array();
 
-		try {
-			$this->createFileUploaderSoftwareAgent();
-		} catch (Exception $e) {
-			$status['error']['FileUpload'] = $e->getMessage();
-			return $status;
-		}
+// 		try {
+// 			$this->createFileUploaderSoftwareAgent();
+// 		} catch (Exception $e) {
+// 			$status['error']['FileUpload'] = $e->getMessage();
+// 			return $status;
+// 		}
 
-		try {
-			$activity = new Activity;
-			$activity->softwareAgent_id = "fileuploader";
-			$activity->save();
+// 		try {
+// 			$activity = new Activity;
+// 			$activity->softwareAgent_id = "fileuploader";
+// 			$activity->save();
 
-		} catch (Exception $e) {
-			// Something went wrong with creating the Activity
-			$activity->forceDelete();				
-			return $status;
-		}
+// 		} catch (Exception $e) {
+// 			// Something went wrong with creating the Activity
+// 			$activity->forceDelete();				
+// 			return $status;
+// 		}
 
-		foreach($files as $file){
-			$title = $file->getClientOriginalName();
+// 		foreach($files as $file){
+// 			$title = $file->getClientOriginalName();
 
-			try {
-				$entity = new Entity;
-				$entity->title = strtolower($title);
-				// $entity->extension = $file->getClientOriginalExtension();
-				$entity->domain = $domain;
-				$entity->format = "text";
-				$entity->documentType = $documentType;
-				$entity->content = File::get($file->getRealPath());
-				$entity->activity_id = $activity->_id;
-				$entity->save();
+// 			try {
+// 				$entity = new Entity;
+// 				$entity->title = strtolower($title);
+// 				// $entity->extension = $file->getClientOriginalExtension();
+// 				$entity->domain = $domain;
+// 				$entity->format = "text";
+// 				$entity->documentType = $documentType;
+// 				$entity->content = File::get($file->getRealPath());
+// 				$entity->activity_id = $activity->_id;
+// 				$entity->save();
 
-				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
-			} catch (Exception $e) {
-				// Something went wrong with creating the Entity
-				$activity->forceDelete();
-				$entity->forceDelete();
-				$status['error'][$title] = $e->getMessage();
-			}			
-		}
+// 				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
+// 			} catch (Exception $e) {
+// 				// Something went wrong with creating the Entity
+// 				$activity->forceDelete();
+// 				$entity->forceDelete();
+// 				$status['error'][$title] = $e->getMessage();
+// 			}			
+// 		}
 
-		return $status;
-	}
+// 		return $status;
+// 	}
 
-	public function createFileUploaderSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('fileuploader'))
-		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
-			$softwareAgent->_id = "fileuploader";
-			$softwareAgent->label = "This component is used for storing files as documents within MongoDB";
-			$softwareAgent->save();
-		}
-	}
-}
+// 	public function createFileUploaderSoftwareAgent(){
+// 		if(!\MongoDB\SoftwareAgent::find('fileuploader'))
+// 		{
+// 			$softwareAgent = new \MongoDB\SoftwareAgent;
+// 			$softwareAgent->_id = "fileuploader";
+// 			$softwareAgent->label = "This component is used for storing files as documents within MongoDB";
+// 			$softwareAgent->save();
+// 		}
+// 	}
+// }

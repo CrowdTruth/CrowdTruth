@@ -24,10 +24,8 @@ class Entity extends Moloquent {
         if(array_key_exists('wasGeneratedBy', $input))    array_push($this->with, 'wasGeneratedBy');
         if(array_key_exists('wasAttributedTo', $input))    $this->with = array_merge($this->with, array('wasAttributedToUserAgent', 'wasAttributedToCrowdAgent'));
         if(array_key_exists('wasAttributedToUserAgent', $input))    array_push($this->with, 'wasAttributedToUserAgent');
-        if(array_key_exists('wasAttributedToCrowdAgent', $input))    array_push($this->with, 'wasAttributedToCrowdAgent');        
-    
+        if(array_key_exists('wasAttributedToCrowdAgent', $input))    array_push($this->with, 'wasAttributedToCrowdAgent');
         if(isset($input['wasDerivedFrom']['without'])) $this->hidden = array_merge($this->hidden, array_flatten(array($input['wasDerivedFrom']['without'])));
-
     }       
 
     protected static function boot()
@@ -36,11 +34,7 @@ class Entity extends Moloquent {
 
         static::saving(function($entity)
         {
-            if(empty($entity->inc)){
-                $entity->inc = 0;
-            }
-
-            $entity->_id = strtolower($entity->_id);
+            // $entity->_id = strtolower($entity->_id);
             $entity->domain = strtolower($entity->domain);
             $entity->format = strtolower($entity->format);
             $entity->documentType = strtolower($entity->documentType);
@@ -57,15 +51,7 @@ class Entity extends Moloquent {
                 if(Entity::withTrashed()->where('hash', $entity->hash)->first())
                 {
                     throw new Exception("Hash already exists for: " . $entity->title);
-                }                
-                // if(is_array($entity->content))
-                // {
-                //     $entity->hash = md5(serialize($entity->content));
-                // } 
-                // else
-                // {
-                //     $entity->hash = md5($entity->content);
-                // }
+                }
             }            
 
             $baseURI = static::generateIncrementedBaseURI($entity);
@@ -78,20 +64,12 @@ class Entity extends Moloquent {
                 $entity->user_id = "CrowdWatson";
             }
 
-            if(empty($entity->_id))
                 $entity->_id = 'entity/' . $baseURI;
            
         });
 
         static::saved(function($entity)
         {
-            $baseURI = static::generateIncrementedBaseURI($entity);
-
-            if(is_null($entity->activity_id))
-            {
-                $entity->activity_id = 'activity/' . $baseURI;
-            }
-
             Cache::flush();
         });
 
@@ -101,17 +79,43 @@ class Entity extends Moloquent {
         });
     }
 
-    public static function generateIncrementedBaseURI($entity){
-        $lastMongoIncUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->max('inc');
-
-        if(isset($lastMongoIncUsed)){
-            $entity->inc = $lastMongoIncUsed + 1;
+    public static function generateIncrementedBaseURI($entity)
+    {
+        if(is_null($entity->_id))
+        {
+            $lastMongoIncUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->count();
+        
+            if(isset($lastMongoIncUsed))
+            {
+                $inc = $lastMongoIncUsed;
+            } else {
+                $inc = 0;
+            }
+        }
+        else
+        {
+            $entityIDSegments = explode("/", $entity->_id);
+            $inc = (end($entityIDSegments) + 1);
         }
 
-        // dd($entity->inc);
+        return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $inc;
+    }     
 
-        return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $entity->inc;
-    }    
+    // public static function generateIncrementedBaseURI($entity)
+    // {
+    //     if(is_null($entity->inc))
+    //     {
+    //         $lastMongoIncUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->max('inc');
+        
+    //         if(isset($lastMongoIncUsed)){
+    //             $entity->inc = $lastMongoIncUsed;
+    //         }
+    //     }
+
+    //     $entity->inc++;
+
+    //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $entity->inc;
+    // }    
 
     // public static function generateIncrementedBaseURI($entity){
     //     $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->orderBy('created_at', 'desc')->take(1)->get(array("_id"));
