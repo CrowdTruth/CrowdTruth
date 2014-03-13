@@ -8,7 +8,7 @@ class Entity extends Moloquent {
 
     protected $collection = 'entities';
     protected $softDelete = true;
-    protected static $unguarded = true;
+    protected static $unguarded = false;
     public static $snakeAttributes = false;
 
     public function __construct()
@@ -61,7 +61,7 @@ class Entity extends Moloquent {
                 $entity->user_id = Auth::user()->_id;
             } else 
             {
-                $entity->user_id = "CrowdWatson";
+                $entity->user_id = "crowdwatson";
             }
 
                 $entity->_id = 'entity/' . $baseURI;
@@ -162,8 +162,8 @@ class Entity extends Moloquent {
             throw new Exception("Entity has a wrong value \"{$entity->format}\" for the format field");
         }
 
-        if(($entity->domain == "medical" || $entity->format == "news" || $entity->format == "other") == FALSE){
-            throw new Exception("Entity has a wrong value \"{$entity->format}\" for the domain field");
+        if(($entity->domain == "medical" || $entity->domain == "news" || $entity->domain == "cultural") == FALSE){
+            throw new Exception("Entity has a wrong value \"{$entity->domain}\" for the domain field");
         }
     }
 

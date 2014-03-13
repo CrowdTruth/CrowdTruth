@@ -84,6 +84,12 @@ class UserController extends BaseController {
 	    $user = new User($userdata);
 
 	    try {
+		    $this->createTwrexStructurerSoftwareAgent();
+	    } catch (Exception $e) {
+	    	return Redirect::back()->with('flashError', $e->getMessage());
+	    }
+
+	    try {
 		    $user->save();
 	    } catch (Exception $e) {
 	    	return Redirect::back()->with('flashError', $e->getMessage());
@@ -91,6 +97,18 @@ class UserController extends BaseController {
 
 	    Auth::login($user);
 	    return Redirect::to('/');
+	}
+
+	public function createTwrexStructurerSoftwareAgent(){
+		if(!User::find('crowdwatson'))
+		{
+			$softwareAgent = new User;
+			$softwareAgent->_id = "crowdwatson";
+			$softwareAgent->firstname = "Crowd";
+			$softwareAgent->lastname = "Watson";
+			$softwareAgent->email = "crowdwatson@gmail.com";
+			$softwareAgent->save();
+		}
 	}
 }
 

@@ -48,7 +48,7 @@ class Activity extends Moloquent {
                 $activity->user_id = Auth::user()->_id;
             } else 
             {
-                $activity->user_id = "CrowdWatson";
+                $activity->user_id = "crowdwatson";
             }                
         });
     }
