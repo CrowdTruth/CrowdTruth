@@ -44,6 +44,8 @@ class apiController extends BaseController {
 	public function index()
 	{	//Get all job-object
 
+		// return Input::all();
+
 		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job')->with('hasConfiguration')->with('wasAttributedToUserAgent');
 		
 		//Filter on wished for fields using using field of v2
@@ -70,6 +72,7 @@ class apiController extends BaseController {
 					foreach($value as $operator => $subvalue)
 					{	
 						if($filter == "username"){
+							
 							$user = \User::where('username', 'like', '%' . $subvalue . '%')->first();
 
 							// return $user;
@@ -87,6 +90,7 @@ class apiController extends BaseController {
 							if(is_numeric($subvalue))
 							{
 								$subvalue = (int) $subvalue;
+
 							}
 
 							if($operator == 'like')
@@ -94,6 +98,28 @@ class apiController extends BaseController {
 								$subvalue = '%' . $subvalue . '%'; 
 								
 							}
+
+
+							// if (strpos($a,'are') !== false) {
+ 						// 	   echo 'true';
+							// }
+
+							if(strpos($filter, "hasConfiguration") !== false )
+							{	
+
+								$filter = explode(".", $filter);
+
+								$jobConf = Entity::where('documentType', '=', 'jobconf')->where(end($filter), 'like', $subvalue);
+								
+								$allJobConfIDs = array_flatten($jobConf->get(['_id'])->toArray());
+
+
+								$documents = $documents->whereIn('jobConf_id', $allJobConfIDs);
+
+								continue;
+
+							}
+
 
 							$documents = $documents->where($filter, $operator, $subvalue);
 
@@ -125,6 +151,12 @@ class apiController extends BaseController {
 
 		}			
 
+		// If no sort is selected, newest jobs come on top
+		if(!Input::has('sortBy'))
+		{
+			$documents = $documents->OrderBy('created_at', 'des');
+
+		}
 		// Take limit of 100 unless otherwise indicated
 
 		if(!$limit = (int) Input::get('limit'))
@@ -145,7 +177,7 @@ class apiController extends BaseController {
 		
 		// Paginate results, current page, page of choice etc.
 		
-		if(!$perPage = (int) Input::get('perpage'))
+		if(!$perPage = (int) Input::get('perPage'))
 		{
 			$perPage = 2;
 		}

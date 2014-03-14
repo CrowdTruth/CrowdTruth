@@ -6,11 +6,11 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
 <script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
 <script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
-<script type="text/javascript" src="/custom_assets/dataretrieval.js"></script>
+<script type="text/javascript" src="/custom_assets/tableretrieval.js"></script>
 @stop
 
 @section('content')
-			<div class="maincolumn CW_box_style" style="width:auto;" ng-app="dataRetrieval" ng-controller="resourceCtrl">
+			<div class="maincolumn CW_box_style" style="width:auto;" ng-app="tableRetrieval" ng-controller="resourceCtrl">
 				<div>
 				<button class="btn btn-primary" ng-click="analyze()">Analyze job(s)</button>
 					<table class="table table-striped table-condensed" style="width: auto;">
@@ -88,23 +88,23 @@
 							</tr>
 							<tr>
 								<td></td>
-								<td><input type="datetime" ng-keyup="setFilter('created_at', filter.created_at)" ng-model="filter.created_at"></td>
-								<td><input type="text" ng-keyup="setFilter('wasAttributedToUserAgent.username', filter.wasAttributedToUserAgent.username)" ng-model="filter.wasAttributedToUserAgent.username"></td>
-								<td><input type="text" ng-keyup="setFilter('domain', filter.domain)" ng-model="filter.domain"></td>
-								<td><input type="text" ng-keyup="setFilter('format', filter.format)" ng-model="filter.format"></td>
-								<td><input type="text" ng-keyup="setFilter('hasConfiguration.type', filter.hasConfiguration.type)" ng-model="filter.hasConfiguration.type"></td>
-								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.unitsPerTask', filter.hasConfiguration.content.unitsPerTask)" ng-model="filter.hasConfiguration.content.unitsPerTask"></td>
-								<td><input type="checkbox" ng-keyup="setFilter('hasGold', filter.hasGold)" ng-model="filter.hasGold"></td>
-								<td><input type="text" ng-keyup="setFilter('hasConfiguration.platform', filter.hasConfiguration.platform)" ng-model="filter.hasConfiguration.platform"></td>
-								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.reward', filter.hasConfiguration.content.reward)" ng-model="filter.hasConfiguration.content.reward"></td>
-								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.rewardPerHour', filter.hasConfiguration.content.rewardPerHour)" ng-model="filter.hasConfiguration.content.rewardPerHour"></td>
-								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.projectedCost', filter.hasConfiguration.content.projectedCost)" ng-model="filter.hasConfiguration.content.projectedCost"></td>
-								<td><input type="number" ng-keyup="setFilter('flaggedPercentage', filter.flaggedPercentage)" ng-model="filter.flaggedPercentage"></td>
-								<td><input type="number" ng-keyup="setFilter('flaggedWorkers', filter.flaggedWorkers)" ng-model="filter.flaggedWorkers"></td>
-								<td><input type="number" ng-keyup="setFilter('hasConfiguration.content.judgmentsPerUnit', filter.hasConfiguration.content.judgmentsPerUnit)" ng-model="filter.hasConfiguration.content.judgmentsPerUnit"></td>
-								<td><input type="number" ng-keyup="setFilter('unitsCount', filter.unitsCount)" ng-model="filter.unitsCount"></td>
-								<td><input type="text" ng-keyup="setFilter('status', filter.status)" ng-model="filter.status"></td>
-								<td><input type="number" ng-keyup="setFilter('completion', filter.completion)" ng-model="filter.completion"></td>
+								<td><input type="datetime" ng-keyup="setFilter()" ng-model="filter.created_at"></td>
+								<td><input type="text" ng-keyup="setFilter()" ng-model="filter.wasAttributedToUserAgent.username"></td>
+								<td><input type="text" ng-keyup="setFilter()" ng-model="filter.domain"></td>
+								<td><input type="text" ng-keyup="setFilter()" ng-model="filter.format"></td>
+								<td><input type="text" ng-keyup="setFilter()" ng-model="filter.hasConfiguration.type"></td>
+								<td><input type="number" ng-keyup="setFilter()" ng-model="filter.hasConfiguration.content.unitsPerTask"></td>
+								<td><input type="checkbox" ng-keyup="setFilter()" ng-model="filter.hasGold"></td>
+								<td><input type="text" ng-keyup="setFilter()" ng-model="filter.hasConfiguration.platform"></td>
+								<td><input type="number" ng-keyup="setFilter()" ng-model="filter.hasConfiguration.content.reward"></td>
+								<td><input type="number" ng-keyup="setFilter()" ng-model="filter.hasConfiguration.content.rewardPerHour"></td>
+								<td><input type="number" ng-keyup="setFilter()" ng-model="filter.hasConfiguration.content.projectedCost"></td>
+								<td><input type="number" ng-keyup="setFilter()" ng-model="filter.flaggedPercentage"></td>
+								<td><input type="number" ng-keyup="setFilter()" ng-model="filter.flaggedWorkers"></td>
+								<td><input type="number" ng-keyup="setFilter()" ng-model="filter.hasConfiguration.content.judgmentsPerUnit"></td>
+								<td><input type="number" ng-keyup="setFilter()" ng-model="filter.unitsCount"></td>
+								<td><input type="text" ng-keyup="setFilter()" ng-model="filter.status"></td>
+								<td><input type="number" ng-keyup="setFilter()" ng-model="filter.completion"></td>
 							</tr>
 						</thead>
 						<tbody>
