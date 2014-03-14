@@ -1,4 +1,4 @@
-var app = angular.module("dataRetrieval", [ 'ngResource', 'angularMoment']);
+var app = angular.module("tableRetrieval", [ 'ngResource']);
 
 	//write resource service class
 
@@ -30,7 +30,7 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
  		});
  	} 
 
-	$scope.setFilter = function(){
+ 	$scope.setFilter = function(){
 		//  set standard filter string
   		var filter = "";
   				
@@ -61,11 +61,12 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
  	$scope.analyze = function(){
  		if($scope.selection[0] == null ){
  			alert('Select a job first.')
- 		} else
- 		{
- 			window.location = '/analyze/view?field[_id][]=' + $scope.selection;
+ 		}else{
+ 		alert('Redirect to analyze: ' + $scope.selection);
  		}
  	}
+
+ 	
 });
 
 
