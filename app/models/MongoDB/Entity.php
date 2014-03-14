@@ -8,7 +8,7 @@ class Entity extends Moloquent {
 
     protected $collection = 'entities';
     protected $softDelete = true;
-    protected static $unguarded = false;
+    protected static $unguarded = true;
     public static $snakeAttributes = false;
 
     public function __construct()
@@ -26,21 +26,15 @@ class Entity extends Moloquent {
         if(array_key_exists('wasAttributedToUserAgent', $input))    array_push($this->with, 'wasAttributedToUserAgent');
         if(array_key_exists('wasAttributedToCrowdAgent', $input))    array_push($this->with, 'wasAttributedToCrowdAgent');
         if(isset($input['wasDerivedFrom']['without'])) $this->hidden = array_merge($this->hidden, array_flatten(array($input['wasDerivedFrom']['without'])));
+        if(isset($input['without'])) $this->hidden = array_merge($this->hidden, array_flatten(array($input['without'])));
     }       
 
     protected static function boot()
     {
         parent::boot();
 
-        static::saving(function($entity)
+        static::creating(function($entity)
         {
-            // $entity->_id = strtolower($entity->_id);
-            $entity->domain = strtolower($entity->domain);
-            $entity->format = strtolower($entity->format);
-            $entity->documentType = strtolower($entity->documentType);
-
-            static::validateEntity($entity);
-
             if(!Schema::hasCollection('entities'))
             {
                 static::createSchema();
@@ -54,7 +48,7 @@ class Entity extends Moloquent {
                 }
             }            
 
-            $baseURI = static::generateIncrementedBaseURI($entity);
+            $entity->_id = static::generateIncrementedBaseURI($entity);
 
             if (Auth::check())
             {
@@ -62,10 +56,16 @@ class Entity extends Moloquent {
             } else 
             {
                 $entity->user_id = "crowdwatson";
-            }
+            }           
+        });
 
-                $entity->_id = 'entity/' . $baseURI;
-           
+        static::saving(function($entity)
+        {
+            $entity->domain = strtolower($entity->domain);
+            $entity->format = strtolower($entity->format);
+            $entity->documentType = strtolower($entity->documentType);
+
+            static::validateEntity($entity);         
         });
 
         static::saved(function($entity)
@@ -98,7 +98,7 @@ class Entity extends Moloquent {
             $inc = (end($entityIDSegments) + 1);
         }
 
-        return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $inc;
+        return 'entity/' . $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $inc;
     }     
 
     // public static function generateIncrementedBaseURI($entity)
@@ -212,7 +212,7 @@ class Entity extends Moloquent {
     }
 
     public function wasDerivedFrom(){
-    	return $this->hasOne('\MongoDB\Entity', '_id', 'parent_id');
+    	return $this->hasMany('\MongoDB\Entity', '_id', 'ancestors');
     }
 
     public function wasAttributedToUserAgent(){

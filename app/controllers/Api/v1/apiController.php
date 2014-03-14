@@ -129,32 +129,49 @@ class apiController extends BaseController {
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
 
-    	if(Input::has('field'))
+    	if(isset(Input::get('field')['_id']))
     	{
 			$collection = $this->processFields($collection);
+
+			if($data = Input::get('data'))
+			{
+				$data = json_decode($data, true);
+
+				$collection->update($data, array('upsert' => true));
+			}
+
+			return $collection->get();			
+		}
+	}
+
+	public function anyPut()
+	{
+		$c = Input::get('collection', 'Entity');
+
+		$collection = $this->repository->returnCollectionObjectFor($c);
+
+    	if(isset(Input::get('field')['_id']))
+    	{
+			$collection = $this->processFields($collection);
+
+			if($data = Input::get('data'))
+			{
+				$data = json_decode($data, true);
+
+				$original = $collection->first();
+				$originalArray = $original->toArray();
+
+				if(array_key_exists(key($data), $originalArray))
+				{
+					$merged = array_replace_recursive($originalArray, $data);
+					$original->update($merged);
+				}
+
+				return Response::json($original);
+			}			
 		}
 
-		if($data = Input::get('data'))
-		{
-			$data = json_decode($data, true);
 
-			// dd($data);
-
-			// dd(key($data));
-
-			$collection->update($data, array('upsert' => true));
-
-			// foreach($data as $dataKey => $dataValue)
-			// {
-			// 	$dataValue = json_decode($dataValue, true);
-
-			// 	dd($dataValue);
-
-			// 	$collection->update($dataKey, $dataValue);
-			// }
-		}
-
-		return $collection->get();
 	}
 
 	protected function processFields($collection)
