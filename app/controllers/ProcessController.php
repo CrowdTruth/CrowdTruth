@@ -1,9 +1,5 @@
 <?php
 
-use crowdwatson\AMTException;
-//use MongoDB\Batch;
-use MongoDB\Sentence;
-
 class ProcessController extends BaseController {
 
 	public function getIndex() {
@@ -14,7 +10,6 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.templatebuilder');
 
 	}
-
 
 	public function getBatch() {
 		$batches = Batch::where('documentType', 'batch')->get(); 
@@ -47,7 +42,7 @@ class ProcessController extends BaseController {
 		$goldfields = array();
 		$unitscount = count($batch->wasDerivedFrom);
 
-		try {
+/*		try {
 			$questionids = $j->getQuestionIds();
 			$goldfields = $j->getGoldFields();	
 		} catch (AMTException $e) {
@@ -60,7 +55,7 @@ class ProcessController extends BaseController {
 				Session::flash('flashNotice', 'Field \'' . array_values($diff)[0] . '\' is in the answerkey but not in the HTML template.');
 			elseif(count($diff) > 1)
 				Session::flash('flashNotice', 'Fields \'' . implode('\', \'', $diff) . '\' are in the answerkey but not in the HTML template.');
-
+*/
 		return View::make('process.tabs.details')
 			->with('jobconf', $jc)
 			->with('goldfields', $goldfields)
@@ -69,7 +64,7 @@ class ProcessController extends BaseController {
 
 	public function getPlatform() {
 		$jc = unserialize(Session::get('jobconf'));
-		return View::make('process.tabs.platform')->with('jobconf', $jc)->with('countries', $this->countries);
+		return View::make('process.tabs.platform')->with('jobconf', $jc);
 	}
 
 	public function getSubmit() {
@@ -82,7 +77,7 @@ class ProcessController extends BaseController {
 		try {
 			$j = new Job($batch, $template, $jc);
 			$questions = $j->getPreviews();
-		} catch (AMTException $e) {
+		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
 		}
@@ -101,7 +96,8 @@ class ProcessController extends BaseController {
 			->with('questions',  $questions)
 			->with('table', $jc->toHTML())
 			->with('template', $jc->template)
-			->with('frameheight', $jc->frameheight);
+			->with('frameheight', $jc->frameheight)
+			->with('jobconf', $jc);
 	}
 
 	public function getClearTask(){
@@ -184,12 +180,16 @@ class ProcessController extends BaseController {
 				}
 
 				// If leaving the Platform page....:
-				if(Input::has('qr')) {
+				if(Input::has('platform'))
 					$jc->platform = Input::get('platform', array());
+
+				if(Input::has('annotationsPerWorker'))
+					$jc->countries = Input::get('countries', array());
+
+				if(Input::has('qr')) {
 					$jc->addQualReq(Input::get('qr'));
 					if(Input::has('arp'))
-						$jc->addAssRevPol(Input::get('arp'));
-					$jc->countries = Input::get('countries', array());
+						$jc->addAssRevPol(Input::get('arp'));	
 				}
 			}		
 		}
@@ -198,6 +198,7 @@ class ProcessController extends BaseController {
 		Session::put('template', $template);
 
 		try {
+			// NEXT is not working correctly for the PLATFORMS
 			return Redirect::to("process/$next");
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage()); // Todo: is this a good way? -> logging out due to timeout
@@ -216,11 +217,15 @@ class ProcessController extends BaseController {
 		try {
 			$j = new Job($batch, $template, $jc);
 			$ids = $j->publish();
-			$msg = 'Created ' .
-			(isset($ids['amt']) ? count($ids['amt']) : 'no') .
-			 ' jobs on AMT and ' .
-			(isset($ids['cf']) ? count($ids['cf']) : 'none') .
-			 ' on CF.';
+
+			$msg = "Ordered: <br><ul>";
+			foreach($jc->platform as $platformstring){
+			 $c = count($ids[$platformstring]['platformjobid']);
+			 $msg .= "<li>" . ($c > 0 ? $c : 'No') . " job" . ($c == 1 ? '' : 's') . " on " . strtoupper($platformstring) . "</li>";
+			}
+
+			$msg.= "</li>";
+
 			Session::flash('flashSuccess', $msg);
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage());
@@ -243,14 +248,18 @@ class ProcessController extends BaseController {
 
 			$ids = $j->publish(true);
 
-			$msg = 'Created ' .
-			(isset($ids['amt']) ? count($ids['amt']) : 0) .
-			 ' jobs on <a href="https://requestersandbox.mturk.com/manage" target="_blank">AMT SANDBOX</a> and ' .
-			(isset($ids['cf']) ? count($ids['cf']) : 0) .
-			 ' UNORDERED jobs on <a href="http://www.crowdflower.com" target="_blank">CF</a>. After previewing them on the platform, go to the Jobs tab to order them.';
+			$msg = "Created:<br><ul>";
+			foreach($jc->platform as $platformstring){
+			 $c = count($ids[$platformstring]['platformjobid']);
+			 $msg .= "<li>" . ($c > 0 ? $c : 'No') . "UNORDERED job" . ($c == 1 ? '' : 's') . " on " . strtoupper($platformstring) . "</li>";
+			}
+
+			$msg.= "</li>";
+
 			Session::flash('flashSuccess', $msg);
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage());
+			return Redirect::to("process/submit");
 		}
 
 		return Redirect::to("jobs/listview");
@@ -290,7 +299,14 @@ class ProcessController extends BaseController {
 	// catch all
 	public function missingMethod($parameters = array())
 	{
-	   return Redirect::to("process/batch");
+	   $jc = unserialize(Session::get('jobconf'));
+	   try{
+	   		$platform = App::make($parameters[0]);
+	   		return $platform->createView()->with('jobconf', $jc)->with('countries', $this->countries);
+		} catch (ReflectionException $e){
+			return Redirect::to("process/batch");
+		}
+	  // 
 	}
 
 

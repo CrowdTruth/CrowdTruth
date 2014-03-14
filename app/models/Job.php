@@ -1,21 +1,15 @@
 <?php
-/*namespace crowdwatson;*/
-use crowdwatson\MechanicalTurk;
-use crowdwatson\AMTException;
-use crowdwatson\CFExceptions;
 use Sunra\PhpSimple\HtmlDomParser;
 use \MongoDB\Entity;
 use \MongoDB\Activity;
 use \MongoDB\SoftwareAgent;
 
 class Job  { 
-	/* Taken out: extends Entity */
-    protected $mturk;
-    protected $csv;
-    protected $batch;
-    protected $batchid;
-    protected $template;
-    protected $jobConfiguration;
+    
+    public $batch;
+    public $template;
+    public $jobConfiguration;
+    
     protected $jcid;
     protected $activityURI;
 
@@ -29,63 +23,33 @@ class Job  {
     	$this->template = Config::get('config.templatedir') . $template;
     	$this->CFApiKey = Config::get('config.cfapikey');
     	$this->jobConfiguration = $jobConfiguration;
-    	$this->mturk = new MechanicalTurk;
     }
 
    
     public function publish($sandbox = false){
-		if(isset($this->jobConfiguration->platform)) $platform = $this->jobConfiguration->platform;
-		else $platform = array();
-
+		
+		if(isset($this->jobConfiguration->platform)) $platforms = $this->jobConfiguration->platform;
+		else $platforms = array();
 		$ids = array();
-		$entityids = array();
+
 		try {
-				
 
 			$this->createSoftwareAgent('jobcreator');
-								
-			// Create a new activity for this action.
-			$activity = new Activity;
-			$platformstring = implode($platform, ', ');
-			//$activity->used = 
-			$activity->label = "Job is uploaded to crowdsourcing platform(s): $platformstring.";
-			$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB softwareAgent_id = $platform. Does this need to be the same?
-			$activity->save();
-
-			$this->activityURI = $activity->_id;
-			
-			// Save JobConfiguration (or reference existing). Throws error if not possible.
-			// TODO: might have a parent.
+			$this->activityURI = $this->createActivity($platforms);
 			$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
 			
-			// We do CF first because it seems to throw more errors
-			if(in_array('cf', $platform)){	
-				$ids['cf'] = $this->cfPublish($sandbox);
-				$cfentityid = $this->store('cf', $ids['cf'], $sandbox);
-				array_push($entityids, $cfentityid);
+			foreach($platforms as $platformstring){
+				$platform = App::make($platformstring);
+				$ids[$platformstring]['platformjobid'] = $platform->publishJob($this, $sandbox);
+				$ids[$platformstring]['entity'] = $this->store($platformstring, $ids[$platformstring]['platformjobid'], $sandbox);
 			}
-
-			if(in_array('amt', $platform)){
-				// Upload to sandbox or to real AMT.
-				if($sandbox) $this->mturk->setRootURL(Config::get('config.amtsandboxurl'));
-				else $this->mturk->setRootURL(Config::get('config.amtrooturl')); // TODO change this to real one.
-
-				$ids['amt'] = $this->amtPublish(false);
-				$amtentityid = $this->store('amt', $ids['amt'], $sandbox);
-				array_push($entityids, $amtentityid);
-			}	
 
 			return $ids;
 
-		} catch (AMTException $e) {
-			$this->undoCreation($ids, $e, $entityids);
-			throw new Exception("AMT: {$e->getMessage()} Job(s) not created.");
-		} catch (CFExceptions $e) {
-			$this->undoCreation($ids, $e, $entityids);
-			throw new Exception("CF: {$e->getMessage()} Job(s) not created.");
 		} catch (Exception $e) {
-			$this->undoCreation($ids, $e, $entityids);
-			throw new Exception($e->getMessage() . " Jobs(s) not created."); // (probably) error in store().
+			$this->undoCreation($ids, $e);
+			throw $e; // TODO this is for debugging
+			//throw new Exception($e->getMessage() . " Jobs(s) not created.");
 		}
 
     }
@@ -94,33 +58,29 @@ class Job  {
     * In case of exception: undo everything.
     * @throws Exception if even the undo isn't working. 
     */
-    private function undoCreation($ids, $error, $entityids = null){
+    private function undoCreation($ids, $error){
     					
-    	Log::warning("Error in creating jobs. Id's: " . json_encode($ids) . ". Attempting to delete jobs from crowdsourcing platform(s).");
-
+    	Log::debug("Error in creating jobs. Id's: " . implode(', ', array_dot($ids)) . ". Attempting to delete jobs from crowdsourcing platform(s).");
     	try {
-	    	if(isset($ids['amt']) and is_array($ids['amt']) and count($ids['amt']) > 0) {
-				foreach($ids['amt'] as $id){
-					$this->mturk->disableHIT($id); // This fully deletes the HIT.
-				}
-			}
+    		
+    		foreach($ids as $platformstring=>$id){
+/*    			print_r($platformstring);
+    			print_r($id);
+    			dd('$ids');*/
+    			if(isset($id['platformjobid'])){
+    				$platform = App::make($platformstring);
+    				$platform->undoCreation($id['platformjobid']);
+    			}
 
-			if(isset($ids['cf'])){
-				$id = $ids['cf'];
-				$cfJob = new crowdwatson\Job($this->CFApiKey);	
-				$cfJob->cancelJob($id);
-				$cfJob->deleteJob($id);
-			}
-
-			$activity = Activity::where('_id', $this->activityURI)->first();
+    			if(isset($id['entity'])){
+					$entity = Entity::where('_id', $id['entity'])->first();
+					if($entity) $entity->forceDelete();
+    			}
+    		}
+    		
+    		$activity = Activity::where('_id', $this->activityURI)->first();
 			if($activity) $activity->forceDelete();
 
-			if(!empty($entityids)){
-				foreach($entityids as $eid){
-					$entity = Entity::where('_id', $eid)->first();
-					if($entity) $entity->forceDelete();
-				}
-			}
 		} catch (Exception $e){
 
 			// This is bad.
@@ -131,8 +91,8 @@ class Job  {
 				<br>Initial exception: $orige
 				<br>Deletion error: $newe
 				<br>Please contact an administrator.");
-			Log::error("Couldn't delete jobs. Please manually check the platforms and database.\r\nInitial exception: $orige
-				\r\nDeletion error: $newe\r\nActivity: {$this->activityURI}\r\nJob ID's: " . json_encode($ids));
+			Log::warning("Couldn't delete jobs. Please manually check the platforms and database.\r\nInitial exception: $orige
+				\r\nDeletion error: $newe\r\nActivity: {$this->activityURI}\r\nJob ID's: " . implode(', ', array_dot($ids)));
 
 		}
     }
@@ -141,20 +101,23 @@ class Job  {
     * @return String[] the HTML for every question.
     */
     public function getPreviews(){
-    	return $this->amtPublish(true);
+    	return array('todo');
+    	//throw new AMTException('b'); // TODO
+    	//return $this->amtPublish(true);
     }
 
     /**
     * @return String[] fields from the CSV that have a gold answer.
     */
     public function getGoldFields(){
-
+    	return array('todo');
+/*
     	// TODO //
     	$goldfields = array();
     	foreach (array_keys($this->batch->toCFArray()[0]) as $key)
 			if ($key != '_golden' and $pos = strpos($key, '_gold') and !strpos($key, '_gold_reason'))
 				$goldfields[$key] = substr($key, 0, $pos);	
-    	return $goldfields;
+    	return $goldfields;*/
     }
 
 
@@ -164,6 +127,8 @@ class Job  {
 	* @throws AMTException when the file does not exist or is not readable.
 	*/
 	public function getQuestionIds(){
+		return array('todo');
+/*		
 		$filename = "{$this->template}.html";
 		if(!file_exists($filename) || !is_readable($filename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
@@ -184,232 +149,8 @@ class Job  {
 			$ret[]=$id;
 		}
 
-		return array_unique($ret); // Unique because checkboxes and radiobuttons have the same name.
+		return array_unique($ret); // Unique because checkboxes and radiobuttons have the same name.*/
 	}
-
-
-    /*	 Private functions    */
-
-    /**
-    * @return String id of published Job
-    */
-    private function cfPublish($sandbox){
-    	$cfJob = new crowdwatson\Job($this->CFApiKey);
-
-    	$c = $this->jobConfiguration;
-		$data = $c->toCFData();
-		$gold = $c->answerfields;
-		$csv = $this->batch->toCFCSV();
-		$template = $this->template;
-		$options = array(	"req_ttl_in_seconds" => $c->expirationInMinutes*60, 
-							"keywords" => $c->requesterAnnotation, 
-							"mail_to" => $c->notificationEmail);
-    	try {
-
-    		// TODO: check if all the parameters are in the csv.
-			// Read the files
-			foreach(array('cml', 'css', 'js') as $ext){
-				$filename = "$template.$ext";
-				if(file_exists($filename) || is_readable($filename))
-					$data[$ext] = file_get_contents($filename);
-			}
-
-			if(empty($data['cml']))
-				throw new CFExceptions('CML file does not exist or is not readable.');
-
-
-			/*if(!$sandbox) $data['auto_order'] = true;*/
-
-			// Create the job with the initial data
-			$result = $cfJob->createJob($data);
-			$id = $result['result']['id'];
-
-			// Add CSV and options
-			if(isset($id)) {
-				
-				// Not in API or problems with API: 
-				// 	- Channels (we can only order on cf_internal)
-				//  - Tags / keywords
-				//  - Worker levels (defaults to '1')
-				//  - Expiration?
-
-				$optionsresult = $cfJob->setOptions($id, array('options' => $options));
-				if(isset($optionsresult['result']['error']))
-					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
-
-				$csvresult = $cfJob->uploadInputFile($id, $csv);
-				unlink($csv); // DELETE temporary CSV.
-				if(isset($csvresult['result']['error']))
-					throw new CFExceptions("CSV: " . $csvresult['result']['error']['message']);
-
-				$channelsresult = $cfJob->setChannels($id, array('cf_internal'));
-				if(isset($channelsresult['result']['error']))
-					throw new CFExceptions($channelsresult['result']['error']['message']); 
-
-				if(is_array($gold) and count($gold) > 0){
-					// TODO: Foreach? 
-					$goldresult = $cfJob->manageGold($id, array('check' => $gold[0]));
-					if(isset($goldresult['result']['error']))
-						throw new CFExceptions("Gold: " . $goldresult['result']['error']['message']);
-				}
-
-				if(is_array($c->countries) and count($c->countries) > 0){
-					$countriesresult = $cfJob->setIncludedCountries($id, $c->countries);
-					if(isset($countriesresult['result']['error']))
-						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
-				}
-
-				//TODO: this only works half the time. Get error: need unordered units.
-				// Maybe we need to build in a waiting period.
-				if(!$sandbox){
-					$orderresult = $cfJob->sendOrder($id, count($this->batch->ancestors), array("cf_internal"));
-					if(isset($orderresult['result']['error']))
-						throw new CFExceptions("Order: " . $orderresult['result']['error']['message']);
-				}
-
-				return $id;
-
-			// Failed to create initial job.
-			} else {
-				$err = $result['result']['error']['message'];
-				if(isset($err)) $msg = $err;
-				else $msg = 'Unknown error.';
-				throw new CFExceptions($msg);
-			}
-		} catch (ErrorException $e) {
-			if(isset($id)) $cfJob->deleteJob($id);
-			throw new CFExceptions($e->getMessage());
-		} catch (CFExceptions $e){
-			if(isset($id)) $cfJob->deleteJob($id);
-			throw $e;
-		} 
-    }
-
-    /**
-    * @return String[] HIT id's or an array of questions in HTML format (if $preview = true)
-    */
-    private function amtPublish($preview = false){
-    	$htmlfilename = "{$this->template}.html";
-    	if(!file_exists($htmlfilename) || !is_readable($htmlfilename))
-			throw new AMTException('HTML template file does not exist or is not readable.');
-
-		$units = $this->batch->wasDerivedFrom;
-		shuffle($units);
-
-		$questionsbuilder = '';
-		$count = 0;
-		$return = array();
-		$hittypeid = '';
-		$c = $this->jobConfiguration;
-		$hit = $c->toHit();
-		$upt = $c->unitsPerTask;
-		$assRevPol = $hit->getAssignmentReviewPolicy();
-		$previewmultisingleerror = false;
-		$dom = HtmlDomParser::file_get_html($htmlfilename);
-
-		// Do some checks and fill $questiontemplate.
-		if($upt > 1){
-			try {
-				
-			if(!$div = $dom->find('div[id=wizard]', 0))
-				throw new AMTException('Multipage template has no div with id \'wizard\'. View the readme in the templates directory for more info.');
-			
-			if(!$div->find('h1', 0))
-				throw new AMTException('Multipage template has no <h1>. View the readme in the templates directory for more info.');
-
-			$questiontemplate = $div->innertext;
-			if(!strpos($questiontemplate, '{x}'))
-				throw new AMTException('Multipage template has no \'{x}\'. View the readme in the templates directory for more info.');
-			if(!strpos($questiontemplate, '{uid}'))
-				throw new AMTException('Multipage template has no \'{uid}\'. View the readme in the templates directory for more info.');
-
-			} catch (AMTException $e){
-				if($preview) {$questiontemplate = $dom->innertext; $previewmultisingleerror = true;}
-				else throw $e;
-			}
-		} else {
-			$questiontemplate = $dom->innertext;
-		}
-
-		foreach ($units as $parameters) {
-			$params = array_dot($parameters['content']);
-
-			$replacerules=array('cause' => 'causes'); // TODO: get these from QUESTIONTEMPLATE
-			$params = str_replace(array_keys($replacerules), $replacerules, $params);
-
-			if($upt>1)	{
-				$count++;
-				$tempquestiontemplate = str_replace('{x}', $count, $questiontemplate);
-			} else {
-				$count = '';
-				$tempquestiontemplate = $questiontemplate;
-			}
-
-			// Insert the parameters
-
-			foreach ($params as $key=>$val)	{	
-				$param = '${' . $key . '}';
-				$tempquestiontemplate = str_replace($param, $val, $tempquestiontemplate);
-			}
-
-			$tempquestiontemplate = str_replace('{uid}', $parameters['_id'], $tempquestiontemplate);
-			
-			/*if(!strpos($questiontemplate, '{instructions}'))
-				throw new AMTException('Template has no {instructions}');*/
-			$tempquestiontemplate = str_replace('{instructions}', nl2br($c->instructions), $tempquestiontemplate);
-
-			// Temporarily store the AnswerKey
-
-			// TODO!
-			if(isset($params['_golden']) and $params['_golden'] == true and !empty($c->answerfields)) {
-				foreach($c->answerfields as $answerfield)
-					$assRevPol['AnswerKey']["{$params['_unit_id']}_$answerfield"] = $params["{$answerfield}_gold"];
-			}
-
-			// Check if all parameters have been replaced
-			if(preg_match('#\$\{[A-Za-z0-9_.]*\}#', $tempquestiontemplate) == 1) // ${...}
-				throw new AMTException('HTML contains parameters that are not in the CSV.');
-
-			// Add the current question
-			$questionsbuilder .= $tempquestiontemplate;
-
-			// Create a hit every ($upt)
-			if($count % $upt == 0){
-				if($upt>1){
-					if(!$previewmultisingleerror){
-						$dom->find('div[id=wizard]', 0)->innertext = $questionsbuilder;
-						$questionsbuilder = $dom->save();
-					}
-				}
-
-				if($preview) $return[] = $questionsbuilder;
-				else {
-					// Set the questions and optionally the gold answers
-				 	$hit->setQuestion($this->amtAddQuestionXML($questionsbuilder, $c->frameheight));
-					if(!empty($assRevPol['AnswerKey']))
-						$hit->setAssignmentReviewPolicy($assRevPol);
-					else ($hit->setAssignmentReviewPolicy(null));
-
-					// Create
-					$created = $this->mturk->createHIT($hit);
-
-					// Add ID to returnarray
-					$return[] = $created['HITId'];
-					$hittypeid = $created['HITTypeId'];
-				}
-
-				unset($assRevPol['AnswerKey']);
-				$questionsbuilder = '';
-				$count = 0;
-			}
-		}
-
-		// Notification E-Mail
-		if((!$preview) and (!empty($c->notificationEmail)) and (!empty($hittypeid)))
-			$this->mturk->setHITTypeNotification($hittypeid, $c->notificationEmail, $c->eventType);
-
-		return $return;
-    }
 
 
     /**
@@ -417,23 +158,14 @@ class Job  {
     * @param $platform string amt | cf
     * @param $platformjobid array if $platform = amt, int if $platform = cf.
     * @param $preview boolean sets the status to 'unordered'
+    * @return entity id
     */
     public function store($platform, $platformJobId, $preview = false){
 
-    	$this->createSoftwareAgent($platform);
+    	//$this->createSoftwareAgent($platform);
 
-		if($preview) $status = 'unordered'; // For AMT this means that it's in the sandbox
+		if($preview) $status = 'unordered';
 		else $status = 'running';
-
-		if($platform == 'amt') {
-
-			// Create an array with HITid and status.
-			$temppjid = array();
-			foreach($platformJobId as $id)
-				array_push($temppjid, array('id' => $id, 'status' => $status, 'timestamp' => time()));
-
-			$platformJobId = $temppjid;
-		}
 
 		try {
 			$reward = $this->jobConfiguration->reward;
@@ -445,7 +177,7 @@ class Job  {
 			$entity = new Entity;
 			$entity->domain = 'medical';
 			$entity->format = 'text';
-			// $entity->type = 'factor_span'; // todo?
+			$entity->type = 'todo'; // TODO: need to set this somewhere
 			$entity->documentType = 'job';
 			$entity->activity_id = $this->activityURI;
 			
@@ -471,6 +203,14 @@ class Job  {
 		}
     }
 
+    private function createActivity($platforms){
+    	$activity = new Activity;
+		$activity->label = "Job is uploaded to crowdsourcing platform(s): " . implode(', ', $platforms) . ".";
+		$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB softwareAgent_id = $platform. Does this need to be the same?
+		$activity->save();
+		return $activity->_id;
+    }
+
     private function createSoftwareAgent($agentid){
 		if(!SoftwareAgent::find($agentid))
 		{
@@ -488,36 +228,6 @@ class Job  {
 		}
 	}
 
-
-    /**
-	* Convert the HTML from a template (with parameters injected) to a proper AMT Question.
-	* @param string $html 
-	* @return string AMT HTMLQuestion.
-	*/
-	private function amtAddQuestionXML($html, $frameheight = 650){
-		return "<?xml version='1.0' ?>
-			<HTMLQuestion xmlns='http://mechanicalturk.amazonaws.com/AWSMechanicalTurkDataSchemas/2011-11-11/HTMLQuestion.xsd'>
-			  <HTMLContent><![CDATA[
-				<!DOCTYPE html>
-				<html>
-				 <head>
-				  <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
-				  <script type='text/javascript' src='https://s3.amazonaws.com/mturk-public/externalHIT_v1.js'></script>
-				 </head>
-				 <body>
-				  <form name='mturk_form' method='post' id='mturk_form' action='https://www.mturk.com/mturk/externalSubmit'>
-				  <input type='hidden' value='' name='assignmentId' id='assignmentId'/>
-					$html
-				  <p><input type='submit' id='submitButton' value='Submit' /></p></form>
-				  <script language='Javascript'>turkSetAssignmentID();</script>
-				 </body>
-				</html>
-			]]>
-			  </HTMLContent>
-			  <FrameHeight>$frameheight</FrameHeight>
-			</HTMLQuestion>
-		";
-	}
 
 
 

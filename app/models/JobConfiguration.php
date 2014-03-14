@@ -1,11 +1,11 @@
 <?php
 
-use crowdwatson\Hit;
 use \mongoDB\Entity;
 use \mongoDB\Activity;
 
 class JobConfiguration extends Moloquent {
-    protected $fillable = array(
+	protected $guarded = array();
+    protected $thisusedtobefillablebutisjustusedasareferencenow = array(
     								'title', 
     								'description',
     								'instructions', /* AMT: inject into template */ 
@@ -36,6 +36,10 @@ class JobConfiguration extends Moloquent {
     								'questionTemplate_id'
     								);
 
+/*    public addFields($array){
+    	$this->fillable = array_merge($this->fillable, $array);
+    }*/
+
     private $errors;
 
     private $commonrules = array(
@@ -46,93 +50,36 @@ class JobConfiguration extends Moloquent {
 		'platform' => 'required'
 	);
 
-	private $cfrules = array(
-		'annotationsPerUnit' => 'required|numeric|min:1', /* AMT: defaults to 1 */
-		'unitsPerTask' => 'required|numeric|min:1',
-		'instructions' => 'required',
-		'annotationsPerWorker' => 'required|numeric|min:1'
-	);	
-
-	private $amtrules = array(
-		'hitLifetimeInMinutes' => 'required|numeric|min:1',
-		'frameheight' => 'numeric|min:300' // not required because we have a default value.
-	);
-
-
     public function validate()  {
     	$rules = $this->commonrules;
     	$this->errors = new Illuminate\Support\MessageBag();
-	    $return = true;
+	    $isok = true;
 
 	    if(is_array($this->platform)){
-	    	if(in_array('amt', $this->platform))
-	    		$rules = array_merge($rules, $this->amtrules);
-	    	if(in_array('cf', $this->platform))
-	    		$rules = array_merge($rules, $this->cfrules);
+		    foreach($this->platform as $platformstring){
+		    	$platform = App::make($platformstring);
+		    	$rules = array_merge($rules, $platform->jobConfValidationRules);
+		    }	
    	 	} else {
    	 		$this->errors->add('platform', 'Please provide at least one platform.');
-   	 		$return = false;
+   	 		$isok = false;
    	 	}
 
         $v = Validator::make($this->toArray(), $rules);
         if ($v->fails()) {
             $this->errors->merge($v->messages()->toArray());
-            $return = false;
+            $isok = false;
         }
 
         // TODO: add some custom validation rules.
         // Note: Job->previewQuestions also does some validation.
 
-        return $return;
+        return $isok;
     }
 
     public function getErrors() {
         return $this->errors;
     }
-
-
-    public function getDetails(){
-    	return array('keywords' => $this->keywords, 'expirationInMinutes' => $this->expirationInMinutes, 'lifetimeInSeconds' => $this->lifetimeInSeconds, 'autoApprovalDelayInSeconds' => $this->autoApprovalDelayInMinutes, 'qualificationRequirement' => $this->qualificationRequirement, 'assignmentReviewPolicy' => $this->assignmentReviewPolicy );
-    }
-
-    public function getElapsedTime($created_at){
-	    $time = time() - strtotime($created_at); // to get the time since that moment
-
-    	$tokens = array (
-        	31536000 => 'yr',
-        	2592000 => 'm',
-        	604800 => 'w',
-        	86400 => 'day',
-        	3600 => 'hr',
-        	60 => 'min',
-        	1 => 'sec'
-	    );
-
-	    foreach ($tokens as $unit => $text) {
-	        if ($time < $unit) continue;
-	        $numberOfUnits = floor($time / $unit);
-	        return $numberOfUnits.' '.$text.(($numberOfUnits>1)?'s':'');
-	    	}
-	}
-
-    //FIELDS IN LARAVEL -_-
-    public function totalJudgments(){
-    	return $this->annotationsPerUnit*$this->unitsPerTask;
-    }
-
-	public function totalCost(){
-		$judgments = JobConfiguration::totalJudgments();
-		return '$ ' + round($judgments*$this->reward, 2);
-	}
-
-	public function progressBar(){
-		return round(($this->completedJudgments() / $this->totalJudgments())*100);
-	}
-		
-
-	public function completedJudgments(){
-		return 20;
-	}
 
 	public function addQualReq($qr){
 		$qarray = array();
@@ -166,30 +113,6 @@ class JobConfiguration extends Moloquent {
 		else $this->assignmentReviewPolicy = null;
 	}
 
-	// Used now, for HITs that don't come from our own platform
-	public static function getFromHit($hit){
-		return new JobConfiguration(array(
-			'title' 		=> $hit->getTitle(),
-			'description' 	=> $hit->getDescription(),
-			'keywords'		=> $hit->getKeywords(),
-			'reward'		=> $hit->getReward()['Amount'],
-			'annotationsPerUnit'=> $hit->getMaxAssignments(),
-			'expirationInMinutes'	=> intval($hit->getAssignmentDurationInSeconds())/60,
-			'hitLifetimeInMinutes' => intval($hit->getLifetimeInSeconds())/60,
-			'unitsPerTask' => 1, 
-
-			/* AMT */
-			'autoApprovalDelayInMinutes' => intval($hit->getAutoApprovalDelayInSeconds())/60,
-			'qualificationRequirement'=> $hit->getQualificationRequirement(),
-			'assignmentReviewPolicy' => $hit->getAssignmentReviewPolicy(),
-			'platform' => array('amt')		
-			));
-	}
-
-	public static function getTemplate(){
-		return implode(",", $template);
-	}
-
 	public static function fromJSON($filename){
 		if(!file_exists($filename) || !is_readable($filename))
 			throw new Exception('JSON template file does not exist or is not readable.');
@@ -199,51 +122,6 @@ class JobConfiguration extends Moloquent {
 			throw new Exception('JSON incorrectly formatted');
 
 		return new JobConfiguration($arr);
-	}
-
-
-	public function toHit(){
-		$hit = new Hit();
-		if (!empty($this->title)) 			 			$hit->setTitle						  	($this->title); 
-		if (!empty($this->description)) 		 		$hit->setDescription					($this->description); 
-		if (!empty($this->keywords)) 					$hit->setKeywords				  		($this->keywords);
-		if (!empty($this->annotationsPerUnit)) 			$hit->setMaxAssignments		  			($this->annotationsPerUnit);
-		if (!empty($this->expirationInMinutes))			$hit->setAssignmentDurationInSeconds 	($this->expirationInMinutes*60);
-		if (!empty($this->hitLifetimeInMinutes)) 		$hit->setLifetimeInSeconds		  		($this->hitLifetimeInMinutes*60);
-		if (!empty($this->reward)) 						$hit->setReward					  		(array('Amount' => $this->reward, 'CurrencyCode' => 'USD'));
-		if (!empty($this->autoApprovalDelayInMinutes)) 	$hit->setAutoApprovalDelayInSeconds  	($this->autoApprovalDelayInMinutes*60); 
-		if (!empty($this->qualificationRequirement))	$hit->setQualificationRequirement		($this->qualificationRequirement);
-		if (!empty($this->requesterAnnotation))			$hit->setRequesterAnnotation			($this->requesterAnnotation);
-		
-		if (/* isset($this->assignmentReviewPolicy['AnswerKey']) and 
-			count($this->assignmentReviewPolicy['AnswerKey']) > 0 and */
-			isset($this->assignmentReviewPolicy['Parameters']) and
-			count($this->assignmentReviewPolicy['Parameters']) > 0 ) 		
-														$hit->setAssignmentReviewPolicy			($this->assignmentReviewPolicy);
-		
-		return $hit;
-	}
-
-	public function toCFData(){
-		$data = array();
-
-		if (!empty($this->title)) 			 	$data['title']					 	= $this->title; 
-		if (!empty($this->instructions)) 		$data['instructions']				= $this->instructions; 
-		if (!empty($this->annotationsPerUnit)) 	$data['judgments_per_unit']		  	= $this->annotationsPerUnit;
-
-		if (!empty($this->unitsPerTask))		$data['units_per_assignment']		= $this->unitsPerTask;
-		if (!empty($this->annotationsPerWorker))	{
-			$data['max_judgments_per_worker']	= $this->annotationsPerWorker;
-			$data['max_judgments_per_ip']		= $this->annotationsPerWorker; // We choose to keep this the same.
-		}
-
-		// Webhook doesn't work on localhost and we the uri should be set. 
-		if((App::environment() != 'local') and (Config::get('config.cfwebhookuri')) != ''){
-			
-			$data['webhook_uri'] = Config::get('config.cfwebhookuri');
-			$data['send_judgments_webhook'] = 'true';
-		}
-		return $data;
 	}
 
 	
@@ -357,7 +235,7 @@ class JobConfiguration extends Moloquent {
 			$entity->activity_id = $activityURI;
 			
 			// Further identification
-			$entity->type = "factor_span";
+			$entity->type = "todo";
 			//$entity->tags = array('bla', 'bla', 'bla'); // OR: title
 
 			$entity->content = $newEntityContent;
@@ -366,13 +244,7 @@ class JobConfiguration extends Moloquent {
 			// Ancestors 
 			// TODO: move this to ENTITY?
 			if(!is_null($originalEntity)){
-				$ancestors = $originalEntity->ancestors;
-				if(is_array($ancestors))
-					array_push($ancestors, $originalEntity->_id);
-				else
-					$ancestors = array($originalEntity->_id);
-
-				$entity->ancestors = $ancestors;
+				$this->parents = array($originalEntity->_id);
 			} 
 
 			$entity->save();

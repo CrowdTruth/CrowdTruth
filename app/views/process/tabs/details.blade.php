@@ -15,7 +15,7 @@
 						<h4>Create your job</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::model($jobconf, array('class' => 'form-horizontal jobconf', 'id'=>'form', 'action' => array('ProcessController@postFormPart', 'platform'), 'method' => 'POST'))}}
+						{{ Form::model($jobconf, array('class' => 'form-horizontal jobconf', 'id'=>'form', 'action' => array('ProcessController@postFormPart', 'submit'), 'method' => 'POST'))}}
 						<fieldset>	
 							{{ Form::label('title', 'Job title', array('class' => 'col-xs-4 control-label')) }}
 							<div class="input-group col-xs-8">

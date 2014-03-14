@@ -4,8 +4,15 @@
 						<ul class="nav nav-tabs" id="processtabs">
 							<li{{ (Request::segment(2) == 'batch' ? ' class="active"' : '') }} title='batch'>{{ link_to('process/selectbatch', "1. Batch") }}</li>
 							<li{{ (Request::segment(2) == 'template' ? ' class="active"' : '') }} title='template'>{{ link_to('process/template', "2. Template") }}</li>
-							<li{{ (Request::segment(2) == 'details' ? ' class="active"' : '') }} title='details'>{{ link_to('process/details', "3. Job Details") }}</li>
-							<li{{ (Request::segment(2) == 'platform' ? ' class="active"' : '') }} title='platform'>{{ link_to('process/platform', "4. Platform") }}</li>
+							<li{{ (Request::segment(2) == 'platform' ? ' class="active"' : '') }} title='platform'>{{ link_to('process/platform', "3. Platform") }}</li>
+							<li{{ (Request::segment(2) == 'details' ? ' class="active"' : '') }} title='details'>{{ link_to('process/details', "4. Job Details") }}</li>
+							<?php $count = 0; ?>
+							@if(isset($jobconf) && isset($jobconf->platform))
+								@foreach ($jobconf->platform as $p)
+								<?php $count++; $link = "process/$p"; $ptoupper = strtoupper($p); ?>
+							<li{{ (Request::segment(2) == $p ? ' class="active"' : '') }} title="{{$p}}">{{ link_to($link, "5.$count Platform: $ptoupper") }}</li>
+								@endforeach
+							@endif
 							<li{{ (Request::segment(2) == 'submit' ? ' class="active"' : '') }} title='submit'>{{ link_to('process/submit', "5. Submit") }}</li>
 							<a href='/process/clear-task' class="btn btn-danger pull-right">Reset form</a></li>
 
