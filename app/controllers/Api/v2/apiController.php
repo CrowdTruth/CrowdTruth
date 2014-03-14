@@ -32,26 +32,6 @@ class apiController extends BaseController {
     //     'exists', 'type', 'mod', 'where', 'all', 'size', 'regex',
     // );
 
-  //   public function getDistinct($field = null)
-  //   {
-		// $c = Input::get('collection', 'Entity');
-
-		// $collection = $this->repository->returnCollectionObjectFor($c);
-
-		// if($collection->getTable() == "useragents")
-		// {
-		// 	return Response::json(\User::all());
-		// }		
-
-  //   	if(Input::has('field'))
-  //   	{
-  //   		$collection = $this->processFields($collection);
-  //   	}
-    	
-  //   	$collection = array_flatten($collection->distinct($field)->get()->toArray());
-  //   	return Response::json($collection);
-  //   }
-
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -59,8 +39,7 @@ class apiController extends BaseController {
 	 */
 	public function getIndex()
 	{
-		// echo "<pre>";
-		// dd(Input::all());
+		// return Input::all();
 
 		$c = Input::get('collection', 'Entity');
 
@@ -94,9 +73,30 @@ class apiController extends BaseController {
 			$iTotalDisplayRecords = new \MongoDB\Entity;
 			$iTotalDisplayRecords = $this->processFields($iTotalDisplayRecords);
 			$iTotalDisplayRecords = $iTotalDisplayRecords->count();
-
-			$iTotalRecords = \MongoDB\Entity::whereIn('documentType', array_flatten([Input::get('field')['documentType']]))->count();
+		
 			$collection = $collection->skip($start)->orderBy($sortingColumnName, $sortingDirection)->take($limit)->get($only);
+
+			if($input = Input::get('field'))
+			{
+				$iTotalRecords = new \MongoDB\Entity;
+
+				if(isset($input['format']))
+				{
+					$iTotalRecords = $iTotalRecords->whereIn('format', array_flatten([$input['format']]));
+				}
+
+				if(isset($input['domain']))
+				{
+					$iTotalRecords = $iTotalRecords->whereIn('domain', array_flatten([$input['domain']]));
+				}
+
+				if(isset($input['documentType']))
+				{
+					$iTotalRecords = $iTotalRecords->whereIn('documentType', array_flatten([$input['documentType']]));
+				}
+
+				$iTotalRecords = $iTotalRecords->count();
+			}
 
 			return Response::json([
 		        "sEcho" => Input::get('sEcho', 10),

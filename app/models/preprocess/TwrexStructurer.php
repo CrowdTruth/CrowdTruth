@@ -23,8 +23,6 @@ class TwrexStructurer {
 			if(count($twrexLineSegments) < 7)
 				continue;
 
-			// dd($twrexLineSegments);
-
 			$twrexStructuredSentence = [
 				"relation" => [
 					"original" => $twrexLineSegments[1],
@@ -32,13 +30,13 @@ class TwrexStructurer {
 				],
 				"terms" => [
 					"first" => [
-						"startIndex" => $twrexLineSegments[3],
-						"endIndex" => $twrexLineSegments[4],
+						"startIndex" => (int) $twrexLineSegments[3],
+						"endIndex" => (int) $twrexLineSegments[4],
 						"text" => $twrexLineSegments[2]
 					],
 					"second" => [
-						"startIndex" => $twrexLineSegments[6],
-						"endIndex" => $twrexLineSegments[7],
+						"startIndex" => (int) $twrexLineSegments[6],
+						"endIndex" => (int) $twrexLineSegments[7],
 						"text" => $twrexLineSegments[5]
 					]
 				],
@@ -47,7 +45,7 @@ class TwrexStructurer {
 				]
 			];
 
-			$properties = [
+			$twrexStructuredSentence['properties'] = [
 				"sentenceWordCount" => str_word_count($twrexStructuredSentence['sentence']['text']),
 				"relationInSentence" => $this->relationInSentence($twrexStructuredSentence),
 				"relationOutsideTerms" => $this->relationOutsideTerms($twrexStructuredSentence),
@@ -58,8 +56,6 @@ class TwrexStructurer {
 				"overlappingTerms" => $this->overlappingTerms($twrexStructuredSentence)
 			];
 
-			$twrexStructuredSentence['properties'] = $properties;
-
 			array_push($twrexStructuredSentences, $twrexStructuredSentence);
 		}
 
@@ -69,10 +65,7 @@ class TwrexStructurer {
 	protected function relationInSentence($twrexStructuredSentence)
 	{
 		$sentenceText = strtolower($twrexStructuredSentence['sentence']['text']);
-		$b1 = $twrexStructuredSentence['terms']['first']['startIndex'];
-		$b2 = $twrexStructuredSentence['terms']['second']['startIndex'];
 		$relationWithoutPrefixStemmed =  $this->simpleStem($twrexStructuredSentence['relation']['noPrefix']);
-
 
 		if(stripos($sentenceText, $relationWithoutPrefixStemmed))
 		{
@@ -233,117 +226,6 @@ class TwrexStructurer {
 		return 0;	
 	}
 
-	// public static function process($originalDocument){
-	// 	$documentSeparatedByNewline = explode("\n", $originalDocument['content']);
-
-	// 	// print_r($documentSeparatedByNewline);
-	// 	// exit;
-
-	// 	$twrexDocument = array();
-
-	// 	foreach($documentSeparatedByNewline as $lineNumber => $lineValue){
-	// 		if($lineValue == "")
-	// 			continue;
-
-	// 		if(preg_match("/(TWrex)\-[a-zA-Z-]+/", $lineValue, $matches)) {
-	// 			$TWrexRelation = $matches[0];
-	// 			$relationWithoutPrefix = explode("-", $TWrexRelation)[1];
-	// 		}
-
-	// 		if(preg_match_all("/\t+\d+\t\d+\t+/", $lineValue, $matches)){
-	// 			$b1 = preg_split("/\s+/", trim($matches[0][0]))[0];
-	// 			$e1 = preg_split("/\s+/", trim($matches[0][0]))[1];
-	// 			$b2 = preg_split("/\s+/", trim($matches[0][1]))[0];
-	// 			$e2 = preg_split("/\s+/", trim($matches[0][1]))[1];
-	// 			$sentenceOffset = stripos($lineValue, $matches[0][1]) + strlen($matches[0][1]);
-	// 		}
-	// 			$sentenceText = ltrim(substr($lineValue, $sentenceOffset));
-	// 			$firstTerms = substr($sentenceText, $b1, $e1 - $b1);
-	// 			$secondTerms = substr($sentenceText, $b2, $e2 - $b2);
-
-
-	// 			$twrexDocument[$lineNumber]['relation']['original'] = strtolower($TWrexRelation);
-	// 			$twrexDocument[$lineNumber]['relation']['noPrefix'] = strtolower($relationWithoutPrefix);
-	// 			$twrexDocument[$lineNumber]['terms']['first']['startIndex'] = (int) $b1;
-	// 			$twrexDocument[$lineNumber]['terms']['first']['endIndex'] = (int) $e1;
-	// 			$twrexDocument[$lineNumber]['terms']['first']['text'] = $firstTerms;
-	// 			$twrexDocument[$lineNumber]['terms']['second']['startIndex'] = (int) $b2;
-	// 			$twrexDocument[$lineNumber]['terms']['second']['endIndex'] = (int) $e2;
-	// 			$twrexDocument[$lineNumber]['terms']['second']['text'] = $secondTerms;
-
-	// 		//	$twrexDocument[$lineNumber]['Terms'][1] = substr($sentenceText, $offsets['b1'], $offsets['e1']);
-	// 		//	$twrexDocument[$lineNumber]['Terms'][2] = substr($sentenceText, $offsets['e1'], $offsets['e2']);
-	// 			$twrexDocument[$lineNumber]['sentence']['startIndex'] = (int) $sentenceOffset;
-	// 			$twrexDocument[$lineNumber]['sentence']['text'] = $sentenceText;
-	// 			$twrexDocument[$lineNumber]['properties']['sentenceWordCount'] = str_word_count($sentenceText);
-
-	// 			$relationWithoutPrefixStemmed = static::simpleStem($relationWithoutPrefix);
-
-	// 			$twrexDocument[$lineNumber]['properties']['relationInSentence'] = 
-	// 			stripos($sentenceText, $relationWithoutPrefixStemmed) ? 1 : 0;
-
-	// 			if($b1 < $b2){
-	// 				$twrexDocument[$lineNumber]['properties']['relationOutsideTerms'] = 
-	// 				(stripos(substr($sentenceText, 0, $b1), $relationWithoutPrefixStemmed) ||
-	// 				stripos(substr($sentenceText, $b2), $relationWithoutPrefixStemmed)) ? 1 : 0;
-
-	// 				$twrexDocument[$lineNumber]['properties']['relationBetweenTerms'] = 
-	// 				stripos(substr($sentenceText, $e1, $b2), $relationWithoutPrefixStemmed) ? 1 : 0;
-
-	// 				$twrexDocument[$lineNumber]['properties']['semicolonBetweenTerms'] =	
-	// 				stripos(substr($sentenceText, $e1, $b2), ';') ? 1 : 0;
-
-	// 				$textWithAndBetweenTerms = substr($sentenceText, $b1, $e2);
-	// 			} else {
-	// 				$twrexDocument[$lineNumber]['properties']['relationOutsideTerms'] = 
-	// 				(stripos(substr($sentenceText, $b1), $relationWithoutPrefixStemmed) ||
-	// 				stripos(substr($sentenceText, 0, $b2), $relationWithoutPrefixStemmed)) ? 1 : 0;
-
-	// 				$twrexDocument[$lineNumber]['properties']['relationBetweenTerms'] = 
-	// 				stripos(substr($sentenceText, $e2, $b1), $relationWithoutPrefixStemmed) ? 1 : 0;	
-
-	// 				$twrexDocument[$lineNumber]['properties']['semicolonBetweenTerms'] =	
-	// 				stripos(substr($sentenceText, $e2, $b1), ';') ? 1 : 0;
-
-	// 				$textWithAndBetweenTerms = substr($sentenceText, $b2, $e1);		
-	// 			}
-
-	// 			$numberOfWordsBetweenTerms = str_word_count($textWithAndBetweenTerms);
-	// 			$numberOfCommasBetweenTerms = substr_count($textWithAndBetweenTerms, ",");
-
-	// 			$commaSeparatedTerms = 0;
-	// 			if($numberOfWordsBetweenTerms < (($numberOfCommasBetweenTerms * 3) + 1))
-	// 				$commaSeparatedTerms = 1;
-
-	// 			if(preg_match("/(" . $firstTerms . ")\s+\,\s+( " . $secondTerms . ")/", $sentenceText))
-	// 				$commaSeparatedTerms = 1;
-
-	// 			$twrexDocument[$lineNumber]['properties']['commaSeparatedTerms'] =	$commaSeparatedTerms;
-
-
-	// 			$twrexDocument[$lineNumber]['properties']['parenthesisAroundTerms'] =
-	// 			((stripos($sentenceText, "(" . $firstTerms . ")") !== false) || 
-	// 			 (stripos($sentenceText, "(" . $firstTerms . ")") !== false)) ? 1: 0;
-
-	// 			$firstTermsArray = explode(" ", $firstTerms);
-	// 			$secondTermsArray = explode(" ", $secondTerms);
-
-	// 			foreach($firstTermsArray as $term){
-	// 				if(in_array($term, $secondTermsArray)) {
-	// 					$twrexDocument[$lineNumber]['properties']['overlappingTerms'] = 1;
-	// 				} else {
-	// 					$twrexDocument[$lineNumber]['properties']['overlappingTerms'] = 0;
-	// 				}
-	// 			}
-	// 	}
-
-		
-	// 	// print_r($twrexDocument);
-	// 	// exit;
-
-	// 	return $twrexDocument;
-	// }
-
 	public function simpleStem($relationWithoutPrefix){
 		switch (strtolower($relationWithoutPrefix)) {
 		    case 'cause':
@@ -386,6 +268,7 @@ class TwrexStructurer {
 
 			try {
 				$entity = new Entity;
+				$entity->_id = $entity->_id;
 				$entity->title = strtolower($title);
 				$entity->domain = $parentEntity->domain;
 				$entity->format = $parentEntity->format;
@@ -410,7 +293,6 @@ class TwrexStructurer {
 		// Session::forget('lastMongoIDUsed');
 
 		return $status;
-
 	}
 
 	public function createTwrexStructurerSoftwareAgent(){

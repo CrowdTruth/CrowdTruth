@@ -155,11 +155,11 @@
 <script>
 $('document').ready(function(){
 
-var baseApiURL = '{{ URL::to("api/v2?datatables=true&noCache") }}';
+var baseApiURL = '{{ URL::to("api/v1?datatables=true&noCache") }}';
 var dataTableObjects = {};
 var selectedRows = [];
 
-$('.facetedSearchResults').css({ "min-height" : "1000px "});
+// $('.facetedSearchResults').css({ "min-height" : "100% "});
 
 var delay = (function(){
   var timer = 0;
@@ -420,7 +420,7 @@ function getAllTabResults(){
 	}
 	else
 	{	
-		dataTableObjects['all'].fnReloadAjax('{{ URL::to("api/v2?datatables=true&limit=1000") }}' + allTabQuery + onlyFields);
+		dataTableObjects['all'].fnReloadAjax('{{ URL::to("api/v1?datatables=true&limit=1000") }}' + allTabQuery + onlyFields);
 	}
 }
 

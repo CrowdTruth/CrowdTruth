@@ -81,7 +81,10 @@
 					<th data-column="content.terms.first.text">Term 1</th>					
 					<th data-column="content.terms.first.startIndex" data-bvisible="false">Term 1 StartIndex</th>
 					<th data-column="content.terms.first.endIndex" data-bvisible="false">Term 1 EndIndex</th>
-					<th data-column="content.terms.second.text">Term 2</th>						
+					<th data-column="content.terms.second.text">Term 2</th>
+					<th data-column="content.terms.second.startIndex" data-bvisible="false">Term 2 StartIndex</th>
+					<th data-column="content.terms.second.endIndex" data-bvisible="false">Term 2 EndIndex</th>
+
 <!-- 					<th data-column="content.terms.second.startIndex">Term 2 Startindex</th>
 					<th data-column="content.terms.second.endIndex">Term 2 EndIndex</th>		 -->			
 					<th data-column="content.sentence.text">Sentence</th>
@@ -107,6 +110,14 @@
 					</td>
 					<td>
 						<input type='text' data-query-key="field[content.terms.second.text]" data-query-operator="[like]" />
+					</td>
+					<td>
+						<input type='text' data-query-key="field[content.terms.second.startIndex]" data-query-operator="[>]" style="width:49%; float:left;" placeholder="aaa" />
+						<input type='text' data-query-key="field[content.terms.second.startIndex]" data-query-operator="[<]" style="width:49%; float:right;" placeholder="lbbbt" />
+					</td>
+					<td>
+						<input type='text' data-query-key="field[content.terms.second.endIndex]" data-query-operator="[>]" style="width:49%; float:left;" placeholder="gt" />
+						<input type='text' data-query-key="field[content.terms.second.endIndex]" data-query-operator="[<]" style="width:49%; float:right;" placeholder="lt" />
 					</td>
 					<td>
 						<input type='text' data-query-key="field[content.sentence.text]" data-query-operator="[like]" />
