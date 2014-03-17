@@ -14,7 +14,7 @@ namespace Cw\Mturk\Turkapi;
 require_once(dirname(__FILE__) . '/Hit.class.php');
 require_once(dirname(__FILE__) . '/Assignment.class.php');
 require_once(dirname(__FILE__) . '/AMTException.class.php');
-include_once(dirname(__FILE__) . '/config.php');
+//include_once(dirname(__FILE__) . '/config.php');
 
 class MechanicalTurk {
 	
@@ -25,13 +25,13 @@ class MechanicalTurk {
 
 	public function __construct($rootURL = null, $debug = null, $accesskey = null, $secretkey = null){
 		if(isset($rootURL)) 	$this->rootURL 	 = $rootURL;
-		else 					$this->rootURL   = AMT_ROOT_URL;
+		//else 					$this->rootURL   = AMT_ROOT_URL;
 		if(isset($debug)) 		$this->debug 	 = $debug;
-		else 					$this->debug 	 = DEBUG;
+		//else 					$this->debug 	 = DEBUG;
 		if(isset($accesskey)) 	$this->accesskey = $accesskey;
-		else 					$this->accesskey = AWS_ACCESS_KEY;	
+		//else 					$this->accesskey = AWS_ACCESS_KEY;	
 		if(isset($secretkey)) 	$this->secretkey = $secretkey;
-		else 					$this->secretkey = AWS_SECRET_KEY;
+		//else 					$this->secretkey = AWS_SECRET_KEY;
 	}
 
 	/**
