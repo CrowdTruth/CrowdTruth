@@ -184,8 +184,8 @@ class Crowdflower {
 
 		if(empty($path)) {
 			$path = base_path() . '/app/storage/temp/crowdflower.csv';
-			if (!file_exists('/app/storage/temp')) {
-   			 	mkdir('/app/storage/temp', 0777, true);
+			if (!file_exists(base_path() . '/app/storage/temp')) {
+   			 	mkdir(base_path() . '/app/storage/temp', 0777, true);
 			}
 		}
 
