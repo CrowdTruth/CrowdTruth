@@ -77,7 +77,6 @@ class Crowdflower {
 			if(empty($data['cml']))
 				throw new Cfapi\CFExceptions('CML file does not exist or is not readable.');
 
-
 			/*if(!$sandbox) $data['auto_order'] = true; // doesn't seem to work */
 
 			// Create the job with the initial data

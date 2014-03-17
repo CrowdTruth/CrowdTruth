@@ -36,9 +36,9 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
-		$questiontemplate = Session::get('questiontemplate');
+		$questiontemplateid = Session::get('questiontemplateid');
 
-		$j = new Job($batch, $template, $jc, $questiontemplate);
+		$j = new Job($batch, $template, $jc, $questiontemplateid);
 		$questionids = array();
 		$goldfields = array();
 		$unitscount = count($batch->wasDerivedFrom);
@@ -72,12 +72,12 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
-		$questiontemplate = Session::get('questiontemplate');
+		$questiontemplateid = Session::get('questiontemplateid');
 
 		$treejson = $this->makeDirTreeJSON($template, false);
 
 		try {
-			$j = new Job($batch, $template, $jc, $questiontemplate);
+			$j = new Job($batch, $template, $jc, $questiontemplateid);
 			$questions = $j->getPreviews();
 		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
@@ -258,8 +258,9 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
+		$questiontemplateid = Session::get('questiontemplateid');
 		try {
-			$j = new Job($batch, $template, $jc);
+			$j = new Job($batch, $template, $jc, $questiontemplateid);
 
 			$ids = $j->publish(true);
 

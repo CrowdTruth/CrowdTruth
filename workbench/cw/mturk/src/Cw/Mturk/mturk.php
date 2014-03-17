@@ -1,8 +1,8 @@
 <?php
 namespace Cw\Mturk;
-use Cw\Mturk\TurkAPI\MechanicalTurk;
-use Cw\Mturk\TurkAPI\Hit;
-use Cw\Mturk\TurkAPI\AMTException;
+use Cw\Mturk\Turkapi\MechanicalTurk;
+use Cw\Mturk\Turkapi\Hit;
+use Cw\Mturk\Turkapi\AMTException;
 use Sunra\PhpSimple\HtmlDomParser;
 use \Exception;
 use \Config;
@@ -53,7 +53,6 @@ class Mturk {
 		try {
 			if(is_null($this->mechanicalTurk)) 
 				$this->mechanicalTurk = new MechanicalTurk(Config::get('mturk::rooturl'), false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
-
 
 			// Platform
 			foreach($ids as $id){

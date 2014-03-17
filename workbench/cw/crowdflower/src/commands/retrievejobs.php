@@ -180,8 +180,6 @@ class RetrieveJobs extends Command {
 			// QuestionDictionary
 			$questionTemplate = QuestionTemplate::where('_id', $job->questionTemplate_id)->first();
 			$unit = Entity::where('_id', $aentity->unit_id)->first();
-
-			dd($aentity->unit_id);
 			$aentity->questionDictionary = $questionTemplate->getDictionary($unit, $aentity->content);
 
 			$aentity->save();
