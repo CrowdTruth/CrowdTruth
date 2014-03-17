@@ -1,12 +1,11 @@
-<?php
-namespace Cw\Crowdflower;
+<?php namespace Cw\Crowdflower;
 
 use \Exception;
 use \Config;
 use \App;
 use \View;
 use Cfapi\CFExceptions;
-use Cfapi\Job;
+//use Cfapi\Job;
 
 class Crowdflower {
 
@@ -29,7 +28,7 @@ class Crowdflower {
 	*/
 	public function publishJob($job, $sandbox){
 		try {
-			if(is_null($this->CFJob)) $this->CFJob = new Job(Config::get('crowdflower::apikey'));
+			if(is_null($this->CFJob)) $this->CFJob = new Cfapi\Job(Config::get('crowdflower::apikey'));
 			return $this->cfPublish($job, $sandbox);
 		} catch (CFExceptions $e) {
 			if(isset($id)) $this->undoCreation($id);
@@ -42,7 +41,7 @@ class Crowdflower {
 	*/
 	public function undoCreation($id){
 		if(!isset($id)) return;
-		if(is_null($this->CFJob)) $this->CFJob = new Job(Config::get('crowdflower::apikey'));
+		if(is_null($this->CFJob)) $this->CFJob = new Cfapi\Job(Config::get('crowdflower::apikey'));
 		try {
 			$this->CFJob->cancelJob($id);
 			$this->CFJob->deleteJob($id);

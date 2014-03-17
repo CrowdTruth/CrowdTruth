@@ -3,11 +3,13 @@ namespace Cw\Crowdflower;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use crowdwatson\CFExceptions;
+use Cfapi\CFExceptions;
 use \MongoDB\Entity;
 use \MongoDB\CrowdAgent;
 use \MongoDB\Activity;
 use \MongoDB\Agent;
+use \QuestionTemplate;
+use \MongoDate;
 
 class RetrieveJobs extends Command {
 
@@ -51,7 +53,7 @@ class RetrieveJobs extends Command {
 				// We could check for each annotation and add it if somehow it didn't get added earlier.
 				// For this, we should add ifexists checks in the storeJudgment method.
 				$job = $this->getJob($this->option('jobid'));
-				$cf = new crowdwatson\Job(Config::get('config.cfapikey'));
+				$cf = new crowdwatson\Job(Config::get('crowdflower::apikey'));
 
 				$judgments = ''; //todo			
 			}
@@ -174,6 +176,13 @@ class RetrieveJobs extends Command {
 			$aentity->submitTime = new MongoDate(strtotime($judgment['created_at']));
 			$aentity->cfTrust = $judgment['trust'];
 			$aentity->content = $judgment['data'];
+
+			// QuestionDictionary
+			$questionTemplate = QuestionTemplate::where('_id', $job->questionTemplate_id)->first();
+			$unit = Entity::where('_id', $aentity->unit_id)->first();
+
+			dd($aentity->unit_id);
+			$aentity->questionDictionary = $questionTemplate->getDictionary($unit, $aentity->content);
 
 			$aentity->save();
 

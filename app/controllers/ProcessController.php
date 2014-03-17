@@ -36,8 +36,9 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
+		$questiontemplate = Session::get('questiontemplate');
 
-		$j = new Job($batch, $template, $jc);
+		$j = new Job($batch, $template, $jc, $questiontemplate);
 		$questionids = array();
 		$goldfields = array();
 		$unitscount = count($batch->wasDerivedFrom);
@@ -71,11 +72,12 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
+		$questiontemplate = Session::get('questiontemplate');
 
 		$treejson = $this->makeDirTreeJSON($template, false);
 
 		try {
-			$j = new Job($batch, $template, $jc);
+			$j = new Job($batch, $template, $jc, $questiontemplate);
 			$questions = $j->getPreviews();
 		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
@@ -104,6 +106,7 @@ class ProcessController extends BaseController {
 		Session::forget('jobconf');
 		Session::forget('origjobconf');
 		Session::forget('template');
+		Session::forget('questiontemplateid');
 		Session::forget('batch');
 		return Redirect::to("process/batch");
 	}
@@ -161,6 +164,17 @@ class ProcessController extends BaseController {
 			$template = $ntemplate;
 			$origjobconf = 'jcid'; // TODO!
 
+
+
+		// FOR TESTING -> hardcoded questiontemplate. We need more of these.
+		$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . 'relation_direction/relation_direction_multiple.questiontemplate.json'), true);
+		$e = new QuestionTemplate;
+		$e->content = $testdata;
+		$e->save();
+		Session::put('questiontemplateid', $e->_id);
+		//
+
+
 			// DEFAULT VALUES
 			if(empty($jc->eventType)) $jc->eventType = 'HITReviewable'; 
 			if(empty($jc->frameheight)) $jc->frameheight = 650; 
@@ -213,9 +227,10 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
+		$questiontemplateid = Session::get('questiontemplateid');
 				
 		try {
-			$j = new Job($batch, $template, $jc);
+			$j = new Job($batch, $template, $jc, $questiontemplateid);
 			$ids = $j->publish();
 
 			$msg = "Ordered: <br><ul>";

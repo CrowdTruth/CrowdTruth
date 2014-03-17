@@ -12,17 +12,19 @@ class Job  {
     
     protected $jcid;
     protected $activityURI;
+    protected $questionTemplate_id;
 
     /**
     * @param $batch Batch
     * @param $template string just the name of the template
     * @param $jobConfiguration JobConfiguration
     */
-    public function __construct($batch, $template, $jobConfiguration){
+    public function __construct($batch, $template, $jobConfiguration, $questiontemplateid){
     	$this->batch = $batch;
     	$this->template = Config::get('config.templatedir') . $template;
     	$this->CFApiKey = Config::get('config.cfapikey');
     	$this->jobConfiguration = $jobConfiguration;
+    	$this->questionTemplate_id = $questiontemplateid;
     }
 
    
@@ -186,6 +188,7 @@ class Job  {
 			$entity->batch_id = $this->batch->_id;
 			$entity->softwareAgent_id = $platform;
 			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's!!!
+			$entity->questionTemplate_id = $this->questionTemplate_id;
 
 			$entity->unitsCount = $unitsCount;
 			$entity->annotationsCount = 0;

@@ -14,18 +14,13 @@
             ]
         }
     },
-    "replaceValues": [
-        {
-            "relation.noPrefix": [
-                {
-                    "cause": "causes"
-                },
-                {
-                    "contraindicate": "contraindicates"
-                }
-            ]
-        }
-    ],
+    "replaceValues": {
+        "relation_noPrefix":
+            {
+                "cause": "causes",
+                "contraindicate": "contraindicates"
+            }
+    },
     "question": [
         {
             "component": "label",
@@ -43,9 +38,9 @@
             "index": 0,
             "label": "Which of the following statements is EXPRESSED in the SENTENCE above?",
             "options": {
-                "{{terms_first_text}} {{relation_noprefix}} {{terms_second_text}}": "{{terms_first_text}} {{relation_noprefix}} {{terms_second_text}}",
-                "{{terms_second_text}} {{relation_noprefix}} {{terms_first_text}}": "{{terms_second_text}} {{relation_noprefix}} {{terms_first_text}}",
-                "no_relation": "-{{relation_noprefix}}- is NOT EXPRESSED between the two PHRASES"
+                "{{terms_first_text}} {{relation_noPrefix}} {{terms_second_text}}": "{{terms_first_text}} {{relation_noPrefix}} {{terms_second_text}}",
+                "{{terms_second_text}} {{relation_noPrefix}} {{terms_first_text}}": "{{terms_second_text}} {{relation_noPrefix}} {{terms_first_text}}",
+                "no_relation": "-{{relation_noPrefix}}- is NOT EXPRESSED between the two PHRASES"
             },
             "required": false,
             "gold": true

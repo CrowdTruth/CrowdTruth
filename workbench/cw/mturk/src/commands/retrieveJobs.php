@@ -3,11 +3,13 @@ namespace Cw\Mturk;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use crowdwatson\MechanicalTurk;
 use \MongoDB\Entity;
 use \MongoDB\CrowdAgent;
 use \MongoDB\Activity;
 use \MongoDB\Agent;
+use \MongoDate;
+use \QuestionTemplate;
+use \Log;
 
 class RetrieveJobs extends Command {
 
@@ -44,8 +46,8 @@ class RetrieveJobs extends Command {
 	public function fire()
 	{
 
-		print("Retrieving jobs....");
-		$turk = new MechanicalTurk;
+		print("Retrieving jobs....\r\n");
+		$turk = new Turkapi\MechanicalTurk;
 
 		// Todo optimize query.
 		$jobs = Entity::where('documentType', 'job')
@@ -162,6 +164,11 @@ class RetrieveJobs extends Command {
 
 								$annentity->content = $qidansarray;
 								$annentity->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
+								
+								// QuestionDictionary
+								$questionTemplate = QuestionTemplate::where('_id', $job->questionTemplate_id)->first();
+								$unit = Entity::where('_id', $uid)->first();
+								$annentity->questionDictionary = $questionTemplate->getDictionary($unit, $qidansarray);
 								$annentity->save();
 
 								$newannotationscount++;
