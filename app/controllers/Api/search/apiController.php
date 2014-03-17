@@ -1,6 +1,6 @@
 <?php
 
-namespace Api\v1;
+namespace Api\search;
 
 use \BaseController as BaseController;
 use \Input as Input;
@@ -106,7 +106,26 @@ class apiController extends BaseController {
 		   ]);			
 		}
 
-		$collection = $collection->skip($start)->take($limit)->get($only);
+		// return $collection = ["entries" => $collection->skip($start)->take($limit)->get($only)->toArray()];
+
+		if($orderBy = Input::get('orderBy')){
+			foreach($orderBy as $sortingColumnName => $sortingDirection)
+			{
+				$collection = $collection->orderBy($sortingColumnName, $sortingDirection);
+			}
+		}
+
+		$collection = $collection->paginate($limit, $only);
+		$pagination = $collection->links()->render();
+		$count = $collection->toArray();
+		unset($count['data']);
+		$documents = $collection->toArray()['data'];
+
+		return Response::json([
+			"count" => $count,
+			"pagination" => $pagination,
+			"documents" => $documents
+			]);
 
 		if(array_key_exists('getQueryLog', Input::all()))
 		{
@@ -119,7 +138,7 @@ class apiController extends BaseController {
 			return json_encode($collection->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		}
 
-		return Response::json($collection);
+		return Response::json($collection->toArray());
 
 	}
 

@@ -144,6 +144,14 @@ class FilesController extends BaseController {
 		return View::make('files.search.pages.v2', compact('mainSearchFilters'));
 	}
 
+	public function getZoek()
+	{
+		$facetedSearch = App::make('FacetedSearch');
+		$mainSearchFilters = $facetedSearch->getMainSearchFilters();
+
+		return View::make('files.search.pages.zoek', compact('mainSearchFilters'));
+	}
+
 	public function anyBatch(){
 		if(Input::has('batch_description'))
 		{

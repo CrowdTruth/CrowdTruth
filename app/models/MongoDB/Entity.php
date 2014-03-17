@@ -100,62 +100,7 @@ class Entity extends Moloquent {
 
         return 'entity/' . $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $inc;
     }     
-
-    // public static function generateIncrementedBaseURI($entity)
-    // {
-    //     if(is_null($entity->inc))
-    //     {
-    //         $lastMongoIncUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->max('inc');
-        
-    //         if(isset($lastMongoIncUsed)){
-    //             $entity->inc = $lastMongoIncUsed;
-    //         }
-    //     }
-
-    //     $entity->inc++;
-
-    //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $entity->inc;
-    // }    
-
-    // public static function generateIncrementedBaseURI($entity){
-    //     $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->orderBy('created_at', 'desc')->take(1)->get(array("_id"));
-
-    //     if(isset($lastMongoURIUsed[0])){
-    //         $lastMongoIDUsed = explode("/", $lastMongoURIUsed[0]['_id']);
-    //         $id = end($lastMongoIDUsed) + 1;
-    //     } else {
-    //         $id = 0;
-    //     }
-        
-    //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
-    // } 
-
-    // public static function generateIncrementedBaseURI($entity){
-    //     // if(Session::has('lastMongoIDUsed'))
-    //     // {
-    //     //     $id = (Session::get('lastMongoIDUsed') + 1);
-    //     //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
-    //     // }
-
-    //     $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->get(array("_id"));
-    //     if(is_object($lastMongoURIUsed)) {
-    //         $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
-    //             return $entity->_id;
-    //         }, SORT_NATURAL)->toArray();
-    //     }
-        
-    //     if(!end($lastMongoURIUsed)){
-    //         $id = 0;
-    //     } else {
-    //         $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
-    //         $id = end($lastMongoIDUsed) + 1;
-    //     }
-
-    //     // if($entity->documentType == "twrex-structured-sentence")
-    //     //     Session::put('lastMongoIDUsed', $id);
-       
-    //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
-    // }    
+  
 
     public static function validateEntity($entity){
         if(($entity->format == "text" || $entity->format == "image" || $entity->format == "video") == FALSE){
@@ -172,11 +117,10 @@ class Entity extends Moloquent {
 		{
             $collection->index('hash');
             $collection->index('domain');
-		    $collection->index('documentType');
-		    $collection->index('parent_id');		    
+		    $collection->index('documentType');    
 		    $collection->index('activity_id');
 		    $collection->index('user_id');
-		    $collection->index('ancestors');
+		    $collection->index('parents');
 		});
 	}
 
@@ -212,7 +156,7 @@ class Entity extends Moloquent {
     }
 
     public function wasDerivedFrom(){
-    	return $this->hasMany('\MongoDB\Entity', '_id', 'ancestors');
+    	return $this->hasMany('\MongoDB\Entity', '_id', 'parents');
     }
 
     public function wasAttributedToUserAgent(){
@@ -229,9 +173,9 @@ class Entity extends Moloquent {
 
     public function getWasDerivedFromAttribute()
     {
-        if(isset($this->ancestors))
+        if(isset($this->parents))
         {
-            return Entity::whereIn('_id', $this->ancestors)->remember(1)->get()->toArray();         
+            return Entity::whereIn('_id', $this->parents)->remember(1)->get()->toArray();         
         }
     } 
 }

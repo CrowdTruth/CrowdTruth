@@ -53,24 +53,6 @@ class Activity extends Moloquent {
         });
     }
 
-    // public static function generateIncrementedBaseURI($activity){
-    //     $lastMongoURIUsed = Activity::where('softwareAgent_id', $activity->softwareAgent_id)->get(array("_id"));
-    //     if(is_object($lastMongoURIUsed)) {
-    //         $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
-    //             return $entity->_id;
-    //         }, SORT_NATURAL)->toArray();
-    //     }
-
-    //     if(!end($lastMongoURIUsed)){
-    //         $id = 0;
-    //     } else {
-    //         $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
-    //         $id = end($lastMongoIDUsed) + 1;
-    //     }
-       
-    //     return 'activity' . '/' . $activity->softwareAgent_id . '/' . $id;
-    // }
-
     public static function generateIncrementedBaseURI($activity)
     {
         $lastMongoIncUsed = Activity::where('softwareAgent_id', $activity->softwareAgent_id)->count();

@@ -273,7 +273,7 @@ class TwrexStructurer {
 				$entity->domain = $parentEntity->domain;
 				$entity->format = $parentEntity->format;
 				$entity->documentType = "twrex-structured-sentence";
-				$entity->ancestors = array($parentEntity->_id);
+				$entity->parents = array($parentEntity->_id);
 				$entity->content = $twrexStructuredSentenceKeyVal;
 
 				unset($twrexStructuredSentenceKeyVal['properties']);
@@ -287,10 +287,7 @@ class TwrexStructurer {
 				$entity->forceDelete();
 				$status['error'][$title] = $e->getMessage();
 			}
-
 		}
-
-		// Session::forget('lastMongoIDUsed');
 
 		return $status;
 	}

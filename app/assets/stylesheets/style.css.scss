@@ -409,9 +409,19 @@ div.ColVis_catcher {
 	}
 }
 
-.datatable_content {
-	input {
-		width:100%;
+.documentTypesTabs {
+	.tab-pane {
+		thead {
+
+			th {cursor:pointer;}
+			.sorting { background: url('datatables/sort_both.png') no-repeat center right; }
+			.sorting_asc { background: url('datatables/sort_asc.png') no-repeat center right; }
+			.sorting_desc { background: url('datatables/sort_desc.png') no-repeat center right; }
+
+			input {
+				width:100%;
+			}
+		}
 	}
 }
 
@@ -419,4 +429,9 @@ div.ColVis_catcher {
 	tbody td:last-child {
 		text-align:center;
 	}
+}
+
+.cw_pagination .pagination {
+	margin:0 !important;
+	float:right;
 }

@@ -61,7 +61,7 @@ class apiController extends BaseController {
 
 			$entity = new Entity;
 			$entity->_id = null;
-			$entity->title = "random";
+			$entity->title = $data['title'];
 			$entity->format = $data['format'];
 			$entity->domain = $data['domain'];
 			$entity->documentType = $data['documentType'];
