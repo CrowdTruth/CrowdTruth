@@ -4,7 +4,6 @@ use \Exception;
 use \Config;
 use \App;
 use \View;
-use Cfapi\CFExceptions;
 //use Cfapi\Job;
 
 class Crowdflower {
@@ -30,7 +29,7 @@ class Crowdflower {
 		try {
 			if(is_null($this->CFJob)) $this->CFJob = new Cfapi\Job(Config::get('crowdflower::apikey'));
 			return $this->cfPublish($job, $sandbox);
-		} catch (CFExceptions $e) {
+		} catch (Cfapi\CFExceptions $e) {
 			if(isset($id)) $this->undoCreation($id);
 			throw new Exception($e->getMessage());
 		}	
@@ -45,7 +44,7 @@ class Crowdflower {
 		try {
 			$this->CFJob->cancelJob($id);
 			$this->CFJob->deleteJob($id);
-		} catch (CFExceptions $e) {
+		} catch (Cfapi\CFExceptions $e) {
 			throw new Exception($e->getMessage()); // Let Job take care of this
 		} 	
 
@@ -76,7 +75,7 @@ class Crowdflower {
 			}
 
 			if(empty($data['cml']))
-				throw new CFExceptions('CML file does not exist or is not readable.');
+				throw new Cfapi\CFExceptions('CML file does not exist or is not readable.');
 
 
 			/*if(!$sandbox) $data['auto_order'] = true; // doesn't seem to work */
@@ -99,24 +98,24 @@ class Crowdflower {
 				$csvresult = $this->CFJob->uploadInputFile($id, $csv);
 				unlink($csv); // DELETE temporary CSV.
 				if(isset($csvresult['result']['error']))
-					throw new CFExceptions("CSV: " . $csvresult['result']['error']['message']);
+					throw new Cfapi\CFExceptions("CSV: " . $csvresult['result']['error']['message']);
 				//print "\r\n\r\nCSVRESULT";
 				//print_r($csvresult);
 				$optionsresult = $this->CFJob->setOptions($id, array('options' => $options));
 				if(isset($optionsresult['result']['error']))
-					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
+					throw new Cfapi\CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
 				//print "\r\n\r\nOPTIONSRESULT";
 				//print_r($optionsresult);
 				$channelsresult = $this->CFJob->setChannels($id, array('cf_internal'));
 				if(isset($channelsresult['result']['error']))
-					throw new CFExceptions($channelsresult['result']['error']['message']); 
+					throw new Cfapi\CFExceptions($channelsresult['result']['error']['message']); 
 				//print "\r\n\r\nCHANNELSRESULT";
 				//print_r($channelsresult);
 				if(is_array($gold) and count($gold) > 0){
 					// TODO: Foreach? 
 					$goldresult = $this->CFJob->manageGold($id, array('check' => $gold[0]));
 					if(isset($goldresult['result']['error']))
-						throw new CFExceptions("Gold: " . $goldresult['result']['error']['message']);
+						throw new Cfapi\CFExceptions("Gold: " . $goldresult['result']['error']['message']);
 				//print "\r\n\r\nGOLDRESULT";
 				//print_r($goldresult);
 				}
@@ -124,7 +123,7 @@ class Crowdflower {
 				if(is_array($jc->countries) and count($jc->countries) > 0){
 					$countriesresult = $this->CFJob->setIncludedCountries($id, $jc->countries);
 					if(isset($countriesresult['result']['error']))
-						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
+						throw new Cfapi\CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
 				//print "\r\n\r\nCOUNTRIESRESULT";
 				//print_r($countriesresult);				
 				}
@@ -132,7 +131,7 @@ class Crowdflower {
 				if(!$sandbox){
 					$orderresult = $this->CFJob->sendOrder($id, count($job->batch->ancestors), array("cf_internal"));
 					if(isset($orderresult['result']['error']))
-						throw new CFExceptions("Order: " . $orderresult['result']['error']['message']);
+						throw new Cfapi\CFExceptions("Order: " . $orderresult['result']['error']['message']);
 				//print "\r\n\r\nORDERRESULT";
 				//print_r($orderresult);
 				//dd("\r\n\r\nEND");
@@ -145,12 +144,12 @@ class Crowdflower {
 				$err = $result['result']['error']['message'];
 				if(isset($err)) $msg = $err;
 				else $msg = 'Unknown error.';
-				throw new CFExceptions($msg);
+				throw new Cfapi\CFExceptions($msg);
 			}
 		} catch (ErrorException $e) {
 			if(isset($id)) $this->CFJob->deleteJob($id);
-			throw new CFExceptions($e->getMessage());
-		} catch (CFExceptions $e){
+			throw new Cfapi\CFExceptions($e->getMessage());
+		} catch (Cfapi\CFExceptions $e){
 			if(isset($id)) $this->CFJob->deleteJob($id);
 			throw $e;
 		} 
