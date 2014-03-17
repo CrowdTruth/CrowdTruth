@@ -20,7 +20,7 @@
 									<tr>
 										<td style="width:40%">
 											<div class='btn-group'>
-												<a class='btn btn-default btn-sm col-xs-9' href='{{ URL::to('files/view?' . $entity['_id']) }}'>
+												<a class='btn btn-default btn-sm col-xs-9' href='{{ URL::to('files/view?URI=' . $entity['_id']) }}'>
 													<i class='fa fa-file-text fa-fw'></i>
 													<span>{{ $entity['title'] }}</span>
 												</a>
