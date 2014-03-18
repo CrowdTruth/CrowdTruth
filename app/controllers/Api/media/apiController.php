@@ -28,6 +28,13 @@ class apiController extends BaseController {
 
 	public function anyPost()
 	{
+		if(!$data = Input::get('data'))
+		{
+			if(!$data = \Request::getContent())
+			{
+				return false;
+			}
+		}
 
 		$c = Input::get('collection', 'Entity');
 
@@ -38,64 +45,57 @@ class apiController extends BaseController {
 			$collection = $this->processFields($collection);
 		}
 
-		if($data = Input::get('data'))
-		{
-			$data = json_decode($data, true);
+		$data = json_decode($data, true);
+		$data['softwareAgent_id'] = strtolower($data['softwareAgent_id']);
 
-			// return $data;
-
-			try {
-				$this->createPostSoftwareAgent($data);
-			} catch (Exception $e) {
-				return serialize([$e->getMessage()]);
-			}
-
-			try {
-				$activity = new Activity;
-				$activity->softwareAgent_id = strtolower($data['softwareAgent_id']);
-				$activity->save();
-			} catch (Exception $e) {
-				// Something went wrong with creating the Activity
-				$activity->forceDelete();
-				return serialize([$e->getMessage()]);
-			}
-
-			$entity = new Entity;
-			$entity->_id = null;
-			$entity->title = $data['title'];
-			$entity->format = $data['format'];
-			$entity->domain = $data['domain'];
-			$entity->documentType = $data['documentType'];
-
-			if(isset($data['source']))
-			{
-				$entity->source = $data['source'];
-			}
-
-			if(isset($data['parents']))
-			{
-				$entity->parents = $data['parents'];
-			}			
-
-			$entity->content = $data['content'];
-
-			if(isset($data['hash']))
-			{
-				$entity->hash = $data['hash'];
-			}
-			else
-			{
-				$entity->hash = md5(serialize(array_flatten([$data['content']])));
-			}
-			
-			$entity->activity_id = $activity->_id;
-			$entity->save();
-
-			return Response::json($entity);
-
+		try {
+			$this->createPostSoftwareAgent($data);
+		} catch (Exception $e) {
+			return serialize([$e->getMessage()]);
 		}
 
-		return false;
+		try {
+			$activity = new Activity;
+			$activity->softwareAgent_id = $data['softwareAgent_id'];
+			$activity->save();
+		} catch (Exception $e) {
+			// Something went wrong with creating the Activity
+			$activity->forceDelete();
+			return serialize([$e->getMessage()]);
+		}
+
+		$entity = new Entity;
+		$entity->_id = null;
+		$entity->title = $data['title'];
+		$entity->format = $data['format'];
+		$entity->domain = $data['domain'];
+		$entity->documentType = $data['documentType'];
+
+		if(isset($data['source']))
+		{
+			$entity->source = $data['source'];
+		}
+
+		if(isset($data['parents']))
+		{
+			$entity->parents = $data['parents'];
+		}			
+
+		$entity->content = $data['content'];
+
+		if(isset($data['hash']))
+		{
+			$entity->hash = $data['hash'];
+		}
+		else
+		{
+			$entity->hash = md5(serialize(array_flatten([$data['content']])));
+		}
+		
+		$entity->activity_id = $activity->_id;
+		$entity->save();
+
+		return Response::json($entity);
 	}
 
 	public function createPostSoftwareAgent($data){
