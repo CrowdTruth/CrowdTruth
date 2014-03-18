@@ -12,6 +12,11 @@ class ProcessController extends BaseController {
 	}
 
 	public function getBatch() {
+
+		$job = Job::where('documentType', 'job')->where('softwareAgent_id', 'cf')->first();
+		dd($job);
+
+		
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 
@@ -142,16 +147,6 @@ class ProcessController extends BaseController {
 							->where('_id', Input::get('batch'))
 							->first();
 
-//			$batch->wasDerivedFromMany = $batch->wasDerivedFrom;
-			//dd('asdsad');
-			// if(isset($batch->ancestors)){
-			// 	// $batch->wasDerivedFromManyTest = 
-
-			// 	$batch->wasDerivedFromManyTest = \MongoDB\Entity::whereIn('_id', $batch->ancestors)->get()->toArray();
-
-			// 	// dd($batch->toArray());
-			// }			
-
 			Session::put('batch', serialize($batch));
 		
 		}
@@ -165,14 +160,13 @@ class ProcessController extends BaseController {
 			$origjobconf = 'jcid'; // TODO!
 
 
-
-		// FOR TESTING -> hardcoded questiontemplate. We need more of these.
-		$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . 'relation_direction/relation_direction_multiple.questiontemplate.json'), true);
-		$e = new QuestionTemplate;
-		$e->content = $testdata;
-		$e->save();
-		Session::put('questiontemplateid', $e->_id);
-		//
+			// FOR TESTING -> hardcoded questiontemplate. We need more of these.
+			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . 'relation_direction/relation_direction_multiple.questiontemplate.json'), true);
+			$e = new QuestionTemplate;
+			$e->content = $testdata;
+			$e->save();
+			Session::put('questiontemplateid', $e->_id);
+			//
 
 
 			// DEFAULT VALUES
@@ -189,21 +183,35 @@ class ProcessController extends BaseController {
 				$jc = new JobConfiguration(array_merge($jc->toArray(), Input::get()));	
 
 				// If leaving the details page...
-				If(Input::has('title')){
+				if(Input::has('title')){
 					$jc->answerfields = Input::get('answerfields', false);
+					
+					if($next == 'nextplatform'){
+						if(isset($jc->platform[0])){
+							$next = $jc->platform[0];
+						} else {
+							Session::flash('flashNotice', 'Please select a platform first');
+							Redirect::to("process/platform");
+						}
+					}
 				}
-
 				// If leaving the Platform page....:
 				if(Input::has('platform'))
 					$jc->platform = Input::get('platform', array());
+				
+				// After specific platform tab, call the method and determine which is next.
+				$pid = Input::get('platformid', false);
+				if($pid){
+					$platform = App::make($pid);
+					$jc = $platform->updateJobConf($jc);
 
-				if(Input::has('annotationsPerWorker'))
-					$jc->countries = Input::get('countries', array());
-
-				if(Input::has('qr')) {
-					$jc->addQualReq(Input::get('qr'));
-					if(Input::has('arp'))
-						$jc->addAssRevPol(Input::get('arp'));	
+					if($next == 'nextplatform'){
+						$nextindex = array_search($pid, $jc->platform) + 1;
+						if(array_key_exists($nextindex, $jc->platform))
+							$next = $jc->platform[$nextindex];
+						else
+							$next = 'submit';	
+					}				
 				}
 			}		
 		}
@@ -212,7 +220,6 @@ class ProcessController extends BaseController {
 		Session::put('template', $template);
 
 		try {
-			// NEXT is not working correctly for the PLATFORMS
 			return Redirect::to("process/$next");
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage()); // Todo: is this a good way? -> logging out due to timeout

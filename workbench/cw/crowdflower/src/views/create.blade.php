@@ -14,7 +14,8 @@
 						<h4>Choose platform-specific options</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::model($jobconf, array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postFormPart', 'submit'), 'method' => 'POST'))}}
+						{{ Form::model($jobconf, array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postFormPart', 'nextplatform'), 'method' => 'POST'))}}
+						<input type="hidden" name="platformid" value="cf" />
 						<div id="cf-div" style="padding: 10px;">
 							<fieldset>
 								<legend>CrowdFlower</legend> 

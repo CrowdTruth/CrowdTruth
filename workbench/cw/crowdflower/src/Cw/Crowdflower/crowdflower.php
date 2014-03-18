@@ -4,7 +4,10 @@ use \Exception;
 use \Config;
 use \App;
 use \View;
-//use Cfapi\Job;
+use \Input;
+use \Cw\Crowdflower\Cfapi\CFExceptions;
+use \Cw\Crowdflower\Cfapi\Job;
+//use Job;
 
 class Crowdflower {
 
@@ -18,8 +21,18 @@ class Crowdflower {
 		'annotationsPerWorker' => 'required|numeric|min:1'
 	);
 
+	public function __construct(){
+		$this->CFJob = new Job(Config::get('crowdflower::apikey'));
+	}
+		
 	public function createView(){
 		return View::make('crowdflower::create');
+	}
+
+	public function updateJobConf($jc){
+		if(Input::has('annotationsPerWorker'))
+			$jc->countries = Input::get('countries', array());
+		return $jc;
 	}
 
 	/**
@@ -27,9 +40,8 @@ class Crowdflower {
 	*/
 	public function publishJob($job, $sandbox){
 		try {
-			if(is_null($this->CFJob)) $this->CFJob = new Cfapi\Job(Config::get('crowdflower::apikey'));
 			return $this->cfPublish($job, $sandbox);
-		} catch (Cfapi\CFExceptions $e) {
+		} catch (CFExceptions $e) {
 			if(isset($id)) $this->undoCreation($id);
 			throw new Exception($e->getMessage());
 		}	
@@ -40,11 +52,10 @@ class Crowdflower {
 	*/
 	public function undoCreation($id){
 		if(!isset($id)) return;
-		if(is_null($this->CFJob)) $this->CFJob = new Cfapi\Job(Config::get('crowdflower::apikey'));
 		try {
 			$this->CFJob->cancelJob($id);
 			$this->CFJob->deleteJob($id);
-		} catch (Cfapi\CFExceptions $e) {
+		} catch (CFExceptions $e) {
 			throw new Exception($e->getMessage()); // Let Job take care of this
 		} 	
 
@@ -60,7 +71,7 @@ class Crowdflower {
 		$data = $this->jobConfToCFData($jc);	
 		$csv = $this->batchToCSV($job->batch);
 		$gold = $jc->answerfields;
-		
+
 		$options = array(	"req_ttl_in_seconds" => $jc->expirationInMinutes*60, 
 							"keywords" => $jc->requesterAnnotation, 
 							"mail_to" => $jc->notificationEmail);
@@ -75,7 +86,7 @@ class Crowdflower {
 			}
 
 			if(empty($data['cml']))
-				throw new Cfapi\CFExceptions('CML file does not exist or is not readable.');
+				throw new CFExceptions('CML file does not exist or is not readable.');
 
 			/*if(!$sandbox) $data['auto_order'] = true; // doesn't seem to work */
 
@@ -97,24 +108,24 @@ class Crowdflower {
 				$csvresult = $this->CFJob->uploadInputFile($id, $csv);
 				unlink($csv); // DELETE temporary CSV.
 				if(isset($csvresult['result']['error']))
-					throw new Cfapi\CFExceptions("CSV: " . $csvresult['result']['error']['message']);
+					throw new CFExceptions("CSV: " . $csvresult['result']['error']['message']);
 				//print "\r\n\r\nCSVRESULT";
 				//print_r($csvresult);
 				$optionsresult = $this->CFJob->setOptions($id, array('options' => $options));
 				if(isset($optionsresult['result']['error']))
-					throw new Cfapi\CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
+					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
 				//print "\r\n\r\nOPTIONSRESULT";
 				//print_r($optionsresult);
 				$channelsresult = $this->CFJob->setChannels($id, array('cf_internal'));
 				if(isset($channelsresult['result']['error']))
-					throw new Cfapi\CFExceptions($channelsresult['result']['error']['message']); 
+					throw new CFExceptions($channelsresult['result']['error']['message']); 
 				//print "\r\n\r\nCHANNELSRESULT";
 				//print_r($channelsresult);
 				if(is_array($gold) and count($gold) > 0){
 					// TODO: Foreach? 
 					$goldresult = $this->CFJob->manageGold($id, array('check' => $gold[0]));
 					if(isset($goldresult['result']['error']))
-						throw new Cfapi\CFExceptions("Gold: " . $goldresult['result']['error']['message']);
+						throw new CFExceptions("Gold: " . $goldresult['result']['error']['message']);
 				//print "\r\n\r\nGOLDRESULT";
 				//print_r($goldresult);
 				}
@@ -122,15 +133,15 @@ class Crowdflower {
 				if(is_array($jc->countries) and count($jc->countries) > 0){
 					$countriesresult = $this->CFJob->setIncludedCountries($id, $jc->countries);
 					if(isset($countriesresult['result']['error']))
-						throw new Cfapi\CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
+						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
 				//print "\r\n\r\nCOUNTRIESRESULT";
 				//print_r($countriesresult);				
 				}
 
-				if(!$sandbox){
-					$orderresult = $this->CFJob->sendOrder($id, count($job->batch->ancestors), array("cf_internal"));
+				if(!$sandbox and isset($csvresult)){
+					$orderresult = $this->CFJob->sendOrder($id, count($job->batch->parents), array("cf_internal"));
 					if(isset($orderresult['result']['error']))
-						throw new Cfapi\CFExceptions("Order: " . $orderresult['result']['error']['message']);
+						throw new CFExceptions("Order: " . $orderresult['result']['error']['message']);
 				//print "\r\n\r\nORDERRESULT";
 				//print_r($orderresult);
 				//dd("\r\n\r\nEND");
@@ -143,16 +154,55 @@ class Crowdflower {
 				$err = $result['result']['error']['message'];
 				if(isset($err)) $msg = $err;
 				else $msg = 'Unknown error.';
-				throw new Cfapi\CFExceptions($msg);
+				throw new CFExceptions($msg);
 			}
 		} catch (ErrorException $e) {
 			if(isset($id)) $this->CFJob->deleteJob($id);
-			throw new Cfapi\CFExceptions($e->getMessage());
-		} catch (Cfapi\CFExceptions $e){
+			throw new CFExceptions($e->getMessage());
+		} catch (CFExceptions $e){
 			if(isset($id)) $this->CFJob->deleteJob($id);
 			throw $e;
 		} 
     }
+
+
+    public function orderJob($id){
+    	$this->hasStateOrFail($id, 'unordered');
+		$result = $this->CFJob->sendOrder($id, count($job->batch->parents), array("cf_internal"));
+		if(isset($result['result']['error']))
+			throw new Exception("Order: " . $result['result']['error']['message']);
+	}
+
+	public function pauseJob($id){
+		$this->hasStateOrFail($id, 'running');
+		$result = $this->CFJob->pauseJob($id);
+		if(isset($result['result']['error']))
+			throw new Exception("Order: " . $result['result']['error']['message']);
+	}
+
+	public function resumeJob($id){
+		$this->hasStateOrFail($id, 'paused');
+		$result = $this->CFJob->resumeJob($id);
+		if(isset($result['result']['error']))
+			throw new Exception("Order: " . $result['result']['error']['message']);
+	}
+
+	public function cancelJob($id){
+		//$this->hasStateOrFail($id, 'running'); // Rules?
+		$result = $this->CFJob->cancelJob($id);
+		if(isset($result['result']['error']))
+			throw new Exception("Order: " . $result['result']['error']['message']);
+	}
+
+	private function hasStateOrFail($id, $state){
+		$result = $this->CFJob->readJob($id);
+
+		if(isset($result['result']['error']))
+			throw new Exception("Read Job: " . $result['result']['error']['message']);
+
+    	if($result['result']['state'] != $state)
+    		throw new Exception("Can't order job with status '{$result['result']['state']}'");
+	}
 
     private function jobConfToCFData($jc){
 		$data = array();

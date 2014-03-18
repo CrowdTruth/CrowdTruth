@@ -210,9 +210,9 @@ class Entity extends Moloquent {
 
     public function getWasDerivedFromAttribute()
     {
-        if(isset($this->ancestors))
+        if(isset($this->parents))
         {
-            return Entity::whereIn('_id', $this->ancestors)->remember(1)->get()->toArray();         
+            return Entity::whereIn('_id', $this->parents)->remember(1)->get()->toArray();         
         }
     }    
 }

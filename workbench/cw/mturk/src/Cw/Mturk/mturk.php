@@ -7,7 +7,7 @@ use Sunra\PhpSimple\HtmlDomParser;
 use \Exception;
 use \Config;
 use \View;
-
+use \Input;
 
 class Mturk {
 	protected $mechanicalTurk = null;
@@ -18,9 +18,54 @@ class Mturk {
 		'frameheight' => 'numeric|min:300' // not required because we have a default value.
 	);
 
+	public function __construct(){
+		$this->mechanicalTurk = new MechanicalTurk(Config::get('mturk::rooturl'), false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
+	}
 
 	public function createView(){
 		return View::make('mturk::create');
+	}
+
+	public function updateJobConf($jc){
+		// Qualification Requirements
+		$qr = Input::get('qr', false);
+		if($qr){
+			$qarray = array();
+			foreach($qr as $key=>$val){
+				if(array_key_exists('checked', $val)){
+					$qbuilder = array();
+					$qbuilder['QualificationTypeId'] 	= $key;
+					$qbuilder['Comparator'] 			= $val['comparator'];
+					if	($key=="00000000000000000071")  
+						$qbuilder['LocaleValue'] 		= $val['value'];
+					else							
+						$qbuilder['IntegerValue'] 		= $val['value'];
+			
+					$qarray[]=$qbuilder;
+				}
+			}
+			if(count($qarray)>0)
+				$jc->qualificationRequirement = $qarray;
+			else $jc->qualificationRequirement = null;
+		}
+		
+		// Assignment Review Policy
+		$arp = Input::get('arp', false);
+		if($arp){	
+			
+			$arpparams = array();
+			foreach ($arp as $key=>$val)
+				if(array_key_exists('checked', $val)) $arpparams[$key]=$val[0];
+			
+			// If there are no params, ARP = empty.
+			if(count($arpparams)>0)		
+				$jc->assignmentReviewPolicy = array(	'AnswerKey' => null, 
+														'Parameters' => $arpparams);
+			else $jc->assignmentReviewPolicy = null;
+		}
+
+		return $jc;
+
 	}
 
 	/**
@@ -28,8 +73,6 @@ class Mturk {
 	*/
 	public function publishJob($job, $sandbox){
 		try {
-			if(is_null($this->mechanicalTurk)) 
-				$this->mechanicalTurk = new MechanicalTurk(Config::get('mturk::rooturl'), false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
 			if($sandbox) $status = 'unordered';
 			else $status = 'running';
 			$ids = array();
@@ -51,9 +94,6 @@ class Mturk {
 	public function undoCreation($ids){
 		
 		try {
-			if(is_null($this->mechanicalTurk)) 
-				$this->mechanicalTurk = new MechanicalTurk(Config::get('mturk::rooturl'), false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
-
 			// Platform
 			foreach($ids as $id){
 				if(is_array($id) && isset($id['id'])) // This should be the case, since we created it this way.
@@ -184,6 +224,28 @@ class Mturk {
 
 		return $platformids;
 	}
+
+
+    public function orderJob($id){
+    	
+	}
+
+	public function pauseJob($id){
+		throw new Exception('AMT can\'t pause/resume.');
+	}
+
+	public function resumeJob($id){
+		throw new Exception('AMT can\'t pause/resume.');
+	}
+
+	public function cancelJob($id){
+		//$status = $this->mechanicalTurk->getHIT($hitid)->getHITStatus();
+		//if($status != 'Disposed')
+		foreach($id as $hitid){
+		 	$this->mechanicalTurk->forceExpireHIT($hitid);
+        }
+	}
+
 
 
 	private function jobConfToHIT($jc){

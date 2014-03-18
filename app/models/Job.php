@@ -4,7 +4,7 @@ use \MongoDB\Entity;
 use \MongoDB\Activity;
 use \MongoDB\SoftwareAgent;
 
-class Job  { 
+class Job extends Entity { 
     
     public $batch;
     public $template;
@@ -19,12 +19,12 @@ class Job  {
     * @param $template string just the name of the template
     * @param $jobConfiguration JobConfiguration
     */
-    public function __construct($batch, $template, $jobConfiguration, $questiontemplateid){
-    	$this->batch = $batch;
-    	$this->template = Config::get('config.templatedir') . $template;
+    public function __construct($batch = null, $template = null, $jobConfiguration = null, $questiontemplateid = null){
+    	if($batch) $this->batch = $batch;
+    	if($template) $this->template = Config::get('config.templatedir') . $template;
     	$this->CFApiKey = Config::get('config.cfapikey');
-    	$this->jobConfiguration = $jobConfiguration;
-    	$this->questionTemplate_id = $questiontemplateid;
+    	if($jobConfiguration) $this->jobConfiguration = $jobConfiguration;
+    	if($questiontemplateid) $this->questionTemplate_id = $questiontemplateid;
     }
 
    
@@ -54,6 +54,38 @@ class Job  {
 			//throw new Exception($e->getMessage() . " Jobs(s) not created.");
 		}
 
+    }
+
+    public function order(){
+    	$this->getPlatform()->orderJob($this->platformJobId);
+    	$this->status = 'running';
+    	$this->save();
+    	return true;
+    }
+
+    public function pause(){
+    	$this->getPlatform()->pauseJob($this->platformJobId);
+    	$this->status = 'paused';
+    	$this->save();
+    }
+
+    public function resume(){
+    	$this->getPlatform()->resumeJob($this->platformJobId);
+    	$this->status = 'running';
+    	$this->save();
+    }
+
+    public function cancel(){
+    	$this->getPlatform()->cancelJob($this->platformJobId);
+    	$this->status = 'cancelled';
+    	$this->save();
+    }
+
+    private function getPlatform(){
+    	if(!isset($this->softwareAgent_id) or (!isset($this->platformJobId)))
+    		throw new Exception('Can\'t order Job that has not yet been uploaded to a platform.');
+
+    	return App::make($this->softwareAgent_id);
     }
 
     /** 
