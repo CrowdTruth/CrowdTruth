@@ -6,6 +6,7 @@ use \BaseController as BaseController;
 use \Input as Input;
 use \URL as URL;
 use \Response as Response;
+use \Exception as Exception;
 
 use \MongoDB\Repository as Repository;
 use \MongoDB\Entity as Entity;
