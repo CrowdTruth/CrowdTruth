@@ -65,8 +65,17 @@ class apiController extends BaseController {
 			$entity->format = $data['format'];
 			$entity->domain = $data['domain'];
 			$entity->documentType = $data['documentType'];
-			$entity->source = $data['source'];
-			$entity->ancestors = $data['ancestors'];
+
+			if(isset($data['source']))
+			{
+				$entity->source = $data['source'];
+			}
+
+			if(isset($data['parents']))
+			{
+				$entity->parents = $data['parents'];
+			}			
+
 			$entity->content = $data['content'];
 
 			if(isset($data['hash']))
