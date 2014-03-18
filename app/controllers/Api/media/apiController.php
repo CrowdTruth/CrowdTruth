@@ -44,6 +44,9 @@ class apiController extends BaseController {
     	{
 			$collection = $this->processFields($collection);
 		}
+			
+		if(empty($data))
+			return false;
 
 		$data = json_decode($data, true);
 		$data['softwareAgent_id'] = strtolower($data['softwareAgent_id']);
