@@ -61,8 +61,8 @@ class Entity extends Moloquent {
 
         static::saving(function($entity)
         {
+            $entity->format = strtolower($entity->format);            
             $entity->domain = strtolower($entity->domain);
-            $entity->format = strtolower($entity->format);
             $entity->documentType = strtolower($entity->documentType);
 
             static::validateEntity($entity);         
@@ -107,7 +107,7 @@ class Entity extends Moloquent {
             throw new Exception("Entity has a wrong value \"{$entity->format}\" for the format field");
         }
 
-        if(($entity->domain == "medical" || $entity->domain == "news" || $entity->domain == "cultural") == FALSE){
+        if(($entity->domain == "medical" || $entity->domain == "news" || $entity->domain == "cultural" || $entity->domain == "art") == FALSE){
             throw new Exception("Entity has a wrong value \"{$entity->domain}\" for the domain field");
         }
     }

@@ -52,7 +52,7 @@ class apiController extends BaseController {
 
 			try {
 				$activity = new Activity;
-				$activity->softwareAgent_id = $data['softwareAgent_id'];
+				$activity->softwareAgent_id = strtolower($data['softwareAgent_id']);
 				$activity->save();
 			} catch (Exception $e) {
 				// Something went wrong with creating the Activity
