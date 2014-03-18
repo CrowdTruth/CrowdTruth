@@ -1,6 +1,6 @@
 <?php
 
-namespace Api\video;
+namespace Api\media;
 
 use \BaseController as BaseController;
 use \Input as Input;
@@ -44,7 +44,7 @@ class apiController extends BaseController {
 			// return $data;
 
 			try {
-				$this->createPostSoftwareAgent($data['softwareAgent_id']);
+				$this->createPostSoftwareAgent($data);
 			} catch (Exception $e) {
 				return serialize([$e->getMessage()]);
 			}
@@ -68,89 +68,46 @@ class apiController extends BaseController {
 			$entity->source = $data['source'];
 			$entity->ancestors = $data['ancestors'];
 			$entity->content = $data['content'];
-			$entity->hash = $data['hash'];
+
+			if(isset($data['hash']))
+			{
+				$entity->hash = $data['hash'];
+			}
+			else
+			{
+				$entity->hash = md5(serialize(array_flatten([$data['content']])));
+			}
+			
 			$entity->activity_id = $activity->_id;
 			$entity->save();
-			return $entity;
 
+			return Response::json($entity);
 
-			dd('end');
-			$collection->update($data, array('upsert' => true));
-
-			// foreach($data as $dataKey => $dataValue)
-			// {
-			// 	$dataValue = json_decode($dataValue, true);
-
-			// 	dd($dataValue);
-
-			// 	$collection->update($dataKey, $dataValue);
-			// }
 		}
 
-		return $collection->get();
+		return false;
 	}
 
-	public function store($format, $domain, $documentType, $ancestors, $content)
-	{
+	public function createPostSoftwareAgent($data){
+		if(isset($data['softwareAgent_id']))
+		{
+			if(!\MongoDB\SoftwareAgent::find($data['softwareAgent_id']))
+			{
+				$softwareAgent = new \MongoDB\SoftwareAgent;
+				$softwareAgent->_id = strtolower($data['softwareAgent_id']);
 
-		$status = array();
+				if(isset($data['softwareAgent_label']))
+				{
+					$softwareAgent->label = $data['softwareAgent_label'];
+				}
 
-		try {
-			$this->createPostSoftwareAgent();
-		} catch (Exception $e) {
-			return serialize([$e->getMessage()]);
-		}
-
-		try {
-			$activity = new Activity;
-			$activity->softwareAgent_id = $data['softwareAgent_id'];
-			$activity->save();
-
-		} catch (Exception $e) {
-			// Something went wrong with creating the Activity
-			$activity->forceDelete();
-			return serialize([$e->getMessage()]);
-		}
-
-		foreach($twrexStructuredSentences as $twrexStructuredSentenceKey => $twrexStructuredSentenceKeyVal){
-			$title = $parentEntity->title . "_index_" . $twrexStructuredSentenceKey;
-
-			try {
-				$entity = new Entity;
-				$entity->_id = $entity->_id;
-				$entity->title = strtolower($title);
-				$entity->domain = $parentEntity->domain;
-				$entity->format = $parentEntity->format;
-				$entity->documentType = "twrex-structured-sentence";
-				$entity->ancestors = array($parentEntity->_id);
-				$entity->content = $twrexStructuredSentenceKeyVal;
-
-				unset($twrexStructuredSentenceKeyVal['properties']);
-				$entity->hash = md5(serialize($twrexStructuredSentenceKeyVal));
-				$entity->activity_id = $activity->_id;
-				$entity->save();
-
-				$status['success'][$title] = $title . " was successfully processed into a twrex-structured-sentence. (URI: {$entity->_id})";
-			} catch (Exception $e) {
-				// Something went wrong with creating the Entity
-				$entity->forceDelete();
-				$status['error'][$title] = $e->getMessage();
+				$softwareAgent->save();
 			}
 
+			return true;
 		}
 
-		// Session::forget('lastMongoIDUsed');
-
-		return $status;
-	}
-
-	public function createPostSoftwareAgent($softwareAgent_id){
-		if(!\MongoDB\SoftwareAgent::find($softwareAgent_id))
-		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
-			$softwareAgent->_id = strtolower($softwareAgent_id);
-			$softwareAgent->save();
-		}
+		Throw new Exception("Error creating SoftwareAgent");
 	}
 
 	protected function processFields($collection)
