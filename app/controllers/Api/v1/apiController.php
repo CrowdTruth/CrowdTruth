@@ -191,7 +191,7 @@ class apiController extends BaseController {
 		return $collection->skip($start)->take($limit)->sum($specificField);		
 	}
 
-	public function getCount($specificField = null)
+	public function getCount()
 	{
 		$c = Input::get('collection', 'Entity');
 
@@ -205,7 +205,7 @@ class apiController extends BaseController {
 		$start = (int) Input::get('start', 0);
 		$limit = (int) Input::get('limit', 100);
 
-		return $collection->skip($start)->take($limit)->count($specificField);
+		return $collection->skip($start)->take($limit)->count();
 	}
 
 	public function anyPost()
