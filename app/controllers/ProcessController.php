@@ -81,7 +81,7 @@ class ProcessController extends BaseController {
 		$batch = unserialize(Session::get('batch'));
 		$questiontemplateid = Session::get('questiontemplateid');
 		$treejson = $this->makeDirTreeJSON($template, false);
-dd($questiontemplateid);
+		
 		try {
 			$questions = array();//$j->getPreviews();
 		} catch (Exception $e) {
