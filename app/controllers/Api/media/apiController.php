@@ -82,7 +82,7 @@ class apiController extends BaseController {
 		if(isset($data['parents']))
 		{
 			$entity->parents = $data['parents'];
-		}			
+		}
 
 		$entity->content = $data['content'];
 

@@ -123,6 +123,91 @@ class apiController extends BaseController {
 
 	}
 
+	public function getMin($specificField = null)
+	{
+		$c = Input::get('collection', 'Entity');
+
+		$collection = $this->repository->returnCollectionObjectFor($c);
+
+    	if(Input::has('field'))
+    	{
+			$collection = $this->processFields($collection);
+		}
+
+		$start = (int) Input::get('start', 0);
+		$limit = (int) Input::get('limit', 100);
+
+		return $collection->skip($start)->take($limit)->min($specificField);		
+	}
+
+	public function getMax($specificField = null)
+	{
+		$c = Input::get('collection', 'Entity');
+
+		$collection = $this->repository->returnCollectionObjectFor($c);
+
+    	if(Input::has('field'))
+    	{
+			$collection = $this->processFields($collection);
+		}
+
+		$start = (int) Input::get('start', 0);
+		$limit = (int) Input::get('limit', 100);
+
+		return $collection->skip($start)->take($limit)->max($specificField);				
+	}
+
+	public function getAvg($specificField = null)
+	{
+		$c = Input::get('collection', 'Entity');
+
+		$collection = $this->repository->returnCollectionObjectFor($c);
+
+    	if(Input::has('field'))
+    	{
+			$collection = $this->processFields($collection);
+		}
+
+		$start = (int) Input::get('start', 0);
+		$limit = (int) Input::get('limit', 100);
+
+		return $collection->skip($start)->take($limit)->avg($specificField);		
+	}
+
+	public function getSum($specificField = null)
+	{
+		$c = Input::get('collection', 'Entity');
+
+		$collection = $this->repository->returnCollectionObjectFor($c);
+
+    	if(Input::has('field'))
+    	{
+			$collection = $this->processFields($collection);
+		}
+
+		$start = (int) Input::get('start', 0);
+		$limit = (int) Input::get('limit', 100);
+
+		return $collection->skip($start)->take($limit)->sum($specificField);		
+	}
+
+	public function getCount($specificField = null)
+	{
+		$c = Input::get('collection', 'Entity');
+
+		$collection = $this->repository->returnCollectionObjectFor($c);
+
+    	if(Input::has('field'))
+    	{
+			$collection = $this->processFields($collection);
+		}
+
+		$start = (int) Input::get('start', 0);
+		$limit = (int) Input::get('limit', 100);
+
+		return $collection->skip($start)->take($limit)->count($specificField);
+	}
+
 	public function anyPost()
 	{
 		$c = Input::get('collection', 'Entity');
