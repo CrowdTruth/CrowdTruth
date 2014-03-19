@@ -130,7 +130,7 @@ class Crowdflower {
 				//print_r($goldresult);
 				}
 
-				if(isset($jc['countries'] and is_array($jc->content['countries']) and count($jc->content['countries']) > 0){
+				if(isset($jc['countries']) and is_array($jc->content['countries']) and count($jc->content['countries']) > 0){
 					$countriesresult = $this->CFJob->setIncludedCountries($id, $jc['countries']);
 					if(isset($countriesresult['result']['error']))
 						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
