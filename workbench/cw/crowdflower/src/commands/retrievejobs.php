@@ -3,7 +3,7 @@ namespace Cw\Crowdflower;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use Cfapi\CFExceptions;
+use Cw\Crowdflower\Cfapi\CFExceptions;
 use \MongoDB\Entity;
 use \MongoDB\CrowdAgent;
 use \MongoDB\Activity;
