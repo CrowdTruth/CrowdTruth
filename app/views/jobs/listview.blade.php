@@ -6,7 +6,9 @@
 <script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
 <script type="text/javascript" src="/custom_assets/dataretrieval.js"></script>	
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
+<script type="text/javascript" src="/custom_assets/angular-ui.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
+<link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
 @stop
 
 
@@ -15,75 +17,114 @@
 
 			<div  id="filtercolumn" class="col-md-3 ">
 			<!-- Left column for sorting -->
-				<div>
+				<div style="margin-top: 20px;">
 	               	<a href="/process"><button class="btn btn-success btn-lg" style="width: 100%; margin-bottom:10px;">Create Job</button></a>
 	            </div>
 
 				<div>
 	               	<button class="btn btn-primary btn-lg" style="width: 100%; margin-bottom:10px;" ng-click="analyze()">Analyse</button>
 	            </div>
-				<div class="panel panel-default">
+
+	            
+				
+				<div class="panel panel-default" style="margin-top: 10px;">
 					<div class="panel-heading">
-						<h3 class="panel-title">Sort by:</h3>
+						<h3 class="panel-title">Sort by
+							<span class="fa pull-right ng-class: {'fa-caret-down': !sortVisible, 'fa-caret-up': sortVisible }" ng-click="setSortVisible()"></span>
+						 </h3>
 					</div>
-					<div class="panel-body" id="annotationsPerUnit" style="border-bottom: 1px solid #eee">
-						<i class="fa fa-check-circle"></i> Completion <div class="pull-right"> <i ng-click="setSortDesc('completion')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('completion')" class="fa fa-caret-up"></i></div><br>
-					</div>
-					<div class="panel-body" id="totalCost" style="border-bottom: 1px solid #eee">
-						<i class="fa fa-dollar"></i> Projected cost <div class="pull-right"> <i ng-click="setSortDesc('projectedCost')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('projectedCost')" class="fa fa-caret-up"></i></div><br>
-					</div>
-					<div class="panel-body" id="created_at" style="border-bottom: 1px solid #eee">
-						<i class="fa fa-clock-o"></i> Created at <div class="pull-right"> <i ng-click="setSortDesc('created_at')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('created_at')" class="fa fa-caret-up"></i> </div><br>
-					</div>
-					<div class="panel-body" id="flaggedWorkers" style="border-bottom: 1px solid #eee">
-						<i class="fa fa-flag"></i> Flagged workers <div class="pull-right"> <i ng-click="setSortDesc('flaggedWorkers')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('flaggedWorkers')" class="fa fa-caret-up"></i></div><br>
-					</div>
-					<div class="panel-body" id="jobSize">
-						<i class="fa fa-gavel"></i> Job size <div class="pull-right"> <i ng-click="setSortDesc('unitsCount')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('unitsCount')" class="fa fa-caret-up"></i></div><br>
-					</div>
-					<div class="panel-body" id="jobSize">
-						<i class="fa fa-user"></i> Created by <div class="pull-right"> <i ng-click="setSortDesc('user_id')" class="fa fa-caret-down"></i>
-									<i ng-click="setSortAsc('user_id')" class="fa fa-caret-up"></i></div><br>
+					<div ng-show="sortVisible">
+						<div id="completion" class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'completion' };" style="border-bottom: 1px solid #eee">
+							<i class="fa fa-check-circle"></i> Completion <div class="pull-right"> <i ng-click="setSortDesc('completion')" class="fa fa-caret-down"></i>
+										<i ng-click="setSortAsc('completion')" class="fa fa-caret-up"></i></div>
+						</div>
+						<div id="projectedCost" class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'projectedCost' }" style="border-bottom: 1px solid #eee">
+							<i class="fa fa-dollar"></i> Projected cost <div class="pull-right"> <i ng-click="setSortDesc('projectedCost')" class="fa fa-caret-down"></i>
+										<i ng-click="setSortAsc('projectedCost')" class="fa fa-caret-up"></i></div>
+						</div>
+						<div id="created_at" class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'created_at'}" style="border-bottom: 1px solid #eee">
+							<i class="fa fa-clock-o"></i> Created at <div class="pull-right"> <i ng-click="setSortDesc('created_at')" class="fa fa-caret-down"></i>
+										<i ng-click="setSortAsc('created_at')" class="fa fa-caret-up"></i> </div>
+						</div>
+						<div id="flaggedWorkers" class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'flaggedWorkers' }" style="border-bottom: 1px solid #eee">
+							<i class="fa fa-flag"></i> Flagged workers <div class="pull-right"> <i ng-click="setSortDesc('flaggedWorkers')" class="fa fa-caret-down"></i>
+										<i ng-click="setSortAsc('flaggedWorkers')" class="fa fa-caret-up"></i></div>
+						</div>
+						<div id="unitsCount" class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'unitsCount' }" style="border-bottom: 1px solid #eee">
+							<i class="fa fa-gavel"></i> Job size <div class="pull-right"> <i ng-click="setSortDesc('unitsCount')" class="fa fa-caret-down"></i>
+										<i ng-click="setSortAsc('unitsCount')" class="fa fa-caret-up"></i></div>
+						</div>
+						<div class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'user_id' }" id="user_id">
+							<i class="fa fa-user"></i> Created by <div class="pull-right"> <i ng-click="setSortDesc('user_id')" class="fa fa-caret-down"></i>
+										<i ng-click="setSortAsc('user_id')" class="fa fa-caret-up"></i></div>
+						</div>
+						<div class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'domain' }" id="">
+							<i class="fa fa-fighter-jet"></i> Domain <div class="pull-right"> <i ng-click="setSortDesc('domain')" class="fa fa-caret-down"></i>
+										<i ng-click="setSortAsc('domain')" class="fa fa-caret-up"></i></div>
+						</div>
+						<div class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'format' }" id="">
+							<i class="fa fa-envelope-o"></i> Type <div class="pull-right"> <i ng-click="setSortDesc('format')" class="fa fa-caret-down"></i>
+										<i ng-click="setSortAsc('format')" class="fa fa-caret-up"></i></div>
+						</div>
+						<div class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'hasConfiguration.type' }" id="">
+							<i class="fa fa-file"></i> Task <div class="pull-right"> <i ng-click="setSortDesc('hasConfiguration.type')" class="fa fa-caret-down"></i>
+										<i ng-click="setSortAsc('hasConfiguration.type')" class="fa fa-caret-up"></i></div>
+						</div>
 					</div>
 				</div>
-
 			
 			<!-- Left column for filters -->
 				<div class="panel panel-default">
 					<div class="panel-heading">
-						<h3 class="panel-title">Filter:</h3>
+						<h3 class="panel-title">Filter
+						<span class="fa pull-right ng-class: {'fa-caret-down': !filterVisible, 'fa-caret-up': filterVisible }" ng-click="setFilterVisible()"></span>
+						</h3>
 					</div>
-					<div class="panel-body" style="border-bottom: 1px solid #eee">
-						<i class="fa fa-user"></i> <label> Created by: </label><br>
-						<input type="text" ng-keyup="setFilter()" ng-model="filter.username">
+					<div ng-show="filterVisible">
+						<div class="panel-body" style="border-bottom: 1px solid #eee">
+							<i class="fa fa-user"></i> Agent:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.username">
+						</div>
+						<div class="panel-body" style="border-bottom: 1px solid #eee">
+							<i class="fa fa-fighter-jet"></i> Domain:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.domain">
+						</div>
+						<div class="panel-body" style="border-bottom: 1px solid #eee">
+							<i class="fa fa-envelope-o"></i> Format:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.format">
+						</div>
+						<div class="panel-body" style="border-bottom: 1px solid #eee">
+							<i class="fa fa-file"></i> Template:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.hasConfiguration.type">
+						</div>
+						<div class="panel-body" style="border-bottom: 1px solid #eee">
+							<i class="fa fa-users"></i> Platform:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.softwareAgent_id">
+						</div>
+						<div class="panel-body" style="border-bottom: 1px solid #eee">
+							<i class="fa fa-check"></i> Status:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.status">
+						</div>
 					</div>
-					<!-- <div class="panel-body" style="border-bottom: 1px solid #eee">
-						<i class="fa fa-users"></i> {{Form::label('user', 'Platform:')}}<br>
-						{{Form::checkbox('')}} CrowdFlower<br>
-						{{Form::checkbox('')}} Amazon MTurk
-					</div>
-					<seperator/>
-					<div class="panel-body" style="border-bottom: 1px solid #eee">
-						<i class="fa fa-file"></i> {{Form::label('user', 'Template:')}}<br>
-						{{Form::checkbox('')}} Relation Direction<br>
-						{{Form::checkbox('')}} Relation Extraction<br>
-						{{Form::checkbox('')}} Factor Span
-					</div>
-					<div class="panel-body">
-						Domain, Type, Status (Running, Completed)
-					</div> -->
 				</div>
 			<!-- END OF LEFT COLUMN HERE -->
 			</div>
 
 			<!-- Main column with results -->
 			<div id="results" class="col-md-9">
-				@include('layouts.flashdata')	
+				@include('layouts.flashdata')
+				
+				<div class="row" style="margin-left:auto; margin-right:auto; width:100%; text-align: center;">
+					<div class="pull-left">
+						<pagination on-select-page="selectPage(page)" direction-links="true" boundary-links="true" total-items="results.total" page="pageNr" items-per-page="itemsPerPage.value" max-size="maxSize"></pagination>
+					</div>
+					<div class="pull-right" style="margin-top: 23px; margin-bottom: 20px;">
+						<select ng-model="itemsPerPage" ng-change="setPerPage()" ng-options="options.value for options in optionsPerPage">
+							<option value="">--# per page--</option>
+						</select>
+					</div>
+				</div>	
+
 						<div class="panel panel-default" ng-repeat="result in results.data">
 						<!-- Top row is panel heading with creation date and creator -->
 						<div class="panel-heading clearfix">
@@ -93,12 +134,15 @@
 	              			<div style="float:left;">
 	              				Created on @{{result.created_at}} by @{{result.wasAttributedToUserAgent.username}}
 		              		</div>
-			           		<div class="pull-right" style="width: 33%;">
+          		     		<div class="pull-right" style="width: 33%;">
 			           			<div class="progress" style="margin-bottom: 0px;">	
 			           				<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="@{{result.completion * 100}}" aria-valuemin="0" aria-valuemax="100" style="width: @{{result.completion * 100}}% ;">
 		   								<span class="sr-only">@{{result.completion * 100}}% Complete</span>
 		  							</div>
 		              			</div>
+		              		</div>
+		              		<div class="pull-right" style="width: 10%; padding-right: 10px;">
+		              			<strong>@{{result.status}}</strong>
 		              		</div>
 	               		</div>
 	               		<!-- First content row with title and description of the ct and the elapsed time -->
@@ -165,14 +209,15 @@
 									<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>Actions
 						    			<span class="caret"></span>
 					   				</button>
-					 				<ul class="dropdown-menu" role="menu">
-					       				<li><a href="#"><i class="fa fa-folder-open fa-fw"></i>Pause Job</a></li>
-					       				<li><a href=""><i class="fa fa-sign-out fa-fw"></i>Cancel Job</a></li>
+					 				<!-- <ul class="dropdown-menu" role="menu">
+					       				<li><a ng-click="pauseJob()" ng-show="result.status == 'running'"><i class="fa fa-folder-open fa-fw"></i>Pause Job</a></li>
+					       				<li><a ng-click="startJob()" ng-show="result.status == 'cancelled' | 'paused'"><i class="fa fa-folder-open fa-fw"></i>Start Job</a></li>
+					       				<li><a ng-click="cancelJob()" ng-show="result.status != 'cancelled' "><i class="fa fa-sign-out fa-fw"></i>Cancel Job</a></li>
 					       				<li class="divider"></li>
-					       				<li><a href=""><i class="fa fa-sign-out fa-fw"></i>Duplicate Job</a></li>
-					       				<li><a href=""><i class="fa fa-sign-out fa-fw"></i>Delete Job</a></li>
+					       				<li><a ng-click="duplicateJob()"><i class="fa fa-sign-out fa-fw"></i>Duplicate Job</a></li>
+					       				<li><a ng-click="deleteJob()"><i class="fa fa-sign-out fa-fw"></i>Delete Job</a></li>
 					   				</ul>
-								</div>
+ -->								</div>
 							</div>
 						</div>								
 					<!--End of panel  -->

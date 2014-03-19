@@ -1,0 +1,16 @@
+.panel-nav-bar {
+	padding: 10px;
+	
+}
+
+.panel-nav-bar:hover {
+	background: #5cb85c;
+}
+
+.panel-nav-bar-active {
+	background: #428bca;
+	color: #FFF;
+}
+
+/*The following if or Angular-UI pagination to work succesfully*/
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
