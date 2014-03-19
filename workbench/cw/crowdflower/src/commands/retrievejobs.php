@@ -9,6 +9,7 @@ use \MongoDB\CrowdAgent;
 use \MongoDB\Activity;
 use \MongoDB\Agent;
 use \Job;
+use \Log;
 use \QuestionTemplate;
 use \MongoDate;
 
