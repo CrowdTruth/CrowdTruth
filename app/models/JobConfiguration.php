@@ -1,7 +1,7 @@
 <?php
 
-use \mongoDB\Entity;
-use \mongoDB\Activity;
+use \MongoDB\Entity;
+use \MongoDB\Activity;
 
 class JobConfiguration extends Entity {
 	protected $guarded = array();

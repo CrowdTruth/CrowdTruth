@@ -153,7 +153,7 @@ class Crowdflower {
 			} else {
 				$err = $result['result']['error']['message'];
 				if(isset($err)) $msg = $err;
-				else $msg = 'Unknown error.';
+				else $msg = 'Unknown error. Is the Crowdflower API key set correctly?';
 				throw new CFExceptions($msg);
 			}
 		} catch (ErrorException $e) {

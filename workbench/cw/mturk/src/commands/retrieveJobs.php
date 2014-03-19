@@ -112,6 +112,7 @@ class RetrieveJobs extends Command {
 								foreach($annentities as $annentity){
 									$annentity->status = $annnewstatus;
 									$annentity->update();
+									print "Status changed to $annnewstatus.";
 								}
 
 								Log::debug("Status of Annotation {$annentity->_id} changed from $annoldstatus to $annnewstatus");

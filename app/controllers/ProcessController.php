@@ -81,7 +81,7 @@ class ProcessController extends BaseController {
 		$batch = unserialize(Session::get('batch'));
 		$questiontemplateid = Session::get('questiontemplateid');
 		$treejson = $this->makeDirTreeJSON($template, false);
-
+dd($questiontemplateid);
 		try {
 			$questions = array();//$j->getPreviews();
 		} catch (Exception $e) {
@@ -164,11 +164,25 @@ class ProcessController extends BaseController {
 			$origjobconf = 'jcid'; // TODO!
 
 			// FOR TESTING -> hardcoded questiontemplate. We need more of these.
+			
+
+
+
 			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . 'relation_direction/relation_direction_multiple.questiontemplate.json'), true);
-			$e = new QuestionTemplate;
-			$e->content = $testdata;
-			$e->save();
-			Session::put('questiontemplateid', $e->_id);
+			$qt = new QuestionTemplate;
+			$qt->content = $testdata;
+
+			$hash = md5(serialize($qt->content));
+            $existing = QuestionTemplate::where('hash', $hash)->pluck('_id');
+            
+            if($existing) 
+                $qtid = $existing;// Stop saving, it already exists.
+            else{
+	            $qt->hash = $hash;
+				$qt->save();
+				$qtid = $qt->_id;
+			}
+			Session::put('questiontemplateid', $qtid);
 
 		} else {
 			if (empty($jc)){
@@ -278,8 +292,8 @@ class ProcessController extends BaseController {
 			}
 
 			// Success.
-			Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order yet' : 'and ordered') . " job(s) on " . 
-							strtoupper(implode(', ', $jc->content['platform'])));
+			Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
+							strtoupper(implode(', ', $jc->content['platform'])) . '.');
 			return Redirect::to("jobs/listview");
 
 		} catch (Exception $e) {

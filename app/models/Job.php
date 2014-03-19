@@ -104,7 +104,7 @@ class Job extends Entity {
 
     private function getPlatform(){
     	if(!isset($this->softwareAgent_id)) // and (!isset($this->platformJobId) !!! TODO
-    		throw new Exception('Can\'t order Job or cthat has not yet been uploaded to a platform.');
+    		throw new Exception('Can\'t order Job that has not yet been uploaded to a platform.');
 
     	return App::make($this->softwareAgent_id);
     }

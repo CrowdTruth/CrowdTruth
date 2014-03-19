@@ -19,15 +19,6 @@ class QuestionTemplate extends Entity {
 
         static::saving(function ( $questiontemplate )
         {
-            $hash = md5(serialize($questiontemplate->content));
-            $existing = QuestionTemplate::where('hash', $hash)->pluck('_id');
-            
-            if($existing) 
-                return false; // Stop saving, it already exists.
-
-            $questiontemplate->hash = $hash;
-
-
             if(empty($questiontemplate->activity_id)){
                 try {
                     $activity = new Activity;
