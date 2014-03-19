@@ -7,8 +7,8 @@
 							<li{{ (Request::segment(2) == 'platform' ? ' class="active"' : '') }} title='platform'>{{ link_to('process/platform', "3. Platform") }}</li>
 							<li{{ (Request::segment(2) == 'details' ? ' class="active"' : '') }} title='details'>{{ link_to('process/details', "4. Job Details") }}</li>
 							<?php $count = 0; ?>
-							@if(isset($jobconf) && isset($jobconf->platform))
-								@foreach ($jobconf->platform as $p)
+							@if(isset($jobconf) && isset($jobconf['platform']))
+								@foreach ($jobconf['platform'] as $p)
 								<?php $count++; $link = "process/$p"; $ptoupper = strtoupper($p); ?>
 							<li{{ (Request::segment(2) == $p ? ' class="active"' : '') }} title="{{$p}}">{{ link_to($link, "5.$count Platform: $ptoupper") }}</li>
 								@endforeach

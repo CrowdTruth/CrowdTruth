@@ -6,61 +6,82 @@ use \MongoDB\SoftwareAgent;
 
 class Job extends Entity { 
     
-    public $batch;
-    public $template;
-    public $jobConfiguration;
-    
+   // public $batch;
+  //  public $template;
+    //public $jobConfiguration;
+/*    
     protected $jcid;
     protected $activityURI;
-    protected $questionTemplate_id;
+    protected $questionTemplate_id;*/
+	protected $attributes = array(  'format' => 'text', 
+                                    'domain' => 'medical', 
+                                    'documentType' => 'job', 
+                                    'type' => 'todo');
 
-    /**
-    * @param $batch Batch
-    * @param $template string just the name of the template
-    * @param $jobConfiguration JobConfiguration
-    */
-    public function __construct($batch = null, $template = null, $jobConfiguration = null, $questiontemplateid = null){
-    	if($batch) $this->batch = $batch;
-    	if($template) $this->template = Config::get('config.templatedir') . $template;
-    	$this->CFApiKey = Config::get('config.cfapikey');
-    	if($jobConfiguration) $this->jobConfiguration = $jobConfiguration;
-    	if($questiontemplateid) $this->questionTemplate_id = $questiontemplateid;
-    }
+	public static function boot ()
+    {
+        parent::boot();
 
-   
-    public function publish($sandbox = false){
-		
-		if(isset($this->jobConfiguration->platform)) $platforms = $this->jobConfiguration->platform;
-		else $platforms = array();
-		$ids = array();
+        static::saving(function ( $job )
+        {
 
 		try {
-
-			$this->createSoftwareAgent('jobcreator');
-			$this->activityURI = $this->createActivity($platforms);
-			$this->jcid = $this->jobConfiguration->store(null, $this->activityURI);
+			$job->createSoftwareAgent('jobcreator');
 			
-			foreach($platforms as $platformstring){
-				$platform = App::make($platformstring);
-				$ids[$platformstring]['platformjobid'] = $platform->publishJob($this, $sandbox);
-				$ids[$platformstring]['entity'] = $this->store($platformstring, $ids[$platformstring]['platformjobid'], $sandbox);
+			if(!isset($job->projectedCost)){
+				//$jobConfiguration = JobConfiguration::where('_id', $job->jobConf_id)->first(); 
+
+				$reward = $job->jobConfiguration->content['reward'];
+				$annotationsPerUnit = intval($job->jobConfiguration->content['annotationsPerUnit']);
+				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);
+				$unitsCount = count($job->batch->wasDerivedFrom);
+				$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
+
+				$job->unitsCount = $unitsCount;
+				$job->annotationsCount = 0;
+				$job->completion = 0.00; // 0.00-1.00
+				$job->projectedCost = $projectedCost;
 			}
 
-			return $ids;
-
+			if(empty($job->activity_id)){
+		    	$activity = new Activity;
+				$activity->label = "Job is uploaded to crowdsourcing platform.";
+				$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB softwareAgent_id = $platform. Does this need to be the same?
+				$activity->save();
+				$job->activity_id = $activity->_id;
+			}
 		} catch (Exception $e) {
-			$this->undoCreation($ids, $e);
-			throw $e; // TODO this is for debugging
-			//throw new Exception($e->getMessage() . " Jobs(s) not created.");
+			// Something went wrong with creating the Entity
+			$job->forceDelete();
+			throw $e;
 		}
+             Log::debug("Saved entity {$job->_id} with activity {$job->activity_id}.");
+        });
 
+     } 
+
+   
+    /**
+    * @return ids
+    * @throws Exception
+    */
+    public function publish($sandbox = false){
+    	try {
+	    	$platformJobId = $this->getPlatform()->publishJob($this, $sandbox);
+	    	$this->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's!!!
+	    	$this->status = ($sandbox ? 'unordered' : 'running');
+	    	$this->save();
+    	} catch (Exception $e) {
+    		$this->undoCreation($this->platformJobId, $e);
+    		$this->forceDelete();
+			throw $e; 
+    	}
     }
 
     public function order(){
     	$this->getPlatform()->orderJob($this->platformJobId);
     	$this->status = 'running';
     	$this->save();
-    	return true;
     }
 
     public function pause(){
@@ -82,8 +103,8 @@ class Job extends Entity {
     }
 
     private function getPlatform(){
-    	if(!isset($this->softwareAgent_id) or (!isset($this->platformJobId)))
-    		throw new Exception('Can\'t order Job that has not yet been uploaded to a platform.');
+    	if(!isset($this->softwareAgent_id)) // and (!isset($this->platformJobId) !!! TODO
+    		throw new Exception('Can\'t order Job or cthat has not yet been uploaded to a platform.');
 
     	return App::make($this->softwareAgent_id);
     }
@@ -92,33 +113,17 @@ class Job extends Entity {
     * In case of exception: undo everything.
     * @throws Exception if even the undo isn't working. 
     */
-    private function undoCreation($ids, $error){
-    					
-    	Log::debug("Error in creating jobs. Id's: " . implode(', ', array_dot($ids)) . ". Attempting to delete jobs from crowdsourcing platform(s).");
+    private function undoCreation($ids, $error = null){
+    	// TODO use platformjobid.				
+    	Log::debug("Error in creating jobs. Id's: " . json_encode($ids) . ". Attempting to delete jobs from crowdsourcing platform(s).");
+    	
     	try {
-    		
-    		foreach($ids as $platformstring=>$id){
-/*    			print_r($platformstring);
-    			print_r($id);
-    			dd('$ids');*/
-    			if(isset($id['platformjobid'])){
-    				$platform = App::make($platformstring);
-    				$platform->undoCreation($id['platformjobid']);
-    			}
-
-    			if(isset($id['entity'])){
-					$entity = Entity::where('_id', $id['entity'])->first();
-					if($entity) $entity->forceDelete();
-    			}
-    		}
-    		
-    		$activity = Activity::where('_id', $this->activityURI)->first();
-			if($activity) $activity->forceDelete();
-
-		} catch (Exception $e){
+    		$this->getPlatform()->undoCreation($ids);
+    	} catch (Exception $e){
 
 			// This is bad.
-			$orige = $error->getMessage();
+			if($error) $orige = $error->getMessage();
+			else $orige = 'None.';
 			$newe = $e->getMessage();
 			throw new Exception("WARNING. There was an error in uploading the jobs. We could not undo all the steps. 
 				Please check the platforms manually and delete any uploaded jobs.
@@ -126,7 +131,7 @@ class Job extends Entity {
 				<br>Deletion error: $newe
 				<br>Please contact an administrator.");
 			Log::warning("Couldn't delete jobs. Please manually check the platforms and database.\r\nInitial exception: $orige
-				\r\nDeletion error: $newe\r\nActivity: {$this->activityURI}\r\nJob ID's: " . implode(', ', array_dot($ids)));
+				\r\nDeletion error: $newe\r\nActivity: {$this->activityURI}\r\nJob ID's: " . json_encode($ids));
 
 		}
     }
@@ -236,6 +241,18 @@ class Job extends Entity {
 			$entity->forceDelete();
 			throw $e;
 		}
+    }
+
+    public function jobConfiguration(){
+        return $this->hasOne('JobConfiguration', '_id', 'jobConf_id');
+    }
+
+    public function questionTemplate(){
+        return $this->hasOne('QuestionTemplate', '_id', 'questionTemplate_id');
+    }
+
+    public function batch(){
+        return $this->hasOne('Batch', '_id', 'batch_id');
     }
 
     private function createActivity($platforms){

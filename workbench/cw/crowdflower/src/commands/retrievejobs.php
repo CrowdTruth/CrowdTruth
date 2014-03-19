@@ -8,6 +8,7 @@ use \MongoDB\Entity;
 use \MongoDB\CrowdAgent;
 use \MongoDB\Activity;
 use \MongoDB\Agent;
+use \Job;
 use \QuestionTemplate;
 use \MongoDate;
 
@@ -103,7 +104,7 @@ class RetrieveJobs extends Command {
 			// TODO: robustness
 			// TODO: know bug: AnnotationsCount lags behind. 
 			$job->annotationsCount = intval($job->annotationsCount)+$newJudgmentsCount;
-			$jpu = intval(Entity::where('_id', $job->jobConf_id)->first()->content['annotationsPerUnit']);		
+			$jpu = intval($job->jobConfiguration->content['annotationsPerUnit']);		
 			$uc = intval($job->unitsCount);
 			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
 			else $job->completion = 0.00;
@@ -127,12 +128,12 @@ class RetrieveJobs extends Command {
 	* @throws CFExceptions when no job is found. 
 	*/
 	private function getJob($jobid){
-		if(!$job = Entity::where('documentType', 'job')
+		if(!$job = Job::where('documentType', 'job')
 					->where('softwareAgent_id', 'cf')
 					->where('platformJobId', intval($jobid)) /* Mongo queries are strictly typed! We saved it as int in Job->store */
 					->first())
 		{
-			$job = Entity::where('documentType', 'job')
+			$job = Job::where('documentType', 'job')
 				->where('softwareAgent_id', 'cf')
 				->where('platformJobId', (string) $jobid) /* Try this to be sure. */
 				->first();
@@ -178,9 +179,8 @@ class RetrieveJobs extends Command {
 			$aentity->content = $judgment['data'];
 
 			// QuestionDictionary
-			$questionTemplate = QuestionTemplate::where('_id', $job->questionTemplate_id)->first();
 			$unit = Entity::where('_id', $aentity->unit_id)->first();
-			$aentity->questionDictionary = $questionTemplate->getDictionary($unit, $aentity->content);
+			$aentity->questionDictionary = $job->questionTemplate->getDictionary($unit, $aentity->content);
 
 			$aentity->save();
 

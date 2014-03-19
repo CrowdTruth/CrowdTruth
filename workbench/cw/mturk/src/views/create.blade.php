@@ -52,8 +52,8 @@
 									$c = false; $o = 'EqualTo'; $t = '';
 									if($val=='Locale' || $val == 'Adult') $o = 'EqualTo';
 									if($val=='Adult') $t = '1';
-									if($jobconf->qualificationRequirement){
-											foreach($jobconf->qualificationRequirement as $q){
+									if($jobconf['qualificationRequirement']){
+											foreach($jobconf['qualificationRequirement'] as $q){
 												if($q['QualificationTypeId'] == $key){
 													$c = true;
 													if(isset($q['Comparator'])) 		$o = $q['Comparator'];
@@ -93,11 +93,11 @@
 								<legend>AMT Assignment Review Policy</legend>
 
 							<label>Actions to take with gold questions</label><br><br>
-							@if(empty($jobconf->answerfields))
+							@if(empty($jobconf['answerfields']))
 								<b>Note: </b>Please specify the gold fields in the details tab first!<br><br>
 							@else
 								<?php
-									$arp = $jobconf->assignmentReviewPolicy;
+									$arp = $jobconf['assignmentReviewPolicy'];
 									$types = array( 'ApproveIfKnownAnswerScoreIsAtLeast', 'ApproveReason', 'RejectIfKnownAnswerScoreIsLessThan', 'RejectReason', 'ExtendIfKnownAnswerScoreIsLessThan', 'ExtendMaximumAssignments', 'ExtendMinimumTimeInSeconds'); ?>
 								@foreach($types as $type)
 									@if(isset($arp['Parameters'][$type]))

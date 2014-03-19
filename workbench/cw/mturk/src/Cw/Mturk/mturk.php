@@ -29,6 +29,7 @@ class Mturk {
 	public function updateJobConf($jc){
 		// Qualification Requirements
 		$qr = Input::get('qr', false);
+		$jcc = $jc->content;
 		if($qr){
 			$qarray = array();
 			foreach($qr as $key=>$val){
@@ -45,8 +46,8 @@ class Mturk {
 				}
 			}
 			if(count($qarray)>0)
-				$jc->qualificationRequirement = $qarray;
-			else $jc->qualificationRequirement = null;
+				$jcc['qualificationRequirement'] = $qarray;
+			else $jcc['qualificationRequirement'] = null;
 		}
 		
 		// Assignment Review Policy
@@ -59,11 +60,12 @@ class Mturk {
 			
 			// If there are no params, ARP = empty.
 			if(count($arpparams)>0)		
-				$jc->assignmentReviewPolicy = array(	'AnswerKey' => null, 
+				$jcc['assignmentReviewPolicy'] = array(	'AnswerKey' => null, 
 														'Parameters' => $arpparams);
-			else $jc->assignmentReviewPolicy = null;
+			else $jcc['assignmentReviewPolicy'] = null;
 		}
 
+		$jc->content = $jcc;
 		return $jc;
 
 	}
@@ -83,7 +85,8 @@ class Mturk {
 				array_push($fullplatformjobids, array('id' => $id, 'status' => $status, 'timestamp' => time()));
 			return $fullplatformjobids;
 		} catch (AMTException $e) {
-			$this->undoCreation($fullplatformjobids);
+			if(isset($fullplatformjobids)) $this->undoCreation($fullplatformjobids);
+			elseif(isset($platformjobids)) $this->undoCreation($platformjobids);
 			throw new Exception($e->getMessage());
 		}	
 	}
@@ -95,6 +98,7 @@ class Mturk {
 		
 		try {
 			// Platform
+			if($ids)
 			foreach($ids as $id){
 				if(is_array($id) && isset($id['id'])) // This should be the case, since we created it this way.
 					$id = $id['id'];
@@ -112,10 +116,9 @@ class Mturk {
 	* @return string platformid's
 	*/
 	private function amtpublish($job, $sandbox){
-
 		if($sandbox) $this->mechanicalTurk->setRootURL(Config::get('mturk::sandboxurl'));
 		else $this->mechanicalTurk->setRootURL(Config::get('mturk::rooturl'));
-		$htmlfilename = "{$job->template}.html";
+		$htmlfilename = public_path() . "/templates/{$job->template}.html";
     	if(!file_exists($htmlfilename) || !is_readable($htmlfilename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
 
@@ -125,9 +128,9 @@ class Mturk {
 		$questionsbuilder = '';
 		$count = 0;
 		$platformids = array();
-		$c = $job->jobConfiguration;
+		$c = $job->jobConfiguration->content;
 		$hit = $this->jobConfToHIT($c);
-		$upt = $c->unitsPerTask;
+		$upt = $c['unitsPerTask'];
 		$assRevPol = $hit->getAssignmentReviewPolicy();
 		$dom = HtmlDomParser::file_get_html($htmlfilename);
 
@@ -175,13 +178,13 @@ class Mturk {
 			
 			/*if(!strpos($questiontemplate, '{instructions}'))
 				throw new AMTException('Template has no {instructions}');*/
-			$tempquestiontemplate = str_replace('{instructions}', nl2br($c->instructions), $tempquestiontemplate);
+			$tempquestiontemplate = str_replace('{instructions}', nl2br($c['instructions']), $tempquestiontemplate);
 
 			// Temporarily store the AnswerKey
 
 			// TODO!
-			if(isset($params['_golden']) and $params['_golden'] == true and !empty($c->answerfields)) {
-				foreach($c->answerfields as $answerfield)
+			if(isset($params['_golden']) and $params['_golden'] == true and isset($c['answerfields'])) {
+				foreach($c['answerfields'] as $answerfield)
 					$assRevPol['AnswerKey']["{$params['_unit_id']}_$answerfield"] = $params["{$answerfield}_gold"];
 			}
 
@@ -200,7 +203,7 @@ class Mturk {
 				}
 
 				// Set the questions and optionally the gold answers
-			 	$hit->setQuestion($this->amtAddQuestionXML($questionsbuilder, $c->frameheight));
+			 	$hit->setQuestion($this->amtAddQuestionXML($questionsbuilder, $c['frameheight']));
 				if(!empty($assRevPol['AnswerKey']))
 					$hit->setAssignmentReviewPolicy($assRevPol);
 				else ($hit->setAssignmentReviewPolicy(null));
@@ -219,8 +222,8 @@ class Mturk {
 		}	
 
 					// Notification E-Mail
-		if((!empty($c->notificationEmail)) and (!empty($hittypeid)))
-			$this->mechanicalTurk->setHITTypeNotification($hittypeid, $c->notificationEmail, $c->eventType);
+		if((!empty($c['notificationEmail'])) and (!empty($hittypeid)))
+			$this->mechanicalTurk->setHITTypeNotification($hittypeid, $c['notificationEmail'], $c['eventType']);
 
 		return $platformids;
 	}
@@ -250,22 +253,21 @@ class Mturk {
 
 	private function jobConfToHIT($jc){
 		$hit = new Hit();
-		if (!empty($jc->title)) 			 		 $hit->setTitle						  	($jc->title); 
-		if (!empty($jc->description)) 		 		 $hit->setDescription					($jc->description); 
-		if (!empty($jc->keywords)) 					 $hit->setKeywords				  		($jc->keywords);
-		if (!empty($jc->annotationsPerUnit)) 		 $hit->setMaxAssignments		  		($jc->annotationsPerUnit);
-		if (!empty($jc->expirationInMinutes))		 $hit->setAssignmentDurationInSeconds 	($jc->expirationInMinutes*60);
-		if (!empty($jc->hitLifetimeInMinutes)) 		 $hit->setLifetimeInSeconds		  		($jc->hitLifetimeInMinutes*60);
-		if (!empty($jc->reward)) 					 $hit->setReward					  	(array('Amount' => $jc->reward, 'CurrencyCode' => 'USD'));
-		if (!empty($jc->autoApprovalDelayInMinutes)) $hit->setAutoApprovalDelayInSeconds  	($jc->autoApprovalDelayInMinutes*60); 
-		if (!empty($jc->qualificationRequirement))	 $hit->setQualificationRequirement		($jc->qualificationRequirement);
-		if (!empty($jc->requesterAnnotation))		 $hit->setRequesterAnnotation			($jc->requesterAnnotation);
+		if (isset($jc['title'])) 			 		 	$hit->setTitle						  	($jc['title']); 
+		if (isset($jc['description'])) 		 			$hit->setDescription					($jc['description']); 
+		if (isset($jc['keywords'])) 					$hit->setKeywords				  		($jc['keywords']);
+		if (isset($jc['annotationsPerUnit'])) 		 	$hit->setMaxAssignments		  			($jc['annotationsPerUnit']);
+		if (isset($jc['expirationInMinutes']))		 	$hit->setAssignmentDurationInSeconds 	($jc['expirationInMinutes']*60);
+		if (isset($jc['hitLifetimeInMinutes'])) 		$hit->setLifetimeInSeconds		  		($jc['hitLifetimeInMinutes']*60);
+		if (isset($jc['reward'])) 					 	$hit->setReward					  		(array('Amount' => $jc['reward'], 'CurrencyCode' => 'USD'));
+		if (isset($jc['autoApprovalDelayInMinutes'])) 	$hit->setAutoApprovalDelayInSeconds  	($jc['autoApprovalDelayInMinutes']*60); 
+		if (isset($jc['qualificationRequirement']))	$hit->setQualificationRequirement		($jc['qualificationRequirement']);
+		if (isset($jc['requesterAnnotation']))		 	$hit->setRequesterAnnotation			($jc['requesterAnnotation']);
 		
-		if (/* isset($jc->assignmentReviewPolicy['AnswerKey']) and 
-			count($jc->assignmentReviewPolicy['AnswerKey']) > 0 and */
-			isset($jc->assignmentReviewPolicy['Parameters']) and
-			count($jc->assignmentReviewPolicy['Parameters']) > 0 ) 		
-														$hit->setAssignmentReviewPolicy			($jc->assignmentReviewPolicy);
+		if (isset($jc['assignmentReviewPolicy']) and
+			isset($jc['assignmentReviewPolicy']['Parameters']) and
+			count($jc['assignmentReviewPolicy']['Parameters']) > 0 ) 		
+														$hit->setAssignmentReviewPolicy			($jc['assignmentReviewPolicy']);
 		
 		return $hit;
 	}

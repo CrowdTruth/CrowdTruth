@@ -12,11 +12,15 @@ class ProcessController extends BaseController {
 	}
 
 	public function getBatch() {
-
-		$job = Job::where('documentType', 'job')->where('softwareAgent_id', 'cf')->first();
-		dd($job);
-
+		$batch = Batch::where('documentType', 'batch')->first(); 
+		$jc = JobConfiguration::where('documentType', 'jobconf')->first();
+		$qt = QuestionTemplate::where('documentType', 'questiontemplate')->first();
 		
+		//$job = Job::where('documentType', 'job')->where('softwareAgent_id', 'cf')->first();
+/*		$job = new Job();
+		//dd($job->jobConfiguration_id);
+		dd($job->jobConfiguration);*/
+
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 
@@ -34,7 +38,7 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
 			->with('currenttemplate', $currenttemplate)
-			->with('jobconf', $jc);
+			->with('jobconf', $jc->content);
 	}
 
 	public function getDetails() {
@@ -42,12 +46,10 @@ class ProcessController extends BaseController {
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
 		$questiontemplateid = Session::get('questiontemplateid');
-
-		$j = new Job($batch, $template, $jc, $questiontemplateid);
+		//$j = new Job($batch, $template, $jc, $questiontemplate);
 		$questionids = array();
 		$goldfields = array();
 		$unitscount = count($batch->wasDerivedFrom);
-
 /*		try {
 			$questionids = $j->getQuestionIds();
 			$goldfields = $j->getGoldFields();	
@@ -63,14 +65,14 @@ class ProcessController extends BaseController {
 				Session::flash('flashNotice', 'Fields \'' . implode('\', \'', $diff) . '\' are in the answerkey but not in the HTML template.');
 */
 		return View::make('process.tabs.details')
-			->with('jobconf', $jc)
+			->with('jobconf', $jc->content)
 			->with('goldfields', $goldfields)
 			->with('unitscount', $unitscount);
 	}
 
 	public function getPlatform() {
 		$jc = unserialize(Session::get('jobconf'));
-		return View::make('process.tabs.platform')->with('jobconf', $jc);
+		return View::make('process.tabs.platform')->with('jobconf', $jc->content);
 	}
 
 	public function getSubmit() {
@@ -78,12 +80,10 @@ class ProcessController extends BaseController {
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
 		$questiontemplateid = Session::get('questiontemplateid');
-
 		$treejson = $this->makeDirTreeJSON($template, false);
 
 		try {
-			$j = new Job($batch, $template, $jc, $questiontemplateid);
-			$questions = $j->getPreviews();
+			$questions = array();//$j->getPreviews();
 		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
@@ -102,9 +102,9 @@ class ProcessController extends BaseController {
 			->with('treejson', $treejson)
 			->with('questions',  $questions)
 			->with('table', $jc->toHTML())
-			->with('template', $jc->template)
-			->with('frameheight', $jc->frameheight)
-			->with('jobconf', $jc);
+			->with('template', '')//$jc->content['template'])
+			->with('frameheight', $jc->content['frameheight'])
+			->with('jobconf', $jc->content);
 	}
 
 	public function getClearTask(){
@@ -138,7 +138,11 @@ class ProcessController extends BaseController {
 	* It combines the Input fields with the JobConfiguration that we already have in the Session.
 	*/
 	public function postFormPart($next){
-		$jc = unserialize(Session::get('jobconf'));
+		$jc = unserialize(Session::get('jobconf', serialize(new JobConfiguration)));
+		if(isset($jc->content)) 
+			$jcc = $jc->content;
+		else $jcc = array();
+
 		$template = Session::get('template');
 
 		if(Input::has('batch')){
@@ -159,19 +163,13 @@ class ProcessController extends BaseController {
 			$template = $ntemplate;
 			$origjobconf = 'jcid'; // TODO!
 
-
 			// FOR TESTING -> hardcoded questiontemplate. We need more of these.
 			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . 'relation_direction/relation_direction_multiple.questiontemplate.json'), true);
 			$e = new QuestionTemplate;
 			$e->content = $testdata;
 			$e->save();
 			Session::put('questiontemplateid', $e->_id);
-			//
 
-
-			// DEFAULT VALUES
-			if(empty($jc->eventType)) $jc->eventType = 'HITReviewable'; 
-			if(empty($jc->frameheight)) $jc->frameheight = 650; 
 		} else {
 			if (empty($jc)){
 				// No JobConfiguration and no template selected, not good.
@@ -180,25 +178,32 @@ class ProcessController extends BaseController {
 				return Redirect::to("process/template");
 			} else {
 				// There already is a JobConfiguration object. Merge it with Input!
-				$jc = new JobConfiguration(array_merge($jc->toArray(), Input::get()));	
+				$jcc = array_merge($jcc, Input::get());	
 
 				// If leaving the details page...
 				if(Input::has('title')){
-					$jc->answerfields = Input::get('answerfields', false);
-					
+					$jcc['answerfields'] = Input::get('answerfields', false);
 					if($next == 'nextplatform'){
-						if(isset($jc->platform[0])){
-							$next = $jc->platform[0];
+						if(isset($jcc['platform'][0])){
+							$next = $jcc['platform'][0];
 						} else {
 							Session::flash('flashNotice', 'Please select a platform first');
 							Redirect::to("process/platform");
 						}
 					}
 				}
+
 				// If leaving the Platform page....:
 				if(Input::has('platform'))
-					$jc->platform = Input::get('platform', array());
+					$jcc['platform'] = Input::get('platform', array());
+
+
+				// DEFAULT VALUES
+				if(!isset($jcc['eventType'])) $jcc['eventType'] = 'HITReviewable'; 
+				if(!isset($jcc['frameheight'])) $jcc['frameheight'] = 650;
 				
+				$jc->content = $jcc;	
+
 				// After specific platform tab, call the method and determine which is next.
 				$pid = Input::get('platformid', false);
 				if($pid){
@@ -206,9 +211,9 @@ class ProcessController extends BaseController {
 					$jc = $platform->updateJobConf($jc);
 
 					if($next == 'nextplatform'){
-						$nextindex = array_search($pid, $jc->platform) + 1;
-						if(array_key_exists($nextindex, $jc->platform))
-							$next = $jc->platform[$nextindex];
+						$nextindex = array_search($pid, $jc->content['platform']) + 1;
+						if(array_key_exists($nextindex, $jc->content['platform']))
+							$next = $jc->content['platform'][$nextindex];
 						else
 							$next = 'submit';	
 					}				
@@ -230,31 +235,70 @@ class ProcessController extends BaseController {
 	/*
 	* Send it to the platforms.
 	*/
-	public function postSubmitFinal(){
+	public function postSubmitFinal($ordersandbox = 'order'){
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
 		$questiontemplateid = Session::get('questiontemplateid');
-				
-		try {
-			$j = new Job($batch, $template, $jc, $questiontemplateid);
-			$ids = $j->publish();
+		$jobs = array();
 
-			$msg = "Ordered: <br><ul>";
-			foreach($jc->platform as $platformstring){
-			 $c = count($ids[$platformstring]['platformjobid']);
-			 $msg .= "<li>" . ($c > 0 ? $c : 'No') . " job" . ($c == 1 ? '' : 's') . " on " . strtoupper($platformstring) . "</li>";
+		try{
+
+			// Save activity
+			$activity = new MongoDB\Activity;
+			$activity->label = "Job is uploaded to crowdsourcing platform.";
+			$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB softwareAgent_id = $platform. Does this need to be the same?
+			$activity->save();
+
+			// Save jobconf if necessary
+			$jcid = $jc->_id;
+			if(!$jcid){
+				$hash = md5(serialize($jc->content));
+            	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id'))
+	                $jcid = $existingid; // Don't save, it already exists.
+	            else {
+		            $jc->hash = $hash;
+					$jc->activity_id = $activity->_id;
+					$jc->save();
+					$jcid = $jc->_id;
+				}
+			}	
+
+			// Publish jobs
+			foreach($jc->content['platform'] as $platformstring){
+				$j = new Job;
+				$j->template = $template; // TODO: remove
+				$j->batch_id = $batch->_id;
+				$j->questionTemplate_id = $questiontemplateid;
+				$j->jobConf_id = $jcid;
+				$j->softwareAgent_id = $platformstring;
+				$j->activity_id = $activity->_id;
+				$j->publish(($ordersandbox == 'sandbox' ? true : false));
+				$jobs[] = $j;
 			}
 
-			$msg.= "</li>";
+			// Success.
+			Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order yet' : 'and ordered') . " job(s) on " . 
+							strtoupper(implode(', ', $jc->content['platform'])));
+			return Redirect::to("jobs/listview");
 
-			Session::flash('flashSuccess', $msg);
 		} catch (Exception $e) {
-			Session::flash('flashError', $e->getMessage());
+
+			// Undo creation and delete jobs
+			if(isset($jobs))
+			foreach($jobs as $j){
+				if(isset($j->platformJobId))
+					$j->undoCreation($j->platformJobId);
+				$j->forceDelete();
+			}		
+
+			//delete activity
+			if($activity) $activity->forceDelete();
+			
+			Session::flash('flashError', $e->getMessage()); throw $e; //for debugging
 			return Redirect::to("process/submit");
 		}
 
-		return Redirect::to("jobs/listview");
 		
 	}
 
@@ -272,7 +316,7 @@ class ProcessController extends BaseController {
 			$ids = $j->publish(true);
 
 			$msg = "Created:<br><ul>";
-			foreach($jc->platform as $platformstring){
+			foreach($jc->content['platform'] as $platformstring){
 			 $c = count($ids[$platformstring]['platformjobid']);
 			 $msg .= "<li>" . ($c > 0 ? $c : 'No') . "UNORDERED job" . ($c == 1 ? '' : 's') . " on " . strtoupper($platformstring) . "</li>";
 			}
@@ -325,7 +369,7 @@ class ProcessController extends BaseController {
 	   $jc = unserialize(Session::get('jobconf'));
 	   try{
 	   		$platform = App::make($parameters[0]);
-	   		return $platform->createView()->with('jobconf', $jc)->with('countries', $this->countries);
+	   		return $platform->createView()->with('jobconf', $jc->content)->with('countries', $this->countries);
 		} catch (ReflectionException $e){
 			return Redirect::to("process/batch");
 		}

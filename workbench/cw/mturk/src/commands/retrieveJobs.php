@@ -7,7 +7,9 @@ use \MongoDB\Entity;
 use \MongoDB\CrowdAgent;
 use \MongoDB\Activity;
 use \MongoDB\Agent;
+use \Job;
 use \MongoDate;
+use \Config;
 use \QuestionTemplate;
 use \Log;
 
@@ -47,10 +49,11 @@ class RetrieveJobs extends Command {
 	{
 
 		print("Retrieving jobs....\r\n");
-		$turk = new Turkapi\MechanicalTurk;
+		$turk = new Turkapi\MechanicalTurk(Config::get('mturk::rooturl'), false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
+
 
 		// Todo optimize query.
-		$jobs = Entity::where('documentType', 'job')
+		$jobs = Job::where('documentType', 'job')
 						->where('softwareAgent_id', 'amt')
 						->orderBy('created_at', 'desc')
 						->where('status', '!=', 'finished')
@@ -166,9 +169,8 @@ class RetrieveJobs extends Command {
 								$annentity->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
 								
 								// QuestionDictionary
-								$questionTemplate = QuestionTemplate::where('_id', $job->questionTemplate_id)->first();
 								$unit = Entity::where('_id', $uid)->first();
-								$annentity->questionDictionary = $questionTemplate->getDictionary($unit, $qidansarray);
+								$annentity->questionDictionary = $job->questionTemplate->getDictionary($unit, $qidansarray);
 								$annentity->save();
 
 								$newannotationscount++;

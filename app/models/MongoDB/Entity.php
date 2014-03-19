@@ -24,71 +24,52 @@ class Entity extends Moloquent {
         if(array_key_exists('wasGeneratedBy', $input))    array_push($this->with, 'wasGeneratedBy');
         if(array_key_exists('wasAttributedTo', $input))    $this->with = array_merge($this->with, array('wasAttributedToUserAgent', 'wasAttributedToCrowdAgent'));
         if(array_key_exists('wasAttributedToUserAgent', $input))    array_push($this->with, 'wasAttributedToUserAgent');
-        if(array_key_exists('wasAttributedToCrowdAgent', $input))    array_push($this->with, 'wasAttributedToCrowdAgent');        
-    
+        if(array_key_exists('wasAttributedToCrowdAgent', $input))    array_push($this->with, 'wasAttributedToCrowdAgent');
         if(isset($input['wasDerivedFrom']['without'])) $this->hidden = array_merge($this->hidden, array_flatten(array($input['wasDerivedFrom']['without'])));
-
+        if(isset($input['without'])) $this->hidden = array_merge($this->hidden, array_flatten(array($input['without'])));
     }       
 
     protected static function boot()
     {
         parent::boot();
 
-        static::saving(function($entity)
+        static::creating(function($entity)
         {
-            $entity->_id = strtolower($entity->_id);
-            $entity->domain = strtolower($entity->domain);
-            $entity->format = strtolower($entity->format);
-            $entity->documentType = strtolower($entity->documentType);
-
-            static::validateEntity($entity);
-
             if(!Schema::hasCollection('entities'))
             {
                 static::createSchema();
             }
 
-            if(is_null($entity->hash))
+            if(!empty($entity->hash))
             {
-                if(is_array($entity->content))
+                if(Entity::withTrashed()->where('hash', $entity->hash)->first())
                 {
-                    $entity->hash = md5(serialize($entity->content));
-                } 
-                else
-                {
-                    $entity->hash = md5($entity->content);
+                    throw new Exception("Hash already exists for: " . $entity->title);
                 }
             }            
 
-            if(Entity::withTrashed()->where('hash', $entity->hash)->first())
-            {
-                //throw new Exception("Hash already exists for: " . $entity->title);
-            }
-
-            $baseURI = static::generateIncrementedBaseURI($entity);
+            $entity->_id = static::generateIncrementedBaseURI($entity);
 
             if (Auth::check())
             {
                 $entity->user_id = Auth::user()->_id;
             } else 
             {
-                $entity->user_id = "CrowdWatson";
-            }
+                $entity->user_id = "crowdwatson";
+            }           
+        });
 
-            if(empty($entity->_id))
-                $entity->_id = 'entity/' . $baseURI;
-           
+        static::saving(function($entity)
+        {
+            $entity->format = strtolower($entity->format);            
+            $entity->domain = strtolower($entity->domain);
+            $entity->documentType = strtolower($entity->documentType);
+
+            static::validateEntity($entity);         
         });
 
         static::saved(function($entity)
         {
-            $baseURI = static::generateIncrementedBaseURI($entity);
-
-            if(is_null($entity->activity_id))
-            {
-                $entity->activity_id = 'activity/' . $baseURI;
-            }
-
             Cache::flush();
         });
 
@@ -98,68 +79,50 @@ class Entity extends Moloquent {
         });
     }
 
-    // public static function generateIncrementedBaseURI($entity){
-    //     $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->orderBy('natural', 'desc')->take(1)->get(array("_id"));
-
-    //     if(isset($lastMongoURIUsed[0])){
-    //         $lastMongoIDUsed = explode("/", $lastMongoURIUsed[0]['_id']);
-    //         $id = end($lastMongoIDUsed) + 1;
-    //     } else {
-    //         $id = 0;
-    //     }
+    public static function generateIncrementedBaseURI($entity)
+    {
+        if(is_null($entity->_id))
+        {
+            $lastMongoIncUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->count();
         
-    //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
-    // } 
-
-    public static function generateIncrementedBaseURI($entity){
-        // if(Session::has('lastMongoIDUsed'))
-        // {
-        //     $id = (Session::get('lastMongoIDUsed') + 1);
-        //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
-        // }
-
-        $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->get(array("_id"));
-        if(is_object($lastMongoURIUsed)) {
-            $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
-                return $entity->_id;
-            }, SORT_NATURAL)->toArray();
+            if(isset($lastMongoIncUsed))
+            {
+                $inc = $lastMongoIncUsed;
+            } else {
+                $inc = 0;
+            }
         }
-        
-        if(!end($lastMongoURIUsed)){
-            $id = 0;
-        } else {
-            $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
-            $id = end($lastMongoIDUsed) + 1;
+        else
+        {
+            $entityIDSegments = explode("/", $entity->_id);
+            $inc = (end($entityIDSegments) + 1);
         }
 
-        // if($entity->documentType == "twrex-structured-sentence")
-        //     Session::put('lastMongoIDUsed', $id);
-       
-        return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $id;
-    }    
+        return 'entity/' . $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $inc;
+    }     
+  
 
     public static function validateEntity($entity){
         if(($entity->format == "text" || $entity->format == "image" || $entity->format == "video") == FALSE){
             throw new Exception("Entity has a wrong value \"{$entity->format}\" for the format field");
         }
 
-        if(($entity->domain == "medical" || $entity->format == "news" || $entity->format == "other") == FALSE){
-            throw new Exception("Entity has a wrong value \"{$entity->format}\" for the domain field");
+        if(($entity->domain == "medical" || $entity->domain == "news" || $entity->domain == "cultural" || $entity->domain == "art") == FALSE){
+            throw new Exception("Entity has a wrong value \"{$entity->domain}\" for the domain field");
         }
     }
 
-	public static function createSchema(){
-		Schema::create('entities', function($collection)
-		{
+    public static function createSchema(){
+        Schema::create('entities', function($collection)
+        {
             $collection->index('hash');
             $collection->index('domain');
-		    $collection->index('documentType');
-		    $collection->index('parent_id');		    
-		    $collection->index('activity_id');
-		    $collection->index('user_id');
-		    $collection->index('ancestors');
-		});
-	}
+            $collection->index('documentType');    
+            $collection->index('activity_id');
+            $collection->index('user_id');
+            $collection->index('parents');
+        });
+    }
 
     public static function getDistinctValuesForField($field, $conditions = array()){
         $distinctFields = Entity::where(function($query) use ($conditions)
@@ -189,11 +152,11 @@ class Entity extends Moloquent {
     }    
 
     public function wasGeneratedBy(){
-    	return $this->hasOne('\MongoDB\Activity', '_id', 'activity_id');
+        return $this->hasOne('\MongoDB\Activity', '_id', 'activity_id');
     }
 
     public function wasDerivedFrom(){
-    	return $this->hasOne('\MongoDB\Entity', '_id', 'parent_id');
+        return $this->hasMany('\MongoDB\Entity', '_id', 'parents');
     }
 
     public function wasAttributedToUserAgent(){
@@ -214,5 +177,5 @@ class Entity extends Moloquent {
         {
             return Entity::whereIn('_id', $this->parents)->remember(1)->get()->toArray();         
         }
-    }    
+    } 
 }

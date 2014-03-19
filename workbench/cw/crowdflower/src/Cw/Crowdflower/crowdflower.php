@@ -72,21 +72,21 @@ class Crowdflower {
 		$csv = $this->batchToCSV($job->batch);
 		$gold = $jc->answerfields;
 
-		$options = array(	"req_ttl_in_seconds" => $jc->expirationInMinutes*60, 
-							"keywords" => $jc->requesterAnnotation, 
-							"mail_to" => $jc->notificationEmail);
+		$options = array(	"req_ttl_in_seconds" => $jc->content['expirationInMinutes']*60, 
+							"keywords" => $jc->content['requesterAnnotation'], 
+							"mail_to" => $jc->content['notificationEmail']);
     	try {
 
     		// TODO: check if all the parameters are in the csv.
 			// Read the files
 			foreach(array('cml', 'css', 'js') as $ext){
-				$filename = "$template.$ext";
+				$filename = public_path() . "/templates/$template.$ext";
 				if(file_exists($filename) || is_readable($filename))
 					$data[$ext] = file_get_contents($filename);
 			}
 
 			if(empty($data['cml']))
-				throw new CFExceptions('CML file does not exist or is not readable.');
+				throw new CFExceptions("CML file $filename does not exist or is not readable.");
 
 			/*if(!$sandbox) $data['auto_order'] = true; // doesn't seem to work */
 
@@ -130,8 +130,8 @@ class Crowdflower {
 				//print_r($goldresult);
 				}
 
-				if(is_array($jc->countries) and count($jc->countries) > 0){
-					$countriesresult = $this->CFJob->setIncludedCountries($id, $jc->countries);
+				if(isset($jc['countries'] and is_array($jc->content['countries']) and count($jc->content['countries']) > 0){
+					$countriesresult = $this->CFJob->setIncludedCountries($id, $jc['countries']);
 					if(isset($countriesresult['result']['error']))
 						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
 				//print "\r\n\r\nCOUNTRIESRESULT";
@@ -177,21 +177,21 @@ class Crowdflower {
 		$this->hasStateOrFail($id, 'running');
 		$result = $this->CFJob->pauseJob($id);
 		if(isset($result['result']['error']))
-			throw new Exception("Order: " . $result['result']['error']['message']);
+			throw new Exception("Pause: " . $result['result']['error']['message']);
 	}
 
 	public function resumeJob($id){
 		$this->hasStateOrFail($id, 'paused');
 		$result = $this->CFJob->resumeJob($id);
 		if(isset($result['result']['error']))
-			throw new Exception("Order: " . $result['result']['error']['message']);
+			throw new Exception("Resume: " . $result['result']['error']['message']);
 	}
 
 	public function cancelJob($id){
 		//$this->hasStateOrFail($id, 'running'); // Rules?
 		$result = $this->CFJob->cancelJob($id);
 		if(isset($result['result']['error']))
-			throw new Exception("Order: " . $result['result']['error']['message']);
+			throw new Exception("Cancel: " . $result['result']['error']['message']);
 	}
 
 	private function hasStateOrFail($id, $state){
@@ -205,15 +205,17 @@ class Crowdflower {
 	}
 
     private function jobConfToCFData($jc){
+		$jc=$jc->content;
 		$data = array();
 
-		if (!empty($jc->title)) 			 	$data['title']					 	= $jc->title; 
-		if (!empty($jc->instructions)) 			$data['instructions']				= $jc->instructions; 
-		if (!empty($jc->annotationsPerUnit)) 	$data['judgments_per_unit']		  	= $jc->annotationsPerUnit;
-		if (!empty($jc->unitsPerTask))			$data['units_per_assignment']		= $jc->unitsPerTask;
-		if (!empty($jc->annotationsPerWorker))	{
-			$data['max_judgments_per_worker']	= $jc->annotationsPerWorker;
-			$data['max_judgments_per_ip']		= $jc->annotationsPerWorker; // We choose to keep this the same.
+
+		if(isset($jc['title'])) 			 	$data['title']					 	= $jc['title'];
+		if(isset($jc['instructions'])) 			$data['instructions']				= $jc['instructions'];
+		if(isset($jc['annotationsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['annotationsPerUnit'];
+		if(isset($jc['unitsPerTask']))			$data['units_per_assignment']		= $jc['unitsPerTask'];
+		if(isset($jc['annotationsPerWorker']))	{
+			$data['max_judgments_per_worker']	= $jc['annotationsPerWorker'];
+			$data['max_judgments_per_ip']		= $jc['annotationsPerWorker']; // We choose to keep this the same.
 		}
 
 		// Webhook doesn't work on localhost and we the uri should be set. 

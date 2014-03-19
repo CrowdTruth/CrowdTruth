@@ -3,8 +3,43 @@
 use \mongoDB\Entity;
 use \mongoDB\Activity;
 
-class JobConfiguration extends Moloquent {
+class JobConfiguration extends Entity {
 	protected $guarded = array();
+
+	protected $attributes = array(  'format' => 'text', 
+                                    'domain' => 'medical', 
+                                    'documentType' => 'jobconf', 
+                                    'type' => 'todo');
+
+    public static function boot ()
+    {
+        parent::boot();
+
+        static::saving(function ( $jobconf )
+        {
+        	// IFEXISTS CHECK IS NOT HERE.
+
+            if(empty($jobconf->activity_id)){
+                try {
+                    $activity = new Activity;
+                    $activity->label = "JobConfiguration is saved.";
+                    $activity->softwareAgent_id = 'jobcreator';
+                    $activity->save();
+                    $jobconf->activity_id = $activity->_id;
+
+                } catch (Exception $e) {
+
+                    if($activity) $activity->forceDelete();
+                    if($jobconf) $jobconf->forceDelete();
+                    throw new Exception('Error saving activity for JobConfiguration.');
+                }
+            }
+
+             Log::debug("Saved entity {$jobconf->_id} with activity {$jobconf->activity_id}.");
+        });
+
+     } 
+
     protected $thisusedtobefillablebutisjustusedasareferencenow = array(
     								'title', 
     								'description',
@@ -55,8 +90,8 @@ class JobConfiguration extends Moloquent {
     	$this->errors = new Illuminate\Support\MessageBag();
 	    $isok = true;
 
-	    if(is_array($this->platform)){
-		    foreach($this->platform as $platformstring){
+	    if(isset($this->content['platform'])){
+		    foreach($this->content['platform'] as $platformstring){
 		    	$platform = App::make($platformstring);
 		    	$rules = array_merge($rules, $platform->jobConfValidationRules);
 		    }	
@@ -65,7 +100,7 @@ class JobConfiguration extends Moloquent {
    	 		$isok = false;
    	 	}
 
-        $v = Validator::make($this->toArray(), $rules);
+        $v = Validator::make($this->content, $rules);
         if ($v->fails()) {
             $this->errors->merge($v->messages()->toArray());
             $isok = false;
@@ -120,8 +155,10 @@ class JobConfiguration extends Moloquent {
 		$json = file_get_contents($filename);
 		if(!$arr = json_decode($json, true))
 			throw new Exception('JSON incorrectly formatted');
+		$jc = new JobConfiguration;
+		$jc->content = $arr;
 
-		return new JobConfiguration($arr);
+		return $jc;
 	}
 
 	
