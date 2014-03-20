@@ -17,8 +17,8 @@
     "replaceValues": {
         "relation_noPrefix":
             {
-                "cause": "causes",
-                "contraindicate": "contraindicates"
+                "causedebugging": "causes",
+                "contraindicatedebugging": "contraindicates"
             }
     },
     "question": [

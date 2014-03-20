@@ -63,15 +63,12 @@ class QuestionTemplate extends Entity {
                     $field['value'] = str_replace($param, $val, $field['value']);
                
                 if(isset($field['options'])){
-                    $otemp = array();
                     foreach($field['options'] as $okey=>$oval){
                         $okey = str_replace($param, $val, $okey);
                         $oval = str_replace($param, $val, $oval);
-                        $otemp[$okey] = $oval;
+                        $field['options'][$okey] = $oval;
                     }
-                    $field['options'] = $otemp;
                }
-
              }
              $q2[] = $field;
         }
@@ -87,10 +84,10 @@ class QuestionTemplate extends Entity {
             foreach($question as $component=>$field){
                 if (isset($field['options'])){
                     $otemp = array();
-                    foreach($field['options'] as $okey=>$oval){
+                    foreach($field['options'] as $okey=>$oval)
                        $otemp[$okey] = ($aval == $okey ? 1 : 0);
-                    }
-                    $dictionary[$field['id']] = $otemp;
+
+                    $dictionary['id'] = $otemp;
                 }
             }
         }

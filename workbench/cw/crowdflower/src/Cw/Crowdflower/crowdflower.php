@@ -77,7 +77,7 @@ class Crowdflower {
 							"mail_to" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''));
 
     	try {
-
+throw new CFExceptions('testing');
     		// TODO: check if all the parameters are in the csv.
 			// Read the files
 			foreach(array('cml', 'css', 'js') as $ext){
@@ -154,7 +154,7 @@ class Crowdflower {
 			} else {
 				$err = $result['result']['error']['message'];
 				if(isset($err)) $msg = $err;
-				elseif(isset($result['http_code']){
+				elseif(isset($result['http_code'])){
 					if($result['http_code'] == 503) $msg = 'Crowdflower service is unavailable, possibly down for maintenance?';
 					else $msg = "Error creating job on Crowdflower. HTTP code {$result['http_code']}";
 				}	

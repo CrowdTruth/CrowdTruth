@@ -164,10 +164,6 @@ class ProcessController extends BaseController {
 			$origjobconf = 'jcid'; // TODO!
 
 			// FOR TESTING -> hardcoded questiontemplate. We need more of these.
-			
-
-
-
 			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . 'relation_direction/relation_direction_multiple.questiontemplate.json'), true);
 			$qt = new QuestionTemplate;
 			$qt->content = $testdata;
@@ -309,7 +305,7 @@ class ProcessController extends BaseController {
 			//delete activity
 			if($activity) $activity->forceDelete();
 			
-			Session::flash('flashError', $e->getMessage()); throw $e; //for debugging
+			Session::flash('flashError', $e->getMessage());
 			return Redirect::to("process/submit");
 		}
 
