@@ -104,7 +104,7 @@ class Job extends Entity {
 
     private function getPlatform(){
     	if(!isset($this->softwareAgent_id)) // and (!isset($this->platformJobId) !!! TODO
-    		throw new Exception('Can\'t order Job that has not yet been uploaded to a platform.');
+    		throw new Exception('Can\'t handle Job that has not yet been uploaded to a platform.');
 
     	return App::make($this->softwareAgent_id);
     }
@@ -150,13 +150,6 @@ class Job extends Entity {
     */
     public function getGoldFields(){
     	return array('todo');
-/*
-    	// TODO //
-    	$goldfields = array();
-    	foreach (array_keys($this->batch->toCFArray()[0]) as $key)
-			if ($key != '_golden' and $pos = strpos($key, '_gold') and !strpos($key, '_gold_reason'))
-				$goldfields[$key] = substr($key, 0, $pos);	
-    	return $goldfields;*/
     }
 
 
@@ -166,82 +159,8 @@ class Job extends Entity {
 	* @throws AMTException when the file does not exist or is not readable.
 	*/
 	public function getQuestionIds(){
-		return array('todo');
-/*		
-		$filename = "{$this->template}.html";
-		if(!file_exists($filename) || !is_readable($filename))
-			throw new AMTException('HTML template file does not exist or is not readable.');
-	
-		$build = array();
-		$ret = array();
-		$html = HtmlDomParser::file_get_html($filename); //HTMLDomParser::file_get_html($filename)
-		foreach($html->find('input') as $input)
-			if(isset($input->name)) $build[] = $input->name;
-		foreach($html->find('textarea') as $input)
-			if(isset($input->name)) $build[] = $input->name;	
-		foreach($html->find('select') as $input)
-			if(isset($input->name)) $build[] = $input->name;	
-
-		foreach($build as $id){
-			$pos = strpos($id, '{uid}_');
-			if($pos !== false) $id = substr($id, $pos+6);
-			$ret[]=$id;
-		}
-
-		return array_unique($ret); // Unique because checkboxes and radiobuttons have the same name.*/
+		return array('todo'); // This will be moved to QuestionTemplate
 	}
-
-
-    /**
-    * Save Job to database
-    * @param $platform string amt | cf
-    * @param $platformjobid array if $platform = amt, int if $platform = cf.
-    * @param $preview boolean sets the status to 'unordered'
-    * @return entity id
-    */
-    public function store($platform, $platformJobId, $preview = false){
-
-    	//$this->createSoftwareAgent($platform);
-
-		if($preview) $status = 'unordered';
-		else $status = 'running';
-
-		try {
-			$reward = $this->jobConfiguration->reward;
-			$annotationsPerUnit = intval($this->jobConfiguration->annotationsPerUnit);
-			$unitsPerTask = intval($this->jobConfiguration->unitsPerTask);
-			$unitsCount = count($this->batch->wasDerivedFrom);
-			$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
-
-			$entity = new Entity;
-			$entity->domain = 'medical';
-			$entity->format = 'text';
-			$entity->type = 'todo'; // TODO: need to set this somewhere
-			$entity->documentType = 'job';
-			$entity->activity_id = $this->activityURI;
-			
-			$entity->jobConf_id = $this->jcid;
-			//$entity->template_id = $this->template; // Will probably be part of jobconf
-			$entity->batch_id = $this->batch->_id;
-			$entity->softwareAgent_id = $platform;
-			$entity->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's!!!
-			$entity->questionTemplate_id = $this->questionTemplate_id;
-
-			$entity->unitsCount = $unitsCount;
-			$entity->annotationsCount = 0;
-			$entity->completion = 0.00; // 0.00-1.00
-			$entity->projectedCost = $projectedCost;
-
-			$entity->status = $status;
-
-			$entity->save();
-			return $entity->_id;
-		} catch (Exception $e) {
-			// Something went wrong with creating the Entity
-			$entity->forceDelete();
-			throw $e;
-		}
-    }
 
     public function jobConfiguration(){
         return $this->hasOne('JobConfiguration', '_id', 'jobConf_id');
@@ -253,14 +172,6 @@ class Job extends Entity {
 
     public function batch(){
         return $this->hasOne('Batch', '_id', 'batch_id');
-    }
-
-    private function createActivity($platforms){
-    	$activity = new Activity;
-		$activity->label = "Job is uploaded to crowdsourcing platform(s): " . implode(', ', $platforms) . ".";
-		$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB softwareAgent_id = $platform. Does this need to be the same?
-		$activity->save();
-		return $activity->_id;
     }
 
     private function createSoftwareAgent($agentid){

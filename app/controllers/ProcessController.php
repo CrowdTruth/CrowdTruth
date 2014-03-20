@@ -8,19 +8,9 @@ class ProcessController extends BaseController {
 
 	public function getTemplatebuilder(){
 		return View::make('process.tabs.templatebuilder');
-
 	}
 
 	public function getBatch() {
-		$batch = Batch::where('documentType', 'batch')->first(); 
-		$jc = JobConfiguration::where('documentType', 'jobconf')->first();
-		$qt = QuestionTemplate::where('documentType', 'questiontemplate')->first();
-		
-		//$job = Job::where('documentType', 'job')->where('softwareAgent_id', 'cf')->first();
-/*		$job = new Job();
-		//dd($job->jobConfiguration_id);
-		dd($job->jobConfiguration);*/
-
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 
@@ -121,8 +111,9 @@ class ProcessController extends BaseController {
 	*/
 	public function postSaveDetails(){
 		try {
+			throw new Exception('Temporarily disabled this.'); // TODO
 			$jc = unserialize(Session::get('jobconf'));
-			if($jc->store())
+			if($jc->save())
 				Session::flash('flashSuccess', 'Saved Job configuration to database!');
 			else Session::flash('flashNotice', 'This Job configuration already exists.');
 		} catch (Exception $e) {
@@ -163,6 +154,8 @@ class ProcessController extends BaseController {
 			$template = $ntemplate;
 			$origjobconf = 'jcid'; // TODO!
 
+
+
 			// FOR TESTING -> hardcoded questiontemplate. We need more of these.
 			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . 'relation_direction/relation_direction_multiple.questiontemplate.json'), true);
 			$qt = new QuestionTemplate;
@@ -179,6 +172,8 @@ class ProcessController extends BaseController {
 				$qtid = $qt->_id;
 			}
 			Session::put('questiontemplateid', $qtid);
+			//////////////////////////////////////////////////////////
+
 
 		} else {
 			if (empty($jc)){
@@ -211,7 +206,7 @@ class ProcessController extends BaseController {
 				// DEFAULT VALUES
 				if(!isset($jcc['eventType'])) $jcc['eventType'] = 'HITReviewable'; 
 				if(!isset($jcc['frameheight'])) $jcc['frameheight'] = 650;
-				
+				unset($jcc['_token']);
 				$jc->content = $jcc;	
 
 				// After specific platform tab, call the method and determine which is next.
@@ -312,37 +307,6 @@ class ProcessController extends BaseController {
 		
 	}
 
-	/*
-	* SANDBOX PREVIEW
-	*/
-	public function postSubmitSandbox(){
-		$jc = unserialize(Session::get('jobconf'));
-		$template = Session::get('template');
-		$batch = unserialize(Session::get('batch'));
-		$questiontemplateid = Session::get('questiontemplateid');
-		try {
-			$j = new Job($batch, $template, $jc, $questiontemplateid);
-
-			$ids = $j->publish(true);
-
-			$msg = "Created:<br><ul>";
-			foreach($jc->content['platform'] as $platformstring){
-			 $c = count($ids[$platformstring]['platformjobid']);
-			 $msg .= "<li>" . ($c > 0 ? $c : 'No') . "UNORDERED job" . ($c == 1 ? '' : 's') . " on " . strtoupper($platformstring) . "</li>";
-			}
-
-			$msg.= "</li>";
-
-			Session::flash('flashSuccess', $msg);
-		} catch (Exception $e) {
-			Session::flash('flashError', $e->getMessage());
-			return Redirect::to("process/submit");
-		}
-
-		return Redirect::to("jobs/listview");
-		
-	}
-
 
 	/*
 	* Create the JSON necessary for jstree to use.
@@ -373,266 +337,19 @@ class ProcessController extends BaseController {
 		return json_encode($r);
 	}
 
-	// catch all
+	/**
+	*	Catch all. If the platform exists, go to the platform page. Else, back to batch.
+	*/
 	public function missingMethod($parameters = array())
 	{
 	   $jc = unserialize(Session::get('jobconf'));
 	   try{
 	   		$platform = App::make($parameters[0]);
-	   		return $platform->createView()->with('jobconf', $jc->content)->with('countries', $this->countries);
+	   		return $platform->createView()->with('jobconf', $jc->content);
 		} catch (ReflectionException $e){
 			return Redirect::to("process/batch");
 		}
 	  // 
 	}
-
-
-	protected $countries = array(
-	'AF' => 'Afghanistan',
-	'AX' => 'Aland Islands',
-	'AL' => 'Albania',
-	'DZ' => 'Algeria',
-	'AS' => 'American Samoa',
-	'AD' => 'Andorra',
-	'AO' => 'Angola',
-	'AI' => 'Anguilla',
-	'AQ' => 'Antarctica',
-	'AG' => 'Antigua And Barbuda',
-	'AR' => 'Argentina',
-	'AM' => 'Armenia',
-	'AW' => 'Aruba',
-	'AU' => 'Australia',
-	'AT' => 'Austria',
-	'AZ' => 'Azerbaijan',
-	'BS' => 'Bahamas',
-	'BH' => 'Bahrain',
-	'BD' => 'Bangladesh',
-	'BB' => 'Barbados',
-	'BY' => 'Belarus',
-	'BE' => 'Belgium',
-	'BZ' => 'Belize',
-	'BJ' => 'Benin',
-	'BM' => 'Bermuda',
-	'BT' => 'Bhutan',
-	'BO' => 'Bolivia',
-	'BA' => 'Bosnia And Herzegovina',
-	'BW' => 'Botswana',
-	'BV' => 'Bouvet Island',
-	'BR' => 'Brazil',
-	'IO' => 'British Indian Ocean Territory',
-	'BN' => 'Brunei Darussalam',
-	'BG' => 'Bulgaria',
-	'BF' => 'Burkina Faso',
-	'BI' => 'Burundi',
-	'KH' => 'Cambodia',
-	'CM' => 'Cameroon',
-	'CA' => 'Canada',
-	'CV' => 'Cape Verde',
-	'KY' => 'Cayman Islands',
-	'CF' => 'Central African Republic',
-	'TD' => 'Chad',
-	'CL' => 'Chile',
-	'CN' => 'China',
-	'CX' => 'Christmas Island',
-	'CC' => 'Cocos (Keeling) Islands',
-	'CO' => 'Colombia',
-	'KM' => 'Comoros',
-	'CG' => 'Congo',
-	'CD' => 'Congo, Democratic Republic',
-	'CK' => 'Cook Islands',
-	'CR' => 'Costa Rica',
-	'CI' => 'Cote D\'Ivoire',
-	'HR' => 'Croatia',
-	'CU' => 'Cuba',
-	'CY' => 'Cyprus',
-	'CZ' => 'Czech Republic',
-	'DK' => 'Denmark',
-	'DJ' => 'Djibouti',
-	'DM' => 'Dominica',
-	'DO' => 'Dominican Republic',
-	'EC' => 'Ecuador',
-	'EG' => 'Egypt',
-	'SV' => 'El Salvador',
-	'GQ' => 'Equatorial Guinea',
-	'ER' => 'Eritrea',
-	'EE' => 'Estonia',
-	'ET' => 'Ethiopia',
-	'FK' => 'Falkland Islands (Malvinas)',
-	'FO' => 'Faroe Islands',
-	'FJ' => 'Fiji',
-	'FI' => 'Finland',
-	'FR' => 'France',
-	'GF' => 'French Guiana',
-	'PF' => 'French Polynesia',
-	'TF' => 'French Southern Territories',
-	'GA' => 'Gabon',
-	'GM' => 'Gambia',
-	'GE' => 'Georgia',
-	'DE' => 'Germany',
-	'GH' => 'Ghana',
-	'GI' => 'Gibraltar',
-	'GR' => 'Greece',
-	'GL' => 'Greenland',
-	'GD' => 'Grenada',
-	'GP' => 'Guadeloupe',
-	'GU' => 'Guam',
-	'GT' => 'Guatemala',
-	'GG' => 'Guernsey',
-	'GN' => 'Guinea',
-	'GW' => 'Guinea-Bissau',
-	'GY' => 'Guyana',
-	'HT' => 'Haiti',
-	'HM' => 'Heard Island & Mcdonald Islands',
-	'VA' => 'Holy See (Vatican City State)',
-	'HN' => 'Honduras',
-	'HK' => 'Hong Kong',
-	'HU' => 'Hungary',
-	'IS' => 'Iceland',
-	'IN' => 'India',
-	'ID' => 'Indonesia',
-	'IR' => 'Iran, Islamic Republic Of',
-	'IQ' => 'Iraq',
-	'IE' => 'Ireland',
-	'IM' => 'Isle Of Man',
-	'IL' => 'Israel',
-	'IT' => 'Italy',
-	'JM' => 'Jamaica',
-	'JP' => 'Japan',
-	'JE' => 'Jersey',
-	'JO' => 'Jordan',
-	'KZ' => 'Kazakhstan',
-	'KE' => 'Kenya',
-	'KI' => 'Kiribati',
-	'KR' => 'Korea',
-	'KW' => 'Kuwait',
-	'KG' => 'Kyrgyzstan',
-	'LA' => 'Lao People\'s Democratic Republic',
-	'LV' => 'Latvia',
-	'LB' => 'Lebanon',
-	'LS' => 'Lesotho',
-	'LR' => 'Liberia',
-	'LY' => 'Libyan Arab Jamahiriya',
-	'LI' => 'Liechtenstein',
-	'LT' => 'Lithuania',
-	'LU' => 'Luxembourg',
-	'MO' => 'Macao',
-	'MK' => 'Macedonia',
-	'MG' => 'Madagascar',
-	'MW' => 'Malawi',
-	'MY' => 'Malaysia',
-	'MV' => 'Maldives',
-	'ML' => 'Mali',
-	'MT' => 'Malta',
-	'MH' => 'Marshall Islands',
-	'MQ' => 'Martinique',
-	'MR' => 'Mauritania',
-	'MU' => 'Mauritius',
-	'YT' => 'Mayotte',
-	'MX' => 'Mexico',
-	'FM' => 'Micronesia, Federated States Of',
-	'MD' => 'Moldova',
-	'MC' => 'Monaco',
-	'MN' => 'Mongolia',
-	'ME' => 'Montenegro',
-	'MS' => 'Montserrat',
-	'MA' => 'Morocco',
-	'MZ' => 'Mozambique',
-	'MM' => 'Myanmar',
-	'NA' => 'Namibia',
-	'NR' => 'Nauru',
-	'NP' => 'Nepal',
-	'NL' => 'Netherlands',
-	'AN' => 'Netherlands Antilles',
-	'NC' => 'New Caledonia',
-	'NZ' => 'New Zealand',
-	'NI' => 'Nicaragua',
-	'NE' => 'Niger',
-	'NG' => 'Nigeria',
-	'NU' => 'Niue',
-	'NF' => 'Norfolk Island',
-	'MP' => 'Northern Mariana Islands',
-	'NO' => 'Norway',
-	'OM' => 'Oman',
-	'PK' => 'Pakistan',
-	'PW' => 'Palau',
-	'PS' => 'Palestinian Territory, Occupied',
-	'PA' => 'Panama',
-	'PG' => 'Papua New Guinea',
-	'PY' => 'Paraguay',
-	'PE' => 'Peru',
-	'PH' => 'Philippines',
-	'PN' => 'Pitcairn',
-	'PL' => 'Poland',
-	'PT' => 'Portugal',
-	'PR' => 'Puerto Rico',
-	'QA' => 'Qatar',
-	'RE' => 'Reunion',
-	'RO' => 'Romania',
-	'RU' => 'Russian Federation',
-	'RW' => 'Rwanda',
-	'BL' => 'Saint Barthelemy',
-	'SH' => 'Saint Helena',
-	'KN' => 'Saint Kitts And Nevis',
-	'LC' => 'Saint Lucia',
-	'MF' => 'Saint Martin',
-	'PM' => 'Saint Pierre And Miquelon',
-	'VC' => 'Saint Vincent And Grenadines',
-	'WS' => 'Samoa',
-	'SM' => 'San Marino',
-	'ST' => 'Sao Tome And Principe',
-	'SA' => 'Saudi Arabia',
-	'SN' => 'Senegal',
-	'RS' => 'Serbia',
-	'SC' => 'Seychelles',
-	'SL' => 'Sierra Leone',
-	'SG' => 'Singapore',
-	'SK' => 'Slovakia',
-	'SI' => 'Slovenia',
-	'SB' => 'Solomon Islands',
-	'SO' => 'Somalia',
-	'ZA' => 'South Africa',
-	'GS' => 'South Georgia And Sandwich Isl.',
-	'ES' => 'Spain',
-	'LK' => 'Sri Lanka',
-	'SD' => 'Sudan',
-	'SR' => 'Suriname',
-	'SJ' => 'Svalbard And Jan Mayen',
-	'SZ' => 'Swaziland',
-	'SE' => 'Sweden',
-	'CH' => 'Switzerland',
-	'SY' => 'Syrian Arab Republic',
-	'TW' => 'Taiwan',
-	'TJ' => 'Tajikistan',
-	'TZ' => 'Tanzania',
-	'TH' => 'Thailand',
-	'TL' => 'Timor-Leste',
-	'TG' => 'Togo',
-	'TK' => 'Tokelau',
-	'TO' => 'Tonga',
-	'TT' => 'Trinidad And Tobago',
-	'TN' => 'Tunisia',
-	'TR' => 'Turkey',
-	'TM' => 'Turkmenistan',
-	'TC' => 'Turks And Caicos Islands',
-	'TV' => 'Tuvalu',
-	'UG' => 'Uganda',
-	'UA' => 'Ukraine',
-	'AE' => 'United Arab Emirates',
-	'GB' => 'United Kingdom',
-	'US' => 'United States',
-	'UM' => 'United States Outlying Islands',
-	'UY' => 'Uruguay',
-	'UZ' => 'Uzbekistan',
-	'VU' => 'Vanuatu',
-	'VE' => 'Venezuela',
-	'VN' => 'Viet Nam',
-	'VG' => 'Virgin Islands, British',
-	'VI' => 'Virgin Islands, U.S.',
-	'WF' => 'Wallis And Futuna',
-	'EH' => 'Western Sahara',
-	'YE' => 'Yemen',
-	'ZM' => 'Zambia',
-	'ZW' => 'Zimbabwe',
-);
 
 }

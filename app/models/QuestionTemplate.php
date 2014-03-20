@@ -26,7 +26,7 @@ class QuestionTemplate extends Entity {
                     $activity->softwareAgent_id = 'templatebuilder';
                     $activity->save();
                     $questiontemplate->activity_id = $activity->_id;
-
+                    Log::debug("Saved entity {$questiontemplate->_id} with activity {$questiontemplate->activity_id}.");
                 } catch (Exception $e) {
 
                     if($activity) $activity->forceDelete();
@@ -34,8 +34,6 @@ class QuestionTemplate extends Entity {
                     throw new Exception('Error saving activity for QuestionTemplate.');
                 }
             }
-
-             Log::debug("Saved entity {$questiontemplate->_id} with activity {$questiontemplate->activity_id}.");
         });
 
      }   
