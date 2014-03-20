@@ -97,8 +97,8 @@ class RetrieveJobs extends Command {
 			}
 
 			foreach($judgments as $judgment){
-					if($this->storeJudgment($judgment, $job, $activity->_id, $agent->_id))
-						$newJudgmentsCount++;
+				if($this->storeJudgment($judgment, $job, $activity->_id, $agent->_id))
+					$newJudgmentsCount++;
 			}
 
 			// Update count and completion
@@ -184,7 +184,8 @@ class RetrieveJobs extends Command {
 			$aentity->questionDictionary = $job->questionTemplate->getDictionary($unit, $aentity->content);
 
 			$aentity->save();
-
+			Log::debug("--+1--");	
+			return true;
 			// TODO: golden
 
 			/*  Possibly also:
@@ -198,7 +199,7 @@ class RetrieveJobs extends Command {
 				webhook_sent_at
 
 			*/
-			return true;
+
 		} catch (Exception $e) {
 			Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
 			if($aentity) $aentity->forceDelete();

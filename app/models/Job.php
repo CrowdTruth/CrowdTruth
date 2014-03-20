@@ -43,7 +43,7 @@ class Job extends Entity {
 				$job->projectedCost = $projectedCost;
 			}
 
-			if(empty($job->activity_id)){
+			if(!isset($job->activity_id)){
 		    	$activity = new Activity;
 				$activity->label = "Job is uploaded to crowdsourcing platform.";
 				$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB softwareAgent_id = $platform. Does this need to be the same?
