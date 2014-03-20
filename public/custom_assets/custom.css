@@ -14,3 +14,31 @@
 
 /*The following if or Angular-UI pagination to work succesfully*/
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+.bordered {
+	border: solid #AAA 1px;
+	height: 100%;
+	margin-bottom: 5px;
+}
+
+.checkbox {
+	width: 5px;
+	height: 100%;
+	float: left;
+	vertical-align: middle;
+}
+
+.workerbox {
+	width: 100%;
+	float: right;
+}
+
+.subsript {
+	color: grey;
+	font-size: 11pt;
+	font-style: italic;
+}
+
+.workerid {
+	font-size: 14pt;
+}
