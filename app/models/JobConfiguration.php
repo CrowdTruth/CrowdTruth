@@ -141,7 +141,9 @@ class JobConfiguration extends Entity {
 		if(!$arr = json_decode($json, true))
 			throw new Exception('JSON incorrectly formatted');
 
-		return new JobConfiguration($arr);
+		$jc = new JobConfiguration;
+		$jc->content = $arr;
+		return $jc;
 	}
 
 }
