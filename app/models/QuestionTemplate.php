@@ -87,7 +87,7 @@ class QuestionTemplate extends Entity {
                     foreach($field['options'] as $okey=>$oval){
                        $otemp[$okey] = ($aval == $okey ? 1 : 0);
                     }
-                    $dictionary[] = $otemp;
+                    $dictionary = $otemp;
                 }
             }
         }
