@@ -9,29 +9,6 @@ Route::group(array('before' => 'auth'), function()
 {
 	Route::get('/', function()
 	{
-
-		// $result = \MongoDB\Entity::where('_id', 'entity/text/medical/batch/2')->first();
-
-		// return $result->wasDerivedFrom;
-
-        // $result = \MongoDB\Entity::where('format', 'text')->where('domain', 'medical')->where("documentType", 'twrex-structured-sentence')->orderBy('natural', 'asc')->get(array("_id"));
-
-        // return $result;
-		// echo "<pre>";
-
-		// User::whereIn('age', array(16, 18, 20))->get();
-
-
-		// $entities = \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')
-		// ->where('content.properties.sentenceWordCount', '<', 20)
-		// ->get(array('_id', 'user_id'));
-
-		// foreach($entities as $entity){
-		// 	print_r($entity->wasAttributedToUserAgent->getAttributes());
-		// }
-
-		// exit;
-
 	    return Redirect::to('home');
 	});
 
@@ -51,8 +28,10 @@ Route::any('cfwebhook.php', function(){
 	$cfwebhook = new crowdwatson\CFWebhook();
 	$cfwebhook->getSignal();
 });
-Route::resource('api/v1/', '\Api\v1\apiController', array('only' => array('index', 'show')));
-Route::controller('api/v2', '\Api\v2\apiController');
+
+Route::controller('api/v1', '\Api\v1\apiController');
+Route::controller('api/media', '\Api\media\apiController');
+Route::controller('api/search', '\Api\search\apiController');
 
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
 

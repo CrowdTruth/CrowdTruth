@@ -228,19 +228,19 @@ class Job  {
 			if(isset($id)) {
 				
 				// Not in API or problems with API: 
-				// 	- Channels (we can only order on cf_internal)
+				//  - Channels (we can only order on cf_internal)
 				//  - Tags / keywords
 				//  - Worker levels (defaults to '1')
 				//  - Expiration?
-
-				$optionsresult = $cfJob->setOptions($id, array('options' => $options));
-				if(isset($optionsresult['result']['error']))
-					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
 
 				$csvresult = $cfJob->uploadInputFile($id, $csv);
 				unlink($csv); // DELETE temporary CSV.
 				if(isset($csvresult['result']['error']))
 					throw new CFExceptions("CSV: " . $csvresult['result']['error']['message']);
+
+				$optionsresult = $cfJob->setOptions($id, array('options' => $options));
+				if(isset($optionsresult['result']['error']))
+					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
 
 				$channelsresult = $cfJob->setChannels($id, array('cf_internal'));
 				if(isset($channelsresult['result']['error']))
@@ -259,8 +259,7 @@ class Job  {
 						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
 				}
 
-				//TODO: this only works half the time. Get error: need unordered units.
-				// Maybe we need to build in a waiting period.
+
 				if(!$sandbox){
 					$orderresult = $cfJob->sendOrder($id, count($this->batch->ancestors), array("cf_internal"));
 					if(isset($orderresult['result']['error']))

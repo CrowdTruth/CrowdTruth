@@ -31,7 +31,7 @@ class FilesController extends BaseController {
 			$documentType = $fileHelper->getDocumentType();
 			$validatedFiles = $fileHelper->performValidation();
 
-			$mongoDBFileUpload = new \MongoDB\FileUpload;
+			$mongoDBFileUpload = new \FileUpload;
 			$status_upload = $mongoDBFileUpload->store($validatedFiles['passed'], $domain, $documentType);
 		} catch (Exception $e){
 			return Redirect::back()->with('flashError', $e->getMessage());
@@ -142,6 +142,14 @@ class FilesController extends BaseController {
 		$mainSearchFilters = $facetedSearch->getMainSearchFilters();
 
 		return View::make('files.search.pages.v2', compact('mainSearchFilters'));
+	}
+
+	public function getZoek()
+	{
+		$facetedSearch = App::make('FacetedSearch');
+		$mainSearchFilters = $facetedSearch->getMainSearchFilters();
+
+		return View::make('files.search.pages.zoek', compact('mainSearchFilters'));
 	}
 
 	public function anyBatch(){
