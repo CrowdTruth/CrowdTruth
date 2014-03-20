@@ -133,6 +133,17 @@ class JobConfiguration extends Entity {
 		return $ret . "</table>\r\n";
 	} 
 
+	public static function fromJSON($filename){
+		if(!file_exists($filename) || !is_readable($filename))
+			throw new Exception('JSON template file does not exist or is not readable.');
+
+		$json = file_get_contents($filename);
+		if(!$arr = json_decode($json, true))
+			throw new Exception('JSON incorrectly formatted');
+
+		return new JobConfiguration($arr);
+	}
+
 }
 	
 
