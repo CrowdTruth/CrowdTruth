@@ -24,8 +24,10 @@ Route::group(array('before' => 'auth'), function()
 	
 });
 
-Route::resource('api/v1/', '\Api\v1\apiController', array('only' => array('index', 'show')));
-Route::controller('api/v2', '\Api\v2\apiController');
+
+Route::controller('api/v1', '\Api\v1\apiController');
+Route::controller('api/media', '\Api\media\apiController');
+Route::controller('api/search', '\Api\search\apiController');
 
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
 

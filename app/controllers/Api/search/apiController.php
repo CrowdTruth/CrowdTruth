@@ -1,6 +1,6 @@
 <?php
 
-namespace Api\v2;
+namespace Api\search;
 
 use \BaseController as BaseController;
 use \Input as Input;
@@ -22,7 +22,7 @@ class apiController extends BaseController {
 	}
 
     protected $operators = array(
-    	'=' , '<', '>', '<>'
+    	'=' , '<', '>', '<=', '>=', '<>', 'like'
     );	
 
     // protected $operators = array(
@@ -32,26 +32,6 @@ class apiController extends BaseController {
     //     'exists', 'type', 'mod', 'where', 'all', 'size', 'regex',
     // );
 
-  //   public function getDistinct($field = null)
-  //   {
-		// $c = Input::get('collection', 'Entity');
-
-		// $collection = $this->repository->returnCollectionObjectFor($c);
-
-		// if($collection->getTable() == "useragents")
-		// {
-		// 	return Response::json(\User::all());
-		// }		
-
-  //   	if(Input::has('field'))
-  //   	{
-  //   		$collection = $this->processFields($collection);
-  //   	}
-    	
-  //   	$collection = array_flatten($collection->distinct($field)->get()->toArray());
-  //   	return Response::json($collection);
-  //   }
-
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -59,8 +39,7 @@ class apiController extends BaseController {
 	 */
 	public function getIndex()
 	{
-		// echo "<pre>";
-		// dd(Input::all());
+		// return Input::all();
 
 		$c = Input::get('collection', 'Entity');
 
@@ -91,21 +70,62 @@ class apiController extends BaseController {
 
 			$sortingColumnName = $sortingColumnName == "_id" ? "natural" : $sortingColumnName;
 
-			$count = new \MongoDB\Entity;
-			$count = $this->processFields($count);
-			$count = $count->count();
-
+			$iTotalDisplayRecords = new \MongoDB\Entity;
+			$iTotalDisplayRecords = $this->processFields($iTotalDisplayRecords);
+			$iTotalDisplayRecords = $iTotalDisplayRecords->count();
+		
 			$collection = $collection->skip($start)->orderBy($sortingColumnName, $sortingDirection)->take($limit)->get($only);
+
+			if($input = Input::get('field'))
+			{
+				$iTotalRecords = new \MongoDB\Entity;
+
+				if(isset($input['format']))
+				{
+					$iTotalRecords = $iTotalRecords->whereIn('format', array_flatten([$input['format']]));
+				}
+
+				if(isset($input['domain']))
+				{
+					$iTotalRecords = $iTotalRecords->whereIn('domain', array_flatten([$input['domain']]));
+				}
+
+				if(isset($input['documentType']))
+				{
+					$iTotalRecords = $iTotalRecords->whereIn('documentType', array_flatten([$input['documentType']]));
+				}
+
+				$iTotalRecords = $iTotalRecords->count();
+			}
 
 			return Response::json([
 		        "sEcho" => Input::get('sEcho', 10),
-		        "iTotalRecords" => $count,
-		        "iTotalDisplayRecords" => $count,
+		        "iTotalRecords" => $iTotalRecords,
+		        "iTotalDisplayRecords" => $iTotalDisplayRecords,
 		        "aaData" => $collection->toArray()
 		   ]);			
 		}
 
-		$collection = $collection->skip($start)->take($limit)->get($only);
+		// return $collection = ["entries" => $collection->skip($start)->take($limit)->get($only)->toArray()];
+
+		if($orderBy = Input::get('orderBy')){
+			foreach($orderBy as $sortingColumnName => $sortingDirection)
+			{
+				$collection = $collection->orderBy($sortingColumnName, $sortingDirection);
+			}
+		}
+
+		$collection = $collection->paginate($limit, $only);
+		$pagination = $collection->links()->render();
+		$count = $collection->toArray();
+		unset($count['data']);
+		$documents = $collection->toArray()['data'];
+
+		return Response::json([
+			"count" => $count,
+			"pagination" => $pagination,
+			"documents" => $documents
+			]);
 
 		if(array_key_exists('getQueryLog', Input::all()))
 		{
@@ -118,8 +138,57 @@ class apiController extends BaseController {
 			return json_encode($collection->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		}
 
-		return Response::json($collection);
+		return Response::json($collection->toArray());
 
+	}
+
+	public function anyPost()
+	{
+		$c = Input::get('collection', 'Entity');
+
+		$collection = $this->repository->returnCollectionObjectFor($c);
+
+    	if(isset(Input::get('field')['_id']))
+    	{
+			$collection = $this->processFields($collection);
+
+			if($data = Input::get('data'))
+			{
+				$data = json_decode($data, true);
+
+				$collection->update($data, array('upsert' => true));
+			}
+
+			return $collection->get();			
+		}
+	}
+
+	public function anyPut()
+	{
+		$c = Input::get('collection', 'Entity');
+
+		$collection = $this->repository->returnCollectionObjectFor($c);
+
+    	if(isset(Input::get('field')['_id']))
+    	{
+			$collection = $this->processFields($collection);
+
+			if($data = Input::get('data'))
+			{
+				$data = json_decode($data, true);
+
+				$original = $collection->first();
+				$originalArray = $original->toArray();
+
+				if(array_key_exists(key($data), $originalArray))
+				{
+					$merged = array_replace_recursive($originalArray, $data);
+					$original->update($merged, array('upsert' => true));
+				}
+
+				return Response::json($original);
+			}			
+		}
 	}
 
 	protected function processFields($collection)
@@ -143,7 +212,14 @@ class apiController extends BaseController {
 							$subvalue = (int) $subvalue;
 						}
 
-						$collection = $collection->where($field, $operator, $subvalue);
+						if($operator == "like")
+						{
+							$collection = $collection->where($field, $operator, "%" . $subvalue . "%");
+						}
+						else
+						{
+							$collection = $collection->where($field, $operator, $subvalue);
+						}						
 					}
 				}
 

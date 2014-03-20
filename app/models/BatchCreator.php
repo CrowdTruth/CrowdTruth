@@ -34,7 +34,7 @@ class BatchCreator extends Moloquent {
 			$entity->format = $input['format'];	
 			$entity->domain = $input['domain'];	
 			$entity->documentType = "batch";
-			$entity->ancestors = $input['units'];
+			$entity->parents = $input['units'];
 			$entity->content = $input['batch_description'];
 			$entity->hash = md5(serialize($entity->ancestors));
 			$entity->activity_id = $activity->_id;
@@ -43,6 +43,7 @@ class BatchCreator extends Moloquent {
 			Session::flash("flashSuccess", $input['batch_title'] . " batch was successfully created. (URI: {$entity->_id})");
 		} catch (Exception $e) {
 			// Something went wrong with creating the Entity
+			$activity->forceDelete();			
 			$entity->forceDelete();
 			Session::flash('flashError', $e->getMessage());
 

@@ -19,7 +19,7 @@ class TwrexController extends BaseController {
 
 	public function getIndex()
 	{
-		return Redirect::to('preprocess/twrex/info');
+		return Redirect::to('preprocess/twrex/actions');
 	}
 
 	public function getInfo()
@@ -29,6 +29,16 @@ class TwrexController extends BaseController {
 
 	public function getActions()
 	{
+		$entities = \MongoDB\Entity::where('documentType', 'twrex')->get();
+
+		if(count($entities) > 0)
+		{
+			return View::make('preprocess.twrex.pages.actions', compact('entities'));
+		}
+
+		return Redirect::to('files/upload')->with('flashNotice', 'You have not uploaded any "twrex" documents yet');
+
+
 		$items = Cart::content();
 
 		if(count($items) > 0)

@@ -3,7 +3,7 @@
 class FileHelper {
 
 	protected $input;
-	protected $format;	
+	protected $format;
 
 	protected $validationRules = array(
 		'text' => array(

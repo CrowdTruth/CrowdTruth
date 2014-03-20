@@ -1,6 +1,7 @@
 <?php
 
-namespace MongoDB;
+use \MongoDB\Entity as Entity;
+use \MongoDB\Activity as Activity;
 
 use Moloquent, Schema, URL, File, Exception;
 
@@ -32,12 +33,14 @@ class FileUpload extends Moloquent {
 
 			try {
 				$entity = new Entity;
+				$entity->_id = $entity->_id;
 				$entity->title = strtolower($title);
 				// $entity->extension = $file->getClientOriginalExtension();
 				$entity->domain = $domain;
 				$entity->format = "text";
 				$entity->documentType = $documentType;
 				$entity->content = File::get($file->getRealPath());
+				$entity->hash = md5(serialize([$entity->content]));				
 				$entity->activity_id = $activity->_id;
 				$entity->save();
 

@@ -7,6 +7,6 @@ class PreprocessController extends BaseController {
 		// 	Session::flash('flashNotice', 'You have not added any items to your selection yet');
 		// 	return Redirect::to('files/browse');
 		// }
-        return View::make('preprocess.index');
+        return Redirect::to('preprocess/twrex');
 	}
 }

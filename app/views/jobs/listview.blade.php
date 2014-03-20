@@ -54,15 +54,15 @@
 
 			
 			<!-- Left column for filters -->
-				<!-- <div class="panel panel-default">
+				<div class="panel panel-default">
 					<div class="panel-heading">
-						<h3 class="panel-title">Apply filter:</h3>
+						<h3 class="panel-title">Filter:</h3>
 					</div>
 					<div class="panel-body" style="border-bottom: 1px solid #eee">
-						<i class="fa fa-user"></i> {{Form::label('createdBy', 'Created by:')}}<br>
-						{{Form::input('createdBy','createdBy')}}
+						<i class="fa fa-user"></i> <label> Created by: </label><br>
+						<input type="text" ng-keyup="setFilter()" ng-model="filter.username">
 					</div>
-					<div class="panel-body" style="border-bottom: 1px solid #eee">
+					<!-- <div class="panel-body" style="border-bottom: 1px solid #eee">
 						<i class="fa fa-users"></i> {{Form::label('user', 'Platform:')}}<br>
 						{{Form::checkbox('')}} CrowdFlower<br>
 						{{Form::checkbox('')}} Amazon MTurk
@@ -76,8 +76,8 @@
 					</div>
 					<div class="panel-body">
 						Domain, Type, Status (Running, Completed)
-					</div>
-				</div> -->
+					</div> -->
+				</div>
 			<!-- END OF LEFT COLUMN HERE -->
 			</div>
 
@@ -87,16 +87,16 @@
 						<div class="panel panel-default" ng-repeat="result in results.data">
 						<!-- Top row is panel heading with creation date and creator -->
 						<div class="panel-heading clearfix">
-							<div style="width: 5%; float:left;">
+							<div style="width: 3%; float:left;">
 								<input type="checkbox" ng-model="result.checked"></a>
 							</div>
 	              			<div style="float:left;">
-	              				Created on @{{result.created_at}} by @{{result.user_id}}
+	              				Created on @{{result.created_at}} by @{{result.wasAttributedToUserAgent.username}}
 		              		</div>
 			           		<div class="pull-right" style="width: 33%;">
 			           			<div class="progress" style="margin-bottom: 0px;">	
-			           				<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="@{{result.completion}}%" aria-valuemin="0" aria-valuemax="100" style="width: @{{result.completion}} %;">
-		   								<span class="sr-only">@{{result.completion}}% Complete</span>
+			           				<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="@{{result.completion * 100}}" aria-valuemin="0" aria-valuemax="100" style="width: @{{result.completion * 100}}% ;">
+		   								<span class="sr-only">@{{result.completion * 100}}% Complete</span>
 		  							</div>
 		              			</div>
 		              		</div>
@@ -116,11 +116,11 @@
 			               	<div class="row" style="height: 90px;">
 			               		<!-- This row has the following content: #sentences, judgments/unit and template info; block with worker info; block of costs, block of completion percentage; -->
 			               		<div class="col-md-2" style="border-right: 1px solid #eee; height: 100%; text-align: center; display: table-cell; vertical-align: middle; padding-top: 10px;">
-			               			<strong style="font-size: 24px;"><i class="fa fa-bars"></i> @{{result.hasConfiguration.content.judgmentsPerUnit}}</strong><br>
+			               			<strong style="font-size: 24px;"><i class="fa fa-bars"></i> @{{result.hasConfiguration.content.annotationsPerUnit}}</strong><br>
 			               			<strong style="font-size: 24px;"><i class="fa fa-gavel"></i> @{{result.hasConfiguration.content.unitsPerTask}}</strong><br>
 			               		</div>
 			               		<div class="col-md-4" style="border-right: 1px solid #eee; height: 100%; text-align: center; display: table-cell; padding-top: 10px; vertical-align: middle;"> 
-			               			<h2><i class="fa fa-users"></i> @{{result.hasConfiguration.content.platform}} </h2>
+			               			<h2><i class="fa fa-users"></i> @{{result.softwareAgent_id}} </h2>
 			               		</div>
 			               		<div class="col-md-2" style="border-right: 1px solid #eee; height:100%; text-align: center; display: table-cell; padding-top: 5px; font-size: 26px; vertical-align: middle;"> 
 			                   		<i class="fa fa-flag"></i> <br> %</strong>
@@ -130,24 +130,38 @@
 							       	<h2><i class="fa fa-dollar"></i>@{{result.projectedCost}}</h2>
 							    </div>
 							    <div class="col-md-2" style="text-align: center; height: 100%; display: table-cell; vertical-align: middle; padding-top: 10px;">
-							    	<strong> <i class="fa fa-gavel"></i> / @{{result.unitsCount}} </strong>
-							    	<h2><i class="fa fa-check-circle"></i> %</h2>
+							    	<strong> <i class="fa fa-gavel"></i> @{{result.completion * result.unitsCount}} / @{{result.unitsCount}} </strong>
+							    	<h2><i class="fa fa-check-circle"></i> @{{result.completion * 100}} %</h2>
 			               		</div>
 							</div>
-							 <!-- Here starts the hidden details field, see js at bottom of page -->
-							<div id="" class="row" style="display: none;">
-					            <table class="table table-striped">
-					           	
-					 	    	</table>
-	          				</div>
+						<!-- Here starts hidden details -->
+		          			<div class="row ng-hide" ng-show="result.detailchecked">
+		          				<div style="padding-left: 10px;">
+				     				Tags: @{{result.hasConfiguration.tags}}<br>
+	      		     				Keywords: @{{result.hasConfiguration.content.keywords}}<br>
+	      		     				Hit lifetime in minutes: @{{result.hasConfiguration.content.hitLifetimeInMinutes}}<br>
+	      		     				Expiration in minutes: @{{result.hasConfiguration.content.expirationInMinutes}}<br>
+	      		     				Autoapproval delay in minutes: @{{result.hasConfiguration.content.autoApprovalDelayInMinutes}}<br>
+	      		     				Qualification Requirement: @{{result.hasConfiguration.content.qualificationRequirement}}<br>
+	      		     				Assignment Review Policy: @{{result.hasConfiguration.assignmentReviewPolicy}}<br>
+	      		     				Answer Fields: @{{result.hasConfiguration.answerfields}}<br>
+	      		     				Requester Annotation: @{{result.hasConfiguration.content.requesterAnnotation}}<br>
+	      		     				Instructions: @{{result.hasConfiguration.content.instructions}}<br>
+	      		     				Notification e-mail: @{{result.hasConfiguration.content.notificationEmail}}
+      		     				</div>
+		          			</div>
 	          			</div>
+	          			
 						<!-- Here starts the panel footer -->
 	               		<div class="panel-footer">
 	               			<div class="row">
-	               				<div style="float:left; padding: 3px; padding-left:8px;">
-						  			<input class="btn btn-primary" type="button" id="" ng-click="showDetail(result)" value="Details">
+	               				<div style="float:left; padding: 3px; padding-left:8px;">	 	
+				  			 		<label class="btn btn-primary">
+				  			 			<input type="checkbox" id="details" style="display:none" ng-model="result.detailchecked">Details
+				  			 		</label>
 								</div>
-								<!-- <div class="btn-group" style="float: left; padding: 3px;">
+						  			 
+								<div class="btn-group" style="float: left; padding: 3px;">
 									<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>Actions
 						    			<span class="caret"></span>
 					   				</button>
@@ -159,7 +173,7 @@
 					       				<li><a href=""><i class="fa fa-sign-out fa-fw"></i>Delete Job</a></li>
 					   				</ul>
 								</div>
- -->							</div>
+							</div>
 						</div>								
 					<!--End of panel  -->
 					</div>	

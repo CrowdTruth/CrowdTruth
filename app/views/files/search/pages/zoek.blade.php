@@ -3,7 +3,7 @@
 @section('container', 'full-container')
 
 @section('head')
-{{ stylesheet_link_tag('dataTables.bootstrap.css') }}
+{{ stylesheet_link_tag('bootstrap-select.css') }}
 @stop
 
 @section('content')
@@ -105,21 +105,55 @@
 
 									<div class="tab-content documentTypesTabs">
 										<div class="tab-pane active" id="all_tab">
-											<div class='table-responsive'>
-												<table class='table table-striped'>
-													<thead>
-														<tr>
-															<th data-query-key="only[0]" data-query-value="_id">ID</th>
-															<th data-query-key="only[1]" data-query-value="format">format</th>
-															<th data-query-key="only[2]" data-query-value="domain">Domain</th>
-															<th data-query-key="only[3]" data-query-value="documentType">Document Type</th>
-														</tr>
-													</thead>
-													<tbody>
-												    </tbody>
-										    	</table>
+										<div class='row'>
+											<div class='searchOptions col-xs-3'>
+												<select name="search_limit" class="selectpicker">
+													<option value="10">10 Records per page</option>
+													<option value="25">25 Records per page</option>
+													<option value="50">50 Records per page</option>
+													<option value="100">100 Records per page</option>
+												</select>
+											</div>
+											<div class='cw_pagination col-xs-9'>
 											</div>
 										</div>
+										    <table class="table table-striped">
+										        <thead>
+											        <tr>
+											            <th>Checkbox</th>
+											            <th class="sorting" data-query-key="orderBy[_id]">ID</th>
+											            <th class="sorting" data-query-key="orderBy[title]">Title</th>
+											            <th class="sorting" data-query-key="orderBy[domain]">Domain</th>
+											        </tr>
+													<tr class="inputFilters">
+														<td>
+															<input type="checkbox" class="checkAll" />
+														</td>
+														<td>
+															<input type='text' data-query-key="field[_id]" data-query-operator="[like]" />
+														</td>
+														<td>
+															<input type='text' data-query-key="field[title]" data-query-operator="[like]" />
+														</td>
+														<td>
+															<input type='text' data-query-key="field[domain]" data-query-operator="[like]" />
+														</td>
+													</tr>											        
+										        </thead>
+									        <tbody class='results'>											
+												<script class='template' type="text/x-handlebars-template">
+											        @{{#each documents}}
+											        <tr>
+											            <td>Checkbox</td>
+											            <td>@{{ this._id }}</td>
+											            <td>@{{ this.title }}</td>
+											            <td>@{{ this.domain }}</td>
+											        </tr>
+											        @{{/each}}
+												</script>
+									        </tbody>
+									    </table>											
+									</div>
 
 										@if(isset($mainSearchFilters['documentTypes']['job']))
 											@include('files.search.layouts.job')
@@ -134,7 +168,56 @@
 										@endif
 
 										@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
-											@include('files.search.layouts.twrex-structured-sentence')
+										<div class="tab-pane" id="twrex-structured-sentence_tab">
+										<div class='row'>
+											<div class='searchOptions col-xs-3'>
+												<select name="search_limit" class="selectpicker">
+													<option value="10">10 Records per page</option>
+													<option value="25">25 Records per page</option>
+													<option value="50">50 Records per page</option>
+													<option value="100">100 Records per page</option>
+												</select>
+											</div>
+											<div class='cw_pagination col-xs-9'>
+											</div>
+										</div>
+										    <table class="table table-striped">
+										        <thead data-query-key="field[documentType]" data-query-value="twrex-structured-sentence">
+											        <tr>
+											            <th>Checkbox</th>
+											            <th class="sorting" data-query-key="orderBy[content.relation.noPrefix]">Relation</th>
+											            <th class="sorting" data-query-key="orderBy[content.terms.first.text]">Term 1</th>
+											            <th class="sorting" data-query-key="orderBy[content.terms.second.text]">Term 2</th>
+											        </tr>
+													<tr class="inputFilters">
+														<td>
+															<input type="checkbox" class="checkAll" />
+														</td>
+														<td>
+															<input type='text' data-query-key="field[content.relation.noPrefix]" data-query-operator="[like]" />
+														</td>
+														<td>
+															<input type='text' data-query-key="field[content.terms.first.text]" data-query-operator="[like]" />
+														</td>
+														<td>
+															<input type='text' data-query-key="field[content.terms.second.text]" data-query-operator="[like]" />
+														</td>
+													</tr>											        
+										        </thead>
+									        <tbody class='results'>											
+												<script class='template' type="text/x-handlebars-template">
+											        @{{#each documents}}
+											        <tr>
+											            <td>Checkbox</td>
+											            <td>@{{ this.content.relation.noPrefix }}</td>
+											            <td>@{{ this.content.terms.first.text }}</td>
+											            <td>@{{ this.content.terms.second.text }}</td>
+											        </tr>
+											        @{{/each}}
+												</script>
+									        </tbody>
+									    </table>											
+									</div>
 										@endif
 
 									</div>
@@ -147,29 +230,24 @@
 @stop
 
 @section('end_javascript')
-{{ javascript_include_tag('jquery.dataTables.min.js') }}
-{{ javascript_include_tag('dataTables.colVis.js') }}
-{{ javascript_include_tag('jquery.dataTables.bootstrap.js') }}
-{{ javascript_include_tag('dataTables.fnReloadAjax.js') }}
+{{ javascript_include_tag('bootstrap-select.js') }}
+<script src="//cdn.jsdelivr.net/handlebarsjs/1.3.0/handlebars.js"></script>
 
 <script>
 $('document').ready(function(){
-
-var baseApiURL = '{{ URL::to("api/v1?datatables=true&noCache") }}';
-var dataTableObjects = {};
+$('.selectpicker').selectpicker();
 var selectedRows = [];
-
-// $('.facetedSearchResults').css({ "min-height" : "100% "});
+var templates = {};
 
 var delay = (function(){
-  var timer = 0;
-  return function(callback, ms){
-  clearTimeout (timer);
-  timer = setTimeout(callback, ms);
- };
+	var timer = 0;
+	return function(callback, ms){
+		clearTimeout (timer);
+		timer = setTimeout(callback, ms);
+	};
 })();
 
-$('.inputFilters input').keyup(function() {
+$('body').on('keyup', '.inputFilters input', function(){
 	var inputFilter = $(this);
 
 	delay(function(){
@@ -180,13 +258,12 @@ $('.inputFilters input').keyup(function() {
 		if(inputFilter.val() == "")
 			inputFilter.removeAttr('data-query-value');
 
-	 	getTabResults(getActiveTabKey());
+	 	getResults();
 	}, 300);
 });
 
 $('body').on('click', '.checkAll', function(){
 	var activeTabKey = getActiveTabKey();
-
 	if (! $(this).is(':checked')) {
 		$(activeTabKey + ' input[name=rowchk]').each(function(){
 			if ($(this).is(':checked')) {
@@ -200,7 +277,6 @@ $('body').on('click', '.checkAll', function(){
 			}
 		});
 	}
-
 });
 
 $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
@@ -208,12 +284,17 @@ $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
 });
 
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+	var activeTabKey = getActiveTabKey();
+
 	if($(this).attr('href') == "#all_tab")
 		return false;
 
 	if($(this).closest('li').hasClass('active')){
 		$('.specificFilters').empty().append($('.tab-pane.active .datatable_options'));
-		getTabResults($(this).attr('href'));
+		if(templates[activeTabKey] == undefined)
+		{		
+			getResults();
+		}
 	}
 });
 
@@ -223,15 +304,8 @@ $('body').on('click', '.specificFilters button', function(){
 
 	var activeTabKey = getActiveTabKey();
 	selectedRows[activeTabKey] = [];
-	getTabResults(activeTabKey);
+	getResults(activeTabKey);
 });
-
-$('.filterOption').on('click', function(){
-	updateFilters($(this));
-	activateNavAndTab($(this));
-	getAllTabResults();
-});
-
 
 $('.createBatchButton').on('click', function(){
 	var activeTabKey = getActiveTabKey();
@@ -245,9 +319,35 @@ $('.createBatchButton').on('click', function(){
 	}
 });
 
+$('.filterOption').on('click', function(){
+	updateFilters($(this));
+	activateNavAndTab($(this));
+	getResults();
+});
+
+$('.tab-pane').on('change', "[name='search_limit']", function(){
+	getResults();
+});
+
+$('.tab-pane').on('click', "th", function(){
+	if($(this).hasClass('sorting')){
+		$(this).removeClass().addClass('sorting_asc');
+	} else if($(this).hasClass('sorting_asc')){
+		$(this).removeClass().addClass('sorting_desc');
+	} else {
+		$(this).removeClass().addClass('sorting');
+	}
+
+	getResults();
+});
+
 function getActiveTabKey(){
 	var activeTabKey = '#' + $('.tab-pane.active').attr('id');
 	return activeTabKey;
+}
+
+function getSearchLimitValue(){
+	return $(getActiveTabKey()).find("[name='search_limit']").val();
 }
 
 function activateNavAndTab(filterOption){
@@ -267,16 +367,31 @@ function activateNavAndTab(filterOption){
 	}
 }
 
-function getTabResults(activeTabKey){
+$('body').on('click', 'ul.pagination a', function() {
+	event.preventDefault();
+	getResults($(this).attr('href') + "&noCache");
+});
+
+function getResults(baseApiURL){
+	if(baseApiURL == undefined)
+	{
+		var baseApiURL = '{{ URL::to("api/search?noCache") }}';
+	}
+
+	var activeTabKey = getActiveTabKey();
+	var search_limit = "&limit=" + getSearchLimitValue();
 	var tabFieldsQuery = '';
 
-	// alert(activeTabKey);
+	if(activeTabKey == "#all_tab"){
+		$('.filterOption').each(function() {
+			if($(this).closest('li').hasClass('active'))
+			{
+				tabFieldsQuery += "&" + $(this).closest('li').attr('data-query-key') + "=" + $(this).closest('li').attr('data-query-value');
+			}
+		});	
+	}
 
-	$('.specificFilters .datatable_options, ' + activeTabKey + ' .datatable_content').find("[data-query-key]").each(function() {
-
-		if($(this).hasClass('btn') && !$(this).hasClass('active'))
-			return true;
-
+	$(activeTabKey).find("[data-query-key]").each(function() {
 		if($(this).is('[data-query-value]')){
 			if($(this).is('[data-query-operator]')){
 				var operator = $(this).attr('data-query-operator') + "=";
@@ -286,142 +401,36 @@ function getTabResults(activeTabKey){
 
 			tabFieldsQuery += "&" + $(this).attr('data-query-key') + operator + $(this).attr('data-query-value');
 		}
+
+		if($(this).hasClass('sorting_asc')){
+			tabFieldsQuery += "&" + $(this).attr('data-query-key') + "=asc";
+		} else if($(this).hasClass('sorting_desc')){
+			tabFieldsQuery += "&" + $(this).attr('data-query-key') + "=desc";
+		}
 	});
 
-	// $(activeTabKey + ' .datatable_content').find("[data-query-key]").each(function() {
-	// 	tabFieldsQuery += "&" + $(this).attr('data-query-key');
-	// });
-
-	// alert('done');
-	// console.clear();
-	// console.log(tabFieldsQuery);	
-
-	if(!$(activeTabKey).find('th.db_checkbox').length){
-		$(activeTabKey).find('.datatable_content thead tr:first').prepend('<th data-column="_id" class="db_checkbox" style="font-size:0;">Checkbox</th>');
+	if(tabFieldsQuery == '')
+	{
+		$(activeTabKey).find('.results').empty();
+		$(activeTabKey).find('.cw_pagination').empty();
+		return false;
 	}
 
-	var aoColumns = [];
-	$(activeTabKey).find("[data-column]").each(function() {
-		if($(this).is('[data-bvisible]')){
-			var bVisible = false;
-		} else {
-			var bVisible = true;
-		}
+	console.log(tabFieldsQuery);
 
-		aoColumns.push({
-			mData : $(this).attr('data-column'),
-			bVisible : bVisible
-	    });
-	});	
-	// console.log(aoColumns);
+	$.getJSON(baseApiURL + tabFieldsQuery + search_limit, function(data) {
+		console.log(data);
 
-	if (typeof dataTableObjects[activeTabKey] == 'undefined') {
-		dataTableObjects[activeTabKey] = $('.documentTypesTabs ' + activeTabKey + ' .datatable_content').dataTable({
-			"bProcessing": true,
-			"bServerSide": true,
-			"bFilter": false,
-			"bAutoWidth": false,
-			"sDom" : '<"top"Ci>r<"bottom"flp><"clear">',
-			// "aLengthMenu": [[10, 50, 100, -1], [10, 50, 100, 'All']],
-			"sPaginationType": "bootstrap",	        
-			"sAjaxSource": baseApiURL + tabFieldsQuery,
-			"sAjaxDataProp": "aaData",
-			"aoColumns": aoColumns,
-			// "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-			"bSortCellsTop": true,
-			"aoColumnDefs": [
-			    {
-			    	"aTargets": [ 0 ],
-			    	bSortable: false,
-				    "mRender": function ( data, type, full ) {
-				        var returndata;
-
-				        if(jQuery.inArray(data, selectedRows[activeTabKey]) == -1)
-				        {
-				        	returndata = '<input type="checkbox" id="'+data+'" name="rowchk" value="'+data+'">';
-				        }
-				        else
-				        {
-				        	returndata = '<input type="checkbox" id="'+data+'" name="rowchk" value="'+data+'" checked="checked">';
-				        }
-
-				        return returndata;
-					}
-				}
-			],
-			"fnDrawCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-				$(activeTabKey + ' .checkAll').removeAttr('checked');
-
-	            $("input[name=rowchk]").click(function(event){
-	            	var val = $(this).attr('value');
-
-		            if($(this).prop("checked")){
-		            	if (typeof selectedRows[activeTabKey] == 'undefined') {
-		            		selectedRows[activeTabKey] = [];
-		            	}		            	
-						
-						selectedRows[activeTabKey].push(val);
-		            }
-		            else
-		            {
-						selectedRows[activeTabKey] = $.grep(selectedRows[activeTabKey], function(value) {
-						  return value != val;
-						});
-		            }
-
-		            console.log(selectedRows);
-           		});
-	        }     
-		});
-	}
-	else
-	{	
-		dataTableObjects[activeTabKey].fnReloadAjax(baseApiURL + tabFieldsQuery);
-	}	
-}
-
-function getAllTabResults(){
-	var allTabQuery = '';
-
-	$('.filterOption').each(function() {
-		if($(this).closest('li').hasClass('active'))
+		if(templates[activeTabKey] == undefined)
 		{
-			allTabQuery += "&" + $(this).closest('li').attr('data-query-key') + "=" + $(this).closest('li').attr('data-query-value');
+			templates[activeTabKey] = $(activeTabKey).find('.template').html();
 		}
-	});
 
-	var onlyFields = '';
-
-	$('.documentTypesTabs #all th').each(function() {
-		onlyFields += "&" + $(this).attr('data-query-key') + "=" + $(this).closest('li').attr('data-query-value');
-	});	
-
-	// alert(onlyFields);
-
-	console.log(allTabQuery);
-
-	if (typeof dataTableObjects['all'] == 'undefined') {
-		dataTableObjects['all'] = $('.documentTypesTabs #all_tab table').dataTable({
-	        "bProcessing": true,
-	        "bServerSide": true,
-	        "bFilter": false,
-	        "sDom" : '<"top"i>r<"bottom"flp><"clear">',
-		    // "aLengthMenu": [[10, 50, 100, -1], [10, 50, 100, 'All']],
-		    "sPaginationType": "bootstrap",	        
-	        "sAjaxSource": baseApiURL + allTabQuery + onlyFields,
-	        "sAjaxDataProp": "aaData",
-			"aoColumns": [
-			  { "mData": "_id" },
-			  { "mData": "format" },
-			  { "mData": "domain" },
-			  { "mData": "documentType" }
-			]
-			});
-	}
-	else
-	{	
-		dataTableObjects['all'].fnReloadAjax('{{ URL::to("api/v1?datatables=true&limit=1000") }}' + allTabQuery + onlyFields);
-	}
+		var template = Handlebars.compile(templates[activeTabKey]);
+		var html = template(data);
+		$(activeTabKey).find('.cw_pagination').empty().prepend($(data.pagination));
+		$(activeTabKey).find('.results').empty().append(html);
+	});		
 }
 
 function updateFilters(filterOption){

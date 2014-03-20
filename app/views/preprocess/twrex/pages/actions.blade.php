@@ -20,7 +20,7 @@
 									<tr>
 										<td style="width:40%">
 											<div class='btn-group'>
-												<a class='btn btn-default btn-sm col-xs-9' href='{{ URL::to('files/view?' . $entity['_id']) }}'>
+												<a class='btn btn-default btn-sm col-xs-9' href='{{ URL::to('files/view?URI=' . $entity['_id']) }}'>
 													<i class='fa fa-file-text fa-fw'></i>
 													<span>{{ $entity['title'] }}</span>
 												</a>
@@ -29,7 +29,7 @@
 												</a>
 												<ul class='dropdown-menu pull-right'>
 													<li><a href='{{ URL::to('files/view?URI=' . $entity['_id']) }}'><i class='fa fa-file-text-o fa-fw'></i>View</a></li>
-													<li><a class='update_selection' href='{{ URL::to('selection/remove?selectionID=' . $entity['rowid']) }}'><i class='fa fa-trash-o fa-fw'></i>Remove from selection</a></li>
+													<!-- <li><a class='update_selection' href='{{ URL::to('selection/remove?selectionID=' . $entity['rowid']) }}'><i class='fa fa-trash-o fa-fw'></i>Remove from selection</a></li> -->
 												</ul>
 												</div>
 										</td>
