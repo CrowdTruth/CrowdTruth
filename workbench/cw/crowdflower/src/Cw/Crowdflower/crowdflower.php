@@ -74,7 +74,7 @@ class Crowdflower {
 
 		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['requesterAnnotation']) ? $jc->content['requesterAnnotation'] : '')*60, 
 							"keywords" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''), 
-							"mail_to" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0);
+							"mail_to" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0));
     	try {
 
     		// TODO: check if all the parameters are in the csv.
