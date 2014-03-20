@@ -72,9 +72,9 @@ class Crowdflower {
 		$csv = $this->batchToCSV($job->batch);
 		$gold = $jc->answerfields;
 
-		$options = array(	"req_ttl_in_seconds" => $jc->content['expirationInMinutes']*60, 
-							"keywords" => $jc->content['requesterAnnotation'], 
-							"mail_to" => $jc->content['notificationEmail']);
+		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['requesterAnnotation']) ? $jc->content['requesterAnnotation'] : '')*60, 
+							"keywords" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''), 
+							"mail_to" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0);
     	try {
 
     		// TODO: check if all the parameters are in the csv.
