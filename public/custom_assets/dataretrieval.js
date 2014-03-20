@@ -1,4 +1,4 @@
-var app = angular.module("dataRetrieval", [ 'ngResource', 'angularMoment', 'ui.bootstrap']);
+var app = angular.module("dataRetrieval", [ 'ngResource', 'angularMoment' ]);
 
 	//write resource service class
 
@@ -13,11 +13,13 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
 	    {value: 50 },
 	    ];
 
+	// Pagination directive
+
+
 	//First fetch of results with default settings (empty filter&sort, pageNr=1 and perPage=20)
   	$scope.itemsPerPage = $scope.optionsPerPage[0].value;
-  	console.log($scope.itemsPerPage); 
-	
-
+  		
+	$scope.pageNr = 1;
 	page = "page=" + $scope.pageNr;
 	perPage = "&perPage=" + $scope.itemsPerPage;
 	sort = "";
@@ -26,26 +28,56 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
 	$scope.results = getResource($resource,page,perPage,sort,filter);
 	
 	$scope.setPerPage = function(){
-		perPage = "&perPage=" + $scope.itemsPerPage.value;
-		$scope.results = getResource($resource, page, perPage, sort, filter);
+		if( $scope.itemsPerPage.value < $scope.results.total ){
+			perPage = "&perPage=" + $scope.itemsPerPage.value;
+		}else {
+			alert("There are not that many jobs to show!");
+		}
 	}
-	
-	//The current set page *lit up
-  	
-  	//Max nr of pages shown on pagination-slider
-	$scope.maxSize = 12;
-  
-  	$scope.selectPage = function (pageNo) {
-		console.log(pageNo);
-		page = "page=" + pageNo;
-	
-		$scope.results = getResource($resource, page, perPage, sort, filter);
 		
-		console.log("Page set, sir! " );
-    		
-		$scope.pageNr = pageNo;
-    };
-	
+	$scope.selectPage = function(page){
+		switch (page){
+			case 'first':
+			$scope.pageNr = 1;
+			break;
+			case 'previous':
+			$scope.pageNr = $scope.pageNr -1;
+			break;
+			case 'next':
+			$scope.pageNr = $scope.pageNr +1;
+			break;
+			case 'last':
+			$scope.pageNr = $scope.numPages;
+			break;
+			default: 
+			$scope.pageNr;
+		}
+	}
+	  	
+	$scope.$watch('pageNr + itemsPerPage', function(n,o) {
+  		if ($scope.pageNr != ""){
+  			page = "page=" + $scope.pageNr;
+
+  			$scope.numPages = function(){
+				var pages = Math.ceil($scope.results.total/$scope.itemsPerPage);
+				if(pages == 1){
+					console.log("I evaluate true says if in numPages == 1");
+					return pages = 1;
+				}
+			console.log("numPages calculated");
+			return pages;
+			}
+
+  			$scope.results = getResource($resource, page, perPage, sort, filter);
+  			
+  			// if ($scope.results.data == null){
+  			// 	$scope.pageNr = 1;
+  			// }
+  		}
+   	});
+
+
+
   	// Call getResource after setting sort
   	$scope.setSortVisible = function(){
   		if($scope.sortVisible == true ){
@@ -144,7 +176,7 @@ var getResource = function($resource, page, perPage, sort, filter){
 		return Result = $resource('/api/v3/?:page:perPage:sort:filter', 
 			{page: '@page', perPage: '@perPage', sort: '@sort', filter: '@filter'})
 			.get({page: page, perPage: perPage, sort: sort, filter: filter},
-				function(data, $scope){$scope.results = data.data;}
+				function(data, $scope){$scope.results = data;}
 				);
 	}
 

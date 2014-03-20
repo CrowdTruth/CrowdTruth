@@ -6,7 +6,7 @@
 <script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
 <script type="text/javascript" src="/custom_assets/dataretrieval.js"></script>	
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
-<script type="text/javascript" src="/custom_assets/angular-ui.js"></script>
+<!-- <script type="text/javascript" src="/custom_assets/angular-ui.js"></script> -->
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
 <link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
 @stop
@@ -111,13 +111,24 @@
 			</div>
 
 			<!-- Main column with results -->
-			<div id="results" class="col-md-9">
+			<div id="results" class="col-md-9" ng-init="numPages()">
 				@include('layouts.flashdata')
-				
 				<div class="row" style="margin-left:auto; margin-right:auto; width:100%; text-align: center;">
-					<div class="pull-left">
+				<!-- 	<div class="pull-left">
 						<pagination on-select-page="selectPage(page)" direction-links="true" boundary-links="true" total-items="results.total" page="pageNr" items-per-page="itemsPerPage.value" max-size="maxSize"></pagination>
 					</div>
+ -->
+						
+					<div class="pull-left">
+						<div class="ng-scope disabled pull-left" style="margin-top: 25px;"><label for="page">Page :  </label> <input id="page" type="text" style="width: 25px;" ng-model="pageNr"> / @{{numPages()}}</div>
+						<ul style="margin-left: 20px;" class="pagination ng-isolate-scope">
+							<li><a ng-click="selectPage('first')" class="ng-binding">First</a></li>
+							<li><a ng-click="selectPage('previous')" class="ng-binding">Previous</a></li>
+							<li><a ng-click="selectPage('next')" class="ng-binding">Next</a></li>
+							<li><a ng-click="selectPage('last')" class="ng-binding">Last</a></li>
+						</ul>
+					</div>
+
 					<div class="pull-right" style="margin-top: 23px; margin-bottom: 20px;">
 						<select ng-model="itemsPerPage" ng-change="setPerPage()" ng-options="options.value for options in optionsPerPage">
 							<option value="">--# per page--</option>
