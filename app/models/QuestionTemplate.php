@@ -41,7 +41,11 @@ class QuestionTemplate extends Entity {
     public function getQuestionWithUnit($unit){
         $q = $this->content['question'];
         $r = $this->content['replaceValues'];
-        $uco = array_dot($unit['content']);
+
+        if(isset($unit['content']) and is_array($unit['content']))
+            $uco = array_dot($unit['content']);
+        //else throw new Exception("Unit content not found.");
+        else return array();
 
         foreach($uco as $key=>$val){
             $uc[str_replace('.', '_', $key)] = $val;
@@ -66,7 +70,7 @@ class QuestionTemplate extends Entity {
                         $okey = str_replace('{{' . $key . '}}', $val, $okey);
                         $oval = str_replace('{{' . $key . '}}', $val, $oval); 
                     }
-                    $temp[$okey] = $oval;
+                    $temp[str_replace('.', '%%', $okey)] = $oval; // TODO: TEMPORARY 'PATCH', need proper fix.  
                 }  
                 $field['options'] = $temp;
             }
@@ -80,20 +84,14 @@ class QuestionTemplate extends Entity {
     public function getDictionary($unit, $answer){
         $question = $this->getQuestionWithUnit($unit);
         $dictionary = array();
-        foreach($answer as $akey=>$aval){
-            foreach($question as $component=>$field){
-                if (isset($field['options'])){
-                    $otemp = array();
-                    foreach($field['options'] as $okey=>$oval){
-                       $otemp[$okey] = ($aval == $okey ? 1 : 0);
-                    }
-                    $dictionary = $otemp;
-                }
-            }
-        }
+        foreach($answer as $akey=>$aval)
+            foreach($question as $component=>$field)
+                if (isset($field['options']))
+                    foreach($field['options'] as $okey=>$oval)
+                       $dictionary[$okey] = ($aval == $okey ? 1 : 0);
+            
         return $dictionary;
     }
-
 }
 
 

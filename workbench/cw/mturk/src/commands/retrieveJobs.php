@@ -60,7 +60,7 @@ class RetrieveJobs extends Command {
 						->get();
 
 		foreach($jobs as $job){
-			$newannotationscount = 0;
+			$newannotations = array();
 			$newplatformhitid = array();
 
 			foreach($job->platformJobId as $hitid){
@@ -174,7 +174,7 @@ class RetrieveJobs extends Command {
 								$annentity->questionDictionary = $job->questionTemplate->getDictionary($unit, $qidansarray);
 								$annentity->save();
 
-								$newannotationscount++;
+								$newannotations[] = $annentity;
 
 							}
 
@@ -184,40 +184,23 @@ class RetrieveJobs extends Command {
 								HITId				2P3Z6R70G5RC7PEQC857ZSST0J2P9T
 								Deadline	
 							*/
-							
-
 						}
 
-						if($newannotationscount>0)
-							Log::debug("Got $newannotationscount new annotations for {$h['HITId']} - total " . count($assignments) . " annotations.");
+						if(count($newannotations)>0)
+							Log::debug("Got " . count($newannotations) . " new annotations for {$h['HITId']} - total " . count($assignments) . " annotations.");
 
 					} // foreach assignment
 				} // if / else				
 			} // foreach hit
 
-
-			// TODO: robustness
-			$job->annotationsCount = intval($job->annotationsCount)+$newannotationscount;
-			$jpu = intval(Entity::where('_id', $job->jobConf_id)->first()->content['annotationsPerUnit']);
-			$uc = intval($job->unitsCount);
-			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
-			else $job->completion = 0.00;
-
-			// Change status and save.
-			//$oldstatus = $job->status;
-			//$job->status = $newstatus;
-			
-			//if($newstatus != $oldstatus)
-			//	Log::debug("Status of job {$job->_id} changed from $oldstatus to $newstatus");
-
-			// Save JOB with new status and completion.
+			$job->addResults($newannotations);
 			$job->platformJobId = $newplatformhitid;
-			if($job->completion == 1) $job->status = 'finished'; // Todo: Not sure if this works
 			$job->save();
 		} // foreach JOB
 	}		
 
 
+	// todo: move?
 	public function createCrowdAgent($platform, $data){
 
 		$workerid = '';

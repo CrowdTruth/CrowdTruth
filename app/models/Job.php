@@ -136,6 +136,42 @@ class Job extends Entity {
 		}
     }
 
+
+    public function addResults($annotations){
+        // TODO: check if not already added?
+    	if(!is_array($annotations))
+    		$annotations = array($annotations);
+
+        $results = $this->results;
+        if(!is_array($results)) 
+            $results = array();
+        $count=0;
+        foreach($annotations as $annotation){
+	        if(in_array($annotation->unit_id, array_keys($results)))
+	            foreach ($annotation->questionDictionary as $ans=>$count){
+	                if(isset($results[$annotation->unit_id][$ans]))
+	                    $results[$annotation->unit_id][$ans]+=$count;
+	                else 
+	                    $results[$annotation->unit_id][$ans]=$count;
+	            }   
+	        else
+	            $results[$annotation->unit_id] = $annotation->questionDictionary;
+	        $count++;
+	    }
+
+    	$this->results = $results;
+    	$this->annotationsCount+=$count;
+		$jpu = intval($this->jobConfiguration->content['annotationsPerUnit']);		
+		$uc = intval($this->unitsCount);
+		if($uc > 0 and $jpu > 0) $this->completion = $this->annotationsCount / ($uc * $jpu);	
+		else $this->completion = 0.00;
+
+		if($this->completion == 1) $this->status = 'finished'; // Todo: Not sure if this works
+    }
+
+
+
+
     /** 
     * @return String[] the HTML for every question.
     */

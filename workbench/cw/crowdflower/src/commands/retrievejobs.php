@@ -54,15 +54,14 @@ class RetrieveJobs extends Command {
 				die('not yet implemented');
 				// We could check for each annotation and add it if somehow it didn't get added earlier.
 				// For this, we should add ifexists checks in the storeJudgment method.
-				$job = $this->getJob($this->option('jobid'));
+				$ourjobid = $this->option('jobid');
 				$cf = new crowdwatson\Job(Config::get('crowdflower::apikey'));
-
 				$judgments = ''; //todo			
 			}
 
 			if($this->option('judgments')) {
 				$judgments = unserialize($this->option('judgments'));
-				$job = $this->getJob($judgments[0]['job_id']);
+				$ourjobid = $judgments[0]['job_id'];
 			}
 			
 			$judgment = $judgments[0];
@@ -84,6 +83,12 @@ class RetrieveJobs extends Command {
 				$agent->save();
 			}
 
+			try{
+				$job = $this->getJob($ourjobid);
+			} catch (CFExceptions $e){
+				$job = Job::where("documentType", "job")->first(); // TODO REMOVE THIS!!!!1 is for debugging.
+			}	
+
 			// TODO: check if exists. How?
 			// For now this hacks helps: else a new activity would be created even if this 
 			// command was called as the job is finished. It doesn't work against manual calling the command though.
@@ -96,21 +101,13 @@ class RetrieveJobs extends Command {
 				$activity->save();
 			}
 
-			foreach($judgments as $judgment){
-				if($this->storeJudgment($judgment, $job, $activity->_id, $agent->_id))
-					$newJudgmentsCount++;
-			}
+			// Store judgment and update job.
+			foreach($judgments as $judgment)
+				if($annotation = $this->storeJudgment($judgment, $job, $activity->_id, $agent->_id))
+					$job->addResults($annotation);
 
-			// Update count and completion
-			// TODO: robustness
-			// TODO: know bug: AnnotationsCount lags behind. 
-			$job->annotationsCount = intval($job->annotationsCount)+$newJudgmentsCount;
-			$jpu = intval($job->jobConfiguration->content['annotationsPerUnit']);		
-			$uc = intval($job->unitsCount);
-			if($uc > 0 and $jpu > 0) $job->completion = $job->annotationsCount / ($uc * $jpu);	
-			else $job->completion = 0.00;
 			$job->save();
-			Log::debug("Saved $newJudgmentsCount new annotations to {$job->_id} to DB.");	
+			Log::debug("Saved new annotations to {$job->_id} to DB.");	
 		} catch (CFExceptions $e){
 			Log::warning($e->getMessage());
 			throw $e;
@@ -184,8 +181,8 @@ class RetrieveJobs extends Command {
 			$aentity->questionDictionary = $job->questionTemplate->getDictionary($unit, $aentity->content);
 
 			$aentity->save();
-			Log::debug("--+1--");	
-			return true;
+			Log::debug("--+1-- {$judgment['id']}");	
+			return $aentity;
 			// TODO: golden
 
 			/*  Possibly also:
