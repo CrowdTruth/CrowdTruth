@@ -11,6 +11,11 @@ class ProcessController extends BaseController {
 	}
 
 	public function getBatch() {
+/*		$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
+		$qt = QuestionTemplate::where('documentType', 'questiontemplate')->first();
+		dd($qt->getDictionary($unit, array('b. pertussis causes whooping cough')));
+
+*/
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 

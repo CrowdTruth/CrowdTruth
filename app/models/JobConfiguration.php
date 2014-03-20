@@ -26,7 +26,7 @@ class JobConfiguration extends Entity {
                     $activity->softwareAgent_id = 'jobcreator';
                     $activity->save();
                     $jobconf->activity_id = $activity->_id;
-
+                     Log::debug("Saved JobConfiguration with activity {$jobconf->activity_id}.");
                 } catch (Exception $e) {
 
                     if($activity) $activity->forceDelete();
@@ -34,8 +34,6 @@ class JobConfiguration extends Entity {
                     throw new Exception('Error saving activity for JobConfiguration.');
                 }
             }
-
-             Log::debug("Saved entity {$jobconf->_id} with activity {$jobconf->activity_id}.");
         });
 
      } 

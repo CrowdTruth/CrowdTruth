@@ -26,7 +26,7 @@ class QuestionTemplate extends Entity {
                     $activity->softwareAgent_id = 'templatebuilder';
                     $activity->save();
                     $questiontemplate->activity_id = $activity->_id;
-                    Log::debug("Saved entity {$questiontemplate->_id} with activity {$questiontemplate->activity_id}.");
+                    Log::debug("Saved QuestionTemplate with activity {$questiontemplate->activity_id}.");
                 } catch (Exception $e) {
 
                     if($activity) $activity->forceDelete();
@@ -55,23 +55,25 @@ class QuestionTemplate extends Entity {
         
         $q2 = array();
         foreach($q as $component=>$field){
-            foreach ($uc as $key=>$val) {   
-                $param = '{{' . $key . '}}';//dd($key);
-                if(isset($field['value']))
-                    $field['value'] = str_replace($param, $val, $field['value']);
-               
-                if(isset($field['options'])){
-                    foreach($field['options'] as $okey=>$oval){
-                        $okey = str_replace($param, $val, $okey);
-                        $oval = str_replace($param, $val, $oval);
-                        $field['options'][$okey] = $oval;
+            if(isset($field['value']))
+                foreach ($uc as $key=>$val)
+                    $field['value'] = str_replace('{{' . $key . '}}', $val, $field['value']);
+
+            if(isset($field['options'])){
+                $temp = array();
+                foreach($field['options'] as $okey=>$oval){
+                    foreach ($uc as $key=>$val){
+                        $okey = str_replace('{{' . $key . '}}', $val, $okey);
+                        $oval = str_replace('{{' . $key . '}}', $val, $oval); 
                     }
-               }
-             }
-             $q2[] = $field;
+                    $temp[$okey] = $oval;
+                }  
+                $field['options'] = $temp;
+            }
+            $q2[] = $field; 
         }
 
-    return $q2;
+        return $q2;
 
     }
 
@@ -82,10 +84,10 @@ class QuestionTemplate extends Entity {
             foreach($question as $component=>$field){
                 if (isset($field['options'])){
                     $otemp = array();
-                    foreach($field['options'] as $okey=>$oval)
+                    foreach($field['options'] as $okey=>$oval){
                        $otemp[$okey] = ($aval == $okey ? 1 : 0);
-
-                    $dictionary['id'] = $otemp;
+                    }
+                    $dictionary[] = $otemp;
                 }
             }
         }

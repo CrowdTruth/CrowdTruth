@@ -212,7 +212,6 @@ class Crowdflower {
 		$jc=$jc->content;
 		$data = array();
 
-
 		if(isset($jc['title'])) 			 	$data['title']					 	= $jc['title'];
 		if(isset($jc['instructions'])) 			$data['instructions']				= $jc['instructions'];
 		if(isset($jc['annotationsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['annotationsPerUnit'];
