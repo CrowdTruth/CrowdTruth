@@ -154,7 +154,7 @@ class Crowdflower {
 			} else {
 				$err = $result['result']['error']['message'];
 				if(isset($err)) $msg = $err;
-				elseif(isset($result['http_code']){
+				elseif(isset($result['http_code'])){
 					if($result['http_code'] == 503) $msg = 'Crowdflower service is unavailable, possibly down for maintenance?';
 					else $msg = "Error creating job on Crowdflower. HTTP code {$result['http_code']}";
 				}	
