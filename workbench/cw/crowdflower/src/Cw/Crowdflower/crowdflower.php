@@ -72,9 +72,10 @@ class Crowdflower {
 		$csv = $this->batchToCSV($job->batch);
 		$gold = $jc->answerfields;
 
-		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['requesterAnnotation']) ? $jc->content['requesterAnnotation'] : '')*60, 
-							"keywords" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''), 
-							"mail_to" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0));
+		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0)*60, 
+							"keywords" => (isset($jc->content['requesterAnnotation']) ? $jc->content['requesterAnnotation'] : ''),
+							"mail_to" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''));
+
     	try {
 
     		// TODO: check if all the parameters are in the csv.
@@ -149,10 +150,14 @@ class Crowdflower {
 
 				return $id;
 
-			// Failed to create initial job.
+			// Failed to create initial job. Todo: more different errors.
 			} else {
 				$err = $result['result']['error']['message'];
 				if(isset($err)) $msg = $err;
+				elseif(isset($result['http_code']){
+					if($result['http_code'] == 503) $msg = 'Crowdflower service is unavailable, possibly down for maintenance?';
+					else $msg = "Error creating job on Crowdflower. HTTP code {$result['http_code']}";
+				}	
 				else $msg = 'Unknown error. Is the Crowdflower API key set correctly?';
 				throw new CFExceptions($msg);
 			}
