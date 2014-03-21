@@ -6,17 +6,20 @@ use \MongoDB\SoftwareAgent;
 
 class Job extends Entity { 
     
-   // public $batch;
-  //  public $template;
-    //public $jobConfiguration;
-/*    
-    protected $jcid;
-    protected $activityURI;
-    protected $questionTemplate_id;*/
 	protected $attributes = array(  'format' => 'text', 
                                     'domain' => 'medical', 
                                     'documentType' => 'job', 
                                     'type' => 'todo');
+
+    /**
+    *   Override the standard query to include documenttype.
+    */
+    public function newQuery($excludeDeleted = true)
+    {
+        $query = parent::newQuery($excludeDeleted = true);
+        $query->where('documentType', 'job');
+        return $query;
+    }
 
 	public static function boot ()
     {
@@ -26,11 +29,13 @@ class Job extends Entity {
         {
 
 		try {
-			$job->createSoftwareAgent('jobcreator');
+            if(!SoftwareAgent::find('jobcreator')){
+                $softwareAgent = new SoftwareAgent;
+                $softwareAgent->_id = 'jobcreator';
+                $softwareAgent->label = "Job creation";
+            }
 			
 			if(!isset($job->projectedCost)){
-				//$jobConfiguration = JobConfiguration::where('_id', $job->jobConf_id)->first(); 
-
 				$reward = $job->jobConfiguration->content['reward'];
 				$annotationsPerUnit = intval($job->jobConfiguration->content['annotationsPerUnit']);
 				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);
@@ -138,7 +143,9 @@ class Job extends Entity {
 
 
     public function addResults($annotations){
-        // TODO: check if not already added?
+
+        // TODO: check if not already added? How?
+
     	if(!is_array($annotations))
     		$annotations = array($annotations);
 
@@ -147,15 +154,18 @@ class Job extends Entity {
             $results = array();
         $count=0;
         foreach($annotations as $annotation){
+            // DEBUGGING TODO REMOVE
+            //    if(!isset($annotation->dictionary)) continue;
+            //
 	        if(in_array($annotation->unit_id, array_keys($results)))
-	            foreach ($annotation->questionDictionary as $ans=>$count){
+	            foreach ($annotation->dictionary as $ans=>$count){
 	                if(isset($results[$annotation->unit_id][$ans]))
 	                    $results[$annotation->unit_id][$ans]+=$count;
 	                else 
 	                    $results[$annotation->unit_id][$ans]=$count;
 	            }   
 	        else
-	            $results[$annotation->unit_id] = $annotation->questionDictionary;
+	            $results[$annotation->unit_id] = $annotation->dictionary;
 	        $count++;
 	    }
 
@@ -168,8 +178,6 @@ class Job extends Entity {
 
 		if($this->completion == 1) $this->status = 'finished'; // Todo: Not sure if this works
     }
-
-
 
 
     /** 
@@ -210,24 +218,9 @@ class Job extends Entity {
         return $this->hasOne('Batch', '_id', 'batch_id');
     }
 
-    private function createSoftwareAgent($agentid){
-		if(!SoftwareAgent::find($agentid))
-		{
-			$softwareAgent = new SoftwareAgent;
-			$softwareAgent->_id = $agentid;
-
-			if($agentid == 'amt')
-				$softwareAgent->label = "Crowdsourcing platform: Amazon Mechanical Turk";
-			elseif ($agentid == 'cf')
-				$softwareAgent->label = "Crowdsourcing platform: CrowdFlower";
-			elseif ($agentid = 'jobcreator')
-				$softwareAgent->label = "Job creation";
-	
-			$softwareAgent->save();
-		}
-	}
-
-
+    public function annotations(){
+        return $this->hasMany('Annotation');
+    }
 
 
 }

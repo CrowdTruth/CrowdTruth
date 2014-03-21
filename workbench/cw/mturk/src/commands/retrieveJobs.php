@@ -7,6 +7,7 @@ use \MongoDB\Entity;
 use \MongoDB\CrowdAgent;
 use \MongoDB\Activity;
 use \MongoDB\Agent;
+use \Annotation;
 use \Job;
 use \MongoDate;
 use \Config;
@@ -53,11 +54,10 @@ class RetrieveJobs extends Command {
 
 
 		// Todo optimize query.
-		$jobs = Job::where('documentType', 'job')
-						->where('softwareAgent_id', 'amt')
-						->orderBy('created_at', 'desc')
-						->where('status', '!=', 'finished')
-						->get();
+		$jobs = Job::where('softwareAgent_id', 'amt')
+					->orderBy('created_at', 'desc')
+					->where('status', '!=', 'finished')
+					->get();
 
 		foreach($jobs as $job){
 			$newannotations = array();
@@ -99,23 +99,23 @@ class RetrieveJobs extends Command {
 					foreach ($assignments as $ass){
 						$assignment = $ass->toArray();
 
-						$annentities = Entity::where('job_id', $jobId)
+						$annotations = Annotation::where('job_id', $jobId)
 										->where('platformAnnotationId', $assignment['AssignmentId'])
 										->get();
 						
-						//print_r($annentities); die();
-						if(count($annentities)>0) { 
-							$annoldstatus = $annentities[0]['status'];
+						//print_r($annotations); die();
+						if(count($annotations)>0) { 
+							$annoldstatus = $annotations[0]['status'];
 							$annnewstatus = $assignment['AssignmentStatus'];
 
 							if($annoldstatus != $annnewstatus){
-								foreach($annentities as $annentity){
-									$annentity->status = $annnewstatus;
-									$annentity->update();
+								foreach($annotations as $annotation){
+									$annotation->status = $annnewstatus;
+									$annotation->update();
 									print "Status changed to $annnewstatus.";
 								}
 
-								Log::debug("Status of Annotation {$annentity->_id} changed from $annoldstatus to $annnewstatus");
+								Log::debug("Status of Annotation {$annotation->_id} changed from $annoldstatus to $annnewstatus");
 							}
 						} else { // ASSIGNMENT entity not in DB: create activity, entity and refer to or create agent.
 
@@ -129,7 +129,6 @@ class RetrieveJobs extends Command {
 							$activity->used = $jobId;
 							$activity->softwareAgent_id = 'amt';
 							$activity->save();
-
 							
 							// OPTIONAL: we could create an ASSIGNMENT entity to hold the metadata.
 							$groupedbyid = array();
@@ -143,38 +142,30 @@ class RetrieveJobs extends Command {
 							
 							// Create entity FOR EACH UNIT
 							foreach($groupedbyid as $uid=>$qidansarray){
-								$annentity = new Entity;
-								$annentity->documentType = 'annotation';
-								$annentity->domain = $job->domain;
-								$annentity->format = $job->format;
-								//$annentity->type = $job->type;
-								$annentity->activity_id = $activity->_id;
-								$annentity->crowdAgent_id = $agentId;
-								$annentity->softwareAgent_id = 'amt';
-								$annentity->job_id = $jobId;
-								$annentity->unit_id = $uid;
-								$annentity->platformAnnotationId = $assignment['AssignmentId'];
-								$annentity->acceptTime = new MongoDate(strtotime($assignment['AcceptTime']));
-								$annentity->submitTime = new MongoDate(strtotime($assignment['SubmitTime']));
+								$annotation = new Annotation;
+								$annotation->activity_id = $activity->_id;
+								$annotation->crowdAgent_id = $agentId;
+								$annotation->softwareAgent_id = 'amt';
+								$annotation->job_id = $jobId;
+								$annotation->unit_id = $uid;
+								$annotation->platformAnnotationId = $assignment['AssignmentId'];
+								$annotation->acceptTime = new MongoDate(strtotime($assignment['AcceptTime']));
+								$annotation->submitTime = new MongoDate(strtotime($assignment['SubmitTime']));
 								//
 								// Todo: Optionally compute time spent doing the assignment here.
 								//
 								if(!empty($assignment['AutoApprovalTime']))
-									$annentity->autoApprovalTime = new MongoDate(strtotime($assignment['AutoApprovalTime']));
+									$annotation->autoApprovalTime = new MongoDate(strtotime($assignment['AutoApprovalTime']));
 								if(!empty($assignment['ApprovalTime']))
-									$annentity->autoApprovalTime = new MongoDate(strtotime($assignment['ApprovalTime']));
+									$annotation->autoApprovalTime = new MongoDate(strtotime($assignment['ApprovalTime']));
 								if(!empty($assignment['RejectionTime']))
-									$annentity->autoApprovalTime = new MongoDate(strtotime($assignment['RejectionTime']));
+									$annotation->autoApprovalTime = new MongoDate(strtotime($assignment['RejectionTime']));
 
-								$annentity->content = $qidansarray;
-								$annentity->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
-								
-								// QuestionDictionary
-								$unit = Entity::where('_id', $uid)->first();
-								$annentity->questionDictionary = $job->questionTemplate->getDictionary($unit, $qidansarray);
-								$annentity->save();
+								$annotation->content = $qidansarray;
+								$annotation->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
+								$annotation->save();
 
-								$newannotations[] = $annentity;
+								$newannotations[] = $annotation;
 
 							}
 

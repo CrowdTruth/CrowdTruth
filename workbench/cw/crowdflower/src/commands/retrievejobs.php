@@ -5,6 +5,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Cw\Crowdflower\Cfapi\CFExceptions;
 use \MongoDB\Entity;
+use \Annotation;
 use \MongoDB\CrowdAgent;
 use \MongoDB\Activity;
 use \MongoDB\Agent;
@@ -55,7 +56,7 @@ class RetrieveJobs extends Command {
 				// We could check for each annotation and add it if somehow it didn't get added earlier.
 				// For this, we should add ifexists checks in the storeJudgment method.
 				$ourjobid = $this->option('jobid');
-				$cf = new crowdwatson\Job(Config::get('crowdflower::apikey'));
+				$cf = new Cw\Crowdflower\Cfapi\Job(Config::get('crowdflower::apikey'));
 				$judgments = ''; //todo			
 			}
 
@@ -86,7 +87,7 @@ class RetrieveJobs extends Command {
 			try{
 				$job = $this->getJob($ourjobid);
 			} catch (CFExceptions $e){
-				$job = Job::where("documentType", "job")->first(); // TODO REMOVE THIS!!!!1 is for debugging.
+				$job = Job::first(); // TODO REMOVE THIS!!!!1 is for debugging.
 			}	
 
 			// TODO: check if exists. How?
@@ -126,15 +127,13 @@ class RetrieveJobs extends Command {
 	* @throws CFExceptions when no job is found. 
 	*/
 	private function getJob($jobid){
-		if(!$job = Job::where('documentType', 'job')
-					->where('softwareAgent_id', 'cf')
-					->where('platformJobId', intval($jobid)) /* Mongo queries are strictly typed! We saved it as int in Job->store */
-					->first())
+		if(!$job = Job::where('softwareAgent_id', 'cf')
+						->where('platformJobId', intval($jobid)) /* Mongo queries are strictly typed! We saved it as int in Job->store */
+						->first())
 		{
-			$job = Job::where('documentType', 'job')
-				->where('softwareAgent_id', 'cf')
-				->where('platformJobId', (string) $jobid) /* Try this to be sure. */
-				->first();
+			$job = Job::where('softwareAgent_id', 'cf')
+						->where('platformJobId', (string) $jobid) /* Try this to be sure. */
+						->first();
 		}
 
 		// Still no job found, this job is probably not made in our platform (or something went wrong earlier)
@@ -153,36 +152,27 @@ class RetrieveJobs extends Command {
 	{
 
 		// If exists return false. 
-		if(Entity::where('documentType', 'annotation')
-			->where('softwareAgent_id', 'cf')
+		if(Annotation::where('softwareAgent_id', 'cf')
 			->where('platformAnnotationId', $judgment['id'])
 			->first())
 			return false;	
 
 		try {
-			$aentity = new Entity;
-			$aentity->documentType = 'annotation';
-			$aentity->domain = $job->domain;
-			$aentity->format = $job->format;
-			$aentity->job_id = $job->_id;
-			$aentity->activity_id = $activityId;
-			$aentity->crowdAgent_id = $agentId;
-			$aentity->softwareAgent_id = 'cf';
-			$aentity->unit_id = $judgment['unit_data']['uid']; // uid field in the csv we created in $batch->toCFCSV().
-			$aentity->platformAnnotationId = $judgment['id'];
-			$aentity->cfChannel = $judgment['external_type'];
-			$aentity->acceptTime = new MongoDate(strtotime($judgment['started_at']));
-			$aentity->submitTime = new MongoDate(strtotime($judgment['created_at']));
-			$aentity->cfTrust = $judgment['trust'];
-			$aentity->content = $judgment['data'];
-
-			// QuestionDictionary
-			$unit = Entity::where('_id', $aentity->unit_id)->first();
-			$aentity->questionDictionary = $job->questionTemplate->getDictionary($unit, $aentity->content);
-
-			$aentity->save();
+			$annotation = new Annotation;
+			$annotation->job_id = $job->_id;
+			$annotation->activity_id = $activityId;
+			$annotation->crowdAgent_id = $agentId;
+			$annotation->softwareAgent_id = 'cf';
+			$annotation->unit_id = $judgment['unit_data']['uid']; // uid field in the csv we created in $batch->toCFCSV().
+			$annotation->platformAnnotationId = $judgment['id'];
+			$annotation->cfChannel = $judgment['external_type'];
+			$annotation->acceptTime = new MongoDate(strtotime($judgment['started_at']));
+			$annotation->submitTime = new MongoDate(strtotime($judgment['created_at']));
+			$annotation->cfTrust = $judgment['trust'];
+			$annotation->content = $judgment['data'];
+			$annotation->save();
 			Log::debug("--+1-- {$judgment['id']}");	
-			return $aentity;
+			return $annotation;
 			// TODO: golden
 
 			/*  Possibly also:
@@ -199,7 +189,7 @@ class RetrieveJobs extends Command {
 
 		} catch (Exception $e) {
 			Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
-			if($aentity) $aentity->forceDelete();
+			if($annotation) $annotation->forceDelete();
 			// TODO: more?
 		}
 	}

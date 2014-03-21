@@ -5,11 +5,20 @@ use \MongoDB\Activity;
 
 class JobConfiguration extends Entity {
 	protected $guarded = array();
-
 	protected $attributes = array(  'format' => 'text', 
                                     'domain' => 'medical', 
                                     'documentType' => 'jobconf', 
                                     'type' => 'todo');
+
+    /**
+    *   Override the standard query to include documenttype.
+    */
+    public function newQuery($excludeDeleted = true)
+    {
+        $query = parent::newQuery($excludeDeleted = true);
+        $query->where('documentType', 'jobconf');
+        return $query;
+    }
 
     public static function boot ()
     {
@@ -38,7 +47,7 @@ class JobConfiguration extends Entity {
 
      } 
 
-    protected $thisusedtobefillablebutisjustusedasareferencenow = array(
+    protected $justusedasareferencenow = array(
     								'title', 
     								'description',
     								'instructions', /* AMT: inject into template */ 
@@ -69,12 +78,7 @@ class JobConfiguration extends Entity {
     								'questionTemplate_id'
     								);
 
-/*    public addFields($array){
-    	$this->fillable = array_merge($this->fillable, $array);
-    }*/
-
     private $errors;
-
     private $commonrules = array(
 		'title' => 'required|between:5,128',
 		'description' => 'required|between:5,2000',		

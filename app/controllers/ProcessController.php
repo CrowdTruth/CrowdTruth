@@ -12,12 +12,14 @@ class ProcessController extends BaseController {
 
 	public function getBatch() {
 /*		$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
-		$qt = QuestionTemplate::where('documentType', 'questiontemplate')->first();
-		dd($qt->getDictionary($unit, array('b. pertussis causes whooping cough')));*/
+		$job=Job::find('entity/text/medical/job/3');
+		dd($job->annotations);
 
-		$hook = new Cw\Crowdflower\Cfapi\CFWebhook;
-		$hook->test(405839);
-
+die();*/
+/* $unit = MongoDB\Entity::where('_id', 'entity/text/medical/twrex-structured-sentence/0')->first(); 
+dd($unit);*/
+/*		$batch = Batch::where('documentType', 'batch')->first();
+		dd($batch->wasDerivedFrom);*/
 
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
@@ -146,12 +148,8 @@ class ProcessController extends BaseController {
 
 		if(Input::has('batch')){
 			// TODO: CSRF
-			$batch = Batch::where('documentType', 'batch') /* TODO find a way to assume this */
-							->where('_id', Input::get('batch'))
-							->first();
-
+			$batch = Batch::find(Input::get('batch'));
 			Session::put('batch', serialize($batch));
-		
 		}
 
 		if(Input::has('template')){

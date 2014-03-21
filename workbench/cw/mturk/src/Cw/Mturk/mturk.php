@@ -79,7 +79,6 @@ class Mturk {
 			else $status = 'running';
 			$ids = array();
 			$platformjobids = $this->amtpublish($job, $sandbox);
-
 			$fullplatformjobids = array();
 			foreach($platformjobids as $id)
 				array_push($fullplatformjobids, array('id' => $id, 'status' => $status, 'timestamp' => time()));
@@ -156,8 +155,8 @@ class Mturk {
 		foreach ($units as $parameters) {
 			$params = array_dot($parameters['content']);
 
-			$replacerules=array('cause' => 'causes'); // TODO: get these from QUESTIONTEMPLATE
-			$params = str_replace(array_keys($replacerules), $replacerules, $params);
+//			$replacerules=array('cause' => 'causes'); // TODO: get these from QUESTIONTEMPLATE
+//			$params = str_replace(array_keys($replacerules), $replacerules, $params);
 
 			if($upt>1)	{
 				$count++;
@@ -183,10 +182,10 @@ class Mturk {
 			// Temporarily store the AnswerKey
 
 			// TODO!
-			if(isset($params['_golden']) and $params['_golden'] == true and isset($c['answerfields'])) {
+/*			if(isset($params['_golden']) and $params['_golden'] == true and isset($c['answerfields'])) {
 				foreach($c['answerfields'] as $answerfield)
 					$assRevPol['AnswerKey']["{$params['_unit_id']}_$answerfield"] = $params["{$answerfield}_gold"];
-			}
+			}*/
 
 			// Check if all parameters have been replaced
 			if(preg_match('#\$\{[A-Za-z0-9_.]*\}#', $tempquestiontemplate) == 1) // ${...}

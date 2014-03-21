@@ -6,12 +6,20 @@ use MongoDB\Activity;
 
 class QuestionTemplate extends Entity {
 
-	
-	//protected $fillable = array('question', 'replace', 'format', 'documentType', 'domain');
 	protected $attributes = array(  'format' => 'text', 
                                     'domain' => 'medical', 
                                     'documentType' => 'questiontemplate', 
-                                    'type', 'todo');
+                                    'type' => 'todo');
+
+    /**
+    *   Override the standard query to include documenttype.
+    */
+    public function newQuery($excludeDeleted = true)
+    {
+        $query = parent::newQuery($excludeDeleted = true);
+        $query->where('documentType', 'questiontemplate');
+        return $query;
+    }
 	
     public static function boot ()
     {
@@ -26,7 +34,7 @@ class QuestionTemplate extends Entity {
                     $activity->softwareAgent_id = 'templatebuilder';
                     $activity->save();
                     $questiontemplate->activity_id = $activity->_id;
-                    Log::debug("Saved QuestionTemplate with activity {$questiontemplate->activity_id}.");
+                    Log::debug("Saving QuestionTemplate {$questiontemplate->_id} with activity {$questiontemplate->activity_id}.");
                 } catch (Exception $e) {
 
                     if($activity) $activity->forceDelete();
@@ -36,21 +44,22 @@ class QuestionTemplate extends Entity {
             }
         });
 
-     }   
+     }
+
     
     public function getQuestionWithUnit($unit){
         $q = $this->content['question'];
         $r = $this->content['replaceValues'];
 
+        // Flatten array. Use _ as separator.
         if(isset($unit['content']) and is_array($unit['content']))
             $uco = array_dot($unit['content']);
-        //else throw new Exception("Unit content not found.");
-        else return array();
-
+        else throw new Exception("Unit content not found.");
         foreach($uco as $key=>$val){
             $uc[str_replace('.', '_', $key)] = $val;
         }
 
+        // ReplaceRules
         foreach($r as $field=>$wasbecomes){
             if(in_array($field, $uc))
                foreach($wasbecomes as $was=>$becomes)
@@ -70,7 +79,7 @@ class QuestionTemplate extends Entity {
                         $okey = str_replace('{{' . $key . '}}', $val, $okey);
                         $oval = str_replace('{{' . $key . '}}', $val, $oval); 
                     }
-                    $temp[str_replace('.', '%%', $okey)] = $oval; // TODO: TEMPORARY 'PATCH', need proper fix.  
+                    //$temp[str_replace('.', '%%', $okey)] = $oval; // TODO: TEMPORARY 'PATCH', need proper fix.  
                 }  
                 $field['options'] = $temp;
             }
