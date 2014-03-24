@@ -69,7 +69,7 @@ class Crowdflower {
     	$jc = $job->jobConfiguration;
 		$template = $job->template;
 		$data = $this->jobConfToCFData($jc);	
-		$csv = $this->batchToCSV($job->batch);
+		$csv = $this->batchToCSV($job->batch, $job->questionTemplate);
 		$gold = $jc->answerfields;
 
 		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0)*60, 
