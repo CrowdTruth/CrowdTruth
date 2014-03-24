@@ -14,12 +14,11 @@ class ProcessController extends BaseController {
 /*		$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
 		$job=Job::find('entity/text/medical/job/3');
 		dd($job->annotations); */
-/*$batch = Batch::where('documentType', 'batch')->first(); 
-$qt = QuestionTemplate::first();
-$cf = App::make('cf');
 
-$cf->batchToCSV($batch, $qt);
-echo file_get_contents($cf->batchToCSV($batch, $qt));*/
+$ann = Annotation::first();
+dd($ann);
+
+
 /* die();*/
 /* $unit = MongoDB\Entity::where('_id', 'entity/text/medical/twrex-structured-sentence/0')->first(); 
 dd($unit);*/

@@ -59,7 +59,7 @@ class Annotation extends Entity {
        // $unit = Entity::where('_id', $this->unit_id)->first(); // TODO: relation.
         $unit = $this->unit; 
         if(isset($unit['content']) and is_array($unit['content']))
-            $uco = array_dot($unit['content']);
+            $uco = array_change_key_case(array_dot($unit['content']), CASE_LOWER);
         else throw new Exception("Unit content not found."); // Todo: how do we handle exceptions here?
         //else return true; // TODO: DEBUGGING
 
@@ -69,7 +69,7 @@ class Annotation extends Entity {
 
         // ReplaceRules REVERSED
         foreach($r as $field=>$wasbecomes){
-            $field = strtolower($field);
+            $field = array_change_key_case($field, CASE_LOWER);
             if(isset($uc[$field]))
                foreach($wasbecomes as $was=>$becomes)
                    if($uc[$field] == $becomes) $uc[$field] = $was;
@@ -78,7 +78,7 @@ class Annotation extends Entity {
         $temp = array();
         foreach($this->content as $singleans){
         	foreach ($uc as $key=>$val)
-        		$singleans = str_replace($val, '{{' . $key . '}}', $singleans);
+        		$singleans = str_replace($val, '{{' . strtolower($key) . '}}', $singleans);
 
         	$temp[] = $singleans;
         }
@@ -90,7 +90,7 @@ class Annotation extends Entity {
                 if($key == 'options') 
                    foreach (array_keys($val) as $possibleans)
                         foreach($temp as $givenans)
-                            $dictionary[$possibleans] = ($givenans == $possibleans ? 1 : 0);
+                            $dictionary[strtolower($possibleans)] = (strtolower($givenans) == strtolower($possibleans) ? 1 : 0);
 
         $this->dictionary = $dictionary;
     }
