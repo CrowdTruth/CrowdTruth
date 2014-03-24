@@ -70,7 +70,7 @@ class Annotation extends Entity {
         // ReplaceRules REVERSED
         foreach($r as $field=>$wasbecomes){
             $field = strtolower($field);
-            if(in_array($field, $uc))
+            if(isset($uc[$field]))
                foreach($wasbecomes as $was=>$becomes)
                    if($uc[$field] == $becomes) $uc[$field] = $was;
         }
