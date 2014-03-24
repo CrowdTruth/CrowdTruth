@@ -170,7 +170,8 @@ class Job extends Entity {
 	    }
 
     	$this->results = $results;
-    	$this->annotationsCount+=$count;
+        $this->annotationsCount = count($this->annotations);
+    	//$this->annotationsCount+=$count;
 		$jpu = intval($this->jobConfiguration->content['annotationsPerUnit']);		
 		$uc = intval($this->unitsCount);
 		if($uc > 0 and $jpu > 0) $this->completion = $this->annotationsCount / ($uc * $jpu);	

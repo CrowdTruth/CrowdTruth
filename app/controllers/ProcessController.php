@@ -15,9 +15,9 @@ class ProcessController extends BaseController {
 		$job=Job::find('entity/text/medical/job/3');
 		dd($job->annotations); */
 
-$ann = Annotation::first();
+/*$ann = Annotation::first();
 dd($ann);
-
+$c = */
 
 /* die();*/
 /* $unit = MongoDB\Entity::where('_id', 'entity/text/medical/twrex-structured-sentence/0')->first(); 
@@ -93,11 +93,14 @@ dd($unit);*/
 			Session::flash('flashNotice', $e->getMessage());
 		}
 
-		if(!$jc->validate()){
+		$toomany = '';
+		if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)) 
+			$toomany = '<li>Units per task should be smaller than the batch.</li>';
+		if(!$jc->validate() or !empty($toomany)){
 			$msg = '<ul>';
 			foreach ($jc->getErrors()->all() as $message)
 				$msg .= "<li>$message</li>";
-			$msg .= '</ul>';
+			$msg .= "$toomany</ul>"; // Don't allow submitting // check this before submitting.
 
 			Session::flash('flashError', $msg);
 		} 

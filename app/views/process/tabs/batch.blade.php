@@ -23,6 +23,7 @@
 											<th>ID</th>
 											<th>Title</th>
 											<th>Description</th>
+											<th>Size</th>
 											<th>Format</th>
 											<th>DocumentType</th>
 										</tr>
@@ -40,8 +41,11 @@
 												{{ $batch->title }}
 											</td>
 											<td>
- 												{{ $batch->description }}
+ 												{{ $batch->content }}
 											</td>	
+											<td>
+												{{ count($batch->parents) }}
+											</td>
 											<td>
 												{{ $batch->format }}
 											</td>

@@ -49,7 +49,7 @@ class QuestionTemplate extends Entity {
     
     public function getQuestionWithUnit($unit){
         $q = $this->content['question'];
-        $r = $this->content['replaceValues'];
+        $r = array_change_key_case($this->content['replaceValues'], CASE_LOWER);
 
         // Flatten array. Use _ as separator.
         if(isset($unit['content']) and is_array($unit['content']))
@@ -86,7 +86,7 @@ class QuestionTemplate extends Entity {
             }
             $q2[] = $field; 
         }
-
+dd($q2);
         return $q2;
 
     }

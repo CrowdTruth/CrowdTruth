@@ -209,7 +209,7 @@ class Mturk {
 
 				// Create
 				$created = $this->mechanicalTurk->createHIT($hit);
-
+				
 				// Add ID to returnarray
 				$platformids[] = $created['HITId'];
 				$hittypeid = $created['HITTypeId'];

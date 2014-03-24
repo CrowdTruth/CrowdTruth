@@ -69,7 +69,7 @@ class Annotation extends Entity {
 
         // ReplaceRules REVERSED
         foreach($r as $field=>$wasbecomes){
-            $field = array_change_key_case($field, CASE_LOWER);
+            $field = strtolower($field);
             if(isset($uc[$field]))
                foreach($wasbecomes as $was=>$becomes)
                    if($uc[$field] == $becomes) $uc[$field] = $was;
@@ -82,7 +82,7 @@ class Annotation extends Entity {
 
         	$temp[] = $singleans;
         }
-
+        
         // Create dictionary.
         $dictionary = array();
         foreach($q as $field)                           // 0 => options => a causes b
@@ -112,11 +112,11 @@ class Annotation extends Entity {
 	}
 
 	public function job(){
-		return $this->belongsTo('Job', 'job_id');
+		return $this->belongsTo('Job', '_id', 'job_id');
 	}
 
     public function unit(){
-        return $this->hasOne('MongoDB\Entity', 'unit_id');
+        return $this->hasOne('MongoDB\Entity', '_id', 'unit_id');
     }
 
 
