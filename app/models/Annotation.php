@@ -68,11 +68,12 @@ class Annotation extends Entity {
             $uc[str_replace('.', '_', $key)] = $val;
 
         // ReplaceRules REVERSED
-        foreach($r as $field=>$wasbecomes)
+        foreach($r as $field=>$wasbecomes){
+            $field = strtolower($field);
             if(in_array($field, $uc))
                foreach($wasbecomes as $was=>$becomes)
                    if($uc[$field] == $becomes) $uc[$field] = $was;
-        
+        }
         // Create array of all the answers, in parameter format.
         $temp = array();
         foreach($this->content as $singleans){

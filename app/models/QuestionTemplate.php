@@ -61,6 +61,7 @@ class QuestionTemplate extends Entity {
 
         // ReplaceRules
         foreach($r as $field=>$wasbecomes){
+            $field = strtolower($field);
             if(in_array($field, $uc))
                foreach($wasbecomes as $was=>$becomes)
                    if($uc[$field] == $was) $uc[$field] = $becomes;
