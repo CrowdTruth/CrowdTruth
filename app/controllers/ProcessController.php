@@ -35,10 +35,11 @@ dd($unit);*/
 	public function getTemplate() {
 		// Create array for the tree
 		$jc = unserialize(Session::get('jobconf'));	
+		if(empty($jc)) $jc = new JobConfiguration;
 		$currenttemplate = Session::get('template');
 		if(empty($currenttemplate)) $currenttemplate = 'generic/default';
 		$treejson = $this->makeDirTreeJSON($currenttemplate);
-
+dd($jc->content);
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
 			->with('currenttemplate', $currenttemplate)
