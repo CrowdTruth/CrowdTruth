@@ -221,10 +221,10 @@ class Crowdflower {
 			$data['max_judgments_per_ip']		= $jc['annotationsPerWorker']; // We choose to keep this the same.
 		}
 
-		// Webhook doesn't work on localhost and we the uri should be set. 
-		if((App::environment() != 'local') and (Config::get('config.cfwebhookuri')) != ''){
+		// Webhook doesn't work on localhost and the uri should be set. 
+		if((App::environment() != 'local') and (Config::get('crowdflower::webhookuri')) != ''){
 			
-			$data['webhook_uri'] = Config::get('config.cfwebhookuri');
+			$data['webhook_uri'] = Config::get('crowdflower::webhookuri');
 			$data['send_judgments_webhook'] = 'true';
 		}
 		return $data;
@@ -233,38 +233,42 @@ class Crowdflower {
 	/**
 	* @return path to the csv, ready to be sent to the CrowdFlower API.
 	*/
-	public function batchToCSV($batch, $path = null){
+	public function batchToCSV($batch, $questionTemplate, $path = null){
 
+		// Create and open CSV file
 		if(empty($path)) {
-			$path = base_path() . '/app/storage/temp/crowdflower.csv';
-			if (!file_exists(base_path() . '/app/storage/temp')) {
-   			 	mkdir(base_path() . '/app/storage/temp', 0777, true);
-			}
+			$path =storage_path() . '/temp/crowdflower.csv';
+			if (!file_exists(storage_path() . '/temp'))
+   			 	mkdir(storage_path() . '/temp', 0777, true);
 		}
-
-		//$tmpfname = tempnam("/tmp", "csv");
 		$out = fopen($path, 'w');
-		//$out = fopen('php://memory', 'r+');
 
-		$units = $batch->wasDerivedFrom;
+		// Preprocess batch
 		$array = array();
+		$units = $batch->wasDerivedFrom;
+		$replaceValues = array_change_key_case($questionTemplate->content['replaceValues'], CASE_LOWER);
 		foreach ($units as $row){
-			$content = $row['content'];
+			unset($row['content']['properties']);
+			$c = array_change_key_case(str_replace('_', '.', array_dot($row['content'])), CASE_LOWER);
+			foreach($c as $key=>$val){
+				$key = strtolower(str_replace('.', '_', $key));
+				if(isset($replaceValues[$key][$val]))
+					$val = $replaceValues[$key][$val];
+				
+				$content[$key] = $val;
+			}
+			// Add fields
 			$content['uid'] = $row['_id'];
-			$content['_golden'] = 'false';
-			unset($content['properties']);
+			$content['_golden'] = 'false'; // TODO
 			$array[] = $content;
 		}	
 
-		$headers = $array[0];
-
-		fputcsv($out, array_change_key_case(str_replace('.', '_', array_keys(array_dot($headers))), CASE_LOWER));
+		// Headers and fields
+		fputcsv($out, array_keys($array[0]));
+		foreach ($array as $row)
+			fputcsv($out, $row);	
 		
-		foreach ($array as $row){
-			// TODO: replace
-			fputcsv($out, array_dot($row));	
-		}
-		
+		// Close file
 		rewind($out);
 		fclose($out);
 
