@@ -75,8 +75,12 @@ class Crowdflower {
 		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0)*60, 
 							"keywords" => (isset($jc->content['requesterAnnotation']) ? $jc->content['requesterAnnotation'] : ''),
 							"mail_to" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''));
-
+    	
+    	if($jc->content['annotationsPerWorker'] < $jc->content['unitsPerTask'])
+    		throw new CFExceptions('Annotations per worker should be larger than units per task.');
+    	
     	try {
+
     		// TODO: check if all the parameters are in the csv.
 			// Read the files
 			foreach(array('cml', 'css', 'js') as $ext){
@@ -170,9 +174,9 @@ class Crowdflower {
     }
 
 
-    public function orderJob($id){
+    public function orderJob($id, $unitcount){
     	$this->hasStateOrFail($id, 'unordered');
-		$result = $this->CFJob->sendOrder($id, count($job->batch->parents), array("cf_internal"));
+		$result = $this->CFJob->sendOrder($id, $unitcount, array("cf_internal"));
 		if(isset($result['result']['error']))
 			throw new Exception("Order: " . $result['result']['error']['message']);
 	}
@@ -205,7 +209,7 @@ class Crowdflower {
 			throw new Exception("Read Job: " . $result['result']['error']['message']);
 
     	if($result['result']['state'] != $state)
-    		throw new Exception("Can't order job with status '{$result['result']['state']}'");
+    		throw new Exception("Can't perform action; state is '{$result['result']['state']}' (should be '$state')");
 	}
 
     private function jobConfToCFData($jc){

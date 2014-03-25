@@ -26,22 +26,6 @@
 <link rel="stylesheet" type="text/css" href="/custom_assets/bootstrap-select.min.css">
 
 <script>
-$('.selectpicker').selectpicker();
-
-$('#deselectcountries').click(function(){
-	$('#countries').selectpicker('deselectAll');
-})
-
-$('#englishcountries').click(function(){
-	$('#countries').selectpicker('val', {{ Config::get('config.englishcountries') }}); //'IE', 'NZ', 'JA'
-})
-
-$('#customcountries').click(function(){
-	$('#countries').selectpicker('val', {{ Config::get('config.customcountries')['countries'] }}); //'AW', 
-})
-
-
-
 $(document).ready(function(){
 	$("#processtabs > li").click(function(event){
 		if($(".jobconf").prop("action").length > 0) {
@@ -109,3 +93,5 @@ $(window).load(function() {
 
 </script>
 @endsection
+
+

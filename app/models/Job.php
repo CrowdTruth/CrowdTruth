@@ -84,7 +84,7 @@ class Job extends Entity {
     }
 
     public function order(){
-    	$this->getPlatform()->orderJob($this->platformJobId);
+    	$this->getPlatform()->orderJob($this->platformJobId, count($this->batch->parents));
     	$this->status = 'running';
     	$this->save();
     }
@@ -154,9 +154,6 @@ class Job extends Entity {
             $results = array();
         $count=0;
         foreach($annotations as $annotation){
-            // DEBUGGING TODO REMOVE
-            //    if(!isset($annotation->dictionary)) continue;
-            //
 	        if(in_array($annotation->unit_id, array_keys($results)))
 	            foreach ($annotation->dictionary as $ans=>$count){
 	                if(isset($results[$annotation->unit_id][$ans]))
@@ -220,7 +217,7 @@ class Job extends Entity {
     }
 
     public function annotations(){
-        return $this->hasMany('Annotation');
+        return $this->hasMany('Annotation', 'job_id');
     }
 
 

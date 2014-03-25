@@ -74,19 +74,17 @@ class QuestionTemplate extends Entity {
                     $field['value'] = str_replace('{{' . $key . '}}', $val, $field['value']);
 
             if(isset($field['options'])){
-                $temp = array();
                 foreach($field['options'] as $okey=>$oval){
                     foreach ($uc as $key=>$val){
                         $okey = str_replace('{{' . $key . '}}', $val, $okey);
                         $oval = str_replace('{{' . $key . '}}', $val, $oval); 
                     }
-                    //$temp[str_replace('.', '%%', $okey)] = $oval; // TODO: TEMPORARY 'PATCH', need proper fix.  
                 }  
                 $field['options'] = $temp;
             }
             $q2[] = $field; 
         }
-dd($q2);
+
         return $q2;
 
     }

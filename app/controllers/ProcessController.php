@@ -11,20 +11,7 @@ class ProcessController extends BaseController {
 	}
 
 	public function getBatch() {
-/*		$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
-		$job=Job::find('entity/text/medical/job/3');
-		dd($job->annotations); */
-
-/*$ann = Annotation::first();
-dd($ann);
-$c = */
-
-/* die();*/
-/* $unit = MongoDB\Entity::where('_id', 'entity/text/medical/twrex-structured-sentence/0')->first(); 
-dd($unit);*/
-/*		$batch = Batch::where('documentType', 'batch')->first();
-		dd($batch->wasDerivedFrom);*/
-
+		//$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 
@@ -39,7 +26,7 @@ dd($unit);*/
 		$currenttemplate = Session::get('template');
 		if(empty($currenttemplate)) $currenttemplate = 'generic/default';
 		$treejson = $this->makeDirTreeJSON($currenttemplate);
-dd($jc->content);
+
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
 			->with('currenttemplate', $currenttemplate)

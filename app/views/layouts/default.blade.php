@@ -91,6 +91,7 @@
 	});
 </script>
 @yield('end_javascript')
+@yield('platformend')
 @yield('selection_user_javascript')
 	</body>
 </html>

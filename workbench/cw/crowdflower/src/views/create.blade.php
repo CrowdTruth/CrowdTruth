@@ -43,7 +43,22 @@
 		</div>
 	</div>
 </div>		
-
 @endsection
 
+@section('platformend')
+<script>
+$('.selectpicker').selectpicker();
+
+$('#deselectcountries').click(function(){
+	$('#countries').selectpicker('deselectAll');
+})
+
+$('#englishcountries').click(function(){
+	$('#countries').selectpicker('val', {{ Config::get('crowdflower::englishcountries') }}); //'IE', 'NZ', 'JA'
+})
+
+$('#customcountries').click(function(){
+	$('#countries').selectpicker('val', {{ Config::get('crowdflower::customcountries')['countries'] }}); //'AW', 
+})
+</script>
 @stop

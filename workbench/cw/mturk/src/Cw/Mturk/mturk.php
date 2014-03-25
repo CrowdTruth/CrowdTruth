@@ -155,8 +155,8 @@ class Mturk {
 		foreach ($units as $parameters) {
 			$params = array_dot($parameters['content']);
 
-//			$replacerules=array('cause' => 'causes'); // TODO: get these from QUESTIONTEMPLATE
-//			$params = str_replace(array_keys($replacerules), $replacerules, $params);
+			//$replacerules = array('cause' => 'causes'); // TODO: get these from QUESTIONTEMPLATE
+			//$params = str_replace(array_keys($replacerules), $replacerules, $params);
 
 			if($upt>1)	{
 				$count++;
@@ -228,7 +228,7 @@ class Mturk {
 	}
 
 
-    public function orderJob($id){
+    public function orderJob($id, $unitcount = null){
     	
 	}
 
@@ -241,10 +241,8 @@ class Mturk {
 	}
 
 	public function cancelJob($id){
-		//$status = $this->mechanicalTurk->getHIT($hitid)->getHITStatus();
-		//if($status != 'Disposed')
 		foreach($id as $hitid){
-		 	$this->mechanicalTurk->forceExpireHIT($hitid);
+		 	$this->mechanicalTurk->forceExpireHIT($hitid['id']);
         }
 	}
 
