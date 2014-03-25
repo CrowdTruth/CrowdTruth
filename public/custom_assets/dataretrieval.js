@@ -1,34 +1,115 @@
-var app = angular.module("dataRetrieval", [ 'ngResource', 'angularMoment']);
+var app = angular.module("dataRetrieval", [ 'ngResource', 'angularMoment' ]);
 
 	//write resource service class
 
 
 //inject resourceSvc in this controller
 app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
-	// On init fetches first pagination object
-	var pageNr = 1;
-	var page = "page=" + pageNr;
-	var itemsPerPage = 15;
-	var perPage = "&perPage=" + itemsPerPage;
-	var sort = "";
-	var filter = "";
+	
+	$scope.optionsPerPage = [
+	    {value: 5},
+	    {value: 10 },
+	    {value: 20 },
+	    {value: 50 },
+	    ];
+
+	// Pagination directive
+
+
+	//First fetch of results with default settings (empty filter&sort, pageNr=1 and perPage=20)
+  	$scope.itemsPerPage = $scope.optionsPerPage[0].value;
+  		
+	$scope.pageNr = 1;
+	page = "page=" + $scope.pageNr;
+	perPage = "&perPage=" + $scope.itemsPerPage;
+	sort = "";
+	filter = "";
 
 	$scope.results = getResource($resource,page,perPage,sort,filter);
 	
-	// //call getResource after setting sort
+	$scope.setPerPage = function(){
+		if( $scope.itemsPerPage.value < $scope.results.total ){
+			perPage = "&perPage=" + $scope.itemsPerPage.value;
+		}else {
+			alert("There are not that many jobs to show!");
+		}
+	}
+		
+	$scope.selectPage = function(page){
+		switch (page){
+			case 'first':
+			$scope.pageNr = 1;
+			break;
+			case 'previous':
+			$scope.pageNr = $scope.pageNr -1;
+			break;
+			case 'next':
+			$scope.pageNr = $scope.pageNr +1;
+			break;
+			case 'last':
+			$scope.pageNr = $scope.numPages;
+			break;
+			default: 
+			$scope.pageNr;
+		}
+	}
+	  	
+	$scope.$watch('pageNr + itemsPerPage', function(n,o) {
+  		if ($scope.pageNr != ""){
+  			page = "page=" + $scope.pageNr;
+
+  			$scope.numPages = function(){
+				var pages = Math.ceil($scope.results.total/$scope.itemsPerPage);
+				if(pages == 1){
+					console.log("I evaluate true says if in numPages == 1");
+					return pages = 1;
+				}
+			console.log("numPages calculated");
+			return pages;
+			}
+
+  			$scope.results = getResource($resource, page, perPage, sort, filter);
+  			
+  			// if ($scope.results.data == null){
+  			// 	$scope.pageNr = 1;
+  			// }
+  		}
+   	});
+
+
+
+  	// Call getResource after setting sort
+  	$scope.setSortVisible = function(){
+  		if($scope.sortVisible == true ){
+  			$scope.sortVisible = false;
+  		} else {
+  			$scope.sortVisible = true;
+  		}
+  	}
+
  	$scope.setSortAsc = function( column ){
  		sort = "&sortBy=" + column + "&order=asc";
  		$scope.$watch('sort', function(n,o){
  			$scope.results = getResource($resource, page, perPage, sort, filter );
  		}); 
- 	} 
+ 		$scope.selectedIndex = column;
+	} 
 
  	$scope.setSortDesc = function( column ){
  		sort = "&sortBy=" + column + "&order=des";
  		$scope.$watch('sort', function(n,o){
  			$scope.results = getResource($resource, page, perPage, sort, filter );
  		});
- 	} 
+ 		$scope.selectedIndex = column;
+	} 
+
+	$scope.setFilterVisible = function(){
+  		if($scope.filterVisible == true ){
+  			$scope.filterVisible = false;
+  		} else {
+  			$scope.filterVisible = true;
+  		}
+  	}
 
 	$scope.setFilter = function(){
 		//  set standard filter string
@@ -48,6 +129,7 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
   		})
   	}  	
 
+
  	//The following part concerns selection of jobs for analysis
  	$scope.selection = [];
 
@@ -66,13 +148,35 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
  			window.location = '/analyze/view?field[_id][]=' + $scope.selection;
  		}
  	}
-});
+ 	// Buttons for each job
+ 	$scope.pauseJob = function(){
 
+ 	}
+
+ 	$scope.startJob = function(){
+ 		
+ 	}
+
+ 	$scope.cancelJob = function(){
+ 		
+ 	}
+
+ 	$scope.duplicateJob = function(){
+ 		
+ 	}
+
+ 	$scope.deleteJob = function(){
+ 		
+ 	}
+
+
+});
 
 var getResource = function($resource, page, perPage, sort, filter){
 		return Result = $resource('/api/v3/?:page:perPage:sort:filter', 
 			{page: '@page', perPage: '@perPage', sort: '@sort', filter: '@filter'})
 			.get({page: page, perPage: perPage, sort: sort, filter: filter},
-				function(data, $scope){$scope.results = data.data;}
+				function(data, $scope){$scope.results = data;}
 				);
 	}
+

@@ -25,6 +25,7 @@ Route::group(array('before' => 'auth'), function()
 });
 
 
+
 Route::controller('api/v1', '\Api\v1\apiController');
 Route::controller('api/media', '\Api\media\apiController');
 Route::controller('api/search', '\Api\search\apiController');

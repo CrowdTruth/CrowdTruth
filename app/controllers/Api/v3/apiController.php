@@ -159,36 +159,41 @@ class apiController extends BaseController {
 		}
 		// Take limit of 100 unless otherwise indicated
 
-		if(!$limit = (int) Input::get('limit'))
-		{
-			$limit = 100;
-		}
+		// if(!$limit = (int) Input::get('limit'))
+		// {
+		// 	$limit = 100;
+		// }
 
-		//Eager load jobConfiguration into job entity
-		$entities = $documents->take($limit)->get();
-		
-		$jobs = array();
-
-		//Push entity objects into array for paginator
-		foreach($entities as $entity)
-		{
-			array_push($jobs, $entity);
-		}
-		
-		// Paginate results, current page, page of choice etc.
-		
 		if(!$perPage = (int) Input::get('perPage'))
 		{
-			$perPage = 2;
+			$perPage = 10;
 		}
-			
-		$paginator = Paginator::make($jobs, count($entities), $perPage);
 
+		if(!$page = (int) Input::get('page'))
+		{
+			$page = 1;
+			$calcPage = 0;
+		} else {
+			$calcPage = $page - 1;
+		}
+
+		$total = $documents->count();
+		$skip = $calcPage * $perPage;
+
+		$jobs = $documents->skip($skip)->take($perPage)->get();
+
+		// Paginate results, total amount of records, records per page and currentPage etc.
+		//todo efficiency improvement to cache $jobs for pagination
 		
-		//Return paginator
+		$paginator = array(
+			"total" => $total,
+			"perPage" => $perPage,
+			"currentPage" => $page,
+			"data" => $jobs->toArray() 
+			);
+		
 		
 		return Response::json($paginator);
-
 
 	}
 
