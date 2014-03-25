@@ -174,7 +174,9 @@ class Crowdflower {
     }
 
 
-    public function orderJob($id, $unitcount){
+    public function orderJob($job){
+    	$id = $job->platformJobId;
+    	$unitcount = count($job->batch->wasDerivedFrom);
     	$this->hasStateOrFail($id, 'unordered');
 		$result = $this->CFJob->sendOrder($id, $unitcount, array("cf_internal"));
 		if(isset($result['result']['error']))

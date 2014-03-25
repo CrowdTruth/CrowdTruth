@@ -98,12 +98,12 @@ class Mturk {
 		try {
 			// Platform
 			if($ids)
-			foreach($ids as $id){
-				if(is_array($id) && isset($id['id'])) // This should be the case, since we created it this way.
-					$id = $id['id'];
-				$this->mechanicalTurk->disableHIT($id); // This fully deletes the HIT.
-				print_r($id);
-			}	
+				foreach($ids as $id){
+					if(is_array($id) && isset($id['id'])) // This should be the case, since we created it this way.
+						$id = $id['id'];
+					$this->mechanicalTurk->disableHIT($id); // This fully deletes the HIT.
+					print_r($id);
+				}	
 		} catch (AMTException $e) {
 			throw new Exception($e->getMessage()); // Let Job take care of this
 		} 	
@@ -228,8 +228,20 @@ class Mturk {
 	}
 
 
-    public function orderJob($id, $unitcount = null){
-    	
+    public function orderJob($job){
+    	try {
+			$platformjobids = $this->amtpublish($job, false);
+			// TODO: (possibly): delete existing results?
+			$fullplatformjobids = array();
+			foreach($platformjobids as $id)
+				array_push($fullplatformjobids, array('id' => $id, 'status' => 'running', 'timestamp' => time()));
+			$job->platformJobId = $fullplatformjobids;
+			$job->save();
+		} catch (AMTException $e) {
+			if(isset($fullplatformjobids)) $this->undoCreation($fullplatformjobids);
+			elseif(isset($platformjobids)) $this->undoCreation($platformjobids);
+			throw new Exception($e->getMessage());
+		}	
 	}
 
 	public function pauseJob($id){

@@ -67,7 +67,6 @@ class Job extends Entity {
 
    
     /**
-    * @return ids
     * @throws Exception
     */
     public function publish($sandbox = false){
@@ -84,7 +83,7 @@ class Job extends Entity {
     }
 
     public function order(){
-    	$this->getPlatform()->orderJob($this->platformJobId, count($this->batch->parents));
+    	$this->getPlatform()->orderJob($this);
     	$this->status = 'running';
     	$this->save();
     }
