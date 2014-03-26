@@ -68,6 +68,8 @@ class FileHelper {
 		switch ($this->input['document_type']) {
 		    case 'document_type_twrex':
 		        return 'TWrex';
+		    case 'document_type_csvresult':
+		        return 'CSVresult';
 		    case 'document_type_article':
 		        return 'Article';
 		    case 'document_type_book':

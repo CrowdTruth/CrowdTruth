@@ -17,6 +17,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('files', 'FilesController');
 	// Route::controller('api', 'ApiController');
 	Route::controller('preprocess/twrex', 'preprocess\TwrexController');
+	Route::controller('preprocess/csvresult', 'preprocess\CSVresultController');
 	Route::controller('preprocess', 'PreprocessController');
 	Route::controller('selection', 'SelectionController');
 	Route::controller('process', 'ProcessController');

@@ -1,0 +1,77 @@
+<?php
+
+namespace Preprocess;
+
+use \MongoDB\Entity as Entity;
+use \MongoDB\Activity as Activity;
+use \MongoDB\SoftwareAgent as SoftwareAgent;
+use URL, Session, Exception, File;
+
+use League\Csv\Reader as Reader;
+
+class CSVresultMapper {
+
+	public function process($csvresult)
+	{
+		$csv = Reader::createFromString($csvresult['content']);
+		$csv->setDelimiter("\t");
+
+		$headers = $csv->fetchOne();
+		$data = $csv->fetchAssoc($headers);
+
+		$rowsMappedWithUnits = array();
+
+		unset($data[0]); // Unsetting header
+
+		foreach ($data as $line_index => $row)
+		{
+			$entity = Entity::where('documentType', 'twrex-structured-sentence');
+
+			if(isset($row['relation-type']))
+			{
+				$entity = $entity->where('content.relation.original', '=', $row['relation-type']);
+			}
+
+			if(isset($row['term1']))
+			{
+				$entity = $entity->where('content.terms.first.formatted', '=', $row['term1']);
+			}
+
+			if(isset($row['term2']))
+			{
+				$entity = $entity->where('content.terms.second.formatted', '=', $row['term2']);
+			}
+
+			if(isset($row['b1']))
+			{
+				$entity = $entity->where('content.terms.first.startIndex', '=', (int) $row['b1']);
+			}
+
+			if(isset($row['e1']))
+			{
+				$entity = $entity->where('content.terms.first.endIndex', '=', (int) $row['e1']);
+			}
+
+			if(isset($row['b2']))
+			{
+				$entity = $entity->where('content.terms.second.startIndex', '=', (int) $row['b2']);
+			}
+
+			if(isset($row['e2']))
+			{
+				$entity = $entity->where('content.terms.second.endIndex', '=', (int) $row['e2']);
+			}
+
+			$result = $entity->get();
+
+			if(count($result) > 0)
+			{
+			    $row['unit'] = $result->toArray()[0];
+			    array_push($rowsMappedWithUnits, $row);
+			}
+		}
+
+		return $rowsMappedWithUnits;
+	}
+
+}
