@@ -10,6 +10,7 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.templatebuilder');
 	}
 
+	// TODO: (re)move
 	public function getConvertcsv(){
 		if (($handle = fopen(storage_path() . '/jobs.csv', 'r')) === false) {
 		    die('Error opening file');
@@ -25,7 +26,7 @@ class ProcessController extends BaseController {
 				'_id' => "entity/text/medical/jobconf/$count",
 				'domain' => 'medical',
 				'documentType' => 'jobconf',
-				'type' => 'todotype',
+				'type' => $row['type'],
 				'content' => array_combine($headers, $row),
 				'hash' => 'todohash',
 				'activity_id' => 'todoactivity',
