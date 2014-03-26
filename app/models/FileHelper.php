@@ -7,7 +7,7 @@ class FileHelper {
 
 	protected $validationRules = array(
 		'text' => array(
-					'file' => 'mimes:txt|max:2000'
+					'file' => 'mimes:txt|max:900000'
 					),
 		'images' => array(
 					'file' => 'mimes:png|jpg|max:2000'
@@ -22,6 +22,7 @@ class FileHelper {
 					    'text/plain',
 					    'text/anytext',
 					    'application/txt',
+					    'application/octet-stream',
 					    'text/x-c',
 					    'text/x-asm',
 					    'text/x-pascal',

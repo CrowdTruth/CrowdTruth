@@ -15,6 +15,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('home', 'PagesController@index');
 	Route::get('files/upload', array('as' => 'fileuploader', 'uses' => 'FilesController@getUpload'));
 	Route::controller('files', 'FilesController');
+	// Route::controller('api', 'ApiController');
 	Route::controller('preprocess/twrex', 'preprocess\TwrexController');
 	Route::controller('preprocess', 'PreprocessController');
 	Route::controller('selection', 'SelectionController');
