@@ -50,7 +50,7 @@ class apiController extends BaseController {
 
 		$documents = $this->repository->returnCollectionObjectFor("crowdagent")->with('hasGeneratedAnnotations');
 		
-
+		//The following  block returns one worker for the individual worker view
 		if(Input::has('id')) {
 
 			$id = Input::get('id');
