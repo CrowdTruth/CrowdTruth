@@ -80,9 +80,10 @@ class TwrexStructurer {
 			// 	array_push($tempTwrexStructuredSentences, $tempTwrexStructuredSentence);				
 			// }
 
-				array_push($tempTwrexStructuredSentences, $this->getAllTermCombinations($tempTwrexStructuredSentence));				
-
+			array_push($tempTwrexStructuredSentences, $this->getAllTermCombinations($tempTwrexStructuredSentence));
 		}
+
+		$tempTwrexStructuredSentences = array_unique($tempTwrexStructuredSentences, SORT_REGULAR);
 
 		foreach($tempTwrexStructuredSentences as $tempTwrexStructuredSentence)
 		{
@@ -113,7 +114,7 @@ class TwrexStructurer {
 			}
 		}
 
-		return array_unique($twrexStructuredSentences, SORT_REGULAR);
+		return $twrexStructuredSentences;
 	}
 
 	public function formatUppercase($twrexStructuredSentence)
@@ -128,6 +129,11 @@ class TwrexStructurer {
 
 		$twrexStructuredSentence['terms']['first']['formatted'] = $firstTermUppercaseWithBrackets;
 		$twrexStructuredSentence['terms']['second']['formatted'] = $secondTermUppercaseWithBrackets;
+
+		if($twrexStructuredSentence['properties']['overlappingTerms'] == "1")
+		{
+			return $twrexStructuredSentence;
+		}		
 
 		$formattedSentence = $twrexStructuredSentence['sentence']['text'];
 
@@ -168,10 +174,12 @@ class TwrexStructurer {
 		$secondTerm = strtolower($tempTwrexStructuredSentence['terms']['second']['text']);
 		$sentenceText = strtolower($tempTwrexStructuredSentence['sentence']['text']);
 
-		$firstTerm = '/\b' . preg_quote($firstTerm, '/') . '\b/';
+		// $firstTerm = '/\b' . preg_quote($firstTerm, '/') . '\b/'; Use this for matching on whole words only
+		$firstTerm = '/' . preg_quote($firstTerm, '/') . '/';
 		preg_match_all($firstTerm, $sentenceText, $firstTermMatch, PREG_OFFSET_CAPTURE);
 
-		$secondTerm = '/\b' . preg_quote($secondTerm, '/') . '\b/';
+		// $secondTerm = '/\b' . preg_quote($secondTerm, '/') . '\b/'; Use this for matching on whole words only
+		$secondTerm = '/' . preg_quote($secondTerm, '/') . '/';
 		preg_match_all($secondTerm, $sentenceText, $secondTermMatch, PREG_OFFSET_CAPTURE);
 
 		if(count($firstTermMatch[0]) > 0)
@@ -376,19 +384,56 @@ class TwrexStructurer {
 
 	protected function overlappingTerms($twrexStructuredSentence)
 	{
-		$firstTerms = strtolower($twrexStructuredSentence['terms']['first']['text']);
-		$secondTerms = strtolower($twrexStructuredSentence['terms']['second']['text']);
+		$b1 = $twrexStructuredSentence['terms']['first']['startIndex'];
+		$b2 = $twrexStructuredSentence['terms']['second']['startIndex'];
+		$e1 = $twrexStructuredSentence['terms']['first']['endIndex'];
+		$e2 = $twrexStructuredSentence['terms']['second']['endIndex'];	
 
-		$firstTermsArray = explode(" ", $firstTerms);
-		$secondTermsArray = explode(" ", $secondTerms);
-
-		foreach($firstTermsArray as $term){
-			if(in_array($term, $secondTermsArray)) {
-				return 1;
-			}
+		if(filter_var(
+		    $b2, 
+		    FILTER_VALIDATE_INT, 
+		    array(
+		        'options' => array(
+		            'min_range' => $b1, 
+		            'max_range' => $e1
+		        )
+		    )
+		) || filter_var(
+		    $e2, 
+		    FILTER_VALIDATE_INT, 
+		    array(
+		        'options' => array(
+		            'min_range' => $b1, 
+		            'max_range' => $e1
+		        )
+		    )
+		))
+		{
+			// echo "<pre>";
+			// echo $b1 . "\n", $e1 . "\n", $b2 . "\n", $e2. "\n";			
+			// dd('yes');
+			return 1;
+		}
+		else
+		{
+			// dd('no');
+			return 0;
 		}
 
-		return 0;	
+
+		// $firstTerms = strtolower($twrexStructuredSentence['terms']['first']['text']);
+		// $secondTerms = strtolower($twrexStructuredSentence['terms']['second']['text']);
+
+		// $firstTermsArray = explode(" ", $firstTerms);
+		// $secondTermsArray = explode(" ", $secondTerms);
+
+		// foreach($firstTermsArray as $term){
+		// 	if(in_array($term, $secondTermsArray)) {
+		// 		return 1;
+		// 	}
+		// }
+
+		// return 0;	
 	}
 
 	public function simpleStem($relationWithoutPrefix){
