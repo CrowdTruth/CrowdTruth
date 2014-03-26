@@ -30,11 +30,6 @@ Route::controller('api/media', '\Api\media\apiController');
 Route::controller('api/search', '\Api\search\apiController');
 Route::controller('api/actions', '\Api\actions\apiController');
 
-Route::any('cfwebhook.php', function(){
-	$cfwebhook = new crowdwatson\CFWebhook();
-	$cfwebhook->getSignal();
-	});
-
 Route::resource('api/v1/', '\Api\v1\apiController', array('only' => array('index', 'show')));
 
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));

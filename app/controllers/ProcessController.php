@@ -10,6 +10,37 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.templatebuilder');
 	}
 
+	// TODO: (re)move
+	public function getConvertcsv(){
+		if (($handle = fopen(storage_path() . '/jobs.csv', 'r')) === false) {
+		    die('Error opening file');
+		}
+
+		$headers = fgetcsv($handle, 1024, ',');
+		$count = 0;
+		$complete = array();
+
+		while ($row = fgetcsv($handle, 1024, ',')) {
+
+			$complete[] = array('format' => 'text',
+				'_id' => "entity/text/medical/jobconf/$count",
+				'domain' => 'medical',
+				'documentType' => 'jobconf',
+				'type' => $row['type'],
+				'content' => array_combine($headers, $row),
+				'hash' => 'todohash',
+				'activity_id' => 'todoactivity',
+				'user_id' => 'CrowdWatson',
+				'created_at' => 'todocreated',
+				'updated_at' => 'todocreated');
+			$count++;
+		}
+
+		fclose($handle);
+
+		echo json_encode($complete, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+	}
+
 	public function getBatch() {
 		//$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
 		$batches = Batch::where('documentType', 'batch')->get(); 
