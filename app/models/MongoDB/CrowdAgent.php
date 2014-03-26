@@ -9,5 +9,24 @@ class CrowdAgent extends Moloquent {
 	protected $collection = 'crowdagents';
 	protected $softDelete = true;
 	protected static $unguarded = true;
-	 
+	
+	public function jobCount(){
+		// $jobs = $this->hasMany('Job', '_id', 'activity_id');
+		// count(
+	}
+
+	public function annotationCount(){
+		$annotations = $this->hasGeneratedAnnotations();
+		$count = count($annotations);
+		return $count;	
+	}
+	
+	public function hasDoneJobs() {
+
+	}
+
+	public function hasGeneratedAnnotations(){
+		return $this->hasMany('\MongoDB\Entity', 'crowdAgent_id', '_id');
+	}
+
 }

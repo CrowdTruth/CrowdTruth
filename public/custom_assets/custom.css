@@ -14,3 +14,86 @@
 
 /*The following if or Angular-UI pagination to work succesfully*/
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+
+.bordered {
+	border-bottom: solid #AAA 1px;
+	height: 100%;
+	background: #FFF; 
+	padding: 10px;"
+}
+
+.checkbox {
+	width: 5px;
+	height: 100%;
+	float: left;
+	vertical-align: middle;
+}
+
+.workerbox {
+	width: 100%;
+	float: right;
+}
+
+.subsript {
+	color: grey;
+	font-size: 11pt;
+	font-style: italic;
+}
+
+.workerid {
+	font-size: 12pt;
+}
+
+.mainContainer {
+	border: solid #AAA 1px;
+	border-radius: 5px;
+	margin-bottom: 40px;
+}
+
+.bgwhite {
+ 	background: #FFF; 
+ 	padding: 10px;
+}
+
+.fat {
+	font-size: 14pt;
+	font-style: bold;
+}
+
+.box-icon {
+	text-align: center;
+	margin-top: 20px;
+}
+
+.wp-from {
+	color: grey;
+	font-size: 12pt;
+	font-style: italic;
+
+}
+
+.wp-created {
+	font-size: 10pt;
+}
+
+.ann-icon {
+	margin-top: 10px; 
+	padding-right: 10px;
+	margin-left: 8px;
+}
+
+.annotations {
+	margin: 5px;
+	border: solid #AAA 1px;
+	border-radius: 3px;
+	margin-bottom: 15px;
+	padding: 8px;
+}
+
+.anntime {
+	margin-top: 10px;
+}
+
+.ann-label {
+	padding-right: 3px;
+}
