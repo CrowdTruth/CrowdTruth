@@ -16,9 +16,10 @@
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
 
 .bordered {
-	border: solid #AAA 1px;
+	border-bottom: solid #AAA 1px;
 	height: 100%;
-	margin-bottom: 5px;
+	background: #FFF; 
+	padding: 10px;"
 }
 
 .checkbox {
@@ -40,5 +41,59 @@
 }
 
 .workerid {
+	font-size: 12pt;
+}
+
+.mainContainer {
+	border: solid #AAA 1px;
+	border-radius: 5px;
+	margin-bottom: 40px;
+}
+
+.bgwhite {
+ 	background: #FFF; 
+ 	padding: 10px;
+}
+
+.fat {
 	font-size: 14pt;
+	font-style: bold;
+}
+
+.box-icon {
+	text-align: center;
+	margin-top: 20px;
+}
+
+.wp-from {
+	color: grey;
+	font-size: 12pt;
+	font-style: italic;
+
+}
+
+.wp-created {
+	font-size: 10pt;
+}
+
+.ann-icon {
+	margin-top: 10px; 
+	padding-right: 10px;
+	margin-left: 8px;
+}
+
+.annotations {
+	margin: 5px;
+	border: solid #AAA 1px;
+	border-radius: 3px;
+	margin-bottom: 15px;
+	padding: 8px;
+}
+
+.anntime {
+	margin-top: 10px;
+}
+
+.ann-label {
+	padding-right: 3px;
 }

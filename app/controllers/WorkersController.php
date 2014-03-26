@@ -10,5 +10,7 @@ class WorkersController extends BaseController {
 	   return View::make('workers.overview');
 	}
 
-	
+	public function getWorker() {
+		return View::make('workers.worker');
+	}
 }

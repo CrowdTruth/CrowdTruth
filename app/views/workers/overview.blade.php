@@ -3,10 +3,12 @@
 @section('head')
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
 <script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular-route.js"></script>
 <script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
 <script type="text/javascript" src="/custom_assets/workerretrieval.js"></script>	
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
+
 <link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
 @stop
 
@@ -88,77 +90,31 @@
 				</select>
 			</div>
 		</div>	
-		<div class="bordered" style=" background: #FFF; padding: 10px;">
-			<div class="checkbox">
-				<input type="checkbox">
+		<div class="mainContainer">
+			<div class="bordered bgwhite" ng-repeat="result in results.data">
+				<div class="checkbox">
+					<input type="checkbox" ng-model="result.checked">
+				</div>
+				<div class="row">
+	           		<div class="col-md-5">
+	           			<a class="workerid" ng-click="gotoWorker(result._id)"><strong class="fat">@{{result.softwareAgent_id}}</strong> @{{result.platformAgentId}}</a>
+	           			<div style="color: grey; font-size: 9pt; font-style: italic;" class="subscript"><span ng-show="result.city">@{{result.city}},</span><span ng-show="result.region"> @{{result.region}},</span> @{{result.country}}</div>
+	           			<div style="color: grey; font-size: 9pt; font-style: italic;" class="subscript">First seen: <span am-time-ago="result.created_at"></span></div>
+	           		</div>
+	           		<div class="col-md-2" style="text-align: center;">
+	           			<strong style="font-size: 12pt;"><i class="fa fa-file fa-2x"></i><br>Favourite task</strong> 
+	           		</div>
+	           		<div class="col-md-1" style="text-align: center;">
+	           			<strong style="font-size: 12pt;"><i class="fa fa-list fa-2x"></i><br>12</strong> 
+	           		</div>
+	           		<div class="col-md-1" style="text-align: center;">
+	           			<strong style="font-size: 12pt;"><i class="fa fa-gavel fa-2x"></i><br>64</strong> 
+	           		</div>
+		          		<div class="col-md-2" style="text-align: center;">
+	           			<strong style="font-size: 12pt; "><i class="fa fa-clock-o fa-2x"></i><br><span am-time-ago="result.updated_at"></span></strong>
+	           		</div>	
+	           	</div>
 			</div>
-			<div class="row">
-           		<div class="col-md-6">
-           			<a class="workerid">Cf W_idUA466613</a>
-           			<div style="color: grey; font-size: 9pt; font-style: italic;" class="subscript">Chicago, IL, United States</div>
-           			<div style="color: grey; font-size: 9pt; font-style: italic;" class="subscript">First seen: 16:09 20-3-2014</div>
-           		</div>
-           		<div class="col-md-2" style="text-align: center;">
-           			<strong style="font-size: 12pt;"><i class="fa fa-file fa-2x"></i><br>Factor-span</strong> 
-           		</div>
-           		<div class="col-md-1" style="text-align: center;">
-           			<strong style="font-size: 12pt;"><i class="fa fa-list fa-2x"></i><br>12</strong> 
-           		</div>
-           		<div class="col-md-1" style="text-align: center;">
-           			<strong style="font-size: 12pt;"><i class="fa fa-gavel fa-2x"></i><br>64</strong> 
-           		</div>
-	          		<div class="col-md-1" style="text-align: center;">
-           			<strong style="font-size: 12pt; "><i class="fa fa-clock-o fa-2x"></i><br><span am-time-ago=""></span>2 hrs</strong>
-           		</div>	
-           	</div>
-		</div>
-		<div class="bordered" style=" background: #FFF; padding: 10px;">
-			<div class="checkbox">
-				<input type="checkbox">
-			</div>
-			<div class="row">
-           		<div class="col-md-6">
-           			<a class="workerid">Cf W_idUA466613</a>
-           			<div style="color: grey; font-size: 9pt; font-style: italic;" class="subscript">Chicago, IL, United States</div>
-           			<div style="color: grey; font-size: 9pt; font-style: italic;" class="subscript">First seen: 16:09 20-3-2014</div>
-           		</div>
-           		<div class="col-md-2" style="text-align: center;">
-           			<strong style="font-size: 12pt;"><i class="fa fa-file fa-2x"></i><br>Factor-span</strong> 
-           		</div>
-           		<div class="col-md-1" style="text-align: center;">
-           			<strong style="font-size: 12pt;"><i class="fa fa-list fa-2x"></i><br>12</strong> 
-           		</div>
-           		<div class="col-md-1" style="text-align: center;">
-           			<strong style="font-size: 12pt;"><i class="fa fa-gavel fa-2x"></i><br>64</strong> 
-           		</div>
-	          		<div class="col-md-1" style="text-align: center;">
-           			<strong style="font-size: 12pt; "><i class="fa fa-clock-o fa-2x"></i><br><span am-time-ago=""></span>2 hrs</strong>
-           		</div>	
-           	</div>
-		</div>
-		<div class="bordered" style=" background: #FFF; padding: 10px;">
-			<div class="checkbox">
-				<input type="checkbox">
-			</div>
-			<div class="row">
-           		<div class="col-md-6">
-           			<a class="workerid">Cf W_idUA466613</a>
-           			<div style="color: grey; font-size: 9pt; font-style: italic;" class="subscript">Chicago, IL, United States</div>
-           			<div style="color: grey; font-size: 9pt; font-style: italic;" class="subscript">First seen: 16:09 20-3-2014</div>
-           		</div>
-           		<div class="col-md-2" style="text-align: center;">
-           			<strong style="font-size: 12pt;"><i class="fa fa-file fa-2x"></i><br>Factor-span</strong> 
-           		</div>
-           		<div class="col-md-1" style="text-align: center;">
-           			<strong style="font-size: 12pt;"><i class="fa fa-list fa-2x"></i><br>12</strong> 
-           		</div>
-           		<div class="col-md-1" style="text-align: center;">
-           			<strong style="font-size: 12pt;"><i class="fa fa-gavel fa-2x"></i><br>64</strong> 
-           		</div>
-	          		<div class="col-md-1" style="text-align: center;">
-           			<strong style="font-size: 12pt; "><i class="fa fa-clock-o fa-2x"></i><br><span am-time-ago=""></span>2 hrs</strong>
-           		</div>	
-           	</div>
 		</div>
 	</div>
 </div>

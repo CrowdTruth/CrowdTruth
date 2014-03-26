@@ -31,7 +31,7 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
 		if( $scope.itemsPerPage.value < $scope.results.total ){
 			perPage = "&perPage=" + $scope.itemsPerPage.value;
 		}else {
-			alert("There are not that many jobs to show!");
+			alert("There are not that many items to show!");
 		}
 	}
 		
@@ -148,27 +148,6 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
  			window.location = '/analyze/view?field[_id][]=' + $scope.selection;
  		}
  	}
- 	// Buttons for each job
- 	$scope.pauseJob = function(){
-
- 	}
-
- 	$scope.startJob = function(){
- 		
- 	}
-
- 	$scope.cancelJob = function(){
- 		
- 	}
-
- 	$scope.duplicateJob = function(){
- 		
- 	}
-
- 	$scope.deleteJob = function(){
- 		
- 	}
-
 
 });
 
