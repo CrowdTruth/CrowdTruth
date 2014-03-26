@@ -18,18 +18,27 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('preprocess/twrex', 'preprocess\TwrexController');
 	Route::controller('preprocess', 'PreprocessController');
 	Route::controller('selection', 'SelectionController');
-	// Route::controller('api', 'apiController');
 	Route::controller('process', 'ProcessController');
 	Route::controller('jobs', 'JobsController');
+	Route::controller('workers', 'WorkersController');
 	
 });
 
 
-Route::controller('api/v1', '\Api\v1\apiController');
+
 Route::controller('api/media', '\Api\media\apiController');
 Route::controller('api/search', '\Api\search\apiController');
 Route::controller('api/actions', '\Api\actions\apiController');
-Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
 
+Route::any('cfwebhook.php', function(){
+	$cfwebhook = new crowdwatson\CFWebhook();
+	$cfwebhook->getSignal();
+	});
+
+Route::resource('api/v1/', '\Api\v1\apiController', array('only' => array('index', 'show')));
+Route::controller('api/v2', '\Api\v2\apiController');
+
+Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
+Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));
 
 Route::controller('user', 'UserController');

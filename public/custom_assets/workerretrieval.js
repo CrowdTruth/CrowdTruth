@@ -1,10 +1,26 @@
-var app = angular.module("dataRetrieval", [ 'ngResource', 'angularMoment' ]);
+var app = angular.module("workerRetrieval", [ 'ngResource', 'angularMoment' ]);
 
 	//write resource service class
 
+app.controller("workerByIdCtrl", function($scope, $resource){
+	// Get the id from the URL and make API-call to get worker info
+	var url = window.location.pathname.split("/");
+	var _id = url[3] + "/" + url[4] + "/" + url[5];
+	
+	worker = getWorker($resource, _id);
+	worker.$promise.then( function(data){
+		$scope.worker = data[0];
+		console.log($scope.worker);
+	});
 
+	$scope.gotoOverview = function(){
+		window.location = '/workers';
+	}
+	
+})
+	
 //inject resourceSvc in this controller
-app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
+app.controller("workerCtrl", function($scope, $resource, filterFilter) {
 	
 	$scope.optionsPerPage = [
 	    {value: 5},
@@ -13,11 +29,8 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
 	    {value: 50 },
 	    ];
 
-	// Pagination directive
-
-
 	//First fetch of results with default settings (empty filter&sort, pageNr=1 and perPage=20)
-  	$scope.itemsPerPage = $scope.optionsPerPage[0].value;
+  	$scope.itemsPerPage = $scope.optionsPerPage[1].value;
   		
 	$scope.pageNr = 1;
 	page = "page=" + $scope.pageNr;
@@ -140,7 +153,7 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
  			});
  	}, true);
  	
- 	$scope.analyze = function(){
+ 	$scope.message = function(){
  		if($scope.selection[0] == null ){
  			alert('Select a job first.')
  		} else
@@ -149,13 +162,24 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
  		}
  	}
 
+ 	$scope.gotoWorker = function(id){
+ 		window.location = 'workers/worker/' + id;
+ 	}
+
 });
 
+
+
 var getResource = function($resource, page, perPage, sort, filter){
-		return Result = $resource('/api/v3/?:page:perPage:sort:filter', 
+		return Result = $resource('/api/v4/?:page:perPage:sort:filter', 
 			{page: '@page', perPage: '@perPage', sort: '@sort', filter: '@filter'})
 			.get({page: page, perPage: perPage, sort: sort, filter: filter},
 				function(data, $scope){$scope.results = data;}
 				);
 	}
 
+var getWorker = function($resource, id){
+	return worker = $resource('/api/v4/?id=:id', {id: '@id'}, {'get': {method: 'GET', isArray:true }})
+		.get({id: id}, 
+			function(data, $scope){$scope.worker = data;});
+	}

@@ -1,6 +1,6 @@
 <?php
 
-namespace Api\v3;
+namespace Api\v4;
 
 use \BaseController as BaseController;
 use \Input as Input;
@@ -15,12 +15,10 @@ use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDB\CrowdAgent as CrowdAgent;
 
 /**
- * This apiController is used merely in the result view,
+ * This apiController is used for the worker overview and the individual worker view,
  *
- * it therefore only retrieves jobConfigurations + jobs.
- *
- * Optimal url for : /page/1/creator/jelle/sort/completion/ or /?page=1&sort=completion&filter[creator]=jelle
- */
+ * Check the files workers/overview and workers/worker
+ **/
 class apiController extends BaseController {
 
 	protected $repository;
@@ -41,15 +39,29 @@ class apiController extends BaseController {
 	 *
 	 * @return Response
 	 */
+
 	public function index()
-	{	//Get all job-object
+	{	
+		// $documents = $this->repository->returnCollectionObjectFor($collection)->where('documentType', $documentType);
+		// if(Input::has('id')){
+		// 	$documents = $this->repository->returnCollectionObjectFor("crowdagent")->with('hasDoneJobs')->with('hasGeneratedAnnotations');
+		// } else {
 
-		// return Input::all();
 
-		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job')->with('hasConfiguration')->with('wasAttributedToUserAgent');
+		$documents = $this->repository->returnCollectionObjectFor("crowdagent")->with('hasGeneratedAnnotations');
 		
-		//Filter on wished for fields using using field of v2
-		json_encode($documents);
+
+		if(Input::has('id')) {
+
+			$id = Input::get('id');
+			
+			$document = $documents->where('_id', $id)->get();
+
+			$worker = $document->toArray();
+					
+			return Response::json($worker);
+
+		} 
 
 		if(Input::has('filter'))
 		{
@@ -62,28 +74,10 @@ class apiController extends BaseController {
 					continue;
 				}
 
-				if($filter == "userAgent")
-				{
-					$filter = "user_id";
-				}			
-
 				if(is_array($value))
 				{	
 					foreach($value as $operator => $subvalue)
 					{	
-						if($filter == "username"){
-							
-							$user = \User::where('username', 'like', '%' . $subvalue . '%')->first();
-
-							// return $user;
-							$user_id = $user->_id;
-
-							// dd($user_id);
-
-							$documents = $documents->where('user_id', $user_id);
-
-							continue;
-						}
 
 						if(in_array($operator, $this->operators)){
 						
@@ -98,28 +92,6 @@ class apiController extends BaseController {
 								$subvalue = '%' . $subvalue . '%'; 
 								
 							}
-
-
-							// if (strpos($a,'are') !== false) {
- 						// 	   echo 'true';
-							// }
-
-							if(strpos($filter, "hasConfiguration") !== false )
-							{	
-
-								$filter = explode(".", $filter);
-
-								$jobConf = Entity::where('documentType', '=', 'jobconf')->where(end($filter), 'like', $subvalue);
-								
-								$allJobConfIDs = array_flatten($jobConf->get(['_id'])->toArray());
-
-
-								$documents = $documents->whereIn('jobConf_id', $allJobConfIDs);
-
-								continue;
-
-							}
-
 
 							$documents = $documents->where($filter, $operator, $subvalue);
 
@@ -138,7 +110,7 @@ class apiController extends BaseController {
 			}
 		}
 
-		// Make sort possible on 
+		// // Make sort possible on 
 		if(Input::has('sortBy'))
 		{
 			$sortBy = Input::get('sortBy');
@@ -151,18 +123,12 @@ class apiController extends BaseController {
 
 		}			
 
-		// If no sort is selected, newest jobs come on top
+		// // If no sort is selected, newest jobs come on top
 		if(!Input::has('sortBy'))
 		{
 			$documents = $documents->OrderBy('created_at', 'des');
 
 		}
-		// Take limit of 100 unless otherwise indicated
-
-		// if(!$limit = (int) Input::get('limit'))
-		// {
-		// 	$limit = 100;
-		// }
 
 		if(!$perPage = (int) Input::get('perPage'))
 		{

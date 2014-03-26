@@ -13,10 +13,10 @@
 				</div>
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li{{ (Request::segment(1) == 'home' ? ' class="active"' : '') }}>{{ link_to('/', "Home") }}</li>
 						<li{{ (Request::segment(1) == 'files' ? ' class="active"' : '') }}>{{ link_to('files', "Files") }}</li>
 						<li{{ (Request::segment(1) == 'preprocess' ? ' class="active"' : '') }}>{{ link_to('preprocess', "Pre-Process") }}</li>
 						<li{{ (Request::segment(1) == 'jobs' ? ' class="active"' : '') }}>{{ link_to('jobs', "Jobs") }}</li>
+						<li{{ (Request::segment(1) == 'workers' ? ' class="active"' : '') }}>{{ link_to('workers', "Workers") }}</li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown">More <b class="caret"></b></a>
 							<ul class="dropdown-menu">
