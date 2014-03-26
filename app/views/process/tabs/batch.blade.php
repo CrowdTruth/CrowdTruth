@@ -14,8 +14,6 @@
 						<h4>Select Batch</h4>
 					</div>
 					<div class="panel-body">
-
-					
 						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postFormPart', 'template'), 'method' => 'POST'))}}
 							<div class='table-responsive'>
 								<table class='table table-striped'>
@@ -25,6 +23,7 @@
 											<th>ID</th>
 											<th>Title</th>
 											<th>Description</th>
+											<th>Size</th>
 											<th>Format</th>
 											<th>DocumentType</th>
 										</tr>
@@ -42,8 +41,11 @@
 												{{ $batch->title }}
 											</td>
 											<td>
- 												{{ $batch->description }}
+ 												{{ $batch->content }}
 											</td>	
+											<td>
+												{{ count($batch->parents) }}
+											</td>
 											<td>
 												{{ $batch->format }}
 											</td>

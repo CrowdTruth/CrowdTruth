@@ -1,9 +1,5 @@
 <?php
 
-use crowdwatson\AMTException;
-//use MongoDB\Batch;
-use MongoDB\Sentence;
-
 class ProcessController extends BaseController {
 
 	public function getIndex() {
@@ -12,11 +8,41 @@ class ProcessController extends BaseController {
 
 	public function getTemplatebuilder(){
 		return View::make('process.tabs.templatebuilder');
-
 	}
 
+	// TODO: (re)move
+	public function getConvertcsv(){
+		if (($handle = fopen(storage_path() . '/jobs.csv', 'r')) === false) {
+		    die('Error opening file');
+		}
+
+		$headers = fgetcsv($handle, 1024, ',');
+		$count = 0;
+		$complete = array();
+
+		while ($row = fgetcsv($handle, 1024, ',')) {
+
+			$complete[] = array('format' => 'text',
+				'_id' => "entity/text/medical/jobconf/$count",
+				'domain' => 'medical',
+				'documentType' => 'jobconf',
+				'type' => $row['type'],
+				'content' => array_combine($headers, $row),
+				'hash' => 'todohash',
+				'activity_id' => 'todoactivity',
+				'user_id' => 'CrowdWatson',
+				'created_at' => 'todocreated',
+				'updated_at' => 'todocreated');
+			$count++;
+		}
+
+		fclose($handle);
+
+		echo json_encode($complete, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+	}
 
 	public function getBatch() {
+		//$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 
@@ -27,6 +53,7 @@ class ProcessController extends BaseController {
 	public function getTemplate() {
 		// Create array for the tree
 		$jc = unserialize(Session::get('jobconf'));	
+		if(empty($jc)) $jc = new JobConfiguration;
 		$currenttemplate = Session::get('template');
 		if(empty($currenttemplate)) $currenttemplate = 'generic/default';
 		$treejson = $this->makeDirTreeJSON($currenttemplate);
@@ -34,20 +61,19 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
 			->with('currenttemplate', $currenttemplate)
-			->with('jobconf', $jc);
+			->with('jobconf', $jc->content);
 	}
 
 	public function getDetails() {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
-
-		$j = new Job($batch, $template, $jc);
+		$questiontemplateid = Session::get('questiontemplateid');
+		//$j = new Job($batch, $template, $jc, $questiontemplate);
 		$questionids = array();
 		$goldfields = array();
 		$unitscount = count($batch->wasDerivedFrom);
-
-		try {
+/*		try {
 			$questionids = $j->getQuestionIds();
 			$goldfields = $j->getGoldFields();	
 		} catch (AMTException $e) {
@@ -60,38 +86,40 @@ class ProcessController extends BaseController {
 				Session::flash('flashNotice', 'Field \'' . array_values($diff)[0] . '\' is in the answerkey but not in the HTML template.');
 			elseif(count($diff) > 1)
 				Session::flash('flashNotice', 'Fields \'' . implode('\', \'', $diff) . '\' are in the answerkey but not in the HTML template.');
-
+*/
 		return View::make('process.tabs.details')
-			->with('jobconf', $jc)
+			->with('jobconf', $jc->content)
 			->with('goldfields', $goldfields)
 			->with('unitscount', $unitscount);
 	}
 
 	public function getPlatform() {
 		$jc = unserialize(Session::get('jobconf'));
-		return View::make('process.tabs.platform')->with('jobconf', $jc)->with('countries', $this->countries);
+		return View::make('process.tabs.platform')->with('jobconf', $jc->content);
 	}
 
 	public function getSubmit() {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
-
+		$questiontemplateid = Session::get('questiontemplateid');
 		$treejson = $this->makeDirTreeJSON($template, false);
-
+		
 		try {
-			$j = new Job($batch, $template, $jc);
-			$questions = $j->getPreviews();
-		} catch (AMTException $e) {
+			$questions = array();//$j->getPreviews();
+		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
 		}
 
-		if(!$jc->validate()){
+		$toomany = '';
+		if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)) 
+			$toomany = '<li>Units per task should be smaller than the batch.</li>';
+		if(!$jc->validate() or !empty($toomany)){
 			$msg = '<ul>';
 			foreach ($jc->getErrors()->all() as $message)
 				$msg .= "<li>$message</li>";
-			$msg .= '</ul>';
+			$msg .= "$toomany</ul>"; // Don't allow submitting // check this before submitting.
 
 			Session::flash('flashError', $msg);
 		} 
@@ -100,14 +128,16 @@ class ProcessController extends BaseController {
 			->with('treejson', $treejson)
 			->with('questions',  $questions)
 			->with('table', $jc->toHTML())
-			->with('template', $jc->template)
-			->with('frameheight', $jc->frameheight);
+			->with('template', '')//$jc->content['template'])
+			->with('frameheight', $jc->content['frameheight'])
+			->with('jobconf', $jc->content);
 	}
 
 	public function getClearTask(){
 		Session::forget('jobconf');
 		Session::forget('origjobconf');
 		Session::forget('template');
+		Session::forget('questiontemplateid');
 		Session::forget('batch');
 		return Redirect::to("process/batch");
 	}
@@ -117,8 +147,9 @@ class ProcessController extends BaseController {
 	*/
 	public function postSaveDetails(){
 		try {
+			throw new Exception('Temporarily disabled this.'); // TODO
 			$jc = unserialize(Session::get('jobconf'));
-			if($jc->store())
+			if($jc->save())
 				Session::flash('flashSuccess', 'Saved Job configuration to database!');
 			else Session::flash('flashNotice', 'This Job configuration already exists.');
 		} catch (Exception $e) {
@@ -134,27 +165,17 @@ class ProcessController extends BaseController {
 	* It combines the Input fields with the JobConfiguration that we already have in the Session.
 	*/
 	public function postFormPart($next){
-		$jc = unserialize(Session::get('jobconf'));
+		$jc = unserialize(Session::get('jobconf', serialize(new JobConfiguration)));
+		if(isset($jc->content)) 
+			$jcc = $jc->content;
+		else $jcc = array();
+
 		$template = Session::get('template');
 
 		if(Input::has('batch')){
 			// TODO: CSRF
-			$batch = Batch::where('documentType', 'batch') /* TODO find a way to assume this */
-							->where('_id', Input::get('batch'))
-							->first();
-
-//			$batch->wasDerivedFromMany = $batch->wasDerivedFrom;
-			//dd('asdsad');
-			// if(isset($batch->ancestors)){
-			// 	// $batch->wasDerivedFromManyTest = 
-
-			// 	$batch->wasDerivedFromManyTest = \MongoDB\Entity::whereIn('_id', $batch->ancestors)->get()->toArray();
-
-			// 	// dd($batch->toArray());
-			// }			
-
+			$batch = Batch::find(Input::get('batch'));
 			Session::put('batch', serialize($batch));
-		
 		}
 
 		if(Input::has('template')){
@@ -165,9 +186,27 @@ class ProcessController extends BaseController {
 			$template = $ntemplate;
 			$origjobconf = 'jcid'; // TODO!
 
-			// DEFAULT VALUES
-			if(empty($jc->eventType)) $jc->eventType = 'HITReviewable'; 
-			if(empty($jc->frameheight)) $jc->frameheight = 650; 
+
+
+			// FOR TESTING -> hardcoded questiontemplate. We need more of these.
+			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . 'relation_direction/relation_direction_multiple.questiontemplate.json'), true);
+			$qt = new QuestionTemplate;
+			$qt->content = $testdata;
+
+			$hash = md5(serialize($qt->content));
+            $existing = QuestionTemplate::where('hash', $hash)->pluck('_id');
+            
+            if($existing) 
+                $qtid = $existing;// Stop saving, it already exists.
+            else{
+	            $qt->hash = $hash;
+				$qt->save();
+				$qtid = $qt->_id;
+			}
+			Session::put('questiontemplateid', $qtid);
+			//////////////////////////////////////////////////////////
+
+
 		} else {
 			if (empty($jc)){
 				// No JobConfiguration and no template selected, not good.
@@ -176,20 +215,45 @@ class ProcessController extends BaseController {
 				return Redirect::to("process/template");
 			} else {
 				// There already is a JobConfiguration object. Merge it with Input!
-				$jc = new JobConfiguration(array_merge($jc->toArray(), Input::get()));	
+				$jcc = array_merge($jcc, Input::get());	
 
 				// If leaving the details page...
-				If(Input::has('title')){
-					$jc->answerfields = Input::get('answerfields', false);
+				if(Input::has('title')){
+					$jcc['answerfields'] = Input::get('answerfields', false);
+					if($next == 'nextplatform'){
+						if(isset($jcc['platform'][0])){
+							$next = $jcc['platform'][0];
+						} else {
+							Session::flash('flashNotice', 'Please select a platform first');
+							Redirect::to("process/platform");
+						}
+					}
 				}
 
 				// If leaving the Platform page....:
-				if(Input::has('qr')) {
-					$jc->platform = Input::get('platform', array());
-					$jc->addQualReq(Input::get('qr'));
-					if(Input::has('arp'))
-						$jc->addAssRevPol(Input::get('arp'));
-					$jc->countries = Input::get('countries', array());
+				if(Input::has('platform'))
+					$jcc['platform'] = Input::get('platform', array());
+
+
+				// DEFAULT VALUES
+				if(!isset($jcc['eventType'])) $jcc['eventType'] = 'HITReviewable'; 
+				if(!isset($jcc['frameheight'])) $jcc['frameheight'] = 650;
+				unset($jcc['_token']);
+				$jc->content = $jcc;	
+
+				// After specific platform tab, call the method and determine which is next.
+				$pid = Input::get('platformid', false);
+				if($pid){
+					$platform = App::make($pid);
+					$jc = $platform->updateJobConf($jc);
+
+					if($next == 'nextplatform'){
+						$nextindex = array_search($pid, $jc->content['platform']) + 1;
+						if(array_key_exists($nextindex, $jc->content['platform']))
+							$next = $jc->content['platform'][$nextindex];
+						else
+							$next = 'submit';	
+					}				
 				}
 			}		
 		}
@@ -208,52 +272,70 @@ class ProcessController extends BaseController {
 	/*
 	* Send it to the platforms.
 	*/
-	public function postSubmitFinal(){
+	public function postSubmitFinal($ordersandbox = 'order'){
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
-				
-		try {
-			$j = new Job($batch, $template, $jc);
-			$ids = $j->publish();
-			$msg = 'Created ' .
-			(isset($ids['amt']) ? count($ids['amt']) : 'no') .
-			 ' jobs on AMT and ' .
-			(isset($ids['cf']) ? count($ids['cf']) : 'none') .
-			 ' on CF.';
-			Session::flash('flashSuccess', $msg);
+		$questiontemplateid = Session::get('questiontemplateid');
+		$jobs = array();
+
+		try{
+
+			// Save activity
+			$activity = new MongoDB\Activity;
+			$activity->label = "Job is uploaded to crowdsourcing platform.";
+			$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB softwareAgent_id = $platform. Does this need to be the same?
+			$activity->save();
+
+			// Save jobconf if necessary
+			$jcid = $jc->_id;
+			if(!$jcid){
+				$hash = md5(serialize($jc->content));
+            	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id'))
+	                $jcid = $existingid; // Don't save, it already exists.
+	            else {
+		            $jc->hash = $hash;
+					$jc->activity_id = $activity->_id;
+					$jc->save();
+					$jcid = $jc->_id;
+				}
+			}	
+
+			// Publish jobs
+			foreach($jc->content['platform'] as $platformstring){
+				$j = new Job;
+				$j->template = $template; // TODO: remove
+				$j->batch_id = $batch->_id;
+				$j->questionTemplate_id = $questiontemplateid;
+				$j->jobConf_id = $jcid;
+				$j->softwareAgent_id = $platformstring;
+				$j->activity_id = $activity->_id;
+				$j->publish(($ordersandbox == 'sandbox' ? true : false));
+				$jobs[] = $j;
+			}
+
+			// Success.
+			Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
+							strtoupper(implode(', ', $jc->content['platform'])) . '.');
+			return Redirect::to("jobs/listview");
+
 		} catch (Exception $e) {
+
+			// Undo creation and delete jobs
+			if(isset($jobs))
+			foreach($jobs as $j){
+				if(isset($j->platformJobId))
+					$j->undoCreation($j->platformJobId);
+				$j->forceDelete();
+			}		
+
+			//delete activity
+			if($activity) $activity->forceDelete();
+			
 			Session::flash('flashError', $e->getMessage());
 			return Redirect::to("process/submit");
 		}
 
-		return Redirect::to("jobs/listview");
-		
-	}
-
-	/*
-	* SANDBOX PREVIEW
-	*/
-	public function postSubmitSandbox(){
-		$jc = unserialize(Session::get('jobconf'));
-		$template = Session::get('template');
-		$batch = unserialize(Session::get('batch'));
-		try {
-			$j = new Job($batch, $template, $jc);
-
-			$ids = $j->publish(true);
-
-			$msg = 'Created ' .
-			(isset($ids['amt']) ? count($ids['amt']) : 0) .
-			 ' jobs on <a href="https://requestersandbox.mturk.com/manage" target="_blank">AMT SANDBOX</a> and ' .
-			(isset($ids['cf']) ? count($ids['cf']) : 0) .
-			 ' UNORDERED jobs on <a href="http://www.crowdflower.com" target="_blank">CF</a>. After previewing them on the platform, go to the Jobs tab to order them.';
-			Session::flash('flashSuccess', $msg);
-		} catch (Exception $e) {
-			Session::flash('flashError', $e->getMessage());
-		}
-
-		return Redirect::to("jobs/listview");
 		
 	}
 
@@ -287,259 +369,19 @@ class ProcessController extends BaseController {
 		return json_encode($r);
 	}
 
-	// catch all
+	/**
+	*	Catch all. If the platform exists, go to the platform page. Else, back to batch.
+	*/
 	public function missingMethod($parameters = array())
 	{
-	   return Redirect::to("process/batch");
+	   $jc = unserialize(Session::get('jobconf'));
+	   try{
+	   		$platform = App::make($parameters[0]);
+	   		return $platform->createView()->with('jobconf', $jc->content);
+		} catch (ReflectionException $e){
+			return Redirect::to("process/batch");
+		}
+	  // 
 	}
-
-
-	protected $countries = array(
-	'AF' => 'Afghanistan',
-	'AX' => 'Aland Islands',
-	'AL' => 'Albania',
-	'DZ' => 'Algeria',
-	'AS' => 'American Samoa',
-	'AD' => 'Andorra',
-	'AO' => 'Angola',
-	'AI' => 'Anguilla',
-	'AQ' => 'Antarctica',
-	'AG' => 'Antigua And Barbuda',
-	'AR' => 'Argentina',
-	'AM' => 'Armenia',
-	'AW' => 'Aruba',
-	'AU' => 'Australia',
-	'AT' => 'Austria',
-	'AZ' => 'Azerbaijan',
-	'BS' => 'Bahamas',
-	'BH' => 'Bahrain',
-	'BD' => 'Bangladesh',
-	'BB' => 'Barbados',
-	'BY' => 'Belarus',
-	'BE' => 'Belgium',
-	'BZ' => 'Belize',
-	'BJ' => 'Benin',
-	'BM' => 'Bermuda',
-	'BT' => 'Bhutan',
-	'BO' => 'Bolivia',
-	'BA' => 'Bosnia And Herzegovina',
-	'BW' => 'Botswana',
-	'BV' => 'Bouvet Island',
-	'BR' => 'Brazil',
-	'IO' => 'British Indian Ocean Territory',
-	'BN' => 'Brunei Darussalam',
-	'BG' => 'Bulgaria',
-	'BF' => 'Burkina Faso',
-	'BI' => 'Burundi',
-	'KH' => 'Cambodia',
-	'CM' => 'Cameroon',
-	'CA' => 'Canada',
-	'CV' => 'Cape Verde',
-	'KY' => 'Cayman Islands',
-	'CF' => 'Central African Republic',
-	'TD' => 'Chad',
-	'CL' => 'Chile',
-	'CN' => 'China',
-	'CX' => 'Christmas Island',
-	'CC' => 'Cocos (Keeling) Islands',
-	'CO' => 'Colombia',
-	'KM' => 'Comoros',
-	'CG' => 'Congo',
-	'CD' => 'Congo, Democratic Republic',
-	'CK' => 'Cook Islands',
-	'CR' => 'Costa Rica',
-	'CI' => 'Cote D\'Ivoire',
-	'HR' => 'Croatia',
-	'CU' => 'Cuba',
-	'CY' => 'Cyprus',
-	'CZ' => 'Czech Republic',
-	'DK' => 'Denmark',
-	'DJ' => 'Djibouti',
-	'DM' => 'Dominica',
-	'DO' => 'Dominican Republic',
-	'EC' => 'Ecuador',
-	'EG' => 'Egypt',
-	'SV' => 'El Salvador',
-	'GQ' => 'Equatorial Guinea',
-	'ER' => 'Eritrea',
-	'EE' => 'Estonia',
-	'ET' => 'Ethiopia',
-	'FK' => 'Falkland Islands (Malvinas)',
-	'FO' => 'Faroe Islands',
-	'FJ' => 'Fiji',
-	'FI' => 'Finland',
-	'FR' => 'France',
-	'GF' => 'French Guiana',
-	'PF' => 'French Polynesia',
-	'TF' => 'French Southern Territories',
-	'GA' => 'Gabon',
-	'GM' => 'Gambia',
-	'GE' => 'Georgia',
-	'DE' => 'Germany',
-	'GH' => 'Ghana',
-	'GI' => 'Gibraltar',
-	'GR' => 'Greece',
-	'GL' => 'Greenland',
-	'GD' => 'Grenada',
-	'GP' => 'Guadeloupe',
-	'GU' => 'Guam',
-	'GT' => 'Guatemala',
-	'GG' => 'Guernsey',
-	'GN' => 'Guinea',
-	'GW' => 'Guinea-Bissau',
-	'GY' => 'Guyana',
-	'HT' => 'Haiti',
-	'HM' => 'Heard Island & Mcdonald Islands',
-	'VA' => 'Holy See (Vatican City State)',
-	'HN' => 'Honduras',
-	'HK' => 'Hong Kong',
-	'HU' => 'Hungary',
-	'IS' => 'Iceland',
-	'IN' => 'India',
-	'ID' => 'Indonesia',
-	'IR' => 'Iran, Islamic Republic Of',
-	'IQ' => 'Iraq',
-	'IE' => 'Ireland',
-	'IM' => 'Isle Of Man',
-	'IL' => 'Israel',
-	'IT' => 'Italy',
-	'JM' => 'Jamaica',
-	'JP' => 'Japan',
-	'JE' => 'Jersey',
-	'JO' => 'Jordan',
-	'KZ' => 'Kazakhstan',
-	'KE' => 'Kenya',
-	'KI' => 'Kiribati',
-	'KR' => 'Korea',
-	'KW' => 'Kuwait',
-	'KG' => 'Kyrgyzstan',
-	'LA' => 'Lao People\'s Democratic Republic',
-	'LV' => 'Latvia',
-	'LB' => 'Lebanon',
-	'LS' => 'Lesotho',
-	'LR' => 'Liberia',
-	'LY' => 'Libyan Arab Jamahiriya',
-	'LI' => 'Liechtenstein',
-	'LT' => 'Lithuania',
-	'LU' => 'Luxembourg',
-	'MO' => 'Macao',
-	'MK' => 'Macedonia',
-	'MG' => 'Madagascar',
-	'MW' => 'Malawi',
-	'MY' => 'Malaysia',
-	'MV' => 'Maldives',
-	'ML' => 'Mali',
-	'MT' => 'Malta',
-	'MH' => 'Marshall Islands',
-	'MQ' => 'Martinique',
-	'MR' => 'Mauritania',
-	'MU' => 'Mauritius',
-	'YT' => 'Mayotte',
-	'MX' => 'Mexico',
-	'FM' => 'Micronesia, Federated States Of',
-	'MD' => 'Moldova',
-	'MC' => 'Monaco',
-	'MN' => 'Mongolia',
-	'ME' => 'Montenegro',
-	'MS' => 'Montserrat',
-	'MA' => 'Morocco',
-	'MZ' => 'Mozambique',
-	'MM' => 'Myanmar',
-	'NA' => 'Namibia',
-	'NR' => 'Nauru',
-	'NP' => 'Nepal',
-	'NL' => 'Netherlands',
-	'AN' => 'Netherlands Antilles',
-	'NC' => 'New Caledonia',
-	'NZ' => 'New Zealand',
-	'NI' => 'Nicaragua',
-	'NE' => 'Niger',
-	'NG' => 'Nigeria',
-	'NU' => 'Niue',
-	'NF' => 'Norfolk Island',
-	'MP' => 'Northern Mariana Islands',
-	'NO' => 'Norway',
-	'OM' => 'Oman',
-	'PK' => 'Pakistan',
-	'PW' => 'Palau',
-	'PS' => 'Palestinian Territory, Occupied',
-	'PA' => 'Panama',
-	'PG' => 'Papua New Guinea',
-	'PY' => 'Paraguay',
-	'PE' => 'Peru',
-	'PH' => 'Philippines',
-	'PN' => 'Pitcairn',
-	'PL' => 'Poland',
-	'PT' => 'Portugal',
-	'PR' => 'Puerto Rico',
-	'QA' => 'Qatar',
-	'RE' => 'Reunion',
-	'RO' => 'Romania',
-	'RU' => 'Russian Federation',
-	'RW' => 'Rwanda',
-	'BL' => 'Saint Barthelemy',
-	'SH' => 'Saint Helena',
-	'KN' => 'Saint Kitts And Nevis',
-	'LC' => 'Saint Lucia',
-	'MF' => 'Saint Martin',
-	'PM' => 'Saint Pierre And Miquelon',
-	'VC' => 'Saint Vincent And Grenadines',
-	'WS' => 'Samoa',
-	'SM' => 'San Marino',
-	'ST' => 'Sao Tome And Principe',
-	'SA' => 'Saudi Arabia',
-	'SN' => 'Senegal',
-	'RS' => 'Serbia',
-	'SC' => 'Seychelles',
-	'SL' => 'Sierra Leone',
-	'SG' => 'Singapore',
-	'SK' => 'Slovakia',
-	'SI' => 'Slovenia',
-	'SB' => 'Solomon Islands',
-	'SO' => 'Somalia',
-	'ZA' => 'South Africa',
-	'GS' => 'South Georgia And Sandwich Isl.',
-	'ES' => 'Spain',
-	'LK' => 'Sri Lanka',
-	'SD' => 'Sudan',
-	'SR' => 'Suriname',
-	'SJ' => 'Svalbard And Jan Mayen',
-	'SZ' => 'Swaziland',
-	'SE' => 'Sweden',
-	'CH' => 'Switzerland',
-	'SY' => 'Syrian Arab Republic',
-	'TW' => 'Taiwan',
-	'TJ' => 'Tajikistan',
-	'TZ' => 'Tanzania',
-	'TH' => 'Thailand',
-	'TL' => 'Timor-Leste',
-	'TG' => 'Togo',
-	'TK' => 'Tokelau',
-	'TO' => 'Tonga',
-	'TT' => 'Trinidad And Tobago',
-	'TN' => 'Tunisia',
-	'TR' => 'Turkey',
-	'TM' => 'Turkmenistan',
-	'TC' => 'Turks And Caicos Islands',
-	'TV' => 'Tuvalu',
-	'UG' => 'Uganda',
-	'UA' => 'Ukraine',
-	'AE' => 'United Arab Emirates',
-	'GB' => 'United Kingdom',
-	'US' => 'United States',
-	'UM' => 'United States Outlying Islands',
-	'UY' => 'Uruguay',
-	'UZ' => 'Uzbekistan',
-	'VU' => 'Vanuatu',
-	'VE' => 'Venezuela',
-	'VN' => 'Viet Nam',
-	'VG' => 'Virgin Islands, British',
-	'VI' => 'Virgin Islands, U.S.',
-	'WF' => 'Wallis And Futuna',
-	'EH' => 'Western Sahara',
-	'YE' => 'Yemen',
-	'ZM' => 'Zambia',
-	'ZW' => 'Zimbabwe',
-);
 
 }

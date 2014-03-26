@@ -110,6 +110,10 @@ return array(
 		'Codesleeve\AssetPipeline\AssetPipelineServiceProvider',
 		'Jenssegers\Mongodb\MongodbServiceProvider',
 		'Gloudemans\Shoppingcart\ShoppingcartServiceProvider',
+		
+		'Cw\Crowdflower\CrowdflowerServiceProvider',
+		'Cw\Mturk\MturkServiceProvider'
+/*		'PlatformProvider'*/
 	),
 
 	/*

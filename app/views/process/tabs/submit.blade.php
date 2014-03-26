@@ -62,20 +62,12 @@
 						<button class="btn btn-default btn-lg pull-left" data-toggle="modal" data-target="#myModal">
 						  Save settings
 						</button>
-						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => 'ProcessController@postSubmitFinal', 'method' => 'POST')) }}
-						@if(Session::has('flashError'))
-							{{ Form::submit('Submit and order', array('class' => 'btn btn-lg btn-primary pull-right', 'disabled')); }}
-						@else 
+						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postSubmitFinal', 'order'), 'method' => 'POST')) }}
 							{{ Form::submit('Submit and order', array('class' => 'btn btn-lg btn-primary pull-right')); }}
-						@endif
 						{{ Form::close()}}	
 
-						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => 'ProcessController@postSubmitSandbox', 'method' => 'POST')) }}
-						@if(Session::has('flashError'))
-							{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg btn-default pull-right', 'disabled', 'style' => 'margin-right:20px')); }}
-						@else 
+						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
 							{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }}
-						@endif
 						{{ Form::close()}}
 
 
