@@ -220,7 +220,7 @@ class Mturk {
 			}
 		}	
 
-					// Notification E-Mail
+		// Notification E-Mail
 		if((!empty($c['notificationEmail'])) and (!empty($hittypeid)))
 			$this->mechanicalTurk->setHITTypeNotification($hittypeid, $c['notificationEmail'], $c['eventType']);
 
