@@ -112,17 +112,17 @@ class Entity extends Moloquent {
         }
     }
 
-	public static function createSchema(){
-		Schema::create('entities', function($collection)
-		{
+    public static function createSchema(){
+        Schema::create('entities', function($collection)
+        {
             $collection->index('hash');
             $collection->index('domain');
-		    $collection->index('documentType');    
-		    $collection->index('activity_id');
-		    $collection->index('user_id');
-		    $collection->index('parents');
-		});
-	}
+            $collection->index('documentType');    
+            $collection->index('activity_id');
+            $collection->index('user_id');
+            $collection->index('parents');
+        });
+    }
 
     public static function getDistinctValuesForField($field, $conditions = array()){
         $distinctFields = Entity::where(function($query) use ($conditions)
@@ -152,11 +152,11 @@ class Entity extends Moloquent {
     }    
 
     public function wasGeneratedBy(){
-    	return $this->hasOne('\MongoDB\Activity', '_id', 'activity_id');
+        return $this->hasOne('\MongoDB\Activity', '_id', 'activity_id');
     }
 
     public function wasDerivedFrom(){
-    	return $this->hasMany('\MongoDB\Entity', '_id', 'parents');
+        return $this->hasMany('\MongoDB\Entity', '_id', 'parents');
     }
 
     public function wasAttributedToUserAgent(){

@@ -1,49 +1,25 @@
 <?php
 
-//use mongo\text\sentence;
 use MongoDB\Entity;
 
 class Batch extends Entity {
-
-	public function toCFArray(){
-		$array = $this->wasDerivedFrom;
-		$return = array();
-		foreach ($array as $row){
-			$content = $row['content'];
-			$content['uid'] = $row['_id'];
-			$content['_golden'] = 'false';
-			unset($content['properties']);
-			$return[] = $content;
-		}	
-
-		return $return;
-	}
+	
+	protected $attributes = array(  'format' => 'text', 
+                                    'domain' => 'medical', 
+                                    'documentType' => 'batch', 
+                                    'type' => 'todo');
 
 
+// DOESN'T SEEM TO WORK WITH wasDerivedFrom! 
 	/**
-	* @return path to the csv, ready to be sent to the CrowdFlower API.
-	*/
-	public function toCFCSV($path = null){
-		if(empty($path)) $path = base_path() . '/app/storage/temp/crowdflower.csv';
-		//$tmpfname = tempnam("/tmp", "csv");
-		$out = fopen($path, 'w');
-		//$out = fopen('php://memory', 'r+');
-		$array = $this->toCFArray();
-		$headers = $array[0];
-
-		fputcsv($out, array_change_key_case(str_replace('.', '_', array_keys(array_dot($headers))), CASE_LOWER));
-		
-		foreach ($array as $row){
-			// TODO: replace
-			fputcsv($out, array_dot($row));	
-		}
-		//file_put_contents('test.csv', $contents);
-		rewind($out);
-		//$contents = stream_get_contents($out);
-		fclose($out);
-
-		return $path;
-	}
+    *   Override the standard query to include documenttype.
+    */
+/*    public function newQuery($excludeDeleted = true)
+    {
+        $query = parent::newQuery($excludeDeleted = true);
+        $query->where('documentType', 'batch');
+        return $query;
+    }*/ 
 
 	// for testing
 	public static function testBatch(){
@@ -51,6 +27,10 @@ class Batch extends Entity {
 		$batch->fill(json_decode(file_get_contents(Config::get('config.csvdir') . 'testbatch.json'), true));
 		return $batch;
 	}
+
+/*    public function units(){
+        return $this->hasMany('\MongoDB\Entity', '_id', 'parents');
+    }*/
 }
 
 
