@@ -49,10 +49,31 @@ class csvresultController extends BaseController {
 					continue;
 				}
 
-				return $document = $this->csvresultMapper->process($entity);
+				return $document = $this->csvresultMapper->process($entity, true);
 				// print_r($document);
 				// exit;
 				return View::make('preprocess.csvresult.pages.view', array('entity' => $entity, 'lines' => $document));
+			}
+		} 
+		else 
+		{
+			return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);
+		}	
+	}
+
+	public function getCreatebatch()
+	{
+		if($URI = Input::get('URI'))
+		{
+			if($entity = $this->repository->find($URI)) {
+				if($entity->documentType != "csvresult")
+				{
+					continue;
+				}
+
+				$batch = $this->csvresultMapper->process($entity);
+
+				return Redirect::to('files/batch?selection=' . urlencode(json_encode($batch)));
 			}
 		} 
 		else 

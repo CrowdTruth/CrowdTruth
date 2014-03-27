@@ -5,13 +5,13 @@ namespace Preprocess;
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
-use URL, Session, Exception, File, Input;
+use URL, Session, Exception, File, Input, Redirect;
 
 use League\Csv\Reader as Reader;
 
 class CSVresultMapper {
 
-	public function process($csvresult)
+	public function process($csvresult, $preview = false)
 	{
 		$csv = Reader::createFromString($csvresult['content']);
 
@@ -23,6 +23,7 @@ class CSVresultMapper {
 		$data = $csv->fetchAssoc($headers);
 
 		$rowsMappedWithUnits = array();
+		$batch = array();
 
 		unset($data[0]); // Unsetting header
 
@@ -88,11 +89,18 @@ class CSVresultMapper {
 			if($result = $entity->first())
 			{
 			    $row['unit'] = $result->toArray();
-			    array_push($rowsMappedWithUnits, $row);				
+			    array_push($rowsMappedWithUnits, $row);
+			    array_push($batch, $result->toArray()['_id']);	
 			}
 		}
 
-		return $rowsMappedWithUnits;
+		if($preview)
+		{
+			return $rowsMappedWithUnits;
+		}
+
+		return $batch;
+
 	}
 
 }
