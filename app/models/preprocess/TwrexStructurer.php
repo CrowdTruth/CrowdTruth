@@ -161,7 +161,7 @@ class TwrexStructurer {
 	public function getAllTermCombinations($tempTwrexStructuredSentence)
 	{
 
-		if($this->overlappingTerms($tempTwrexStructuredSentence))
+		if($this->overlappingOffsets($tempTwrexStructuredSentence))
 		{
 			$tempTwrexStructuredSentence['terms']['first'] = array($tempTwrexStructuredSentence['terms']['first']);
 			$tempTwrexStructuredSentence['terms']['second'] = array($tempTwrexStructuredSentence['terms']['second']);	
@@ -384,6 +384,23 @@ class TwrexStructurer {
 
 	protected function overlappingTerms($twrexStructuredSentence)
 	{
+		$firstTerms = strtolower($twrexStructuredSentence['terms']['first']['text']);
+		$secondTerms = strtolower($twrexStructuredSentence['terms']['second']['text']);
+
+		$firstTermsArray = explode(" ", $firstTerms);
+		$secondTermsArray = explode(" ", $secondTerms);
+
+		foreach($firstTermsArray as $term){
+			if(in_array($term, $secondTermsArray)) {
+				return 1;
+			}
+		}
+
+		return 0;	
+	}
+
+	protected function overlappingOffsets($twrexStructuredSentence)
+	{
 		$b1 = $twrexStructuredSentence['terms']['first']['startIndex'];
 		$b2 = $twrexStructuredSentence['terms']['second']['startIndex'];
 		$e1 = $twrexStructuredSentence['terms']['first']['endIndex'];
@@ -419,20 +436,6 @@ class TwrexStructurer {
 			// dd('no');
 			return 0;
 		}
-
-		$firstTerms = strtolower($twrexStructuredSentence['terms']['first']['text']);
-		$secondTerms = strtolower($twrexStructuredSentence['terms']['second']['text']);
-
-		$firstTermsArray = explode(" ", $firstTerms);
-		$secondTermsArray = explode(" ", $secondTerms);
-
-		foreach($firstTermsArray as $term){
-			if(in_array($term, $secondTermsArray)) {
-				return 1;
-			}
-		}
-
-		return 0;	
 	}
 
 	public function simpleStem($relationWithoutPrefix){
