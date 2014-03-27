@@ -3,7 +3,7 @@
     "description": "",
     "keywords": "example,demo",
     "reward": "0.03",
-    "judgmentsPerUnit": "15",
+    "annotationsPerUnit": "15",
     "hitLifetimeInMinutes": "10080",
     "expirationInMinutes": "2",
     "unitsPerTask": "1",
@@ -20,6 +20,6 @@
             "IntegerValue": "1000"
         }
     ],
-    "judgmentsPerWorker": "",
+    "annotationsPerWorker": "",
     "requesterAnnotation": ""
 }

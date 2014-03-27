@@ -1,0 +1,56 @@
+[
+    {
+        "name": "illuminate/support",
+        "version": "v4.1.24",
+        "version_normalized": "4.1.24.0",
+        "target-dir": "Illuminate/Support",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/illuminate/support.git",
+            "reference": "ff32e707fa8b6e975ee46e5277b6270ec2f7029f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/illuminate/support/zipball/ff32e707fa8b6e975ee46e5277b6270ec2f7029f",
+            "reference": "ff32e707fa8b6e975ee46e5277b6270ec2f7029f",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "jeremeamia/superclosure": "1.0.*",
+            "mockery/mockery": "0.9.*",
+            "patchwork/utf8": "1.1.*",
+            "phpunit/phpunit": "4.0.*"
+        },
+        "time": "2014-03-13 01:02:42",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "4.1-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Illuminate\\Support": ""
+            },
+            "files": [
+                "Illuminate/Support/helpers.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Taylor Otwell",
+                "email": "taylorotwell@gmail.com",
+                "homepage": "https://github.com/taylorotwell",
+                "role": "Developer"
+            }
+        ]
+    }
+]
