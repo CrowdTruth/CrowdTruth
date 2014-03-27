@@ -132,10 +132,10 @@ class apiController extends BaseController {
 			{
 				if(!isset($documentValue['content']['sentence']['formatted']))
 				{
-					$documentValue['content']['sentence']['formatted'] = "";
+					$documentValue['content']['sentence']['formatted'] = " ";
 				}
 
-				// $this->recur_ksort($documentValue['content']);
+				$this->recur_ksort($documentValue['content']);
 
 				$row['_id'] = $documentValue['_id'];
 				$row['content'] = $documentValue['content'];

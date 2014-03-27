@@ -19,7 +19,7 @@ class csvresultController extends BaseController {
 
 	public function getIndex()
 	{
-		return Redirect::to('preprocess/csvresult/actions');
+		return Redirect::to('preprocess/csvresult/inputdata');
 	}
 
 	public function getInfo()
@@ -27,84 +27,175 @@ class csvresultController extends BaseController {
 		return View::make('preprocess.csvresult.pages.info');
 	}
 
-	public function getActions()
+	public function getInputdata($action = null)
 	{
-		$entities = \MongoDB\Entity::where('documentType', 'csvresult')->get();
-
-		if(count($entities) > 0)
+		if(is_null($action))
 		{
-			return View::make('preprocess.csvresult.pages.actions', compact('entities'));
+			$entities = \MongoDB\Entity::where('documentType', 'csvresult')->get();
+
+			if(count($entities) > 0)
+			{
+				return View::make('preprocess.csvresult.pages.inputdata', compact('entities'));
+			}
+
+			return Redirect::to('files/upload')->with('flashNotice', 'You have not uploaded any "csvresult" documents yet');
 		}
-
-		return Redirect::to('files/upload')->with('flashNotice', 'You have not uploaded any "csvresult" documents yet');
-	}
-
-	public function getPreview()
-	{
-		if($URI = Input::get('URI'))
+		elseif($action == "preview")
 		{
-			if($entity = $this->repository->find($URI)) {
-				if($entity->documentType != "csvresult")
-				{
-					continue;
+			if($URI = Input::get('URI'))
+			{
+				if($entity = $this->repository->find($URI)) {
+					if($entity->documentType != "csvresult")
+					{
+						continue;
+					}
+
+					return $document = $this->csvresultMapper->processInputData($entity, true);
 				}
-
-				return $document = $this->csvresultMapper->process($entity, true);
-				// print_r($document);
-				// exit;
-				return View::make('preprocess.csvresult.pages.view', array('entity' => $entity, 'lines' => $document));
-			}
-		} 
-		else 
+			} 
+		}
+		elseif($action == "createbatch")
 		{
-			return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);
-		}	
-	}
+			if($URI = Input::get('URI'))
+			{
+				if($entity = $this->repository->find($URI)) {
+					if($entity->documentType != "csvresult")
+					{
+						continue;
+					}
 
-	public function getCreatebatch()
-	{
-		if($URI = Input::get('URI'))
-		{
-			if($entity = $this->repository->find($URI)) {
-				if($entity->documentType != "csvresult")
-				{
-					continue;
+					$batch = $this->csvresultMapper->processInputData($entity);
+
+					return Redirect::to('files/batch?selection=' . urlencode(json_encode($batch)));
 				}
-
-				$batch = $this->csvresultMapper->process($entity);
-
-				return Redirect::to('files/batch?selection=' . urlencode(json_encode($batch)));
-			}
-		} 
-		else 
-		{
-			return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);
-		}	
+			} 
+		}
 	}
 
-	public function getProcess()
+	public function getAnnotationdata($action = null)
 	{
-		dd('coming soon?');
-
-		if($URI = Input::get('URI'))
+		if(is_null($action))
 		{
-			if($entity = $this->repository->find($URI)) {
-				if($entity->documentType != "csvresult")
-				{
-					continue;
-				}
+			$entities = \MongoDB\Entity::where('documentType', 'csvresult')->where('title', 'like', '%annotation%')->get();
 
-				$document = $this->csvresultMapper->process($entity);
-				$status_processing = $this->csvresultMapper->store($entity, $document);
-				echo "<pre>";
-				dd($status_processing);
-				return Redirect::back();
+			if(count($entities) > 0)
+			{
+				return View::make('preprocess.csvresult.pages.annotationdata', compact('entities'));
 			}
-		} 
-		else 
+
+			return Redirect::to('files/upload')->with('flashNotice', 'You have not uploaded any "csvresult" documents yet');
+		}
+		elseif($action == "preview")
 		{
-			return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);
-		}	
+			if($URI = Input::get('URI'))
+			{
+				if($entity = $this->repository->find($URI)) {
+					if($entity->documentType != "csvresult")
+					{
+						continue;
+					}
+
+					return $document = $this->csvresultMapper->processAnnotationData($entity, true);
+				}
+			} 
+		}
+		elseif($action == "createbatch")
+		{
+			if($URI = Input::get('URI'))
+			{
+				if($entity = $this->repository->find($URI)) {
+					if($entity->documentType != "csvresult")
+					{
+						continue;
+					}
+
+					return $batch = $this->csvresultMapper->processAnnotationData($entity);
+
+					return Redirect::to('files/batch?selection=' . urlencode(json_encode($batch)));
+				}
+			} 
+		}
 	}
+
+
+	// public function getActions()
+	// {
+	// 	$entities = \MongoDB\Entity::where('documentType', 'csvresult')->get();
+
+	// 	if(count($entities) > 0)
+	// 	{
+	// 		return View::make('preprocess.csvresult.pages.actions', compact('entities'));
+	// 	}
+
+	// 	return Redirect::to('files/upload')->with('flashNotice', 'You have not uploaded any "csvresult" documents yet');
+	// }
+
+	// public function getPreview()
+	// {
+	// 	if($URI = Input::get('URI'))
+	// 	{
+	// 		if($entity = $this->repository->find($URI)) {
+	// 			if($entity->documentType != "csvresult")
+	// 			{
+	// 				continue;
+	// 			}
+
+	// 			return $document = $this->csvresultMapper->process($entity, true);
+	// 			// print_r($document);
+	// 			// exit;
+	// 			return View::make('preprocess.csvresult.pages.view', array('entity' => $entity, 'lines' => $document));
+	// 		}
+	// 	} 
+	// 	else 
+	// 	{
+	// 		return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);
+	// 	}	
+	// }
+
+	// public function getCreatebatch()
+	// {
+	// 	if($URI = Input::get('URI'))
+	// 	{
+	// 		if($entity = $this->repository->find($URI)) {
+	// 			if($entity->documentType != "csvresult")
+	// 			{
+	// 				continue;
+	// 			}
+
+	// 			$batch = $this->csvresultMapper->process($entity);
+
+	// 			return Redirect::to('files/batch?selection=' . urlencode(json_encode($batch)));
+	// 		}
+	// 	} 
+	// 	else 
+	// 	{
+	// 		return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);
+	// 	}	
+	// }
+
+	// public function getProcess()
+	// {
+	// 	dd('coming soon?');
+
+	// 	if($URI = Input::get('URI'))
+	// 	{
+	// 		if($entity = $this->repository->find($URI)) {
+	// 			if($entity->documentType != "csvresult")
+	// 			{
+	// 				continue;
+	// 			}
+
+	// 			$document = $this->csvresultMapper->process($entity);
+	// 			$status_processing = $this->csvresultMapper->store($entity, $document);
+	// 			echo "<pre>";
+	// 			dd($status_processing);
+	// 			return Redirect::back();
+	// 		}
+	// 	} 
+	// 	else 
+	// 	{
+	// 		return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);
+	// 	}	
+	// }
 
 }
