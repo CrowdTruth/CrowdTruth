@@ -15,13 +15,11 @@ class CSVresultMapper {
 	{
 		$csv = Reader::createFromString($csvresult['content']);
 
-  //   	if(Input::has('delimiter'))
-  //   	{
-		// 	$delimiter = (string) Input::get('delimiter');
-		// 	$csv->setDelimiter($delimiter);
-		// }
-
+		// $csvLines = explode("\n", $csvresult['content']);
+		// dd($csvLines);
+		
 		$headers = $csv->fetchOne();
+
 		$data = $csv->fetchAssoc($headers);
 
 		$rowsMappedWithUnits = array();
@@ -39,12 +37,12 @@ class CSVresultMapper {
 
 			if(isset($row['term1']))
 			{
-				$entity = $entity->where('content.terms.first.formatted', '=', $row['term1']);
+				$entity = $entity->where('content.terms.first.text', '=', $row['term1']);
 			}
 
 			if(isset($row['term2']))
 			{
-				$entity = $entity->where('content.terms.second.formatted', '=', $row['term2']);
+				$entity = $entity->where('content.terms.second.text', '=', $row['term2']);
 			}
 
 			if(isset($row['b1']))
@@ -67,12 +65,10 @@ class CSVresultMapper {
 				$entity = $entity->where('content.terms.second.endIndex', '=', (int) $row['e2']);
 			}
 
-			$result = $entity->get();
-
-			if(count($result) > 0)
+			if($result = $entity->first())
 			{
-			    $row['unit'] = $result->toArray()[0];
-			    array_push($rowsMappedWithUnits, $row);
+			    $row['unit'] = $result->toArray();
+			    array_push($rowsMappedWithUnits, $row);				
 			}
 		}
 
