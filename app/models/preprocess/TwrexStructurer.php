@@ -420,20 +420,19 @@ class TwrexStructurer {
 			return 0;
 		}
 
+		$firstTerms = strtolower($twrexStructuredSentence['terms']['first']['text']);
+		$secondTerms = strtolower($twrexStructuredSentence['terms']['second']['text']);
 
-		// $firstTerms = strtolower($twrexStructuredSentence['terms']['first']['text']);
-		// $secondTerms = strtolower($twrexStructuredSentence['terms']['second']['text']);
+		$firstTermsArray = explode(" ", $firstTerms);
+		$secondTermsArray = explode(" ", $secondTerms);
 
-		// $firstTermsArray = explode(" ", $firstTerms);
-		// $secondTermsArray = explode(" ", $secondTerms);
+		foreach($firstTermsArray as $term){
+			if(in_array($term, $secondTermsArray)) {
+				return 1;
+			}
+		}
 
-		// foreach($firstTermsArray as $term){
-		// 	if(in_array($term, $secondTermsArray)) {
-		// 		return 1;
-		// 	}
-		// }
-
-		// return 0;	
+		return 0;	
 	}
 
 	public function simpleStem($relationWithoutPrefix){
