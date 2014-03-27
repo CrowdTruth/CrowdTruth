@@ -17,7 +17,7 @@ class CSVresultMapper {
 
 		// $csvLines = explode("\n", $csvresult['content']);
 		// dd($csvLines);
-		
+
 		$headers = $csv->fetchOne();
 
 		$data = $csv->fetchAssoc($headers);
@@ -34,20 +34,36 @@ class CSVresultMapper {
 			{
 				$entity = $entity->where('content.relation.original', '=', $row['relation-type']);
 			}
+			else
+			{
+				continue;
+			}
 
 			if(isset($row['term1']))
 			{
 				$entity = $entity->where('content.terms.first.text', '=', $row['term1']);
+			}
+			else
+			{
+				continue;
 			}
 
 			if(isset($row['term2']))
 			{
 				$entity = $entity->where('content.terms.second.text', '=', $row['term2']);
 			}
+			else
+			{
+				continue;
+			}
 
 			if(isset($row['b1']))
 			{
 				$entity = $entity->where('content.terms.first.startIndex', '=', (int) $row['b1']);
+			}
+			else
+			{
+				continue;
 			}
 
 			if(isset($row['e1']))
@@ -58,6 +74,10 @@ class CSVresultMapper {
 			if(isset($row['b2']))
 			{
 				$entity = $entity->where('content.terms.second.startIndex', '=', (int) $row['b2']);
+			}
+			else
+			{
+				continue;
 			}
 
 			if(isset($row['e2']))
