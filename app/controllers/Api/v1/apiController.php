@@ -138,6 +138,12 @@ class apiController extends BaseController {
 				$this->recur_ksort($documentValue['content']);
 
 				$row['_id'] = $documentValue['_id'];
+
+				if(isset($documentValue['parents']))
+				{
+					$row['wasDerivedFrom'] = implode(",", $documentValue['parents']);
+				}
+
 				$row['content'] = $documentValue['content'];
 
 				if($documentKey == 0)
