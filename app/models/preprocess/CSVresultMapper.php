@@ -5,7 +5,7 @@ namespace Preprocess;
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
-use URL, Session, Exception, File;
+use URL, Session, Exception, File, Input;
 
 use League\Csv\Reader as Reader;
 
@@ -14,7 +14,12 @@ class CSVresultMapper {
 	public function process($csvresult)
 	{
 		$csv = Reader::createFromString($csvresult['content']);
-		$csv->setDelimiter("\t");
+
+  //   	if(Input::has('delimiter'))
+  //   	{
+		// 	$delimiter = (string) Input::get('delimiter');
+		// 	$csv->setDelimiter($delimiter);
+		// }
 
 		$headers = $csv->fetchOne();
 		$data = $csv->fetchAssoc($headers);
