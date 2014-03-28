@@ -24,8 +24,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('jobs', 'JobsController');
 	Route::controller('workers', 'WorkersController');
 
-	Route::controller('temp', 'TempController');
-	
+
 });
 
 Route::controller('api/v1', '\Api\v1\apiController');
