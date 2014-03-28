@@ -53,17 +53,35 @@ class Activity extends Moloquent {
         });
     }
 
-    public static function generateIncrementedBaseURI($activity)
-    {
-        $lastMongoIncUsed = Activity::where('softwareAgent_id', $activity->softwareAgent_id)->count();
+    // public static function generateIncrementedBaseURI($activity)
+    // {
+    //     $lastMongoIncUsed = Activity::where('softwareAgent_id', $activity->softwareAgent_id)->count();
 
-        if(isset($lastMongoIncUsed)){
-            $inc = $lastMongoIncUsed;
-        } else {
-            $inc = 0;
+    //     if(isset($lastMongoIncUsed)){
+    //         $inc = $lastMongoIncUsed;
+    //     } else {
+    //         $inc = 0;
+    //     }
+
+    //     return 'activity' . '/' . $activity->softwareAgent_id . '/' . $inc;
+    // }
+
+    public static function generateIncrementedBaseURI($activity){
+        $lastMongoURIUsed = Activity::where('softwareAgent_id', $activity->softwareAgent_id)->get(array("_id"));
+        if(is_object($lastMongoURIUsed)) {
+            $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
+                return $entity->_id;
+            }, SORT_NATURAL)->toArray();
         }
 
-        return 'activity' . '/' . $activity->softwareAgent_id . '/' . $inc;
+        if(!end($lastMongoURIUsed)){
+            $id = 0;
+        } else {
+            $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
+            $id = end($lastMongoIDUsed) + 1;
+        }
+       
+        return 'activity' . '/' . $activity->softwareAgent_id . '/' . $id;
     }
 
 	public static function createSchema(){

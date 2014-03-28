@@ -36,7 +36,7 @@ class BatchCreator extends Moloquent {
 			$entity->documentType = "batch";
 			$entity->parents = $input['units'];
 			$entity->content = $input['batch_description'];
-			$entity->hash = md5(serialize($entity->ancestors));
+			$entity->hash = md5(serialize($entity->parents));
 			$entity->activity_id = $activity->_id;
 			$entity->save();
 
