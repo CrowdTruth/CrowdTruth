@@ -1,8 +1,8 @@
-@extends('preprocess.twrex.layouts.default')
+@extends('preprocess.csvresult.layouts.default')
 
 @section('colWidth', 'col-xs-12')
-@section('twrexContent')
-				<!-- START preprocess/twrex/actions --> 
+@section('csvresultContent')
+				<!-- START preprocess/csvresult/actions --> 
 
 							<div class='table-responsive'>
 								<table class='table table-striped'>
@@ -36,8 +36,8 @@
 										<td>{{ $entity->created_at }}</td>
 										<td>{{ link_to('#', $entity->wasAttributedToUserAgent->firstname . ' ' . $entity->wasAttributedToUserAgent->lastname) }}</td>										
 										<td>
-<a class='btn btn-success' href='{{ URL::to('preprocess/twrex/preview?URI=' . $entity['_id']) }}'><i class="fa fa-search fa-fw"></i>Preview</a>
-<a class='btn btn-success' href='{{ URL::to('preprocess/twrex/process?URI=' . $entity['_id']) }}'><i class="fa fa-gear fa-fw"></i>Process</a>
+<a class='btn btn-success' href='{{ URL::to('preprocess/csvresult/inputdata/preview?URI=' . $entity['_id']) }}'><i class="fa fa-search fa-fw"></i>Preview</a>
+<a class='btn btn-success' href='{{ URL::to('preprocess/csvresult/inputdata/createbatch?URI=' . $entity['_id']) }}'><i class="fa fa-gear fa-fw"></i>Create Batch</a>
 										</td>
 									</tr>
 								@endforeach
@@ -47,11 +47,11 @@
 										<td>&nbsp;</td>
 										<td>
 <a class='btn' href='#' style='visibility:hidden;'><i class="fa fa-plus-circle fa-fw"></i>Preview</a>
-<a class='btn btn-success' href='{{ URL::to('preprocess/twrex/process?URI=' . $entity['_id']) }}'><i class="fa fa-gears fa-fw"></i>Process All</a>
+<a class='btn btn-success' href='{{ URL::to('preprocess/csvresult/inputdata/process?URI=' . $entity['_id']) }}'><i class="fa fa-gears fa-fw"></i>Process All</a>
 										</td>
 									</tr>
 									</tbody>
 								</table>
 							</div>
-				<!-- STOP preprocess/twrex/actions --> 				
+				<!-- STOP preprocess/csvresult/actions --> 				
 @stop

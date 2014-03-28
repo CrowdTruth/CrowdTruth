@@ -4,6 +4,7 @@
 
 @section('head')
 {{ stylesheet_link_tag('bootstrap-select.css') }}
+{{ stylesheet_link_tag('bootstrap-dropdown-checkbox.css') }}
 @stop
 
 @section('content')
@@ -14,7 +15,6 @@
 @include('files.layouts.nav')
 						<div class='tab'>
 							<div class='row'>
-
 								<div class='col-xs-4 facetedSearchFilters'>
 									@if(isset($mainSearchFilters['formats']))
 									<ul class="nav nav-pills nav-stacked cw_formats">
@@ -106,16 +106,20 @@
 									<div class="tab-content documentTypesTabs">
 										<div class="tab-pane active" id="all_tab">
 										<div class='row'>
-											<div class='searchOptions col-xs-3'>
-												<select name="search_limit" class="selectpicker">
+											<div class='searchOptions col-xs-12'>
+												<select name="search_limit" class="selectpicker pull-left">
 													<option value="10">10 Records per page</option>
 													<option value="25">25 Records per page</option>
 													<option value="50">50 Records per page</option>
 													<option value="100">100 Records per page</option>
 												</select>
+												<div class='visibleColumns pull-left'>
+												</div>		
 											</div>
-											<div class='cw_pagination col-xs-9'>
-											</div>
+										</div>
+										<div class='row'>
+											<div class='col-xs-12 cw_pagination'>
+											</div>								
 										</div>
 										    <table class="table table-striped">
 										        <thead>
@@ -154,7 +158,6 @@
 									        </tbody>
 									    </table>											
 									</div>
-
 										@if(isset($mainSearchFilters['documentTypes']['job']))
 											@include('files.search.layouts.job')
 										@endif
@@ -168,58 +171,12 @@
 										@endif
 
 										@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
-										<div class="tab-pane" id="twrex-structured-sentence_tab">
-										<div class='row'>
-											<div class='searchOptions col-xs-3'>
-												<select name="search_limit" class="selectpicker">
-													<option value="10">10 Records per page</option>
-													<option value="25">25 Records per page</option>
-													<option value="50">50 Records per page</option>
-													<option value="100">100 Records per page</option>
-												</select>
-											</div>
-											<div class='cw_pagination col-xs-9'>
-											</div>
-										</div>
-										    <table class="table table-striped">
-										        <thead data-query-key="field[documentType]" data-query-value="twrex-structured-sentence">
-											        <tr>
-											            <th>Checkbox</th>
-											            <th class="sorting" data-query-key="orderBy[content.relation.noPrefix]">Relation</th>
-											            <th class="sorting" data-query-key="orderBy[content.terms.first.text]">Term 1</th>
-											            <th class="sorting" data-query-key="orderBy[content.terms.second.text]">Term 2</th>
-											        </tr>
-													<tr class="inputFilters">
-														<td>
-															<input type="checkbox" class="checkAll" />
-														</td>
-														<td>
-															<input type='text' data-query-key="field[content.relation.noPrefix]" data-query-operator="[like]" />
-														</td>
-														<td>
-															<input type='text' data-query-key="field[content.terms.first.text]" data-query-operator="[like]" />
-														</td>
-														<td>
-															<input type='text' data-query-key="field[content.terms.second.text]" data-query-operator="[like]" />
-														</td>
-													</tr>											        
-										        </thead>
-									        <tbody class='results'>											
-												<script class='template' type="text/x-handlebars-template">
-											        @{{#each documents}}
-											        <tr>
-											            <td>Checkbox</td>
-											            <td>@{{ this.content.relation.noPrefix }}</td>
-											            <td>@{{ this.content.terms.first.text }}</td>
-											            <td>@{{ this.content.terms.second.text }}</td>
-											        </tr>
-											        @{{/each}}
-												</script>
-									        </tbody>
-									    </table>											
-									</div>
+											@include('files.search.layouts.hb-twrex-structured-sentence')
 										@endif
 
+										@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
+											@include('files.search.layouts.hb-painting')
+										@endif
 									</div>
     							</div>
     						</div>
@@ -230,11 +187,17 @@
 @stop
 
 @section('end_javascript')
+{{ javascript_include_tag('handlebarsjs-2.0.js') }}
+{{ javascript_include_tag('handlebars.swag.js') }}
 {{ javascript_include_tag('bootstrap-select.js') }}
-<script src="//cdn.jsdelivr.net/handlebarsjs/1.3.0/handlebars.js"></script>
+{{ javascript_include_tag('bootstrap-dropdown-checkbox.js') }}
+
 
 <script>
 $('document').ready(function(){
+
+Swag.registerHelpers();
+
 $('.selectpicker').selectpicker();
 var selectedRows = [];
 var templates = {};
@@ -329,6 +292,10 @@ $('.tab-pane').on('change', "[name='search_limit']", function(){
 	getResults();
 });
 
+$('.tab-pane').on('change', ".visibleColumns input", function(){
+	visibleColumns();
+});
+
 $('.tab-pane').on('click', "th", function(){
 	if($(this).hasClass('sorting')){
 		$(this).removeClass().addClass('sorting_asc');
@@ -367,8 +334,8 @@ function activateNavAndTab(filterOption){
 	}
 }
 
-$('body').on('click', 'ul.pagination a', function() {
-	event.preventDefault();
+$('body').on('click', 'ul.pagination a', function(e) {
+	e.preventDefault();
 	getResults($(this).attr('href') + "&noCache");
 });
 
@@ -430,7 +397,48 @@ function getResults(baseApiURL){
 		var html = template(data);
 		$(activeTabKey).find('.cw_pagination').empty().prepend($(data.pagination));
 		$(activeTabKey).find('.results').empty().append(html);
+
+		var visibleColumnsArray = [];
+
+		if($(activeTabKey).find(".visibleColumns").children().length > 0){
+			    // console.log($(activeTabKey).find(".visibleColumns").dropdownCheckbox("items"));
+		} else {
+			$(activeTabKey).find('thead th').each(function (index, value){
+				visibleColumnsArray.push({
+					id : activeTabKey + index,
+					label : $(this).text(),
+					isChecked : true
+			    });
+
+			    // console.log($(this).text());
+			});
+
+			$(activeTabKey).find(".visibleColumns").dropdownCheckbox({
+				data: visibleColumnsArray,
+				btnClass: "btn btn-primary",
+				title: "Visible columns"
+			});
+		}
+
+		visibleColumns();
 	});		
+}
+
+function visibleColumns(){
+	var activeTabKey = getActiveTabKey();
+
+	$(activeTabKey).find(".visibleColumns input").each(function() {
+		var index = $(this).closest('li').index() + 1;
+
+		if($(this).is(':checked')) {
+			$(activeTabKey).find('thead th:nth-child(' + index + ')').removeClass('hidden');
+			$(activeTabKey).find('tr td:nth-child(' + index + ')').removeClass('hidden');
+		} else {
+			$(activeTabKey).find('thead th:nth-child(' + index + ')').addClass('hidden');
+			$(activeTabKey).find('tr td:nth-child(' + index + ')').addClass('hidden');				
+		}
+	});
+
 }
 
 function updateFilters(filterOption){

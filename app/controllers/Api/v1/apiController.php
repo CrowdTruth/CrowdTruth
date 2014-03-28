@@ -13,6 +13,9 @@ use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDB\CrowdAgent as CrowdAgent;
 
+use League\Csv\Reader as Reader;
+use League\Csv\Writer as Writer;
+
 class apiController extends BaseController {
 
 	protected $repository;
@@ -119,8 +122,53 @@ class apiController extends BaseController {
 			return json_encode($collection->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 		}
 
+		if(array_key_exists('tocsv', Input::all()))
+		{	
+			$documents = $collection->toArray();
+
+			$writer = new Writer(new \SplTempFileObject);
+
+			foreach($documents as $documentKey => $documentValue)
+			{
+				if(!isset($documentValue['content']['sentence']['formatted']))
+				{
+					$documentValue['content']['sentence']['formatted'] = " ";
+				}
+
+				$this->recur_ksort($documentValue['content']);
+
+				$row['_id'] = $documentValue['_id'];
+
+				if(isset($documentValue['parents']))
+				{
+					$row['wasDerivedFrom'] = implode(",", $documentValue['parents']);
+				}
+
+				$row['content'] = $documentValue['content'];
+
+				if($documentKey == 0)
+				{
+					$writer->insertOne(array_change_key_case(str_replace('.', '_', array_keys(array_dot($row))), CASE_LOWER));
+				}
+
+				$writer->insertOne(array_flatten($row));
+			}
+
+			$writer->output('test.csv');
+
+			die;
+			// return array_dot($csv);
+		}
+
 		return Response::json($collection);
 
+	}
+
+	public function recur_ksort(&$array) {
+	   foreach ($array as &$value) {
+	      if (is_array($value)) $this->recur_ksort($value);
+	   }
+	   return ksort($array);
 	}
 
 	public function getMin($specificField = null)

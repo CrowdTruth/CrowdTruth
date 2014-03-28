@@ -425,13 +425,30 @@ div.ColVis_catcher {
 	}
 }
 
-#twrex-structured-sentence_tab {
+/*#twrex-structured-sentence_tab {
 	tbody td:last-child {
 		text-align:center;
 	}
-}
+}*/
 
 .cw_pagination .pagination {
 	margin:0 !important;
 	float:right;
+}
+
+.visibleColumns {
+	margin-left:10px;
+}
+
+.results .thumbnail {
+	padding:0;
+	margin:0;
+}
+
+.featureMatches {
+
+	tr:nth-child(1), tr:nth-child(2), tr:nth-child(3) {
+		font-weight:bold;
+		font-size:18px;
+	}
 }
