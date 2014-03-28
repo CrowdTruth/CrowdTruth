@@ -22,7 +22,7 @@ class CrowdAgent extends Moloquent {
 	}
 	
 	public function hasDoneJobs() {
-
+		// return $this->hasMany('\MongoDB\Entity', 'metrics.workers.withoutFilter', '_id');
 	}
 
 	public function hasGeneratedAnnotations(){
