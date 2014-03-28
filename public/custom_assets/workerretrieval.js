@@ -17,6 +17,9 @@ app.controller("workerByIdCtrl", function($scope, $resource){
 		window.location = '/workers';
 	}
 	
+	$scope.flagWorker = function(){
+		alert("Flag worker " + $scope.worker._id);
+	}
 })
 	
 //inject resourceSvc in this controller
@@ -153,9 +156,11 @@ app.controller("workerCtrl", function($scope, $resource, filterFilter) {
  			});
  	}, true);
  	
- 	$scope.message = function(){
+ 	$scope.analyze = function(){
  		if($scope.selection[0] == null ){
  			alert('Select a job first.')
+ 		} else if($scope.selection.length == 1) {
+ 			window.location = '/workers/worker/' + $scope.selection._id;
  		} else
  		{
  			window.location = '/analyze/view?field[_id][]=' + $scope.selection;

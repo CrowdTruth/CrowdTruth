@@ -14,11 +14,28 @@ use \Job;
 use \Exception;
 
 class apiController extends BaseController {
-//entity/text/medical/job/1
 	public $restful = true;
 	private $content_type = 'application/json';
 
+	//i.e.: image/art/painting/40/boat
+	public function getImage($domain, $type, $numImg, $keyphrase){
+		try {
+			
+			$command = escapeshellcmd('/app/lib/getAPIS/getRijks.py' + $domain + " " + $type + " " + $numImg + " " + $keyphrase);
+			$output = shell_exec($command);
+			return $output;
 
+
+		} catch (Exception $e){
+			//throw $e; // for debugging.
+			$return['error'] = $e->getMessage();
+			$return['status'] = 'bad';
+		} 
+
+		return $this->returnJson($return);
+	}
+
+	//i.e.: entity/text/medical/job/1
 	public function getEntity($format, $domain, $docType, $incr, $action){
 		try {
 			$return = array('status' => 'ok');
