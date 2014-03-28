@@ -141,7 +141,7 @@
       		     		<div class="pull-right" style="width: 33%;">
 		           			<div class="progress" style="margin-bottom: 0px;">	
 		           				<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="@{{result.completion * 100}}" aria-valuemin="0" aria-valuemax="100" style="width: @{{result.completion * 100}}% ;">
-	   								<span class="sr-only">@{{result.completion * 100}}% Complete</span>
+	   								<span class="sr-only">@{{(result.completion * 100) | number:0}}% Complete</span>
 	  							</div>
 	              			</div>
 	              		</div>
@@ -178,8 +178,8 @@
 						       	<h2><i class="fa fa-dollar"></i>@{{result.projectedCost}}</h2>
 						    </div>
 						    <div class="col-md-2" style="text-align: center; height: 100%; display: table-cell; vertical-align: middle; padding-top: 10px;">
-						    	<strong> <i class="fa fa-gavel"></i> @{{result.completion * result.unitsCount}} / @{{result.unitsCount}} </strong>
-						    	<h2><i class="fa fa-check-circle"></i> @{{result.completion * 100}} %</h2>
+						    	<strong> <i class="fa fa-gavel"></i> @{{(result.completion * result.unitsCount) | number:0}} / @{{result.unitsCount}} </strong>
+						    	<h2><i class="fa fa-check-circle"></i> @{{(result.completion * 100) | number:0}} %</h2>
 		               		</div>
 						</div>
 					<!-- Here starts hidden details -->
@@ -213,15 +213,16 @@
 								<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>Actions
 					    			<span class="caret"></span>
 				   				</button>
-				 				<!-- <ul class="dropdown-menu" role="menu">
-				       				<li><a ng-click="pauseJob()" ng-show="result.status == 'running'"><i class="fa fa-folder-open fa-fw"></i>Pause Job</a></li>
-				       				<li><a ng-click="startJob()" ng-show="result.status == 'cancelled' | 'paused'"><i class="fa fa-folder-open fa-fw"></i>Start Job</a></li>
-				       				<li><a ng-click="cancelJob()" ng-show="result.status != 'cancelled' "><i class="fa fa-sign-out fa-fw"></i>Cancel Job</a></li>
-				       				<li class="divider"></li>
-				       				<li><a ng-click="duplicateJob()"><i class="fa fa-sign-out fa-fw"></i>Duplicate Job</a></li>
-				       				<li><a ng-click="deleteJob()"><i class="fa fa-sign-out fa-fw"></i>Delete Job</a></li>
+				 				<ul class="dropdown-menu" role="menu">
+				       				<li><a ng-click="perform(result, 'pause')" ng-show="result.status == 'running'"><i class="fa fa-folder-open fa-fw"></i>Pause Job</a></li>
+				       				<li><a ng-click="perform(result, 'resume')" ng-show="result.status == 'paused'"><i class="fa fa-folder-open fa-fw"></i>Resume Job</a></li>
+				       				<li><a ng-click="perform(result, 'order')" ng-show="result.status == 'unordered'"><i class="fa fa-folder-open fa-fw"></i>Start Job</a></li>
+				       				<li><a ng-click="perform(result, 'cancel')" ng-show="result.status != 'canceled' && result.status != 'finished'"><i class="fa fa-sign-out fa-fw"></i>Cancel Job</a></li>
+				       				<li class="divider" ng-show="result.status != 'finished'"></li>
+				       				<li><a ng-href='/process/duplicate/@{{result._id}}'><i class="fa fa-sign-out fa-fw"></i>Duplicate Job</a></li>
+				       				<li><a ng-click="" ng-show="true"><i class="fa fa-folder-open fa-fw"></i>Delete Job</a></li>
 				   				</ul>
--->								</div>
+							</div>
 						</div>
 					</div>								
 				<!--End of panel  -->

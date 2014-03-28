@@ -135,19 +135,24 @@ class Mturk {
 
 		// Do some checks and fill $questiontemplate.
 		if($upt > 1){
+			try{
+				if(!$div = $dom->find('div[id=wizard]', 0))
+					throw new AMTException('Multipage template has no div with id \'wizard\'. View the readme in the templates directory for more info.');
+				
+				if(!$div->find('h1', 0))
+					throw new AMTException('Multipage template has no <h1>. View the readme in the templates directory for more info.');
 
-			if(!$div = $dom->find('div[id=wizard]', 0))
-				throw new AMTException('Multipage template has no div with id \'wizard\'. View the readme in the templates directory for more info.');
-			
-			if(!$div->find('h1', 0))
-				throw new AMTException('Multipage template has no <h1>. View the readme in the templates directory for more info.');
-
-			$questiontemplate = $div->innertext;
-			if(!strpos($questiontemplate, '{x}'))
-				throw new AMTException('Multipage template has no \'{x}\'. View the readme in the templates directory for more info.');
-			if(!strpos($questiontemplate, '{uid}'))
-				throw new AMTException('Multipage template has no \'{uid}\'. View the readme in the templates directory for more info.');
-		
+				$questiontemplate = $div->innertext;
+				if(!strpos($questiontemplate, '{x}'))
+					throw new AMTException('Multipage template has no \'{x}\'. View the readme in the templates directory for more info.');
+				if(!strpos($questiontemplate, '{uid}'))
+					throw new AMTException('Multipage template has no \'{uid}\'. View the readme in the templates directory for more info.');
+			} catch (AMTException $e){
+				// Catch when the template is unable to present multiple HIT's on one page.
+				Log::debug('Attempted to create multipage job with singlepage template. Changed to singlepage for AMT.');
+				$upt = 1;
+				$questiontemplate = $dom->innertext;
+			}
 		} else {
 			$questiontemplate = $dom->innertext;
 		}
@@ -158,14 +163,8 @@ class Mturk {
 			//$replacerules = array('cause' => 'causes'); // TODO: get these from QUESTIONTEMPLATE
 			//$params = str_replace(array_keys($replacerules), $replacerules, $params);
 
-			if($upt>1)	{
-				$count++;
-				$tempquestiontemplate = str_replace('{x}', $count, $questiontemplate);
-			} else {
-				$count = '';
-				$tempquestiontemplate = $questiontemplate;
-			}
-
+			$count++;
+			$tempquestiontemplate = str_replace('{x}', $count, $questiontemplate);
 			// Insert the parameters
 
 			foreach ($params as $key=>$val)	{	
@@ -234,7 +233,7 @@ class Mturk {
 			// TODO: (possibly): delete existing results?
 			$fullplatformjobids = array();
 			foreach($platformjobids as $id)
-				array_push($fullplatformjobids, array('id' => $id, 'status' => 'running', 'timestamp' => time()));
+				array_push($fullplatformjobids, array('id' => $id, 'status' => 'running'));
 			$job->platformJobId = $fullplatformjobids;
 			$job->save();
 		} catch (AMTException $e) {

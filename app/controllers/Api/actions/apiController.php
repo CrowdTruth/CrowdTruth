@@ -20,10 +20,9 @@ class apiController extends BaseController {
 
 
 	public function getEntity($format, $domain, $docType, $incr, $action){
-		try {
+		//try {
 			$return = array('status' => 'ok');
 			$id = "entity/$format/$domain/$docType/$incr";
-			
 			switch ($docType) {
 
 				case 'job':
@@ -49,23 +48,24 @@ class apiController extends BaseController {
 						case 'order':
 							$job->order();
 							$return['message'] = 'Job ordered successfully.';
-							break;		
+							break;
 						default:
 							throw new Exception('Action unknown.');
 							break;
-					break;
-				
+					}
+
 				default:
-					throw new Exception('Unknown documenttype.');
+					throw new Exception("Unknown documenttype '$docType'.");
 					break;
 				}
 
-			}
-		} catch (Exception $e){
+
+
+		//} catch (Exception $e){
 			//throw $e; // for debugging.
-			$return['error'] = $e->getMessage();
+			$return['message'] = $e->getMessage();
 			$return['status'] = 'bad';
-		}
+		//}
 
 		return $this->returnJson($return);
 	}

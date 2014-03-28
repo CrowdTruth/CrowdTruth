@@ -1,0 +1,27 @@
+{
+    "title": "Select pairs of WORD PHRASES that together form a medical RELATION.",
+    "description": "Read the SENTENCE and highlight ALL the pairs of WORD PHRASES that together form a given medical RELATION.",
+	"instructions": "Read the SENTENCE and highlight ALL the pairs of WORD PHRASES that together form a given medical RELATION. To highlight more than one PAIRS, use the '+' button for each next one.",
+    "keywords": "medical relations, medical text, word phrase extraction",
+    "reward": "0.03",
+    "annotationsPerUnit": "15",
+    "hitLifetimeInMinutes": "10080",
+    "expirationInMinutes": "2",
+    "unitsPerTask": 4,
+    "autoApprovalDelayInMinutes": "2880",
+    "qualificationRequirement": [
+        {
+            "QualificationTypeId": "000000000000000000L0",
+            "Comparator": "GreaterThan",
+            "IntegerValue": "85"
+        },
+        {
+            "QualificationTypeId": "00000000000000000040",
+            "Comparator": "GreaterThan",
+            "IntegerValue": "1000"
+        }
+    ],
+	"platform":["cf"],
+    "annotationsPerWorker": 8,
+    "requesterAnnotation": ""
+}

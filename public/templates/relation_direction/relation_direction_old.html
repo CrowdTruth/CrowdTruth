@@ -9,8 +9,8 @@
                 onFinishing : function(event, currentIndex){
                   return ($("input[rel='direction" + (currentIndex+1) + "']:checked").val());},
                 onStepChanging : function(event, currentIndex, newIndex){
-                  if (newIndex > currentIndex)
-                    return ($("input[rel='direction" + (currentIndex+1) + "']:checked").val());
+                  if (newIndex > currentIndex){
+                    return ($("input[rel='direction" + (currentIndex+1) + "']:checked").val()); console.log(currentIndex+1);}
                   else
                     return true;  
                   },

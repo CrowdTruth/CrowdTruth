@@ -50,8 +50,13 @@ class RetrieveJobs extends Command {
 	{
 
 		print("Retrieving jobs....\r\n");
-		$turk = new Turkapi\MechanicalTurk(Config::get('mturk::rooturl'), false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
 
+		if 	(Config::get('mturk::rooturl') == '') or
+			(Config::get('mturk::accesskey')  == '') or
+			(Config::get('mturk::secretkey')  == '')
+				die('API key not set. Please check the configuration file.');
+
+		$turk = new Turkapi\MechanicalTurk(Config::get('mturk::rooturl'), false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
 
 		// Todo optimize query.
 		$jobs = Job::where('softwareAgent_id', 'amt')
@@ -66,7 +71,8 @@ class RetrieveJobs extends Command {
 			foreach($job->platformJobId as $hitid){
 				
 				if($hitid['status'] == 'deleted') // Can't recover from that. Don't update.
-					$newplatformhitid[] = $hitid;
+					$newplatformhitid[] = array('id' => $hitid['id'], 
+												'status' => 'deleted');
 				else {
 
 					$hit = $turk->getHIT($hitid['id']);
@@ -77,7 +83,7 @@ class RetrieveJobs extends Command {
 					if(empty($job->HITGroupId)) $job->HITGroupId = $h['HITGroupId'];
 					if(empty($job->HITTypeId)) 	$job->HITTypeId  = $h['HITTypeId'];
 
-
+					// Convert status to our language
 					if(($h['HITStatus'] == 'Assignable' or $h['HITStatus'] == 'Unassignable')
 					and ($job->Expiration->sec > time())) // Not yet expired. TODO: Timezones
 						$newstatus = 'running';
@@ -99,28 +105,25 @@ class RetrieveJobs extends Command {
 					foreach ($assignments as $ass){
 						$assignment = $ass->toArray();
 
-						$annotations = Annotation::where('job_id', $jobId)
+						$annotation = Annotation::where('job_id', $jobId)
 										->where('platformAnnotationId', $assignment['AssignmentId'])
-										->get();
+										->first();
 						
 						//print_r($annotations); die();
-						if(count($annotations)>0) { 
-							$annoldstatus = $annotations[0]['status'];
+						if($annotation) { 
+							$annoldstatus = $annotation['status'];
 							$annnewstatus = $assignment['AssignmentStatus'];
 
 							if($annoldstatus != $annnewstatus){
-								foreach($annotations as $annotation){
-									$annotation->status = $annnewstatus;
-									$annotation->update();
-									print "Status changed to $annnewstatus.";
-								}
-
+								$annotation->status = $annnewstatus;
+								$annotation->update();
+								print "Status '$annoldstatus' changed to '$annnewstatus'.";
 								Log::debug("Status of Annotation {$annotation->_id} changed from $annoldstatus to $annnewstatus");
 							}
 						} else { // ASSIGNMENT entity not in DB: create activity, entity and refer to or create agent.
 
 							// Create or retrieve Agent
-							$agentId = $this->createCrowdAgent('amt', $assignment);
+							$agentId = $this->createCrowdAgent($assignment);
 							
 							// Create activity: annotate
 							$activity = new Activity;
@@ -130,13 +133,12 @@ class RetrieveJobs extends Command {
 							$activity->softwareAgent_id = 'amt';
 							$activity->save();
 							
-							// OPTIONAL: we could create an ASSIGNMENT entity to hold the metadata.
 							$groupedbyid = array();
 							foreach ($assignment['Answer'] as $q=>$ans){
 								// Retrieve the unitID and the QuestionId from the name of the input field.
-								$split = strrpos($q, "_");
-								$unitid = substr($q, 0, $split); 	 // after the last _
-								$qid = substr($q, $split+1);		// before the last _
+								$split = strpos($q, "_");
+								$unitid = substr($q, 0, $split); 	 // before the first _
+								$qid = substr($q, $split+1);		// after the first _
 								$groupedbyid[$unitid][$qid] = $ans;// grouped to create an entity for every ID.
 							}
 							
@@ -192,29 +194,20 @@ class RetrieveJobs extends Command {
 
 
 	// todo: move?
-	public function createCrowdAgent($platform, $data){
+	public function createCrowdAgent($data){
 
-		$workerid = '';
-		if($platform == 'amt') {
-			$workerId = $data['WorkerId'];
-		} else {
-			throw new Exception("Unknown platform $platform");
-			// CF is not needed here -> webhook.
-		}	
-
-		if($id = CrowdAgent::where('platformAgentId', $workerId)->where('softwareAgent_id', $platform)->pluck('_id')) 
+		$workerId = $data['WorkerId'];
+		
+		if($id = CrowdAgent::where('platformAgentId', $workerId)->where('softwareAgent_id', 'amt')->pluck('_id')) 
 			return $id;
-
 		else {
 			$agent = new CrowdAgent;
 			$agent->_id= "crowdagent/$platform/$workerId";
-			$agent->softwareAgent_id= $platform;
-			$agent->platformAgentId = $workerId;
-			$agent->save();
-			
+			$agent->softwareAgent_id= 'amt';
+			$agent->platformAgentId = $data['WorkerId'];
+			$agent->save();		
 			return $agent->_id;
 		}
-
 	}
 
 

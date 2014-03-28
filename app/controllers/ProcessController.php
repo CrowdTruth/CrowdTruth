@@ -15,26 +15,51 @@ class ProcessController extends BaseController {
 		if (($handle = fopen(storage_path() . '/jobs.csv', 'r')) === false) {
 		    die('Error opening file');
 		}
+		
+		foreach (\QuestionTemplate::get() as $q)
+			$q->forceDelete();
+
+		foreach (\JobConfiguration::get() as $q)
+			$q->forceDelete();
+
+		foreach (\Job::get() as $q)
+			$q->forceDelete();
+
+		\MongoDB\Activity::truncate();
+		$activity = new \MongoDB\Activity;
+		$activity->label = "Imported jobs from CSV file.";
+		//$activity->used = $job->_id;
+		$activity->softwareAgent_id = 'importer';
+		$activity->save();
 
 		$headers = fgetcsv($handle, 1024, ',');
 		$count = 0;
 		$complete = array();
-
 		while ($row = fgetcsv($handle, 1024, ',')) {
 
-			$complete[] = array('format' => 'text',
-				'_id' => "entity/text/medical/jobconf/$count",
-				'domain' => 'medical',
-				'documentType' => 'jobconf',
-				'type' => $row['type'],
-				'content' => array_combine($headers, $row),
-				'hash' => 'todohash',
-				'activity_id' => 'todoactivity',
-				'user_id' => 'CrowdWatson',
-				'created_at' => 'todocreated',
-				'updated_at' => 'todocreated');
+			$c = array_combine($headers, $row);
+			$c['platform'] = array($c['platform']);
+
+			$j = new JobConfiguration;
+			//$j->_id = "entity/text/medical/jobconf/$count";
+			$j->type = (isset($row['type']) ? $row['type'] : 'todo');
+			$j->content = $c;
+			$j->hash = md5(serialize($j->content));
+			$j->activity_id = $activity->_id;
+			$j->user_id = 'CrowdWatson';
+			$j->save();
+
+			$job = new Job;
+			$job->jobConf_id = $j->_id;
+			$job->activity_id = $activity->_id;
+			$job->batch_id = "entity/text/medical/batch/$count";
+			$job->type = (isset($row['type']) ? $row['type'] : 'todo');
+			$job->user_id = 'CrowdWatson';
+			$job->status = 'finished';
+			$job->save();
 			$count++;
-		}
+
+		} //new MongoDate(strtotime(
 
 		fclose($handle);
 
@@ -42,6 +67,7 @@ class ProcessController extends BaseController {
 	}
 
 	public function getBatch() {
+		//dd(unserialize(Session::get('jobconf')));
 		//$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
@@ -92,6 +118,7 @@ class ProcessController extends BaseController {
 			->with('goldfields', $goldfields)
 			->with('unitscount', $unitscount);
 	}
+	
 
 	public function getPlatform() {
 		$jc = unserialize(Session::get('jobconf'));
@@ -140,6 +167,28 @@ class ProcessController extends BaseController {
 		Session::forget('questiontemplateid');
 		Session::forget('batch');
 		return Redirect::to("process/batch");
+	}
+
+	public function getDuplicate($entity, $format, $domain, $docType, $incr){
+		Session::forget('jobconf');
+		Session::forget('origjobconf');
+		Session::forget('template');
+		//Session::forget('questiontemplateid');
+		Session::forget('batch');
+
+		$id = "entity/$format/$domain/$docType/$incr";
+		$job = Job::where('_id', $id)->first();
+		if(!is_null($job)){
+			Session::put('jobconf', serialize($job->JobConfiguration));
+			Session::put('batch', serialize($job->batch));
+			Session::put('template', $job->JobConfiguration['template']);
+			return Redirect::to("process/batch");
+		}else {
+			Session::flash('flashError',"Job $id not found.");
+			return Redirect::back();
+		}
+
+
 	}
 
 	/*
@@ -315,8 +364,10 @@ class ProcessController extends BaseController {
 			}
 
 			// Success.
-			Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
-							strtoupper(implode(', ', $jc->content['platform'])) . '.');
+			//Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
+			//				strtoupper(implode(', ', $jc->content['platform'])) . '.');
+			Session::flash('flashSuccess', "Created job" . (count($jc->content['platform']) == 1 ? '' : 's') . " on " . 
+							strtoupper(implode(', ', $jc->content['platform'])) . '. Click on \'actions\' on the job to order it.');
 			return Redirect::to("jobs/listview");
 
 		} catch (Exception $e) {

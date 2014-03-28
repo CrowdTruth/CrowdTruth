@@ -26,12 +26,20 @@ class Crowdflower {
 	}
 		
 	public function createView(){
+		// Validate settings
+		if(Config::get('crowdflower::apikey')=='')
+			Session::flash('flashError', 'API key not set. Please check the manual.');
+
 		return View::make('crowdflower::create');
 	}
 
 	public function updateJobConf($jc){
-		if(Input::has('annotationsPerWorker'))
-			$jc->countries = Input::get('countries', array());
+		if(Input::has('annotationsPerWorker')){ // Check if we really come from the CF page (should be the case)
+			$c = $jc->content;
+			$c['countries'] = Input::get('countries', array());
+			$jc->content = $c;
+		}
+			
 		return $jc;
 	}
 
@@ -112,24 +120,24 @@ class Crowdflower {
 				$csvresult = $this->CFJob->uploadInputFile($id, $csv);
 				unlink($csv); // DELETE temporary CSV.
 				if(isset($csvresult['result']['error']))
-					throw new CFExceptions("CSV: " . $csvresult['result']['error']['message']);
+					throw new CFExceptions("CSV: " . $csvresult['result']['error']);
 				//print "\r\n\r\nCSVRESULT";
 				//print_r($csvresult);
 				$optionsresult = $this->CFJob->setOptions($id, array('options' => $options));
 				if(isset($optionsresult['result']['error']))
-					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
+					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']);
 				//print "\r\n\r\nOPTIONSRESULT";
 				//print_r($optionsresult);
 				$channelsresult = $this->CFJob->setChannels($id, array('cf_internal'));
 				if(isset($channelsresult['result']['error']))
-					throw new CFExceptions($channelsresult['result']['error']['message']); 
+					throw new CFExceptions($channelsresult['result']['error']); 
 				//print "\r\n\r\nCHANNELSRESULT";
 				//print_r($channelsresult);
 				if(is_array($gold) and count($gold) > 0){
 					// TODO: Foreach? 
 					$goldresult = $this->CFJob->manageGold($id, array('check' => $gold[0]));
 					if(isset($goldresult['result']['error']))
-						throw new CFExceptions("Gold: " . $goldresult['result']['error']['message']);
+						throw new CFExceptions("Gold: " . $goldresult['result']['error']);
 				//print "\r\n\r\nGOLDRESULT";
 				//print_r($goldresult);
 				}
@@ -137,7 +145,7 @@ class Crowdflower {
 				if(isset($jc->content['countries']) and is_array($jc->content['countries']) and count($jc->content['countries']) > 0){
 					$countriesresult = $this->CFJob->setIncludedCountries($id, $jc['countries']);
 					if(isset($countriesresult['result']['error']))
-						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
+						throw new CFExceptions("Countries: " . $countriesresult['result']['error']);
 				//print "\r\n\r\nCOUNTRIESRESULT";
 				//print_r($countriesresult);				
 				}
@@ -145,7 +153,7 @@ class Crowdflower {
 				if(!$sandbox and isset($csvresult)){
 					$orderresult = $this->CFJob->sendOrder($id, count($job->batch->parents), array("cf_internal"));
 					if(isset($orderresult['result']['error']))
-						throw new CFExceptions("Order: " . $orderresult['result']['error']['message']);
+						throw new CFExceptions("Order: " . $orderresult['result']['error']);
 				//print "\r\n\r\nORDERRESULT";
 				//print_r($orderresult);
 				//dd("\r\n\r\nEND");
@@ -155,13 +163,14 @@ class Crowdflower {
 
 			// Failed to create initial job. Todo: more different errors.
 			} else {
-				$err = $result['result']['error']['message'];
+				$err = $result['result']['error'];
 				if(isset($err)) $msg = $err;
 				elseif(isset($result['http_code'])){
-					if($result['http_code'] == 503) $msg = 'Crowdflower service is unavailable, possibly down for maintenance?';
+					if($result['http_code'] == 503 or $result['http_code'] == 504) $msg = 'Crowdflower service is unavailable, possibly down for maintenance?';
 					else $msg = "Error creating job on Crowdflower. HTTP code {$result['http_code']}";
-				}	
-				else $msg = 'Unknown error. Is the Crowdflower API key set correctly?';
+				}	// empty(method) is not allowed in PHP <5.5
+				elseif(Config::get('crowdflower::apikey')=='') $msg = 'Crowdflower API key not set. Please check the manual.';
+				else $msg = "Invalid response from Crowdflower. Is the API down? <a href='http://www.crowdflower.com' target='_blank'>(link)</a>";
 				throw new CFExceptions($msg);
 			}
 		} catch (ErrorException $e) {
@@ -180,35 +189,35 @@ class Crowdflower {
     	$this->hasStateOrFail($id, 'unordered');
 		$result = $this->CFJob->sendOrder($id, $unitcount, array("cf_internal"));
 		if(isset($result['result']['error']))
-			throw new Exception("Order: " . $result['result']['error']['message']);
+			throw new Exception("Order: " . $result['result']['error']);
 	}
 
 	public function pauseJob($id){
 		$this->hasStateOrFail($id, 'running');
 		$result = $this->CFJob->pauseJob($id);
 		if(isset($result['result']['error']))
-			throw new Exception("Pause: " . $result['result']['error']['message']);
+			throw new Exception("Pause: " . $result['result']['error']);
 	}
 
 	public function resumeJob($id){
 		$this->hasStateOrFail($id, 'paused');
 		$result = $this->CFJob->resumeJob($id);
 		if(isset($result['result']['error']))
-			throw new Exception("Resume: " . $result['result']['error']['message']);
+			throw new Exception("Resume: " . $result['result']['error']);
 	}
 
 	public function cancelJob($id){
 		//$this->hasStateOrFail($id, 'running'); // Rules?
 		$result = $this->CFJob->cancelJob($id);
 		if(isset($result['result']['error']))
-			throw new Exception("Cancel: " . $result['result']['error']['message']);
+			throw new Exception("Cancel: " . $result['result']['error']);
 	}
 
 	private function hasStateOrFail($id, $state){
 		$result = $this->CFJob->readJob($id);
 
 		if(isset($result['result']['error']))
-			throw new Exception("Read Job: " . $result['result']['error']['message']);
+			throw new Exception("Read Job: " . $result['result']['error']);
 
     	if($result['result']['state'] != $state)
     		throw new Exception("Can't perform action; state is '{$result['result']['state']}' (should be '$state')");
