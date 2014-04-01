@@ -1,4 +1,4 @@
-var app = angular.module("workerRetrieval", [ 'ngResource', 'angularMoment' ]);
+var app = angular.module("workerRetrieval", [ 'ngResource', 'angularMoment']);
 
 	//write resource service class
 
@@ -7,11 +7,17 @@ app.controller("workerByIdCtrl", function($scope, $resource){
 	var url = window.location.pathname.split("/");
 	var _id = url[3] + "/" + url[4] + "/" + url[5];
 	
+	$scope.annotations;
+
 	worker = getWorker($resource, _id);
 	worker.$promise.then( function(data){
 		$scope.worker = data[0];
+		$scope.annotations = $scope.worker.hasGeneratedAnnotations;
+		$scope.jobs = $scope.worker.jobs;
+
 		console.log($scope.worker);
 	});
+
 
 	$scope.gotoOverview = function(){
 		window.location = '/workers';
@@ -20,6 +26,25 @@ app.controller("workerByIdCtrl", function($scope, $resource){
 	$scope.flagWorker = function(){
 		alert("Flag worker " + $scope.worker._id);
 	}
+
+	// $scope.currentPage = 1;
+ //  	$scope.numPerPage = 1;
+ //  	$scope.maxSize = 5;
+
+	
+	// $scope.numPages = function () {
+ //    	return Math.ceil($scope.annotations.length / $scope.numPerPage);
+ //  	};
+  	
+ //  	console.log($scope.annotations);
+
+ //  	$scope.$watch('currentPage + numPerPage', function() {
+ //    	var begin = (($scope.currentPage - 1) * $scope.numPerPage);
+ //    	var end = begin + $scope.numPerPage;
+    	
+ //    	$scope.annotations = $scope.annotations.slice(begin, end);
+ //  	});
+
 })
 	
 //inject resourceSvc in this controller

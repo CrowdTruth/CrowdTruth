@@ -12,26 +12,6 @@
 @stop
 
 @section('modal')
-<div ng-app="messageService" ng-controller="messageCtrl" ng-init="init()">
-	<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModal" aria-hidden="true">
-	  <div class="modal-dialog">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="myModalLabel">Message</h4>
-	      </div>
-		  <div class="modal-body">
-	 		<label class="ann-label">To:</label> @{{recipient}}<br>
-	 		<label for="subject" class="ann-label">Subject: </label><input id="subject" type="text"><br>
-	 		<input type="textarea">
-		  </div>
-	      <div class="modal-footer">
-    	     <button type="button" class="btn btn-primary" ng-click="sendMessage()">Send message</button>
-	      </div>
-	    </div>
-	  </div>
-  </div>
-</div> 
 @stop
 
 @section('content')

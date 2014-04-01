@@ -47,21 +47,41 @@ class apiController extends BaseController {
 		// 	$documents = $this->repository->returnCollectionObjectFor("crowdagent")->with('hasDoneJobs')->with('hasGeneratedAnnotations');
 		// } else {
 
-
-		$documents = $this->repository->returnCollectionObjectFor("crowdagent")->with('hasGeneratedAnnotations');
-		
+				
 		//The following  block returns one worker for the individual worker view
 		if(Input::has('id')) {
-
+		
 			$id = Input::get('id');
 			
-			$document = $documents->where('_id', $id)->get();
+			$result = \MongoDB\CrowdAgent::with('hasGeneratedAnnotations.hasJob')->where('_id', $id)->get();
 
-			$worker = $document->toArray();
-					
-			return Response::json($worker);
+			$result = $result->toArray();
+			
+			$flattened = array();
+
+			foreach($result as $resultValue)
+			{
+				if(count($resultValue['hasGeneratedAnnotations']) > 0)
+				{
+					$resultValue['jobs'] = array();
+
+					foreach($resultValue['hasGeneratedAnnotations'] as $hasGeneratedAnnotationKey => $hasGeneratedAnnotationVal)
+					{
+						array_push($resultValue['jobs'], $hasGeneratedAnnotationVal['hasJob']);
+						unset($resultValue['hasGeneratedAnnotations'][$hasGeneratedAnnotationKey]['hasJob']);
+					}
+
+					$resultValue['jobs'] = array_unique($resultValue['jobs'], SORT_REGULAR);
+					array_push($flattened, $resultValue);
+				}
+
+			}
+
+			return $flattened;
 
 		} 
+
+		$documents = $this->repository->returnCollectionObjectFor("crowdagent")->with('hasGeneratedAnnotations');
 
 		if(Input::has('filter'))
 		{
