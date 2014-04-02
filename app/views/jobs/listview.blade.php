@@ -215,15 +215,15 @@
 								<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>Actions
 					    			<span class="caret"></span>
 				   				</button>
-				 				<!-- <ul class="dropdown-menu" role="menu">
-				       				<li><a ng-click="pauseJob()" ng-show="result.status == 'running'"><i class="fa fa-folder-open fa-fw"></i>Pause Job</a></li>
-				       				<li><a ng-click="startJob()" ng-show="result.status == 'cancelled' | 'paused'"><i class="fa fa-folder-open fa-fw"></i>Start Job</a></li>
-				       				<li><a ng-click="cancelJob()" ng-show="result.status != 'cancelled' "><i class="fa fa-sign-out fa-fw"></i>Cancel Job</a></li>
-				       				<li class="divider"></li>
-				       				<li><a ng-click="duplicateJob()"><i class="fa fa-sign-out fa-fw"></i>Duplicate Job</a></li>
-				       				<li><a ng-click="deleteJob()"><i class="fa fa-sign-out fa-fw"></i>Delete Job</a></li>
-				   				</ul>
--->								</div>
+					 				 <ul class="dropdown-menu" role="menu">
+					       				<li><a ng-click="pauseJob()" ng-show="result.status == 'running'"><i class="fa fa-folder-open fa-fw"></i>Pause Job</a></li>
+					       				<li><a ng-click="startJob()" ng-show="result.status == 'cancelled' | 'paused'"><i class="fa fa-folder-open fa-fw"></i>Start Job</a></li>
+					       				<li><a ng-click="cancelJob()" ng-show="result.status != 'cancelled' "><i class="fa fa-sign-out fa-fw"></i>Cancel Job</a></li>
+					       				<li class="divider"></li>
+					       				<li><a ng-click="duplicateJob()"><i class="fa fa-sign-out fa-fw"></i>Duplicate Job</a></li>
+					       				<li><a ng-click="deleteJob()"><i class="fa fa-sign-out fa-fw"></i>Delete Job</a></li>
+					   				</ul>
+								</div>
 						</div>
 					</div>								
 				<!--End of panel  -->

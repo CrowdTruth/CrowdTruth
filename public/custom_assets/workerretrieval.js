@@ -8,8 +8,15 @@ app.controller("workerByIdCtrl", function($scope, $resource){
 	var _id = url[3] + "/" + url[4] + "/" + url[5];
 	
 	worker = getWorker($resource, _id);
+	
 	worker.$promise.then( function(data){
 		$scope.worker = data[0];
+		
+		if(worker.length == 0){
+			window.location = '/workers';
+			alert("This worker does not exist");
+		}
+		
 		$scope.annotations = $scope.worker.hasGeneratedAnnotations;
 		$scope.jobs = $scope.worker.jobs;
 		$scope.units = $scope.worker.units;
