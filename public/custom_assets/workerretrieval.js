@@ -7,15 +7,12 @@ app.controller("workerByIdCtrl", function($scope, $resource){
 	var url = window.location.pathname.split("/");
 	var _id = url[3] + "/" + url[4] + "/" + url[5];
 	
-	$scope.annotations;
-
 	worker = getWorker($resource, _id);
 	worker.$promise.then( function(data){
 		$scope.worker = data[0];
 		$scope.annotations = $scope.worker.hasGeneratedAnnotations;
 		$scope.jobs = $scope.worker.jobs;
-
-		console.log($scope.worker);
+		$scope.units = $scope.worker.units;
 	});
 
 

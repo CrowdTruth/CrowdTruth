@@ -53,7 +53,7 @@ class apiController extends BaseController {
 		
 			$id = Input::get('id');
 			
-			$result = \MongoDB\CrowdAgent::with('hasGeneratedAnnotations.hasJob')->where('_id', $id)->get();
+			$result = \MongoDB\CrowdAgent::with('hasGeneratedAnnotations.hasJob')->with('hasGeneratedAnnotations.hasUnit')->where('_id', $id)->get();
 
 			$result = $result->toArray();
 			
@@ -72,6 +72,17 @@ class apiController extends BaseController {
 					}
 
 					$resultValue['jobs'] = array_unique($resultValue['jobs'], SORT_REGULAR);
+
+					$resultValue['units'] = array();
+
+					foreach($resultValue['hasGeneratedAnnotations'] as $hasGeneratedAnnotationKey => $hasGeneratedAnnotationVal)
+					{
+						array_push($resultValue['units'], $hasGeneratedAnnotationVal['hasUnit']);
+						unset($resultValue['hasGeneratedAnnotations'][$hasGeneratedAnnotationKey]['hasUnit']);
+					}
+
+					$resultValue['units'] = array_unique($resultValue['units'], SORT_REGULAR);
+
 					array_push($flattened, $resultValue);
 				}
 

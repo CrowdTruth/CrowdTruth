@@ -1,11 +1,11 @@
-var app = angular.module("imageSelection", []);
+var app = angular.module("imageSelection", ['ngResource']);
 
-app.controller("imgCtrl", function($scope, filterFilter){
+app.controller("imgCtrl", function($scope, filterFilter, $resource ){
 	
 	$scope.pictures = [
-	{'name': 'picture1', 'url': 'image.png'}, 
-	{'name' : 'picture2', 'url':'image.png'}, 
-	{'name' : 'z5', 'url':'/image.png'}
+	// {'name': 'picture1', 'url': 'image.png'}, 
+	// {'name' : 'picture2', 'url':'image.png'}, 
+	// {'name' : 'z5', 'url':'/image.png'}
 	];
 
 	$scope.selection = [];
@@ -30,9 +30,21 @@ app.controller("imgCtrl", function($scope, filterFilter){
  	$scope.loading = true;
 
 
-	$scope.next = function (){
-		alert('To the batmobile!!');
- 		$scope.loading = true;
+	$scope.next = function ($resource){
+		$scope.loading = true;
  		window.location = '/temp/imgselection';
+
+ 		var url = "/api/actions/image/" + $scope.domain + "/" + $scope.type + "/" + $scope.numImg + "/" + $scope.keyphrase;
+ 		console.log(url);
+		
+ 		//MAKE THIS A RESOURCE METHOD
+		$http({method: 'GET', url: url}).
+			success(function(data, status){
+				console.log('Image being loaded');
+				$scope.status = status;
+				$scope.pictures = data;
+				$scope.loading = false;
+			})
+ 		 		
  	}
 });

@@ -12,7 +12,7 @@
 <div class="mainContainer" style="height: 800px;" ng-app="imageSelection" ng-controller="imgCtrl">
 	<div ng-show="loading" class="loading"><img class="loading-img" src="/loading.gif"><div>Loading..</div></div>
 	<div ng-show="loading == false" class="image-box pull-left space-left" ng-repeat="image in pictures">
-		<div class="image-selectable" ng-class="{selected: image.checked}" style="background-image: url(/image.png);">
+		<div class="image-selectable" ng-class="{selected: image.checked}" style="background-image: url(@{{image.url}});">
 			<div class="image-checkbox">
 				<input type="checkbox" ng-model="image.checked">
 			</div>

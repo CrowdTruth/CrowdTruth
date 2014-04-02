@@ -10,7 +10,6 @@
 
 @section('content')
 <div class="mainContainer" ng-app="imageSelection" ng-controller="imgCtrl">
-
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h4><i class="fa fa-upload fa-fw"></i>Image getter</h4>
@@ -20,9 +19,9 @@
 				<div class="form-group">
 					<label for="domain_type" class="col-sm-3 control-label">Domain</label>
 					<div class="col-sm-5">
-						<select name="domain_type" class="form-control" id="domain_type">
+						<select name="domain_type" class="form-control" id="domain_type" ng-model="domain">
 							<option value="">--</option>
-							<option value="domain_type_art" class="file_format_image">Art</option>
+							<option value="art" class="file_format_image">Art</option>
 						</select>
 					</div>
 				</div>
@@ -30,11 +29,11 @@
 				<div class="form-group">
 					<label for="document_type" class="col-sm-3 control-label">Type of Document</label>
 					<div class="col-sm-5">
-						<select name="document_type" class="form-control" id="document_type">
+						<select name="document_type" class="form-control" id="document_type" ng-model="type">
 							<option value="">--</option>
-							<option value="document_type_painting" class="domain_type_art">Painting</option>
-							<option value="document_type_drawing" class="domain_type_art">Drawing</option>
-							<option value="document_type_picture" class="domain_type_art">Picture</option>
+							<option value="painting" class="art">Painting</option>
+							<option value="drawing" class="art">Drawing</option>
+							<option value="picture" class="art">Picture</option>
 						</select>
 					</div>
 				</div>
@@ -42,13 +41,13 @@
 				<div class="form-group">
 					<label for="category" class="col-sm-3 control-label">Number of images:</label>
 					<div class="col-sm-6">
-						<input type="number" id="category"/>
+						<input type="number" id="category" ng-model="numImg"/>
 					</div>
 				</div>
 				<div class="form-group">
 					<label for="category" class="col-sm-3 control-label">Keyphrase:</label>
 					<div class="col-sm-6">
-						<input type="text" id="category"/>
+						<input type="text" id="category" ng-model="keyphrase"/>
 					</div>
 				</div>
 
@@ -57,6 +56,7 @@
 						<button class="btn btn-primary" ng-click="next()">Start</button>
 					</div>
 				</div>
+				@{{domain}} @{{type}} @{{numImg}} @{{keyphrase}}
 			</div>
 		</div>
 	</div>
