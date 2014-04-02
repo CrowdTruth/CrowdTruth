@@ -89,7 +89,7 @@ return array(
 		    'port'     => 27017,
 		    'username' => '',
 		    'password' => '',
-		    'database' => 'CrowdWatson'
+		    'database' => 'CrowdWatson_ORG'
 		),
 
 	),

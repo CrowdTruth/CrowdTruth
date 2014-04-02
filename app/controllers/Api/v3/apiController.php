@@ -44,8 +44,6 @@ class apiController extends BaseController {
 	public function index()
 	{	//Get all job-object
 
-		// return Input::all();
-
 		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job')->with('hasConfiguration')->with('wasAttributedToUserAgent');
 		
 		//Filter on wished for fields using using field of v2
@@ -72,7 +70,7 @@ class apiController extends BaseController {
 					foreach($value as $operator => $subvalue)
 					{	
 						if($filter == "username"){
-							
+
 							$user = \User::where('username', 'like', '%' . $subvalue . '%')->first();
 
 							// return $user;
@@ -90,7 +88,6 @@ class apiController extends BaseController {
 							if(is_numeric($subvalue))
 							{
 								$subvalue = (int) $subvalue;
-
 							}
 
 							if($operator == 'like')
@@ -194,6 +191,35 @@ class apiController extends BaseController {
 		
 		
 		return Response::json($paginator);
+
+		// Take limit of 100 unless otherwise indicated
+
+
+		//Eager load jobConfiguration into job entity
+		$entities = $documents->take($limit)->get();
+		
+		$jobs = array();
+
+		//Push entity objects into array for paginator
+		foreach($entities as $entity)
+		{
+			array_push($jobs, $entity);
+		}
+		
+		// Paginate results, current page, page of choice etc.
+		
+		if(!$perPage = (int) Input::get('perpage'))
+		{
+			$perPage = 2;
+		}
+			
+		$paginator = Paginator::make($jobs, count($entities), $perPage);
+
+		
+		//Return paginator
+		
+		return Response::json($paginator);
+
 
 	}
 

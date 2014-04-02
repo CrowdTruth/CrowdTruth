@@ -18,13 +18,14 @@ use League\Csv\Writer as Writer;
 
 class apiController extends BaseController {
 
-	protected $repository;
+    protected $repository;
 
-	public function __construct(Repository $repository){
-		$this->repository = $repository;
-	}
+    public function __construct(Repository $repository){
+        $this->repository = $repository;
+    }
 
     protected $operators = array(
+
     	'=' , '<', '>', '<=', '>=', '<>', 'like'
     );	
 

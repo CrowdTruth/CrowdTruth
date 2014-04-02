@@ -41,8 +41,13 @@ class ProcessController extends BaseController {
 		echo json_encode($complete, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 	}
 
+
 	public function getBatch() {
-		//$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
+/*		$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
+		$qt = QuestionTemplate::where('documentType', 'questiontemplate')->first();
+		dd($qt->getDictionary($unit, array('b. pertussis causes whooping cough')));
+
+*/
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 
@@ -174,8 +179,13 @@ class ProcessController extends BaseController {
 
 		if(Input::has('batch')){
 			// TODO: CSRF
-			$batch = Batch::find(Input::get('batch'));
+
+			$batch = Batch::where('documentType', 'batch') /* TODO find a way to assume this */
+							->where('_id', Input::get('batch'))
+							->first();
+
 			Session::put('batch', serialize($batch));
+		
 		}
 
 		if(Input::has('template')){
