@@ -20,10 +20,12 @@ class apiController extends BaseController {
 	//i.e.: image/art/painting/40/boat
 	public function getImage($domain, $type, $numImg, $keyphrase){
 		try {
+			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . $numImg . " " . $keyphrase;
 			
-			$command = escapeshellcmd('/app/lib/getAPIS/getRijks.py' + $domain + " " + $type + " " + $numImg + " " + $keyphrase);
-			$output = shell_exec($command);
-			return $output;
+			exec($command,$output,$error);
+			
+			
+			return $output[0];
 
 
 		} catch (Exception $e){
