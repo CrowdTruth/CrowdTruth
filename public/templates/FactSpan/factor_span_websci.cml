@@ -1,28 +1,28 @@
-  <p class="word_split1">{{sentence}}</p>
-<cml:radios label="In the SENTENCE above, does the WORD PHRASE --{{term1}}-- form a complete medical term?" name="question1" validates="required">
+  <p class="word_split1">{{sentence_text}}</p>
+<cml:radios label="In the SENTENCE above, does the WORD PHRASE --{{terms_first_text}}-- form a complete medical term?" name="question1" validates="required">
   <cml:radio label="YES, the following WORD PHRASE expresses a complete medical term" value="yes"></cml:radio>
   <cml:radio label="NO, the WORD PHRASE does not express a complete medical term" value="no"></cml:radio>
 </cml:radios>
 <cml:text validates="required" label="Click on the highlighted word phrase" name="confirmFirstFactor" class="confirmFirstFactor" only-if="question1:[yes]"/>
-<cml:textarea validates="required" label="Use the WORD PHRASE --{{term1}}-- in a sentence" name="sentenceFirstFactor" class="sentenceFirstFactor" instructions="Do not copy and paste words from the input sentence. Make sure your sentence contains the highlighted word phrase and has at least 4 words. If the conditions are not satisfied, your sentence will be deleted." only-if="question1:[yes]"/>
+<cml:textarea validates="required" label="Use the WORD PHRASE --{{terms_first_text}}-- in a sentence" name="sentenceFirstFactor" class="sentenceFirstFactor" instructions="Do not copy and paste words from the input sentence. Make sure your sentence contains the highlighted word phrase and has at least 4 words. If the conditions are not satisfied, your sentence will be deleted." only-if="question1:[yes]"/>
 <cml:text validates="required" label="Highlight the complete word phrase" name="firstFactor" class="firstFactor" only-if="question1:[no]"/>
-<cml:hidden name="factor1" value="{{term1}}" />
+<cml:hidden name="factor1" value="{{terms_first_text}}" />
 <cml:hidden name="b1" value="{{b1}}" />
 <cml:hidden name="e1" value="{{e1}}" />
-<cml:hidden name="sentence" value="{{sentence}}" />
+<cml:hidden name="sentence" value="{{sentence_text}}" />
 <cml:hidden name="wordId1" value="" />
 <cml:hidden name="saveSelectionIds1" value="" />
 <cml:hidden name="confirmIds1" value="" />
 <br/>
-  <p class="word_split2">{{sentence}}</p>
-<cml:radios label="In the SENTENCE above, does the WORD PHRASE --{{term2}}-- form a complete medical term?" name="question2" validates="required">
+  <p class="word_split2">{{sentence_text}}</p>
+<cml:radios label="In the SENTENCE above, does the WORD PHRASE --{{terms_second_text}}-- form a complete medical term?" name="question2" validates="required">
   <cml:radio label="YES, the following WORD PHRASE expresses a complete medical term" value="yes"></cml:radio>
   <cml:radio label="NO, the WORD PHRASE does not express a complete medical term" value="no"></cml:radio>
 </cml:radios>
 <cml:text validates="required" label="Click on the highlighted word phrase" name="confirmSecondFactor" class="confirmSecondFactor" only-if="question2:[yes]"/>
-<cml:textarea validates="required" label="Use the WORD PHRASE --{{term2}}-- in a sentence" name="sentenceSecondFactor" class="sentenceSecondFactor" only-if="question2:[yes]" instructions="Do not copy and paste words from the input sentence. Make sure your sentence contains the highlighted word phrase and has at least 4 words. Do not use the same sentence as for the first word phrase. If the conditions are not satisfied, your sentence will be deleted."/>
+<cml:textarea validates="required" label="Use the WORD PHRASE --{{terms_second_text}}-- in a sentence" name="sentenceSecondFactor" class="sentenceSecondFactor" only-if="question2:[yes]" instructions="Do not copy and paste words from the input sentence. Make sure your sentence contains the highlighted word phrase and has at least 4 words. Do not use the same sentence as for the first word phrase. If the conditions are not satisfied, your sentence will be deleted."/>
 <cml:text validates="required" label="Highlight the complete word phrase" name="secondFactor" class="secondFactor" only-if="question2:[no]"/>
-<cml:hidden name="factor2" value="{{term2}}" />
+<cml:hidden name="factor2" value="{{terms_second_text}}" />
 <cml:hidden name="b2" value="{{b2}}" />
 <cml:hidden name="e2" value="{{e2}}" />
 <cml:hidden name="wordId2" value="" />

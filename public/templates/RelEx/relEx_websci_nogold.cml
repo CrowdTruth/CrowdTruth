@@ -1,7 +1,7 @@
-<p>In this sentence:</p><p class="word_split"><strong><em></em></strong>{{sentence}}<strong><em></em></strong></p>
+<p>In this sentence:</p><p class="word_split"><strong><em></em></strong>{{sentence_text}}<strong><em></em></strong></p>
 <p>Is<strong>&#160;
-{{term1}}</strong>&#160;<em>----related-to----&#160;</em><strong>&#160;
-{{term2}}?</strong></p>
+{{terms_first_text}}</strong>&#160;<em>----related-to----&#160;</em><strong>&#160;
+{{terms_second_text}}?</strong></p>
 <cml:checkboxes label="STEP 1: Select the valid RELATION(s)" class="" instructions="It is important that you understand what the different relation types mean. HOVER MOUSE over each relation name to see the DEFINITION and an EXAMPLE." validates="required" aggregation="avg">
 <cml:checkbox label="[TREATS]" value="[TREATS]" title="TREATS: Therapeutic use of an ingredient or a drug, e.g. penicillin cures infection, etc."/> 
 <cml:checkbox label="[PREVENTS]" value="[PREVENTS]" title="PREVENTS: Preventative use of an ingredient or a drug, e.g. vitamin C reduces the risk of influenza, etc."/> 
