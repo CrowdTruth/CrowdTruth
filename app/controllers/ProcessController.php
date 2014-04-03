@@ -173,8 +173,7 @@ class ProcessController extends BaseController {
 	*/
 	public function postFormPart($next){
 		$jc = unserialize(Session::get('jobconf', serialize(new JobConfiguration)));
-		if(isset($jc->content)) 
-			$jcc = $jc->content;
+		if(isset($jc->content)) $jcc = $jc->content;
 		else $jcc = array();
 
 		$template = Session::get('template');
@@ -265,7 +264,6 @@ class ProcessController extends BaseController {
 			}		
 		}
 
-		Session::put('type', explode('/', $template)[0]);
 		Session::put('jobconf', serialize($jc));
 		Session::put('template', $template);
 
@@ -292,27 +290,25 @@ class ProcessController extends BaseController {
 			// Save activity
 			$activity = new MongoDB\Activity;
 			$activity->label = "Job is uploaded to crowdsourcing platform.";
-			$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB softwareAgent_id = $platform. Does this need to be the same?
+			$activity->softwareAgent_id = 'jobcreator'; // JOB softwareAgent_id = $platform. Does this need to be the same?
 			$activity->save();
 
 			// Save jobconf if necessary
-			$jcid = $jc->_id;
-			if(!$jcid){
-				$hash = md5(serialize($jc->content));
-            	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id'))
-	                $jcid = $existingid; // Don't save, it already exists.
-	            else {
-		            $jc->hash = $hash;
-					$jc->activity_id = $activity->_id;
-					$jc->save();
-					$jcid = $jc->_id;
-				}
-			}	
+			$hash = md5(serialize($jc->content));
+        	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id'))
+                $jcid = $existingid; // Don't save, it already exists.
+            else {
+	            $jc->hash = $hash;
+				$jc->activity_id = $activity->_id;
+				$jc->save();
+				$jcid = $jc->_id;
+			}
+	
 
 			// Publish jobs
 			foreach($jc->content['platform'] as $platformstring){
 				$j = new Job;
-				$j->type = Session::get('type');
+				$j->type = explode('/', $template)[0]);
 				$j->template = $template; // TODO: remove
 				$j->batch_id = $batch->_id;
 				$j->questionTemplate_id = $questiontemplateid;
