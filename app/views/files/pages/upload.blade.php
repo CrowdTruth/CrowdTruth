@@ -63,6 +63,7 @@
 										<div class="col-sm-5">
 											<select name="domain_type" class="form-control" id="domain_type">
 												<option value="">--</option>
+												<option value="domain_type_art" class="file_format_image">Art</option>
 												<option value="domain_type_medical" class="file_format_text">Medical</option>
 												<option value="domain_type_news" class="file_format_text">News</option>
 												<option value="domain_type_other" class="file_format_text">Other</option>
@@ -79,6 +80,9 @@
 												<option value="document_type_csvresult" class="domain_type_medical">CSVResult</option>
 												<option value="document_type_article" class="domain_type_medical domain_type_news">Article</option>
 												<option value="document_type_book" class="domain_type_other">Book</option>
+												<option value="document_type_painting" class="domain_type_art">Painting</option>
+												<option value="document_type_drawing" class="domain_type_art">Drawing</option>
+												<option value="document_type_picture" class="domain_type_art">Picture</option>
 											</select>
 										</div>
 									</div>

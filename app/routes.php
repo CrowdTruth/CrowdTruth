@@ -23,7 +23,8 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('process', 'ProcessController');
 	Route::controller('jobs', 'JobsController');
 	Route::controller('workers', 'WorkersController');
-	
+
+
 });
 
 Route::controller('api/v1', '\Api\v1\apiController');

@@ -214,6 +214,14 @@ class Entity extends Moloquent {
         return $this->hasOne('\MongoDB\Entity', '_id', 'jobConf_id');
     }
 
+    public function hasJob(){
+        return $this->hasOne('\MongoDB\Entity', '_id', 'job_id');
+    }
+
+    public function hasUnit(){
+        return $this->hasOne('\MongoDB\Entity', '_id', 'unit_id');
+    }
+
     public function getWasDerivedFromAttribute()
     {
         if(isset($this->parents))

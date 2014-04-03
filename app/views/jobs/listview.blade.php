@@ -5,27 +5,23 @@
 <script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
 <script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
 <script type="text/javascript" src="/custom_assets/dataretrieval.js"></script>	
+<script type="text/javascript" src="/custom_assets/messageservice.js"></script>	
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
-<!-- <script type="text/javascript" src="/custom_assets/angular-ui.js"></script> -->
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
 <link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
 @stop
 
+@section('modal')
+@stop
 
 @section('content')
 <div ng-app="dataRetrieval" ng-controller="resourceCtrl">
-
+	
 			<div  id="filtercolumn" class="col-md-3 ">
 			<!-- Left column for sorting -->
 				<div style="margin-top: 20px;">
 	               	<a href="/process"><button class="btn btn-success btn-lg" style="width: 100%; margin-bottom:10px;">Create Job</button></a>
-	            </div>
-
-				<div>
-	               	<button class="btn btn-primary btn-lg" style="width: 100%; margin-bottom:10px;" ng-click="analyze()">Analyse</button>
-	            </div>
-
-	            
+	            </div>    
 				
 				<div class="panel panel-default" style="margin-top: 10px;">
 					<div class="panel-heading">
@@ -111,11 +107,11 @@
 			</div>
 
 			<!-- Main column with results -->
-			<div id="results" class="col-md-9" ng-init="numPages()">
+			<div id="results" class="col-md-9">
 				@include('layouts.flashdata')
 				<div class="row" style="margin-left:auto; margin-right:auto; width:100%; text-align: center;">
 					<div class="pull-left">
-						<div class="ng-scope disabled pull-left" style="margin-top: 25px;"><label for="page">Page :  </label> <input id="page" type="text" style="width: 25px;" ng-model="pageNr"> / @{{numPages()}}</div>
+						<div class="ng-scope disabled pull-left nav-buttons"><label for="page">Page :  </label> <input id="page" type="text" style="width: 25px;" ng-model="pageNr"> / @{{numPages()}}</div>
 						<ul style="margin-left: 20px;" class="pagination ng-isolate-scope">
 							<li><a ng-click="selectPage('first')" class="ng-binding">First</a></li>
 							<li><a ng-click="selectPage('previous')" class="ng-binding">Previous</a></li>
@@ -123,13 +119,19 @@
 							<li><a ng-click="selectPage('last')" class="ng-binding">Last</a></li>
 						</ul>
 					</div>
+					<div class="ng-scope space-left pull-left"> 
+						<ul class="pagination ng-isolate-scope">
+			          		<li><a class="ng-binding" ng-show="selection" ng-click="analyze()">Analyse</a></li>
+			          		<li><a class="ng-binding" ng-show="selection" data-toggle="modal" ng-click="gotoMessage()" data-target="#messageModal">Message workers</a></li>
+			          	</ul>
+					</div>
 					<div class="pull-right" style="margin-top: 23px; margin-bottom: 20px;">
 						<select ng-model="itemsPerPage" ng-change="setPerPage()" ng-options="options.value for options in optionsPerPage">
 							<option value="">--# per page--</option>
 						</select>
 					</div>
 				</div>	
-						<!-- Top row is panel heading with creation date and creator -->
+				<!-- Top row is panel heading with creation date and creator -->
 				<div class="panel panel-default" ng-repeat="result in results.data">
 					<div class="panel-heading clearfix">
 						<div style="width: 3%; float:left;">
@@ -175,11 +177,11 @@
 		                   	</div>
 						    <div class="col-md-2" style="border-right: 1px solid #eee; height: 100%; text-align: center; display: table-cell; padding-top: 10px; vertical-align: middle;">
 						    	<i class="fa fa-dollar"></i><strong> /</strong> <i class="fa fa-gavel"></i> <strong> @{{result.hasConfiguration.content.reward}}</strong>
-						       	<h2><i class="fa fa-dollar"></i>@{{result.projectedCost}}</h2>
+						       	<h2><i class="fa fa-dollar"></i> @{{result.projectedCost | number: 2}}</h2>
 						    </div>
 						    <div class="col-md-2" style="text-align: center; height: 100%; display: table-cell; vertical-align: middle; padding-top: 10px;">
-						    	<strong> <i class="fa fa-gavel"></i> @{{(result.completion * result.unitsCount) | number:0}} / @{{result.unitsCount}} </strong>
-						    	<h2><i class="fa fa-check-circle"></i> @{{(result.completion * 100) | number:0}} %</h2>
+						    	<strong> <i class="fa fa-gavel"></i> @{{result.completion * result.unitsCount | number: 0}} / @{{result.unitsCount}} </strong>
+						    	<h3><i class="fa fa-check-circle"></i> @{{result.completion * 100 | number: 0}} %</h3>
 		               		</div>
 						</div>
 					<!-- Here starts hidden details -->

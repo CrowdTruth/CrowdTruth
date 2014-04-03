@@ -1,4 +1,4 @@
-var app = angular.module("workerRetrieval", [ 'ngResource', 'angularMoment' ]);
+var app = angular.module("workerRetrieval", [ 'ngResource', 'angularMoment']);
 
 	//write resource service class
 
@@ -10,13 +10,38 @@ app.controller("workerByIdCtrl", function($scope, $resource){
 	worker = getWorker($resource, _id);
 	worker.$promise.then( function(data){
 		$scope.worker = data[0];
-		console.log($scope.worker);
+		$scope.annotations = $scope.worker.hasGeneratedAnnotations;
+		$scope.jobs = $scope.worker.jobs;
+		$scope.units = $scope.worker.units;
 	});
+
 
 	$scope.gotoOverview = function(){
 		window.location = '/workers';
 	}
 	
+	$scope.flagWorker = function(){
+		alert("Flag worker " + $scope.worker._id);
+	}
+
+	// $scope.currentPage = 1;
+ //  	$scope.numPerPage = 1;
+ //  	$scope.maxSize = 5;
+
+	
+	// $scope.numPages = function () {
+ //    	return Math.ceil($scope.annotations.length / $scope.numPerPage);
+ //  	};
+  	
+ //  	console.log($scope.annotations);
+
+ //  	$scope.$watch('currentPage + numPerPage', function() {
+ //    	var begin = (($scope.currentPage - 1) * $scope.numPerPage);
+ //    	var end = begin + $scope.numPerPage;
+    	
+ //    	$scope.annotations = $scope.annotations.slice(begin, end);
+ //  	});
+
 })
 	
 //inject resourceSvc in this controller
@@ -153,9 +178,11 @@ app.controller("workerCtrl", function($scope, $resource, filterFilter) {
  			});
  	}, true);
  	
- 	$scope.message = function(){
+ 	$scope.analyze = function(){
  		if($scope.selection[0] == null ){
  			alert('Select a job first.')
+ 		} else if($scope.selection.length == 1) {
+ 			window.location = '/workers/worker/' + $scope.selection._id;
  		} else
  		{
  			window.location = '/analyze/view?field[_id][]=' + $scope.selection;

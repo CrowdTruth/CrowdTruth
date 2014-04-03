@@ -64,7 +64,6 @@ app.controller("resourceCtrl", ["$scope", "$resource", "$http", "filterFilter", 
 					console.log("I evaluate true says if in numPages == 1");
 					return pages = 1;
 				}
-			console.log("numPages calculated");
 			return pages;
 			}
 
@@ -133,13 +132,20 @@ app.controller("resourceCtrl", ["$scope", "$resource", "$http", "filterFilter", 
  	//The following part concerns selection of jobs for analysis
  	$scope.selection = [];
 
+
  	$scope.$watch('results.data|filter:{checked:true}', function(n,o){
  		if(n != undefined)
  			$scope.selection = n.map(function (result){
+				console.log($scope.selection);
 				return result._id;
  			});
  	}, true);
  	
+ 	$scope.gotoMessage = function(){
+ 		$scope.$emit('sendMessage', $scope.selection);
+ 		console.log("Broadcasted message" + $scope.selection);
+ 	}
+
  	$scope.analyze = function(){
  		if($scope.selection[0] == null ){
  			alert('Select a job first.')
@@ -149,6 +155,8 @@ app.controller("resourceCtrl", ["$scope", "$resource", "$http", "filterFilter", 
  		}
  	}
 
+
+ });
 
 	$scope.perform = function(job, action){
  		var newstatus = '';

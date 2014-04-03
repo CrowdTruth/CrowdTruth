@@ -1,0 +1,206 @@
+{
+  "domain": "art", 
+  "format": "Image", 
+  "title": "Giant-Pandas_791403c.jpg", 
+  "softwareAgent_id": "featureRecognizer", 
+  "content": {
+    "URL": "http://i.telegraph.co.uk/multimedia/archive/00791/Giant-Pandas_791403c.jpg", 
+    "width": 460, 
+    "features": {
+      "Object": {
+        "matches": [
+          {
+            "tag": "bear", 
+            "score": 0.5355
+          }, 
+          {
+            "tag": "giant panda", 
+            "score": 0.43
+          }, 
+          {
+            "tag": "cat", 
+            "score": 0.0295
+          }, 
+          {
+            "tag": "wolf", 
+            "score": 0.02
+          }, 
+          {
+            "tag": "dog", 
+            "score": 0.0134
+          }, 
+          {
+            "tag": "pet", 
+            "score": 0.012
+          }, 
+          {
+            "tag": "path", 
+            "score": 0.0094
+          }
+        ]
+      }, 
+      "Scene": [
+        {
+          "score": 0.0475, 
+          "label": "Park"
+        }, 
+        {
+          "score": 0.0367, 
+          "label": "Flower"
+        }, 
+        {
+          "score": 0.0302, 
+          "label": "River"
+        }
+      ], 
+      "Classifier": {
+        "Flowers": 46, 
+        "Birds": -1
+      }, 
+      "FacesRekognition": 0, 
+      "ColorsMain": [
+        [
+          "yellow", 
+          29.1
+        ], 
+        [
+          "green", 
+          26.4
+        ], 
+        [
+          "brown", 
+          23.4
+        ], 
+        [
+          "black", 
+          15.4
+        ]
+      ], 
+      "FacesNumber": {
+        "cloudinary": 0, 
+        "rekognition": 0, 
+        "skybiometry": 0
+      }, 
+      "ColorsHistogram": [
+        [
+          "#161913", 
+          15.4
+        ], 
+        [
+          "#1E231A", 
+          9.9
+        ], 
+        [
+          "#556836", 
+          7.5
+        ], 
+        [
+          "#545446", 
+          6.0
+        ], 
+        [
+          "#39482B", 
+          5.9
+        ], 
+        [
+          "#2C3027", 
+          5.1
+        ], 
+        [
+          "#3F4042", 
+          4.4
+        ], 
+        [
+          "#35451D", 
+          3.2
+        ], 
+        [
+          "#453B2A", 
+          3.1
+        ], 
+        [
+          "#76894F", 
+          2.9
+        ], 
+        [
+          "#211F19", 
+          2.7
+        ], 
+        [
+          "#8A775A", 
+          2.6
+        ], 
+        [
+          "#F1E7D7", 
+          2.5
+        ], 
+        [
+          "#88673B", 
+          2.4
+        ], 
+        [
+          "#7B8A66", 
+          2.4
+        ], 
+        [
+          "#252A1C", 
+          2.3
+        ], 
+        [
+          "#718639", 
+          2.1
+        ], 
+        [
+          "#EBE3D6", 
+          1.9
+        ], 
+        [
+          "#D3C8B3", 
+          1.9
+        ], 
+        [
+          "#64664D", 
+          1.9
+        ], 
+        [
+          "#C8B79E", 
+          1.8
+        ], 
+        [
+          "#A7A08E", 
+          1.7
+        ], 
+        [
+          "#9DA656", 
+          1.7
+        ], 
+        [
+          "#B3A98F", 
+          1.6
+        ], 
+        [
+          "#837E83", 
+          1.5
+        ], 
+        [
+          "#4B5134", 
+          1.4
+        ], 
+        [
+          "#E2D2B9", 
+          1.2
+        ], 
+        [
+          "#B9C596", 
+          1.0
+        ]
+      ], 
+      "Faces": []
+    }, 
+    "height": 288
+  }, 
+  "source": "http://i.telegraph.co.uk/", 
+  "softwareAgent_label": "Recognizes different features [objects, scene, faces, ...] in the image", 
+  "documentType": "painting", 
+  "softwareAgent_configuration": 1
+}
