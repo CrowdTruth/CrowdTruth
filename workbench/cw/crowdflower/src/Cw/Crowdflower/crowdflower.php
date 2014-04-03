@@ -158,7 +158,7 @@ class Crowdflower {
 				//print_r($orderresult);
 				//dd("\r\n\r\nEND");
 				}
-dd($csvresult);
+
 				return $id;
 
 			// Failed to create initial job. Todo: more different errors.
@@ -288,7 +288,7 @@ dd($csvresult);
 		// Close file
 		rewind($out);
 		fclose($out);
-dd($path);
+
 		return $path;
 	}
 
