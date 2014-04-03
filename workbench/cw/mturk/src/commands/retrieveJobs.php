@@ -51,9 +51,9 @@ class RetrieveJobs extends Command {
 
 		print("Retrieving jobs....\r\n");
 
-		if 	(Config::get('mturk::rooturl') == '') or
-			(Config::get('mturk::accesskey')  == '') or
-			(Config::get('mturk::secretkey')  == '')
+		if 	(Config::get('mturk::rooturl') == '' or
+			Config::get('mturk::accesskey')  == '' or
+			Config::get('mturk::secretkey')  == '')
 				die('API key not set. Please check the configuration file.');
 
 		$turk = new Turkapi\MechanicalTurk(Config::get('mturk::rooturl'), false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
@@ -193,7 +193,7 @@ class RetrieveJobs extends Command {
 	}		
 
 
-	// todo: move?
+	// todo: change to CrowdAgent::createNewCrowdAgent(...)
 	public function createCrowdAgent($data){
 
 		$workerId = $data['WorkerId'];
@@ -202,9 +202,9 @@ class RetrieveJobs extends Command {
 			return $id;
 		else {
 			$agent = new CrowdAgent;
-			$agent->_id= "crowdagent/$platform/$workerId";
+			$agent->_id= "crowdagent/amt/$workerId";
 			$agent->softwareAgent_id= 'amt';
-			$agent->platformAgentId = $data['WorkerId'];
+			$agent->platformAgentId = $workerId;
 			$agent->save();		
 			return $agent->_id;
 		}

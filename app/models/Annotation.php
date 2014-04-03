@@ -5,8 +5,7 @@ class Annotation extends Entity {
 
 	protected $attributes = array(  'format' => 'text', 
                                     'domain' => 'medical', 
-                                    'documentType' => 'annotation', 
-                                    'type' => 'todo');
+                                    'documentType' => 'annotation');
 	
     /**
     *   Override the standard query to include documenttype.
@@ -24,13 +23,16 @@ class Annotation extends Entity {
 
         static::saving(function ( $annotation )
         {
+            if(empty($annotation->type))
+                $annotation->type = $annotation->job->type;
+
             if(empty($annotation->dictionary))
-                $annotation->createDictionary();
+                $annotation->dictionary = $annotation->createDictionary();
 
             if(empty($annotation->activity_id)){
                 try {
                     $activity = new Activity;
-                    $activity->label = "annotation is saved.";
+                    $activity->label = "Annotation is saved.";
                     $activity->softwareAgent_id = $annotation->softwareAgent_id;
                     $activity->save();
                     $annotation->activity_id = $activity->_id;
@@ -47,10 +49,152 @@ class Annotation extends Entity {
 
      }   
 
+
+    private function createDictionary(){
+        switch ($this->type) {
+            case 'FactSpan':
+                return $this->createDictionaryFactSpan();
+                break;
+            case 'RelDir':
+                return $this->createDictionaryRelDir();
+                break;
+            
+            default:
+               throw new Exception('No rules for creating a dictionary for this type.');
+                break;
+        }
+
+            
+        }
+
+        private function createDictionaryFactSpan(){
+        if(isset($this->unit->content['sentence']['formatted']))
+                $sentence = $this->unit->content['sentence']['formatted'];
+            else 
+                $sentence = $this->unit->content['sentence']['text'];
+            
+            $term1 = $this->unit->content['terms']['first']['formatted'];
+            $term2 = $this->unit->content['terms']['second']['formatted'];
+
+            // Set indices1
+            $charindex1 = strpos($sentence, $term1);
+            $index1start = substr_count(substr($sentence, 0, $charindex1), ' ')+1;
+            $indices1 = array($index1start);
+            for ($i=0; $i < substr_count($term1, ' '); $i++)
+                array_push($indices1, $index1start+$i+1);
+
+            // Set indices2
+            $charindex2 = strpos($sentence, $term2);
+            $index2start = substr_count(substr($sentence, 0, $charindex2), ' ')+1;
+            $indices2 = array($index2start);
+            for ($i=0; $i < substr_count($term2, ' '); $i++)
+                array_push($indices2, $index2start+$i+1);
+            
+            $ans = $this->content;
+            if(!isset($ans['Q1'])){
+                $ans['Q1'] = 'YES';
+            }
+
+             if(!isset($ans['Q2'])){
+                $ans['Q2'] = 'YES';
+             }
+
+            $a1indices = explode(',', $ans['expl1span']);
+            $a2indices = explode(',', $ans['expl2span']);
+
+            // Q1
+            if($ans["Q1"] == 'YES'){
+                if((rtrim($ans["expltext1"]) != $term1) or (!$this->isOkYesQuestion($ans['expltext2yesquestion'], $term1, $sentence))) // [maybe check indices as well?]
+                    $vector1 = $this->createFactVect(true); // FAILED
+                else {
+                    $vector1 = $this->createFactVect(false, 0, 0); // YES it's the same.
+                }   
+            } else {
+                if((rtrim($ans["expltext1"]) == $term1) or (empty($ans["expl1span"])))
+                    $vector1 = $this->createFactVect(true); // FAILED
+                else {
+                    $startdiff = $a1indices[0] - $indices1[0];
+                    $enddiff = end($a1indices) - end($indices1);
+                    $vector1 = $this->createFactVect(false, $startdiff, $enddiff);      
+                }   
+            }
+            
+            // Q2
+            if($ans["Q2"] == 'YES'){
+                if((rtrim($ans["expltext2"]) != $term2) or (!$this->isOkYesQuestion($ans['expltext2yesquestion'], $term2, $sentence))) // TODO: harsher
+                    $vector2 = $this->createFactVect(true); // FAILED
+                else {
+                    $vector2 = $this->createFactVect(false, 0, 0); // YES it's the same.
+                }   
+            } else {
+                if((rtrim($ans["expltext2"]) == $term2) or (empty($ans["expl2span"])))
+                    $vector2 = $this->createFactVect(true); // FAILED
+                else {
+                    $startdiff = $a2indices[0] - $indices2[0];
+                    $enddiff = end($a2indices) - end($indices2);
+                    $vector2 = $this->createFactVect(false, $startdiff, $enddiff); 
+                }
+            }   
+
+            return array('term1' => $vector1, 'term2' => $vector2);
+     }
+
+
+    private function createFactVect($failed = false, $startdiff=null, $enddiff=null){
+        $vector = array(
+        "[WORD_-3]"=>0,
+        "[WORD_-2]"=>0,
+        "[WORD_-1]"=>0,
+        "[WORD_+1]"=>0,
+        "[WORD_+2]"=>0,
+        "[WORD_+3]"=>0,
+        "[WORD_OTHER]"=>0,
+        "[NIL]"=>0,
+        "[CHECK_FAILED]"=>0);
+
+        if($failed){
+            $vector["[CHECK_FAILED]"] = 1;
+            return $vector;
+        }
+
+        if($startdiff<-3 or $enddiff > 3){
+            $vector["[WORD_OTHER]"]=1;
+            return $vector;
+        } // TODO; when else?
+
+        if($startdiff == 0 and $enddiff == 0){
+            $vector["[NIL]"]=1;
+            return $vector;
+        } 
+
+        $vector["[WORD_-3]"]= ($startdiff < -2 ? 1 : 0);
+        $vector["[WORD_-2]"]= ($startdiff < -1 ? 1 : 0);
+        $vector["[WORD_-1]"]= ($startdiff <  0 ? 1 : 0);
+        $vector["[WORD_+1]"]= ($enddiff   >  0 ? 1 : 0);
+        $vector["[WORD_+2]"]= ($enddiff   >  1 ? 1 : 0);
+        $vector["[WORD_+3]"]= ($enddiff   >  2 ? 1 : 0);
+
+
+        return $vector;
+    }
+
+
+    private function createDictionaryRelDir(){
+        $ans = $this->content['direction'];
+        return array(
+            'Choice1' => (($ans == 'Choice1') ? 1 : 0),
+            'Choice2' => (($ans == 'Choice2') ? 1 : 0),
+            'Choice3' => (($ans == 'Choice3') ? 1 : 0),
+            );
+
+    }
+
+
+
      /**
      * Creates a Dictionary ( possible multiple choice answers with 1 or 0 ) and saves it in the Annotation.
      */
-    private function createDictionary(){
+    private function createDictionaryDEPRECATED(){
        
         $q = $this->job->questionTemplate->content['question'];
         $r = $this->job->questionTemplate->content['replaceValues'];

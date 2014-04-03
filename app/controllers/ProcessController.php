@@ -1,4 +1,5 @@
 <?php
+use Sunra\PhpSimple\HtmlDomParser;
 
 class ProcessController extends BaseController {
 
@@ -10,63 +11,8 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.templatebuilder');
 	}
 
-	// TODO: (re)move
-	public function getConvertcsv(){
-		if (($handle = fopen(storage_path() . '/jobs.csv', 'r')) === false) {
-		    die('Error opening file');
-		}
-		
-		foreach (\QuestionTemplate::get() as $q)
-			$q->forceDelete();
-
-		foreach (\JobConfiguration::get() as $q)
-			$q->forceDelete();
-
-		foreach (\Job::get() as $q)
-			$q->forceDelete();
-
-		\MongoDB\Activity::truncate();
-		$activity = new \MongoDB\Activity;
-		$activity->label = "Imported jobs from CSV file.";
-		//$activity->used = $job->_id;
-		$activity->softwareAgent_id = 'importer';
-		$activity->save();
-
-		$headers = fgetcsv($handle, 1024, ',');
-		$count = 0;
-		$complete = array();
-		while ($row = fgetcsv($handle, 1024, ',')) {
-
-			$c = array_combine($headers, $row);
-			$c['platform'] = array($c['platform']);
-
-			$j = new JobConfiguration;
-			//$j->_id = "entity/text/medical/jobconf/$count";
-			$j->type = (isset($row['type']) ? $row['type'] : 'todo');
-			$j->content = $c;
-			$j->hash = md5(serialize($j->content));
-			$j->activity_id = $activity->_id;
-			$j->user_id = 'CrowdWatson';
-			$j->save();
-
-			$job = new Job;
-			$job->jobConf_id = $j->_id;
-			$job->activity_id = $activity->_id;
-			$job->batch_id = "entity/text/medical/batch/$count";
-			$job->type = (isset($row['type']) ? $row['type'] : 'todo');
-			$job->user_id = 'CrowdWatson';
-			$job->status = 'finished';
-			$job->save();
-			$count++;
-
-		} //new MongoDate(strtotime(
-
-		fclose($handle);
-
-		echo json_encode($complete, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-	}
-
 	public function getBatch() {
+
 		//dd(unserialize(Session::get('jobconf')));
 		//$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
 		$batches = Batch::where('documentType', 'batch')->get(); 
@@ -81,7 +27,7 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));	
 		if(empty($jc)) $jc = new JobConfiguration;
 		$currenttemplate = Session::get('template');
-		if(empty($currenttemplate)) $currenttemplate = 'generic/default';
+		if(empty($currenttemplate)) $currenttemplate = 'relation_direction/relation_direction_old';
 		$treejson = $this->makeDirTreeJSON($currenttemplate);
 
 		return View::make('process.tabs.template')
@@ -133,7 +79,7 @@ class ProcessController extends BaseController {
 		$treejson = $this->makeDirTreeJSON($template, false);
 		
 		try {
-			$questions = array();//$j->getPreviews();
+			$questions = $j->getPreviews();
 		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
@@ -183,7 +129,7 @@ class ProcessController extends BaseController {
 			Session::put('batch', serialize($job->batch));
 			Session::put('template', $job->JobConfiguration['template']);
 			return Redirect::to("process/batch");
-		}else {
+		} else {
 			Session::flash('flashError',"Job $id not found.");
 			return Redirect::back();
 		}
@@ -237,8 +183,8 @@ class ProcessController extends BaseController {
 
 
 
-			// FOR TESTING -> hardcoded questiontemplate. We need more of these.
-			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . 'relation_direction/relation_direction_multiple.questiontemplate.json'), true);
+			// FOR TESTING -> static questiontemplate.
+			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . $template . '.questiontemplate.json'), true);
 			$qt = new QuestionTemplate;
 			$qt->content = $testdata;
 
@@ -307,6 +253,7 @@ class ProcessController extends BaseController {
 			}		
 		}
 
+		Session::put('type', explode('/', $template)[0]);
 		Session::put('jobconf', serialize($jc));
 		Session::put('template', $template);
 
@@ -353,6 +300,7 @@ class ProcessController extends BaseController {
 			// Publish jobs
 			foreach($jc->content['platform'] as $platformstring){
 				$j = new Job;
+				$j->type = Session::get('type');
 				$j->template = $template; // TODO: remove
 				$j->batch_id = $batch->_id;
 				$j->questionTemplate_id = $questiontemplateid;
@@ -367,7 +315,7 @@ class ProcessController extends BaseController {
 			//Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
 			//				strtoupper(implode(', ', $jc->content['platform'])) . '.');
 			Session::flash('flashSuccess', "Created job" . (count($jc->content['platform']) == 1 ? '' : 's') . " on " . 
-							strtoupper(implode(', ', $jc->content['platform'])) . '. Click on \'actions\' on the job to order it.');
+							strtoupper(implode(', ', $jc->content['platform'])) . '. Click on \'actions\' on the job to start it.');
 			return Redirect::to("jobs/listview");
 
 		} catch (Exception $e) {
@@ -406,8 +354,9 @@ class ProcessController extends BaseController {
 
 			foreach(File::allFiles($dir) as $file){
 				$filename = $file->getFileName();
-				if (substr($filename, -5) == '.json') {
-		   			$filename = substr($filename, 0, -5);
+
+				if (substr($filename, -21) == 'questiontemplate.json') {
+		   			$filename = substr($filename, 0, -22);
 		   			if($pretty) $displayname = ucfirst(str_replace('_', ' ', $filename));
 		   			else $displayname = $filename;
 		   			if("$dirname/$filename" == $currenttemplate)

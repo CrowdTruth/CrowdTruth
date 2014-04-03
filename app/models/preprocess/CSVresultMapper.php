@@ -13,27 +13,50 @@ class CSVresultMapper {
 
 	public function processInputData($csvresult, $preview = false)
 	{
-		$csv = Reader::createFromString($csvresult['content']);
+		$csvLines = explode("\n", $csvresult['content']);
+		$csvLines = array_filter($csvLines, 'strlen');
+
+		$csv = Reader::createFromString(implode("\n", $csvLines));
 
 		// $csvLines = explode("\n", $csvresult['content']);
 		// dd($csvLines);
 
-		$headers = $csv->fetchOne();
+		$headers0 = $csv->fetchOne();
+		$headers = array();
+		$count = 0; $c1 = 0;
+		foreach($headers0 as $h){
+			if(empty($h)){
+				$h = "empty$count";
+				$count++;
+			} 
 
+			if(in_array($h, $headers)){
+				$h = "$h$c1";
+				$c1++;
+			}
+
+			$headers[] = $h;
+		}
+		
 		$data = $csv->fetchAssoc($headers);
 
 		$rowsMappedWithUnits = array();
 		$batch = array();
 
 		unset($data[0]); // Unsetting header
-
+$count = 0;
 		foreach ($data as $line_index => $row)
 		{
+			$count++;
 			$entity = Entity::where('documentType', 'twrex-structured-sentence');
 
 			if(isset($row['relation-type']))
 			{
 				$entity = $entity->where('content.relation.original', '=', $row['relation-type']);
+			}
+			elseif (isset($row['relation_type'])) 
+			{
+				$entity = $entity->where('content.relation.original', '=', $row['relation_type']);
 			}
 			else
 			{
@@ -42,7 +65,10 @@ class CSVresultMapper {
 
 			if(isset($row['term1']))
 			{
-				$entity = $entity->where('content.terms.first.text', '=', $row['term1']);
+				if (substr($row['term1'], 0, 1) == '[')
+					$entity = $entity->where('content.terms.first.formatted', '=', $row['term1']);
+				else
+					$entity = $entity->where('content.terms.first.text', '=', $row['term1']);
 			}
 			else
 			{
@@ -51,13 +77,18 @@ class CSVresultMapper {
 
 			if(isset($row['term2']))
 			{
-				$entity = $entity->where('content.terms.second.text', '=', $row['term2']);
+				if (substr($row['term2'], 0, 1) == '[')
+					$entity = $entity->where('content.terms.second.formatted', '=', $row['term2']);
+				else
+					$entity = $entity->where('content.terms.second.text', '=', $row['term2']);
 			}
 			else
 			{
 				continue;
 			}
-
+/*echo $row['term2'] . '>';			
+echo $entity->first()->content['terms']['first']['startIndex'];
+echo ' - ' . $row['b1'] . '. ';*/
 			if(isset($row['b1']))
 			{
 				$entity = $entity->where('content.terms.first.startIndex', '=', (int) $row['b1']);
@@ -66,7 +97,7 @@ class CSVresultMapper {
 			{
 				continue;
 			}
-
+		
 			if(isset($row['e1']))
 			{
 				$entity = $entity->where('content.terms.first.endIndex', '=', (int) $row['e1']);
@@ -85,14 +116,23 @@ class CSVresultMapper {
 			{
 				$entity = $entity->where('content.terms.second.endIndex', '=', (int) $row['e2']);
 			}
-
+			
+			if(isset($row['unit_id0'])) unset($row['unit_id0']);
+			
 			if($result = $entity->first())
 			{
 			    $row['unit'] = $result->toArray();
 			    array_push($rowsMappedWithUnits, $row);
 			    array_push($batch, $result->toArray()['_id']);	
+			} else {
+				print_r($row);
+				echo "\r\n";
 			}
 		}
+		
+		if(count($rowsMappedWithUnits) != $count)
+			return count($rowsMappedWithUnits) . " != $count";
+		
 
 		if($preview)
 		{
@@ -115,8 +155,6 @@ class CSVresultMapper {
 
 		$data = $csv->fetchAssoc($headers);
 
-		dd($data);
-
 		$rowsMappedWithUnits = array();
 		$batch = array();
 
@@ -189,6 +227,7 @@ class CSVresultMapper {
 			    array_push($rowsMappedWithUnits, $row);
 			    array_push($batch, $result->toArray()['_id']);	
 			}
+			
 		}
 
 		if($preview)

@@ -56,10 +56,9 @@ class Hit {
 	* @param SimpleXMLElement $hitxml the HIT-part of an XML response from the server.
 	*/
 	public function getValuesfromXML($hitxml){
-
 		foreach($hitxml[0] as $key=>$value){
-			if($key == 'Reward'){
 			
+			if($key == 'Reward'){
 				$this->Reward['Amount'] 		= (string) $hitxml[0]->$key->Amount;
 				$this->Reward['CurrencyCode'] 	= (string) $hitxml[0]->$key->CurrencyCode;
 				$this->Reward['FormattedPrice'] = (string) $hitxml[0]->$key->FormattedPrice;
@@ -74,10 +73,14 @@ class Hit {
 				}
 				
 			} else {
-				if(isset($value)) $this->$key = (string) $value;
+				//echo "$key => $value<br>";
+				if(isset($value) and $key != '') $this->$key = (string) $value;
+				
 			}
-		}	
-		
+			//echo "\r\n\r\n$key\r\n"; print_r($this); echo "\r\n\r\n";
+		}
+/*		dd($this);	
+		die();*/
 		$qualarray = array();
 		foreach($hitxml['0']->QualificationRequirement as $q){
 			$qbuilder = array();

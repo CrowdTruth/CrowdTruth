@@ -29,4 +29,8 @@ class CrowdAgent extends Moloquent {
 		return $this->hasMany('\MongoDB\Entity', 'crowdAgent_id', '_id');
 	}
 
+	public static function createCrowdAgent($softwareAgent_id, $platformWorkerId, $additionData = array()){
+		// TODO
+	}
+
 }

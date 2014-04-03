@@ -119,41 +119,41 @@ class Crowdflower {
 				//print_r($result);				
 				$csvresult = $this->CFJob->uploadInputFile($id, $csv);
 				unlink($csv); // DELETE temporary CSV.
-				if(isset($csvresult['result']['error']))
-					throw new CFExceptions("CSV: " . $csvresult['result']['error']);
+				if(isset($csvresult['result']['error']['message']))
+					throw new CFExceptions("CSV: " . $csvresult['result']['error']['message']);
 				//print "\r\n\r\nCSVRESULT";
 				//print_r($csvresult);
 				$optionsresult = $this->CFJob->setOptions($id, array('options' => $options));
-				if(isset($optionsresult['result']['error']))
-					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']);
+				if(isset($optionsresult['result']['error']['message']))
+					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
 				//print "\r\n\r\nOPTIONSRESULT";
 				//print_r($optionsresult);
 				$channelsresult = $this->CFJob->setChannels($id, array('cf_internal'));
-				if(isset($channelsresult['result']['error']))
-					throw new CFExceptions($channelsresult['result']['error']); 
+				if(isset($channelsresult['result']['error']['message']))
+					throw new CFExceptions($channelsresult['result']['error']['message']); 
 				//print "\r\n\r\nCHANNELSRESULT";
 				//print_r($channelsresult);
 				if(is_array($gold) and count($gold) > 0){
 					// TODO: Foreach? 
 					$goldresult = $this->CFJob->manageGold($id, array('check' => $gold[0]));
-					if(isset($goldresult['result']['error']))
-						throw new CFExceptions("Gold: " . $goldresult['result']['error']);
+					if(isset($goldresult['result']['error']['message']))
+						throw new CFExceptions("Gold: " . $goldresult['result']['error']['message']);
 				//print "\r\n\r\nGOLDRESULT";
 				//print_r($goldresult);
 				}
 
 				if(isset($jc->content['countries']) and is_array($jc->content['countries']) and count($jc->content['countries']) > 0){
 					$countriesresult = $this->CFJob->setIncludedCountries($id, $jc['countries']);
-					if(isset($countriesresult['result']['error']))
-						throw new CFExceptions("Countries: " . $countriesresult['result']['error']);
+					if(isset($countriesresult['result']['error']['message']))
+						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
 				//print "\r\n\r\nCOUNTRIESRESULT";
 				//print_r($countriesresult);				
 				}
 
 				if(!$sandbox and isset($csvresult)){
 					$orderresult = $this->CFJob->sendOrder($id, count($job->batch->parents), array("cf_internal"));
-					if(isset($orderresult['result']['error']))
-						throw new CFExceptions("Order: " . $orderresult['result']['error']);
+					if(isset($orderresult['result']['error']['message']))
+						throw new CFExceptions("Order: " . $orderresult['result']['error']['message']);
 				//print "\r\n\r\nORDERRESULT";
 				//print_r($orderresult);
 				//dd("\r\n\r\nEND");
@@ -163,7 +163,7 @@ class Crowdflower {
 
 			// Failed to create initial job. Todo: more different errors.
 			} else {
-				$err = $result['result']['error'];
+				$err = $result['result']['error']['message'];
 				if(isset($err)) $msg = $err;
 				elseif(isset($result['http_code'])){
 					if($result['http_code'] == 503 or $result['http_code'] == 504) $msg = 'Crowdflower service is unavailable, possibly down for maintenance?';
@@ -188,36 +188,36 @@ class Crowdflower {
     	$unitcount = count($job->batch->wasDerivedFrom);
     	$this->hasStateOrFail($id, 'unordered');
 		$result = $this->CFJob->sendOrder($id, $unitcount, array("cf_internal"));
-		if(isset($result['result']['error']))
-			throw new Exception("Order: " . $result['result']['error']);
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Order: " . $result['result']['error']['message']);
 	}
 
 	public function pauseJob($id){
 		$this->hasStateOrFail($id, 'running');
 		$result = $this->CFJob->pauseJob($id);
-		if(isset($result['result']['error']))
-			throw new Exception("Pause: " . $result['result']['error']);
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Pause: " . $result['result']['error']['message']);
 	}
 
 	public function resumeJob($id){
 		$this->hasStateOrFail($id, 'paused');
 		$result = $this->CFJob->resumeJob($id);
-		if(isset($result['result']['error']))
-			throw new Exception("Resume: " . $result['result']['error']);
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Resume: " . $result['result']['error']['message']);
 	}
 
 	public function cancelJob($id){
 		//$this->hasStateOrFail($id, 'running'); // Rules?
 		$result = $this->CFJob->cancelJob($id);
-		if(isset($result['result']['error']))
-			throw new Exception("Cancel: " . $result['result']['error']);
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Cancel: " . $result['result']['error']['message']);
 	}
 
 	private function hasStateOrFail($id, $state){
 		$result = $this->CFJob->readJob($id);
 
-		if(isset($result['result']['error']))
-			throw new Exception("Read Job: " . $result['result']['error']);
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Read Job: " . $result['result']['error']['message']);
 
     	if($result['result']['state'] != $state)
     		throw new Exception("Can't perform action; state is '{$result['result']['state']}' (should be '$state')");
@@ -261,10 +261,12 @@ class Crowdflower {
 		// Preprocess batch
 		$array = array();
 		$units = $batch->wasDerivedFrom;
-		$replaceValues = array_change_key_case($questionTemplate->content['replaceValues'], CASE_LOWER);
+		if(isset($questionTemplate->content['replaceValues']))
+			$replaceValues = array_change_key_case($questionTemplate->content['replaceValues'], CASE_LOWER);
+		else $replaceValues = array();
 		foreach ($units as $row){
 			unset($row['content']['properties']);
-			$c = array_change_key_case(str_replace('_', '.', array_dot($row['content'])), CASE_LOWER);
+			$c = array_change_key_case(array_dot($row['content']), CASE_LOWER);
 			foreach($c as $key=>$val){
 				$key = strtolower(str_replace('.', '_', $key));
 				if(isset($replaceValues[$key][$val]))

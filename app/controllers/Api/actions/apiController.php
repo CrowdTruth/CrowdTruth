@@ -20,7 +20,7 @@ class apiController extends BaseController {
 
 
 	public function getEntity($format, $domain, $docType, $incr, $action){
-		//try {
+		try {
 			$return = array('status' => 'ok');
 			$id = "entity/$format/$domain/$docType/$incr";
 			switch ($docType) {
@@ -53,7 +53,7 @@ class apiController extends BaseController {
 							throw new Exception('Action unknown.');
 							break;
 					}
-
+				break;
 				default:
 					throw new Exception("Unknown documenttype '$docType'.");
 					break;
@@ -61,11 +61,11 @@ class apiController extends BaseController {
 
 
 
-		//} catch (Exception $e){
+		} catch (Exception $e){
 			//throw $e; // for debugging.
 			$return['message'] = $e->getMessage();
 			$return['status'] = 'bad';
-		//}
+		}
 
 		return $this->returnJson($return);
 	}

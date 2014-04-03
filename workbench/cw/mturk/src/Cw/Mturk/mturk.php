@@ -149,7 +149,7 @@ class Mturk {
 					throw new AMTException('Multipage template has no \'{uid}\'. View the readme in the templates directory for more info.');
 			} catch (AMTException $e){
 				// Catch when the template is unable to present multiple HIT's on one page.
-				Log::debug('Attempted to create multipage job with singlepage template. Changed to singlepage for AMT.');
+				\Log::debug('Attempted to create multipage job with singlepage template. Changed to singlepage for AMT.');
 				$upt = 1;
 				$questiontemplate = $dom->innertext;
 			}
@@ -167,8 +167,9 @@ class Mturk {
 			$tempquestiontemplate = str_replace('{x}', $count, $questiontemplate);
 			// Insert the parameters
 
-			foreach ($params as $key=>$val)	{	
-				$param = '${' . $key . '}';
+			foreach ($params as $key=>$val)	{
+				$key = strtolower(str_replace('.', '_', $key));	
+				$param = '{{' . $key . '}}';
 				$tempquestiontemplate = str_replace($param, $val, $tempquestiontemplate);
 			}
 
@@ -176,7 +177,7 @@ class Mturk {
 			
 			/*if(!strpos($questiontemplate, '{instructions}'))
 				throw new AMTException('Template has no {instructions}');*/
-			$tempquestiontemplate = str_replace('{instructions}', nl2br($c['instructions']), $tempquestiontemplate);
+			$tempquestiontemplate = str_replace('{{instructions}}', nl2br($c['instructions']), $tempquestiontemplate);
 
 			// Temporarily store the AnswerKey
 

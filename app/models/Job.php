@@ -1,5 +1,4 @@
 <?php
-use Sunra\PhpSimple\HtmlDomParser;
 use \MongoDB\Entity;
 use \MongoDB\Activity;
 use \MongoDB\SoftwareAgent;
@@ -34,8 +33,8 @@ class Job extends Entity {
                 $softwareAgent->_id = 'jobcreator';
                 $softwareAgent->label = "Job creation";
             }
-			//TODO for importing!
-			if(false){//!isset($job->projectedCost)){
+
+			if(!isset($job->projectedCost)){
 				$reward = $job->jobConfiguration->content['reward'];
 				$annotationsPerUnit = intval($job->jobConfiguration->content['annotationsPerUnit']);
 				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);

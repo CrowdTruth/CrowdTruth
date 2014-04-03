@@ -24,6 +24,7 @@
     "question": [
         {
             "component": "label",
+            "class" : "description",
             "value": "{{description}}"
         },
         {
@@ -37,11 +38,20 @@
             "editable": true,
             "index": 0,
             "label": "Which of the following statements is EXPRESSED in the SENTENCE above?",
-            "options": {
-                "{{terms_first_text}} {{relation_noPrefix}} {{terms_second_text}}": "{{terms_first_text}} {{relation_noPrefix}} {{terms_second_text}}",
-                "{{terms_second_text}} {{relation_noPrefix}} {{terms_first_text}}": "{{terms_second_text}} {{relation_noPrefix}} {{terms_first_text}}",
-                "no_relation": "-{{relation_noPrefix}}- is NOT EXPRESSED between the two PHRASES"
-            },
+            "options": [
+                {
+                "label":"{{terms_first_text}} {{relation_noPrefix}} {{terms_second_text}}",
+                "value":"Choice1",
+                },
+                {
+                "label":"{{terms_second_text}} {{relation_noPrefix}} {{terms_first_text}}",
+                "value":"Choice2",
+                },
+                {
+                "label":"-{{relation_noPrefix}}- is NOT EXPRESSED between the two PHRASES",
+                "value":"Choice3",
+                }
+            ],
             "required": false,
             "gold": true
         }
