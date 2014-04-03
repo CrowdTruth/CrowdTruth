@@ -102,7 +102,7 @@ class RetrieveJobs extends Command {
 			// Store judgment and update job.
 			foreach($judgments as $judgment)
 				if($annotation = $this->storeJudgment($judgment, $ourjobid, $activity->_id, $agent->_id)){
-					$job = $this->getJob($platformjobid);
+					$job = $this->getJob($cfjobid);
 					$job->addResults($annotation);
 					$job->save();
 				}
@@ -159,7 +159,7 @@ class RetrieveJobs extends Command {
 		try {
 			$annotation = new Annotation;
 			$annotation->job_id = $ourjobid;
-			$annotatoin->platformJobId = $judgment['job_id'];
+			$annotation->platformJobId = $judgment['job_id'];
 			$annotation->activity_id = $activityId;
 			$annotation->crowdAgent_id = $agentId;
 			$annotation->softwareAgent_id = 'cf';
