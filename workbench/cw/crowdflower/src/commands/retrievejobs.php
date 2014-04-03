@@ -104,7 +104,7 @@ class RetrieveJobs extends Command {
 
 			// Store judgment and update job.
 			foreach($judgments as $judgment)
-				if($annotation = $this->storeJudgment($judgment, $ourjob, $activity->_id, $agent->_id)){
+				if($annotation = $this->storeJudgment($judgment, $ourjobid, $activity->_id, $agent->_id)){
 					$job = $this->getJob($ourjobid);
 					$job->addResults($annotation);
 				}
