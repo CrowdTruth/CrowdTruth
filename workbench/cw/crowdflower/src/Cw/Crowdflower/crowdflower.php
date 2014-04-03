@@ -264,6 +264,9 @@ class Crowdflower {
 		
 		foreach ($units as $unit){
 			unset($unit['content']['properties']);
+			if(!isset($unit['content']['sentence']['formatted']))// TODO SHOULDN'T HAPPEN!!!!
+				$unit['content']['sentence']['formatted'] = $unit['content']['sentence']['text'];
+
 /*			$c = array_change_key_case(array_dot($row['content']), CASE_LOWER);
 			foreach($c as $key=>$val){
 				$key = strtolower(str_replace('.', '_', $key));

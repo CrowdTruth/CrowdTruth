@@ -95,7 +95,6 @@ class ProcessController extends BaseController {
 		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
-			throw $e;
 		}
 
 		$toomany = '';
@@ -140,7 +139,7 @@ class ProcessController extends BaseController {
 		if(!is_null($job)){
 			Session::put('jobconf', serialize($job->JobConfiguration));
 			Session::put('batch', serialize($job->batch));
-			Session::put('template', $job->JobConfiguration['template']);
+			Session::put('template', $job->template);
 			return Redirect::to("process/batch");
 		} else {
 			Session::flash('flashError',"Job $id not found.");
