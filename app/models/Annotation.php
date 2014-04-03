@@ -23,7 +23,8 @@ class Annotation extends Entity {
 
         static::saving(function ( $annotation )
         {
-            $annotation->type = $annotation->job->type;
+            if(empty($annotation->type))
+                $annotation->type = Job::where('_id', $annotation->job_id)->pluck('type');
 
             if(empty($annotation->dictionary))
                 $annotation->dictionary = $annotation->createDictionary();
