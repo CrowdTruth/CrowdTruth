@@ -80,13 +80,18 @@ class ProcessController extends BaseController {
 		
 		// TODO: this here is really bad.
 		try {
-			$j = new Job;
-			$j->batch_id = $batch->_id;
-			$j->template = $template;
-			$j->questionTemplate_id = $questiontemplateid;
-			$j->jobConf_id = JobConfiguration::first()->_id;  // BAD
-			$amt = App::make('amt');
-			$questions = $amt->amtPublish($j, true,true);//$j->getPreviews();
+			$jobconf = JobConfiguration::first();
+			if($jobconf){
+				$j = new Job;
+				$j->batch_id = $batch->_id;
+				$j->template = $template;
+				$j->questionTemplate_id = $questiontemplateid;
+				$j->jobConf_id = $jobconf->_id;  // BAD
+				$amt = App::make('amt');
+				$questions = $amt->amtPublish($j, true,true);//$j->getPreviews();
+			} else {
+				$questions = array();
+			}	
 		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
