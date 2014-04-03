@@ -156,8 +156,6 @@ app.controller("resourceCtrl", ["$scope", "$resource", "$http", "filterFilter", 
  	}
 
 
- });
-
 	$scope.perform = function(job, action){
  		var newstatus = '';
  		if(action == 'pause') newstatus = 'paused';
