@@ -23,8 +23,7 @@ class Annotation extends Entity {
 
         static::saving(function ( $annotation )
         {
-            if(empty($annotation->type))
-                $annotation->type = $annotation->job->type;
+            $annotation->type = $annotation->job->type;
 
             if(empty($annotation->dictionary))
                 $annotation->dictionary = $annotation->createDictionary();

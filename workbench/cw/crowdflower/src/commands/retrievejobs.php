@@ -159,7 +159,7 @@ class RetrieveJobs extends Command {
 		try {
 			$annotation = new Annotation;
 			$annotation->job_id = $ourjobid;
-			$annotation->platformJobId = $judgment['job_id'];
+			//$annotation->platformJobId = $judgment['job_id'];
 			$annotation->activity_id = $activityId;
 			$annotation->crowdAgent_id = $agentId;
 			$annotation->softwareAgent_id = 'cf';
