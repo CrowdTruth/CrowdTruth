@@ -27,7 +27,7 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));	
 		if(empty($jc)) $jc = new JobConfiguration;
 		$currenttemplate = Session::get('template');
-		if(empty($currenttemplate)) $currenttemplate = 'relation_direction/relation_direction_old';
+		if(empty($currenttemplate)) $currenttemplate = 'RelDir/relation_direction_old';
 		$treejson = $this->makeDirTreeJSON($currenttemplate);
 
 		return View::make('process.tabs.template')
@@ -78,11 +78,19 @@ class ProcessController extends BaseController {
 		$questiontemplateid = Session::get('questiontemplateid');
 		$treejson = $this->makeDirTreeJSON($template, false);
 		
+		// TODO: this here is really bad.
 		try {
-			$questions = $j->getPreviews();
+			$j = new Job;
+			$j->batch_id = $batch->_id;
+			$j->template = $template;
+			$j->questionTemplate_id = $questiontemplateid;
+			$j->jobConf_id = JobConfiguration::first()->_id;  // BAD
+			$amt = App::make('amt');
+			$questions = $amt->amtPublish($j, true,true);//$j->getPreviews();
 		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
+			throw $e;
 		}
 
 		$toomany = '';
@@ -102,7 +110,7 @@ class ProcessController extends BaseController {
 			->with('questions',  $questions)
 			->with('table', $jc->toHTML())
 			->with('template', '')//$jc->content['template'])
-			->with('frameheight', $jc->content['frameheight'])
+			->with('frameheight', (isset($jc->content['frameheight']) ? $jc->content['frameheight'] : 650))
 			->with('jobconf', $jc->content);
 	}
 
@@ -183,11 +191,11 @@ class ProcessController extends BaseController {
 
 
 
-			// FOR TESTING -> static questiontemplate.
+			// FOR TESTING -> static questiontemplate. // TODO!
 			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . $template . '.questiontemplate.json'), true);
+			if($testdata == null) Session::flash('flashNotice', 'JSON incorrectly formatted.');
 			$qt = new QuestionTemplate;
 			$qt->content = $testdata;
-
 			$hash = md5(serialize($qt->content));
             $existing = QuestionTemplate::where('hash', $hash)->pluck('_id');
             
@@ -368,6 +376,7 @@ class ProcessController extends BaseController {
 		}
 		return json_encode($r);
 	}
+
 
 	/**
 	*	Catch all. If the platform exists, go to the platform page. Else, back to batch.

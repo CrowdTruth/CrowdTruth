@@ -40,11 +40,11 @@
             "options": [
                 {
                 "label":"YES, {{terms_first_formatted}} expresses a complete medical term",
-                "value":"YES",
+                "value":"YES"
                 },
                 {
                 "label":"NO, {{terms_first_formatted}} does NOT express a complete medical term",
-                "value":"NO",
+                "value":"NO"
                 }
             ],
             "required": true,
@@ -70,11 +70,11 @@
             "options": [
                 {
                 "label":"YES, {{terms_second_formatted}} expresses a complete medical term",
-                "value":"YES",
+                "value":"YES"
                 },
                 {
                 "label":"NO, {{terms_second_formatted}} does NOT express a complete medical term",
-                "value":"NO",
+                "value":"NO"
                 }
             ],
             "required": false,
@@ -91,6 +91,6 @@
             "label" : "Make a sentence containing --{{terms_second_formatted}}--.",
             "id" : "expltext2yesquestion",
             "only-if" : {"Q2" : "YES"}
-        },
+        }
     ]
 }

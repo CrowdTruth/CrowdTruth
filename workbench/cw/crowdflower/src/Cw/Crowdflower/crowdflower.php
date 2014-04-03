@@ -158,7 +158,7 @@ class Crowdflower {
 				//print_r($orderresult);
 				//dd("\r\n\r\nEND");
 				}
-
+dd($csvresult);
 				return $id;
 
 			// Failed to create initial job. Todo: more different errors.
@@ -237,7 +237,7 @@ class Crowdflower {
 		}
 
 		// Webhook doesn't work on localhost and the uri should be set. 
-		if((App::environment() != 'local') and (Config::get('crowdflower::webhookuri')) != ''){
+		if((App::environment() != 'local') and (Config::get('crowdflower::webhookuri') != '')){
 			
 			$data['webhook_uri'] = Config::get('crowdflower::webhookuri');
 			$data['send_judgments_webhook'] = 'true';
@@ -261,21 +261,21 @@ class Crowdflower {
 		// Preprocess batch
 		$array = array();
 		$units = $batch->wasDerivedFrom;
-		if(isset($questionTemplate->content['replaceValues']))
-			$replaceValues = array_change_key_case($questionTemplate->content['replaceValues'], CASE_LOWER);
-		else $replaceValues = array();
-		foreach ($units as $row){
-			unset($row['content']['properties']);
-			$c = array_change_key_case(array_dot($row['content']), CASE_LOWER);
+		
+		foreach ($units as $unit){
+			unset($unit['content']['properties']);
+/*			$c = array_change_key_case(array_dot($row['content']), CASE_LOWER);
 			foreach($c as $key=>$val){
 				$key = strtolower(str_replace('.', '_', $key));
 				if(isset($replaceValues[$key][$val]))
 					$val = $replaceValues[$key][$val];
 				
 				$content[$key] = $val;
-			}
+			}*/
+			$content = $questionTemplate->flattenAndReplace($unit['content']);
+
 			// Add fields
-			$content['uid'] = $row['_id'];
+			$content['uid'] = $unit['_id'];
 			$content['_golden'] = 'false'; // TODO
 			$array[] = $content;
 		}	
@@ -288,7 +288,7 @@ class Crowdflower {
 		// Close file
 		rewind($out);
 		fclose($out);
-
+dd($path);
 		return $path;
 	}
 

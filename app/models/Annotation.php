@@ -49,8 +49,9 @@ class Annotation extends Entity {
 
      }   
 
-
-    private function createDictionary(){
+     //todo make private. 
+     // TODO exceptionhandling, smart checks.
+    public function createDictionary(){
         switch ($this->type) {
             case 'FactSpan':
                 return $this->createDictionaryFactSpan();
@@ -58,14 +59,15 @@ class Annotation extends Entity {
             case 'RelDir':
                 return $this->createDictionaryRelDir();
                 break;
+            case 'RelEx':
+                return $this->createDictionaryRelEx();
+                break;
             
             default:
                throw new Exception('No rules for creating a dictionary for this type.');
                 break;
-        }
-
-            
-        }
+        }        
+    }
 
         private function createDictionaryFactSpan(){
         if(isset($this->unit->content['sentence']['formatted']))
@@ -237,6 +239,41 @@ class Annotation extends Entity {
                             $dictionary[strtolower($possibleans)] = (strtolower($givenans) == strtolower($possibleans) ? 1 : 0);
 
         $this->dictionary = $dictionary;
+    }
+
+    public function createDictionaryRelEx(){
+        $ans = str_replace(" ", "_", rtrim($this->content['Q1text']));           
+        $ans = str_replace("[DIAGNOSED_BY_TEST_OR_DRUG]", "[DIAGNOSE_BY_TEST_OR_DRUG]", $ans);
+        if($ans == '')  throw new Exception('Answer is empty.');
+
+        $ans = str_replace("]_[", "]*[", $ans);
+        $ans = explode('*', $ans);
+        
+        $dic = array(
+        "[TREATS]" =>                   (in_array("[TREATS]",                   $ans ) ? 1 : 0),
+        "[CAUSES]" =>                   (in_array("[CAUSES]",                   $ans ) ? 1 : 0),
+        "[PREVENTS]" =>                 (in_array("[PREVENTS]",                 $ans ) ? 1 : 0),
+        "[IS_A]" =>                     (in_array("[IS_A]",                     $ans ) ? 1 : 0),
+        "[OTHER]" =>                    (in_array("[OTHER]",                    $ans ) ? 1 : 0),
+        "[NONE]" =>                     (in_array("[NONE]",                     $ans ) ? 1 : 0),
+        "[PART_OF]" =>                  (in_array("[PART_OF]",                  $ans ) ? 1 : 0),
+        "[DIAGNOSE_BY_TEST_OR_DRUG]" => (in_array("[DIAGNOSE_BY_TEST_OR_DRUG]", $ans ) ? 1 : 0),
+        "[ASSOCIATED_WITH]" =>          (in_array("[ASSOCIATED_WITH]",          $ans ) ? 1 : 0),
+        "[SIDE_EFFECT]" =>              (in_array("[SIDE_EFFECT]",              $ans ) ? 1 : 0),
+        "[SYMPTOM]" =>                  (in_array("[SYMPTOM]",                  $ans ) ? 1 : 0),
+        "[LOCATION]" =>                 (in_array("[LOCATION]",                 $ans ) ? 1 : 0),
+        "[MANIFESTATION]" =>            (in_array("[MANIFESTATION]",            $ans ) ? 1 : 0),
+        "[CONTRAINDICATES]" =>          (in_array("[CONTRAINDICATES]",          $ans ) ? 1 : 0));
+
+        foreach($ans as $a){
+            if(!in_array($a, $dic))
+               throw new Exception("Answer $a not in dictionary.");
+        }
+
+        if(!in_array(1, $dic)) throw new Exception('Dictionary EMPTY');
+
+        return $dic;
+   
     }
 
      private function createCrowdAgent(){
