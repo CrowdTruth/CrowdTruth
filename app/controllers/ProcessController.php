@@ -308,7 +308,7 @@ class ProcessController extends BaseController {
 			// Publish jobs
 			foreach($jc->content['platform'] as $platformstring){
 				$j = new Job;
-				$j->type = explode('/', $template)[0]);
+				$j->type = explode('/', $template)[0];
 				$j->template = $template; // TODO: remove
 				$j->batch_id = $batch->_id;
 				$j->questionTemplate_id = $questiontemplateid;
