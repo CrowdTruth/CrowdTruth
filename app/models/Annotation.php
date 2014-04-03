@@ -70,13 +70,17 @@ class Annotation extends Entity {
     }
 
         private function createDictionaryFactSpan(){
-        if(isset($this->unit->content['sentence']['formatted']))
+            if(isset($this->unit->content['sentence']['formatted']))
                 $sentence = $this->unit->content['sentence']['formatted'];
             else 
                 $sentence = $this->unit->content['sentence']['text'];
             
             $term1 = $this->unit->content['terms']['first']['formatted'];
             $term2 = $this->unit->content['terms']['second']['formatted'];
+
+            if(!isset($ans['expl1span'])) // TODO
+                return array('Not yet implemented for the CF template.');
+
 
             // Set indices1
             $charindex1 = strpos($sentence, $term1);
@@ -242,6 +246,9 @@ class Annotation extends Entity {
     }
 
     public function createDictionaryRelEx(){
+        if(!isset($this->content['Q1text'])) // TODO
+            return array('Not yet implemented for CF.');
+
         $ans = str_replace(" ", "_", rtrim($this->content['Q1text']));           
         $ans = str_replace("[DIAGNOSED_BY_TEST_OR_DRUG]", "[DIAGNOSE_BY_TEST_OR_DRUG]", $ans);
         if($ans == '')  throw new Exception('Answer is empty.');
