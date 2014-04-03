@@ -55,14 +55,14 @@ class RetrieveJobs extends Command {
 				die('not yet implemented');
 				// We could check for each annotation and add it if somehow it didn't get added earlier.
 				// For this, we should add ifexists checks in the storeJudgment method.
-				$ourjobid = $this->option('jobid');
+				$cfjobid = $this->option('jobid');
 				$cf = new Cw\Crowdflower\Cfapi\Job(Config::get('crowdflower::apikey'));
 				$judgments = ''; //todo			
 			}
 
 			if($this->option('judgments')) {
 				$judgments = unserialize($this->option('judgments'));
-				$ourjobid = $judgments[0]['job_id']; // We assume that all judgments have the same jobic
+				$cfjobid = $judgments[0]['job_id']; // We assume that all judgments have the same jobic
 			}
 			
 			$judgment = $judgments[0];
@@ -84,11 +84,8 @@ class RetrieveJobs extends Command {
 				$agent->save();
 			}
 
-			//try{
-				
-			//} catch (CFExceptions $e){
-				//$job = Job::first(); // TODO REMOVE THIS!!!!1 is for debugging.
-			//}	
+			$ourjobid = $this->getJob($cfjobid)->_id;
+
 
 			// TODO: check if exists. How?
 			// For now this hacks helps: else a new activity would be created even if this 
@@ -105,10 +102,11 @@ class RetrieveJobs extends Command {
 			// Store judgment and update job.
 			foreach($judgments as $judgment)
 				if($annotation = $this->storeJudgment($judgment, $ourjobid, $activity->_id, $agent->_id)){
-					$job = $this->getJob($ourjobid);
+					$job = $this->getJob($platformjobid);
 					$job->addResults($annotation);
+					$job->save();
 				}
-			$job->save();
+			
 			//Log::debug("Saved new annotations to {$job->_id} to DB.");	
 		} catch (CFExceptions $e){
 			Log::warning($e->getMessage());
@@ -161,6 +159,7 @@ class RetrieveJobs extends Command {
 		try {
 			$annotation = new Annotation;
 			$annotation->job_id = $ourjobid;
+			$annotatoin->platformJobId = $judgment['job_id'];
 			$annotation->activity_id = $activityId;
 			$annotation->crowdAgent_id = $agentId;
 			$annotation->softwareAgent_id = 'cf';
