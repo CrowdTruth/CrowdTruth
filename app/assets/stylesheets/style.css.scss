@@ -7,9 +7,9 @@ body {
 outline: 0;
 }
 
-.container {
+/*.container {
   -webkit-transform:translatez(0);-webkit-backface-visibility:hidden;-webkit-perspective:1000;
-}
+}*/
 
 .navbar {
 	border-bottom:2px solid #c6c6c6;
@@ -449,6 +449,14 @@ div.ColVis_catcher {
 
 	tr:nth-child(1), tr:nth-child(2), tr:nth-child(3) {
 		font-weight:bold;
-		font-size:18px;
+		font-size:120%;
 	}
+}
+
+.results.lukasz {
+	font-size:90%;
+}
+
+.popover-medium {
+	min-width:auto !important;
 }
