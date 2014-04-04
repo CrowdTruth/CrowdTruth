@@ -6,10 +6,8 @@ use MongoDB\Activity;
 
 class QuestionTemplate extends Entity {
 
-	protected $attributes = array(  'format' => 'text', 
-                                    'domain' => 'medical', 
-                                    'documentType' => 'questiontemplate', 
-                                    'type' => 'todo');
+	protected $attributes = array('documentType' => 'questiontemplate', 
+                                  'type' => 'todo');
 
     /**
     *   Override the standard query to include documenttype.

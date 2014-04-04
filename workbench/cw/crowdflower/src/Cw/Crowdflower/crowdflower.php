@@ -93,7 +93,7 @@ class Crowdflower {
 			// Read the files
 			foreach(array('cml', 'css', 'js') as $ext){
 				$filename = public_path() . "/templates/$template.$ext";
-				if(file_exists($filename) || is_readable($filename))
+				if(file_exists($filename) && is_readable($filename))
 					$data[$ext] = file_get_contents($filename);
 			}
 

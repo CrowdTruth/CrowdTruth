@@ -23,9 +23,13 @@ class Annotation extends Entity {
 
         static::saving(function ( $annotation )
         {
-            if(empty($annotation->type))
-                $annotation->type = Job::where('_id', $annotation->job_id)->pluck('type');
-
+            if(empty($annotation->type) or empty($annotation->domain) or empty($annotation->format)){
+                $j = Job::where('_id', $annotation->job_id)->first();
+                $annotation->type = $j->type;
+                $annotation->domain = $j->domain;
+                $annotation->format = $j->format;
+            }
+            
             if(empty($annotation->dictionary))
                 $annotation->dictionary = $annotation->createDictionary();
 
@@ -54,7 +58,7 @@ class Annotation extends Entity {
     public function createDictionary(){
         switch ($this->type) {
             case 'FactSpan':
-                return $this->createDictionaryFactSpan();
+                return  $this->createDictionaryFactSpan();
                 break;
             case 'RelDir':
                 return $this->createDictionaryRelDir();
@@ -77,10 +81,10 @@ class Annotation extends Entity {
             
             $term1 = $this->unit->content['terms']['first']['formatted'];
             $term2 = $this->unit->content['terms']['second']['formatted'];
-
+            
+            $ans = $this->content;
             if(!isset($ans['expl1span'])) // TODO
                 return array('Not yet implemented for the CF template.');
-
 
             // Set indices1
             $charindex1 = strpos($sentence, $term1);
@@ -96,7 +100,7 @@ class Annotation extends Entity {
             for ($i=0; $i < substr_count($term2, ' '); $i++)
                 array_push($indices2, $index2start+$i+1);
             
-            $ans = $this->content;
+            
             if(!isset($ans['Q1'])){
                 $ans['Q1'] = 'YES';
             }

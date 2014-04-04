@@ -5,10 +5,7 @@ use \MongoDB\SoftwareAgent;
 
 class Job extends Entity { 
     
-	protected $attributes = array(  'format' => 'text', 
-                                    'domain' => 'medical', 
-                                    'documentType' => 'job', 
-                                    'type' => 'todo');
+	protected $attributes = array('documentType' => 'job');
 
     /**
     *   Override the standard query to include documenttype.

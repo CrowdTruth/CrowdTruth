@@ -11,6 +11,13 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.templatebuilder');
 	}
 
+
+	public function getTest(){
+		$ann = \Annotation::where('type', 'FactSpan')->where('softwareAgent_id', 'amt')->first();
+
+
+	}
+
 	public function getBatch() {
 
 		//dd(unserialize(Session::get('jobconf')));
@@ -68,7 +75,46 @@ class ProcessController extends BaseController {
 
 	public function getPlatform() {
 		$jc = unserialize(Session::get('jobconf'));
-		return View::make('process.tabs.platform')->with('jobconf', $jc->content);
+		$template = Session::get('template');
+		// TODO: REMOVE. 
+		$possibleplatforms = array();
+
+		$filename = public_path() . "/templates/$template.html";
+		if(file_exists($filename) && is_readable($filename))
+			array_push($possibleplatforms, 'amt');
+
+		$filename = public_path() . "/templates/$template.cml";
+		if(file_exists($filename) && is_readable($filename))
+			array_push($possibleplatforms, 'cf');
+
+		if(count($possibleplatforms)==0)
+			Session::flash('flashError', 'No usable templates found. Please upload either HTML or CML.');
+
+		return View::make('process.tabs.platform')->with('jobconf', $jc->content)->with('possible', $possibleplatforms);
+	}
+
+	public function postUploadTemplate(){
+		$files = Input::file('files');
+ 		$type = preg_replace("/[^0-9a-zA-Z ]/m", "", Input::get('type'));
+		$destinationPath =  public_path() . "/templates/$type";
+
+		try{	
+			if(!file_exists($destinationPath))
+				mkdir($destinationPath);
+
+			foreach($files as $file){
+				$filename = $file->getClientOriginalName();
+				$extension =$file->getClientOriginalExtension(); 
+				if(!in_array($extension, array('js', 'css', 'cml', 'html')))
+					throw new Exception("Filetype *.$extension not supported.");
+				$file->move($destinationPath, $filename);
+			}
+			Session::flash('flashSuccess', 'Uploaded template.');
+		} catch(Exception $e){
+			Session::flash('flashError', $e->getMessage());
+		}
+
+		return Redirect::to('process/template');
 	}
 
 	public function getSubmit() {
@@ -104,9 +150,7 @@ class ProcessController extends BaseController {
 			$msg = '<ul>';
 			foreach ($jc->getErrors()->all() as $message)
 				$msg .= "<li>$message</li>";
-			$msg .= "$toomany</ul>"; // Don't allow submitting // check this before submitting.
-
-			Session::flash('flashError', $msg);
+			Session::flash('flashError', "$msg$toomany</ul>");
 		} 
 
 		return View::make('process.tabs.submit')
@@ -195,9 +239,15 @@ class ProcessController extends BaseController {
 
 
 			// FOR TESTING -> static questiontemplate. // TODO!
-			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . $template . '.questiontemplate.json'), true);
-			if($testdata == null) Session::flash('flashNotice', 'JSON incorrectly formatted.');
+			$filename = Config::get('config.templatedir') . $template . '.questiontemplate.json';
+			if(file_exists($filename))
+				$testdata = json_decode(file_get_contents($filename), true);
+			else $testdata = null;
+			/*if($testdata == null) 
+				Session::flash('flashNotice', 'JSON not found or incorrectly formatted.');*/
 			$qt = new QuestionTemplate;
+			$qt->format = $batch->format;
+			$qt->domain = $batch->domain;
 			$qt->content = $testdata;
 			$hash = md5(serialize($qt->content));
             $existing = QuestionTemplate::where('hash', $hash)->pluck('_id');
@@ -237,7 +287,7 @@ class ProcessController extends BaseController {
 				}
 
 				// If leaving the Platform page....:
-				if(Input::has('platform'))
+				if(Input::has('platformpage'))
 					$jcc['platform'] = Input::get('platform', array());
 
 
@@ -285,6 +335,14 @@ class ProcessController extends BaseController {
 		$questiontemplateid = Session::get('questiontemplateid');
 		$jobs = array();
 
+		if(!$jc->validate()){
+			$msg = '';
+			foreach ($jc->getErrors()->all() as $message)
+				$msg .= "<li>$message</li>";
+			Session::flash('flashError', "<ul>$msg</ul>");
+			return Redirect::to("process/submit");
+		}
+
 		try{
 
 			// Save activity
@@ -298,6 +356,8 @@ class ProcessController extends BaseController {
         	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id'))
                 $jcid = $existingid; // Don't save, it already exists.
             else {
+            	$jc->format = $batch->format;
+				$jc->domain = $batch->domain;
 	            $jc->hash = $hash;
 				$jc->activity_id = $activity->_id;
 				$jc->save();
@@ -308,6 +368,8 @@ class ProcessController extends BaseController {
 			// Publish jobs
 			foreach($jc->content['platform'] as $platformstring){
 				$j = new Job;
+				$j->format = $batch->format;
+				$j->domain = $batch->domain;
 				$j->type = explode('/', $template)[0];
 				$j->template = $template; // TODO: remove
 				$j->batch_id = $batch->_id;
@@ -359,18 +421,25 @@ class ProcessController extends BaseController {
 		   	else $displaydir = $dirname;
 
 			$r[] = array('id' => $dirname, 'parent' => '#', 'text' => $displaydir); 
-
+			$oldfilename = '';
 			foreach(File::allFiles($dir) as $file){
-				$filename = $file->getFileName();
+				$fullfilename = $file->getFileName();
+				if (substr($fullfilename, -5) == '.html')
+					$filename = substr($fullfilename, 0, -5);
+				if ((substr($fullfilename, -4) == '.cml') or (substr($fullfilename, -4) == '.css'))
+					$filename = substr($fullfilename, 0, -4);
+				if (substr($fullfilename, -3) == '.js')
+					$filename = substr($fullfilename, 0, -3);
 
-				if (substr($filename, -21) == 'questiontemplate.json') {
-		   			$filename = substr($filename, 0, -22);
+				if (isset($filename) and $filename != $oldfilename) {
 		   			if($pretty) $displayname = ucfirst(str_replace('_', ' ', $filename));
 		   			else $displayname = $filename;
 		   			if("$dirname/$filename" == $currenttemplate)
 		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $displayname, 'state' => array('selected' => 'true'));
 		   			else
 		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $displayname);
+		   			
+		   			$oldfilename = $filename;
 		   		}	
 			}
 		}

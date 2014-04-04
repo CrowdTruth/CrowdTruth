@@ -5,10 +5,7 @@ use \MongoDB\Activity;
 
 class JobConfiguration extends Entity {
 	protected $guarded = array();
-	protected $attributes = array(  'format' => 'text', 
-                                    'domain' => 'medical', 
-                                    'documentType' => 'jobconf', 
-                                    'type' => 'todo');
+	protected $attributes = array('documentType' => 'jobconf');
 
     /**
     *   Override the standard query to include documenttype.
@@ -92,7 +89,7 @@ class JobConfiguration extends Entity {
     	$this->errors = new Illuminate\Support\MessageBag();
 	    $isok = true;
 
-	    if(isset($this->content['platform'])){
+	    if(isset($this->content['platform']) and count($this->content['platform'])>0){
 		    foreach($this->content['platform'] as $platformstring){
 		    	$platform = App::make($platformstring);
 		    	$rules = array_merge($rules, $platform->jobConfValidationRules);
@@ -109,7 +106,6 @@ class JobConfiguration extends Entity {
         }
 
         // TODO: add some custom validation rules.
-        // Note: Job->previewQuestions also does some validation.
 
         return $isok;
     }
@@ -138,16 +134,23 @@ class JobConfiguration extends Entity {
 	} 
 
 	public static function fromJSON($filename){
-		if(!file_exists($filename) || !is_readable($filename))
-			throw new Exception('JSON template file does not exist or is not readable.');
-
-		$json = file_get_contents($filename);
-		if(!$arr = json_decode($json, true))
-			throw new Exception('JSON incorrectly formatted');
-
 		$jc = new JobConfiguration;
-		$jc->content = $arr;
-		return $jc;
+
+        try{
+            if(!file_exists($filename) || !is_readable($filename))
+    			throw new Exception('JSON template file does not exist or is not readable.');
+
+    		$json = file_get_contents($filename);
+    		if(!$arr = json_decode($json, true))
+    			throw new Exception('JSON incorrectly formatted');
+
+    		
+    		$jc->content = $arr;
+    		return $jc;
+        } catch(Exception $e){
+            Log::debug("$e - using empty JobConf");
+            return $jc;
+        }    
 	}
 
 }
