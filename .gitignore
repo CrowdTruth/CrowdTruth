@@ -11,5 +11,4 @@ Thumbs.db
 crowd-watson.sublime-project
 crowd-watson.sublime-workspace
 /app/lib/Metrics/enum*
-
-/app/lib/getAPIS/example_images/*
+/app/lib/getAPIS/*
