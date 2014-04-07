@@ -9,7 +9,7 @@ use \Config;
 use \View;
 use \Input;
 
-class Mturk extends \Framework {
+class Mturk extends \FrameWork {
 	protected $mechanicalTurk = null;
 
 	public function __construct(){
