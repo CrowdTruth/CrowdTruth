@@ -101,7 +101,7 @@ class RetrieveJobs extends Command {
 
 			// Store judgment and update job.
 			foreach($judgments as $judgment)
-				$this->storeJudgment($judgment, $ourjobid, $activity->_id, $agent->_id)
+				$this->storeJudgment($judgment, $ourjobid, $activity->_id, $agent->_id);
 
 
 			$job = $this->getJob($cfjobid);
