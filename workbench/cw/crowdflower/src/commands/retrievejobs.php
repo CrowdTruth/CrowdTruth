@@ -13,6 +13,7 @@ use \Job;
 use \Log;
 use \QuestionTemplate;
 use \MongoDate;
+use \Queue;
 
 class RetrieveJobs extends Command {
 
