@@ -213,7 +213,7 @@ class Job extends Entity {
     }
 
     public function annotations(){
-        return $this->hasMany('Annotation', 'job_id');
+        return $this->hasMany('Annotation', 'job_id', '_id');
     }
 
 

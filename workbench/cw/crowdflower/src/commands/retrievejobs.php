@@ -101,11 +101,12 @@ class RetrieveJobs extends Command {
 
 			// Store judgment and update job.
 			foreach($judgments as $judgment)
-				if($annotation = $this->storeJudgment($judgment, $ourjobid, $activity->_id, $agent->_id)){
-					$job = $this->getJob($cfjobid);
-					$job->addResults($annotation);
-					$job->save();
-				}
+				$this->storeJudgment($judgment, $ourjobid, $activity->_id, $agent->_id)
+
+
+			$job = $this->getJob($cfjobid);
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+
 			
 			//Log::debug("Saved new annotations to {$job->_id} to DB.");	
 		} catch (CFExceptions $e){
@@ -170,8 +171,8 @@ class RetrieveJobs extends Command {
 			$annotation->submitTime = new MongoDate(strtotime($judgment['created_at']));
 			$annotation->cfTrust = $judgment['trust'];
 			$annotation->content = $judgment['data'];
-			$annotation->save();
-			Log::debug("--+1-- ({$judgment['id']})");	
+			Queue::push('Queues\SaveAnnotation', array('annotation' => serialize($annotation)));
+	
 			return $annotation;
 			// TODO: golden
 

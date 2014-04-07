@@ -13,6 +13,7 @@ use \MongoDate;
 use \Config;
 use \QuestionTemplate;
 use \Log;
+use \Queue;
 
 class RetrieveJobs extends Command {
 
@@ -66,6 +67,7 @@ class RetrieveJobs extends Command {
 
 		foreach($jobs as $job){
 			$newannotations = array();
+			$newannotationscount = 0;
 			$newplatformhitid = array();
 
 			foreach($job->platformJobId as $hitid){
@@ -116,7 +118,7 @@ class RetrieveJobs extends Command {
 
 							if($annoldstatus != $annnewstatus){
 								$annotation->status = $annnewstatus;
-								$annotation->update();
+								Queue::push('SaveAnnotation', array('annotation' => $annotation));
 								print "Status '$annoldstatus' changed to '$annnewstatus'.";
 								Log::debug("Status of Annotation {$annotation->_id} changed from $annoldstatus to $annnewstatus");
 							}
@@ -165,9 +167,13 @@ class RetrieveJobs extends Command {
 
 								$annotation->content = $qidansarray;
 								$annotation->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
-								$annotation->save();
+								
+								Queue::push('Queues\SaveAnnotation', array('annotation' => serialize($annotation)));
 
-								$newannotations[] = $annotation;
+								//$annotation->save();
+
+								//$newannotations[] = $annotation;
+								$newannotationscount++;
 
 							}
 
@@ -179,16 +185,19 @@ class RetrieveJobs extends Command {
 							*/
 						}
 
-						if(count($newannotations)>0)
-							Log::debug("Got " . count($newannotations) . " new annotations for {$h['HITId']} - total " . count($assignments) . " annotations.");
+						//if(count($newannotations)>0)
+						if($newannotationscount>0)
+							Log::debug("Got $newannotationscount new annotations for {$h['HITId']} - total " . count($assignments) . " assignments.");
 
 					} // foreach assignment
 				} // if / else				
 			} // foreach hit
 
-			$job->addResults($newannotations);
-			$job->platformJobId = $newplatformhitid;
-			$job->save();
+			//$job->addResults($newannotations);
+			$job->platformJobId = $newplatformhitid; 
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+
+			//$job->save();
 		} // foreach JOB
 	}		
 

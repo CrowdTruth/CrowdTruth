@@ -13,7 +13,9 @@ class ProcessController extends BaseController {
 
 
 	public function getTest(){
-		$ann = \Annotation::where('type', 'FactSpan')->where('softwareAgent_id', 'amt')->first();
+		//$ann = \Annotation::where('type', 'FactSpan')->where('softwareAgent_id', 'amt')->first();
+		$job = Job::where('_id', 'entity/text/medical/job/0')->first();
+		Queue::push('Queues\UpdateJob', array('job'=>serialize($job)));
 	}
 
 	public function getBatch() {
@@ -98,14 +100,13 @@ class ProcessController extends BaseController {
  		$type = preg_replace("/[^0-9a-zA-Z ]/m", "", Input::get('type'));
 		$destinationPath =  public_path() . "/templates/$type";
 		$extensions = array();
-		
+
 		try{	
 			if(!file_exists($destinationPath))
 				mkdir($destinationPath);
 
-			foreach(Config::get('config.platforms') as $platformname){
+			foreach(Config::get('config.platforms') as $platformname)
 				$extensions[] = App::make($platformname)->getExtension();
-			}	
 
 			foreach($files as $file){
 				$filename = $file->getClientOriginalName();
