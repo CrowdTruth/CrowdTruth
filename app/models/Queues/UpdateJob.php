@@ -42,7 +42,7 @@ class UpdateJob {
 
 		if($j->completion == 1) $j->status = 'finished'; // Todo: Not sure if this works
 		$j->update();
-		\Log::debug("Updated Job {$j->_id}.")
+		\Log::debug("Updated Job {$j->_id}.");
 
 		$job->delete();
 	}
