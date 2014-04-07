@@ -67,24 +67,7 @@ class RetrieveJobs extends Command {
 			}
 			
 			$judgment = $judgments[0];
-			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])
-								->where('softwareAgent_id', 'cf')
-								->first();
-			if(!$agent){
-				$agent = new CrowdAgent;
-				$agent->_id= "crowdagent/cf/{$judgment['worker_id']}";
-				$agent->softwareAgent_id= 'cf';
-				$agent->platformAgentId = $judgment['worker_id'];
-				$agent->country = $judgment['country'];
-				$agent->region = $judgment['region'];
-				$agent->city = $judgment['city'];
-			}	
-			
-			if( $agent->cfWorkerTrust != $judgment['worker_trust']){
-				$agent->cfWorkerTrust = $judgment['worker_trust'];
-				$agent->save();
-			}
-
+			$agentId = "crowdagent/cf/{$judgment['worker_id']}";
 			$ourjobid = $this->getJob($cfjobid)->_id;
 
 
@@ -94,16 +77,30 @@ class RetrieveJobs extends Command {
 			if($this->option('judgments')) {
 				$activity = new Activity;
 				$activity->label = "Units are annotated on crowdsourcing platform.";
-				$activity->crowdAgent_id = $agent->_id; 
+				$activity->crowdAgent_id = $agentId; 
 				$activity->used = $ourjobid;
 				$activity->softwareAgent_id = 'cf';
 				$activity->save();
 			}
 
-			// Store judgment and update job.
+			// Store judgments.
 			foreach($judgments as $judgment)
-				$this->storeJudgment($judgment, $ourjobid, $activity->_id, $agent->_id);
+				$this->storeJudgment($judgment, $ourjobid, $activity->_id, $agentId);
 
+			// Create or update Agent
+			if(!$agent = CrowdAgent::id($agentId)->first()){
+				$agent = new CrowdAgent;
+				$agent->_id= $agentId;
+				$agent->softwareAgent_id= 'cf';
+				$agent->platformAgentId = $judgment['worker_id'];
+				$agent->country = $judgment['country'];
+				$agent->region = $judgment['region'];
+				$agent->city = $judgment['city'];
+			}	
+			
+			$agent->cfWorkerTrust = $judgment['worker_trust'];
+
+			Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));
 
 			$job = $this->getJob($cfjobid);
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
@@ -117,7 +114,7 @@ class RetrieveJobs extends Command {
 			Log::warning($e->getMessage());
 			throw $e;
 		}
-		// If we throw an error, crowdflower will recieve HTTP 500 (internal server error) from us (and try again).
+		// If we throw an error, crowdflower will recieve HTTP 500 (internal server error) from us and try again.
 
 	}		
 
@@ -142,6 +139,7 @@ class RetrieveJobs extends Command {
 			throw new CFExceptions("CFJob not in local database; retrieving it would break provenance.");
 			// TODO discuss: we could also decide to create a new job with all the info we can get.
 		}
+		
 		return $job;
 	}
 

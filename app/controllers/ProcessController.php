@@ -14,8 +14,13 @@ class ProcessController extends BaseController {
 
 	public function getTest(){
 		//$ann = \Annotation::where('type', 'FactSpan')->where('softwareAgent_id', 'amt')->first();
-		$job = Job::where('_id', 'entity/text/medical/job/0')->first();
-		Queue::push('Queues\UpdateJob', array('job'=>serialize($job)));
+		//dd('test');
+
+		$ca = MongoDB\CrowdAgent::first();
+		$ca->updateStats();
+		dd($ca);
+
+		dd($jobs);
 	}
 
 	public function getBatch() {

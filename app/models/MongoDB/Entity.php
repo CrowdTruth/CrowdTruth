@@ -229,4 +229,24 @@ class Entity extends Moloquent {
             return Entity::whereIn('_id', $this->parents)->remember(1)->get()->toArray();         
         }
     } 
+
+    public function scopeDomain($query, $domain)
+    {
+        return $query->whereDomain($domain);
+    }
+
+    public function scopeType($query, $type)
+    {
+        return $query->whereType($type);
+    }
+
+    public function scopeFormat($query, $format)
+    {
+        return $query->whereFormat($format);
+    }
+
+    public function scopeId($query, $id)
+    {
+        return $query->where_id($id);
+    }
 }

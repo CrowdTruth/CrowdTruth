@@ -124,8 +124,8 @@ class RetrieveJobs extends Command {
 							}
 						} else { // ASSIGNMENT entity not in DB: create activity, entity and refer to or create agent.
 
-							// Create or retrieve Agent
-							$agentId = $this->createCrowdAgent($assignment);
+							// Pre-create agentid.
+							$agentId = "crowdagent/amt/{$assignment['WorkerId']}";
 							
 							// Create activity: annotate
 							$activity = new Activity;
@@ -134,7 +134,7 @@ class RetrieveJobs extends Command {
 							$activity->used = $jobId;
 							$activity->softwareAgent_id = 'amt';
 							$activity->save();
-							
+
 							$groupedbyid = array();
 							foreach ($assignment['Answer'] as $q=>$ans){
 								// Retrieve the unitID and the QuestionId from the name of the input field.
@@ -183,6 +183,17 @@ class RetrieveJobs extends Command {
 								HITId				2P3Z6R70G5RC7PEQC857ZSST0J2P9T
 								Deadline	
 							*/
+
+							if(!$agent = CrowdAgent::id($agentId)->first()){
+								$agent = new CrowdAgent;
+								$agent->_id= $agentId;
+								$agent->softwareAgent_id= 'amt';
+								$agent->platformAgentId = $assignment['WorkerId'];		
+							}
+							
+							Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));
+
+
 						}
 
 						//if(count($newannotations)>0)
@@ -206,7 +217,7 @@ class RetrieveJobs extends Command {
 	public function createCrowdAgent($data){
 
 		$workerId = $data['WorkerId'];
-		
+
 		if($id = CrowdAgent::where('platformAgentId', $workerId)->where('softwareAgent_id', 'amt')->pluck('_id')) 
 			return $id;
 		else {
