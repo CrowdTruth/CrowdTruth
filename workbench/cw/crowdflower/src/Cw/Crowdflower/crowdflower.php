@@ -9,17 +9,29 @@ use \Cw\Crowdflower\Cfapi\CFExceptions;
 use \Cw\Crowdflower\Cfapi\Job;
 //use Job;
 
-class Crowdflower {
+class Crowdflower extends \FrameWork {
 
-	public $label = "Crowdsourcing platform: Crowdflower";
 	protected $CFJob = null;
 
-	public $jobConfValidationRules = array(
-		'annotationsPerUnit' => 'required|numeric|min:1', // AMT: defaults to 1 
-		'unitsPerTask' => 'required|numeric|min:1',
-		'instructions' => 'required',
-		'annotationsPerWorker' => 'required|numeric|min:1'
-	);
+	public function getLabel(){
+		return "Crowdsourcing platform: Crowdflower";
+	}	
+
+	public function getName(){
+		return "CrowdFlower";
+	}
+
+	public function getExtension(){
+		return 'cml';
+	}
+
+	public function getJobConfValidationRules(){
+		return array(
+			'annotationsPerUnit' => 'required|numeric|min:1',
+			'unitsPerTask' => 'required|numeric|min:1',
+			'instructions' => 'required',
+			'annotationsPerWorker' => 'required|numeric|min:1');
+	}
 
 	public function __construct(){
 		$this->CFJob = new Job(Config::get('crowdflower::apikey'));

@@ -14,8 +14,6 @@ class ProcessController extends BaseController {
 
 	public function getTest(){
 		$ann = \Annotation::where('type', 'FactSpan')->where('softwareAgent_id', 'amt')->first();
-
-
 	}
 
 	public function getBatch() {
@@ -76,19 +74,21 @@ class ProcessController extends BaseController {
 	public function getPlatform() {
 		$jc = unserialize(Session::get('jobconf'));
 		$template = Session::get('template');
-		// TODO: REMOVE. 
+		$extensions = array();
 		$possibleplatforms = array();
-
-		$filename = public_path() . "/templates/$template.html";
-		if(file_exists($filename) && is_readable($filename))
-			array_push($possibleplatforms, 'amt');
-
-		$filename = public_path() . "/templates/$template.cml";
-		if(file_exists($filename) && is_readable($filename))
-			array_push($possibleplatforms, 'cf');
-
+		foreach(Config::get('config.platforms') as $platformname){
+			$platform = App::make($platformname);
+			$ext = $platform->getExtension();
+			$extensions[] = $ext;
+			$filename = public_path() . "/templates/$template.$ext";
+			if(file_exists($filename) && is_readable($filename)){
+				$possibleplatforms[] = array('short' => $platformname, 'long' => $platform->getName());
+			}
+			
+		}
+		
 		if(count($possibleplatforms)==0)
-			Session::flash('flashError', 'No usable templates found. Please upload either HTML or CML.');
+			Session::flash('flashError', 'No usable templates found. Please upload a template with one of these extensions: ' . implode(', ', $extensions) . '.');
 
 		return View::make('process.tabs.platform')->with('jobconf', $jc->content)->with('possible', $possibleplatforms);
 	}
@@ -97,15 +97,20 @@ class ProcessController extends BaseController {
 		$files = Input::file('files');
  		$type = preg_replace("/[^0-9a-zA-Z ]/m", "", Input::get('type'));
 		$destinationPath =  public_path() . "/templates/$type";
-
+		$extensions = array();
+		
 		try{	
 			if(!file_exists($destinationPath))
 				mkdir($destinationPath);
 
+			foreach(Config::get('config.platforms') as $platformname){
+				$extensions[] = App::make($platformname)->getExtension();
+			}	
+
 			foreach($files as $file){
 				$filename = $file->getClientOriginalName();
 				$extension =$file->getClientOriginalExtension(); 
-				if(!in_array($extension, array('js', 'css', 'cml', 'html')))
+				if(!in_array($extension, array_merge($extensions, array('js', 'css'))))
 					throw new Exception("Filetype *.$extension not supported.");
 				$file->move($destinationPath, $filename);
 			}
@@ -226,6 +231,8 @@ class ProcessController extends BaseController {
 			// TODO: CSRF
 			$batch = Batch::find(Input::get('batch'));
 			Session::put('batch', serialize($batch));
+		} else {
+			$batch = unserialize(Session::get('batch'));
 		}
 
 		if(Input::has('template')){

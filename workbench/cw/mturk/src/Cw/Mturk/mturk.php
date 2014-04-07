@@ -9,17 +9,29 @@ use \Config;
 use \View;
 use \Input;
 
-class Mturk {
+class Mturk extends \Framework {
 	protected $mechanicalTurk = null;
-	public $label = "Crowdsourcing platform: Amazon Mechanical Turk";
-	
-	public $jobConfValidationRules = array(
-		'hitLifetimeInMinutes' => 'required|numeric|min:1',
-		'frameheight' => 'numeric|min:300' // not required because we have a default value.
-	);
 
 	public function __construct(){
 		$this->mechanicalTurk = new MechanicalTurk(Config::get('mturk::rooturl'), false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
+	}
+	
+	public function getLabel(){
+		return "Crowdsourcing platform: Amazon Mechanical Turk";
+	} 
+
+	public function getName(){
+		return "Mechanical Turk";
+	} 
+
+	public function getExtension(){
+		return 'html';
+	}
+	
+	public function getJobConfValidationRules(){
+		return array(
+		'hitLifetimeInMinutes' => 'required|numeric|min:1',
+		'frameheight' => 'numeric|min:300'); // not required because we have a default value.
 	}
 
 	public function createView(){

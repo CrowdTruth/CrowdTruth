@@ -92,7 +92,7 @@ class JobConfiguration extends Entity {
 	    if(isset($this->content['platform']) and count($this->content['platform'])>0){
 		    foreach($this->content['platform'] as $platformstring){
 		    	$platform = App::make($platformstring);
-		    	$rules = array_merge($rules, $platform->jobConfValidationRules);
+		    	$rules = array_merge($rules, $platform->getJobConfValidationRules());
 		    }	
    	 	} else {
    	 		$this->errors->add('platform', 'Please provide at least one platform.');
