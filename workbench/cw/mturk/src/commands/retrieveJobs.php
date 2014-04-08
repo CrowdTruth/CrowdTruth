@@ -55,7 +55,7 @@ class RetrieveJobs extends Command {
 		if 	(Config::get('mturk::rooturl') == '' or
 			Config::get('mturk::accesskey')  == '' or
 			Config::get('mturk::secretkey')  == '')
-				die('API key not set. Please check the configuration file.');
+				throw new Exception('API key not set. Please check the configuration file.');
 
 		$turk = new Turkapi\MechanicalTurk(Config::get('mturk::rooturl'), false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
 
@@ -71,7 +71,7 @@ class RetrieveJobs extends Command {
 			$newplatformhitid = array();
 
 			foreach($job->platformJobId as $hitid){
-				
+				set_time_limit (30);
 				if($hitid['status'] == 'deleted') // Can't recover from that. Don't update.
 					$newplatformhitid[] = array('id' => $hitid['id'], 
 												'status' => 'deleted');
@@ -251,7 +251,7 @@ class RetrieveJobs extends Command {
 	protected function getOptions()
 	{
 		return array(
-			array('example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null),
+			array('hitid', null, InputOption::VALUE_OPTIONAL, 'AMT HIT ID.', null)
 		);
 	}
 

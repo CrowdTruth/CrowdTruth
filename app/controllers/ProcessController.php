@@ -16,11 +16,7 @@ class ProcessController extends BaseController {
 		//$ann = \Annotation::where('type', 'FactSpan')->where('softwareAgent_id', 'amt')->first();
 		//dd('test');
 
-		$ca = MongoDB\CrowdAgent::first();
-		$ca->updateStats();
-		dd($ca);
-
-		dd($jobs);
+		\Artisan::call('amt:retrievejobs');
 	}
 
 	public function getBatch() {
@@ -189,12 +185,16 @@ class ProcessController extends BaseController {
 		//Session::forget('questiontemplateid');
 		Session::forget('batch');
 
-		$id = "entity/$format/$domain/$docType/$incr";
-		$job = Job::where('_id', $id)->first();
+		$job = Job::id("entity/$format/$domain/$docType/$incr")->first();
 		if(!is_null($job)){
-			Session::put('jobconf', serialize($job->JobConfiguration));
+			//$jc = new JobConfiguration;
+			$jc = $job->JobConfiguration->replicate();
+			unset($jc->activity_id);
+			$jc->parents= array($job->JobConfiguration->_id);
+			Session::put('jobconf', serialize($jc));
 			Session::put('batch', serialize($job->batch));
 			Session::put('template', $job->template);
+			// Job->parents = array($job->_id);
 			return Redirect::to("process/batch");
 		} else {
 			Session::flash('flashError',"Job $id not found.");

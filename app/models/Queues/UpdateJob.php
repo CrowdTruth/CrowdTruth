@@ -12,6 +12,7 @@ class UpdateJob {
 
         foreach($annotations as $annotation){ 
 			$uid = $annotation->unit_id;
+			if(empty($uid)) $uid = 'unknown'; // to prevent mongoException: zero length key not allowed
 			if(!isset($result[$uid]))
 				$result[$uid] = $annotation->dictionary;
 			else {

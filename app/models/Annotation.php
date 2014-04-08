@@ -150,6 +150,15 @@ class Annotation extends Entity {
      }
 
 
+    private function isOkYesQuestion($yesquestion, $term, $inputsentence){
+        
+/*      1. the sentence contains the complete term
+        2. the sentence has more than 4 words
+        3. the sentence is not equal to the input sentence*/
+        return true;
+
+    }
+
     private function createFactVect($failed = false, $startdiff=null, $enddiff=null){
         $vector = array(
         "[WORD_-3]"=>0,
@@ -194,7 +203,7 @@ class Annotation extends Entity {
         return array(
             'Choice1' => (($ans == 'Choice1') ? 1 : 0),
             'Choice2' => (($ans == 'Choice2') ? 1 : 0),
-            'Choice3' => (($ans == 'Choice3') ? 1 : 0),
+            'Choice3' => (($ans == 'Choice3') ? 1 : 0)
             );
 
     }

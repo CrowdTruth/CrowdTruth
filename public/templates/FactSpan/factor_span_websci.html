@@ -1,4 +1,4 @@
-<style type="text/css">.senval span:hover { background-color:silver; }
+﻿<style type="text/css">.senval span:hover { background-color:silver; }
 </style>
 <h3>Is the PHRASE complete?</h3>
 
@@ -73,7 +73,6 @@ To HIGHLIGHT words in the TEXT:
 			var t2min = -1;
 			var t2max = -1;
 			
-			// alert(t1split);
 			
 			function complete(i) {
 				if (document.getElementById("expltag" + i).innerHTML == "Highlight the above WORD PHRASE in the sentence:") return;
@@ -88,7 +87,7 @@ To HIGHLIGHT words in the TEXT:
 				var z = document.getElementById("expl" + i);
 				z.setAttribute("style", "visibility:visible;");
 				
-				var t = document.getElementById("expltag" + i + "yesquestion");
+				var t = document.getElementById("expltag" + i + "yesquestiondiv");
 				t.setAttribute("style", "visibility:visible;");
 				
 				answers = i;
@@ -104,11 +103,7 @@ To HIGHLIGHT words in the TEXT:
 				}
 				recolor(i);
 				
-				// loadTerm(i);
-				
-				// alert($("#expl1span").attr("value"));
-				// alert($("#expl2span").attr("value"));
-				//$("#senval").find("span").css("background-color", "white");
+
 			}
 			
 			function incomplete(i) {
@@ -122,7 +117,7 @@ To HIGHLIGHT words in the TEXT:
 				}
 				loadTerm(i);
 				
-				var t = document.getElementById("expltag" + i + "yesquestion");
+				var t = document.getElementById("expltag" + i + "yesquestiondiv");
 				t.setAttribute("style", "visibility:hidden;");
 				
 				if (document.getElementById("expltag" + i).innerHTML == "Highlight the complete WORD PHRASE:") return;
@@ -148,12 +143,10 @@ To HIGHLIGHT words in the TEXT:
 					inputSecondFactor.value = selection;
 				}
 				
-				// alert($("#expl1span").attr("value"));
-				// alert($("#expl2span").attr("value"));
 			}
 			
 			sentence = document.getElementById("senval");
-			// spansSelected = document.getElementById("selections");
+
 			var spans;
 			
 			(function($){function injector(t,splitter,klass,after){var a=t.text().split(splitter),inject='';if(a.length){$(a).each(function(i,item){inject+='<span class="'+klass+(i+1)+'">'+item+'</span>'+after});t.empty().append(inject)}}var methods={init:function(){return this.each(function(){injector($(this),'','char','')})},words:function(){return this.each(function(){injector($(this),' ','word',' ')})},lines:function(){return this.each(function(){var r="eefec303079ad17405c889e092e105b0";injector($(this).children("br").replaceWith(r).end(),r,'line','')})}};$.fn.lettering=function(method){if(method&&methods[method]){return methods[method].apply(this,[].slice.call(arguments,1))}else if(method==='letters'||!method){return methods.init.apply(this,[].slice.call(arguments,0))}$.error('Method '+method+' does not exist on jQuery.lettering');return this}})(jQuery);
@@ -166,11 +159,11 @@ To HIGHLIGHT words in the TEXT:
 				}
 			}
 			  
-			// this code dynamically reformats the rows' labels to accomodate the quantity of text rendered in the rows' data cells
+			
 			$(document).ready(function(){
 			  $("#senval").lettering('words');
 			  
-			  // give ids for each word (position in sentence)
+			  /* give ids for each word (position in sentence) */
 			  spans = $("#senval").find("span").each(function() {
 				var idNumber = $(this).attr("class").slice(4);
 				$(this).attr("id", idNumber);
@@ -188,27 +181,25 @@ To HIGHLIGHT words in the TEXT:
 				
 				var col1 = colors[0];
 				var col2 = colors[1];
-				//alert(isNaN(event.target.id));
 				
-				//if (answers > 0) {
 					if (isNaN(event.target.id) == false) {
 						if(event.target.nodeName == "SPAN") {
 						  if (answers == 1) {
-							// if (event.target.style.backgroundColor != col1) {
+							
 							  if (event.target.style.backgroundColor == col2) {
 								selectedIds1.remove(event.target.id);
 							   
-								//if (checkSpanDifference(selectedIds1, t1min, t1max) == true) {
+							
 								  selection1 = updateHighlightedWords(selectedIds1);
 								  inputFirstFactor.value = selection1;
-								  //alert(selection1);
+								 
 								  
 								  var newcol = "";
-								  // for (var i = 0; i < index; i++) {
+								  
 								  	if (selectedIds2.indexOf(parseInt(event.target.id)) != -1) {
 								  		newcol = col1;
 								  	}
-								  // } */
+								  
 								  event.target.style.backgroundColor = newcol;
 								/*}
 								else {
@@ -217,7 +208,7 @@ To HIGHLIGHT words in the TEXT:
 							  }
 							  else {
 								selectedIds1.push(parseInt(event.target.id));
-								//if (checkSpanDifference(selectedIds1, t1min, t1max) == true) {
+								
 								  event.target.style.backgroundColor = col2;
 								  selection1 = updateHighlightedWords(selectedIds1);
 								  inputFirstFactor.value = selection1;
@@ -226,29 +217,28 @@ To HIGHLIGHT words in the TEXT:
 								  selectedIds1.remove(parseInt(event.target.id));
 								}*/
 							  }
-							// }
+							
 						
-							//var a = answers * 2 - 1;
-						    //document.getElementById("A" + a + "span").value = selectedIds1.toString();
+							
 						    
 						    $("#expl1span").attr("value", selectedIds1.toString());
-						    //alert($("#expl1span").attr("value"));
+						    
 						    
 						  }
 						  else {
-							// if (event.target.style.backgroundColor != col2) {
+							
 							  if (event.target.style.backgroundColor == col1) {
 								selectedIds2.remove(event.target.id);
-								//if (checkSpanDifference(selectedIds2, t2min, t2max) == true) {
+								
 								  var selection2 = updateHighlightedWords(selectedIds2);
 								  inputSecondFactor.value = selection2;
 								  
 								  var newcol = "";
-								   // for (var i = 0; i < index; i++) {
+								   
 								  	if (selectedIds1.indexOf(parseInt(event.target.id)) != -1) {
 								  		newcol = col2;
 								  	}
-								  // }
+								 
 								  event.target.style.backgroundColor = newcol;
 								/*}
 								else {
@@ -257,7 +247,7 @@ To HIGHLIGHT words in the TEXT:
 							  }
 							  else {
 								selectedIds2.push(parseInt(event.target.id));
-								//if (checkSpanDifference(selectedIds2, t2min, t2max) == true) {
+								
 								  event.target.style.backgroundColor = col1;
 								  var selection2 = updateHighlightedWords(selectedIds2);
 								  inputSecondFactor.value = selection2;
@@ -269,14 +259,10 @@ To HIGHLIGHT words in the TEXT:
 							  
 							  $("#expl2span").attr("value", selectedIds2.toString());
 							  
-							// }
-						
-					   		// var b = answers * 2;
-					   		// document.getElementById("A" + b + "span").value = selectedIds2.toString();
 						  }
 						}
 				  	}
-				  //}
+				  
 			  }
 			  
 			function updateHighlightedWords(arrayId) {
@@ -307,10 +293,6 @@ To HIGHLIGHT words in the TEXT:
 				return a - b;
 			  });
 			  
-			  // alert(arrayId);
-			  
-			  // var max = 0;
-			  // return max - 1 ;
 			  
 			  if (tmin > arrayId[0]) return false;
 			  if (arrayId[arrayId.length - 1] > tmax) return false;
@@ -336,8 +318,6 @@ To HIGHLIGHT words in the TEXT:
 			}
 			
 			function loadTerm(index) {
-				// alert(t1split[1]);
-				
 				
 				if (index == 1) {
 					var t1id = -1;
@@ -345,12 +325,12 @@ To HIGHLIGHT words in the TEXT:
 					$("#senval").find("span").each(function() {
 						var id = parseInt($(this).attr("id"));
 						if ($(this).html().indexOf(t1split[0]) != -1) {
-							//alert(id);
+							
 							var found = true;
 							for (var i = 0; i < t1split.length; i++) {
 								$("#senval").find("span").each(function() {
 									var nid = parseInt($(this).attr("id"));
-									// alert(t1id + i);
+									
 									if (nid == id + i && $(this).html().indexOf(t1split[i]) == -1) {
 										found = false;
 									}
@@ -358,7 +338,7 @@ To HIGHLIGHT words in the TEXT:
 							}
 						
 							if (found == true) {
-								//alert(id);
+								
 								t1id = id;
 							}
 						}
@@ -367,16 +347,14 @@ To HIGHLIGHT words in the TEXT:
 					for (var i = 0; i < t1split.length; i++) {
 						$("#senval").find("span").each(function() {
 							var id = parseInt($(this).attr("id"));
-							// alert(t1id + i);
 							if (id == t1id + i) {
-								// alert(id);
 								$(this).css("background-color", colors[1]);
 								selectedIds1.push(id);
 							}
 						});
 					}
 					
-					//alert(t1id);
+					
 					
 					t1min = t1id - 3;
 					t1max = t1id + t1split.length + 2;
@@ -389,28 +367,24 @@ To HIGHLIGHT words in the TEXT:
 					$("#senval").find("span").each(function() {
 						var id = parseInt($(this).attr("id"));
 						if ($(this).html().indexOf(t2split[0]) != -1) {
-							// alert(id);
+							
 							var found = true;
 							for (var i = 0; i < t2split.length; i++) {
 								$("#senval").find("span").each(function() {
 									var nid = parseInt($(this).attr("id"));
-									// alert(t1id + i);
+									
 									if (nid == id + i && $(this).html().indexOf(t2split[i]) == -1) {
 										found = false;
-										// alert(id + " -  " + i  + " -  " + t2id + " -  " + t2split[i]);
-										// alert(found);
+										
 									}
-									//alert(t2split[i]);
+									
 								});
 							}
 							if (found == true) {
-								// alert(id);
 								t2id = id;
 							}
 						}
 					});
-				
-					// alert(t2id);
 				
 					for (var i = 0; i < t2split.length; i++) {
 						$("#senval").find("span").each(function() {
@@ -426,11 +400,7 @@ To HIGHLIGHT words in the TEXT:
 					t2max = t2id + t2split.length + 2;
 					$("#expl2span").attr("value", selectedIds2.toString());
 				}
-				
-				
-				
-				
-				//alert($("#expl1span").attr("value"));
+
 			}
 
 		</script></p>

@@ -143,7 +143,9 @@ class Mturk extends \FrameWork {
 		$hit = $this->jobConfToHIT($c);
 		$upt = $c['unitsPerTask'];
 		$assRevPol = $hit->getAssignmentReviewPolicy();
-		$dom = HtmlDomParser::file_get_html($htmlfilename);
+		// The instantiation below looks ugly, but is used to preserve line breaks.
+		//file_get_html($url, $use_include_path = false, $context=null, $offset = -1, $maxLen=-1, $lowercase = true, $forceTagsClosed=true, $target_charset = DEFAULT_TARGET_CHARSET, $stripRN=true, $defaultBRText=DEFAULT_BR_TEXT)
+		$dom = HtmlDomParser::file_get_html($htmlfilename, false, null, -1, -1, true, true, DEFAULT_TARGET_CHARSET, false);
 
 		// Do some checks and fill $questiontemplate.
 		if($upt > 1){
@@ -221,7 +223,6 @@ class Mturk extends \FrameWork {
 				// Create
 				if($justpreview) $platformids[] = $questionsbuilder;
 				else {
-
 					$created = $this->mechanicalTurk->createHIT($hit);
 				
 					// Add ID to returnarray

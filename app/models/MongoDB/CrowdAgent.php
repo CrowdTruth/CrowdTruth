@@ -29,11 +29,12 @@ class CrowdAgent extends Moloquent {
     	// Jobs
     	$total = array('count' => count(array_unique($jobids)));
     	foreach(array_unique($jobids) as $jobid){
-    		$a = \Job::id($jobid)->first();
-    		foreach($countthese as $x){
-    			if(isset($total[$x][$a->$x])) $total[$x][$a->$x]++;
-    			else $total[$x][$a->$x] = 1;
-    		}
+            if($a = \Job::id($jobid)->first()){
+        		foreach($countthese as $x){
+        			if(isset($total[$x][$a->$x])) $total[$x][$a->$x]++;
+        			else $total[$x][$a->$x] = 1;
+        		}
+            }
     	}
     	$this->jobCount = $total;
 		
@@ -41,11 +42,12 @@ class CrowdAgent extends Moloquent {
     	$countthese = array_diff($countthese, array('type')); // UNITs have no type, so remove this from the array.
     	$total = array('count' => count(array_unique($unitids)));
     	foreach(array_unique($unitids) as $unitid){
-    		$a = \MongoDB\Entity::id($unitid)->first();
-    		foreach($countthese as $x){
-    			if(isset($total[$x][$a->$x])) $total[$x][$a->$x]++;
-    			else $total[$x][$a->$x] = 1;
-    		}
+    		if($a = \MongoDB\Entity::id($unitid)->first()){
+        		foreach($countthese as $x){
+        			if(isset($total[$x][$a->$x])) $total[$x][$a->$x]++;
+        			else $total[$x][$a->$x] = 1;
+        		}
+            }
     	}
 
     	$this->unitCount = $total;
