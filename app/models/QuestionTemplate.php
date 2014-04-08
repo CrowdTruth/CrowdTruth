@@ -89,6 +89,23 @@ class QuestionTemplate extends Entity {
 
     }
 
+    public function flattenAndReplace($unitcontent){
+
+        $uco = array_dot($unitcontent);
+        foreach($uco as $key=>$val)
+            $uc[str_replace('.', '_', $key)] = $val;
+
+        if(!isset($this->content['replaceValues'])) return $unitcontent;
+        $r = $this->content['replaceValues'];
+        foreach($r as $field=>$wasbecomes){
+            if(isset($uc[$field]))
+               foreach($wasbecomes as $was=>$becomes)
+                   if($uc[$field] == $was) $uc[$field] = $becomes;    
+        }
+
+        return $uc;
+    }
+
     public function getDictionary($unit, $answer){
         $question = $this->getQuestionWithUnit($unit);
         $dictionary = array();

@@ -1,5 +1,4 @@
 <?php
-use Sunra\PhpSimple\HtmlDomParser;
 use \MongoDB\Entity;
 use \MongoDB\Activity;
 use \MongoDB\SoftwareAgent;
@@ -34,7 +33,7 @@ class Job extends Entity {
                 $softwareAgent->_id = 'jobcreator';
                 $softwareAgent->label = "Job creation";
             }
-			
+
 			if(!isset($job->projectedCost)){
 				$reward = $job->jobConfiguration->content['reward'];
 				$annotationsPerUnit = intval($job->jobConfiguration->content['annotationsPerUnit']);
@@ -76,6 +75,7 @@ class Job extends Entity {
 	    	$this->status = ($sandbox ? 'unordered' : 'running');
 	    	$this->save();
     	} catch (Exception $e) {
+            Log::debug("Error creating job: {$e->getMessage()}");
     		$this->undoCreation($this->platformJobId, $e);
     		$this->forceDelete();
 			throw $e; 
@@ -108,7 +108,7 @@ class Job extends Entity {
 
     private function getPlatform(){
     	if(!isset($this->softwareAgent_id)) // and (!isset($this->platformJobId) !!! TODO
-    		throw new Exception('Can\'t handle Job that has not yet been uploaded to a platform.');
+    		throw new Exception('Can\'t handle a Job that has not yet been uploaded to a platform.');
 
     	return App::make($this->softwareAgent_id);
     }
@@ -119,7 +119,7 @@ class Job extends Entity {
     */
     private function undoCreation($ids, $error = null){
     	// TODO use platformjobid.				
-    	Log::debug("Error in creating jobs. Id's: " . json_encode($ids) . ". Attempting to delete jobs from crowdsourcing platform(s).");
+    	Log::debug("Attempting to delete jobs from crowdsourcing platform.");
     	
     	try {
     		$this->getPlatform()->undoCreation($ids);

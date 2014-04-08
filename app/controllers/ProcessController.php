@@ -1,4 +1,5 @@
 <?php
+use Sunra\PhpSimple\HtmlDomParser;
 
 class ProcessController extends BaseController {
 
@@ -10,38 +11,9 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.templatebuilder');
 	}
 
-	// TODO: (re)move
-	public function getConvertcsv(){
-		if (($handle = fopen(storage_path() . '/jobs.csv', 'r')) === false) {
-		    die('Error opening file');
-		}
-
-		$headers = fgetcsv($handle, 1024, ',');
-		$count = 0;
-		$complete = array();
-
-		while ($row = fgetcsv($handle, 1024, ',')) {
-
-			$complete[] = array('format' => 'text',
-				'_id' => "entity/text/medical/jobconf/$count",
-				'domain' => 'medical',
-				'documentType' => 'jobconf',
-				'type' => $row['type'],
-				'content' => array_combine($headers, $row),
-				'hash' => 'todohash',
-				'activity_id' => 'todoactivity',
-				'user_id' => 'CrowdWatson',
-				'created_at' => 'todocreated',
-				'updated_at' => 'todocreated');
-			$count++;
-		}
-
-		fclose($handle);
-
-		echo json_encode($complete, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-	}
-
 	public function getBatch() {
+
+		//dd(unserialize(Session::get('jobconf')));
 		//$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
@@ -55,7 +27,7 @@ class ProcessController extends BaseController {
 		$jc = unserialize(Session::get('jobconf'));	
 		if(empty($jc)) $jc = new JobConfiguration;
 		$currenttemplate = Session::get('template');
-		if(empty($currenttemplate)) $currenttemplate = 'generic/default';
+		if(empty($currenttemplate)) $currenttemplate = 'RelDir/relation_direction_old';
 		$treejson = $this->makeDirTreeJSON($currenttemplate);
 
 		return View::make('process.tabs.template')
@@ -92,6 +64,7 @@ class ProcessController extends BaseController {
 			->with('goldfields', $goldfields)
 			->with('unitscount', $unitscount);
 	}
+	
 
 	public function getPlatform() {
 		$jc = unserialize(Session::get('jobconf'));
@@ -105,8 +78,20 @@ class ProcessController extends BaseController {
 		$questiontemplateid = Session::get('questiontemplateid');
 		$treejson = $this->makeDirTreeJSON($template, false);
 		
+		// TODO: this here is really bad.
 		try {
-			$questions = array();//$j->getPreviews();
+			$jobconf = JobConfiguration::first();
+			if($jobconf){
+				$j = new Job;
+				$j->batch_id = $batch->_id;
+				$j->template = $template;
+				$j->questionTemplate_id = $questiontemplateid;
+				$j->jobConf_id = $jobconf->_id;  // BAD
+				$amt = App::make('amt');
+				$questions = $amt->amtPublish($j, true,true);//$j->getPreviews();
+			} else {
+				$questions = array();
+			}	
 		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
@@ -129,7 +114,7 @@ class ProcessController extends BaseController {
 			->with('questions',  $questions)
 			->with('table', $jc->toHTML())
 			->with('template', '')//$jc->content['template'])
-			->with('frameheight', $jc->content['frameheight'])
+			->with('frameheight', (isset($jc->content['frameheight']) ? $jc->content['frameheight'] : 650))
 			->with('jobconf', $jc->content);
 	}
 
@@ -140,6 +125,28 @@ class ProcessController extends BaseController {
 		Session::forget('questiontemplateid');
 		Session::forget('batch');
 		return Redirect::to("process/batch");
+	}
+
+	public function getDuplicate($entity, $format, $domain, $docType, $incr){
+		Session::forget('jobconf');
+		Session::forget('origjobconf');
+		Session::forget('template');
+		//Session::forget('questiontemplateid');
+		Session::forget('batch');
+
+		$id = "entity/$format/$domain/$docType/$incr";
+		$job = Job::where('_id', $id)->first();
+		if(!is_null($job)){
+			Session::put('jobconf', serialize($job->JobConfiguration));
+			Session::put('batch', serialize($job->batch));
+			Session::put('template', $job->template);
+			return Redirect::to("process/batch");
+		} else {
+			Session::flash('flashError',"Job $id not found.");
+			return Redirect::back();
+		}
+
+
 	}
 
 	/*
@@ -166,8 +173,7 @@ class ProcessController extends BaseController {
 	*/
 	public function postFormPart($next){
 		$jc = unserialize(Session::get('jobconf', serialize(new JobConfiguration)));
-		if(isset($jc->content)) 
-			$jcc = $jc->content;
+		if(isset($jc->content)) $jcc = $jc->content;
 		else $jcc = array();
 
 		$template = Session::get('template');
@@ -188,11 +194,11 @@ class ProcessController extends BaseController {
 
 
 
-			// FOR TESTING -> hardcoded questiontemplate. We need more of these.
-			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . 'relation_direction/relation_direction_multiple.questiontemplate.json'), true);
+			// FOR TESTING -> static questiontemplate. // TODO!
+			$testdata = json_decode(file_get_contents(Config::get('config.templatedir') . $template . '.questiontemplate.json'), true);
+			if($testdata == null) Session::flash('flashNotice', 'JSON incorrectly formatted.');
 			$qt = new QuestionTemplate;
 			$qt->content = $testdata;
-
 			$hash = md5(serialize($qt->content));
             $existing = QuestionTemplate::where('hash', $hash)->pluck('_id');
             
@@ -284,26 +290,25 @@ class ProcessController extends BaseController {
 			// Save activity
 			$activity = new MongoDB\Activity;
 			$activity->label = "Job is uploaded to crowdsourcing platform.";
-			$activity->softwareAgent_id = 'jobcreator'; // TODO: JOB softwareAgent_id = $platform. Does this need to be the same?
+			$activity->softwareAgent_id = 'jobcreator'; // JOB softwareAgent_id = $platform. Does this need to be the same?
 			$activity->save();
 
 			// Save jobconf if necessary
-			$jcid = $jc->_id;
-			if(!$jcid){
-				$hash = md5(serialize($jc->content));
-            	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id'))
-	                $jcid = $existingid; // Don't save, it already exists.
-	            else {
-		            $jc->hash = $hash;
-					$jc->activity_id = $activity->_id;
-					$jc->save();
-					$jcid = $jc->_id;
-				}
-			}	
+			$hash = md5(serialize($jc->content));
+        	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id'))
+                $jcid = $existingid; // Don't save, it already exists.
+            else {
+	            $jc->hash = $hash;
+				$jc->activity_id = $activity->_id;
+				$jc->save();
+				$jcid = $jc->_id;
+			}
+	
 
 			// Publish jobs
 			foreach($jc->content['platform'] as $platformstring){
 				$j = new Job;
+				$j->type = explode('/', $template)[0];
 				$j->template = $template; // TODO: remove
 				$j->batch_id = $batch->_id;
 				$j->questionTemplate_id = $questiontemplateid;
@@ -315,8 +320,10 @@ class ProcessController extends BaseController {
 			}
 
 			// Success.
-			Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
-							strtoupper(implode(', ', $jc->content['platform'])) . '.');
+			//Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
+			//				strtoupper(implode(', ', $jc->content['platform'])) . '.');
+			Session::flash('flashSuccess', "Created job" . (count($jc->content['platform']) == 1 ? '' : 's') . " on " . 
+							strtoupper(implode(', ', $jc->content['platform'])) . '. Click on \'actions\' on the job to start it.');
 			return Redirect::to("jobs/listview");
 
 		} catch (Exception $e) {
@@ -355,8 +362,9 @@ class ProcessController extends BaseController {
 
 			foreach(File::allFiles($dir) as $file){
 				$filename = $file->getFileName();
-				if (substr($filename, -5) == '.json') {
-		   			$filename = substr($filename, 0, -5);
+
+				if (substr($filename, -21) == 'questiontemplate.json') {
+		   			$filename = substr($filename, 0, -22);
 		   			if($pretty) $displayname = ucfirst(str_replace('_', ' ', $filename));
 		   			else $displayname = $filename;
 		   			if("$dirname/$filename" == $currenttemplate)
@@ -368,6 +376,7 @@ class ProcessController extends BaseController {
 		}
 		return json_encode($r);
 	}
+
 
 	/**
 	*	Catch all. If the platform exists, go to the platform page. Else, back to batch.

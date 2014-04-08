@@ -136,12 +136,18 @@ class apiController extends BaseController {
 			{
 				if(!isset($documentValue['content']['sentence']['formatted']))
 				{
-					$documentValue['content']['sentence']['formatted'] = "";
+					$documentValue['content']['sentence']['formatted'] = " ";
 				}
 
-				// $this->recur_ksort($documentValue['content']);
+				$this->recur_ksort($documentValue['content']);
 
 				$row['_id'] = $documentValue['_id'];
+
+				if(isset($documentValue['parents']))
+				{
+					$row['wasDerivedFrom'] = implode(",", $documentValue['parents']);
+				}
+
 				$row['content'] = $documentValue['content'];
 
 				if($documentKey == 0)

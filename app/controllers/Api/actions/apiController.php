@@ -14,16 +14,34 @@ use \Job;
 use \Exception;
 
 class apiController extends BaseController {
-//entity/text/medical/job/1
 	public $restful = true;
 	private $content_type = 'application/json';
 
+	//i.e.: image/art/painting/40/boat
+	public function getImage($domain, $type, $numImg, $keyphrase){
+		try {
+			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . $numImg . " " . $keyphrase;
+			
+			exec($command,$output,$error);
+			
+			
+			return $output[0];
 
+
+		} catch (Exception $e){
+			//throw $e; // for debugging.
+			$return['error'] = $e->getMessage();
+			$return['status'] = 'bad';
+		} 
+
+		return $this->returnJson($return);
+	}
+
+	//i.e.: entity/text/medical/job/1
 	public function getEntity($format, $domain, $docType, $incr, $action){
 		try {
 			$return = array('status' => 'ok');
 			$id = "entity/$format/$domain/$docType/$incr";
-			
 			switch ($docType) {
 
 				case 'job':
@@ -49,21 +67,22 @@ class apiController extends BaseController {
 						case 'order':
 							$job->order();
 							$return['message'] = 'Job ordered successfully.';
-							break;		
+							break;
 						default:
 							throw new Exception('Action unknown.');
 							break;
-					break;
-				
+					}
+				break;
 				default:
-					throw new Exception('Unknown documenttype.');
+					throw new Exception("Unknown documenttype '$docType'.");
 					break;
 				}
 
-			}
+
+
 		} catch (Exception $e){
 			//throw $e; // for debugging.
-			$return['error'] = $e->getMessage();
+			$return['message'] = $e->getMessage();
 			$return['status'] = 'bad';
 		}
 

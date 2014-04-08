@@ -4,7 +4,7 @@ var app = angular.module("dataRetrieval", [ 'ngResource', 'angularMoment' ]);
 
 
 //inject resourceSvc in this controller
-app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
+app.controller("resourceCtrl", ["$scope", "$resource", "$http", "filterFilter", function($scope, $resource, $http, filterFilter) {
 	
 	$scope.optionsPerPage = [
 	    {value: 5},
@@ -64,7 +64,6 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
 					console.log("I evaluate true says if in numPages == 1");
 					return pages = 1;
 				}
-			console.log("numPages calculated");
 			return pages;
 			}
 
@@ -133,13 +132,20 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
  	//The following part concerns selection of jobs for analysis
  	$scope.selection = [];
 
+
  	$scope.$watch('results.data|filter:{checked:true}', function(n,o){
  		if(n != undefined)
  			$scope.selection = n.map(function (result){
+				console.log($scope.selection);
 				return result._id;
  			});
  	}, true);
  	
+ 	$scope.gotoMessage = function(){
+ 		$scope.$emit('sendMessage', $scope.selection);
+ 		console.log("Broadcasted message" + $scope.selection);
+ 	}
+
  	$scope.analyze = function(){
  		if($scope.selection[0] == null ){
  			alert('Select a job first.')
@@ -149,7 +155,29 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
  		}
  	}
 
-});
+
+	$scope.perform = function(job, action){
+ 		var newstatus = '';
+ 		if(action == 'pause') newstatus = 'paused';
+ 		else if(action == 'order' || action == 'resume') newstatus = 'running';
+ 		else if(action == 'cancel') newstatus = 'canceled';
+ 		else return;
+
+ 		$http({method: 'GET', url: '/api/actions/'+job._id+'/'+action}).
+		    success(function(data, status, headers, config) {
+		      	if(data.status == 'ok'){
+ 					job.status = newstatus;
+ 				} else {
+ 					alert(data.message);
+ 				}	
+		     }).
+		    error(function(data, status, headers, config) {
+		      console.log(status);
+		     // alert(status);
+		});
+ 	}
+ 	
+}]);
 
 var getResource = function($resource, page, perPage, sort, filter){
 		return Result = $resource('/api/v3/?:page:perPage:sort:filter', 

@@ -3,8 +3,6 @@
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 
-use Moloquent, Schema, URL, File, Exception;
-
 class FileUpload extends Moloquent {
 
 	public function store(array $files, $domain, $documentType){

@@ -398,6 +398,17 @@ function getResults(baseApiURL){
 		$(activeTabKey).find('.cw_pagination').empty().prepend($(data.pagination));
 		$(activeTabKey).find('.results').empty().append(html);
 
+		$('.hb_popover').popover({
+			placement : "left",
+			html : true,
+			trigger : "hover",
+			title : "default",
+			content : function(){ return $(this).find('.hidden').html() },
+ 			container: 'body',
+            template: '<div class="popover popover-medium"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'			
+		});
+
+
 		var visibleColumnsArray = [];
 
 		if($(activeTabKey).find(".visibleColumns").children().length > 0){

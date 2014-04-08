@@ -48,6 +48,8 @@
 	border: solid #AAA 1px;
 	border-radius: 5px;
 	margin-bottom: 40px;
+	background: #FFF;
+
 }
 
 .bgwhite {
@@ -82,7 +84,7 @@
 	margin-left: 8px;
 }
 
-.annotations {
+.items {
 	margin: 5px;
 	border: solid #AAA 1px;
 	border-radius: 3px;
@@ -96,4 +98,71 @@
 
 .ann-label {
 	padding-right: 3px;
+}
+
+.nav-buttons {
+	margin-top: 25px;
+}
+
+.space-left {
+	margin-left: 25px;
+}
+
+.messagecontent {
+	margin-top: 5px;
+	width: 90%;
+	height: 200px;
+	border: solid #AAA 1px;
+	border-radius: 2px;
+}
+
+.image-box {
+	width: 142px;
+	height: 182px;
+	border: solid 1px #111;
+}
+
+.image-selectable {
+	width: 140px;
+	height: 140px;
+	border-radius: 1px;
+}
+
+.image-checkbox {
+	width: 20px;
+	height: 20px;
+	border-right: transparent 1px #aaa;
+	border-bottom: transparent 1px #aaa;
+	border-bottom-right-radius: 3px;
+	position: absolute;
+	background-color: #eee;
+	text-align: center;
+	vertical-align: middle;
+}
+
+.selected:after {
+	content: "";
+    display: block;
+    background-color: rgba(0, 0, 0, 0.5);
+    top: 0;
+    left: 0;
+}
+
+.image-metadata {
+	background: #eee;
+	border-top: #111 solid 1px;
+	height: 40px;
+}
+
+.loading {
+	width: 100%;
+	height: 300px;
+	position: absolute;
+	text-align: center;
+	vertical-align: bottom;
+}
+
+.loading-img {
+	height: 80px;
+	width: 100px;
 }

@@ -62,12 +62,14 @@
 						<button class="btn btn-default btn-lg pull-left" data-toggle="modal" data-target="#myModal">
 						  Save settings
 						</button>
-						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postSubmitFinal', 'order'), 'method' => 'POST')) }}
+		<!--				{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postSubmitFinal', 'order'), 'method' => 'POST')) }}
 							{{ Form::submit('Submit and order', array('class' => 'btn btn-lg btn-primary pull-right')); }}
 						{{ Form::close()}}	
 
 						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
-							{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }}
+							{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }} -->
+							{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
+							{{ Form::submit('Create Job', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }}
 						{{ Form::close()}}
 
 

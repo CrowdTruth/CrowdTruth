@@ -1,0 +1,23 @@
+{
+	"title": "Choose the valid RELATION(s) between the TERMS in the SENTENCE",
+	"description": "Read a medical SENTENCE and select all the RELATION TYPE(s) that you think are expressed between the TWO HIGHLIGHTED WORDS in the text.",
+	"keywords": "medical relations, medical text,relation extraction,relation annotation",
+	"reward": "0.04",
+	"annotationsPerUnit": "15",
+	"hitLifetimeInMinutes": "10080",
+	"expirationInMinutes": "3",
+	"unitsPerTask": "1",
+	"autoApprovalDelayInMinutes": "2880",
+	"qualificationRequirement": [
+		{
+			"QualificationTypeId": "00000000000000000040",
+			"Comparator": "GreaterThan",
+			"IntegerValue": "1000"
+		},
+		{
+			"QualificationTypeId": "000000000000000000L0",
+			"Comparator": "GreaterThan",
+			"IntegerValue": "90"
+		}
+	]
+}

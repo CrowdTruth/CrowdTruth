@@ -158,7 +158,7 @@ class Entity extends Moloquent {
 	public static function createSchema(){
 		Schema::create('entities', function($collection)
 		{
-            $collection->unique('hash');
+            $collection->index('hash');
             $collection->index('domain');
             $collection->index('documentType');    
             $collection->index('activity_id');
@@ -212,6 +212,14 @@ class Entity extends Moloquent {
 
     public function hasConfiguration(){
         return $this->hasOne('\MongoDB\Entity', '_id', 'jobConf_id');
+    }
+
+    public function hasJob(){
+        return $this->hasOne('\MongoDB\Entity', '_id', 'job_id');
+    }
+
+    public function hasUnit(){
+        return $this->hasOne('\MongoDB\Entity', '_id', 'unit_id');
     }
 
     public function getWasDerivedFromAttribute()

@@ -26,10 +26,10 @@
 											array('class' => 'form-control input-sm', 'min' => '1', 'placeholder' => '1 day = 1440')) }}
 									</div>
 									<br>
-									{{ Form::label('autoApprovaldelayInMinutes', 'Auto approval delay (minutes)', 
+									{{ Form::label('autoApprovalDelayInMinutes', 'Auto approval delay (minutes)', 
 										array('class' => 'col-xs-4 control-label')) }}
 									<div class="input-group col-xs-2">
-									{{ Form::input('number','autoApprovaldelayInMinutes',  null, 
+									{{ Form::input('number','autoApprovalDelayInMinutes',  null, 
 										array('class' => 'form-control input-sm', 'placeholder' => '1 day = 1440', 'min' => '1')) }}
 									</div>
 							</fieldset>
