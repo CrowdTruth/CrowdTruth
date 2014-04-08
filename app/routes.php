@@ -9,6 +9,8 @@ Route::group(array('before' => 'auth'), function()
 {
 	Route::get('/', function()
 	{
+        //$result = \MongoDB\Entity::where('documentType', 'job')->whereIn('softwareAgent_id', ['cf', 'amt'])->count();
+        //return $result;
 	    return Redirect::to('home');
 	});
 
@@ -23,6 +25,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('process', 'ProcessController');
 	Route::controller('jobs', 'JobsController');
 	Route::controller('workers', 'WorkersController');
+    Route::controller('analyze','AnalyticsController');
 	
 });
 

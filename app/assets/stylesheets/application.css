@@ -14,4 +14,5 @@
  *= require font-awesome.min.css
  *= require jstree.min.css
  *= require style.css.scss
-  */
+ *= require nv.d3.css
+ */
