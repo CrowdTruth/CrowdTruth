@@ -13,14 +13,23 @@ class ProcessController extends BaseController {
 
 
 	public function getTest(){
-		$anno = \Annotation::where('softwareAgent_id', 'cf')->get();
+
+		$worker = \MongoDB\CrowdAgent::first();
+		foreach ($worker->annotations as $annotation) {
+			//echo "{$annotation->unit_id}<br>";
+			print_r(\MongoDB\Entity::id($annotation->unit_id)->first());
+			//echo $annotation->unit_id;
+			echo "\r\n--------------------\r\n";
+		}
+
+/*		$anno = \Annotation::where('softwareAgent_id', 'cf')->get();
 		$count = 0;
 		foreach ($anno as $ann) {
 			$ann->createDictionaryFactSpan();
 			$count++;
 			if($count==100)
 				die();
-		}
+		}*/
 		
 	}
 

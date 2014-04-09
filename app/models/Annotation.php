@@ -156,22 +156,18 @@ class Annotation extends Entity {
                 $term1 = strtolower($this->unit->content['terms']['first']['text']);
                 $term2 = strtolower($this->unit->content['terms']['second']['text']);
 
-                // Term1
-                
-                 // first space after last index
-
-                // words1 = the first span according to the confirmids
-               
-
-                
-//$words1 == strtolower($ans['confirmfirstfactor'])
-                // Should be the same
+                // TODO: spaces and dashes
 
                 try{
                     // User selected YES -> NIL or exception
                     if(!empty($ans['confirmids1'])){  
                         $ids1 = explode('-', $ans['confirmids1']);
-                        $length1 = strpos(substr($sentence, intval(end($ids1))), ' ');
+                        $length1 = min(
+                            [strpos(substr($sentence, intval(end($ids1))), ' '),
+                            strpos(substr($sentence, intval(end($ids1))), '-'),
+                            strpos(substr($sentence, intval(end($ids1))), '/')])
+                        +(intval(end($ids1))-intval($ids1[0]));
+
                         $words1 = strtolower(substr($sentence, intval($ids1[0]), $length1));
 
                         echo("{$this->_id}\r\n[$term1]=[$words1]=[{$ans['confirmfirstfactor']}]\r\n$sentence\r\n");
