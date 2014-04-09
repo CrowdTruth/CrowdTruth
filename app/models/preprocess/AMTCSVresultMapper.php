@@ -9,7 +9,7 @@ use URL, Session, Exception, File, Input, Redirect;
 
 use League\Csv\Reader as Reader;
 
-class CSVresultMapper {
+class AMTCSVresultMapper {
 
 	public function processInputData($csvresult, $preview = false)
 	{

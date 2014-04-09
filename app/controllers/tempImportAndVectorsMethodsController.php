@@ -239,7 +239,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 			->where('content.sentence.formatted', $sentence)
 			->first();
 
-			if(!$unit){
+/*			if(!$unit){
 				$hi = 0;
 				$units = \MongoDB\Entity::where('content.terms.first.formatted', $term1)
 						->where('content.terms.second.formatted', $term2)
@@ -258,7 +258,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 					}
 				}
 
-			} 
+			} */
 
 			if(!$unit){
 				echo "\r\n$sentence\r\n"; 
@@ -273,6 +273,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 			}
 
 			$ann->unit_id = $unit->_id;
+			dd($ann);
 			$ann->save();
 		}
 	}

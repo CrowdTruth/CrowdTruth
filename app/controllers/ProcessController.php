@@ -13,10 +13,91 @@ class ProcessController extends BaseController {
 
 
 	public function getTest(){
-		//$ann = \Annotation::where('type', 'FactSpan')->where('softwareAgent_id', 'amt')->first();
-		//dd('test');
+		$anno = \Annotation::where('softwareAgent_id', 'cf')->get();
+		$count = 0;
+		foreach ($anno as $ann) {
+			$ann->createDictionaryFactSpan();
+			$count++;
+			if($count==100)
+				die();
+		}
+		
+	}
 
-		\Artisan::call('amt:retrievejobs');
+//TEMP for importing
+		public function getUnitsfactspan(){
+		$count = 0;
+		foreach(\Annotation::where('type', 'FactSpan')->where('unit_id', '')->get() as $ann){
+
+			
+			set_time_limit(300);
+
+			if(!isset($ann->content)){
+				echo "{$ann->_id} no content\r\n";
+				continue;
+			}
+
+			if(!empty($ann->unit_id)){
+				echo "{$ann->_id} has unitid\r\n";
+				continue;
+			}
+
+
+			//dd($ann->question);
+			$xml = simplexml_load_string($ann->question);
+			$url = (string) $xml->ExternalURL;
+			$html = file_get_contents($url);
+			$dom = HtmlDomParser::str_get_html($html);
+			$sentence = rtrim($dom->find('span[class=senval]', 0)->innertext, '.'); // There appears to be a dot behind it.
+			$term1 = $dom->find('input[value=YES]', 0)->next_sibling(0)->children(0)->innertext;
+			$term2 = $dom->find('input[value=YES]', 1)->next_sibling(0)->children(0)->innertext;
+
+/*			$sentence = "Poisson regression analysis which included data for multiple measurements of Tme/[TE] over the first year of life and adjusted for age-at-test and maternal smoking during [PREGNANCY] also demonstrated a greater decrease in Tme/Te in female infants who subsequently develop an LRI (P = 0.08";
+			$term1 = "[PREGNANCY]";
+			$term2 = "[TE]";*/
+
+			$unit = \MongoDB\Entity::where('content.terms.first.formatted', $term1)
+			->where('content.terms.second.formatted', $term2)
+			->where('content.sentence.formatted', $sentence)
+			->first();
+
+/*			if(!$unit){
+				$hi = 0;
+				$units = \MongoDB\Entity::where('content.terms.first.formatted', $term1)
+						->where('content.terms.second.formatted', $term2)
+						->get();
+
+				foreach($units as $punit){
+					try{
+						$pct = similar_text($sentence, $punit->content['sentence']['formatted']);
+					} catch (ErrorException $e) {
+						echo "\r\n\r\n\r\n\r\n{$punit->_id}\r\n\r\n\r\n\r\n";
+						$pct = similar_text(strtolower($sentence), strtolower($punit->content['sentence']['text']));
+					}	
+					if($pct>$hi) {
+						$hi=$pct;
+						$unit = $punit;
+					}
+				}
+
+			} */
+
+			if(!$unit){
+				echo "\r\n$sentence\r\n"; 
+				echo $punit->content['sentence']['formatted'];
+				echo "\r\n{$ann->unit_id}----------------\r\n"; 
+				echo "----------------------------------------";
+				continue;
+			} else {	
+				echo "\r\n$sentence\r\n"; 
+				echo $punit->content['sentence']['text'];
+				echo "\r\n{$unit->_id}-{$ann->_id}\r\n"; 
+			}
+
+			$ann->unit_id = $unit->_id;
+			dd($ann);
+			$ann->save();
+		}
 	}
 
 	public function getBatch() {
