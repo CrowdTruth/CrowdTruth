@@ -4,7 +4,7 @@ import json
 import config
 import encoder
 
-job_id = 'entity/text/medical/job/7'
+job_id = 'entity/text/medical/job/19'
 sentence_clusters ={}
 api_param = urllib.urlencode({'field[job_id]': job_id,
                           'field[documentType]': 'annotation'})
@@ -16,7 +16,7 @@ for annotation in response:
             for key in sentence_clusters[sentence_id].keys():
                 sentence_clusters[sentence_id][key] += annotation['dictionary'][key]
         else:
-            sentence_clusters[sentence_id] = annotation['questionDictionary']
+            sentence_clusters[sentence_id] = annotation['dictionary']
 
 encoder.c_make_encoder = None
 f = encoder.JSONEncoder().encode(sentence_clusters)

@@ -35,18 +35,26 @@ class Worker:
         self.jobs_dict = {}
         #obtain the filtered list of sentences
         for job_id in jobs_dict:
-            filters_names = self.__get_job_filters(job_id)
-            filtered_units = set([])
-            for filter_item in filters_names:
-                api_param = urllib.urlencode({'field[_id]': job_id, 'only[]': 'metrics.filtered_units.' + filter_item})
-                api_call = urllib.urlopen(config.server + "?" + api_param)
-                response = json.JSONDecoder().decode(api_call.read())
-                try:
-                     filtered_units |= set(response[0]['metrics']['filtered_units'][filter_item])
-                except KeyError:
-                    print(sys.exc_info()[0])
-                    raise Exception("There are no filtered sentences computed for job:" + job_id + " filter:" + filter_item)
-            self.jobs_dict[job_id] = list(filtered_units)
+            # filters_names = self.__get_job_filters(job_id)
+            # filtered_units = set([])
+            # for filter_item in filters_names:
+            #     api_param = urllib.urlencode({'field[_id]': job_id, 'only[]': 'metrics.filtered_units.' + filter_item})
+            #     api_call = urllib.urlopen(config.server + "?" + api_param)
+            #     response = json.JSONDecoder().decode(api_call.read())
+            #     try:
+            #          filtered_units |= set(response[0]['metrics']['filtered_units'][filter_item])
+            #     except KeyError:
+            #         print(sys.exc_info()[0])
+            #         raise Exception("There are no filtered sentences computed for job:" + job_id + " filter:" + filter_item)
+            api_param = urllib.urlencode({'field[_id]': job_id, 'only[]': 'metrics.filteredUnits.list'})
+            api_call = urllib.urlopen(config.server + "?" + api_param)
+            response = json.JSONDecoder().decode(api_call.read())
+            try:
+                 filtered_units = response[0]['metrics']['filteredUnits'][list]
+            except KeyError:
+                print(sys.exc_info()[0])
+                raise Exception("There are no filtered sentences computed for job:" + job_id )
+            self.jobs_dict[job_id] = filtered_units
         self.get_unit_clusters()
 
     def get_unit_clusters(self):
@@ -60,7 +68,7 @@ class Worker:
                               'field[crowdAgent_id]': self.crowd_agent_id,
                               'field[documentType]': 'annotation',
                               'only[0]': 'unit_id',
-                              'only[1]': 'questionDictionary'})
+                              'only[1]': 'dictionary'})
             api_call = urllib.urlopen(config.server + "?" + api_param)
             response = json.JSONDecoder().decode(api_call.read())
             for annotation in response:
@@ -68,9 +76,9 @@ class Worker:
                 #this unit needs to be filtered
                 if unit_id in self.jobs_dict[job_id]:
                     continue
-                job_annotation_results = {job_id:annotation['questionDictionary']}
+                job_annotation_results = {job_id:annotation['dictionary']}
                 if unit_id in self.unit_clusters:
-                    self.unit_clusters[unit_id].append(job_annotation_results)
+                    self.unit_clusters[unit_id][job_id] = annotation['dictionary']
                 else:
                     self.unit_clusters[unit_id] = job_annotation_results
 

@@ -1,4 +1,3 @@
-
 var app = angular.module("dataRetrieval", [ 'ngResource', 'angularMoment' ]);
 
 	//write resource service class
@@ -133,10 +132,12 @@ app.controller("resourceCtrl", ["$scope", "$resource", "$http", "filterFilter", 
  	//The following part concerns selection of jobs for analysis
  	$scope.selection = [];
 
+
  	$scope.$watch('results.data|filter:{checked:true}', function(n,o){
  		if(n != undefined)
  			$scope.selection = n.map(function (result){
-			return result._id;
+				console.log($scope.selection);
+				return result._id;
  			});
  	}, true);
  	
@@ -146,20 +147,13 @@ app.controller("resourceCtrl", ["$scope", "$resource", "$http", "filterFilter", 
  	}
 
  	$scope.analyze = function(){
-        if($scope.selection[0] == null ){
-            alert('Select a job first.')
-        } else
-        {
-            var redirect_url = '/analyze/view?'
-            for (var item in $scope.selection) {
-                redirect_url += 'field[_id][]=' + $scope.selection[item] + '&';
-            }
-            //window.location = redirect_url.substring(0, redirect_url.length - 1)
-            window.location = '/analyze/view?jobs=' + $scope.selection;
-        }
+ 		if($scope.selection[0] == null ){
+ 			alert('Select a job first.')
+ 		} else
+ 		{
+ 			window.location = '/analyze/view?jobs=' + $scope.selection;
+ 		}
  	}
- 	
-});
 
 
 	$scope.perform = function(job, action){
@@ -193,13 +187,3 @@ var getResource = function($resource, page, perPage, sort, filter){
 				);
 	}
 
-
-// getResource as a factory; for later implementation (passing parameters into factory proven more difficult than using simple var-like function call)
-// var getResource = app.factory('resourceSvc', ['$resource', 
-// 	function($resource, page, perPage, sort, filter){
-// 		alert('this is the api-call' + page + perPage + sort + filter);
-// 		return $resource('/api/v3/?page=:page&perpage=:perPage&sort=:sort&filter=:filter', {page: '@page', perPage: '@perPage', sort: '@sort', filter: '@filter'});
-// 	}]
-// );
-
-	

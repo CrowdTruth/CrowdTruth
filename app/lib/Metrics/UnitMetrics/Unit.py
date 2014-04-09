@@ -22,11 +22,11 @@ class Unit:
         self.jobs_dict = {}
         #obtain the spam list of the jobs
         for job_id in jobs_dict:
-            api_param = urllib.urlencode({'field[_id]': job_id, 'only[]': 'metrics.spammers_list'})
+            api_param = urllib.urlencode({'field[_id]': job_id, 'only[]': 'metrics.spammers.list'})
             api_call = urllib.urlopen(config.server + "?" + api_param)
             response = json.JSONDecoder().decode(api_call.read())
             try:
-                self.jobs_dict[job_id] = response[0]['metrics']['spammers_list']
+                self.jobs_dict[job_id] = response[0]['metrics']['spammers']['list']
             except KeyError:
                 print(sys.exc_info()[0])
                 raise Exception("There are no spammers computed for job:" + job_id)
@@ -38,10 +38,10 @@ class Unit:
         #compute the value of all responses
         all_job_results = []
         for job_id in self.jobs_dict:
-            api_param = urllib.urlencode({'field[_id]': job_id, 'only[]': 'results'})
+            api_param = urllib.urlencode({'field[_id]': job_id, 'only[]': 'results.withSpam'})
             api_call = urllib.urlopen(config.server + "?" + api_param)
             response = json.JSONDecoder().decode(api_call.read())
-            job_result = response[0]['results'][self.sentence_id]
+            job_result = response[0]['results']['withSpam'][self.sentence_id]
             all_job_results.append(job_result)
 
         unit_keys = all_job_results[0].keys()
@@ -59,13 +59,13 @@ class Unit:
                                               'field[unit_id]': self.sentence_id,
                                               'field[documentType]': 'annotation',
                                               'field[crowdAgent_id]': worker,
-                                              'only[]': 'questionDictionary'})
+                                              'only[]': 'dictionary'})
                 api_call = urllib.urlopen(config.server + "?" + api_param)
                 response = json.JSONDecoder().decode(api_call.read())
                 if len(response) > 1:
                     raise Exception("A worker should annotate a sentence just once for a job")
                 if len(response) > 0 :
-                    spam_result = response[0]['questionDictionary']
+                    spam_result = response[0]['dictionary']
                     spam_annotations.append(spam_result)
 
         for key in self.unit_vector:

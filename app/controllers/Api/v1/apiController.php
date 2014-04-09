@@ -48,6 +48,10 @@ class apiController extends BaseController {
 		$c = Input::get('collection', 'Entity');
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
+        if(Input::has('createMetrics')){
+            exec('/usr/bin/python2.7 /var/www/crowd-watson/app/lib/generateMetrics.py \''.Input::get('createMetrics').'\' \'entity/text/medical/questiontemplate/1\'', $output, $error);
+            return json_decode($output[0],true);
+        }
 
     	if(Input::has('field'))
     	{
@@ -259,6 +263,7 @@ class apiController extends BaseController {
 
 	public function anyPost()
 	{
+
 		$c = Input::get('collection', 'Entity');
 
 		$collection = $this->repository->returnCollectionObjectFor($c);

@@ -37,7 +37,7 @@
 										<td>{{ link_to('#', $entity->wasAttributedToUserAgent->firstname . ' ' . $entity->wasAttributedToUserAgent->lastname) }}</td>										
 										<td>
 <a class='btn btn-success' href='{{ URL::to('preprocess/csvresult/annotationdata/preview?URI=' . $entity['_id']) }}'><i class="fa fa-search fa-fw"></i>Preview</a>
-<a class='btn btn-success' href='{{ URL::to('preprocess/csvresult/annotationdata/createbatch?URI=' . $entity['_id']) }}'><i class="fa fa-gear fa-fw"></i>Create Annotations?</a>
+<a class='btn btn-success' href='{{ URL::to('preprocess/csvresult/annotationdata/process?URI=' . $entity['_id']) }}'><i class="fa fa-gear fa-fw"></i>Map data</a>
 										</td>
 									</tr>
 								@endforeach

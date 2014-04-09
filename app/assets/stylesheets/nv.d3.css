@@ -72,7 +72,7 @@
   padding: 4px 14px;
   line-height: 18px;
   font-weight: normal;
-  background-color: rgba(247,247,247,0.75);
+  background-color: rgba(247,247,247,1);
   text-align: center;
 
   border-bottom: 1px solid #ebebeb;
@@ -270,7 +270,7 @@ svg .title {
 
 .nvd3 .nv-bars rect {
   zfill: steelblue;
-  fill-opacity: .75;
+  fill-opacity: 1;
 
   transition: fill-opacity 250ms linear;
   -moz-transition: fill-opacity 250ms linear;
@@ -278,7 +278,7 @@ svg .title {
 }
 
 .nvd3 .nv-bars rect.hover {
-  fill-opacity: 1;
+  fill-opacity: 0.5;
 }
 
 .nvd3 .nv-bars .hover rect {
@@ -311,7 +311,7 @@ svg .title {
 .nvd3 .nv-multibar .nv-groups rect:hover,
 .nvd3 .nv-multibarHorizontal .nv-groups rect:hover,
 .nvd3 .nv-discretebar .nv-groups rect:hover {
-  fill-opacity: 1;
+  fill-opacity: 0.5;
 }
 
 .nvd3 .nv-discretebar .nv-groups text,
@@ -528,12 +528,11 @@ svg .title {
   fill-opacity: 0;
 }
 
-/*
 .nvd3.nv-stackedarea .nv-groups .nv-point.hover {
   stroke-width: 20px;
   stroke-opacity: .75;
   fill-opacity: 1;
-}*/
+}
 
 
 
@@ -542,11 +541,11 @@ svg .title {
 */
 
 .nvd3.nv-linePlusBar .nv-bar rect {
-  fill-opacity: .75;
+  fill-opacity: 1;
 }
 
 .nvd3.nv-linePlusBar .nv-bar rect:hover {
-  fill-opacity: 1;
+  fill-opacity: 0.5;
 }
 
 
@@ -678,7 +677,7 @@ svg .title {
   stroke: #000;
   stroke-width: .4;
   fill: #fff;
-  fill-opacity: .7;
+  fill-opacity: 1;
 }
 
 

@@ -31,7 +31,7 @@ class csvresultController extends BaseController {
 	{
 		if(is_null($action))
 		{
-			$entities = \MongoDB\Entity::where('documentType', 'csvresult')->get();
+			$entities = \MongoDB\Entity::where('documentType', 'csvresult')->where('title', 'like', '%input%')->get();
 
 			if(count($entities) > 0)
 			{
@@ -99,7 +99,7 @@ class csvresultController extends BaseController {
 				}
 			} 
 		}
-		elseif($action == "createbatch")
+		elseif($action == "process")
 		{
 			if($URI = Input::get('URI'))
 			{
@@ -109,9 +109,7 @@ class csvresultController extends BaseController {
 						continue;
 					}
 
-					return $batch = $this->csvresultMapper->processAnnotationData($entity);
-
-					return Redirect::to('files/batch?selection=' . urlencode(json_encode($batch)));
+					return $document = $this->csvresultMapper->processAnnotationData($entity);
 				}
 			} 
 		}

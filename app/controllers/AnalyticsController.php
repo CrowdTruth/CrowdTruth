@@ -11,7 +11,7 @@ use \MongoDB\CrowdAgent as CrowdAgent;
 class AnalyticsController extends BaseController {
 
     public $restful = true;
-
+    public static $colorList = array( '#FF7F50','#659CEF', '#FFDAB9 ', '#8FBC8F', '#FFA07A', '#B0C4DE', '#CD5C5C', '#9ACD32',  '#DAA520');
     protected $repository;
 
     public function __construct(Repository $repository){
@@ -19,81 +19,26 @@ class AnalyticsController extends BaseController {
     }
 
     public function anyView(){
-        if( Input::has('jobs' )) {
-            $params = Input::get('jobs');
-            $job_array = explode(',', $params);
-            $tags = implode(', ', $job_array);
 
-            return View::make('analytics.jobview')->with('jobConfigurations', $params);
+        $jobArray = explode(',', Input::get('jobs'));
+        $colors = array();
+        $jobsInfo = array();
+
+        for ($iter = 0; $iter < count($jobArray); ++$iter) {
+
+            $jobID = $jobArray[$iter];
+            $jobsInfo[$jobID] = \MongoDB\Entity::find($jobID);
+            $color = AnalyticsController::$colorList[$iter%count(AnalyticsController::$colorList)];
+            $jobsInfo[$jobID]['color'] = $color;
+            $colors[$jobID] = $color;
         }
 
-        if( Input::has('annotations')) {
-            //etc.
-        }
 
-        
-        // $c = Input::get('collection', 'Entity');
-
-        // $collection = $this->repository->returnCollectionObjectFor($c);
-
-        // if(Input::has('field'))
-        // {
-        //     $collection = $this->processFields($collection);
-        // }
-        // $jobConfigurations = $collection->get();
-
-        // return View::make('analytics.jobview')->with('jobConfigurations', $jobConfigurations);
-
+        return View::make('analytics.jobview')->with('jobConfigurations', $jobsInfo)
+            ->with('jobIDs', $jobArray)
+            ->with('jobColors',$colors);
     }
-
-    protected function processFields($collection)
-    {
-        foreach(Input::get('field') as $field => $value)
-        {
-            if(is_array($value))
-            {
-                foreach($value as $operator => $subvalue)
-                {
-                    if(is_int($operator) || $operator == "")
-                    {
-                        $collection = $collection->whereIn($field, array($subvalue));
-                        continue;
-                    }
-
-                    if(in_array($operator, $this->operators))
-                    {
-                        if(is_numeric($subvalue))
-                        {
-                            $subvalue = (int) $subvalue;
-                        }
-
-                        if($operator == "like")
-                        {
-                            $collection = $collection->where($field, $operator, "%" . $subvalue . "%");
-                        }
-                        else
-                        {
-                            $collection = $collection->where($field, $operator, $subvalue);
-                        }
-                    }
-                }
-
-            }
-            else
-            {
-                if(is_numeric($value))
-                {
-                    $value = (int) $value;
-                }
-
-                $collection = $collection->whereIn($field, array($value));
-            }
-
-        }
-
-        return $collection;
+    public function getIndex() {
+        return Redirect::to('jobs/listview');
     }
-
-
-
 }

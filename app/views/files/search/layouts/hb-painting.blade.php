@@ -34,7 +34,7 @@
 				</td>
 			</tr>											        
         </thead>
-        <tbody class='results'>											
+        <tbody class='results lukasz'>											
 			<script class='template' type="text/x-handlebars-template">
 		        @{{#each documents}}
 					<tr>
@@ -42,13 +42,17 @@
 						<div class="row">
 							<div class="col-xs-4">
 								<div class="thumbnail">
-									<a href="@{{ this.content.URL }}">
+									<a href="@{{ this.content.URL }}" class="hb_popover" title="@{{ this.title }}">
+										<div class='hidden'>
+											@{{ this.domain }} <br /> @{{ this.documentType }}
+										</div>
 								  		<img src="@{{ this.content.URL }}">
 								  	</a>
 								</div>
 							</div>
 							<div class="col-xs-8">
 								@{{#if this.content.features.Object.matches }}
+									<h5 style='font-weight:bold'> Objects </h5>
 								    <table class="table table-striped table-condensed">
 								    	<thead>
 								    		<tr>
@@ -70,6 +74,85 @@
 										</tbody>
 									</table>
 								@{{/if}}
+
+								@{{#if this.content.features.Scene }}
+									<h5 style='font-weight:bold'> Scene </h5>
+								    <table class="table table-striped table-condensed">
+								    	<thead>
+								    		<tr>
+									    		<th>Label</th>
+									    		<th>Score</th>
+								    		</tr>
+								    	</thead>
+								    	<tbody class='featureMatches'>
+								    		@{{#each this.content.features.Scene }}
+											<tr style="@{{gradualColors this.score ../../content.features.Scene.0.score }}">
+												<td>
+													@{{ this.label }}
+												</td>
+												<td>
+													@{{toFixed this.score 2}}													
+												</td>
+											</tr>
+											@{{/each}}	
+										</tbody>
+									</table>
+								@{{/if}}
+
+								@{{#if this.content.features.FacesNumber }}
+									<h5 style='font-weight:bold'> Faces </h5>
+								    <table class="table table-striped table-condensed">
+								    	<thead>
+								    		<tr>
+								    			@{{#each this.content.features.FacesNumber }}
+								    				<th> @{{ @key }} </th>
+								    			@{{/each}}
+								    		</tr>
+								    	</thead>								    
+								    	<tbody class=''>
+											<tr>
+								    		@{{#each this.content.features.FacesNumber }}
+												<td>
+													@{{ this }}											
+												</td>
+											@{{/each}}
+											</tr>
+										</tbody>
+									</table>
+								@{{/if}}
+
+								@{{#if this.content.features.Classifier }}
+									<h5 style='font-weight:bold'> Classifier - Score </h5>
+								    <table class="table table-striped table-condensed">
+								    	<tbody class=''>
+								    		@{{#each this.content.features.Classifier }}
+											<tr>
+												<td>
+													@{{ @key }}
+												</td>
+												<td>
+													@{{divide this 100}}											
+												</td>
+											</tr>
+											@{{/each}}	
+										</tbody>
+									</table>
+								@{{/if}}
+
+								@{{#if this.content.features.ColorsHistogram }}
+								    <table class="table table-striped table-condensed">						    
+								    	<tbody class=''>
+											<tr>
+								    		@{{#each this.content.features.ColorsHistogram }}
+												<td style='background:@{{ first this }}; width:@{{ last this }}%;'>
+													&nbsp;
+												</td>
+											@{{/each}}									
+											</tr>
+										</tbody>
+									</table>
+								@{{/if}}
+
 							</div>
 						</div>
 					</td>

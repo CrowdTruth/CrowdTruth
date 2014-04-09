@@ -19,7 +19,7 @@ class Task:
         # update to include multiple type of jobs..
         self.template_id = template_id
         self.default_thresholds = self.__get_default_thresholds()
-        if isinstance(jobs,dict):
+        if isinstance(jobs, dict):
             self.jobs_dict = jobs
         else:
             self.jobs_dict = {}
@@ -27,7 +27,7 @@ class Task:
                 api_param = urllib.urlencode({'field[_id]': job_id})
                 api_call = urllib.urlopen(config.server + "?" + api_param)
                 response = json.JSONDecoder().decode(api_call.read())
-                self.jobs_dict[job_id] = response[0]['results'].keys()
+                self.jobs_dict[job_id] = response[0]['results']['withSpam'].keys()
 
     def __create_unit_cluster(self):
         unit_cluster = {}
@@ -98,20 +98,33 @@ class Task:
 
     def create_metrics(self):
         unit_cluster = self.__create_unit_cluster()
-        results = {}
+        metrics = {}
 
         all_units_metrics = {}
         all_units = []
+        all_units_vec = {}
 
         for unit_id in unit_cluster:
          #   print(unit_id)
             unit = Unit(unit_id,unit_cluster[unit_id], False)
+            all_units_vec[unit_id] = unit.get_unit_vector()
             all_units.append(unit)
             unit_result = unit.get_metrics(UnitMetricsEnum.__members__.values())
             all_units_metrics[unit_id] = unit_result
 
-        results['all_unit_metrics'] = {}
-        results['all_unit_metrics']['with_spam'] = all_units_metrics
+        metrics['units'] = {}
+        metrics['units']['withSpam'] = all_units_metrics
+
+        #print(union_filtered_sent)
+        #TODO - if sentence provided select just workers which annotated those sentences
+        workers = self.__get_all_workers([])
+        all_workers_metrics = {}
+        for worker in workers:
+            worker_result = worker.get_metrics(WorkerMetricsEnum.__members__.values())
+            all_workers_metrics[worker.crowd_agent_id] = worker_result
+
+        metrics['workers'] = {}
+        metrics['workers']['withoutFilter'] = all_workers_metrics
 
 
         mean_metrics = self.__compute_mean_measure(all_units_metrics)
@@ -129,42 +142,58 @@ class Task:
                 if unit_filter.is_filtered(unit, filter_type):
                     filtered_list.append(unit.sentence_id)
             filtered_sentences[filter_type] = filtered_list
-        results['filtered_units'] = filtered_sentences
+
+
         #print("filtered sentences:")
 
         union_filtered_sent = []
-        for filter_name in self.default_thresholds['unit_filters']:
+        for filter_name in self.default_thresholds['unitThresholds']:
             filter_enum_type = getattr(UnitFiltersEnum, filter_name, None)
             union_filtered_sent = list(set(union_filtered_sent)|set(filtered_sentences[filter_enum_type]))
 
+        metrics['filteredUnits'] = {}
+        metrics['filteredUnits']['count'] = len(union_filtered_sent)
+        metrics['filteredUnits']['list'] = union_filtered_sent
 
         #print(union_filtered_sent)
         #TODO - if sentence provided select just workers which annotated those sentences
-        workers = self.__get_all_workers(union_filtered_sent)
-        all_workers_metrics = {}
-        for worker in workers:
+        workersFilter = self.__get_all_workers(union_filtered_sent)
+        all_workerFilter_metrics = {}
+        for worker in workersFilter:
             worker_result = worker.get_metrics(WorkerMetricsEnum.__members__.values())
-            all_workers_metrics[worker.crowd_agent_id] = worker_result
+            all_workerFilter_metrics[worker.crowd_agent_id] = worker_result
 
-        results['workers'] = all_workers_metrics
+        metrics['workers']['withFilter'] = all_workerFilter_metrics
+
+
+        worker_mean_metrics = self.__compute_mean_measure(all_workerFilter_metrics)
+        worker_stddev_measure = self.__compute_stddev_measure(all_workerFilter_metrics, worker_mean_metrics)
+        metrics['aggWorker'] = {}
+        metrics['aggWorker']['mean'] = worker_mean_metrics
+        metrics['aggWorker']['stddev'] = worker_stddev_measure
+
+
         spammers = []
-        for metric_name in self.default_thresholds['worker_thresholds'].keys():
+        for metric_name in self.default_thresholds['workerThresholds'].keys():
 
-            metric_thresholds = self.default_thresholds['worker_thresholds'][metric_name]
+            metric_thresholds = self.default_thresholds['workerThresholds'][metric_name]
             metric = getattr(WorkerMetricsEnum, metric_name, None)
-            for worker in all_workers_metrics:
+            for worker in all_workerFilter_metrics:
               #  print(all_workers_metrics[worker])
               #  print(metric_thresholds)
-                if metric_thresholds[0] < all_workers_metrics[worker][metric] < metric_thresholds[1]:
+                if metric_thresholds[0] < all_workerFilter_metrics[worker][metric] < metric_thresholds[1]:
                     if worker not in spammers:
                         spammers.append(worker)
 
         #print(spammers)
-        results['spammers_list'] = spammers
+        metrics['spammers'] = {}
+        metrics['spammers']['count'] = len(spammers)
+        metrics['spammers']['list'] = spammers
         #print(all_workers_metrics.keys())
 
         #create a new job dic with newly computed spammers
         all_units_metrics_ws = {}
+        all_units_vec_ws = {}
         #compute average and compare
         for unit_id in unit_cluster:
          #   print(unit_id)
@@ -173,12 +202,28 @@ class Task:
                 job_dict[job_id] = spammers
             unit_cluster[unit_id] = job_dict
             unit = Unit(unit_id,unit_cluster[unit_id], True)
+            all_units_vec_ws[unit_id] = unit.get_unit_vector()
          #!save here the without spam result for units
             unit_result = unit.get_metrics(UnitMetricsEnum.__members__.values())
             all_units_metrics_ws[unit_id] = unit_result
 
-        results['all_unit_metrics']['without_spam'] = all_units_metrics_ws
-        results['aggregate_metrics'] = {"mean_unit_metrics":mean_metrics,"stddev_unit_metrics":stddev_measure}
+        metrics['units']['withoutSpam'] = all_units_metrics_ws
+
+        mean_metrics_ws = self.__compute_mean_measure(all_units_metrics_ws)
+        stddev_measure_ws = self.__compute_stddev_measure(all_units_metrics_ws, mean_metrics)
+
+        metrics['aggUnits'] = {}
+        metrics['aggUnits']['mean'] = mean_metrics_ws
+        metrics['aggUnits']['stddev'] = stddev_measure_ws
+        metrics['workerThresholds'] = self.default_thresholds['workerThresholds']
+        metrics['unitThresholds'] = self.default_thresholds['unitThresholds']
+
+        results = {}
+        results['metrics'] = metrics
+        results['results'] = {}
+        results['results']['withoutSpam'] = all_units_vec_ws
+        results['results']['withSpam'] = all_units_vec
+        results['workerCount'] = len(workersFilter)
 
 
         encoder.c_make_encoder = None

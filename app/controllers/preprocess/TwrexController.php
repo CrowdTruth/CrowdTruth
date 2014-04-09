@@ -78,7 +78,7 @@ class TwrexController extends BaseController {
 					continue;
 				}
 
-				$document = $this->twrexStructurer->process($entity);
+				return $document = $this->twrexStructurer->process($entity);
 				// print_r($document);
 				// exit;
 				return View::make('preprocess.twrex.pages.view', array('entity' => $entity, 'lines' => $document));
