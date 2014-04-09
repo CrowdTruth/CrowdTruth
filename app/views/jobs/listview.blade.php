@@ -26,7 +26,7 @@
 				<div class="panel panel-default" style="margin-top: 10px;">
 					<div class="panel-heading">
 						<h3 class="panel-title">Sort by
-							<span class="fa pull-right ng-class: {'fa-caret-down': !sortVisible, 'fa-caret-up': sortVisible }" ng-click="setSortVisible()"></span>
+							<span class="fa pull-right ng-class: {'fa-caret-down': !sortVisible, 'fa-caret-up': sortVisible }" ng-click="setSortVisible()" ng-init="sortVisible = true"></span>
 						 </h3>
 					</div>
 					<div ng-show="sortVisible">
@@ -73,7 +73,7 @@
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title">Filter
-						<span class="fa pull-right ng-class: {'fa-caret-down': !filterVisible, 'fa-caret-up': filterVisible }" ng-click="setFilterVisible()"></span>
+						<span class="fa pull-right ng-class: {'fa-caret-down': !filterVisible, 'fa-caret-up': filterVisible }" ng-click="setFilterVisible()" ng-init="filterVisible = true"></span>
 						</h3>
 					</div>
 					<div ng-show="filterVisible">

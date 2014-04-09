@@ -19,23 +19,30 @@ class AnalyticsController extends BaseController {
     }
 
     public function anyView(){
-        $params = Input::get('jobs');
-        $job_array = explode(',', $params);
-        $tags = implode(', ', $job_array);
+        if( Input::has('jobs' )) {
+            $params = Input::get('jobs');
+            $job_array = explode(',', $params);
+            $tags = implode(', ', $job_array);
 
-        return View::make('analytics.jobview')->with('jobConfigurations', $params);
-
-        $c = Input::get('collection', 'Entity');
-
-        $collection = $this->repository->returnCollectionObjectFor($c);
-
-        if(Input::has('field'))
-        {
-            $collection = $this->processFields($collection);
+            return View::make('analytics.jobview')->with('jobConfigurations', $params);
         }
-        $jobConfigurations = $collection->get();
 
-        return View::make('analytics.jobview')->with('jobConfigurations', $jobConfigurations);
+        if( Input::has('annotations')) {
+            //etc.
+        }
+
+        
+        // $c = Input::get('collection', 'Entity');
+
+        // $collection = $this->repository->returnCollectionObjectFor($c);
+
+        // if(Input::has('field'))
+        // {
+        //     $collection = $this->processFields($collection);
+        // }
+        // $jobConfigurations = $collection->get();
+
+        // return View::make('analytics.jobview')->with('jobConfigurations', $jobConfigurations);
 
     }
 
@@ -87,31 +94,6 @@ class AnalyticsController extends BaseController {
         return $collection;
     }
 
-    public function getIndex() {
-        return Redirect::to('jobs/listview');
-    }
 
-    //Change JobConfiguration into JobConfiguration
-    public function getListview() {
-        $jobConfigurations = JobConfiguration::orderBy('annotationsPerUnit','asc')->paginate(15);
-        return View::make('jobs.listview')->with('jobConfigurations', $jobConfigurations);
-    }
-
-    public function getTableview(){
-        return View::make('jobs.tableview');
-    }
-
-    /** via routes this method for sorting is called
-    param 1 is the sorting method and param 2 is desc/asc in string
-    based on params  the result is returned in the right way **/
-    public function sortModel($method, $sort){
-        $jobConfigurations = JobConfiguration::orderBy($method, $sort)->paginate(15);
-        return View::make('jobs.results')->with('jobConfigurations', $jobConfigurations);
-    }
-
-    public function createdBy($term){
-        // TODO refine query
-        return View::make('jobs.results')->with(JobConfiguration::where('createdBy', '=', $term ));
-    }
 
 }

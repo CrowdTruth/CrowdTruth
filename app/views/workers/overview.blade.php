@@ -21,7 +21,7 @@
         <div class="panel panel-default" style="margin-top: 10px;">
 			<div class="panel-heading">
 				<h3 class="panel-title">Sort by
-					<span class="fa pull-right ng-class: {'fa-caret-down': !sortVisible, 'fa-caret-up': sortVisible }" ng-click="setSortVisible()"></span>
+					<span class="fa pull-right ng-class: {'fa-caret-down': !sortVisible, 'fa-caret-up': sortVisible }" ng-click="setSortVisible()" ng-init="sortVisible = true"></span>
 				 </h3>
 			</div>
 			<div ng-show="sortVisible">
@@ -48,7 +48,7 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">Filter
-				<span class="fa pull-right ng-class: {'fa-caret-down': !filterVisible, 'fa-caret-up': filterVisible }" ng-click="setFilterVisible()"></span>
+				<span class="fa pull-right ng-class: {'fa-caret-down': !filterVisible, 'fa-caret-up': filterVisible }" ng-click="setFilterVisible()" ng-init="filterVisible = true"></span>
 				</h3>
 			</div>
 			<div ng-show="filterVisible">
@@ -90,7 +90,7 @@
 			<div class="ng-scope space-left pull-left"> 
 				<ul class="pagination ng-isolate-scope">
 	          		<li><a class="ng-binding" ng-show="selection" ng-click="analyze()">Analyse</a></li>
-	          		<li><a class="ng-binding" ng-show="selection" data-toggle="modal" ng-click="gotoMessage()" data-target="#messageModal">Message workers</a></li>
+	          		<li><a class="ng-binding" ng-show="selection" ng-click="openMessage(selection)">Message workers</a></li>
 	          	</ul>
 			</div>
 			<div class="row" style="margin-left:auto; margin-right:auto; width:100%; text-align: center;">
@@ -103,10 +103,11 @@
 
 			<div class="mainContainer">
 				<div class="bordered bgwhite" ng-repeat="result in results.data">
-					<div class="checkbox">
-						<input type="checkbox" ng-model="result.checked">
-					</div>
 					<div class="row">
+						<div class="col-md-1">
+							<button ng-show="result.checked != true" ng-click="addWorker(result._id); result.checked = true;">Add</button>
+							<button ng-show="result.checked == true" ng-click="removeWorker(result._id); result.checked = false;">Remove</button>
+						</div>
 		           		<div class="col-md-5">
 		           			<a class="workerid" ng-click="gotoWorker(result._id)"><strong class="fat">@{{result.softwareAgent_id}}</strong> @{{result.platformAgentId}}</a>
 		           			<div style="color: grey; font-size: 9pt; font-style: italic;" class="subscript"><span ng-show="result.city">@{{result.city}},</span><span ng-show="result.region"> @{{result.region}},</span> @{{result.country}}</div>

@@ -13,4 +13,12 @@ class WorkersController extends BaseController {
 	public function getWorker() {
 		return View::make('workers.worker');
 	}
+
+	public function getMessage() {
+		return View::make('workers.message');
+	}
+
+	public function getFlag() {
+		return View::make('workers.flag');
+	}
 }

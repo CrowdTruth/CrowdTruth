@@ -23,7 +23,8 @@
 }
 
 .checkbox {
-	width: 5px;
+	margin-left: -15px;
+	width: 25px;
 	height: 100%;
 	float: left;
 	vertical-align: middle;
@@ -166,3 +167,38 @@
 	height: 80px;
 	width: 100px;
 }
+
+.badgecount {
+	margin-left: 15px;
+}
+
+.annotationbadge {
+	margin-top: 10px; 
+	margin-left: 25px;
+}
+
+.messagebox {
+	width: 400px;
+	height: 200px;
+}
+ 
+.messageselect {
+	width: 400px;
+}
+
+.leftindent {
+	margin-left: 0px;
+}
+
+.messageContainer {
+	border: solid #AAA 1px;
+	border-radius: 5px;
+	margin-bottom: 40px;
+	background: #FFF;
+	width: 480px;
+}
+
+.messagesubject {
+	width: 275px;
+}
+

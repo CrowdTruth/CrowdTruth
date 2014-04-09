@@ -42,7 +42,32 @@ class apiController extends BaseController {
 	 * @return Response
 	 */
 	public function index()
-	{	//Get all job-object
+	{	
+		/**
+		* Return one entity
+		*
+		* @return one Entity
+		*/
+		if(Input::has('id')){
+			$id = Input::get('id');
+			
+			// Check if is annotation, when annotation append units, if not append annotations (assumption that it is a unit so far valid)
+			$annotationType = strpos($id, 'annotation');
+
+			if($annotationType === false){
+
+				$result = \MongoDB\Entity::with('hasAnnotations')->where('_id', $id)->get();
+
+			} else {
+
+				$result = \MongoDB\Entity::with('hasUnit')->where('_id', $id)->get();
+			
+			}
+
+			$result = $result->toArray();
+						
+			return $result;
+		}
 
 		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job')->with('hasConfiguration')->with('wasAttributedToUserAgent');
 		

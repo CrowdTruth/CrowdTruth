@@ -1,12 +1,8 @@
 var app = angular.module("imageSelection", ['ngResource']);
 
-app.controller("imgCtrl", function($scope, filterFilter, $resource ){
+app.controller("imgCtrl", function($scope, $http, filterFilter){
 	
-	$scope.pictures = [
-	// {'name': 'picture1', 'url': 'image.png'}, 
-	// {'name' : 'picture2', 'url':'image.png'}, 
-	// {'name' : 'z5', 'url':'/image.png'}
-	];
+	$scope.pictures = [];
 
 	$scope.selection = [];
 
@@ -30,21 +26,34 @@ app.controller("imgCtrl", function($scope, filterFilter, $resource ){
  	$scope.loading = true;
 
 
-	$scope.next = function ($resource){
+	$scope.next = function (){
+		console.log("Starting next function.")
 		$scope.loading = true;
- 		window.location = '/temp/imgselection';
+		domain = $scope.domain.toLowerCase();
+		type = $scope.type.toLowerCase();
+		numImg = $scope.numImg.toString();
+		keyphrase = $scope.keyphrase.toLowerCase();
 
- 		var url = "/api/actions/image/" + $scope.domain + "/" + $scope.type + "/" + $scope.numImg + "/" + $scope.keyphrase;
- 		console.log(url);
+		var url = '/api/actions/image/' + domain + '/' + type + '/' + numImg + '/' + keyphrase + '';
 		
- 		//MAKE THIS A RESOURCE METHOD
-		$http({method: 'GET', url: url}).
-			success(function(data, status){
-				console.log('Image being loaded');
-				$scope.status = status;
-				$scope.pictures = data;
-				$scope.loading = false;
-			})
- 		 		
+		console.log(url);
+
+		$http({method: 'GET', url: url }).success(function(data, status) {
+		      $scope.status = status;
+		      $scope.data = data;
+		      $scope.loading = false;
+		    }).
+		    error(function(data, status) {
+		      $scope.data = data || "Request failed";
+		      $scope.status = status;
+		  });
+
+
+ 		
  	}
+
+ 	
 });
+
+
+

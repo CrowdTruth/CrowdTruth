@@ -22,8 +22,9 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('selection', 'SelectionController');
 	Route::controller('process', 'ProcessController');
 	Route::controller('jobs', 'JobsController');
-
+	Route::controller('temp', 'TempController');
 	Route::controller('workers', 'WorkersController');
+	Route::controller('entities', 'EntitiesController');
     Route::controller('analyze','AnalyticsController');
 
 });
@@ -32,6 +33,9 @@ Route::controller('api/v1', '\Api\v1\apiController');
 Route::controller('api/media', '\Api\media\apiController');
 Route::controller('api/search', '\Api\search\apiController');
 Route::controller('api/actions', '\Api\actions\apiController');
+
+
+Route::resource('api/v2/', '\Api\v2\apiController', array('only' => array('index', 'show')));
 
 
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));

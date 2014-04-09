@@ -222,6 +222,10 @@ class Entity extends Moloquent {
         return $this->hasOne('\MongoDB\Entity', '_id', 'unit_id');
     }
 
+    public function hasAnnotations(){
+        return $this->hasMany('\MongoDB\Entity', 'unit_id', '_id');
+    }
+
     public function getWasDerivedFromAttribute()
     {
         if(isset($this->parents))

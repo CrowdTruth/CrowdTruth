@@ -1,8 +1,43 @@
 var app = angular.module("workerRetrieval", [ 'ngResource', 'angularMoment']);
 
 	//write resource service class
+app.controller("messageCtrl", function($scope, $resource, workerService){
+	
+	$scope.showPrevious = function(){
+		window.history.back();
+		// In case of browser incompatibility there is also:
+		// var oldURL = document.referrer;
+		// window.location = oldUrl;
+	}
 
-app.controller("workerByIdCtrl", function($scope, $resource){
+	$scope.sendMessage = function($resource){
+		alert("Message send.");
+		window.history.back();
+	}
+
+	$scope.flagWorker = function($resource){
+		alert("User flagged!");
+	}
+
+	$scope.messagetemplates = [
+		{'title': 'AMT: Welcome to Crowd-Watson', 'content':' BLATIEBLATIEBLA', 'subject':'Welcome to Crowd-Watson!'},
+		{'title':'AMT: Thanks for completing the job!', 'content':'You did AWESOME!', 'subject':'Thank you for Turking!'}
+		];
+
+	$scope.flagtemplates = [
+		{'title': 'AMT: Performance under par', 'content':' YOU\'RE FIRED!', 'subject':'Bad performance on our tasks'},
+		];	
+
+	console.log($scope.selection);		
+	$scope.selection = workerService.getWorkers;
+	
+})
+
+function sendMessage($resource, subject, messageText, workerID){
+	return callback = $resource('/api/actions/message').post()
+	}
+
+app.controller("workerByIdCtrl", function($scope, $resource, workerService){
 	// Get the id from the URL and make API-call to get worker info
 	var url = window.location.pathname.split("/");
 	var _id = url[3] + "/" + url[4] + "/" + url[5];
@@ -20,16 +55,9 @@ app.controller("workerByIdCtrl", function($scope, $resource){
 		$scope.annotations = $scope.worker.hasGeneratedAnnotations;
 		$scope.jobs = $scope.worker.jobs;
 		$scope.units = $scope.worker.units;
+
 	});
 
-
-	$scope.gotoOverview = function(){
-		window.location = '/workers';
-	}
-	
-	$scope.flagWorker = function(){
-		alert("Flag worker " + $scope.worker._id);
-	}
 
 	// $scope.currentPage = 1;
  //  	$scope.numPerPage = 1;
@@ -49,10 +77,30 @@ app.controller("workerByIdCtrl", function($scope, $resource){
  //    	$scope.annotations = $scope.annotations.slice(begin, end);
  //  	});
 
+	$scope.openMessage = function(){
+		redirectToMessage(id);
+	}
+
+	$scope.gotoOverview = function(){
+		window.location = '/workers';
+	}
+	
+	$scope.flagWorker = function(){
+		redirectToFlag();
+	}
+
+	$scope.gotoAnnotation = function(id){
+		redirectToAnnotation(id);
+	}
+
+	$scope.gotoUnit = function(id){
+		redirectToUnit(id);
+	}
 })
+
 	
 //inject resourceSvc in this controller
-app.controller("workerCtrl", function($scope, $resource, filterFilter) {
+app.controller("workerCtrl", function($scope, $resource, filterFilter, workerService) {
 	
 	$scope.optionsPerPage = [
 	    {value: 5},
@@ -175,6 +223,7 @@ app.controller("workerCtrl", function($scope, $resource, filterFilter) {
   	}  	
 
 
+
  	//The following part concerns selection of jobs for analysis
  	$scope.selection = [];
 
@@ -184,6 +233,16 @@ app.controller("workerCtrl", function($scope, $resource, filterFilter) {
 				return result._id;
  			});
  	}, true);
+
+ 	$scope.addWorker = function(result){
+ 		workerService.addWorker(result);
+ 		
+ 	}
+	
+	$scope.removeWorker = function(result){
+		workerService.removeWorker(result);
+		console.log("This is removeWorker");
+	}
  	
  	$scope.analyze = function(){
  		if($scope.selection[0] == null ){
@@ -197,12 +256,60 @@ app.controller("workerCtrl", function($scope, $resource, filterFilter) {
  	}
 
  	$scope.gotoWorker = function(id){
- 		window.location = 'workers/worker/' + id;
+ 		redirectToWorker(id);
  	}
 
+ 	$scope.openMessage = function(){
+ 		redirectToMessage();
+ 	}
+
+ });
+
+app.service('workerService', function() {
+  
+  var workerList = [];
+
+  this.addWorker = function(workerId) {
+  		workerList.push(workerId);
+  		console.log(workerList);
+  };
+
+  this.removeWorker = function(id) {
+  	var index = workerList.indexOf(id);
+  	if (index > -1) {
+	    workerList.splice(index, 1);
+	}
+  }
+
+  this.getWorkers = function(){
+  	      return workerList;
+  };
+  
 });
 
 
+//PUT THESE FUNCTIONS IN A REDIRECTIONSERVICE
+function redirectToUnit(id){
+	url = id.split("/");
+	window.location = '/entities/unit/' + url[1] + "/" + url[2] + "/" + url[3] + "/" + url[4];
+}
+
+function redirectToAnnotation(id){
+	url = id.split("/");
+	window.location = '/entities/annotation/' + url[1] + "/" + url[2] + "/" + url[4];
+}
+
+function redirectToWorker(id){
+	window.location = 'workers/worker/' + id;
+}
+
+function redirectToMessage(){
+	window.location = 'workers/message';
+}
+
+function redirectToFlag(){
+	window.location = 'workers/flag';
+}
 
 var getResource = function($resource, page, perPage, sort, filter){
 		return Result = $resource('/api/v4/?:page:perPage:sort:filter', 
