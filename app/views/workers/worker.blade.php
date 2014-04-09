@@ -24,7 +24,7 @@
 			<div class="ng-scope space-left pull-left"> 
 				<ul class="pagination ng-isolate-scope">
 	          		<li><a class="ng-binding" ng-click="flagWorker()">Flag worker</a></li>
-	          		<li><a class="ng-binding" data-toggle="modal" ng-click="gotoMessage()" data-target="#messageModal">Message worker</a></li>
+	          		<li><a class="ng-binding" ng-click="openMessage(worker._id)">Message worker</a></li>
 	          	</ul>
 			</div>
 	</div>
@@ -49,9 +49,9 @@
 
 		<div class="bordered" ng-init="active.tab = 'jobs'">
 			<ul class="nav nav-tabs">
-			  <li ng-class="{active: active.tab == 'jobs'}"><a ng-click='active.tab = "jobs"'><h4><i class="fa fa-file"></i> Jobs</h4></a></li>
-			  <li ng-class="{active: active.tab == 'units'}"><a ng-click='active.tab = "units"'><h4><i class="fa fa-bars"></i> Units</h4></a></li>
-			  <li ng-class="{active: active.tab == 'ann'}"><a ng-click='active.tab = "ann"'><h4><i class="fa fa-gavel"></i> Annotations</h4></a></li>
+			  <li ng-class="{active: active.tab == 'jobs'}"><a ng-click='active.tab = "jobs"'><h4><i class="fa fa-file"></i> Jobs <span class="badge badgecount">@{{jobs.length}}</span></h4></a></li>
+			  <li ng-class="{active: active.tab == 'units'}"><a ng-click='active.tab = "units"'><h4><i class="fa fa-bars"></i> Units <span class="badge badgecount">@{{units.length}}</span></h4></a></li>
+			  <li ng-class="{active: active.tab == 'ann'}"><a ng-click='active.tab = "ann"'><h4><i class="fa fa-gavel"></i> Annotations <span class="badge badgecount">@{{annotations.length}}</span></h4></a></li>
 			</ul>
 
 			<div ng-switch on='active.tab'>

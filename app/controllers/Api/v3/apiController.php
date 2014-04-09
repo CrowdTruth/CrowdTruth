@@ -42,9 +42,32 @@ class apiController extends BaseController {
 	 * @return Response
 	 */
 	public function index()
-	{	//Get all job-object
+	{	
+		/**
+		* Return one entity
+		*
+		* @return one Entity
+		*/
+		if(Input::has('id')){
+			$id = Input::get('id');
+			
+			// Check if is annotation, when annotation append units, if not append annotations (assumption that it is a unit so far valid)
+			$annotationType = strpos($id, 'annotation');
 
-		// return Input::all();
+			if($annotationType === false){
+
+				$result = \MongoDB\Entity::with('hasAnnotations')->where('_id', $id)->get();
+
+			} else {
+
+				$result = \MongoDB\Entity::with('hasUnit')->where('_id', $id)->get();
+			
+			}
+
+			$result = $result->toArray();
+						
+			return $result;
+		}
 
 		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job')->with('hasConfiguration')->with('wasAttributedToUserAgent');
 		
@@ -72,7 +95,7 @@ class apiController extends BaseController {
 					foreach($value as $operator => $subvalue)
 					{	
 						if($filter == "username"){
-							
+
 							$user = \User::where('username', 'like', '%' . $subvalue . '%')->first();
 
 							// return $user;
@@ -90,7 +113,6 @@ class apiController extends BaseController {
 							if(is_numeric($subvalue))
 							{
 								$subvalue = (int) $subvalue;
-
 							}
 
 							if($operator == 'like')
@@ -194,6 +216,35 @@ class apiController extends BaseController {
 		
 		
 		return Response::json($paginator);
+
+		// Take limit of 100 unless otherwise indicated
+
+
+		//Eager load jobConfiguration into job entity
+		$entities = $documents->take($limit)->get();
+		
+		$jobs = array();
+
+		//Push entity objects into array for paginator
+		foreach($entities as $entity)
+		{
+			array_push($jobs, $entity);
+		}
+		
+		// Paginate results, current page, page of choice etc.
+		
+		if(!$perPage = (int) Input::get('perpage'))
+		{
+			$perPage = 2;
+		}
+			
+		$paginator = Paginator::make($jobs, count($entities), $perPage);
+
+		
+		//Return paginator
+		
+		return Response::json($paginator);
+
 
 	}
 

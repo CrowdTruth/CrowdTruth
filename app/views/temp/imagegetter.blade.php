@@ -53,10 +53,10 @@
 
 				<div class="form-group">
 					<div class="col-sm-offset-3 col-sm-5">
-						<button class="btn btn-primary" ng-click="next()">Start</button>
+						<button class="btn btn-primary" ng-click="next();">Start</button>
 					</div>
 				</div>
-				@{{domain}} @{{type}} @{{numImg}} @{{keyphrase}}
+				@{{domain}} @{{type}} @{{numImg}} @{{keyphrase}}<br>@{{data}}<br>@{{status}}
 			</div>
 		</div>
 	</div>
