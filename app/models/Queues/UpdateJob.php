@@ -7,12 +7,16 @@ class UpdateJob {
 		// Metrics
 		$j = unserialize($data['job']);
 		//dd($j);
+		//dd($j);
 		$annotations = $j->annotations;
         $result = array();
 
         foreach($annotations as $annotation){ 
+        	if(empty($annotation->dictionary))
+        		continue; // Skip if no dictionary.
+
 			$uid = $annotation->unit_id;
-			if(empty($uid)) $uid = 'unknown'; // to prevent mongoException: zero length key not allowed
+			if(empty($uid)) $uid = 'unknown'; // to prevent mongoException: zero length key not allowed. Could also 'continue;'
 			if(!isset($result[$uid]))
 				$result[$uid] = $annotation->dictionary;
 			else {

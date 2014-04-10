@@ -21,7 +21,7 @@ class Job extends Entity {
     {
         parent::boot();
 
-        static::saving(function ( $job )
+        static::creating(function ( $job )
         {
 
 		try {
@@ -36,7 +36,10 @@ class Job extends Entity {
 				$annotationsPerUnit = intval($job->jobConfiguration->content['annotationsPerUnit']);
 				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);
 				$unitsCount = count($job->batch->wasDerivedFrom);
-				$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
+                if(!$unitsPerTask)
+                    $projectedCost = 0;
+                else
+				    $projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
 
 				$job->unitsCount = $unitsCount;
 				$job->annotationsCount = 0;
@@ -136,43 +139,6 @@ class Job extends Entity {
 
 		}
     }
-
-
-    public function addResults($annotations){
-
-        // TODO: check if not already added? How?
-
-    	if(!is_array($annotations))
-    		$annotations = array($annotations);
-
-        $results = $this->results;
-        if(!is_array($results)) 
-            $results = array();
-        $count=0;
-        foreach($annotations as $annotation){
-	        if(in_array($annotation->unit_id, array_keys($results)))
-	            foreach ($annotation->dictionary as $ans=>$count){
-	                if(isset($results[$annotation->unit_id][$ans]))
-	                    $results[$annotation->unit_id][$ans]+=$count;
-	                else 
-	                    $results[$annotation->unit_id][$ans]=$count;
-	            }   
-	        else
-	            $results[$annotation->unit_id] = $annotation->dictionary;
-	        $count++;
-	    }
-
-    	$this->results = $results;
-        $this->annotationsCount = count($this->annotations);
-    	//$this->annotationsCount+=$count;
-		$jpu = intval($this->jobConfiguration->content['annotationsPerUnit']);		
-		$uc = intval($this->unitsCount);
-		if($uc > 0 and $jpu > 0) $this->completion = $this->annotationsCount / ($uc * $jpu);	
-		else $this->completion = 0.00;
-
-		if($this->completion == 1) $this->status = 'finished'; // Todo: Not sure if this works
-    }
-
 
     /** 
     * @return String[] the HTML for every question.

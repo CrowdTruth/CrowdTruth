@@ -202,24 +202,81 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		}
 	}
 
+	public function getUnitsreldir(){
+		$count = 0;
+		foreach(\Annotation::where('type', 'RelDir')->get() as $ann){
+			set_time_limit(30);
+			if(!isset($ann->content)){
+				echo "{$ann->_id} no content\r\n";
+				echo "--------------------------------\r\n";
+				continue;
+			}
+
+/*			if(!empty($ann->unit_id)){
+				echo "{$ann->_id} has unitid\r\n";
+				continue;
+			}*/
+
+
+			//$xml = simplexml_load_string($ann->question);
+			//$url = (string) $xml->ExternalURL;
+			$xml = simplexml_load_string($ann->question);
+			//$html = $ann->question;//
+			$html = (string) $xml->HTMLContent;
+		//	dd($html);
+			$dom = HtmlDomParser::str_get_html($html);
+			$sentence = rtrim($dom->find('span[style=color:#0000CD;]', 0)->innertext, '.'); 
+			$input1 = $dom->find('span[class=answertext]', 0)->innertext;
+			$term1 = substr($input1, 0, strpos($input1, ']')+1);
+			$term2 = substr($input1, strpos(substr($input1, 2), '[') + 2);
+
+
+			$unit = \MongoDB\Entity::where('content.terms.first.formatted', $term1)
+			->where('content.terms.second.formatted', $term2)
+			->where('content.sentence.formatted', $sentence)
+			->first();
+
+/*			$count++;
+			if($count==150)
+				die();*/
+
+			if($unit){
+				echo "\r\n\YY $sentence\r\n"; 
+				echo "== " . $unit->content['sentence']['formatted'];
+				echo "\r\n{$ann->_id}->{$unit->_id}\r\n"; 
+				//$ann->unit_id = $unit->_id;
+				//$ann->save();
+			} else {	
+
+				echo "\r\nNO {$ann->_id}\r\n$term1--$term2--$sentence\r\n"; 
+				//echo $punit->content['sentence']['formatted'];
+				//echo "\r\n{$ann->unit_id}----------------\r\n"; 
+				echo "----------------------------------------";
+				continue;
+			}
+
+
+
+		}
+	}
+
 
 	public function getUnitsfactspan(){
 		$count = 0;
-		foreach(\Annotation::where('type', 'FactSpan')->where('unit_id', '')->get() as $ann){
-
+		foreach(\Annotation::where('type', 'FactSpan')->get() as $ann){
 			
 			set_time_limit(300);
 
 			if(!isset($ann->content)){
 				echo "{$ann->_id} no content\r\n";
+				echo "--------------------------------\r\n";
 				continue;
 			}
 
-			if(!empty($ann->unit_id)){
+/*			if(!empty($ann->unit_id)){
 				echo "{$ann->_id} has unitid\r\n";
 				continue;
-			}
-
+			}*/
 
 			//dd($ann->question);
 			$xml = simplexml_load_string($ann->question);
@@ -238,6 +295,66 @@ class tempImportAndVectorsMethodsController extends BaseController {
 			->where('content.terms.second.formatted', $term2)
 			->where('content.sentence.formatted', $sentence)
 			->first();
+
+			$count++;
+
+			if($unit){
+				echo "\r\n\YY $sentence\r\n"; 
+				echo "== " . $unit->content['sentence']['formatted'];
+				echo "\r\n{$ann->_id}->{$unit->_id}\r\n"; 
+				$ann->unit_id = $unit->_id;
+				$ann->save();
+			} else {	
+
+				echo "\r\nNO {$ann->_id}\r\n $sentence\r\n"; 
+				//echo $punit->content['sentence']['formatted'];
+				//echo "\r\n{$ann->unit_id}----------------\r\n"; 
+				echo "----------------------------------------";
+				continue;
+			}
+
+
+
+		}
+	}
+
+	public function getUnitsrelex(){
+		$count = 0;
+		foreach(\Annotation::where('type', 'RelEx')->get() as $ann){
+			set_time_limit(30);
+			if(!isset($ann->content)){
+				echo "{$ann->_id} no content\r\n";
+				echo "--------------------------------\r\n";
+				continue;
+			}
+
+			if(!empty($ann->unit_id)){
+				echo "{$ann->_id} has unitid\r\n";
+				continue;
+			}
+
+			//dd($ann->question);
+			//$xml = simplexml_load_string($ann->question);
+			//$url = (string) $xml->ExternalURL;
+			$xml = simplexml_load_string($ann->question);
+			//$html = $ann->question;//
+			$html = (string) $xml->HTMLContent;
+			//dd($html);
+			$dom = HtmlDomParser::str_get_html($html);
+			$sentence = rtrim($dom->find('span[class=senval]', 0)->innertext, '.'); 
+			$term1 = $dom->find('span[style=color:#0000CD;]', 1)->innertext;
+			$term2 = $dom->find('span[style=color:#0000CD;]', 2)->innertext;
+
+/*			$sentence = "Poisson regression analysis which included data for multiple measurements of Tme/[TE] over the first year of life and adjusted for age-at-test and maternal smoking during [PREGNANCY] also demonstrated a greater decrease in Tme/Te in female infants who subsequently develop an LRI (P = 0.08";
+			$term1 = "[PREGNANCY]";
+			$term2 = "[TE]";*/
+
+			$unit = \MongoDB\Entity::where('content.terms.first.formatted', $term1)
+			->where('content.terms.second.formatted', $term2)
+			->where('content.sentence.formatted', $sentence)
+			->first();
+
+
 
 /*			if(!$unit){
 				$hi = 0;
@@ -260,23 +377,30 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 			} */
 
-			if(!$unit){
-				echo "\r\n$sentence\r\n"; 
-				echo $punit->content['sentence']['formatted'];
-				echo "\r\n{$ann->unit_id}----------------\r\n"; 
+			$count++;
+			if($count==150)
+				die();
+
+			if($unit){
+				echo "\r\n\YY $sentence\r\n"; 
+				echo "== " . $unit->content['sentence']['formatted'];
+				echo "\r\n{$ann->_id}->{$unit->_id}\r\n"; 
+				$ann->unit_id = $unit->_id;
+				$ann->save();
+			} else {	
+
+				echo "\r\nNO {$ann->_id}\r\n$term1--$term2--$sentence\r\n"; 
+				//echo $punit->content['sentence']['formatted'];
+				//echo "\r\n{$ann->unit_id}----------------\r\n"; 
 				echo "----------------------------------------";
 				continue;
-			} else {	
-				echo "\r\n$sentence\r\n"; 
-				echo $punit->content['sentence']['text'];
-				echo "\r\n{$unit->_id}-{$ann->_id}\r\n"; 
 			}
 
-			$ann->unit_id = $unit->_id;
-			dd($ann);
-			$ann->save();
+
+
 		}
 	}
+
 
 	public function getAddvectors($basevector = null){
 		$job = Job::first();
@@ -535,6 +659,55 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		}
 
 	}
+
+
+
+
+	// CF RELDIR
+	public function getCfreldirvector(){
+
+		$jobs = Job::type('RelDir')->get();
+		$count = 0;
+		foreach ($jobs as $job) {
+			foreach($job->annotations as $ann){
+				$count++;
+				$u = $ann->unit['content'];
+
+				$ann->type = $job->type;
+				$ans = $ann->content['direction'];
+				
+				if($ans == 'no_relation')
+					$realans = 'Choice3';
+				else {
+					if (strpos($ans, $u['terms']['first']['formatted']) === 0)
+						$realans = 'Choice1';
+					elseif (strpos($ans, $u['terms']['first']['formatted']) > 0)
+						$realans = 'Choice2';
+					else
+						$realans = '-------';
+
+				}
+
+				echo "$realans - $ans\r\n";
+
+				$ann->dictionary = array(
+		            'Choice1' => (($ans == 'Choice1') ? 1 : 0),
+		            'Choice2' => (($ans == 'Choice2') ? 1 : 0),
+		            'Choice3' => (($ans == 'Choice3') ? 1 : 0)
+		            );
+
+				$ann->save();
+			}
+
+			$job = Job::id('entity/text/medical/job/0')->first();
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+
+		}
+
+
+	
+	}
+
 
 
 }

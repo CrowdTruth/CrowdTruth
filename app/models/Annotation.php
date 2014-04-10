@@ -68,12 +68,16 @@ class Annotation extends Entity {
                 break;
             
             default:
-               throw new Exception('No rules for creating a dictionary for this type.');
+               return  $this->createDictionaryFactSpan(); // For Debugging!
+               //throw new Exception('No rules for creating a dictionary for this type.');
                 break;
         }        
     }
     //todo should be private
-        public function createDictionaryFactSpan(){
+    public function createDictionaryFactSpan(){
+        if(empty($this->unit))
+            return null;
+
             //if(isset($this->unit->content['sentence']['formatted']))
                 $sentence = $this->unit->content['sentence']['formatted'];
             //else 
@@ -152,86 +156,97 @@ class Annotation extends Entity {
             // CF
             } elseif(isset($ans['confirmfirstfactor']) or isset($ans['saveselectionid1'])) {
                // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));
-                $sentence = strtolower($this->unit->content['sentence']['text']);
-                $term1 = strtolower($this->unit->content['terms']['first']['text']);
-                $term2 = strtolower($this->unit->content['terms']['second']['text']);
 
-                // TODO: spaces and dashes
-
-                try{
-                    // User selected YES -> NIL or exception
-                    if(!empty($ans['confirmids1'])){  
-                        $ids1 = explode('-', $ans['confirmids1']);
-                        $length1 = min(
-                            [strpos(substr($sentence, intval(end($ids1))), ' '),
-                            strpos(substr($sentence, intval(end($ids1))), '-'),
-                            strpos(substr($sentence, intval(end($ids1))), '/')])
-                        +(intval(end($ids1))-intval($ids1[0]));
-
-                        $words1 = strtolower(substr($sentence, intval($ids1[0]), $length1));
-
-                        echo("{$this->_id}\r\n[$term1]=[$words1]=[{$ans['confirmfirstfactor']}]\r\n$sentence\r\n");
-                        
-                        if($words1 == $term1) // [NIL] 
-                            $vector1 = $this->createFactVect(false, 0, 0);
-                        else
-                           throw new Exception("User selected YES but '$words1' != '$term1'");
-
-                    // User selected NO -> anything but [NIL] (else: exception)
-                    } elseif(!empty($ans['saveselectionids1'])) {
-                        
-                        // Create text from indices.
-                        $ids1 = explode('-', $ans['saveselectionids1']);
-                        $length1 = strpos(substr($sentence, intval(end($ids1))), ' ')+(intval(end($ids1))-intval($ids1[0]));
-                        $words1 = substr($sentence, intval($ids1[0]), $length1);
-
-                        // TEST
-                       // $words1 = str_replace('-', ' ', $words1);
-       
-                        // The selected words match the given text
-                        if($words1 != strtolower($ans['firstfactor']))
-                            throw new Exception("User selected NO but '$words1' != '{$ans['firstfactor']}'");
-
-                        $term1initialindex = strpos($sentence, $term1);
-                        $wordindex = array_search($term1initialindex, $ids1);
-                        $startdiff = -$wordindex;
-                        $enddiff = count($ids1) - $wordindex -1;
-                        var_dump($ids1);
-
-                        if($startdiff == 0 and $enddiff == 0)
-                            throw new Exception('User selected NO but startdiff and enddiff are 0.');
-                        
-                        if($words1 == $term1)
-                            throw new Exception('User selected NO but provided the same term.');
-
-                        $vector1 = $this->createFactVect(false, $startdiff, $enddiff);
-                        echo("{$this->_id}\r\n[$term1]!=([$words1]=[{$ans['firstfactor']}])\r\n$sentence\r\n");
-
-             /*           echo "$term1initialindex vs {$ans['saveselectionids1']}: $wordindex dus $startdiff en $enddiff";
-                         echo("{$this->_id}\r\n[$term1]!={$ans['firstfactor']} - $sentence\r\n");
-                        */
-
-
-                    }
-
-                }catch(Exception $e){
-                    $vector1 = $this->createFactVect(true);
-                    echo '-----------------------------';
-                    echo $e->getMessage() . "\r\n$sentence\r\n";
-                    print_r($ans);
-
-                    dd($vector1);
-                    echo '-----------------------------';
-                }
-               // print_r($vector1);
+                $term = strtolower($this->unit->content['terms']['first']['text']);
+                $b = $this->unit->content['terms']['first']['startIndex'];
+                $vector1 = $this->createSingleFactVect($ans['confirmids1'], $ans['confirmfirstfactor'], $term, $b, $ans['saveselectionids1'], $ans['firstfactor']);
+               
+                $term = strtolower($this->unit->content['terms']['second']['text']);
+                $b = $this->unit->content['terms']['second']['startIndex'];
+                $vector2 = $this->createSingleFactVect($ans['confirmids2'], $ans['confirmsecondfactor'], $term, $b, $ans['saveselectionids2'], $ans['secondfactor']);
             }     
 
-
-
-
-
-           // return array('term1' => $vector1, 'term2' => $vector2);
+            return array('term1' => $vector1, 'term2' => $vector2);
      }
+
+
+    private function createSingleFactVect($confirmids, $confirmfactor, $term, $b, $saveselectionids, $factor){
+        $sentence = strtolower($this->unit->content['sentence']['text']);
+        echo "{$this->_id}: ";
+        try{
+
+            // User selected YES -> NIL or exception
+            if(!empty($confirmids)){  
+                $ids = explode('-', $confirmids);
+                sort($ids);
+                $words = $this->getWords($sentence, $ids);
+
+                echo("[$term]=[$words]=[$confirmfactor]\r\n");
+                
+                if($words != $term and rtrim($words, ";,.") != $term) 
+                    throw new Exception("User selected YES but '$words' [based on index] != '$term' [text]");
+                    
+                $vector = $this->createFactVect(false, 0, 0); // [NIL]               
+
+            // User selected NO -> anything but [NIL] (else: exception)
+            } elseif(!empty($saveselectionids)) {
+                
+                // Create text from indices.
+                $ids = explode('-', $saveselectionids);
+                sort($ids);
+                $words = $this->getWords($sentence, $ids);
+
+                // The selected words match the given text
+                if ($words != strtolower($factor) and $words != rtrim($words, ";,."))
+                    throw new Exception("User selected NO but '$words' [based on indices] != '$factor' [text]");
+
+                $wordindex = array_search($b, $ids);
+                if($wordindex===false)
+                     throw new Exception("User selected NO but base index $b not found in answer $saveselectionids.");
+
+                $startdiff = -$wordindex;
+                $enddiff = count($ids) - $wordindex - substr_count($term, " ") - 1;
+                //count($ids) - $wordindex -(count(explode(' ', $words))-1);
+
+                if($startdiff == 0 and $enddiff == 0)
+                    throw new Exception('User selected NO but startdiff and enddiff are 0.');
+                
+                if($words == $term)
+                    throw new Exception('User selected NO but provided the same term.');
+
+                $vector = $this->createFactVect(false, $startdiff, $enddiff);
+                echo("[$term]!=([$words]=[$factor])[$startdiff<->$enddiff] ($b in $saveselectionids)\r\n");
+                //echo "^ $b is in pos $wordindex so start=$startdiff and end = $enddiff.\r\n";
+
+            } else {
+                throw new Exception('Confirmids and saveselectionids are both empty.');
+            }
+
+        }catch(Exception $e){
+            $vector = $this->createFactVect(true);
+            echo $e->getMessage() . "\r\n";
+        }
+
+        return $vector;
+     }
+
+    private function getWords($sentence, $indexes, $chars = [' ','-','/']){
+        $words = array();
+        foreach ($indexes as $index) {
+            $foundarray = array();
+            foreach ($chars as $c)
+                if($found = strpos(substr($sentence, $index), $c))
+                    $foundarray[] = $found;
+
+            if(count($foundarray)>0)
+                $length = min($foundarray);
+            else $length = 0;
+
+            $words[] = substr($sentence, $index, $length);
+        }
+        return implode(' ', $words);
+    }
+
 
 
     private function isOkYesQuestion($yesquestion, $term, $inputsentence){
@@ -283,7 +298,22 @@ class Annotation extends Entity {
 
 
     private function createDictionaryRelDir(){
-        $ans = $this->content['direction'];
+        if(isset($this->content['direction']))
+            $ans = $this->content['direction'];
+        else
+            $ans = $this->content['Q1'];
+
+        if($this->softwareAgent_id == 'cf'){
+            if($ans == 'no_relation')
+                $ans = 'Choice3';
+            elseif (strpos($ans, $u['terms']['first']['formatted']) === 0)
+                $ans = 'Choice1';
+            elseif (strpos($ans, $u['terms']['first']['formatted']) > 0)
+                $ans = 'Choice2';
+            else
+                $ans = '-------';
+        }
+
         return array(
             'Choice1' => (($ans == 'Choice1') ? 1 : 0),
             'Choice2' => (($ans == 'Choice2') ? 1 : 0),
@@ -343,17 +373,25 @@ class Annotation extends Entity {
     }
 
     public function createDictionaryRelEx(){
+        
+        // AMT
         if(isset($this->content['Q1text'])){
             $ans = str_replace(" ", "_", rtrim($this->content['Q1text']));           
             $ans = str_replace("[DIAGNOSED_BY_TEST_OR_DRUG]", "[DIAGNOSE_BY_TEST_OR_DRUG]", $ans);
-            if($ans == '')  throw new Exception('Answer is empty.');
+            if($ans == '') return null;
+               // throw new Exception('Answer is empty.');
 
             $ans = str_replace("]_[", "]*[", $ans);
             $ans = explode('*', $ans);
-        } else {
-            return array('Not yet implemented for CF.');
-        }
 
+        // CF    
+        } elseif(isset($this->content['step_1_select_the_valid_relations'])) {
+            $ans = str_replace("\n", "_", rtrim($this->content['step_1_select_the_valid_relations']));
+            $ans = str_replace("]_[", "]*[", $ans);
+            $ans = explode('*', $ans);
+        } else {
+            return null;
+        }
 
         $dic = array(
         "[TREATS]" =>                   (in_array("[TREATS]",                   $ans ) ? 1 : 0),
