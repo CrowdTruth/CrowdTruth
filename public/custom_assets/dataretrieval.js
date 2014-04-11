@@ -151,7 +151,7 @@ app.controller("resourceCtrl", ["$scope", "$resource", "$http", "filterFilter", 
  			alert('Select a job first.')
  		} else
  		{
- 			window.location = '/analyze/view?field[_id][]=' + $scope.selection;
+ 			window.location = '/analyze/view?jobs=' + $scope.selection;
  		}
  	}
 
