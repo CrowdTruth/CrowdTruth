@@ -9,6 +9,7 @@ Route::group(array('before' => 'auth'), function()
 {
 	Route::get('/', function()
 	{
+<<<<<<< HEAD
 
 
 		// $units = \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->where('activity_id', 'like', '%twrexstructurer%')->get();
@@ -44,6 +45,10 @@ Route::group(array('before' => 'auth'), function()
 
 		// return \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->where('user_id', 'khamkham')->count();
 
+=======
+        //$result = \MongoDB\Entity::where('documentType', 'job')->whereIn('softwareAgent_id', ['cf', 'amt'])->count();
+        //return $result;
+>>>>>>> 373a996f28c09ac33cb9afd1d59c621e5cca2fd5
 	    return Redirect::to('home');
 	});
 
