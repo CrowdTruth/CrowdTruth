@@ -12,7 +12,7 @@ Route::group(array('before' => 'auth'), function()
 
 		// $units = \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->where('activity_id', 'like', '%twrexstructurer%')->get();
 
-		// // $units = \MongoDB\Entity::where('content.sentence.text', 'like', '%antigen permits%')->get();
+		// return $units = \MongoDB\Entity::where('content.sentence.text', 'like', '%antigen permits%')->get();
 
 		// $twrexStructurer = \App::make('\preprocess\TwrexStructurer');
 

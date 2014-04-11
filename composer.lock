@@ -533,12 +533,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "d6721488f1a166fd2a7e112540fef81975c393a7"
+                "reference": "3004f39a1d2f5392b778375a061640b89fee09df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/d6721488f1a166fd2a7e112540fef81975c393a7",
-                "reference": "d6721488f1a166fd2a7e112540fef81975c393a7",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/3004f39a1d2f5392b778375a061640b89fee09df",
+                "reference": "3004f39a1d2f5392b778375a061640b89fee09df",
                 "shasum": ""
             },
             "require": {
@@ -642,7 +642,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2014-04-10 13:22:14"
+            "time": "2014-04-11 14:11:00"
         },
         {
             "name": "leafo/lessphp",
