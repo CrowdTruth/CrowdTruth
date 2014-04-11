@@ -6,6 +6,7 @@
 				<option value="25">25 Records per page</option>
 				<option value="50">50 Records per page</option>
 				<option value="100">100 Records per page</option>
+				<option value="1000">1000 Records per page</option>
 			</select>
 			<div class="btn-group pull-right vbColumns">
 				<a href='#' class="btn btn-warning toCSV">Export results to CSV</a>				

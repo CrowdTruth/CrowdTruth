@@ -71,6 +71,10 @@
     return new Swag.Handlebars.SafeString(str);
   };
 
+  Utils.escapeRegexp = function(str, delimiter){
+    return String(str).replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\' + (delimiter || '') + '-]', 'g'), '\\$&');
+  }
+
   Utils.trim = function(str) {
     var trim;
     trim = /\S/.test("\xA0") ? /^[\s\xA0]+|[\s\xA0]+$/g : /^\s+|\s+$/g;
@@ -714,6 +718,12 @@
 
   Swag.addHelper('highlightTerms', function(searchQuery, content, options) {
     var formattedSentence = content.sentence.formatted;
+    var t1 = content.terms.first.formatted;
+    var t2 = content.terms.second.formatted;
+
+    formattedSentence = formattedSentence.replace(t1, '<span class="highlightTerm" data-toggle="tooltip" data-placement="top" title="Term 1">' + t1 + '</span>');
+    formattedSentence = formattedSentence.replace(t2, '<span class="highlightTerm" data-toggle="tooltip" data-placement="top" title="Term 2">' + t2 + '</span>');
+
     var relation = content.relation.noPrefix;
 
     if(relation == "diagnose")
@@ -736,15 +746,15 @@
     if(searchQuery.field["content.sentence.formatted"])
     {
       var highlightedSearchTerm = searchQuery.field["content.sentence.formatted"].like;
-      var regEx = new RegExp((highlightedSearchTerm), "ig");
-      formattedSentence = formattedSentence.replace(regEx, '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="top" title="Your search term">' + highlightedSearchTerm + '</span>');
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+   //   formattedSentence = formattedSentence.replace(regEx, '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="top" title="Your search term">$1</span>');
+
+      formattedSentence = formattedSentence.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
     }
-
-    var t1 = content.terms.first.formatted;
-    var t2 = content.terms.second.formatted;
-
-    formattedSentence = formattedSentence.replace(t1, '<span class="highlightTerm" data-toggle="tooltip" data-placement="top" title="Term 1">' + t1 + '</span>');
-    formattedSentence = formattedSentence.replace(t2, '<span class="highlightTerm" data-toggle="tooltip" data-placement="top" title="Term 2">' + t2 + '</span>');
 
     return new Handlebars.SafeString(formattedSentence);
   });
