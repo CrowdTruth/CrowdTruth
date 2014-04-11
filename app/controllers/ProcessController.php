@@ -12,6 +12,14 @@ class ProcessController extends BaseController {
 	}
 
 
+/*	public function getLoop(){
+		foreach(Annotation::get() as $ann){
+			$ann->activity_id = 'activity/amt/0';
+			$ann->user_id = 'arne';
+			$ann->save();
+		}
+	}*/
+
 	// ******************************************************************* //
 	public function getUpdatedictionaries(){
 
