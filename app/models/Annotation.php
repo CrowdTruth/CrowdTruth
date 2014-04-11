@@ -75,7 +75,7 @@ class Annotation extends Entity {
     }
     //todo should be private
     public function createDictionaryFactSpan(){
-        if(empty($this->unit))
+        if(empty($this->unit_id))
             return null;
 
             //if(isset($this->unit->content['sentence']['formatted']))
@@ -154,8 +154,23 @@ class Annotation extends Entity {
 
 
             // CF
-            } elseif(isset($ans['confirmfirstfactor']) or isset($ans['saveselectionid1'])) {
+            } elseif(isset($ans['confirmfirstfactor']) or isset($ans['saveselectionids1'])) {
                // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));
+
+                // Patching the fact that the CML is different from the WebSci results [fugly]
+                if(!isset($ans['confirmfirstfactor'])){
+                    if($ans['question1'] == 'yes'){
+                        $ans['confirmfirstfactor'] = $ans['factor1'];
+                        $ans['confirmids1'] = $ans['saveselectionids1'];
+                        $ans['confirmsecondfactor'] = $ans['factor2'];
+                        $ans['confirmids2'] = $ans['saveselectionids2'];
+                    } else {
+                        $ans['confirmfirstfactor'] = '';
+                        $ans['confirmids1'] = '';     
+                        $ans['confirmsecondfactor'] = '';
+                        $ans['confirmids2'] = '';       
+                    }
+                }
 
                 $term = strtolower($this->unit->content['terms']['first']['text']);
                 $b = $this->unit->content['terms']['first']['startIndex'];
@@ -164,7 +179,9 @@ class Annotation extends Entity {
                 $term = strtolower($this->unit->content['terms']['second']['text']);
                 $b = $this->unit->content['terms']['second']['startIndex'];
                 $vector2 = $this->createSingleFactVect($ans['confirmids2'], $ans['confirmsecondfactor'], $term, $b, $ans['saveselectionids2'], $ans['secondfactor']);
-            }     
+            } else {
+                return null;
+            }    
 
             return array('term1' => $vector1, 'term2' => $vector2);
      }

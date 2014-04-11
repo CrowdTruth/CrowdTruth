@@ -20,6 +20,11 @@ class ProcessController extends BaseController {
 		}
 	}*/
 
+	public function getTest(){
+		$ann = Annotation::id('entity/text/medical/annotation/10000')->first();
+		dd($ann->createDictionary());
+	}
+
 	// ******************************************************************* //
 	public function getUpdatedictionaries(){
 
