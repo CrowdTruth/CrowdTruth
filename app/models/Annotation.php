@@ -157,26 +157,28 @@ class Annotation extends Entity {
             } elseif(isset($ans['confirmfirstfactor']) or isset($ans['saveselectionids1']) or isset($ans['factor1'])) {
                // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));
                 Log::debug($ans);
+             
                 // Patching the fact that the CML is different from the WebSci results [fugly]
-                if(!isset($ans['confirmfirstfactor']) and !isset($ans['confirmsecondfactor'])){
-                    if($ans['question1'] == 'yes'){
-                        $ans['confirmfirstfactor'] = $ans['factor1'];
-                        $ans['confirmids1'] = $ans['saveselectionids1'];
-                    } else {
+                if(!isset($ans['confirmfirstfactor'])){
+                    $ans['firstfactor'] = $ans['factor1'];
+                    $ans['secondfactor'] = $ans['factor2'];
+
+                    if($ans['question1'] == 'no'){
                         $ans['confirmfirstfactor'] = '';
-                        $ans['confirmids1'] = '';     
-                        $ans['saveselectionids1'] = $ans['wordid1'];  
+                        $ans['confirmids1'] = '';
+                    } else {
+                        $ans['saveselectionids1'] = $ans['b1'];  
                     }
 
-                    if($ans['question2'] == 'yes'){
-                        $ans['confirmsecondfactor'] = $ans['factor2'];
-                        $ans['confirmids2'] = $ans['saveselectionids2'];
-                    } else {
+                    if($ans['question2'] == 'no'){
                         $ans['confirmsecondfactor'] = '';
                         $ans['confirmids2'] = '';  
-                        $ans['saveselectionids2'] = $ans['wordid2']; 
+                    } else {
+                        $ans['saveselectionids2'] = $ans['b2']; 
                     }
                 }
+
+                Log::debug($ans);
                 
                 $term = strtolower($this->unit->content['terms']['first']['text']);
                 $b = $this->unit->content['terms']['first']['startIndex'];

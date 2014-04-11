@@ -22,6 +22,8 @@ class ProcessController extends BaseController {
 
 	public function getTest(){
 		$ann = Annotation::id('entity/text/medical/annotation/10000')->first();
+		$ann->content = json_decode('{"question1":"no","firstfactor":"infection HIV","e1":"147","question2":"yes","e2":"307","factor1":"infection","b1":"138","confirmids2":"304","factor2":"hiv","confirmsecondfactor":"HIV","sentence":"Compared with opportunistic infections among HIV-infected adults, which are often caused by reactivation of pathogens acquired before HIV infection when host immunity was intact, opportunistic infections among children often reflect primary acquisition of the pathogen and, among children with perinatal HIV infection, infection acquired after HIV infection has been established and begun to compromise an already immature immune system","b2":"304","wordid2":"304","sentencesecondfactor":"hiv is a bad disease","saveselectionids1":"304-193"}', TRUE); 
+
 		dd($ann->createDictionary());
 	}
 
