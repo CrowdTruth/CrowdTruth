@@ -154,7 +154,7 @@ class Annotation extends Entity {
 
 
             // CF
-            } elseif(isset($ans['confirmfirstfactor']) or isset($ans['saveselectionids1'])) {
+            } elseif(isset($ans['confirmfirstfactor']) or isset($ans['saveselectionids1']) or isset($ans['factor1'])) {
                // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));
 
                 // Patching the fact that the CML is different from the WebSci results [fugly]
@@ -168,7 +168,7 @@ class Annotation extends Entity {
                         $ans['saveselectionids1'] = $ans['wordid1'];  
                     }
 
-                    if($ans['question1'] == 'yes'){
+                    if($ans['question2'] == 'yes'){
                         $ans['confirmsecondfactor'] = $ans['factor2'];
                         $ans['confirmids2'] = $ans['saveselectionids2'];
                     } else {
