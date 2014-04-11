@@ -244,8 +244,8 @@ class tempImportAndVectorsMethodsController extends BaseController {
 				echo "\r\n\YY $sentence\r\n"; 
 				echo "== " . $unit->content['sentence']['formatted'];
 				echo "\r\n{$ann->_id}->{$unit->_id}\r\n"; 
-				//$ann->unit_id = $unit->_id;
-				//$ann->save();
+				$ann->unit_id = $unit->_id;
+				$ann->save();
 			} else {	
 
 				echo "\r\nNO {$ann->_id}\r\n$term1--$term2--$sentence\r\n"; 
@@ -377,10 +377,6 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 			} */
 
-			$count++;
-			if($count==150)
-				die();
-
 			if($unit){
 				echo "\r\n\YY $sentence\r\n"; 
 				echo "== " . $unit->content['sentence']['formatted'];
@@ -400,6 +396,8 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 		}
 	}
+
+
 
 
 	public function getAddvectors($basevector = null){
@@ -706,6 +704,24 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 
 	
+	}
+
+	public function getUpdatebatches(){
+		
+		foreach(Job::get() as $job){
+			$list = array();
+			foreach (Annotation::type($job->type)->get() as $ann) {
+				
+				if(!empty($ann->unit_id))
+					$list[] = $ann->unit_id;
+			}
+
+			$batch = $job->batch;
+			$batch->parents= array_unique($list);
+			$batch->save();
+
+			//Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+		}
 	}
 
 
