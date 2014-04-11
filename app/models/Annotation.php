@@ -158,19 +158,27 @@ class Annotation extends Entity {
                // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));
 
                 // Patching the fact that the CML is different from the WebSci results [fugly]
-                if(!isset($ans['confirmfirstfactor'])){
+                if(!isset($ans['confirmfirstfactor']) and !isset($ans['confirmsecondfactor'])){
                     if($ans['question1'] == 'yes'){
                         $ans['confirmfirstfactor'] = $ans['factor1'];
                         $ans['confirmids1'] = $ans['saveselectionids1'];
-                        $ans['confirmsecondfactor'] = $ans['factor2'];
-                        $ans['confirmids2'] = $ans['saveselectionids2'];
                     } else {
                         $ans['confirmfirstfactor'] = '';
                         $ans['confirmids1'] = '';     
+                        $ans['saveselectionids1'] = $ans['wordid1'];  
+                    }
+
+                    if($ans['question1'] == 'yes'){
+                        $ans['confirmsecondfactor'] = $ans['factor2'];
+                        $ans['confirmids2'] = $ans['saveselectionids2'];
+                    } else {
                         $ans['confirmsecondfactor'] = '';
-                        $ans['confirmids2'] = '';       
+                        $ans['confirmids2'] = '';  
+                        $ans['saveselectionids2'] = $ans['wordid2']; 
                     }
                 }
+                
+
 
                 $term = strtolower($this->unit->content['terms']['first']['text']);
                 $b = $this->unit->content['terms']['first']['startIndex'];
