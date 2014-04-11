@@ -413,10 +413,15 @@ div.ColVis_catcher {
 	.tab-pane {
 		thead {
 
-			th {cursor:pointer;}
-			.sorting { background: url('datatables/sort_both.png') no-repeat center right; }
-			.sorting_asc { background: url('datatables/sort_asc.png') no-repeat center right; }
-			.sorting_desc { background: url('datatables/sort_desc.png') no-repeat center right; }
+			th {
+				cursor:pointer;
+				text-align:center;
+				white-space: nowrap;
+			}
+
+			.sorting { background: url('datatables/sort_both.png') no-repeat center right; padding-right:20px; }
+			.sorting_asc { background: url('datatables/sort_asc.png') no-repeat center right; padding-right:20px; }
+			.sorting_desc { background: url('datatables/sort_desc.png') no-repeat center right; padding-right:20px; }
 
 			input {
 				width:100%;
@@ -459,4 +464,39 @@ div.ColVis_catcher {
 
 .popover-medium {
 	min-width:auto !important;
+}
+
+.vbColumns {
+	.fa-fw {
+		margin-left:-10px;
+	}
+}
+
+.whiteSpaceNormal {
+	white-space: normal !important;
+}
+
+.whiteSpaceNoWrap {
+	white-space: nowrap !important;
+}
+
+.highlightTerm {
+	background:#feffce;
+	font-weight:bold;
+	white-space: nowrap;
+}
+
+.highlightedSearchTerm {
+	background:#ffbfbf;
+	font-weight:bold;
+}
+
+.highlightRelation {
+	background:#aef2c7;
+	font-weight:bold;
+}
+
+.highlightSemicolon {
+	background:#ff8989;
+	font-weight:bold;
 }

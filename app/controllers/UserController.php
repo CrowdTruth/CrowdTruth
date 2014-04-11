@@ -84,7 +84,7 @@ class UserController extends BaseController {
 	    $user = new User($userdata); 
 
 	    try {
-		    $this->createTwrexStructurerSoftwareAgent();
+		    $this->createCrowdWatsonUserAgent();
 	    } catch (Exception $e) {
 	    	return Redirect::back()->with('flashError', $e->getMessage());
 	    }
@@ -99,7 +99,7 @@ class UserController extends BaseController {
 	    return Redirect::to('/');
 	}
 
-	public function createTwrexStructurerSoftwareAgent(){
+	public function createCrowdWatsonUserAgent(){
 		if(!User::find('crowdwatson'))
 		{
 			$softwareAgent = new User;
