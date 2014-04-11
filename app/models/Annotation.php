@@ -388,10 +388,11 @@ class Annotation extends Entity {
         } elseif(isset($this->content['step_1_select_the_valid_relations'])) {
             if(is_array($this->content['step_1_select_the_valid_relations']))
                 $ans = $this->content['step_1_select_the_valid_relations'];
-            else
+            else {
                 $ans = str_replace("\n", "_", rtrim($this->content['step_1_select_the_valid_relations']));
                 $ans = str_replace("]_[", "]*[", $ans);
                 $ans = explode('*', $ans);
+            }    
         } else {
             return null;
         }
