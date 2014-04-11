@@ -101,7 +101,7 @@ class TwrexController extends BaseController {
 				}
 
 				$document = $this->twrexStructurer->process($entity);
-				$status_processing = $this->twrexStructurer->store($entity, $document);
+				return $status_processing = $this->twrexStructurer->store($entity, $document);
 				echo "<pre>";
 				dd($status_processing);
 				return Redirect::back();

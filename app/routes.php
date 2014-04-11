@@ -9,6 +9,40 @@ Route::group(array('before' => 'auth'), function()
 {
 	Route::get('/', function()
 	{
+
+		// $units = \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->where('activity_id', 'like', '%twrexstructurer%')->get();
+
+		// // $units = \MongoDB\Entity::where('content.sentence.text', 'like', '%antigen permits%')->get();
+
+		// $twrexStructurer = \App::make('\preprocess\TwrexStructurer');
+
+
+		// foreach($units as $unit)
+		// {
+		// 	$content = $unit->toArray()['content'];
+		// 	$properties = $content['properties'];
+
+		// 	$properties['relationOutsideTerms'] = $twrexStructurer->relationOutsideTerms($content);
+		// 	$properties['relationBetweenTerms'] = $twrexStructurer->relationBetweenTerms($content);
+		// 	$properties['semicolonBetweenTerms'] = $twrexStructurer->semicolonBetweenTerms($content);
+		// 	$properties['commaSeparatedTerms'] = $twrexStructurer->commaSeparatedTerms($content);
+
+		// 	$content['properties'] = $properties;
+
+		// 	$unit->content = $content;
+
+		// 	$unit->update();			
+		// }
+
+		// return $units;
+
+		// foreach($units as $unit){
+		// 	$unit->user_id = "khamkham";
+		// 	$unit->update();
+		// }
+
+		// return \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->where('user_id', 'khamkham')->count();
+
 	    return Redirect::to('home');
 	});
 
