@@ -156,7 +156,7 @@ class Annotation extends Entity {
             // CF
             } elseif(isset($ans['confirmfirstfactor']) or isset($ans['saveselectionids1']) or isset($ans['factor1'])) {
                // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));
-
+                Log::debug($ans);
                 // Patching the fact that the CML is different from the WebSci results [fugly]
                 if(!isset($ans['confirmfirstfactor']) and !isset($ans['confirmsecondfactor'])){
                     if($ans['question1'] == 'yes'){
@@ -178,8 +178,6 @@ class Annotation extends Entity {
                     }
                 }
                 
-
-
                 $term = strtolower($this->unit->content['terms']['first']['text']);
                 $b = $this->unit->content['terms']['first']['startIndex'];
                 $vector1 = $this->createSingleFactVect($ans['confirmids1'], $ans['confirmfirstfactor'], $term, $b, $ans['saveselectionids1'], $ans['firstfactor']);
