@@ -23,26 +23,9 @@ class CSVresultMapper {
 
 		// $csvLines = explode("\n", $csvresult['content']);
 		// dd($csvLines);
-<<<<<<< HEAD
 
-		$headers0 = $csv->fetchOne();
-		$headers = array();
-		$count = 0; $c1 = 0;
-		foreach($headers0 as $h){
-			if(empty($h)){
-				$h = "empty$count";
-				$count++;
-			} 
 
-			if(in_array($h, $headers)){
-				$h = "$h$c1";
-				$c1++;
-			}
-
-			$headers[] = $h;
-		}
 		
-=======
 		$headers = $csv->fetchOne();
 
 		foreach($headers as $columnIndex => $columnValue)
@@ -53,14 +36,14 @@ class CSVresultMapper {
 			}
 		}
 
->>>>>>> TwrexStructurer - CSVresultmapper - Lukasz Features
 		$data = $csv->fetchAssoc($headers);
 
 		$rowsMappedWithUnits = array();
 		$batch = array();
 
 		unset($data[0]); // Unsetting header
-$count = 0;
+		$count = 0;
+
 		foreach ($data as $line_index => $row)
 		{
 			$count++;
@@ -132,17 +115,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 			{
 				$entity = $entity->where('content.terms.second.endIndex', '=', (int) $row['e2']);
 			}
-<<<<<<< HEAD
-			
-			if(isset($row['unit_id0'])) unset($row['unit_id0']);
-			
-=======
-			else
-			{
-				continue;
-			}
 
->>>>>>> TwrexStructurer - CSVresultmapper - Lukasz Features
 			if($result = $entity->first())
 			{
 			    $row['unit'] = $result->toArray();
@@ -164,6 +137,76 @@ echo ' - ' . $row['b1'] . '. ';*/
 		}
 
 		return $batch;
+	}
+
+	public function processRel($csvresult, $annotationCSVArray, $preview)
+	{
+		$mappedAnnotationsWithUnits = array();
+		$batchOfUnits = array();
+
+		$notMatched = array();
+
+		foreach ($annotationCSVArray as $line_index => $row)
+		{
+			$entity = Entity::where('documentType', 'twrex-structured-sentence');
+
+			if(isset($row['sent_id']))
+			{
+				$entity = $entity->where('sent_id', '=', $row['sent_id']);
+			}
+
+			if($result = $entity->first())
+			{
+			    $row['unit'] = $result->toArray();
+			    array_push($mappedAnnotationsWithUnits, $row);
+			    array_push($batchOfUnits, $result->toArray()['_id']);	
+			} else {
+
+				if($result = Entity::where('content.sentence.formatted', '=', $row['sentence'])->first())
+				{
+					$row['unit'] = $result->toArray();
+					array_push($mappedAnnotationsWithUnits, $row);
+					array_push($batchOfUnits, $result->toArray()['_id']);	
+				}
+				else
+				{
+					array_push($notMatched, $row);
+				}				
+			}
+		}
+
+		// return $notMatched;
+
+		$batchOfUnits = array_values(array_unique($batchOfUnits));
+		natsort($batchOfUnits);
+		$batchOfUnits = array_values($batchOfUnits);
+
+		if($preview) {
+			return $mappedAnnotationsWithUnits;
+		}
+
+		if(strpos($csvresult->title, 'relexcorrected') !== false && strpos($csvresult->title, 'f389000') !== false)
+		{
+			$status = $this->relexc_f389000($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+		}
+		elseif(strpos($csvresult->title, 'relexcorrected') !== false && strpos($csvresult->title, 'f389001') !== false)
+		{
+			$status = $this->relexc_f389001($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+		}
+		elseif(strpos($csvresult->title, 'reldirc') !== false && strpos($csvresult->title, 'f391072') !== false)
+		{
+			$status = $this->reldirc_f391072($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+		}
+		elseif(strpos($csvresult->title, 'reldirc') !== false && strpos($csvresult->title, 'f391073') !== false)
+		{
+			$status = $this->reldirc_f391073($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+		}
+		elseif(strpos($csvresult->title, 'reldirc') !== false && strpos($csvresult->title, 'f391076') !== false)
+		{
+			$status = $this->reldirc_f391076($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+		}
+
+		return $status;
 	}
 
 	public function processAnnotationData($csvresult, $preview = false)
@@ -191,18 +234,23 @@ echo ' - ' . $row['b1'] . '. ';*/
 			}
 		}
 
-<<<<<<< HEAD
 		$rowsMappedWithUnits = array();
 		$batch = array();
-=======
+
 		// dd($headers);
 
 		// dd($csv->fetchAll());
->>>>>>> TwrexStructurer - CSVresultmapper - Lukasz Features
 
 		$annotationCSVArray = $csv->fetchAssoc($headers);
 
 		unset($annotationCSVArray[0]);
+
+		if(strpos($csvresult->title, 'relexcorrected') !== false || strpos($csvresult->title, 'reldir') !== false)
+		{
+			$result = $this->processRel($csvresult, $annotationCSVArray, $preview);
+
+			return $result;
+		}
 
 		// dd($annotationCSVArray);
 
@@ -771,6 +819,407 @@ echo ' - ' . $row['b1'] . '. ';*/
 		return $status;
 	}
 
+	public function relexc_f389000($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	{
+		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
+		{
+			$batchCreator = App::make('BatchCreator');
+			$batch['batch_title'] = "websci2014_batch4";
+			$batch['batch_description'] = "batch used for websci2014";
+			$batch['format'] = "text";
+			$batch['domain'] = "medical";
+			$batch['units'] = $batchUnits;
+			$batch = $batchCreator->store($batch);
+		}
+
+		try {
+			$activity = new Activity;
+			$activity->softwareAgent_id = "importer";
+			$activity->save();
+		} catch (Exception $e) {
+			$activity->forceDelete();	
+			$status['error']['relexc_f389000']['activity'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$jobconf = new Entity;
+			$jobconf->format = "text";
+			$jobconf->domain = "medical";
+			$jobconf->documentType = "jobconf";
+			$jobconf->type = "RelEx";
+			$jobconf->content = [
+				"jobId" => 389000,
+				"type" => "RelEx",
+				"platform" => "CF",
+				"dataset" => "WebSci2014-MRelExC",
+    			"startedAt" => new MongoDate(strtotime("01/30/2014 22:02:32")),
+		        "hitLifetimeInMinutes" =>  "N/A",
+		        "autoApprovalDelayInMinutes" =>  "N/A",
+		        "expirationInMinutes" =>  3,
+		        "reward" =>  0.02,
+		        "annotationsPerUnit" => 15,
+		        "unitsPerTask" =>  count($batchUnits),
+	//	        "unitsPerTask" =>  34,
+		        "title" =>  "Choose the valid RELATION(s) between the TERMS in the SENTENCE",
+		        "description" =>  "N/A",
+		        "keywords" =>  "medical relations, medical texts, relations, relations-annotation",
+		        "instructions" =>  "STEP 1: Read the SENTENCE below and select all the RELATION TYPE(s) that you think are expressed between the TWO HIGHLIGHTED WORDS in the text.  \n\nNote that if one of the WORDS appears multiple time you will have to consider only the highlighted one.\n\n         Example 1:  \n         for the relation 'PREVENTS' between 'INFLUENZA' and 'VITAMIN C' \n         in the sentence '.... the risk of influenza is reduced by vitamin C...'\n         highlight the words: 'reduced by'\n\n         Example 2: \n         for the relation 'DIAGNOSE' between 'RINNE TEST' and 'HEARING LOSS' \n         in the sentence ' ... RINNE test is used for determining hearing loss ...'\n         highlight the words: 'used for determining'\n\nNOTE: You are not expected to have a domain knowledge in the topic of the sentence. It doesn't matter if you don't know what the highlighted words mean. It is important to understand what the different relation types mean (in STEP 1). HOVER MOUSE over each relation name to see the DEFINITION and an EXAMPLE."
+			];
+			$jobconf->hash = md5(serialize($jobconf->content));
+			$jobconf->activity_id = $activity->_id;
+			$jobconf->save();
+		} catch (Exception $e){
+			$activity->forceDelete();	
+			$jobconf->forceDelete();	
+			$status['error']['relexc_f389000']['jobconf'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$job = new Entity;
+			$job->format = "text";
+			$job->domain = "medical";
+			$job->documentType = "job";
+			$job->type = "RelEx";
+			$job->jobConf_id = $jobconf->_id;
+			$job->activity_id = $activity->_id;
+			$job->batch_id = $batch->_id;
+			$job->save();
+		} catch (Exception $e) {
+			$activity->forceDelete();	
+			$jobconf->forceDelete();	
+			$job->forceDelete();	
+			$status['error']['relexc_f389000']['job'] = $e->getMessage();
+			return $status;
+		}
+
+		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelEx");
+		return $status;
+	}
+
+	public function relexc_f389001($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	{
+		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
+		{
+			$batchCreator = App::make('BatchCreator');
+			$batch['batch_title'] = "websci2014_batch5";
+			$batch['batch_description'] = "batch used for websci2014";
+			$batch['format'] = "text";
+			$batch['domain'] = "medical";
+			$batch['units'] = $batchUnits;
+			$batch = $batchCreator->store($batch);
+		}
+
+		try {
+			$activity = new Activity;
+			$activity->softwareAgent_id = "importer";
+			$activity->save();
+		} catch (Exception $e) {
+			$activity->forceDelete();	
+			$status['error']['relexc_f389001']['activity'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$jobconf = new Entity;
+			$jobconf->format = "text";
+			$jobconf->domain = "medical";
+			$jobconf->documentType = "jobconf";
+			$jobconf->type = "RelEx";
+			$jobconf->content = [
+				"jobId" => 389001,
+				"type" => "RelEx",
+				"platform" => "CF",
+				"dataset" => "WebSci2014-MRelExC",
+    			"startedAt" => new MongoDate(strtotime("01/30/2014 22:02:32")),
+		        "hitLifetimeInMinutes" =>  "N/A",
+		        "autoApprovalDelayInMinutes" =>  "N/A",
+		        "expirationInMinutes" =>  3,
+		        "reward" =>  0.02,
+		        "annotationsPerUnit" => 15,
+		        "unitsPerTask" =>  count($batchUnits),
+	//	        "unitsPerTask" =>  34,
+		        "title" =>  "Choose the valid RELATION(s) between the TERMS in the SENTENCE",
+		        "description" =>  "N/A",
+		        "keywords" =>  "medical relations, medical texts, relations, relations-annotation",
+		        "instructions" =>  "STEP 1: Read the SENTENCE below and select all the RELATION TYPE(s) that you think are expressed between the TWO HIGHLIGHTED WORDS in the text.  \n\nNote that if one of the WORDS appears multiple time you will have to consider only the highlighted one.\n\n         Example 1:  \n         for the relation 'PREVENTS' between 'INFLUENZA' and 'VITAMIN C' \n         in the sentence '.... the risk of influenza is reduced by vitamin C...'\n         highlight the words: 'reduced by'\n\n         Example 2: \n         for the relation 'DIAGNOSE' between 'RINNE TEST' and 'HEARING LOSS' \n         in the sentence ' ... RINNE test is used for determining hearing loss ...'\n         highlight the words: 'used for determining'\n\nNOTE: You are not expected to have a domain knowledge in the topic of the sentence. It doesn't matter if you don't know what the highlighted words mean. It is important to understand what the different relation types mean (in STEP 1). HOVER MOUSE over each relation name to see the DEFINITION and an EXAMPLE."
+			];
+			$jobconf->hash = md5(serialize($jobconf->content));
+			$jobconf->activity_id = $activity->_id;
+			$jobconf->save();
+		} catch (Exception $e){
+			$activity->forceDelete();	
+			$jobconf->forceDelete();	
+			$status['error']['relexc_f389001']['jobconf'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$job = new Entity;
+			$job->format = "text";
+			$job->domain = "medical";
+			$job->documentType = "job";
+			$job->type = "RelEx";
+			$job->jobConf_id = $jobconf->_id;
+			$job->activity_id = $activity->_id;
+			$job->batch_id = $batch->_id;
+			$job->save();
+		} catch (Exception $e) {
+			$activity->forceDelete();	
+			$jobconf->forceDelete();	
+			$job->forceDelete();	
+			$status['error']['relexc_f389001']['job'] = $e->getMessage();
+			return $status;
+		}
+
+		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelEx");
+		return $status;
+	}		
+
+	public function reldirc_f391072($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	{
+		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
+		{
+			$batchCreator = App::make('BatchCreator');
+			$batch['batch_title'] = "websci2014_batch6";
+			$batch['batch_description'] = "batch used for websci2014";
+			$batch['format'] = "text";
+			$batch['domain'] = "medical";
+			$batch['units'] = $batchUnits;
+			$batch = $batchCreator->store($batch);
+		}
+
+		try {
+			$activity = new Activity;
+			$activity->softwareAgent_id = "importer";
+			$activity->save();
+		} catch (Exception $e) {
+			$activity->forceDelete();	
+			$status['error']['reldirc_f391072']['activity'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$jobconf = new Entity;
+			$jobconf->format = "text";
+			$jobconf->domain = "medical";
+			$jobconf->documentType = "jobconf";
+			$jobconf->type = "RelDir";
+			$jobconf->content = [
+				"jobId" => 391072,
+				"type" => "RelDir",
+				"platform" => "CF",
+				"dataset" => "WebSci2014-MRelDir",
+    			"startedAt" => new MongoDate(strtotime("01/30/2014 22:02:32")),
+		        "hitLifetimeInMinutes" =>  "N/A",
+		        "autoApprovalDelayInMinutes" =>  "N/A",
+		        "expirationInMinutes" =>  1,
+		        "reward" =>  0.01,
+		        "annotationsPerUnit" => 12,
+		        "unitsPerTask" =>  count($batchUnits),
+	//	        "unitsPerTask" =>  34,
+		        "title" =>  "What is the right order of two related WORD PHRASES?",
+		        "description" =>  "N/A",
+		        "keywords" =>  "medical relations, medical texts, relations, relations-annotation",
+		        "instructions" =>  "In the SENTENCE below there are two highlighted WORD PHRASES that we believe are related. Choose one of the options below that according to you expresses their right order.
+
+Please consider only the capitalized WORD PHRASES (in case one of them appears multiple times in the sentence)."
+			];
+			$jobconf->hash = md5(serialize($jobconf->content));
+			$jobconf->activity_id = $activity->_id;
+			$jobconf->save();
+		} catch (Exception $e){
+			$activity->forceDelete();	
+			$jobconf->forceDelete();	
+			$status['error']['reldirc_f391072']['jobconf'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$job = new Entity;
+			$job->format = "text";
+			$job->domain = "medical";
+			$job->documentType = "job";
+			$job->type = "RelDir";
+			$job->jobConf_id = $jobconf->_id;
+			$job->activity_id = $activity->_id;
+			$job->batch_id = $batch->_id;
+			$job->save();
+		} catch (Exception $e) {
+			$activity->forceDelete();	
+			$jobconf->forceDelete();	
+			$job->forceDelete();	
+			$status['error']['reldirc_f391072']['job'] = $e->getMessage();
+			return $status;
+		}
+
+		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelDir");
+		return $status;
+	}		
+
+	public function reldirc_f391073($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	{
+		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
+		{
+			$batchCreator = App::make('BatchCreator');
+			$batch['batch_title'] = "websci2014_batch7";
+			$batch['batch_description'] = "batch used for websci2014";
+			$batch['format'] = "text";
+			$batch['domain'] = "medical";
+			$batch['units'] = $batchUnits;
+			$batch = $batchCreator->store($batch);
+		}
+
+		try {
+			$activity = new Activity;
+			$activity->softwareAgent_id = "importer";
+			$activity->save();
+		} catch (Exception $e) {
+			$activity->forceDelete();	
+			$status['error']['reldirc_f391073']['activity'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$jobconf = new Entity;
+			$jobconf->format = "text";
+			$jobconf->domain = "medical";
+			$jobconf->documentType = "jobconf";
+			$jobconf->type = "RelDir";
+			$jobconf->content = [
+				"jobId" => 391073,
+				"type" => "RelDir",
+				"platform" => "CF",
+				"dataset" => "WebSci2014-MRelDir",
+    			"startedAt" => new MongoDate(strtotime("01/30/2014 22:02:32")),
+		        "hitLifetimeInMinutes" =>  "N/A",
+		        "autoApprovalDelayInMinutes" =>  "N/A",
+		        "expirationInMinutes" =>  1,
+		        "reward" =>  0.01,
+		        "annotationsPerUnit" => 12,
+		        "unitsPerTask" =>  count($batchUnits),
+	//	        "unitsPerTask" =>  34,
+		        "title" =>  "What is the right order of two related WORD PHRASES?",
+		        "description" =>  "N/A",
+		        "keywords" =>  "medical relations, medical texts, relations, relations-annotation",
+		        "instructions" =>  "In the SENTENCE below there are two highlighted WORD PHRASES that we believe are related. Choose one of the options below that according to you expresses their right order.
+
+Please consider only the capitalized WORD PHRASES (in case one of them appears multiple times in the sentence)."
+			];
+			$jobconf->hash = md5(serialize($jobconf->content));
+			$jobconf->activity_id = $activity->_id;
+			$jobconf->save();
+		} catch (Exception $e){
+			$activity->forceDelete();	
+			$jobconf->forceDelete();	
+			$status['error']['reldirc_f391073']['jobconf'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$job = new Entity;
+			$job->format = "text";
+			$job->domain = "medical";
+			$job->documentType = "job";
+			$job->type = "RelDir";
+			$job->jobConf_id = $jobconf->_id;
+			$job->activity_id = $activity->_id;
+			$job->batch_id = $batch->_id;
+			$job->save();
+		} catch (Exception $e) {
+			$activity->forceDelete();	
+			$jobconf->forceDelete();	
+			$job->forceDelete();	
+			$status['error']['reldirc_f391073']['job'] = $e->getMessage();
+			return $status;
+		}
+
+		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelDir");
+		return $status;
+	}		
+
+	public function reldirc_f391076($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	{
+		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
+		{
+			$batchCreator = App::make('BatchCreator');
+			$batch['batch_title'] = "websci2014_batch8";
+			$batch['batch_description'] = "batch used for websci2014";
+			$batch['format'] = "text";
+			$batch['domain'] = "medical";
+			$batch['units'] = $batchUnits;
+			$batch = $batchCreator->store($batch);
+		}
+
+		try {
+			$activity = new Activity;
+			$activity->softwareAgent_id = "importer";
+			$activity->save();
+		} catch (Exception $e) {
+			$activity->forceDelete();	
+			$status['error']['reldirc_f391076']['activity'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$jobconf = new Entity;
+			$jobconf->format = "text";
+			$jobconf->domain = "medical";
+			$jobconf->documentType = "jobconf";
+			$jobconf->type = "RelDir";
+			$jobconf->content = [
+				"jobId" => 391076,
+				"type" => "RelDir",
+				"platform" => "CF",
+				"dataset" => "WebSci2014-MRelDir",
+    			"startedAt" => new MongoDate(strtotime("01/30/2014 22:02:32")),
+		        "hitLifetimeInMinutes" =>  "N/A",
+		        "autoApprovalDelayInMinutes" =>  "N/A",
+		        "expirationInMinutes" =>  1,
+		        "reward" =>  0.01,
+		        "annotationsPerUnit" => 12,
+		        "unitsPerTask" =>  count($batchUnits),
+	//	        "unitsPerTask" =>  34,
+		        "title" =>  "What is the right order of two related WORD PHRASES?",
+		        "description" =>  "N/A",
+		        "keywords" =>  "medical relations, medical texts, relations, relations-annotation",
+		        "instructions" =>  "In the SENTENCE below there are two highlighted WORD PHRASES that we believe are related. Choose one of the options below that according to you expresses their right order.
+
+Please consider only the capitalized WORD PHRASES (in case one of them appears multiple times in the sentence)."
+			];
+			$jobconf->hash = md5(serialize($jobconf->content));
+			$jobconf->activity_id = $activity->_id;
+			$jobconf->save();
+		} catch (Exception $e){
+			$activity->forceDelete();	
+			$jobconf->forceDelete();	
+			$status['error']['reldirc_f391076']['jobconf'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$job = new Entity;
+			$job->format = "text";
+			$job->domain = "medical";
+			$job->documentType = "job";
+			$job->type = "RelDir";
+			$job->jobConf_id = $jobconf->_id;
+			$job->activity_id = $activity->_id;
+			$job->batch_id = $batch->_id;
+			$job->save();
+		} catch (Exception $e) {
+			$activity->forceDelete();	
+			$jobconf->forceDelete();	
+			$job->forceDelete();	
+			$status['error']['reldirc_f391076']['job'] = $e->getMessage();
+			return $status;
+		}
+
+		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelDir");
+		return $status;
+	}		
+
 	public function annotation_output_cf_factorspan_merged_relex($mappedAnnotationsWithUnits)
 	{
 		$tempEntityID = null;
@@ -811,6 +1260,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 			try {
 				$entity = new Entity;
 				$entity->_id = $tempEntityID;
+				$entity->sent_id = $mappedAnnotationsWithUnitVal['Sent_id'];
 				$entity->title = strtolower($title);
 				$entity->domain = $parentEntity['domain'];
 				$entity->format = $parentEntity['format'];
@@ -820,7 +1270,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 				unset($parentEntity['properties']);
 				$entity->hash = md5(serialize($parentEntity['content']));
 				$entity->activity_id = $activity->_id;
-				// $entity->save();
+				$entity->save();
 
 				array_push($test, $entity->toArray());
 
@@ -838,24 +1288,6 @@ echo ' - ' . $row['b1'] . '. ';*/
 
 		return $status;
 	}
-
-	protected function overlappingTerms($twrexStructuredSentence)
-	{
-		$firstTerms = strtolower($twrexStructuredSentence['terms']['first']['text']);
-		$secondTerms = strtolower($twrexStructuredSentence['terms']['second']['text']);
-
-		$firstTermsArray = explode(" ", $firstTerms);
-		$secondTermsArray = explode(" ", $secondTerms);
-
-		foreach($firstTermsArray as $term){
-			if(in_array($term, $secondTermsArray)) {
-				return 1;
-			}
-			
-		}
-
-		return 0;	
-	}	
 
 	public function createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job_id, $taskType = "FactSpan")
 	{
@@ -885,7 +1317,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 					$crowdagent = new CrowdAgent;
 					$crowdagent->_id= "crowdagent/cf/" . $mappedAnnotationsWithUnit['_worker_id'];
 					$crowdagent->softwareAgent_id= 'cf';
-					$crowdagent->platformAgentId = $mappedAnnotationsWithUnit['_worker_id'];
+					$crowdagent->platformAgentId = (int) $mappedAnnotationsWithUnit['_worker_id'];
 					$crowdagent->country = $mappedAnnotationsWithUnit['_country'];
 					$crowdagent->region = $mappedAnnotationsWithUnit['_region'];
 					$crowdagent->city = $mappedAnnotationsWithUnit['_city'];			
@@ -910,7 +1342,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 				$entity->crowdAgent_id = $crowdagent->_id;
 				$entity->softwareAgent_id = "cf";
 				$entity->unit_id = $mappedAnnotationsWithUnit['unit']['_id'];
-				$entity->platformAnnotationId = $mappedAnnotationsWithUnit['_id'];
+				$entity->platformAnnotationId = (int) $mappedAnnotationsWithUnit['_id'];
 				$entity->cfChannel = $mappedAnnotationsWithUnit['_channel'];
 				$entity->acceptTime = new MongoDate(strtotime($mappedAnnotationsWithUnit['_started_at']));
 				$entity->submitTime = new MongoDate(strtotime($mappedAnnotationsWithUnit['_created_at']));
@@ -937,6 +1369,12 @@ echo ' - ' . $row['b1'] . '. ';*/
 						"step_1_select_the_valid_relations" => $mappedAnnotationsWithUnit['step_1_select_the_valid_relations'],
 						"step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1" => $mappedAnnotationsWithUnit['step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1'],
 						"step_2b_if_you_selected_none_in_step_1_explain_why" => $mappedAnnotationsWithUnit['step_2b_if_you_selected_none_in_step_1_explain_why']
+					];
+				}
+				elseif($taskType == "RelDir")
+				{
+					$entity->content = [
+						"direction" => $mappedAnnotationsWithUnit['direction']
 					];
 				}
 

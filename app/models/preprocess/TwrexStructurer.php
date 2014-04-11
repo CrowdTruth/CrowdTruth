@@ -6,7 +6,7 @@ use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDate;
-use URL, Session, Exception;
+use URL, Session, Exception, Auth;
 
 class TwrexStructurer {
 
@@ -39,10 +39,6 @@ class TwrexStructurer {
 			{
 				continue;
 			}
-
-			if($twrexLineKey > 60000)
-				continue;
-
 				
 			$tempTwrexStructuredSentence = [
 				"relation" => [
@@ -71,6 +67,8 @@ class TwrexStructurer {
 
 		$tempTwrexStructuredSentences = array_unique($tempTwrexStructuredSentences, SORT_REGULAR);
 
+		$ot = [];
+
 		foreach($tempTwrexStructuredSentences as $tempTwrexStructuredSentence)
 		{
 			foreach($tempTwrexStructuredSentence['terms']['first'] as $firstTerm)
@@ -82,7 +80,10 @@ class TwrexStructurer {
 					$twrexStructuredSentence['terms']['second'] = $secondTerm;
 
 					if($this->overlappingOffsets($twrexStructuredSentence))
+					{
+						array_push($ot, $twrexStructuredSentence);
 						continue;
+					}
 
 					$twrexStructuredSentence['properties'] = [
 						"sentenceWordCount" => str_word_count($twrexStructuredSentence['sentence']['text']),
@@ -259,14 +260,14 @@ class TwrexStructurer {
 
 		if($b1 < $b2)
 		{
-			if(stripos(substr($sentenceText, $e1, $b2), $relationWithoutPrefixStemmed))
+			if(stripos(substr($sentenceText, $e1, $b2 - $e1), $relationWithoutPrefixStemmed))
 			{
 				return 1;
 			}
 		}
 		else
 		{
-			if(stripos(substr($sentenceText, $e2, $b1), $relationWithoutPrefixStemmed))
+			if(stripos(substr($sentenceText, $e2, $b1 - $e2), $relationWithoutPrefixStemmed))
 			{
 				return 1;
 			}
@@ -285,13 +286,13 @@ class TwrexStructurer {
 
 		if($b1 < $b2)
 		{
-			if(stripos(substr($sentenceText, $e1, $b2), ';')){
+			if(stripos(substr($sentenceText, $e1, $b2 - $e1), ';')){
 				return 1;
 			}
 		}
 		else
 		{
-			if(stripos(substr($sentenceText, $e2, $b1), ';')){
+			if(stripos(substr($sentenceText, $e2, $b1 - $e2), ';')){
 				return 1;
 			}
 		}
@@ -312,11 +313,11 @@ class TwrexStructurer {
 
 		if($b1 < $b2)
 		{
-			$textWithAndBetweenTerms = substr($sentenceText, $b1, $e2);
+			$textWithAndBetweenTerms = substr($sentenceText, $b1, $e2 - $b1);
 		}
 		else
 		{
-			$textWithAndBetweenTerms = substr($sentenceText, $b2, $e1);
+			$textWithAndBetweenTerms = substr($sentenceText, $b2, $e1 - $b2);
 		}
 
 
@@ -484,6 +485,24 @@ class TwrexStructurer {
 		            'max_range' => $e1
 		        )
 		    )
+		) || filter_var(
+		    $b1, 
+		    FILTER_VALIDATE_INT, 
+		    array(
+		        'options' => array(
+		            'min_range' => $b2, 
+		            'max_range' => $e2
+		        )
+		    )
+		) || filter_var(
+		    $e1, 
+		    FILTER_VALIDATE_INT, 
+		    array(
+		        'options' => array(
+		            'min_range' => $b2, 
+		            'max_range' => $e2
+		        )
+		    )
 		))
 		{
 			// echo "<pre>";
@@ -557,8 +576,6 @@ class TwrexStructurer {
         $allEntities = array();
 
 		foreach($twrexStructuredSentences as $twrexStructuredSentenceKey => $twrexStructuredSentenceKeyVal){
-			$inc++;
-
 			$title = $parentEntity->title . "_index_" . $twrexStructuredSentenceKey;
 
 			try {
@@ -574,12 +591,23 @@ class TwrexStructurer {
 				unset($twrexStructuredSentenceKeyVal['properties']);
 				$entity->hash = md5(serialize($twrexStructuredSentenceKeyVal));
 				$entity->activity_id = $activity->_id;
+
+	            if (Auth::check())
+	            {
+	                $entity->user_id = Auth::user()->_id;
+	            } else 
+	            {
+	                $entity->user_id = "crowdwatson";
+	            }  
+
 				$entity->updated_at = new MongoDate(time());
 				$entity->created_at = new MongoDate(time());
 
 				// $entity->save();
 
 				array_push($allEntities, $entity->toArray());
+
+				$inc++;
 
 				$status['success'][$title] = $title . " was successfully processed into a twrex-structured-sentence. (URI: {$entity->_id})";
 			} catch (Exception $e) {
@@ -591,7 +619,22 @@ class TwrexStructurer {
 			$tempEntityID = $entity->_id;
 		}
 
-		\DB::collection('entities')->insert($allEntities);
+		//	$allEntities = array_slice($allEntities, 0, 100);
+
+		if(count($allEntities) > 30000)
+		{
+			$chunkSize = ceil(count($allEntities) / 30000);
+			$arrayChunks = array_chunk($allEntities, $chunkSize);
+
+			foreach($arrayChunks as $chunk)
+			{
+				\DB::collection('entities')->insert($chunk);
+			}	
+		}
+		else
+		{
+			\DB::collection('entities')->insert($allEntities);
+		}
 
 		return $status;
 	}

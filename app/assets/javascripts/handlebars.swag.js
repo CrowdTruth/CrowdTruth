@@ -712,6 +712,43 @@
     return new Handlebars.SafeString(result);
   });
 
+  Swag.addHelper('highlightTerms', function(searchQuery, content, options) {
+    var formattedSentence = content.sentence.formatted;
+    var relation = content.relation.noPrefix;
+
+    if(relation == "diagnose")
+    {
+      relation = "diagnos";
+    } else if(relation == "cause")
+    {
+      relation = "caus";
+    } else if(relation == "location")
+    {
+      relation = "locat";
+    }
+
+    var regEx = new RegExp(relation, "ig");
+    formattedSentence = formattedSentence.replace(regEx, '<span class="highlightRelation" data-toggle="tooltip" data-placement="top" title="Possible Relation">' + relation + '</span>');
+
+    var regEx = new RegExp(";", "g");
+    formattedSentence = formattedSentence.replace(regEx, '<span class="highlightSemicolon" data-toggle="tooltip" data-placement="top" title="Semicolon">;</span>');
+
+    if(searchQuery.field["content.sentence.formatted"])
+    {
+      var highlightedSearchTerm = searchQuery.field["content.sentence.formatted"].like;
+      var regEx = new RegExp((highlightedSearchTerm), "ig");
+      formattedSentence = formattedSentence.replace(regEx, '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="top" title="Your search term">' + highlightedSearchTerm + '</span>');
+    }
+
+    var t1 = content.terms.first.formatted;
+    var t2 = content.terms.second.formatted;
+
+    formattedSentence = formattedSentence.replace(t1, '<span class="highlightTerm" data-toggle="tooltip" data-placement="top" title="Term 1">' + t1 + '</span>');
+    formattedSentence = formattedSentence.replace(t2, '<span class="highlightTerm" data-toggle="tooltip" data-placement="top" title="Term 2">' + t2 + '</span>');
+
+    return new Handlebars.SafeString(formattedSentence);
+  });
+
   Swag.addHelper('gte', function(value, test, options) {
     if (!((Utils.isHandlebarsSpecific(value)) && (Utils.isHandlebarsSpecific(test)))) {
       value = Utils.result(value);
