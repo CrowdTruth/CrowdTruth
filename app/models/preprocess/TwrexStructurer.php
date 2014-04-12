@@ -21,7 +21,7 @@ class TwrexStructurer {
 		// fastcgi_finish_request();
 
 		$twrexLines = explode("\n", $twrex->content);
-		// $twrexLines = array_unique($twrexLines);
+		$twrexLines = array_unique($twrexLines);
 
 		// dd(count($twrexLines));
 
