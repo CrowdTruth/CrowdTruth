@@ -16,12 +16,17 @@ class TwrexStructurer {
 		\DB::connection()->disableQueryLog();
 	}
 
+	public function array_unique_multidimensional($array)
+	{
+		return array_intersect_key($array, array_unique(array_map('serialize', $array)));	    
+	}	
+
 	public function process($twrex)
 	{
 		// fastcgi_finish_request();
 
 		$twrexLines = explode("\n", $twrex->content);
-		$twrexLines = array_unique($twrexLines);
+		$twrexLines = $this->array_unique_multidimensional($twrexLines);
 
 		// dd(count($twrexLines));
 
@@ -71,7 +76,10 @@ class TwrexStructurer {
 			array_push($tempTwrexStructuredSentences, $this->getAllTermCombinations($tempTwrexStructuredSentence));
 		}
 
-		$tempTwrexStructuredSentences = array_unique($tempTwrexStructuredSentences, SORT_REGULAR);
+		// dd(count($this->array_unique_multidimensional($tempTwrexStructuredSentences)));
+		// dd(count($tempTwrexStructuredSentences));
+
+		$tempTwrexStructuredSentences = $this->array_unique_multidimensional($tempTwrexStructuredSentences);
 		
 		$overlappingOffsetSentences = [];
 
@@ -135,8 +143,9 @@ class TwrexStructurer {
 
 		// dd(count(array_unique($twrexStructuredSentences, SORT_REGULAR)));
 
-		return array_unique($twrexStructuredSentences, SORT_REGULAR);
+		// return $this->array_unique_multidimensional($twrexStructuredSentences);
 
+		// dd(count($this->array_unique_multidimensional($twrexStructuredSentences)));
 
 		// echo count($twrexStructuredSentences) . PHP_EOL;
 		// echo count(array_unique($twrexStructuredSentences, SORT_REGULAR)) . PHP_EOL;
@@ -144,7 +153,7 @@ class TwrexStructurer {
 		// exit;
 		// // return array_slice($twrexStructuredSentences, 0, 100);
 
-		// return $twrexStructuredSentences;
+		return $twrexStructuredSentences;
 	}
 
 	public function formatUppercase($twrexStructuredSentence)
@@ -623,7 +632,7 @@ class TwrexStructurer {
 				$entity->parents = array($parentEntity->_id);
 				$entity->content = $twrexStructuredSentenceKeyVal;
 
-				unset($twrexStructuredSentenceKeyVal['properties']);
+				// unset($twrexStructuredSentenceKeyVal['properties']);
 				$entity->hash = md5(serialize($twrexStructuredSentenceKeyVal));
 				$entity->activity_id = $activity->_id;
 

@@ -158,7 +158,7 @@ class Entity extends Moloquent {
 	public static function createSchema(){
 		Schema::create('entities', function($collection)
 		{
-            $collection->index('hash');
+            $collection->unique('hash');
             $collection->index('domain');
             $collection->index('documentType');    
             $collection->index('activity_id');
