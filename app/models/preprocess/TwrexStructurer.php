@@ -22,6 +22,29 @@ class TwrexStructurer {
 
 		$twrexLines = explode("\n", $twrex->content);
 
+		$allHashes = array();
+		$duplicates = array();
+
+		foreach($twrexLines as $u)
+		{
+			$hash = sha1(serialize($u));
+
+			if(in_array($hash, $allHashes)){
+				array_push($duplicates, $u);
+			}
+			else
+			{
+				array_push($allHashes, $hash);
+			}
+			
+		}
+
+		return $duplicates;
+
+		// $twrexLines = array_unique($twrexLines);
+
+		// dd(count($twrexLines));
+
 		$twrexStructuredSentences = array();
 		$tempTwrexStructuredSentences = array();
 
@@ -39,6 +62,9 @@ class TwrexStructurer {
 			{
 				continue;
 			}
+
+			// if($twrexLineKey < 340 || $twrexLineKey > 1000)
+			// 	continue;
 				
 			$tempTwrexStructuredSentence = [
 				"relation" => [
@@ -66,8 +92,8 @@ class TwrexStructurer {
 		}
 
 		$tempTwrexStructuredSentences = array_unique($tempTwrexStructuredSentences, SORT_REGULAR);
-
-		$ot = [];
+		
+		$overlappingOffsetSentences = [];
 
 		foreach($tempTwrexStructuredSentences as $tempTwrexStructuredSentence)
 		{
@@ -81,7 +107,7 @@ class TwrexStructurer {
 
 					if($this->overlappingOffsets($twrexStructuredSentence))
 					{
-						array_push($ot, $twrexStructuredSentence);
+						array_push($overlappingOffsetSentences, $twrexStructuredSentence);
 						continue;
 					}
 
@@ -104,8 +130,41 @@ class TwrexStructurer {
 			}
 		}
 
-		// return array_slice($twrexStructuredSentences, 0, 1000);
-		return $twrexStructuredSentences;
+
+		// $allHashes = array();
+		// $duplicates = array();
+
+		// foreach($twrexStructuredSentences as $u)
+		// {
+		// 	$hash = sha1(serialize($u));
+		// 	$u['hash'] = $hash;
+
+		// 	if(in_array($hash, $allHashes)){
+		// 		array_push($duplicates, $u);
+		// 	}
+		// 	else
+		// 	{
+		// 		array_push($allHashes, $hash);
+		// 	}
+			
+		// }
+
+		// return $duplicates;
+
+		// dd(count($twrexStructuredSentences));
+
+		// dd(count(array_unique($twrexStructuredSentences, SORT_REGULAR)));
+
+		return array_unique($twrexStructuredSentences, SORT_REGULAR);
+
+
+		// echo count($twrexStructuredSentences) . PHP_EOL;
+		// echo count(array_unique($twrexStructuredSentences, SORT_REGULAR)) . PHP_EOL;
+
+		// exit;
+		// // return array_slice($twrexStructuredSentences, 0, 100);
+
+		// return $twrexStructuredSentences;
 	}
 
 	public function formatUppercase($twrexStructuredSentence)
@@ -344,32 +403,28 @@ class TwrexStructurer {
 
 		$pattern = '#' . preg_quote($firstTerms, '#') . '\s*(and|or|,)\s*' . preg_quote($secondTerms, '#') . '#i';
 
-		try{
-
-
-		if(preg_match_all($pattern, $sentenceText, $matches, PREG_OFFSET_CAPTURE))
-		{
-			foreach($matches as $match)
+		try {
+			if(preg_match_all($pattern, $sentenceText, $matches, PREG_OFFSET_CAPTURE))
 			{
-				if(filter_var(
-				    $b1, 
-				    FILTER_VALIDATE_INT, 
-				    array(
-				        'options' => array(
-				            'min_range' => $match[0][1], 
-				            'max_range' => (strlen($match[0][0]) + $match[0][1])
-				        )
-				    )
-				))
+				foreach($matches as $match)
 				{
-					// return array("andor" => $matches);					
-					return 1;
+					if(filter_var(
+					    $b1, 
+					    FILTER_VALIDATE_INT, 
+					    array(
+					        'options' => array(
+					            'min_range' => $match[0][1], 
+					            'max_range' => (strlen($match[0][0]) + $match[0][1])
+					        )
+					    )
+					))
+					{
+						// return array("andor" => $matches);					
+						return 1;
+					}
 				}
 			}
 		}
-
-		}
-
 		catch (Exception $e)
 		{
 			dd($twrexStructuredSentence);
@@ -565,7 +620,7 @@ class TwrexStructurer {
 
             if(end($lastMongoURIUsed)){
                 $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
-                $inc = end($lastMongoIDUsed) + 1;                
+                $inc = end($lastMongoIDUsed) + 1;          
             }
         }
         else
