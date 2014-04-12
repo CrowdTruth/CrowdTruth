@@ -21,26 +21,6 @@ class TwrexStructurer {
 		// fastcgi_finish_request();
 
 		$twrexLines = explode("\n", $twrex->content);
-
-		$allHashes = array();
-		$duplicates = array();
-
-		foreach($twrexLines as $u)
-		{
-			$hash = sha1(serialize($u));
-
-			if(in_array($hash, $allHashes)){
-				array_push($duplicates, $u);
-			}
-			else
-			{
-				array_push($allHashes, $hash);
-			}
-			
-		}
-
-		return $duplicates;
-
 		// $twrexLines = array_unique($twrexLines);
 
 		// dd(count($twrexLines));
