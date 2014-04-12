@@ -480,19 +480,25 @@ div.ColVis_catcher {
 	white-space: nowrap !important;
 }
 
-.highlightTerm {
-	background:#feffce;
+.highlightTermOne {
+	background:#ffe0e0;
+	font-weight:bold;
+	white-space: nowrap;
+}
+
+.highlightTermTwo {
+	background:#e0edff;
 	font-weight:bold;
 	white-space: nowrap;
 }
 
 .highlightedSearchTerm {
-	background:#ffbfbf;
+	background:#ffffad;
 	font-weight:bold;
 }
 
 .highlightRelation {
-	background:#aef2c7;
+	background:#bdf9b1;
 	font-weight:bold;
 }
 

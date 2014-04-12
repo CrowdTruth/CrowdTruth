@@ -617,7 +617,7 @@ class TwrexStructurer {
 		foreach($twrexStructuredSentences as  $twrexStructuredSentence){
 			$title = $parentEntity->title . "_index_" . $inc;
 
-			$hash = array_except($twrexStructuredSentence, ['properties']);
+			$hash = md5(serialize(array_except($twrexStructuredSentence, ['properties'])));
 
 			if($dup = Entity::where('hash', $hash)->first())
 			{
@@ -657,28 +657,35 @@ class TwrexStructurer {
 
 		//	$allEntities = array_slice($allEntities, 0, 100);
 
-		if(count($allEntities) > 10000)
+		if(count($allEntities) > 1)
 		{
-			$chunkSize = ceil(count($allEntities) / 10000);
-			$arrayChunks = array_chunk($allEntities, $chunkSize);
+			if(count($allEntities) > 20000)
+			{
+				$chunkSize = ceil(count($allEntities) / 20000);
+				$arrayChunks = array_chunk($allEntities, $chunkSize);
 
-			foreach($arrayChunks as $chunkKey => $chunkVal)
+				foreach($arrayChunks as $chunkKey => $chunkVal)
+				{
+					try{
+						\DB::collection('entities')->insert($chunkVal);
+					} catch (Exception $e) {
+						$status['error']['insert_chunk' . $chunkKey] = $e->getMessage();
+					}
+				}	
+			}
+			else
 			{
 				try{
-					\DB::collection('entities')->insert($chunkVal);
+					\DB::collection('entities')->insert($allEntities);
 				} catch (Exception $e) {
-					$status['error']['insert_chunk' . $chunkKey] = $e->getMessage();
+					$status['error']['insert_batch'] = $e->getMessage();
 				}
-			}	
+
+			}
 		}
 		else
 		{
-			try{
-				\DB::collection('entities')->insert($allEntities);
-			} catch (Exception $e) {
-				$status['error']['insert_batch'] = $e->getMessage();
-			}
-
+			$activity->forceDelete();
 		}
 
 		return $status;
