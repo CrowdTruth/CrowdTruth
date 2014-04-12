@@ -24,9 +24,7 @@ class TwrexStructurer {
 	public function process($twrex)
 	{
 		// fastcgi_finish_request();
-
-		$twrexLines = explode("\n", $twrex->content);
-		$twrexLines = $this->array_unique_multidimensional($twrexLines);
+		$twrexLines = $this->array_unique_multidimensional(explode("\n", $twrex->content));
 
 		// dd(count($twrexLines));
 
@@ -576,9 +574,6 @@ class TwrexStructurer {
 
 	public function store($parentEntity, $twrexStructuredSentences)
 	{
-		// echo "storing";
-		// 		fastcgi_finish_request();
-
 		$status = array();
 
 		try {
@@ -619,65 +614,71 @@ class TwrexStructurer {
 
         $allEntities = array();
 
-		foreach($twrexStructuredSentences as $twrexStructuredSentenceKey => $twrexStructuredSentenceKeyVal){
-			$title = $parentEntity->title . "_index_" . $twrexStructuredSentenceKey;
+		foreach($twrexStructuredSentences as  $twrexStructuredSentence){
+			$title = $parentEntity->title . "_index_" . $inc;
 
-			try {
-				$entity = new Entity;
-				$entity->_id = 'entity/text/medical/twrex-structured-sentence/' . $inc;
-				$entity->title = strtolower($title);
-				$entity->domain = $parentEntity->domain;
-				$entity->format = $parentEntity->format;
-				$entity->documentType = "twrex-structured-sentence";
-				$entity->parents = array($parentEntity->_id);
-				$entity->content = $twrexStructuredSentenceKeyVal;
+			$hash = array_except($twrexStructuredSentence, ['properties']);
 
-				// unset($twrexStructuredSentenceKeyVal['properties']);
-				$entity->hash = md5(serialize($twrexStructuredSentenceKeyVal));
-				$entity->activity_id = $activity->_id;
-
-	            if (Auth::check())
-	            {
-	                $entity->user_id = Auth::user()->_id;
-	            } else 
-	            {
-	                $entity->user_id = "crowdwatson";
-	            }  
-
-				$entity->updated_at = new MongoDate(time());
-				$entity->created_at = new MongoDate(time());
-
-				// $entity->save();
-
-				array_push($allEntities, $entity->toArray());
-
-				$inc++;
-
-				$status['success'][$title] = $title . " was successfully processed into a twrex-structured-sentence. (URI: {$entity->_id})";
-			} catch (Exception $e) {
-				// Something went wrong with creating the Entity
-				$entity->forceDelete();
-				$status['error'][$title] = $e->getMessage();
+			if($dup = Entity::where('hash', $hash)->first())
+			{
+				$status['error'][$title] = "Already exists in the database -> {$dup->_id}";
+				continue;
 			}
 
-			$tempEntityID = $entity->_id;
+            if (Auth::check())
+            {
+                $user_id = Auth::user()->_id;
+            } else 
+            {
+                $user_id = "crowdwatson";
+            } 			
+
+			$entity = [
+				"_id" => 'entity/text/medical/twrex-structured-sentence/' . $inc,
+				"title" => strtolower($title),
+				"domain" => $parentEntity->domain,
+				"format" => $parentEntity->format,
+				"documentType" => "twrex-structured-sentence",
+				"parents" => [$parentEntity->_id],
+				"content" => $twrexStructuredSentence,
+				"hash" => $hash,
+				"activity_id" => $activity->_id,
+				"user_id" => $user_id,
+				"updated_at" => new MongoDate(time()),
+				"created_at" => new MongoDate(time())
+			];
+
+			array_push($allEntities, $entity);
+
+			$inc++;
+
+			$status['success'][$title] = $title . " was successfully processed into a twrex-structured-sentence. (URI: {$entity['_id']})";
 		}
 
 		//	$allEntities = array_slice($allEntities, 0, 100);
 
-		if(count($allEntities) > 30000)
+		if(count($allEntities) > 10000)
 		{
-			$chunkSize = ceil(count($allEntities) / 30000);
+			$chunkSize = ceil(count($allEntities) / 10000);
 			$arrayChunks = array_chunk($allEntities, $chunkSize);
 
-			foreach($arrayChunks as $chunk)
+			foreach($arrayChunks as $chunkKey => $chunkVal)
 			{
-				\DB::collection('entities')->insert($chunk);
+				try{
+					\DB::collection('entities')->insert($chunkVal);
+				} catch (Exception $e) {
+					$status['error']['insert_chunk' . $chunkKey] = $e->getMessage();
+				}
 			}	
 		}
 		else
 		{
-			\DB::collection('entities')->insert($allEntities);
+			try{
+				\DB::collection('entities')->insert($allEntities);
+			} catch (Exception $e) {
+				$status['error']['insert_batch'] = $e->getMessage();
+			}
+
 		}
 
 		return $status;
