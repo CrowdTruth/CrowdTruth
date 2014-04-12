@@ -21,10 +21,15 @@ class TwrexStructurer {
 		return array_intersect_key($array, array_unique(array_map('serialize', $array)));	    
 	}	
 
-	public function process($twrex)
+	public function process($twrex, $preview = false)
 	{
 		// fastcgi_finish_request();
 		$twrexLines = $this->array_unique_multidimensional(explode("\n", $twrex->content));
+
+		if($preview)
+		{
+			$twrexLines = array_slice($twrexLines, 0, 100);
+		}
 
 		// dd(count($twrexLines));
 
@@ -77,11 +82,13 @@ class TwrexStructurer {
 		// dd(count($this->array_unique_multidimensional($tempTwrexStructuredSentences)));
 		// dd(count($tempTwrexStructuredSentences));
 
+		unset($twrex, $twrexLines);
+
 		$tempTwrexStructuredSentences = $this->array_unique_multidimensional($tempTwrexStructuredSentences);
 		
 		$overlappingOffsetSentences = [];
 
-		foreach($tempTwrexStructuredSentences as $tempTwrexStructuredSentence)
+		foreach($tempTwrexStructuredSentences as $tKey => $tempTwrexStructuredSentence)
 		{
 			foreach($tempTwrexStructuredSentence['terms']['first'] as $firstTerm)
 			{
@@ -111,11 +118,21 @@ class TwrexStructurer {
 					$twrexStructuredSentence = $this->formatUppercase($twrexStructuredSentence);
 
 					ksort($twrexStructuredSentence['terms']);
-					array_push($twrexStructuredSentences, $twrexStructuredSentence);
+
+					if($preview)
+					{
+						array_push($twrexStructuredSentences, $twrexStructuredSentence);
+					}
+					else
+					{
+						array_push($twrexStructuredSentences, serialize($twrexStructuredSentence));
+					}
+
 				}
 			}
-		}
 
+			unset($tempTwrexStructuredSentences[$tKey]);
+		}
 
 		// $allHashes = array();
 		// $duplicates = array();
@@ -614,7 +631,9 @@ class TwrexStructurer {
 
         $allEntities = array();
 
-		foreach($twrexStructuredSentences as  $twrexStructuredSentence){
+		foreach($twrexStructuredSentences as $twrexStructuredSentence){
+			$twrexStructuredSentence = unserialize($twrexStructuredSentence);
+
 			$title = $parentEntity->title . "_index_" . $inc;
 
 			$hash = md5(serialize(array_except($twrexStructuredSentence, ['properties'])));

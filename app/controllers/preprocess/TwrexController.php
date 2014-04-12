@@ -78,7 +78,7 @@ class TwrexController extends BaseController {
 					continue;
 				}
 
-				return $document = $this->twrexStructurer->process($entity);
+				return $document = $this->twrexStructurer->process($entity, true);
 				// print_r($document);
 				// exit;
 				return View::make('preprocess.twrex.pages.view', array('entity' => $entity, 'lines' => $document));
@@ -100,8 +100,7 @@ class TwrexController extends BaseController {
 					continue;
 				}
 
-				$document = $this->twrexStructurer->process($entity);
-				return $status_processing = $this->twrexStructurer->store($entity, $document);
+				return $status_processing = $this->twrexStructurer->store($entity, $this->twrexStructurer->process($entity));
 				echo "<pre>";
 				dd($status_processing);
 				return Redirect::back();
