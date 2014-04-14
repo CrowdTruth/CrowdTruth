@@ -92,6 +92,38 @@ class apiController extends BaseController {
 		return Response::json($return);
 	}
 
+	/* Data in post is object with an array of recipients plus a message-object */
+	public function postMessage(){
+		
+
+		$return = array('status' => 'ok');
+		$groupedarray = array();
+
+		try {
+			foreach ($recipient as $r) {
+				$explid = explode('/', $r);
+				$platformid = $explid[1];
+				$groupedarray[$platformid][] = $recipient;
+			}
+
+			foreach ($groupedarray as $platformworkers) {
+				$platform = App::make(array_keys($platformworkers));
+				//$platform->sendMessage(array_values($platformworkers), $subject, $content);
+				dd(json_encode($platformworkers));
+				$return['message'] = 'sent';
+			}
+
+		} catch (Exception $e){
+			$return['error'] = $e->getMessage();
+			$return['status'] = 'bad';
+		}
+		return $return;
+	}
+
+	/* Data in post is object with an array of recipients plus a message-object */
+	public function postFlag(){
+
+	}
 }
 
 ?>

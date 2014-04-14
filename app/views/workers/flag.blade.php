@@ -1,10 +1,6 @@
 @extends('layouts.default')
 
 @section('head')
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
-<script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
-<script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
-<script type="text/javascript" src="/custom_assets/workerretrieval.js"></script>  
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
 <link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
@@ -13,8 +9,7 @@
 @section('content')
 <div class="messagePage" ng-controller="messageCtrl">
   <!-- Main column with results -->
-  @include('layouts.flashdata')
-  <div class="row">
+   <div class="row">
     
       <div class="ng-scope disabled pull-left">
         <ul style="margin-left: 20px;" class="pagination ng-isolate-scope">
@@ -29,10 +24,10 @@
     </div>
     <div class="modal-header">
       <div class="row leftindent">
-        <div class="col-md-3">To:</div>
-        <div class="col-md-9"><b>@{{selection}}</b></div> 
+        <div class="col-md-3">Worker:</div>
+        <div class="col-md-9">@{{flagselected}}</div> 
       </div>
-      <div class="row leftindent">
+      <div class="row leftindent" style="margin-top: 8px;">
         <div class="col-md-3">Subject:</div>
         <div class="col-md-9"><input class="messagesubject" type="text" ng-model="message.subject"></div> 
       </div>

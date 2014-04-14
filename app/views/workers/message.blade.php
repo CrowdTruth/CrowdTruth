@@ -28,12 +28,12 @@
               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
               <h3>Send a message</h3>
       </div>
-      <div>
+      <div style="margin-top: 10px;">
         <div class="row leftindent">
           <div class="col-md-3">To:</div>
-          <div class="col-md-9"><b>@{{selection}}</b></div> 
+          <div class="col-md-9"  style="height: 130px; width: 320px; overflow-y: scroll;"><div ng-repeat="id in selection">@{{id}}<br></div></div> 
         </div>
-        <div class="row leftindent">
+        <div class="row leftindent" style="margin-top: 8px;">
           <div class="col-md-3">Subject:</div>
           <div class="col-md-9"><input class="messagesubject" type="text" ng-model="message.subject"></div> 
         </div>
