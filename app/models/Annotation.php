@@ -68,7 +68,9 @@ class Annotation extends Entity {
                 break;
             
             default:
-               return  $this->createDictionaryFactSpan(); // For Debugging!
+               //return  $this->createDictionaryFactSpan(); // For Debugging!
+                echo "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" . $this->_id;
+                die(); 
                //throw new Exception('No rules for creating a dictionary for this type.');
                 break;
         }        
@@ -329,6 +331,7 @@ class Annotation extends Entity {
             $ans = $this->content['Q1'];
 
         if($this->softwareAgent_id == 'cf'){
+            $u = $this->unit->content;
             if($ans == 'no_relation')
                 $ans = 'Choice3';
             elseif (strpos($ans, $u['terms']['first']['formatted']) === 0)
@@ -415,6 +418,7 @@ class Annotation extends Entity {
                 $ans = $this->content['step_1_select_the_valid_relations'];
             else {
                 $ans = str_replace("\n", "_", rtrim($this->content['step_1_select_the_valid_relations']));
+                $ans = str_replace("\r", "_", $ans);
                 $ans = str_replace("]_[", "]*[", $ans);
                 $ans = explode('*', $ans);
             }    
@@ -439,8 +443,11 @@ class Annotation extends Entity {
         "[CONTRAINDICATES]" =>          (in_array("[CONTRAINDICATES]",          $ans ) ? 1 : 0));
 
         foreach($ans as $a){
-            if(!in_array($a, $dic))
+            if(!in_array($a, array_keys($dic))){
+
+                dd($ans);
                throw new Exception("Answer $a not in dictionary.");
+            }   
         }
 
         if(!in_array(1, $dic)) throw new Exception('Dictionary EMPTY');

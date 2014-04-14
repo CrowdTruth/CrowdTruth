@@ -724,6 +724,46 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		}
 	}
 
+	public function getUpdatecfdictionaries(){
+		
+		foreach(Job::where('softwareAgent_id', 'cf')->get() as $job){
+			foreach ($job->annotations as $ann) {
+				if(!empty($ann->dictionary))
+					continue;
+				
+				$ann->type = $job->type;
+				$ann->dictionary = $ann->createDictionary();
+				$ann->save();
+
+				if(is_null($ann->dictionary))
+					echo ">>>>>{$ann->unit_id}";
+				else
+					echo "_____{$ann->unit_id}";
+			}
+
+
+			//Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+		}
+	}
+
+		// ******************************************************************* //
+	public function getUpdatedictionaries(){
+
+		$jobs = Job::get();
+		foreach ($jobs as $job) {
+			foreach($job->annotations as $ann){
+				$ann->type = $job->type;
+				$ann->dictionary = $ann->createDictionary();
+				$ann->save();
+			}
+
+			$job = Job::id('entity/text/medical/job/0')->first();
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+
+		}
+	}
+
+
 
 
 }
