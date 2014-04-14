@@ -1,22 +1,17 @@
 @extends('layouts.default')
 
 @section('head')
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
-<script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
-<script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
-<script type="text/javascript" src="/custom_assets/workerretrieval.js"></script>	
+<script type="text/javascript" src="/custom_assets/crowdwatson.js"></script>	
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
 <link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
+<script type="text/javascript" src="/custom_assets/angular-ui.js"></script>
 @stop
 
-@section('modal')
- 
-@stop
 
 @section('content')
-<div ng-app="workerRetrieval" ng-controller="workerCtrl">
-
+	
+<div ng-controller="workerCtrl">
 	<div  id="filtercolumn" class="col-md-3 ">
         <div class="panel panel-default" style="margin-top: 10px;">
 			<div class="panel-heading">
@@ -90,7 +85,7 @@
 			<div class="ng-scope space-left pull-left"> 
 				<ul class="pagination ng-isolate-scope">
 	          		<li><a class="ng-binding" ng-show="selection" ng-click="analyze()">Analyse</a></li>
-	          		<li><a class="ng-binding" ng-show="selection" ng-click="openMessage(selection)">Message workers</a></li>
+	          		<li><a class="ng-binding" ng-show="selection" ng-click="openMessage()">Message workers</a></li>
 	          	</ul>
 			</div>
 			<div class="row" style="margin-left:auto; margin-right:auto; width:100%; text-align: center;">
@@ -130,11 +125,16 @@
 			</div>
 		</div>
 	</div>
+	
 </div>
+
 @stop
 
 @section('end_javascript')
-	<script>
-				
-	</script>
+	
+
+
+
+
+
 @stop

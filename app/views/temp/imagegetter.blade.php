@@ -56,7 +56,27 @@
 						<button class="btn btn-primary" ng-click="next();">Start</button>
 					</div>
 				</div>
-				@{{domain}} @{{type}} @{{numImg}} @{{keyphrase}}<br>@{{data}}<br>@{{status}}
+				@{{domain}} @{{type}} @{{numImg}} @{{keyphrase}}<br>@{{pictures}}<br>@{{status}}
+			</div>
+		</div>
+
+
+		<div>
+			<div ng-show="scripLoading" class="loading"><img class="loading-img" src="/loading.gif"><div>Loading..</div></div>
+			
+			<div class="image-box pull-left space-left" ng-repeat="image in pictures">
+				<div class="image-selectable" ng-class="{selected: image.checked}" style="background-image: url(@{{image.url}});">
+					<div class="image-checkbox">
+						<input type="checkbox" ng-model="image.checked">
+					</div>
+				</div>
+				<div class="image-metadata">
+					@{{image.name}}
+				</div>
+			</div>
+			
+			<div ng-show="loading == false" class="space-left" style="margin-bottom: 30px;">
+				<button ng-click="executeScript()" class="btn btn-primary">Execute script!</button>
 			</div>
 		</div>
 	</div>

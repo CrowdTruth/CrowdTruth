@@ -1,10 +1,8 @@
-var app = angular.module("dataRetrieval", [ 'ngResource', 'angularMoment' ]);
-
 	//write resource service class
 
 
 //inject resourceSvc in this controller
-app.controller("resourceCtrl", ["$scope", "$resource", "$http", "filterFilter", function($scope, $resource, $http, filterFilter) {
+app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
 	
 	$scope.optionsPerPage = [
 	    {value: 5},
@@ -132,12 +130,10 @@ app.controller("resourceCtrl", ["$scope", "$resource", "$http", "filterFilter", 
  	//The following part concerns selection of jobs for analysis
  	$scope.selection = [];
 
-
  	$scope.$watch('results.data|filter:{checked:true}', function(n,o){
  		if(n != undefined)
  			$scope.selection = n.map(function (result){
-				console.log($scope.selection);
-				return result._id;
+			return result._id;
  			});
  	}, true);
  	
@@ -147,37 +143,21 @@ app.controller("resourceCtrl", ["$scope", "$resource", "$http", "filterFilter", 
  	}
 
  	$scope.analyze = function(){
- 		if($scope.selection[0] == null ){
- 			alert('Select a job first.')
- 		} else
- 		{
- 			window.location = '/analyze/view?jobs=' + $scope.selection;
- 		}
- 	}
-
-
-	$scope.perform = function(job, action){
- 		var newstatus = '';
- 		if(action == 'pause') newstatus = 'paused';
- 		else if(action == 'order' || action == 'resume') newstatus = 'running';
- 		else if(action == 'cancel') newstatus = 'canceled';
- 		else return;
-
- 		$http({method: 'GET', url: '/api/actions/'+job._id+'/'+action}).
-		    success(function(data, status, headers, config) {
-		      	if(data.status == 'ok'){
- 					job.status = newstatus;
- 				} else {
- 					alert(data.message);
- 				}	
-		     }).
-		    error(function(data, status, headers, config) {
-		      console.log(status);
-		     // alert(status);
-		});
+        if($scope.selection[0] == null ){
+            alert('Select a job first.')
+        } else
+        {
+            var redirect_url = '/analyze/view?'
+            for (var item in $scope.selection) {
+                redirect_url += 'field[_id][]=' + $scope.selection[item] + '&';
+            }
+            //window.location = redirect_url.substring(0, redirect_url.length - 1)
+            window.location = '/analyze/view?jobs=' + $scope.selection;
+        }
  	}
  	
-}]);
+});
+
 
 var getResource = function($resource, page, perPage, sort, filter){
 		return Result = $resource('/api/v3/?:page:perPage:sort:filter', 
@@ -187,3 +167,13 @@ var getResource = function($resource, page, perPage, sort, filter){
 				);
 	}
 
+
+// getResource as a factory; for later implementation (passing parameters into factory proven more difficult than using simple var-like function call)
+// var getResource = app.factory('resourceSvc', ['$resource', 
+// 	function($resource, page, perPage, sort, filter){
+// 		alert('this is the api-call' + page + perPage + sort + filter);
+// 		return $resource('/api/v3/?page=:page&perpage=:perPage&sort=:sort&filter=:filter', {page: '@page', perPage: '@perPage', sort: '@sort', filter: '@filter'});
+// 	}]
+// );
+
+	
