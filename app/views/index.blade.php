@@ -2,7 +2,7 @@
 
 @section('content')
 			<!-- START /index --> 			
-			<div class="col-xs-8 col-md-offset-2">
+			<div class="col-xs-8 col-md-offset-2" >
 				<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')						
 

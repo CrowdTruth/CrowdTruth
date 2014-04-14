@@ -1,8 +1,31 @@
-var app = angular.module("imageSelection", ['ngResource']);
+var app = angular.module("imageSelection", []);
 
 app.controller("imgCtrl", function($scope, $http, filterFilter){
 	
 	$scope.pictures = [];
+
+ 	$scope.next = function (){
+		$scope.scriptLoading = true;
+		domain = $scope.domain.toLowerCase();
+		type = $scope.type.toLowerCase();
+		numImg = $scope.numImg.toString();
+		keyphrase = $scope.keyphrase.toLowerCase();
+
+		var url = '/api/actions/image/' + domain + '/' + type + '/' + numImg + '/' + keyphrase + '';
+		
+		console.log(url);
+
+		$http.get(url).success(function (data, status){
+			$scope.status = status;
+			$scope.pictures = data;
+			$scope.scriptLoading = false;
+			console.log($scope.pictures);
+		})
+		.error(function(data, status){
+			$scope.images = data || "Request failed! :(";
+			$scope.status = status;
+		});
+    }
 
 	$scope.selection = [];
 
@@ -13,7 +36,7 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
  			});
  		}
  	}, true);
- 	
+
  	$scope.executeScript = function(){
  		if($scope.selection[0] == null ){
  			alert('Select an image first.')
@@ -22,37 +45,6 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
  		}
  	}
 
- 	// Watch database for image job to complete, then change $scope.loading boolean to false to show images
- 	$scope.loading = true;
-
-
-	$scope.next = function (){
-		console.log("Starting next function.")
-		$scope.loading = true;
-		domain = $scope.domain.toLowerCase();
-		type = $scope.type.toLowerCase();
-		numImg = $scope.numImg.toString();
-		keyphrase = $scope.keyphrase.toLowerCase();
-
-		var url = '/api/actions/image/' + domain + '/' + type + '/' + numImg + '/' + keyphrase + '';
-		
-		console.log(url);
-
-		$http({method: 'GET', url: url }).success(function(data, status) {
-		      $scope.status = status;
-		      $scope.data = data;
-		      $scope.loading = false;
-		    }).
-		    error(function(data, status) {
-		      $scope.data = data || "Request failed";
-		      $scope.status = status;
-		  });
-
-
- 		
- 	}
-
- 	
 });
 
 

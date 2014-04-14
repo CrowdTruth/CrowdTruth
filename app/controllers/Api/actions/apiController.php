@@ -24,9 +24,7 @@ class apiController extends BaseController {
 			
 			exec($command,$output,$error);
 			
-			
 			return Response::json($output[0]);
-
 
 		} catch (Exception $e){
 			//throw $e; // for debugging.

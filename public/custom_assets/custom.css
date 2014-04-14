@@ -202,3 +202,22 @@
 	width: 275px;
 }
 
+.modal {
+  display: block;
+}
+
+.modal-body:before,
+  .modal-body:after {
+    display: table;
+    content: " ";
+}
+
+.modal-header:before,
+.modal-header:after {
+  display: table;
+  content: " ";
+}
+
+.modalz {
+	z-index: 2
+	}

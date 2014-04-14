@@ -1,6 +1,3 @@
-
-var app = angular.module("dataRetrieval", [ 'ngResource', 'angularMoment' ]);
-
 	//write resource service class
 
 
