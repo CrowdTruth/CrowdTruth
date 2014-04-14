@@ -1,11 +1,6 @@
 @extends('layouts.default')
 
 @section('head')
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
-<script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
-<script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
-<script type="text/javascript" src="/custom_assets/dataretrieval.js"></script>	
-<script type="text/javascript" src="/custom_assets/messageservice.js"></script>	
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
 <link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
@@ -15,7 +10,7 @@
 @stop
 
 @section('content')
-<div ng-app="dataRetrieval" ng-controller="resourceCtrl">
+<div ng-controller="resourceCtrl">
 	
 			<div  id="filtercolumn" class="col-md-3 ">
 			<!-- Left column for sorting -->
