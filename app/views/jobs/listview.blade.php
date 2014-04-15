@@ -212,7 +212,8 @@
 				   				</button>
 					 				 <ul class="dropdown-menu" role="menu">
 					       				<li><a ng-click="perform(result, 'pause')" ng-show="result.status == 'running'"><i class="fa fa-folder-open fa-fw"></i>Pause Job</a></li>
-					       				<li><a ng-click="perform(result, 'start')" ng-show="result.status == 'cancelled' || result.status == 'paused' || result.status == 'unordered'"><i class="fa fa-folder-open fa-fw"></i>@{{(result.status=='paused' ? 'Start Job' : 'Order Job')}}</a></li>
+					       				<li><a ng-click="perform(result, 'resume')" ng-show="result.status == 'paused'"><i class="fa fa-folder-open fa-fw"></i>Resume Job</a></li>
+					       				<li><a ng-click="perform(result, 'order')" ng-show="result.status == 'unordered'"><i class="fa fa-folder-open fa-fw"></i>Order Job</a></li>
 					       				<li><a ng-click="perform(result, 'cancel')" ng-show="result.status != 'cancelled' "><i class="fa fa-sign-out fa-fw"></i>Cancel Job</a></li>
 					       				<li class="divider"></li>
 					       				<li><a ng-href="/process/duplicate/@{{result._id}}"><i class="fa fa-sign-out fa-fw"></i>Duplicate Job</a></li>

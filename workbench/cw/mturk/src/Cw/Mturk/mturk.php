@@ -270,9 +270,12 @@ class Mturk extends \FrameWork {
 	}
 
 	public function cancelJob($id){
-		foreach($id as $hitid){
+		if(empty($id))
+			throw new Exception('Platform Job ID\'s not found. Is this an imported job?');
+
+		foreach($id as $hitid)
 		 	$this->mechanicalTurk->forceExpireHIT($hitid['id']);
-        }
+        
 	}
 
 

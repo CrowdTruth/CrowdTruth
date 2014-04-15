@@ -339,7 +339,7 @@ var getWorker = function($resource, id){
 			function(data, $scope){$scope.worker = data;});
 	}
 
-app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
+app.controller("resourceCtrl", function($scope, $resource, filterFilter, $http) {
 	
 	$scope.optionsPerPage = [
 	    {value: 5},
