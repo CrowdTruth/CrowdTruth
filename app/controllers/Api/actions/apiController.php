@@ -23,7 +23,29 @@ class apiController extends BaseController {
 			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . $numImg . " " . $keyphrase;
 			
 			exec($command,$output,$error);
-			dd($output);
+			
+			return Response::json($output[0]);
+
+		} catch (Exception $e){
+			//throw $e; // for debugging.
+			$return['error'] = $e->getMessage();
+			$return['status'] = 'bad';
+		} 
+
+		return $this->returnJson($return);
+	}
+
+	public function getImageFeatures($domain, $type, $url){
+		return Response::json("Received images");
+		// Store url in to database as parent 
+
+		// Return id of parent to use in script
+
+		// Run python script
+		try {
+			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py" . $domain . $type . $url;
+			
+			exec($command,$output,$error);
 			
 			return Response::json($output[0]);
 

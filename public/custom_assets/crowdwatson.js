@@ -549,10 +549,22 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
 		$http.get(url)
 		.success(function (data, status){
 			$scope.status = status;
-			$scope.pictures = data;
-			$scope.loading = false;
-			console.log("Get request success!");
+			// JSON.parse first time for removing ""
+			withoutslashesdata = JSON.parse(data);
+			// JSON.parse second time to form array
+			data = JSON.parse(withoutslashesdata);
+			
+			$scope.pictures = [];
+			angular.forEach(data, function(key, value){
+				image = {};
+				image.url = key;
+				image.title = "Image #" + value;
+				$scope.pictures.push(image);
+			})
+			console.log("Get request success! Pictures array:");
 			console.log($scope.pictures);
+			$scope.loading = false;
+			
 		})
 		.error(function(data, status){
 			$scope.images = data || "Request failed! :(";
@@ -577,7 +589,19 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
  		if($scope.selection[0] == null ){
  			alert('Select an image first.')
  		}else{
- 		alert('Run script on:' + $scope.selection);
+ 			domain = $scope.domain.toLowerCase();
+			type = $scope.type.toLowerCase();
+			angular.forEach($scope.selection, function(value, key){
+					value = "\"" + value + "\""; 
+					url = '/api/actions/imagefeatures/' + domain + "/" + type + "/" + value;
+					console.log("This is the url: " + url);
+					$http.get(url)
+					.success(function (data, status){
+						console.log("Succesful callback" + data);
+					})
+ 					.error();
+ 			})
+			
  		}
  	}
 

@@ -2,6 +2,8 @@
 
 @section('head')
 <script type="text/javascript" src="/custom_assets/crowdwatson.js"></script>
+<script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
+<script type="text/javascript" src="/custom_assets/moment.js"></script>
 @stop
 
 @section('content')
@@ -59,21 +61,6 @@
 		<div class="panelbody" ng-show="imageGetting" style="height: 600px; overflow-y: scroll;">
 			<div ng-show="loading" class="loading"><img class="loading-img" src="/loading.gif"><div>Loading..</div></div>
 			
-			<!-- TEST IMAGE -->
-			<div class="image-box pull-left space-left" ng-show="!loading">
-				<div class="image-selectable" style="background-image: url('/image.png'); background-size: 100% 100%; ">
-					<div class="image-hover" ng-class="{overlay: image.checked}">
-						<div class="image-checkbox">
-							<input type="checkbox" ng-model="image.checked">
-						</div>
-					</div>
-				</div>
-				<div class="image-metadata">
-					Test image
-				</div>
-			</div>
-			<!-- //TEST IMAGE -->
-
 			<div class="image-box pull-left space-left" style="margin-top: 30px;" ng-show="!loading" ng-repeat="image in pictures">
 				<div class="image-selectable" style="background-image: url(@{{image.url}}); background-size: 100%">
 					<div class="image-hover" ng-class="{overlay: image.checked}">
