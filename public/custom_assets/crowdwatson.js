@@ -126,13 +126,14 @@ app.controller("workerCtrl", function($scope, $resource, filterFilter, workerSer
 			$scope.pageNr = 1;
 			break;
 			case 'previous':
-			if($scope.pageNr > 1) { $scope.pageNr = $scope.pageNr -1; console.log('-1') }
+			if($scope.pageNr > 1) { $scope.pageNr = $scope.pageNr -1; }
 			break;
 			case 'next':
-			if($scope.pageNr < $scope.numPages) { $scope.pageNr = $scope.pageNr +1;}
+			console.log($scope.pageNr + '-' +  $scope.results.numPages);
+			if($scope.pageNr < $scope.results.numPages) { $scope.pageNr = $scope.pageNr +1; }
 			break;
 			case 'last':
-			$scope.pageNr = $scope.numPages;
+			$scope.pageNr = $scope.results.numPages;
 			break;
 			default: 
 			$scope.pageNr;
@@ -140,27 +141,12 @@ app.controller("workerCtrl", function($scope, $resource, filterFilter, workerSer
 	}
 	  	
 	$scope.$watch('pageNr + itemsPerPage', function(n,o) {
-  		if ($scope.pageNr != ""){
+  		if ($scope.pageNr != "" && $scope.pageNr > 0 && $scope.pageNr <= $scope.results.numPages && n!=o){
   			page = "page=" + $scope.pageNr;
-
-  			$scope.numPages = function(){
-				var pages = Math.ceil($scope.results.total/$scope.itemsPerPage);
-				if(pages == 1){
-					console.log("I evaluate true says if in numPages == 1");
-					return pages = 1;
-				}
-			console.log("numPages calculated");
-			return pages;
-			}
-
-  			$scope.results = getResource($resource, page, perPage, sort, filter);
-  			
-  			// if ($scope.results.data == null){
-  			// 	$scope.pageNr = 1;
-  			// }
+			$scope.results = getResource($resource, page, perPage, sort, filter);
   		}
    	});
-
+	  	
 
 
   	// Call getResource after setting sort
@@ -348,12 +334,16 @@ app.service('redirectionService', function(){
 });
 
 var getResource = function($resource, page, perPage, sort, filter){
-		return Result = $resource('/api/v4/?:page:perPage:sort:filter', 
+		return $resource('/api/v4/?:page:perPage:sort:filter', 
 			{page: '@page', perPage: '@perPage', sort: '@sort', filter: '@filter'})
 			.get({page: page, perPage: perPage, sort: sort, filter: filter},
-				function(data, $scope){$scope.results = data;}
+				function(data, $scope, perPage){
+					data.numPages = Math.ceil(data.total/data.perPage);
+					return data;
+				}
 				);
 	}
+
 
 var getWorker = function($resource, id){
 	return worker = $resource('/api/v4/?id=:id', {id: '@id'}, {'get': {method: 'GET', isArray:true }})

@@ -71,7 +71,7 @@
 		
 
 		<div class="pull-left">
-			<div class="ng-scope disabled pull-left" style="margin-top: 25px;"><label for="page">Page :  </label> <input id="page" type="text" style="width: 25px;" ng-model="pageNr"> / @{{numPages()}}</div>
+			<div class="ng-scope disabled pull-left" style="margin-top: 25px;"><label for="page">Page :  </label> <input id="page" type="text" style="width: 25px;" ng-model="pageNr"> / @{{results.numPages}}</div>
 				<ul style="margin-left: 20px;" class="pagination ng-isolate-scope">
 					<li><a ng-click="selectPage('first')" class="ng-binding">First</a></li>
 					<li><a ng-click="selectPage('previous')" class="ng-binding">Previous</a></li>
