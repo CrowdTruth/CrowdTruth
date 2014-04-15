@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /**
  * This is a manifest file that'll be compiled into application.css, which will include all the files
  * listed below.
@@ -34,5 +33,5 @@
  *= require jstree.min.css
  *= require style.css.scss
  *= require nv.d3.css
->>>>>>> 373a996f28c09ac33cb9afd1d59c621e5cca2fd5
+ *= require custom.css
  */

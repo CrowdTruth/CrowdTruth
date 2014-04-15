@@ -128,6 +128,23 @@ class apiController extends BaseController {
 	public function postFlag(){
 
 	}
+
+	public function getGetdropdowninfos(){
+		foreach(Job::get() as $job){
+			$format[] = $job->format;
+			$domain[] = $job->domain;
+			$user[] = $job->user_id;
+			$template[] = $job->template;
+			$platform[] = $job->platform;
+			$status[] = $job->status;
+		}
+
+		return array('format'=> array_unique($format),
+					'domain'=> array_unique($format),
+					'user'=> array_unique($format),
+					'template'=> array_unique($format),
+					'status'=> array_unique($format));
+	}
 }
 
 ?>
