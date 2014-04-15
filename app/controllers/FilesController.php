@@ -38,6 +38,30 @@ class FilesController extends BaseController {
 		}
 
 		return View::make('files.pages.upload', compact('status_upload'));
+	}
+
+	public function postOnlinedata()
+	{
+		//dd(Input::all());
+		$onlineDataHelper = new OnlineDataHelper(Input::all());
+		try {
+			$format = $onlineDataHelper->getType();
+			$domain = $onlineDataHelper->getDomain();
+			$documentType = $onlineDataHelper->getDocumentType();
+			$noOfVideos = $onlineDataHelper->getNoOfVideos();
+			$sourceName = $onlineDataHelper->getOnlineSource();
+			$mongoDBOnlineData = new \OnlineData;
+			$source = explode("_", $sourceName);
+			$parameters = array();
+			$parameters["set"] = $source[1];
+			$parameters["metadataPrefix"] = "oai_oi";
+			$parameters["set"] = "beeldengeluid";
+			$status_onlinedata = $mongoDBOnlineData->store($format, $domain, $documentType, $parameters, $noOfVideos);
+		} catch (Exception $e){
+			return Redirect::back()->with('flashError', $e->getMessage());
+		}
+
+		return View::make('files.pages.upload', compact('status_onlinedata'));
 	}	
 
 	public function getBrowse($format = 'none', $domain = 'none', $documentType = 'none', $documentURI = 'none')
