@@ -23,6 +23,7 @@ class apiController extends BaseController {
 			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . $numImg . " " . $keyphrase;
 			
 			exec($command,$output,$error);
+			dd($output);
 			
 			return Response::json($output[0]);
 
