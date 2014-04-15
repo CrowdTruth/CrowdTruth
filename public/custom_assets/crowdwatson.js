@@ -363,11 +363,7 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
 	$scope.results = getJobs($resource,page,perPage,sort,filter);
 	
 	$scope.setPerPage = function(){
-		if( $scope.itemsPerPage.value < $scope.results.total ){
-			perPage = "&perPage=" + $scope.itemsPerPage.value;
-		}else {
-			alert("There are not that many items to show!");
-		}
+		perPage = "&perPage=" + $scope.itemsPerPage.value;
 	}
 		
 	$scope.selectPage = function(page){
