@@ -18,6 +18,30 @@ class ProcessController extends BaseController {
 // relex 277 - 1530
 // FactSpan 916 - 192
 	
+	public function getLoop(){
+		foreach (Job::get() as $job){
+			if(!isset($job->projectedCost)){
+				try{
+				$batch = $job->batch;
+				$reward = $job->jobConfiguration->content['reward'];
+				$annotationsPerUnit = intval($job->jobConfiguration->content['annotationsPerUnit']);
+				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);
+				$unitsCount = count($batch->wasDerivedFrom);
+	            if(!$unitsPerTask)
+	                $projectedCost = 0;
+	            else
+				    $projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
+
+				$job->unitsCount = $unitsCount;
+				$job->projectedCost = $projectedCost;
+				$job->save;
+				} catch (LogicException $e) {
+					//dd($job);
+				}
+			}
+		}
+	}
+
 
 	public function getBatch() {
 

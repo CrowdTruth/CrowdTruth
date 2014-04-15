@@ -8,7 +8,7 @@
 }
 
 .panel-nav-bar-active {
-	background: #428bca;
+	background: #428bca !important;
 	color: #FFF;
 }
 

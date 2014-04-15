@@ -111,11 +111,7 @@ app.controller("workerCtrl", function($scope, $resource, filterFilter, workerSer
   	console.log($scope.results);	
 	
 	$scope.setPerPage = function(){
-		if( $scope.itemsPerPage.value < $scope.results.total ){
-			perPage = "&perPage=" + $scope.itemsPerPage.value;
-		}else {
-			alert("There are not that many items to show!");
-		}
+		perPage = "&perPage=" + $scope.itemsPerPage.value;
 	}
 		
 	$scope.selectPage = function(page){
@@ -124,10 +120,10 @@ app.controller("workerCtrl", function($scope, $resource, filterFilter, workerSer
 			$scope.pageNr = 1;
 			break;
 			case 'previous':
-			$scope.pageNr = $scope.pageNr -1;
+			if($scope.pageNr > 1) { $scope.pageNr = $scope.pageNr -1; console.log('-1') }
 			break;
 			case 'next':
-			$scope.pageNr = $scope.pageNr +1;
+			if($scope.pageNr < $scope.numPages) { $scope.pageNr = $scope.pageNr +1;}
 			break;
 			case 'last':
 			$scope.pageNr = $scope.numPages;
@@ -349,7 +345,7 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
 	    {value: 5},
 	    {value: 10 },
 	    {value: 20 },
-	    {value: 50 },
+	    {value: 50 }
 	    ];
 
 	// Pagination directive
@@ -380,13 +376,14 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
 			$scope.pageNr = 1;
 			break;
 			case 'previous':
-			$scope.pageNr = $scope.pageNr -1;
+			if($scope.pageNr > 1) { $scope.pageNr = $scope.pageNr -1; }
 			break;
 			case 'next':
-			$scope.pageNr = $scope.pageNr +1;
+			console.log($scope.pageNr + '-' +  $scope.results.numPages);
+			if($scope.pageNr < $scope.results.numPages) { $scope.pageNr = $scope.pageNr +1; }
 			break;
 			case 'last':
-			$scope.pageNr = $scope.numPages;
+			$scope.pageNr = $scope.results.numPages;
 			break;
 			default: 
 			$scope.pageNr;
@@ -394,60 +391,21 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
 	}
 	  	
 	$scope.$watch('pageNr + itemsPerPage', function(n,o) {
-  		if ($scope.pageNr != ""){
+  		if ($scope.pageNr != "" && $scope.pageNr > 0 && $scope.pageNr <= $scope.results.numPages && n!=o){
   			page = "page=" + $scope.pageNr;
-
-  			$scope.numPages = function(){
-				var pages = Math.ceil($scope.results.total/$scope.itemsPerPage);
-				if(pages == 1){
-					console.log("I evaluate true says if in numPages == 1");
-					return pages = 1;
-				}
-			return pages;
-			}
-
-  			$scope.results = getJobs($resource, page, perPage, sort, filter);
-  			
-  			// if ($scope.results.data == null){
-  			// 	$scope.pageNr = 1;
-  			// }
+			$scope.results = getJobs($resource, page, perPage, sort, filter);
   		}
    	});
 
 
-
-  	// Call getResource after setting sort
-  	$scope.setSortVisible = function(){
-  		if($scope.sortVisible == true ){
-  			$scope.sortVisible = false;
-  		} else {
-  			$scope.sortVisible = true;
-  		}
-  	}
-
- 	$scope.setSortAsc = function( column ){
- 		sort = "&sortBy=" + column + "&order=asc";
+ 	$scope.setSort = function( column, ascdesc ){
+ 		sort = "&sortBy=" + column + "&order=" + ascdesc;
  		$scope.$watch('sort', function(n,o){
  			$scope.results = getJobs($resource, page, perPage, sort, filter );
  		}); 
  		$scope.selectedIndex = column;
 	} 
 
- 	$scope.setSortDesc = function( column ){
- 		sort = "&sortBy=" + column + "&order=des";
- 		$scope.$watch('sort', function(n,o){
- 			$scope.results = getJobs($resource, page, perPage, sort, filter );
- 		});
- 		$scope.selectedIndex = column;
-	} 
-
-	$scope.setFilterVisible = function(){
-  		if($scope.filterVisible == true ){
-  			$scope.filterVisible = false;
-  		} else {
-  			$scope.filterVisible = true;
-  		}
-  	}
 
 	$scope.setFilter = function(){
 		//  set standard filter string
@@ -501,10 +459,13 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
 
 
 var getJobs = function($resource, page, perPage, sort, filter){
-		return Result = $resource('/api/v3/?:page:perPage:sort:filter', 
+		return $resource('/api/v3/?:page:perPage:sort:filter', 
 			{page: '@page', perPage: '@perPage', sort: '@sort', filter: '@filter'})
 			.get({page: page, perPage: perPage, sort: sort, filter: filter},
-				function(data, $scope){$scope.results = data;}
+				function(data, $scope, perPage){
+					data.numPages = Math.ceil(data.total/data.perPage);
+					return data;
+				}
 				);
 	}
 

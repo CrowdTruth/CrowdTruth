@@ -752,12 +752,11 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		$jobs = Job::get();
 		foreach ($jobs as $job) {
 			foreach($job->annotations as $ann){
-				$ann->type = $job->type;
+				//$ann->type = $job->type;
 				$ann->dictionary = $ann->createDictionary();
 				$ann->save();
 			}
 
-			$job = Job::id('entity/text/medical/job/0')->first();
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 
 		}

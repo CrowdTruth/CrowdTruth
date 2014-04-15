@@ -85,6 +85,8 @@ class Job extends Entity {
     public function order(){
     	$this->getPlatform()->orderJob($this);
     	$this->status = 'running';
+        if(empty($this->startedAt))
+            $this->startedAt = new MongoDate;
     	$this->save();
     }
 

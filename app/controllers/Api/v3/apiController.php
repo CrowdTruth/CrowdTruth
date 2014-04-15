@@ -96,14 +96,7 @@ class apiController extends BaseController {
 					{	
 						if($filter == "username"){
 
-							$user = \User::where('username', 'like', '%' . $subvalue . '%')->first();
-
-							// return $user;
-							$user_id = $user->_id;
-
-							// dd($user_id);
-
-							$documents = $documents->where('user_id', $user_id);
+							$documents = $documents->where('user_id', 'like', '%' . $subvalue . '%');
 
 							continue;
 						}
@@ -214,7 +207,7 @@ class apiController extends BaseController {
 			"data" => $jobs->toArray() 
 			);
 		
-		
+		//dd($paginator);
 		return Response::json($paginator);
 
 		// Take limit of 100 unless otherwise indicated
