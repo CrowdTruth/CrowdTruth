@@ -4,7 +4,7 @@
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
 <script type="text/javascript" src="/custom_assets/crowdwatson.js"></script>
-<link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
+<link rel="stylesheet" type="text/css" href="/custom_assets/custom.css" />
 @stop
 
 @section('modal')
