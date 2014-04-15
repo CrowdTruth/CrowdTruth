@@ -13,6 +13,7 @@ use \Job;
 use \Log;
 use \QuestionTemplate;
 use \MongoDate;
+use \Queue;
 
 class RetrieveJobs extends Command {
 
@@ -55,40 +56,20 @@ class RetrieveJobs extends Command {
 				die('not yet implemented');
 				// We could check for each annotation and add it if somehow it didn't get added earlier.
 				// For this, we should add ifexists checks in the storeJudgment method.
-				$ourjobid = $this->option('jobid');
+				$cfjobid = $this->option('jobid');
 				$cf = new Cw\Crowdflower\Cfapi\Job(Config::get('crowdflower::apikey'));
 				$judgments = ''; //todo			
 			}
 
 			if($this->option('judgments')) {
 				$judgments = unserialize($this->option('judgments'));
-				$ourjobid = $judgments[0]['job_id'];
+				$cfjobid = $judgments[0]['job_id']; // We assume that all judgments have the same jobic
 			}
 			
 			$judgment = $judgments[0];
-			$agent = CrowdAgent::where('platformAgentId', $judgment['worker_id'])
-								->where('softwareAgent_id', 'cf')
-								->first();
-			if(!$agent){
-				$agent = new CrowdAgent;
-				$agent->_id= "crowdagent/cf/{$judgment['worker_id']}";
-				$agent->softwareAgent_id= 'cf';
-				$agent->platformAgentId = $judgment['worker_id'];
-				$agent->country = $judgment['country'];
-				$agent->region = $judgment['region'];
-				$agent->city = $judgment['city'];
-			}	
-			
-			if( $agent->cfWorkerTrust != $judgment['worker_trust']){
-				$agent->cfWorkerTrust = $judgment['worker_trust'];
-				$agent->save();
-			}
+			$agentId = "crowdagent/cf/{$judgment['worker_id']}";
+			$ourjobid = $this->getJob($cfjobid)->_id;
 
-			try{
-				$job = $this->getJob($ourjobid);
-			} catch (CFExceptions $e){
-				$job = Job::first(); // TODO REMOVE THIS!!!!1 is for debugging.
-			}	
 
 			// TODO: check if exists. How?
 			// For now this hacks helps: else a new activity would be created even if this 
@@ -96,19 +77,36 @@ class RetrieveJobs extends Command {
 			if($this->option('judgments')) {
 				$activity = new Activity;
 				$activity->label = "Units are annotated on crowdsourcing platform.";
-				$activity->crowdAgent_id = $agent->_id; 
-				$activity->used = $job->_id;
+				$activity->crowdAgent_id = $agentId; 
+				$activity->used = $ourjobid;
 				$activity->softwareAgent_id = 'cf';
 				$activity->save();
 			}
 
-			// Store judgment and update job.
+			// Store judgments.
 			foreach($judgments as $judgment)
-				if($annotation = $this->storeJudgment($judgment, $job, $activity->_id, $agent->_id))
-					$job->addResults($annotation);
+				$this->storeJudgment($judgment, $ourjobid, $activity->_id, $agentId);
 
-			$job->save();
-			Log::debug("Saved new annotations to {$job->_id} to DB.");	
+			// Create or update Agent
+			if(!$agent = CrowdAgent::id($agentId)->first()){
+				$agent = new CrowdAgent;
+				$agent->_id= $agentId;
+				$agent->softwareAgent_id= 'cf';
+				$agent->platformAgentId = $judgment['worker_id'];
+				$agent->country = $judgment['country'];
+				$agent->region = $judgment['region'];
+				$agent->city = $judgment['city'];
+			}	
+			
+			$agent->cfWorkerTrust = $judgment['worker_trust'];
+
+			Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));
+
+			$job = $this->getJob($cfjobid);
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+
+			
+			//Log::debug("Saved new annotations to {$job->_id} to DB.");	
 		} catch (CFExceptions $e){
 			Log::warning($e->getMessage());
 			throw $e;
@@ -116,8 +114,7 @@ class RetrieveJobs extends Command {
 			Log::warning($e->getMessage());
 			throw $e;
 		}
-		// If we throw an error, crowdflower will recieve HTTP 500 (internal server error) from us (and send an e-mail?).
-		// We could also choose to just die(), but we'll need heavier error reporting on our side.
+		// If we throw an error, crowdflower will recieve HTTP 500 (internal server error) from us and try again.
 
 	}		
 
@@ -140,7 +137,9 @@ class RetrieveJobs extends Command {
 		if(!$job) {
 			Log::warning("Callback from CF to our server for Job $jobid, which is not in our DB.");
 			throw new CFExceptions("CFJob not in local database; retrieving it would break provenance.");
+			// TODO discuss: we could also decide to create a new job with all the info we can get.
 		}
+		
 		return $job;
 	}
 
@@ -148,7 +147,7 @@ class RetrieveJobs extends Command {
 	/**
 	* @return true if created, false if exists
 	*/
-	private function storeJudgment($judgment, $job, $activityId, $agentId)
+	private function storeJudgment($judgment, $ourjobid, $activityId, $agentId)
 	{
 
 		// If exists return false. 
@@ -159,7 +158,8 @@ class RetrieveJobs extends Command {
 
 		try {
 			$annotation = new Annotation;
-			$annotation->job_id = $job->_id;
+			$annotation->job_id = $ourjobid;
+			//$annotation->platformJobId = $judgment['job_id'];
 			$annotation->activity_id = $activityId;
 			$annotation->crowdAgent_id = $agentId;
 			$annotation->softwareAgent_id = 'cf';
@@ -170,8 +170,8 @@ class RetrieveJobs extends Command {
 			$annotation->submitTime = new MongoDate(strtotime($judgment['created_at']));
 			$annotation->cfTrust = $judgment['trust'];
 			$annotation->content = $judgment['data'];
-			$annotation->save();
-			Log::debug("--+1-- {$judgment['id']}");	
+			Queue::push('Queues\SaveAnnotation', array('annotation' => serialize($annotation)));
+	
 			return $annotation;
 			// TODO: golden
 

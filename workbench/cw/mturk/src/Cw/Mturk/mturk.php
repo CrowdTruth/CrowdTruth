@@ -9,17 +9,29 @@ use \Config;
 use \View;
 use \Input;
 
-class Mturk {
+class Mturk extends \FrameWork {
 	protected $mechanicalTurk = null;
-	public $label = "Crowdsourcing platform: Amazon Mechanical Turk";
-	
-	public $jobConfValidationRules = array(
-		'hitLifetimeInMinutes' => 'required|numeric|min:1',
-		'frameheight' => 'numeric|min:300' // not required because we have a default value.
-	);
 
 	public function __construct(){
 		$this->mechanicalTurk = new MechanicalTurk(Config::get('mturk::rooturl'), false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
+	}
+	
+	public function getLabel(){
+		return "Crowdsourcing platform: Amazon Mechanical Turk";
+	} 
+
+	public function getName(){
+		return "Mechanical Turk";
+	} 
+
+	public function getExtension(){
+		return 'html';
+	}
+	
+	public function getJobConfValidationRules(){
+		return array(
+		'hitLifetimeInMinutes' => 'required|numeric|min:1',
+		'frameheight' => 'numeric|min:300'); // not required because we have a default value.
 	}
 
 	public function createView(){
@@ -114,10 +126,10 @@ class Mturk {
 	* @throws AMTException
 	* @return string platformid's
 	*/
-	private function amtpublish($job, $sandbox){
+	public function amtpublish($job, $sandbox, $justpreview = false){ //todo: private, remove justpreview.
 		if($sandbox) $this->mechanicalTurk->setRootURL(Config::get('mturk::sandboxurl'));
 		else $this->mechanicalTurk->setRootURL(Config::get('mturk::rooturl'));
-		$htmlfilename = public_path() . "/templates/{$job->template}.html";
+		$htmlfilename = public_path() . "/templates/{$job->template}.html";//dd($htmlfilename);
     	if(!file_exists($htmlfilename) || !is_readable($htmlfilename))
 			throw new AMTException('HTML template file does not exist or is not readable.');
 
@@ -131,53 +143,54 @@ class Mturk {
 		$hit = $this->jobConfToHIT($c);
 		$upt = $c['unitsPerTask'];
 		$assRevPol = $hit->getAssignmentReviewPolicy();
-		$dom = HtmlDomParser::file_get_html($htmlfilename);
+		// The instantiation below looks ugly, but is used to preserve line breaks.
+		//file_get_html($url, $use_include_path = false, $context=null, $offset = -1, $maxLen=-1, $lowercase = true, $forceTagsClosed=true, $target_charset = DEFAULT_TARGET_CHARSET, $stripRN=true, $defaultBRText=DEFAULT_BR_TEXT)
+		$dom = HtmlDomParser::file_get_html($htmlfilename, false, null, -1, -1, true, true, DEFAULT_TARGET_CHARSET, false);
 
 		// Do some checks and fill $questiontemplate.
 		if($upt > 1){
+			try{
+				if(!$div = $dom->find('div[id=wizard]', 0))
+					throw new AMTException('Multipage template has no div with id \'wizard\'. View the readme in the templates directory for more info.');
+				
+				if(!$div->find('h1', 0))
+					throw new AMTException('Multipage template has no <h1>. View the readme in the templates directory for more info.');
 
-			if(!$div = $dom->find('div[id=wizard]', 0))
-				throw new AMTException('Multipage template has no div with id \'wizard\'. View the readme in the templates directory for more info.');
-			
-			if(!$div->find('h1', 0))
-				throw new AMTException('Multipage template has no <h1>. View the readme in the templates directory for more info.');
-
-			$questiontemplate = $div->innertext;
-			if(!strpos($questiontemplate, '{x}'))
-				throw new AMTException('Multipage template has no \'{x}\'. View the readme in the templates directory for more info.');
-			if(!strpos($questiontemplate, '{uid}'))
-				throw new AMTException('Multipage template has no \'{uid}\'. View the readme in the templates directory for more info.');
-		
+				$questiontemplate = $div->innertext;
+				if(!strpos($questiontemplate, '{x}'))
+					throw new AMTException('Multipage template has no \'{x}\'. View the readme in the templates directory for more info.');
+				if(!strpos($questiontemplate, '{uid}'))
+					throw new AMTException('Multipage template has no \'{uid}\'. View the readme in the templates directory for more info.');
+			} catch (AMTException $e){
+				// Catch when the template is unable to present multiple HIT's on one page.
+				\Log::debug('Attempted to create multipage job with singlepage template. Changed to singlepage for AMT.');
+				$upt = 1;
+				$questiontemplate = $dom->innertext;
+			}
 		} else {
 			$questiontemplate = $dom->innertext;
 		}
 
-		foreach ($units as $parameters) {
-			$params = array_dot($parameters['content']);
+		foreach ($units as $unit) {
+
+			$params = $job->questionTemplate->flattenAndReplace($unit['content']);
 
 			//$replacerules = array('cause' => 'causes'); // TODO: get these from QUESTIONTEMPLATE
 			//$params = str_replace(array_keys($replacerules), $replacerules, $params);
 
-			if($upt>1)	{
-				$count++;
-				$tempquestiontemplate = str_replace('{x}', $count, $questiontemplate);
-			} else {
-				$count = '';
-				$tempquestiontemplate = $questiontemplate;
-			}
-
+			$count++;
+			$tempquestiontemplate = str_replace('{x}', $count, $questiontemplate);
 			// Insert the parameters
 
-			foreach ($params as $key=>$val)	{	
-				$param = '${' . $key . '}';
-				$tempquestiontemplate = str_replace($param, $val, $tempquestiontemplate);
+			foreach ($params as $key=>$val)	{
+				$tempquestiontemplate = str_replace('{{' . $key . '}}', $val, $tempquestiontemplate);
 			}
 
-			$tempquestiontemplate = str_replace('{uid}', $parameters['_id'], $tempquestiontemplate);
+			$tempquestiontemplate = str_replace('{uid}', $unit['_id'], $tempquestiontemplate);
 			
 			/*if(!strpos($questiontemplate, '{instructions}'))
 				throw new AMTException('Template has no {instructions}');*/
-			$tempquestiontemplate = str_replace('{instructions}', nl2br($c['instructions']), $tempquestiontemplate);
+			$tempquestiontemplate = str_replace('{{instructions}}', nl2br($c['instructions']), $tempquestiontemplate);
 
 			// Temporarily store the AnswerKey
 
@@ -208,17 +221,21 @@ class Mturk {
 				else ($hit->setAssignmentReviewPolicy(null));
 
 				// Create
-				$created = $this->mechanicalTurk->createHIT($hit);
+				if($justpreview) $platformids[] = $questionsbuilder;
+				else {
+					$created = $this->mechanicalTurk->createHIT($hit);
 				
-				// Add ID to returnarray
-				$platformids[] = $created['HITId'];
-				$hittypeid = $created['HITTypeId'];
-			
+					// Add ID to returnarray
+					$platformids[] = $created['HITId'];
+					$hittypeid = $created['HITTypeId'];
+				}
 				unset($assRevPol['AnswerKey']);
 				$questionsbuilder = '';
 				$count = 0;
 			}
 		}	
+
+		if($justpreview) return $platformids;
 
 		// Notification E-Mail
 		if((!empty($c['notificationEmail'])) and (!empty($hittypeid)))
@@ -234,7 +251,7 @@ class Mturk {
 			// TODO: (possibly): delete existing results?
 			$fullplatformjobids = array();
 			foreach($platformjobids as $id)
-				array_push($fullplatformjobids, array('id' => $id, 'status' => 'running', 'timestamp' => time()));
+				array_push($fullplatformjobids, array('id' => $id, 'status' => 'running'));
 			$job->platformJobId = $fullplatformjobids;
 			$job->save();
 		} catch (AMTException $e) {
@@ -253,9 +270,12 @@ class Mturk {
 	}
 
 	public function cancelJob($id){
-		foreach($id as $hitid){
+		if(empty($id))
+			throw new Exception('Platform Job ID\'s not found. Is this an imported job?');
+
+		foreach($id as $hitid)
 		 	$this->mechanicalTurk->forceExpireHIT($hitid['id']);
-        }
+        
 	}
 
 

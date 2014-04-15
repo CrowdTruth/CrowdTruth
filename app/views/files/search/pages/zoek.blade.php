@@ -5,6 +5,12 @@
 @section('head')
 {{ stylesheet_link_tag('bootstrap-select.css') }}
 {{ stylesheet_link_tag('bootstrap-dropdown-checkbox.css') }}
+
+<style>
+.container {
+	-webkit-transform:translatez(0);-webkit-backface-visibility:hidden;-webkit-perspective:1000;
+}
+</style>
 @stop
 
 @section('content')
@@ -114,7 +120,7 @@
 													<option value="100">100 Records per page</option>
 												</select>
 												<div class='visibleColumns pull-left'>
-												</div>		
+												</div>
 											</div>
 										</div>
 										<div class='row'>
@@ -190,7 +196,6 @@
 {{ javascript_include_tag('handlebarsjs-2.0.js') }}
 {{ javascript_include_tag('handlebars.swag.js') }}
 {{ javascript_include_tag('bootstrap-select.js') }}
-{{ javascript_include_tag('bootstrap-dropdown-checkbox.js') }}
 
 
 <script>
@@ -199,6 +204,7 @@ $('document').ready(function(){
 Swag.registerHelpers();
 
 $('.selectpicker').selectpicker();
+var xhr;
 var selectedRows = [];
 var templates = {};
 
@@ -267,7 +273,7 @@ $('body').on('click', '.specificFilters button', function(){
 
 	var activeTabKey = getActiveTabKey();
 	selectedRows[activeTabKey] = [];
-	getResults(activeTabKey);
+	getResults();
 });
 
 $('.createBatchButton').on('click', function(){
@@ -292,10 +298,6 @@ $('.tab-pane').on('change', "[name='search_limit']", function(){
 	getResults();
 });
 
-$('.tab-pane').on('change', ".visibleColumns input", function(){
-	visibleColumns();
-});
-
 $('.tab-pane').on('click', "th", function(){
 	if($(this).hasClass('sorting')){
 		$(this).removeClass().addClass('sorting_asc');
@@ -309,8 +311,7 @@ $('.tab-pane').on('click', "th", function(){
 });
 
 function getActiveTabKey(){
-	var activeTabKey = '#' + $('.tab-pane.active').attr('id');
-	return activeTabKey;
+	return '#' + $('.tab-pane.active').attr('id');
 }
 
 function getSearchLimitValue(){
@@ -339,14 +340,17 @@ $('body').on('click', 'ul.pagination a', function(e) {
 	getResults($(this).attr('href') + "&noCache");
 });
 
-function getResults(baseApiURL){
-	if(baseApiURL == undefined)
-	{
-		var baseApiURL = '{{ URL::to("api/search?noCache") }}';
-	}
+$('body').on('click', '.toCSV', function(e) {
+	e.preventDefault();
+	location.href = "{{ URL::to("api/search?tocsv&limit=100000") }}" + getTabFieldsQuery();
+});
 
+$('body').tooltip({
+    selector: '[data-toggle=tooltip]'
+});
+
+function getTabFieldsQuery(){
 	var activeTabKey = getActiveTabKey();
-	var search_limit = "&limit=" + getSearchLimitValue();
 	var tabFieldsQuery = '';
 
 	if(activeTabKey == "#all_tab"){
@@ -358,7 +362,11 @@ function getResults(baseApiURL){
 		});	
 	}
 
-	$(activeTabKey).find("[data-query-key]").each(function() {
+	$('.specificFilters, ' + activeTabKey).find("[data-query-key]").each(function() {
+		if($(this).hasClass('btn') && !$(this).hasClass('active')){
+			return;
+		}
+
 		if($(this).is('[data-query-value]')){
 			if($(this).is('[data-query-operator]')){
 				var operator = $(this).attr('data-query-operator') + "=";
@@ -376,6 +384,21 @@ function getResults(baseApiURL){
 		}
 	});
 
+	console.log(tabFieldsQuery);
+
+	return tabFieldsQuery;
+}
+
+function getResults(baseApiURL){
+	if(baseApiURL == undefined)
+	{
+		var baseApiURL = '{{ URL::to("api/search?noCache") }}';
+	}
+
+	var activeTabKey = getActiveTabKey();
+	var searchLimitQuery = "&limit=" + getSearchLimitValue();
+	var tabFieldsQuery = getTabFieldsQuery();
+
 	if(tabFieldsQuery == '')
 	{
 		$(activeTabKey).find('.results').empty();
@@ -385,8 +408,10 @@ function getResults(baseApiURL){
 
 	console.log(tabFieldsQuery);
 
-	$.getJSON(baseApiURL + tabFieldsQuery + search_limit, function(data) {
-		console.log(data);
+	abortAjax(xhr);
+
+	xhr = $.getJSON(baseApiURL + tabFieldsQuery + searchLimitQuery, function(data) {
+		// console.log(data);
 
 		if(templates[activeTabKey] == undefined)
 		{
@@ -398,53 +423,80 @@ function getResults(baseApiURL){
 		$(activeTabKey).find('.cw_pagination').empty().prepend($(data.pagination));
 		$(activeTabKey).find('.results').empty().append(html);
 
-		var visibleColumnsArray = [];
+		$('.hb_popover').popover({
+			placement : "left",
+			html : true,
+			trigger : "hover",
+			title : "default",
+			content : function(){ return $(this).find('.hidden').html() },
+ 			container: 'body',
+            template: '<div class="popover popover-medium"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'			
+		});
 
-		if($(activeTabKey).find(".visibleColumns").children().length > 0){
-			    // console.log($(activeTabKey).find(".visibleColumns").dropdownCheckbox("items"));
-		} else {
-			$(activeTabKey).find('thead th').each(function (index, value){
-				visibleColumnsArray.push({
-					id : activeTabKey + index,
-					label : $(this).text(),
-					isChecked : true
-			    });
-
-			    // console.log($(this).text());
+		if($(activeTabKey).find(".vbColumns").length){
+			$(activeTabKey).find("[data-vbSelector]").each(function() {
+				if($(this).attr('data-vb') == "show")
+				{
+					$(this).find('.fa').remove();
+					$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
+				}
+				else
+				{
+					$(this).find('.fa').remove();
+					$(this).prepend('<i class="fa fa-circle-o fa-fw"></i>');
+				}
 			});
 
-			$(activeTabKey).find(".visibleColumns").dropdownCheckbox({
-				data: visibleColumnsArray,
-				btnClass: "btn btn-primary",
-				title: "Visible columns"
+			$(activeTabKey).find("[data-vbSelector]").off().on("click", function() {
+				if($(this).attr('data-vb') == "show")
+				{
+					$(this).attr('data-vb', 'hide');
+					$(this).find('.fa').remove();
+					$(this).prepend('<i class="fa fa-circle-o fa-fw"></i>');
+				}
+				else
+				{
+					$(this).attr('data-vb', 'show');					
+					$(this).find('.fa').remove();
+					$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
+				}
+
+				visibleColumns();
 			});
+
+			visibleColumns();
 		}
-
-		visibleColumns();
 	});		
+}
+
+function abortAjax(xhr) {
+	if(xhr && xhr.readystate != 4){
+		xhr.abort();
+	}
 }
 
 function visibleColumns(){
 	var activeTabKey = getActiveTabKey();
 
-	$(activeTabKey).find(".visibleColumns input").each(function() {
-		var index = $(this).closest('li').index() + 1;
+	$(activeTabKey).find("[data-vbSelector]").each(function() {
 
-		if($(this).is(':checked')) {
-			$(activeTabKey).find('thead th:nth-child(' + index + ')').removeClass('hidden');
-			$(activeTabKey).find('tr td:nth-child(' + index + ')').removeClass('hidden');
-		} else {
-			$(activeTabKey).find('thead th:nth-child(' + index + ')').addClass('hidden');
-			$(activeTabKey).find('tr td:nth-child(' + index + ')').addClass('hidden');				
+		var vbSelector = $(activeTabKey).find($("[" + "data-vbIdentifier='" + $(this).attr('data-vbSelector') + "']"));
+
+		if($(this).attr('data-vb') == "show")
+		{
+			vbSelector.removeClass('hidden');
 		}
-	});
-
+		else
+		{
+			vbSelector.addClass('hidden');
+		}
+	});	
 }
 
 function updateFilters(filterOption){
 	if(filterOption.closest('li').hasClass('active')){
 		filterOption.closest('li').removeClass('active');
-		filterOption.children('i').removeClass('fa-check-o').addClass('fa-circle-o');
+		filterOption.children('i').removeClass('fa-check-circle-o').addClass('fa-circle-o');
 	} else {
 		filterOption.closest('li').addClass('active');
 		filterOption.children('i').removeClass('fa-circle-o').addClass('fa-check-circle-o');

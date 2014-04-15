@@ -7,9 +7,9 @@ body {
 outline: 0;
 }
 
-.container {
+/*.container {
   -webkit-transform:translatez(0);-webkit-backface-visibility:hidden;-webkit-perspective:1000;
-}
+}*/
 
 .navbar {
 	border-bottom:2px solid #c6c6c6;
@@ -413,10 +413,15 @@ div.ColVis_catcher {
 	.tab-pane {
 		thead {
 
-			th {cursor:pointer;}
-			.sorting { background: url('datatables/sort_both.png') no-repeat center right; }
-			.sorting_asc { background: url('datatables/sort_asc.png') no-repeat center right; }
-			.sorting_desc { background: url('datatables/sort_desc.png') no-repeat center right; }
+			th {
+				cursor:pointer;
+				text-align:center;
+				white-space: nowrap;
+			}
+
+			.sorting { background: url('datatables/sort_both.png') no-repeat center right; padding-right:20px; }
+			.sorting_asc { background: url('datatables/sort_asc.png') no-repeat center right; padding-right:20px; }
+			.sorting_desc { background: url('datatables/sort_desc.png') no-repeat center right; padding-right:20px; }
 
 			input {
 				width:100%;
@@ -449,6 +454,55 @@ div.ColVis_catcher {
 
 	tr:nth-child(1), tr:nth-child(2), tr:nth-child(3) {
 		font-weight:bold;
-		font-size:18px;
+		font-size:120%;
 	}
+}
+
+.results.lukasz {
+	font-size:90%;
+}
+
+.popover-medium {
+	min-width:auto !important;
+}
+
+.vbColumns {
+	.fa-fw {
+		margin-left:-10px;
+	}
+}
+
+.whiteSpaceNormal {
+	white-space: normal !important;
+}
+
+.whiteSpaceNoWrap {
+	white-space: nowrap !important;
+}
+
+.highlightTermOne {
+	background:#ffe0e0;
+	font-weight:bold;
+	white-space: nowrap;
+}
+
+.highlightTermTwo {
+	background:#e0edff;
+	font-weight:bold;
+	white-space: nowrap;
+}
+
+.highlightedSearchTerm {
+	background:#ffffad;
+	font-weight:bold;
+}
+
+.highlightRelation {
+	background:#bdf9b1;
+	font-weight:bold;
+}
+
+.highlightSemicolon {
+	background:#ff8989;
+	font-weight:bold;
 }

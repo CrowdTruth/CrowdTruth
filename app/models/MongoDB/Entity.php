@@ -158,7 +158,7 @@ class Entity extends Moloquent {
 	public static function createSchema(){
 		Schema::create('entities', function($collection)
 		{
-            $collection->unique('hash');
+            $collection->index('hash');
             $collection->index('domain');
             $collection->index('documentType');    
             $collection->index('activity_id');
@@ -214,6 +214,18 @@ class Entity extends Moloquent {
         return $this->hasOne('\MongoDB\Entity', '_id', 'jobConf_id');
     }
 
+    public function hasJob(){
+        return $this->hasOne('\MongoDB\Entity', '_id', 'job_id');
+    }
+
+    public function hasUnit(){
+        return $this->hasOne('\MongoDB\Entity', '_id', 'unit_id');
+    }
+
+    public function hasAnnotations(){
+        return $this->hasMany('\MongoDB\Entity', 'unit_id', '_id');
+    }
+
     public function getWasDerivedFromAttribute()
     {
         if(isset($this->parents))
@@ -221,4 +233,24 @@ class Entity extends Moloquent {
             return Entity::whereIn('_id', $this->parents)->remember(1)->get()->toArray();         
         }
     } 
+
+    public function scopeDomain($query, $domain)
+    {
+        return $query->whereDomain($domain);
+    }
+
+    public function scopeType($query, $type)
+    {
+        return $query->whereType($type);
+    }
+
+    public function scopeFormat($query, $format)
+    {
+        return $query->whereFormat($format);
+    }
+
+    public function scopeId($query, $id)
+    {
+        return $query->where_id($id);
+    }
 }

@@ -1,0 +1,60 @@
+{
+    "defaultThresholds": {
+        "sent_filter_thresholds": {
+            "name": 7
+        },
+        "default_filter": [
+            4,
+            7
+        ],
+        "worker_threshold": {
+            "name": [
+                6,
+                8
+            ]
+        }
+    },
+    "replaceValues": {
+        "relation_noPrefix":
+            {
+                "cause": "causes",
+                "contraindicated_drug": "contraindicates",
+                "diagnose" : "diagnoses"
+            }
+    },
+    "question": [
+        {
+            "component": "label",
+            "class" : "description",
+            "value": "{{description}}"
+        },
+        {
+            "component": "label",
+            "class": "well",
+            "value": "{{sentence_text}}"
+        },
+        {
+            "id": "direction",
+            "component": "radio",
+            "editable": true,
+            "index": 0,
+            "label": "Which of the following statements is EXPRESSED in the SENTENCE above?",
+            "options": [
+                {
+                "label":"{{terms_first_text}} {{relation_noPrefix}} {{terms_second_text}}",
+                "value":"Choice1"
+                },
+                {
+                "label":"{{terms_second_text}} {{relation_noPrefix}} {{terms_first_text}}",
+                "value":"Choice2"
+                },
+                {
+                "label":"-{{relation_noPrefix}}- is NOT EXPRESSED between the two PHRASES",
+                "value":"Choice3"
+                }
+            ],
+            "required": false,
+            "gold": true
+        }
+    ]
+}

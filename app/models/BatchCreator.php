@@ -46,9 +46,10 @@ class BatchCreator extends Moloquent {
 			$activity->forceDelete();			
 			$entity->forceDelete();
 			Session::flash('flashError', $e->getMessage());
-
 			return false;
 		}
+
+		return $entity;
 	}
 
 	public function createBatchCreatorSoftwareAgent(){

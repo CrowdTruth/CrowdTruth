@@ -34,7 +34,7 @@ $(document).ready(function(){
 		}
 	});
 
-
+calculate();
 
 @if (isset($treejson))
 	$('#jstree').jstree({ 'core' : {
@@ -57,17 +57,6 @@ $(document).ready(function(){
 
 });
 
-$(window).load(function() {
-  		$('#amt-button').change(function () {                
-     		$('#amt-div').toggle(this.checked);
-  			}).change(); //ensure visible state matches initially
-				
-  		$('#cf-button').change(function () {                
-     		$('#cf-div').toggle(this.checked);
-     		$('#cflabel').button('toggle');
-  			}).change(); //ensure visible state matches initially
-		calculate();
-});
 
     function calculate(){
         var reward = $('#reward').val();

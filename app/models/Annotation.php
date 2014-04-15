@@ -5,8 +5,7 @@ class Annotation extends Entity {
 
 	protected $attributes = array(  'format' => 'text', 
                                     'domain' => 'medical', 
-                                    'documentType' => 'annotation', 
-                                    'type' => 'todo');
+                                    'documentType' => 'annotation');
 	
     /**
     *   Override the standard query to include documenttype.
@@ -24,13 +23,20 @@ class Annotation extends Entity {
 
         static::saving(function ( $annotation )
         {
+            if(empty($annotation->type) or empty($annotation->domain) or empty($annotation->format)){
+                $j = Job::where('_id', $annotation->job_id)->first();
+                $annotation->type = $j->type;
+                $annotation->domain = $j->domain;
+                $annotation->format = $j->format;
+            }
+            
             if(empty($annotation->dictionary))
-                $annotation->createDictionary();
+                $annotation->dictionary = $annotation->createDictionary();
 
             if(empty($annotation->activity_id)){
                 try {
                     $activity = new Activity;
-                    $activity->label = "annotation is saved.";
+                    $activity->label = "Annotation is saved.";
                     $activity->softwareAgent_id = $annotation->softwareAgent_id;
                     $activity->save();
                     $annotation->activity_id = $activity->_id;
@@ -47,10 +53,309 @@ class Annotation extends Entity {
 
      }   
 
+     //todo make private. 
+     // TODO exceptionhandling, smart checks.
+    public function createDictionary(){
+        switch ($this->type) {
+            case 'FactSpan':
+                return  $this->createDictionaryFactSpan();
+                break;
+            case 'RelDir':
+                return $this->createDictionaryRelDir();
+                break;
+            case 'RelEx':
+                return $this->createDictionaryRelEx();
+                break;
+            
+            default:
+               //return  $this->createDictionaryFactSpan(); // For Debugging!
+                echo "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE" . $this->_id;
+                die(); 
+               //throw new Exception('No rules for creating a dictionary for this type.');
+                break;
+        }        
+    }
+    //todo should be private
+    public function createDictionaryFactSpan(){
+        if(empty($this->unit_id))
+            return null;
+
+            //if(isset($this->unit->content['sentence']['formatted']))
+                $sentence = $this->unit->content['sentence']['formatted'];
+            //else 
+            //    $sentence = $this->unit->content['sentence']['text'];
+            
+            $term1 = $this->unit->content['terms']['first']['formatted'];
+            $term2 = $this->unit->content['terms']['second']['formatted'];
+
+            // Set indices1
+            $charindex1 = strpos($sentence, $term1);
+            $index1start = substr_count(substr($sentence, 0, $charindex1), ' ')+1;
+            $indices1 = array($index1start);
+            for ($i=0; $i < substr_count($term1, ' '); $i++)
+                array_push($indices1, $index1start+$i+1);
+
+            // Set indices2
+            $charindex2 = strpos($sentence, $term2);
+            $index2start = substr_count(substr($sentence, 0, $charindex2), ' ')+1;
+            $indices2 = array($index2start);
+            for ($i=0; $i < substr_count($term2, ' '); $i++)
+                array_push($indices2, $index2start+$i+1);
+            
+            $ans = $this->content;
+
+            //AMT
+            if(isset($ans['expl1span'])){ // TODO
+                $expl1span = $ans["expl1span"];
+                $expl2span = $ans["expl2span"];
+                $a1indices = explode(',', $ans['expl1span']);
+                $a2indices = explode(',', $ans['expl2span']);
+                $expltext1 = rtrim($ans["expltext1"]);
+                $expltext1yesquestion = $ans['expltext1yesquestion'];
+                $expltext2 = rtrim($ans["expltext2"]);
+                $expltext2yesquestion = $ans['expltext2yesquestion'];
+
+                // Sometimes, in AMT, this is missing. It seems like it should be 'YES' in those cases.
+                if(!isset($ans['Q1'])) $ans['Q1'] = 'YES';
+                if(!isset($ans['Q2'])) $ans['Q2'] = 'YES';
+
+                // Q1
+                if($ans["Q1"] == 'YES'){
+                    if((rtrim($expltext1) != $term1) or (!$this->isOkYesQuestion($expltext1yesquestion, $term1, $sentence))) // [maybe check indices as well?]
+                        $vector1 = $this->createFactVect(true); // FAILED
+                    else {
+                        $vector1 = $this->createFactVect(false, 0, 0); // YES it's the same.
+                    }   
+                } else {
+                    if(rtrim($expltext1 == $term1) or (empty($expl1span)))
+                        $vector1 = $this->createFactVect(true); // FAILED
+                    else {
+                        $startdiff = $a1indices[0] - $indices1[0];
+                        $enddiff = end($a1indices) - end($indices1);
+                        $vector1 = $this->createFactVect(false, $startdiff, $enddiff);      
+                    }   
+                }
+                
+                // Q2
+                if($ans["Q2"] == 'YES'){
+                    if(($expltext2 != $term2) or (!$this->isOkYesQuestion($expltext2, $term2, $sentence))) // TODO: harsher
+                        $vector2 = $this->createFactVect(true); // FAILED
+                    else {
+                        $vector2 = $this->createFactVect(false, 0, 0); // YES it's the same.
+                    }   
+                } else {
+                    if(($expltext1 == $term2) or (empty($expl2span)))
+                        $vector2 = $this->createFactVect(true); // FAILED
+                    else {
+                        $startdiff = $a2indices[0] - $indices2[0];
+                        $enddiff = end($a2indices) - end($indices2);
+                        $vector2 = $this->createFactVect(false, $startdiff, $enddiff); 
+                    }
+                }   
+
+
+
+            // CF
+            } elseif(isset($ans['confirmfirstfactor']) or isset($ans['saveselectionids1']) or isset($ans['factor1'])) {
+               // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));
+                Log::debug($ans);
+             
+                // Patching the fact that the CML is different from the WebSci results [fugly]
+                //if(!isset($ans['confirmfirstfactor'])){
+                    $ans['firstfactor'] = $ans['factor1'];
+                    $ans['secondfactor'] = $ans['factor2'];
+
+                    if($ans['question1'] == 'no'){
+                        $ans['confirmfirstfactor'] = '';
+                        $ans['confirmids1'] = '';
+                    } else {
+                        $ans['saveselectionids1'] = $ans['b1'];  
+                    }
+
+                    if($ans['question2'] == 'no'){
+                        $ans['confirmsecondfactor'] = '';
+                        $ans['confirmids2'] = '';  
+                    } else {
+                        $ans['saveselectionids2'] = $ans['b2']; 
+                    }
+                //}
+
+                Log::debug($ans);
+                
+                $term = strtolower($this->unit->content['terms']['first']['text']);
+                $b = $this->unit->content['terms']['first']['startIndex'];
+                $vector1 = $this->createSingleFactVect($ans['confirmids1'], $ans['confirmfirstfactor'], $term, $b, $ans['saveselectionids1'], $ans['firstfactor']);
+               
+                $term = strtolower($this->unit->content['terms']['second']['text']);
+                $b = $this->unit->content['terms']['second']['startIndex'];
+                $vector2 = $this->createSingleFactVect($ans['confirmids2'], $ans['confirmsecondfactor'], $term, $b, $ans['saveselectionids2'], $ans['secondfactor']);
+            } else {
+                return null;
+            }    
+
+            return array('term1' => $vector1, 'term2' => $vector2);
+     }
+
+
+    private function createSingleFactVect($confirmids, $confirmfactor, $term, $b, $saveselectionids, $factor){
+        $sentence = strtolower($this->unit->content['sentence']['text']);
+        echo "{$this->_id}: ";
+        try{
+
+            // User selected YES -> NIL or exception
+            if(!empty($confirmids)){  
+                $ids = explode('-', $confirmids);
+                sort($ids);
+                $words = $this->getWords($sentence, $ids);
+
+                echo("[$term]=[$words]=[$confirmfactor]\r\n");
+                
+                if($words != $term and rtrim($words, ";,.") != $term) 
+                    throw new Exception("User selected YES but '$words' [based on index] != '$term' [text]");
+                    
+                $vector = $this->createFactVect(false, 0, 0); // [NIL]               
+
+            // User selected NO -> anything but [NIL] (else: exception)
+            } elseif(!empty($saveselectionids)) {
+                
+                // Create text from indices.
+                $ids = explode('-', $saveselectionids);
+                sort($ids);
+                $words = $this->getWords($sentence, $ids);
+
+                // The selected words match the given text
+                if ($words != strtolower($factor) and $words != rtrim($words, ";,."))
+                    throw new Exception("User selected NO but '$words' [based on indices] != '$factor' [text]");
+
+                $wordindex = array_search($b, $ids);
+                if($wordindex===false)
+                     throw new Exception("User selected NO but base index $b not found in answer $saveselectionids.");
+
+                $startdiff = -$wordindex;
+                $enddiff = count($ids) - $wordindex - substr_count($term, " ") - 1;
+                //count($ids) - $wordindex -(count(explode(' ', $words))-1);
+
+                if($startdiff == 0 and $enddiff == 0)
+                    throw new Exception('User selected NO but startdiff and enddiff are 0.');
+                
+                if($words == $term)
+                    throw new Exception('User selected NO but provided the same term.');
+
+                $vector = $this->createFactVect(false, $startdiff, $enddiff);
+                echo("[$term]!=([$words]=[$factor])[$startdiff<->$enddiff] ($b in $saveselectionids)\r\n");
+                //echo "^ $b is in pos $wordindex so start=$startdiff and end = $enddiff.\r\n";
+
+            } else {
+                throw new Exception('Confirmids and saveselectionids are both empty.');
+            }
+
+        }catch(Exception $e){
+            $vector = $this->createFactVect(true);
+            echo $e->getMessage() . "\r\n";
+        }
+
+        return $vector;
+     }
+
+    private function getWords($sentence, $indexes, $chars = [' ','-','/']){
+        $words = array();
+        foreach ($indexes as $index) {
+            $foundarray = array();
+            foreach ($chars as $c)
+                if($found = strpos(substr($sentence, $index), $c))
+                    $foundarray[] = $found;
+
+            if(count($foundarray)>0)
+                $length = min($foundarray);
+            else $length = 0;
+
+            $words[] = substr($sentence, $index, $length);
+        }
+        return implode(' ', $words);
+    }
+
+
+
+    private function isOkYesQuestion($yesquestion, $term, $inputsentence){
+        
+/*      1. the sentence contains the complete term
+        2. the sentence has more than 4 words
+        3. the sentence is not equal to the input sentence*/
+        return true;
+
+    }
+
+    private function createFactVect($failed = false, $startdiff=null, $enddiff=null){
+        $vector = array(
+        "[WORD_-3]"=>0,
+        "[WORD_-2]"=>0,
+        "[WORD_-1]"=>0,
+        "[WORD_+1]"=>0,
+        "[WORD_+2]"=>0,
+        "[WORD_+3]"=>0,
+        "[WORD_OTHER]"=>0,
+        "[NIL]"=>0,
+        "[CHECK_FAILED]"=>0);
+
+        if($failed){
+            $vector["[CHECK_FAILED]"] = 1;
+            return $vector;
+        }
+
+        if($startdiff<-3 or $enddiff > 3){
+            $vector["[WORD_OTHER]"]=1;
+            return $vector;
+        } // TODO; when else?
+
+        if($startdiff == 0 and $enddiff == 0){
+            $vector["[NIL]"]=1;
+            return $vector;
+        } 
+
+        $vector["[WORD_-3]"]= ($startdiff < -2 ? 1 : 0);
+        $vector["[WORD_-2]"]= ($startdiff < -1 ? 1 : 0);
+        $vector["[WORD_-1]"]= ($startdiff <  0 ? 1 : 0);
+        $vector["[WORD_+1]"]= ($enddiff   >  0 ? 1 : 0);
+        $vector["[WORD_+2]"]= ($enddiff   >  1 ? 1 : 0);
+        $vector["[WORD_+3]"]= ($enddiff   >  2 ? 1 : 0);
+
+
+        return $vector;
+    }
+
+
+    private function createDictionaryRelDir(){
+        if(isset($this->content['direction']))
+            $ans = $this->content['direction'];
+        else
+            $ans = $this->content['Q1'];
+
+        if($this->softwareAgent_id == 'cf'){
+            $u = $this->unit->content;
+            if($ans == 'no_relation')
+                $ans = 'Choice3';
+            elseif (strpos($ans, $u['terms']['first']['formatted']) === 0)
+                $ans = 'Choice1';
+            elseif (strpos($ans, $u['terms']['first']['formatted']) > 0)
+                $ans = 'Choice2';
+            else
+                $ans = '-------';
+        }
+
+        return array(
+            'Choice1' => (($ans == 'Choice1') ? 1 : 0),
+            'Choice2' => (($ans == 'Choice2') ? 1 : 0),
+            'Choice3' => (($ans == 'Choice3') ? 1 : 0)
+            );
+
+    }
+
+
+
      /**
      * Creates a Dictionary ( possible multiple choice answers with 1 or 0 ) and saves it in the Annotation.
      */
-    private function createDictionary(){
+    private function createDictionaryDEPRECATED(){
        
         $q = $this->job->questionTemplate->content['question'];
         $r = $this->job->questionTemplate->content['replaceValues'];
@@ -93,6 +398,62 @@ class Annotation extends Entity {
                             $dictionary[strtolower($possibleans)] = (strtolower($givenans) == strtolower($possibleans) ? 1 : 0);
 
         $this->dictionary = $dictionary;
+    }
+
+    public function createDictionaryRelEx(){
+        
+        // AMT
+        if(isset($this->content['Q1text'])){
+            $ans = str_replace(" ", "_", rtrim($this->content['Q1text']));           
+            $ans = str_replace("[DIAGNOSED_BY_TEST_OR_DRUG]", "[DIAGNOSE_BY_TEST_OR_DRUG]", $ans);
+            if($ans == '') return null;
+               // throw new Exception('Answer is empty.');
+
+            $ans = str_replace("]_[", "]*[", $ans);
+            $ans = explode('*', $ans);
+
+        // CF    
+        } elseif(isset($this->content['step_1_select_the_valid_relations'])) {
+            if(is_array($this->content['step_1_select_the_valid_relations']))
+                $ans = $this->content['step_1_select_the_valid_relations'];
+            else {
+                $ans = str_replace("\n", "_", rtrim($this->content['step_1_select_the_valid_relations']));
+                $ans = str_replace("\r", "_", $ans);
+                $ans = str_replace("]_[", "]*[", $ans);
+                $ans = explode('*', $ans);
+            }    
+        } else {
+            return null;
+        }
+
+        $dic = array(
+        "[TREATS]" =>                   (in_array("[TREATS]",                   $ans ) ? 1 : 0),
+        "[CAUSES]" =>                   (in_array("[CAUSES]",                   $ans ) ? 1 : 0),
+        "[PREVENTS]" =>                 (in_array("[PREVENTS]",                 $ans ) ? 1 : 0),
+        "[IS_A]" =>                     (in_array("[IS_A]",                     $ans ) ? 1 : 0),
+        "[OTHER]" =>                    (in_array("[OTHER]",                    $ans ) ? 1 : 0),
+        "[NONE]" =>                     (in_array("[NONE]",                     $ans ) ? 1 : 0),
+        "[PART_OF]" =>                  (in_array("[PART_OF]",                  $ans ) ? 1 : 0),
+        "[DIAGNOSE_BY_TEST_OR_DRUG]" => (in_array("[DIAGNOSE_BY_TEST_OR_DRUG]", $ans ) ? 1 : 0),
+        "[ASSOCIATED_WITH]" =>          (in_array("[ASSOCIATED_WITH]",          $ans ) ? 1 : 0),
+        "[SIDE_EFFECT]" =>              (in_array("[SIDE_EFFECT]",              $ans ) ? 1 : 0),
+        "[SYMPTOM]" =>                  (in_array("[SYMPTOM]",                  $ans ) ? 1 : 0),
+        "[LOCATION]" =>                 (in_array("[LOCATION]",                 $ans ) ? 1 : 0),
+        "[MANIFESTATION]" =>            (in_array("[MANIFESTATION]",            $ans ) ? 1 : 0),
+        "[CONTRAINDICATES]" =>          (in_array("[CONTRAINDICATES]",          $ans ) ? 1 : 0));
+
+        foreach($ans as $a){
+            if(!in_array($a, array_keys($dic))){
+
+                dd($ans);
+               throw new Exception("Answer $a not in dictionary.");
+            }   
+        }
+
+        if(!in_array(1, $dic)) throw new Exception('Dictionary EMPTY');
+
+        return $dic;
+   
     }
 
      private function createCrowdAgent(){

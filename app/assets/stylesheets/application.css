@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * This is a manifest file that'll be compiled into application.css, which will include all the files
  * listed below.
@@ -14,4 +15,24 @@
  *= require font-awesome.min.css
  *= require jstree.min.css
  *= require style.css.scss
-  */
+ *= require nv.d3.css
+=======
+/**
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any Css/Less files within this directory, lib/assets/javascripts, vendor/assets/javascripts,
+ * can be referenced here using a relative path.
+ *
+ * It's not advisable to add code directly here, but if you do, it'll appear in whatever order it 
+ * gets included (e.g. say you have require_tree . then the code will appear after all the directories 
+ * but before any files alphabetically greater than 'application.css' 
+ *
+ *= require bootstrap.min.css
+ *= require bootstrap-theme.min.css
+ *= require font-awesome.min.css
+ *= require jstree.min.css
+ *= require style.css.scss
+ *= require nv.d3.css
+>>>>>>> 373a996f28c09ac33cb9afd1d59c621e5cca2fd5
+ */

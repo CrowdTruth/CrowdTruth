@@ -1,0 +1,96 @@
+{
+    "defaultThresholds": {
+        "sent_filter_thresholds": {
+            "name": 7
+        },
+        "default_filter": [
+            4,
+            7
+        ],
+        "worker_threshold": {
+            "name": [
+                6,
+                8
+            ]
+        }
+    },
+    "replaceValues": {
+    },
+    "question": [
+        {
+            "component": "label",
+            "class": "well",
+            "value": "{{description}}<br><ul><li>If the term is complete -- select YES, then <span style=\"color:red\">highlight the complete WORD PHRASE in the sentence</span>, and finally <span style=\"color:red\">write a sentence containing the WORD PHRASE, that has minimum 4 words</span>.</li><li>If the term is not complete -- select NO and <span style=\"color:red\">highlight all the words that together with the highlighted WORD(s) form a complete medical TERM</span>.</li></ul>To HIGHLIGHT words in the TEXT:<ul><li>click on each word in the text that you want to SELECT</li><li>click on the already highlighted word to DE-SELECT it</li></ul>"
+        },
+        {
+            "component": "label",
+            "id" : "senval",
+            "class": "senval",
+            "value": "{{sentence_formatted}}"
+        },
+        {
+            "component": "label",
+            "value": ""
+        },
+        {
+            "id": "Q1",
+            "component": "radio",
+            "editable": true,
+            "label": "1. In the SENTENCE above, does the WORD PHRASE --{{terms_first_formatted}}-- form a complete medical term?",
+            "options": [
+                {
+                "label":"YES, {{terms_first_formatted}} expresses a complete medical term",
+                "value":"YES"
+                },
+                {
+                "label":"NO, {{terms_first_formatted}} does NOT express a complete medical term",
+                "value":"NO"
+                }
+            ],
+            "required": true,
+            "gold": true
+        },
+        {
+            "component": "textarea",
+            "label" : "Highlight the above WORD PHRASE in the sentence:",
+            "id" : "expl1span",
+            "only-if" : "Q1"
+        },
+        {
+            "component": "textarea",
+            "label" : "Make a sentence containing --{{terms_first_formatted}}--.",
+            "id" : "expltext1yesquestion",
+            "only-if" : {"Q1" : "YES"}
+        },
+        {
+            "id": "Q2",
+            "component": "radio",
+            "editable": true,
+            "label": "2. In the SENTENCE above, does the WORD PHRASE --{{terms_second_formatted}}-- form a complete medical term?",
+            "options": [
+                {
+                "label":"YES, {{terms_second_formatted}} expresses a complete medical term",
+                "value":"YES"
+                },
+                {
+                "label":"NO, {{terms_second_formatted}} does NOT express a complete medical term",
+                "value":"NO"
+                }
+            ],
+            "required": false,
+            "gold": true
+        },
+        {
+            "component": "textarea",
+            "label" : "Highlight the above WORD PHRASE in the sentence:",
+            "id" : "expl2span",
+            "only-if" : "Q2"
+        },
+        {
+            "component": "textarea",
+            "label" : "Make a sentence containing --{{terms_second_formatted}}--.",
+            "id" : "expltext2yesquestion",
+            "only-if" : {"Q2" : "YES"}
+        }
+    ]
+}

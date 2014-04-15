@@ -1,41 +1,17 @@
 @extends('layouts.default')
 
 @section('head')
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
-<script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
-<script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
-<script type="text/javascript" src="/custom_assets/dataretrieval.js"></script>	
-<script type="text/javascript" src="/custom_assets/messageservice.js"></script>	
+<link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
-<link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
+<script type="text/javascript" src="/custom_assets/crowdwatson.js"></script>
 @stop
 
 @section('modal')
-<div ng-app="messageService" ng-controller="messageCtrl" ng-init="init()">
-	<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModal" aria-hidden="true">
-	  <div class="modal-dialog">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="myModalLabel">Message</h4>
-	      </div>
-		  <div class="modal-body">
-	 		<label class="ann-label">To:</label> @{{recipient}}<br>
-	 		<label for="subject" class="ann-label">Subject: </label><input id="subject" type="text"><br>
-	 		<input type="textarea">
-		  </div>
-	      <div class="modal-footer">
-    	     <button type="button" class="btn btn-primary" ng-click="sendMessage()">Send message</button>
-	      </div>
-	    </div>
-	  </div>
-  </div>
-</div> 
 @stop
 
 @section('content')
-<div ng-app="dataRetrieval" ng-controller="resourceCtrl">
+<div ng-controller="resourceCtrl">
 	
 			<div  id="filtercolumn" class="col-md-3 ">
 			<!-- Left column for sorting -->
@@ -46,45 +22,45 @@
 				<div class="panel panel-default" style="margin-top: 10px;">
 					<div class="panel-heading">
 						<h3 class="panel-title">Sort by
-							<span class="fa pull-right ng-class: {'fa-caret-down': !sortVisible, 'fa-caret-up': sortVisible }" ng-click="setSortVisible()"></span>
+							<span class="fa pull-right ng-class: {'fa-caret-down': !sortVisible, 'fa-caret-up': sortVisible }" ng-click="sortVisible = !sortVisible" ng-init="sortVisible = true"></span>
 						 </h3>
 					</div>
 					<div ng-show="sortVisible">
 						<div id="completion" class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'completion' };">
-							<i class="fa fa-check-circle"></i> Completion <div class="pull-right"> <i ng-click="setSortDesc('completion')" class="fa fa-caret-down"></i>
-										<i ng-click="setSortAsc('completion')" class="fa fa-caret-up"></i></div>
+							<i class="fa fa-check-circle"></i> Completion <div class="pull-right"> <i ng-click="setSort('completion', 'desc')" class="fa fa-caret-down"></i>
+										<i ng-click="setSort('completion', 'asc')" class="fa fa-caret-up"></i></div>
 						</div>
 						<div id="projectedCost" class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'projectedCost' }">
-							<i class="fa fa-dollar"></i> Projected cost <div class="pull-right"> <i ng-click="setSortDesc('projectedCost')" class="fa fa-caret-down"></i>
-										<i ng-click="setSortAsc('projectedCost')" class="fa fa-caret-up"></i></div>
+							<i class="fa fa-dollar"></i> Projected cost <div class="pull-right"> <i ng-click="setSort('projectedCost', 'desc')" class="fa fa-caret-down"></i>
+										<i ng-click="setSort('projectedCost', 'asc')" class="fa fa-caret-up"></i></div>
 						</div>
 						<div id="created_at" class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'created_at'}">
-							<i class="fa fa-clock-o"></i> Created at <div class="pull-right"> <i ng-click="setSortDesc('created_at')" class="fa fa-caret-down"></i>
-										<i ng-click="setSortAsc('created_at')" class="fa fa-caret-up"></i> </div>
+							<i class="fa fa-clock-o"></i> Created at <div class="pull-right"> <i ng-click="setSort('created_at', 'desc')" class="fa fa-caret-down"></i>
+										<i ng-click="setSort('created_at', 'asc')" class="fa fa-caret-up"></i> </div>
 						</div>
 						<div id="flaggedWorkers" class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'flaggedWorkers' }">
-							<i class="fa fa-flag"></i> Flagged workers <div class="pull-right"> <i ng-click="setSortDesc('flaggedWorkers')" class="fa fa-caret-down"></i>
-										<i ng-click="setSortAsc('flaggedWorkers')" class="fa fa-caret-up"></i></div>
+							<i class="fa fa-flag"></i> Flagged workers <div class="pull-right"> <i ng-click="setSort('flaggedWorkers', 'desc')" class="fa fa-caret-down"></i>
+										<i ng-click="setSort('flaggedWorkers', 'asc')" class="fa fa-caret-up"></i></div>
 						</div>
 						<div id="unitsCount" class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'unitsCount' }">
-							<i class="fa fa-gavel"></i> Job size <div class="pull-right"> <i ng-click="setSortDesc('unitsCount')" class="fa fa-caret-down"></i>
-										<i ng-click="setSortAsc('unitsCount')" class="fa fa-caret-up"></i></div>
+							<i class="fa fa-gavel"></i> Job size <div class="pull-right"> <i ng-click="setSortDesc('unitsCount', 'desc')" class="fa fa-caret-down"></i>
+										<i ng-click="setSort('unitsCount', 'asc')" class="fa fa-caret-up"></i></div>
 						</div>
 						<div class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'user_id' }" id="user_id">
-							<i class="fa fa-user"></i> Created by <div class="pull-right"> <i ng-click="setSortDesc('user_id')" class="fa fa-caret-down"></i>
-										<i ng-click="setSortAsc('user_id')" class="fa fa-caret-up"></i></div>
+							<i class="fa fa-user"></i> Created by <div class="pull-right"> <i ng-click="setSort('user_id', 'desc')" class="fa fa-caret-down"></i>
+										<i ng-click="setSort('user_id', 'asc')" class="fa fa-caret-up"></i></div>
 						</div>
 						<div class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'domain' }" id="">
-							<i class="fa fa-fighter-jet"></i> Domain <div class="pull-right"> <i ng-click="setSortDesc('domain')" class="fa fa-caret-down"></i>
-										<i ng-click="setSortAsc('domain')" class="fa fa-caret-up"></i></div>
+							<i class="fa fa-fighter-jet"></i> Domain <div class="pull-right"> <i ng-click="setSort('domain', 'desc')" class="fa fa-caret-down"></i>
+										<i ng-click="setSort('domain', 'asc')" class="fa fa-caret-up"></i></div>
 						</div>
 						<div class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'format' }" id="">
-							<i class="fa fa-envelope-o"></i> Type <div class="pull-right"> <i ng-click="setSortDesc('format')" class="fa fa-caret-down"></i>
-										<i ng-click="setSortAsc('format')" class="fa fa-caret-up"></i></div>
+							<i class="fa fa-envelope-o"></i> Type <div class="pull-right"> <i ng-click="setSort('format', 'desc')" class="fa fa-caret-down"></i>
+										<i ng-click="setSort('format', 'asc')" class="fa fa-caret-up"></i></div>
 						</div>
 						<div class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'hasConfiguration.type' }" id="">
-							<i class="fa fa-file"></i> Task <div class="pull-right"> <i ng-click="setSortDesc('hasConfiguration.type')" class="fa fa-caret-down"></i>
-										<i ng-click="setSortAsc('hasConfiguration.type')" class="fa fa-caret-up"></i></div>
+							<i class="fa fa-file"></i> Task <div class="pull-right"> <i ng-click="setSort('hasConfiguration.type', 'desc')" class="fa fa-caret-down"></i>
+										<i ng-click="setSort('hasConfiguration.type', 'asc')" class="fa fa-caret-up"></i></div>
 						</div>
 					</div>
 				</div>
@@ -93,7 +69,7 @@
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h3 class="panel-title">Filter
-						<span class="fa pull-right ng-class: {'fa-caret-down': !filterVisible, 'fa-caret-up': filterVisible }" ng-click="setFilterVisible()"></span>
+						<span class="fa pull-right ng-class: {'fa-caret-down': !filterVisible, 'fa-caret-up': filterVisible }" ng-click="filterVisible = !filterVisible" ng-init="filterVisible = true"></span>
 						</h3>
 					</div>
 					<div ng-show="filterVisible">
@@ -131,7 +107,7 @@
 				@include('layouts.flashdata')
 				<div class="row" style="margin-left:auto; margin-right:auto; width:100%; text-align: center;">
 					<div class="pull-left">
-						<div class="ng-scope disabled pull-left nav-buttons"><label for="page">Page :  </label> <input id="page" type="text" style="width: 25px;" ng-model="pageNr"> / @{{numPages()}}</div>
+						<div class="ng-scope disabled pull-left nav-buttons"><label for="page">Page :  </label> <input id="page" type="text" style="width: 25px;" ng-model="pageNr"> / @{{results.numPages}}</div>
 						<ul style="margin-left: 20px;" class="pagination ng-isolate-scope">
 							<li><a ng-click="selectPage('first')" class="ng-binding">First</a></li>
 							<li><a ng-click="selectPage('previous')" class="ng-binding">Previous</a></li>
@@ -158,7 +134,7 @@
 							<input type="checkbox" ng-model="result.checked"></a>
 						</div>
               			<div style="float:left;">
-              				Created on @{{result.created_at}} by @{{result.wasAttributedToUserAgent.username}}
+              				Created on @{{result.created_at}} by @{{result.user_id}}
 	              		</div>
       		     		<div class="pull-right" style="width: 33%;">
 		           			<div class="progress" style="margin-bottom: 0px;">	
@@ -177,7 +153,7 @@
 		               		<div class="col-md-10" style="border-right: 1px solid #eee;">
 		               			<h4>@{{result.hasConfiguration.content.title}}</h4>
 		               			<p>@{{result.hasConfiguration.content.description }}</p>
-		               			<strong style="font-size: 18px;"><i class="fa fa-file"></i> @{{result.hasConfiguration.type}}</strong> 
+		               			<strong style="font-size: 18px;"><i class="fa fa-file"></i> @{{result.type}}</strong> 
 		               		</div>
 		               		<div class="col-md-2" style="text-align: center; padding-top: 15px;">
 		               			<strong style="font-size: 20px; "><i class="fa fa-clock-o fa-2x"></i><br> <span am-time-ago="result.created_at"></span></strong></p>
@@ -193,10 +169,10 @@
 		               			<h2><i class="fa fa-users"></i> @{{result.softwareAgent_id}} </h2>
 		               		</div>
 		               		<div class="col-md-2" style="border-right: 1px solid #eee; height:100%; text-align: center; display: table-cell; padding-top: 5px; font-size: 26px; vertical-align: middle;"> 
-		                   		<i class="fa fa-flag"></i> <br> %</strong>
+		                   		<i class="fa fa-flag"></i> <br>0%</strong>
 		                   	</div>
 						    <div class="col-md-2" style="border-right: 1px solid #eee; height: 100%; text-align: center; display: table-cell; padding-top: 10px; vertical-align: middle;">
-						    	<i class="fa fa-dollar"></i><strong> /</strong> <i class="fa fa-gavel"></i> <strong> @{{result.hasConfiguration.content.reward}}</strong>
+						    	<i class="fa fa-dollar"></i><strong> /</strong> <i class="fa fa-gavel"></i> <strong> @{{result.hasConfiguration.content.reward | number: 2}}</strong>
 						       	<h2><i class="fa fa-dollar"></i> @{{result.projectedCost | number: 2}}</h2>
 						    </div>
 						    <div class="col-md-2" style="text-align: center; height: 100%; display: table-cell; vertical-align: middle; padding-top: 10px;">
@@ -235,15 +211,16 @@
 								<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>Actions
 					    			<span class="caret"></span>
 				   				</button>
-				 				<!-- <ul class="dropdown-menu" role="menu">
-				       				<li><a ng-click="pauseJob()" ng-show="result.status == 'running'"><i class="fa fa-folder-open fa-fw"></i>Pause Job</a></li>
-				       				<li><a ng-click="startJob()" ng-show="result.status == 'cancelled' | 'paused'"><i class="fa fa-folder-open fa-fw"></i>Start Job</a></li>
-				       				<li><a ng-click="cancelJob()" ng-show="result.status != 'cancelled' "><i class="fa fa-sign-out fa-fw"></i>Cancel Job</a></li>
-				       				<li class="divider"></li>
-				       				<li><a ng-click="duplicateJob()"><i class="fa fa-sign-out fa-fw"></i>Duplicate Job</a></li>
-				       				<li><a ng-click="deleteJob()"><i class="fa fa-sign-out fa-fw"></i>Delete Job</a></li>
-				   				</ul>
--->								</div>
+					 				 <ul class="dropdown-menu" role="menu">
+					       				<li><a ng-click="perform(result, 'pause')" ng-show="result.status == 'running'"><i class="fa fa-folder-open fa-fw"></i>Pause Job</a></li>
+					       				<li><a ng-click="perform(result, 'resume')" ng-show="result.status == 'paused'"><i class="fa fa-folder-open fa-fw"></i>Resume Job</a></li>
+					       				<li><a ng-click="perform(result, 'order')" ng-show="result.status == 'unordered'"><i class="fa fa-folder-open fa-fw"></i>Order Job</a></li>
+					       				<li><a ng-click="perform(result, 'cancel')" ng-show="result.status != 'cancelled' "><i class="fa fa-sign-out fa-fw"></i>Cancel Job</a></li>
+					       				<li class="divider"></li>
+					       				<li><a ng-href="/process/duplicate/@{{result._id}}"><i class="fa fa-sign-out fa-fw"></i>Duplicate Job</a></li>
+					       				<li><a ng-click="perform(result, 'delete')"><i class="fa fa-sign-out fa-fw"></i>Delete Job</a></li>
+					   				</ul>
+								</div>
 						</div>
 					</div>								
 				<!--End of panel  -->
@@ -251,10 +228,4 @@
 			<!-- Close results column -->
 			</div>
 </div>
-@stop
-
-@section('end_javascript')
-	<script>
-				
-	</script>
 @stop

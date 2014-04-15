@@ -9,6 +9,43 @@ Route::group(array('before' => 'auth'), function()
 {
 	Route::get('/', function()
 	{
+
+		// $units = \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->where('activity_id', 'like', '%twrexstructurer%')->get();
+
+		// return $units = \MongoDB\Entity::where('content.sentence.text', 'like', '%antigen permits%')->get();
+
+		// $twrexStructurer = \App::make('\preprocess\TwrexStructurer');
+
+
+		// foreach($units as $unit)
+		// {
+		// 	$content = $unit->toArray()['content'];
+		// 	$properties = $content['properties'];
+
+		// 	$properties['relationOutsideTerms'] = $twrexStructurer->relationOutsideTerms($content);
+		// 	$properties['relationBetweenTerms'] = $twrexStructurer->relationBetweenTerms($content);
+		// 	$properties['semicolonBetweenTerms'] = $twrexStructurer->semicolonBetweenTerms($content);
+		// 	$properties['commaSeparatedTerms'] = $twrexStructurer->commaSeparatedTerms($content);
+
+		// 	$content['properties'] = $properties;
+
+		// 	$unit->content = $content;
+
+		// 	$unit->update();			
+		// }
+
+		// return $units;
+
+		// foreach($units as $unit){
+		// 	$unit->user_id = "khamkham";
+		// 	$unit->update();
+		// }
+
+		// return \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->where('user_id', 'khamkham')->count();
+
+        //$result = \MongoDB\Entity::where('documentType', 'job')->whereIn('softwareAgent_id', ['cf', 'amt'])->count();
+        //return $result;
+
 	    return Redirect::to('home');
 	});
 
@@ -23,6 +60,8 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('process', 'ProcessController');
 	Route::controller('jobs', 'JobsController');
 	Route::controller('workers', 'WorkersController');
+        Route::controller('analyze','AnalyticsController');
+	
 
 
 });

@@ -36,17 +36,19 @@ class apiController extends BaseController {
 			}
 		}
 
-		$c = Input::get('collection', 'Entity');
+		// $c = Input::get('collection', 'Entity');
 
-		$collection = $this->repository->returnCollectionObjectFor($c);
+		// $collection = $this->repository->returnCollectionObjectFor($c);
 
-    	if(Input::has('field'))
-    	{
-			$collection = $this->processFields($collection);
-		}
+  //   	if(Input::has('field'))
+  //   	{
+		// 	$collection = $this->processFields($collection);
+		// }
 			
 		if(empty($data))
 			return false;
+
+		return $data;
 
 		$data = json_decode($data, true);
 		$data['softwareAgent_id'] = strtolower($data['softwareAgent_id']);

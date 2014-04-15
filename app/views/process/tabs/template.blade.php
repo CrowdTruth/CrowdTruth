@@ -15,19 +15,27 @@
 						<h4>Select your template</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::model($jobconf, array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
+
+
+						
 			  
 						<div id="jstree"></div>
+						<br>
+						<button class="btn btn-default" data-toggle="modal" data-target="#myModal">
+						  Upload...
+						</button>
+						<br>
 						<fieldset>	
 							<style type="text/css">
 							 .jstree li > a > .jstree-icon {  display:none !important; } 
 							</style>
-							{{ Form::hidden('template', $currenttemplate, array('id' => 'template')) }}
 							<br><br>
 							<iframe id ="question" src="/templates/{{ $currenttemplate }}.html" seamless sandbox="allow-scripts" width="890" height="600"></iframe>
 						</fieldset>
 						<br>
 						<br>
+						{{ Form::model($jobconf, array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
+						{{ Form::hidden('template', $currenttemplate, array('id' => 'template')) }}
 						{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}
 						{{ Form::close()}}					
 					</div>
@@ -36,5 +44,36 @@
 		</div>
 	</div>
 </div>		
+@endsection
+
+@section("modal")
+						<!-- HIDDEN -->
+						<div class="modal fade" id="myModal" tabindex="-1">
+						  <div class="modal-dialog">
+						    <div class="modal-content">
+						      <div class="modal-header">
+						        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						        <h4 class="modal-title">Upload template</h4>
+						      </div>
+						      <div class="modal-body">
+								<div class="form-group">
+									{{ Form::open(array('action' => 'ProcessController@postUploadTemplate', 'files' => 'true')) }}
+									<p>You can upload your own templates here. Currently, HTML is supported for Amazon Mechanical Turk and CML for Crowdflower. Any CSS or JS will need to be inserted into the AMT HTML and uploaded as separate files for CF. Read the documentation for more info.</p> 
+									<p>
+									In the near future, we will have our own format that will convert to both (or more) types of template, so you'll have to create only one.
+									</p>
+									{{ Form::text('type', null, array('class' => 'form-control col-xs-6', 'placeholder' => 'Type (like \'FactSpan\' or \'RelEx\')')) }}<br><br>
+									<input type="file" name="files[]" class="btn uploadInput" multiple style="display:inline-block"/>
+
+								</div>
+						      <div class="modal-footer">
+						        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								{{ Form::submit('Upload', array('class' => 'btn btn-default', 'style' => 'display:inline-block')) }}
+								{{ Form::close()}}	
+						      </div>
+						    </div><!-- /.modal-content -->
+						  </div><!-- /.modal-dialog -->
+						</div><!-- /.modal -->
+						<!-- /HIDDEN -->
 @endsection
 @stop

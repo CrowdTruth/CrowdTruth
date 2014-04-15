@@ -1,15 +1,11 @@
 <?php
-use Sunra\PhpSimple\HtmlDomParser;
 use \MongoDB\Entity;
 use \MongoDB\Activity;
 use \MongoDB\SoftwareAgent;
 
 class Job extends Entity { 
     
-	protected $attributes = array(  'format' => 'text', 
-                                    'domain' => 'medical', 
-                                    'documentType' => 'job', 
-                                    'type' => 'todo');
+	protected $attributes = array('documentType' => 'job');
 
     /**
     *   Override the standard query to include documenttype.
@@ -25,7 +21,7 @@ class Job extends Entity {
     {
         parent::boot();
 
-        static::saving(function ( $job )
+        static::creating(function ( $job )
         {
 
 		try {
@@ -34,13 +30,16 @@ class Job extends Entity {
                 $softwareAgent->_id = 'jobcreator';
                 $softwareAgent->label = "Job creation";
             }
-			
+
 			if(!isset($job->projectedCost)){
 				$reward = $job->jobConfiguration->content['reward'];
 				$annotationsPerUnit = intval($job->jobConfiguration->content['annotationsPerUnit']);
 				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);
 				$unitsCount = count($job->batch->wasDerivedFrom);
-				$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
+                if(!$unitsPerTask)
+                    $projectedCost = 0;
+                else
+				    $projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
 
 				$job->unitsCount = $unitsCount;
 				$job->annotationsCount = 0;
@@ -76,6 +75,7 @@ class Job extends Entity {
 	    	$this->status = ($sandbox ? 'unordered' : 'running');
 	    	$this->save();
     	} catch (Exception $e) {
+            Log::debug("Error creating job: {$e->getMessage()}");
     		$this->undoCreation($this->platformJobId, $e);
     		$this->forceDelete();
 			throw $e; 
@@ -85,6 +85,8 @@ class Job extends Entity {
     public function order(){
     	$this->getPlatform()->orderJob($this);
     	$this->status = 'running';
+        if(empty($this->startedAt))
+            $this->startedAt = new MongoDate;
     	$this->save();
     }
 
@@ -108,7 +110,7 @@ class Job extends Entity {
 
     private function getPlatform(){
     	if(!isset($this->softwareAgent_id)) // and (!isset($this->platformJobId) !!! TODO
-    		throw new Exception('Can\'t handle Job that has not yet been uploaded to a platform.');
+    		throw new Exception('Can\'t handle a Job that has not yet been uploaded to a platform.');
 
     	return App::make($this->softwareAgent_id);
     }
@@ -119,7 +121,7 @@ class Job extends Entity {
     */
     private function undoCreation($ids, $error = null){
     	// TODO use platformjobid.				
-    	Log::debug("Error in creating jobs. Id's: " . json_encode($ids) . ". Attempting to delete jobs from crowdsourcing platform(s).");
+    	Log::debug("Attempting to delete jobs from crowdsourcing platform.");
     	
     	try {
     		$this->getPlatform()->undoCreation($ids);
@@ -139,43 +141,6 @@ class Job extends Entity {
 
 		}
     }
-
-
-    public function addResults($annotations){
-
-        // TODO: check if not already added? How?
-
-    	if(!is_array($annotations))
-    		$annotations = array($annotations);
-
-        $results = $this->results;
-        if(!is_array($results)) 
-            $results = array();
-        $count=0;
-        foreach($annotations as $annotation){
-	        if(in_array($annotation->unit_id, array_keys($results)))
-	            foreach ($annotation->dictionary as $ans=>$count){
-	                if(isset($results[$annotation->unit_id][$ans]))
-	                    $results[$annotation->unit_id][$ans]+=$count;
-	                else 
-	                    $results[$annotation->unit_id][$ans]=$count;
-	            }   
-	        else
-	            $results[$annotation->unit_id] = $annotation->dictionary;
-	        $count++;
-	    }
-
-    	$this->results = $results;
-        $this->annotationsCount = count($this->annotations);
-    	//$this->annotationsCount+=$count;
-		$jpu = intval($this->jobConfiguration->content['annotationsPerUnit']);		
-		$uc = intval($this->unitsCount);
-		if($uc > 0 and $jpu > 0) $this->completion = $this->annotationsCount / ($uc * $jpu);	
-		else $this->completion = 0.00;
-
-		if($this->completion == 1) $this->status = 'finished'; // Todo: Not sure if this works
-    }
-
 
     /** 
     * @return String[] the HTML for every question.
@@ -216,7 +181,7 @@ class Job extends Entity {
     }
 
     public function annotations(){
-        return $this->hasMany('Annotation', 'job_id');
+        return $this->hasMany('Annotation', 'job_id', '_id');
     }
 
 

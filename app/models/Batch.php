@@ -4,10 +4,7 @@ use MongoDB\Entity;
 
 class Batch extends Entity {
 	
-	protected $attributes = array(  'format' => 'text', 
-                                    'domain' => 'medical', 
-                                    'documentType' => 'batch', 
-                                    'type' => 'todo');
+	protected $attributes = array('documentType' => 'batch');
 
 
 // DOESN'T SEEM TO WORK WITH wasDerivedFrom! 

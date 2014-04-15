@@ -20,11 +20,12 @@ class apiController extends BaseController {
 	//i.e.: image/art/painting/40/boat
 	public function getImage($domain, $type, $numImg, $keyphrase){
 		try {
+			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . $numImg . " " . $keyphrase;
 			
-			$command = escapeshellcmd('/app/lib/getAPIS/getRijks.py' + $domain + " " + $type + " " + $numImg + " " + $keyphrase);
-			$output = shell_exec($command);
-			return $output;
-
+			exec($command,$output,$error);
+			dd($output);
+			
+			return Response::json($output[0]);
 
 		} catch (Exception $e){
 			//throw $e; // for debugging.
@@ -40,7 +41,6 @@ class apiController extends BaseController {
 		try {
 			$return = array('status' => 'ok');
 			$id = "entity/$format/$domain/$docType/$incr";
-			
 			switch ($docType) {
 
 				case 'job':
@@ -66,21 +66,25 @@ class apiController extends BaseController {
 						case 'order':
 							$job->order();
 							$return['message'] = 'Job ordered successfully.';
-							break;		
+							break;
+						case 'delete':
+							$job->cancel(); // TODO SOFT DELETE
+							$return['message'] = 'Job canceled, soft delete not yet implemented.';
 						default:
 							throw new Exception('Action unknown.');
 							break;
-					break;
-				
+					}
+				break;
 				default:
-					throw new Exception('Unknown documenttype.');
+					throw new Exception("Unknown documenttype '$docType'.");
 					break;
 				}
 
-			}
+
+
 		} catch (Exception $e){
 			//throw $e; // for debugging.
-			$return['error'] = $e->getMessage();
+			$return['message'] = $e->getMessage();
 			$return['status'] = 'bad';
 		}
 
@@ -92,6 +96,38 @@ class apiController extends BaseController {
 		return Response::json($return);
 	}
 
+	/* Data in post is object with an array of recipients plus a message-object */
+	public function postMessage(){
+		
+
+		$return = array('status' => 'ok');
+		$groupedarray = array();
+
+		try {
+			foreach ($recipient as $r) {
+				$explid = explode('/', $r);
+				$platformid = $explid[1];
+				$groupedarray[$platformid][] = $recipient;
+			}
+
+			foreach ($groupedarray as $platformworkers) {
+				$platform = App::make(array_keys($platformworkers));
+				//$platform->sendMessage(array_values($platformworkers), $subject, $content);
+				dd(json_encode($platformworkers));
+				$return['message'] = 'sent';
+			}
+
+		} catch (Exception $e){
+			$return['error'] = $e->getMessage();
+			$return['status'] = 'bad';
+		}
+		return $return;
+	}
+
+	/* Data in post is object with an array of recipients plus a message-object */
+	public function postFlag(){
+
+	}
 }
 
 ?>

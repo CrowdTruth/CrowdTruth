@@ -1,52 +1,27 @@
 @extends('layouts.default')
 
 @section('head')
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
-<script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
-<script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
-<script type="text/javascript" src="/custom_assets/workerretrieval.js"></script>	
+<link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
+<script type="text/javascript" src="/custom_assets/crowdwatson.js"></script>
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
-<link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
 @stop
 
-@section('modal')
-<div ng-app="workerRetrieval" ng-controller="messageCtrl" ng-init="init()">
-	<div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-labelledby="messageModal" aria-hidden="true">
-	  <div class="modal-dialog">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="myModalLabel">Message</h4>
-	      </div>
-		  <div class="modal-body">
-	 		<label class="ann-label">To:</label> @{{recipient}}<br>
-	 		<label for="subject" class="ann-label">Subject: </label><input id="subject" type="text"><br>
-	 		<input type="textarea" class="messagecontent">
-		  </div>
-	      <div class="modal-footer">
-    	     <button type="button" class="btn btn-primary" ng-click="sendMessage()">Send message</button>
-	      </div>
-	    </div>
-	  </div>
-  </div>
-</div> 
-@stop
 
 @section('content')
-<div ng-app="workerRetrieval" ng-controller="workerCtrl">
-
+	
+<div ng-controller="workerCtrl">
 	<div  id="filtercolumn" class="col-md-3 ">
         <div class="panel panel-default" style="margin-top: 10px;">
 			<div class="panel-heading">
 				<h3 class="panel-title">Sort by
-					<span class="fa pull-right ng-class: {'fa-caret-down': !sortVisible, 'fa-caret-up': sortVisible }" ng-click="setSortVisible()"></span>
+					<span class="fa pull-right ng-class: {'fa-caret-down': !sortVisible, 'fa-caret-up': sortVisible }" ng-click="setSortVisible()" ng-init="sortVisible = true"></span>
 				 </h3>
 			</div>
 			<div ng-show="sortVisible">
-				<div id="completion" class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'completion' };" style="border-bottom: 1px solid #eee">
-					<i class="fa fa-check-circle"></i> Last seen<div class="pull-right"> <i ng-click="setSortDesc('completion')" class="fa fa-caret-down"></i>
-								<i ng-click="setSortAsc('completion')" class="fa fa-caret-up"></i></div>
+				<div id="created_at" class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'created_at' };" style="border-bottom: 1px solid #eee">
+					<i class="fa fa-check-circle"></i> Last seen<div class="pull-right"> <i ng-click="setSortDesc('created_at')" class="fa fa-caret-down"></i>
+								<i ng-click="setSortAsc('created_at')" class="fa fa-caret-up"></i></div>
 				</div>
 				<div id="projectedCost" class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == 'projectedCost' }" style="border-bottom: 1px solid #eee">
 					<i class="fa fa-dollar"></i> Annotations<div class="pull-right"> <i ng-click="setSortDesc('projectedCost')" class="fa fa-caret-down"></i>
@@ -56,6 +31,10 @@
 					<i class="fa fa-clock-o"></i> Jobs<div class="pull-right"> <i ng-click="setSortDesc('created_at')" class="fa fa-caret-down"></i>
 								<i ng-click="setSortAsc('created_at')" class="fa fa-caret-up"></i> </div>
 				</div>
+				<div id="id" class="panel-body panel-nav-bar ng-class: { 'panel-nav-bar-active': selectedIndex == '_id'}" style="border-bottom: 1px solid #eee">
+					<i class="fa fa-clock-o"></i> Worker ID<div class="pull-right"> <i ng-click="setSortDesc('_id')" class="fa fa-caret-down"></i>
+								<i ng-click="setSortAsc('_id')" class="fa fa-caret-up"></i> </div>
+				</div>
 			</div>
 		</div>
 	
@@ -63,25 +42,25 @@
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">Filter
-				<span class="fa pull-right ng-class: {'fa-caret-down': !filterVisible, 'fa-caret-up': filterVisible }" ng-click="setFilterVisible()"></span>
+				<span class="fa pull-right ng-class: {'fa-caret-down': !filterVisible, 'fa-caret-up': filterVisible }" ng-click="setFilterVisible()" ng-init="filterVisible = true"></span>
 				</h3>
 			</div>
 			<div ng-show="filterVisible">
-				<div class="panel-body" style="border-bottom: 1px solid #eee">
+				<!-- <div class="panel-body" style="border-bottom: 1px solid #eee">
 					<i class="fa fa-fighter-jet"></i> Domain:
 					<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.domain">
 				</div>
 				<div class="panel-body" style="border-bottom: 1px solid #eee">
 					<i class="fa fa-envelope-o"></i> Format:
 					<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.format">
-				</div>
-				<div class="panel-body" style="border-bottom: 1px solid #eee">
-					<i class="fa fa-file"></i> Template:
-					<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.hasConfiguration.type">
-				</div>
+				</div> -->
 				<div class="panel-body" style="border-bottom: 1px solid #eee">
 					<i class="fa fa-users"></i> Platform:
 					<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.softwareAgent_id">
+				</div>
+				<div class="panel-body" style="border-bottom: 1px solid #eee">
+					<i class="fa fa-user"></i> Worker ID:
+					<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter._id">
 				</div>
 			</div>
 		</div>
@@ -105,7 +84,7 @@
 			<div class="ng-scope space-left pull-left"> 
 				<ul class="pagination ng-isolate-scope">
 	          		<li><a class="ng-binding" ng-show="selection" ng-click="analyze()">Analyse</a></li>
-	          		<li><a class="ng-binding" ng-show="selection" data-toggle="modal" ng-click="gotoMessage()" data-target="#messageModal">Message workers</a></li>
+	          		<li><a class="ng-binding" ng-show="selection" ng-click="openMessage()">Message workers</a></li>
 	          	</ul>
 			</div>
 			<div class="row" style="margin-left:auto; margin-right:auto; width:100%; text-align: center;">
@@ -118,10 +97,11 @@
 
 			<div class="mainContainer">
 				<div class="bordered bgwhite" ng-repeat="result in results.data">
-					<div class="checkbox">
-						<input type="checkbox" ng-model="result.checked">
-					</div>
 					<div class="row">
+						<div class="col-md-1">
+							<button ng-show="result.checked != true" ng-click="addWorker(result._id); result.checked = true;">Add</button>
+							<button ng-show="result.checked == true" ng-click="removeWorker(result._id); result.checked = false;">Remove</button>
+						</div>
 		           		<div class="col-md-5">
 		           			<a class="workerid" ng-click="gotoWorker(result._id)"><strong class="fat">@{{result.softwareAgent_id}}</strong> @{{result.platformAgentId}}</a>
 		           			<div style="color: grey; font-size: 9pt; font-style: italic;" class="subscript"><span ng-show="result.city">@{{result.city}},</span><span ng-show="result.region"> @{{result.region}},</span> @{{result.country}}</div>
@@ -144,11 +124,16 @@
 			</div>
 		</div>
 	</div>
+	
 </div>
+
 @stop
 
 @section('end_javascript')
-	<script>
-				
-	</script>
+	
+
+
+
+
+
 @stop

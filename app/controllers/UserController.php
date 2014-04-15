@@ -64,7 +64,7 @@ class UserController extends BaseController {
 	    );
 
         $rules = array(
-            '_id' => 'required|min:3|unique:users',        	
+        	'_id' => 'required|min:3|unique:users',        	
             'firstname' => 'required|min:3',
             'lastname' => 'required|min:1',
             'email' => 'required|email|unique:users',
@@ -81,10 +81,10 @@ class UserController extends BaseController {
 
 	    unset($userdata['confirm_password']);
 	    $userdata['password'] = Hash::make($userdata['password']);
-	    $user = new User($userdata);
+	    $user = new User($userdata); 
 
 	    try {
-		    $this->createTwrexStructurerSoftwareAgent();
+		    $this->createCrowdWatsonUserAgent();
 	    } catch (Exception $e) {
 	    	return Redirect::back()->with('flashError', $e->getMessage());
 	    }
@@ -99,7 +99,7 @@ class UserController extends BaseController {
 	    return Redirect::to('/');
 	}
 
-	public function createTwrexStructurerSoftwareAgent(){
+	public function createCrowdWatsonUserAgent(){
 		if(!User::find('crowdwatson'))
 		{
 			$softwareAgent = new User;

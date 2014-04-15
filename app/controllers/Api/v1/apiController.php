@@ -18,13 +18,14 @@ use League\Csv\Writer as Writer;
 
 class apiController extends BaseController {
 
-	protected $repository;
+    protected $repository;
 
-	public function __construct(Repository $repository){
-		$this->repository = $repository;
-	}
+    public function __construct(Repository $repository){
+        $this->repository = $repository;
+    }
 
     protected $operators = array(
+
     	'=' , '<', '>', '<=', '>=', '<>', 'like'
     );	
 
@@ -47,6 +48,10 @@ class apiController extends BaseController {
 		$c = Input::get('collection', 'Entity');
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
+        if(Input::has('createMetrics')){
+            exec('/usr/bin/python2.7 /var/www/crowd-watson/app/lib/generateMetrics.py \''.Input::get('createMetrics').'\' \'entity/text/medical/questiontemplate/1\'', $output, $error);
+            return json_decode($output[0],true);
+        }
 
     	if(Input::has('field'))
     	{
@@ -127,6 +132,8 @@ class apiController extends BaseController {
 			$documents = $collection->toArray();
 
 			$writer = new Writer(new \SplTempFileObject);
+			$writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
+
 
 			foreach($documents as $documentKey => $documentValue)
 			{
@@ -146,12 +153,23 @@ class apiController extends BaseController {
 
 				$row['content'] = $documentValue['content'];
 
+				$row = $documentValue;
+
 				if($documentKey == 0)
 				{
 					$writer->insertOne(array_change_key_case(str_replace('.', '_', array_keys(array_dot($row))), CASE_LOWER));
 				}
 
-				$writer->insertOne(array_flatten($row));
+				$row = array_dot($row);
+				$csvRow = array();
+
+				foreach($row as $columnKey => $columnValue)
+				{
+					$csvRow[str_replace('.', '_', $columnKey)] = $columnValue;
+				}
+
+
+				$writer->insertOne($csvRow);
 			}
 
 			$writer->output('test.csv');
@@ -159,6 +177,44 @@ class apiController extends BaseController {
 			die;
 			// return array_dot($csv);
 		}
+
+		// if(array_key_exists('tocsv', Input::all()))
+		// {	
+		// 	$documents = $collection->toArray();
+
+		// 	$writer = new Writer(new \SplTempFileObject);
+
+		// 	foreach($documents as $documentKey => $documentValue)
+		// 	{
+		// 		if(!isset($documentValue['content']['sentence']['formatted']))
+		// 		{
+		// 			$documentValue['content']['sentence']['formatted'] = " ";
+		// 		}
+
+		// 		$this->recur_ksort($documentValue['content']);
+
+		// 		$row['_id'] = $documentValue['_id'];
+
+		// 		if(isset($documentValue['parents']))
+		// 		{
+		// 			$row['wasDerivedFrom'] = implode(",", $documentValue['parents']);
+		// 		}
+
+		// 		$row['content'] = $documentValue['content'];
+
+		// 		if($documentKey == 0)
+		// 		{
+		// 			$writer->insertOne(array_change_key_case(str_replace('.', '_', array_keys(array_dot($row))), CASE_LOWER));
+		// 		}
+
+		// 		$writer->insertOne(array_flatten($row));
+		// 	}
+
+		// 	$writer->output('test.csv');
+
+		// 	die;
+		// 	// return array_dot($csv);
+		// }
 
 		return Response::json($collection);
 
@@ -258,6 +314,7 @@ class apiController extends BaseController {
 
 	public function anyPost()
 	{
+
 		$c = Input::get('collection', 'Entity');
 
 		$collection = $this->repository->returnCollectionObjectFor($c);

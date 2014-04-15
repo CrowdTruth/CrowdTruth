@@ -5,17 +5,33 @@ namespace Preprocess;
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
-use URL, Session, Exception;
+use \MongoDate;
+use URL, Session, Exception, Auth;
 
 class TwrexStructurer {
 
-	public function process($twrex)
+	public function __construct()
 	{
 		set_time_limit(1200);
 		\DB::connection()->disableQueryLog();
-		// fastcgi_finish_request();
+	}
 
-		$twrexLines = explode("\n", $twrex->content);
+	public function array_unique_multidimensional($array)
+	{
+		return array_intersect_key($array, array_unique(array_map('serialize', $array)));	    
+	}	
+
+	public function process($twrex, $preview = false)
+	{
+		// fastcgi_finish_request();
+		$twrexLines = $this->array_unique_multidimensional(explode("\n", $twrex->content));
+
+		if($preview)
+		{
+			$twrexLines = array_slice($twrexLines, 0, 100);
+		}
+
+		// dd(count($twrexLines));
 
 		$twrexStructuredSentences = array();
 		$tempTwrexStructuredSentences = array();
@@ -35,9 +51,8 @@ class TwrexStructurer {
 				continue;
 			}
 
-			if($twrexLineKey > 60000)
-				continue;
-
+			// if($twrexLineKey < 340 || $twrexLineKey > 1000)
+			// 	continue;
 				
 			$tempTwrexStructuredSentence = [
 				"relation" => [
@@ -61,31 +76,19 @@ class TwrexStructurer {
 				]
 			];
 
-			// $tempTwrexStructuredSentence['properties'] = [
-			// 	"sentenceWordCount" => str_word_count($tempTwrexStructuredSentence['sentence']['text']),
-			// 	"relationInSentence" => $this->relationInSentence($tempTwrexStructuredSentence),
-			// 	"relationOutsideTerms" => $this->relationOutsideTerms($tempTwrexStructuredSentence),
-			// 	"relationBetweenTerms" => $this->relationBetweenTerms($tempTwrexStructuredSentence),
-			// 	"semicolonBetweenTerms" => $this->semicolonBetweenTerms($tempTwrexStructuredSentence),
-			// 	"commaSeparatedTerms" => $this->commaSeparatedTerms($tempTwrexStructuredSentence),
-			// 	"parenthesisAroundTerms" => $this->parenthesisAroundTerms($tempTwrexStructuredSentence),
-			// 	"overlappingTerms" => $this->overlappingTerms($tempTwrexStructuredSentence)
-			// ];
-
-			// if($tempTwrexStructuredSentence['properties']['overlappingTerms'] == 1)
-			// {
-			// 	array_push($twrexStructuredSentences, $tempTwrexStructuredSentence);
-			// } else {
-			// 	$tempTwrexStructuredSentence = $this->getAllTermCombinations($tempTwrexStructuredSentence);
-			// 	array_push($tempTwrexStructuredSentences, $tempTwrexStructuredSentence);				
-			// }
-
 			array_push($tempTwrexStructuredSentences, $this->getAllTermCombinations($tempTwrexStructuredSentence));
 		}
 
-		$tempTwrexStructuredSentences = array_unique($tempTwrexStructuredSentences, SORT_REGULAR);
+		// dd(count($this->array_unique_multidimensional($tempTwrexStructuredSentences)));
+		// dd(count($tempTwrexStructuredSentences));
 
-		foreach($tempTwrexStructuredSentences as $tempTwrexStructuredSentence)
+		unset($twrex, $twrexLines);
+
+		$tempTwrexStructuredSentences = $this->array_unique_multidimensional($tempTwrexStructuredSentences);
+		
+		$overlappingOffsetSentences = [];
+
+		foreach($tempTwrexStructuredSentences as $tKey => $tempTwrexStructuredSentence)
 		{
 			foreach($tempTwrexStructuredSentence['terms']['first'] as $firstTerm)
 			{
@@ -94,6 +97,12 @@ class TwrexStructurer {
 					$twrexStructuredSentence = $tempTwrexStructuredSentence;
 					$twrexStructuredSentence['terms']['first'] = $firstTerm;
 					$twrexStructuredSentence['terms']['second'] = $secondTerm;
+
+					if($this->overlappingOffsets($twrexStructuredSentence))
+					{
+						array_push($overlappingOffsetSentences, $twrexStructuredSentence);
+						continue;
+					}
 
 					$twrexStructuredSentence['properties'] = [
 						"sentenceWordCount" => str_word_count($twrexStructuredSentence['sentence']['text']),
@@ -109,10 +118,55 @@ class TwrexStructurer {
 					$twrexStructuredSentence = $this->formatUppercase($twrexStructuredSentence);
 
 					ksort($twrexStructuredSentence['terms']);
-					array_push($twrexStructuredSentences, $twrexStructuredSentence);
+
+					if($preview)
+					{
+						array_push($twrexStructuredSentences, $twrexStructuredSentence);
+					}
+					else
+					{
+						array_push($twrexStructuredSentences, serialize($twrexStructuredSentence));
+					}
+
 				}
 			}
+
+			unset($tempTwrexStructuredSentences[$tKey]);
 		}
+
+		// $allHashes = array();
+		// $duplicates = array();
+
+		// foreach($twrexStructuredSentences as $u)
+		// {
+		// 	$hash = sha1(serialize($u));
+		// 	$u['hash'] = $hash;
+
+		// 	if(in_array($hash, $allHashes)){
+		// 		array_push($duplicates, $u);
+		// 	}
+		// 	else
+		// 	{
+		// 		array_push($allHashes, $hash);
+		// 	}
+			
+		// }
+
+		// return $duplicates;
+
+		// dd(count($twrexStructuredSentences));
+
+		// dd(count(array_unique($twrexStructuredSentences, SORT_REGULAR)));
+
+		// return $this->array_unique_multidimensional($twrexStructuredSentences);
+
+		// dd(count($this->array_unique_multidimensional($twrexStructuredSentences)));
+
+		// echo count($twrexStructuredSentences) . PHP_EOL;
+		// echo count(array_unique($twrexStructuredSentences, SORT_REGULAR)) . PHP_EOL;
+
+		// exit;
+		// // return array_slice($twrexStructuredSentences, 0, 100);
 
 		return $twrexStructuredSentences;
 	}
@@ -130,10 +184,11 @@ class TwrexStructurer {
 		$twrexStructuredSentence['terms']['first']['formatted'] = $firstTermUppercaseWithBrackets;
 		$twrexStructuredSentence['terms']['second']['formatted'] = $secondTermUppercaseWithBrackets;
 
-		if($twrexStructuredSentence['properties']['overlappingTerms'] == "1")
-		{
-			return $twrexStructuredSentence;
-		}		
+		// if($twrexStructuredSentence['properties']['overlappingTerms'] == "1")
+		// {
+		// 	// dd($twrexStructuredSentence);
+		// 	return $twrexStructuredSentence;
+		// }		
 
 		$formattedSentence = $twrexStructuredSentence['sentence']['text'];
 
@@ -160,16 +215,6 @@ class TwrexStructurer {
 
 	public function getAllTermCombinations($tempTwrexStructuredSentence)
 	{
-
-		if($this->overlappingOffsets($tempTwrexStructuredSentence))
-		{
-			$tempTwrexStructuredSentence['terms']['first'] = array($tempTwrexStructuredSentence['terms']['first']);
-			$tempTwrexStructuredSentence['terms']['second'] = array($tempTwrexStructuredSentence['terms']['second']);	
-			// dd($tempTwrexStructuredSentence);		
-			return $tempTwrexStructuredSentence;
-		}
-
-
 		$firstTerm = strtolower($tempTwrexStructuredSentence['terms']['first']['text']);
 		$secondTerm = strtolower($tempTwrexStructuredSentence['terms']['second']['text']);
 		$sentenceText = strtolower($tempTwrexStructuredSentence['sentence']['text']);
@@ -219,7 +264,7 @@ class TwrexStructurer {
 		return $tempTwrexStructuredSentence;
 	}
 
-	protected function relationInSentence($twrexStructuredSentence)
+	public function relationInSentence($twrexStructuredSentence)
 	{
 		$sentenceText = strtolower($twrexStructuredSentence['sentence']['text']);
 		$relationWithoutPrefixStemmed =  $this->simpleStem($twrexStructuredSentence['relation']['noPrefix']);
@@ -232,7 +277,7 @@ class TwrexStructurer {
 		return 0;
 	}
 
-	protected function relationOutsideTerms($twrexStructuredSentence)
+	public function relationOutsideTerms($twrexStructuredSentence)
 	{
 		$sentenceText = strtolower($twrexStructuredSentence['sentence']['text']);
 		$b1 = $twrexStructuredSentence['terms']['first']['startIndex'];
@@ -278,14 +323,14 @@ class TwrexStructurer {
 
 		if($b1 < $b2)
 		{
-			if(stripos(substr($sentenceText, $e1, $b2), $relationWithoutPrefixStemmed))
+			if(stripos(substr($sentenceText, $e1, $b2 - $e1), $relationWithoutPrefixStemmed))
 			{
 				return 1;
 			}
 		}
 		else
 		{
-			if(stripos(substr($sentenceText, $e2, $b1), $relationWithoutPrefixStemmed))
+			if(stripos(substr($sentenceText, $e2, $b1 - $e2), $relationWithoutPrefixStemmed))
 			{
 				return 1;
 			}
@@ -304,13 +349,13 @@ class TwrexStructurer {
 
 		if($b1 < $b2)
 		{
-			if(stripos(substr($sentenceText, $e1, $b2), ';')){
+			if(stripos(substr($sentenceText, $e1, $b2 - $e1), ';')){
 				return 1;
 			}
 		}
 		else
 		{
-			if(stripos(substr($sentenceText, $e2, $b1), ';')){
+			if(stripos(substr($sentenceText, $e2, $b1 - $e2), ';')){
 				return 1;
 			}
 		}
@@ -318,7 +363,7 @@ class TwrexStructurer {
 		return 0;
 	}
 
-	protected function commaSeparatedTerms($twrexStructuredSentence)
+	public function commaSeparatedTerms($twrexStructuredSentence)
 	{
 		$sentenceText = strtolower($twrexStructuredSentence['sentence']['text']);
 		$b1 = $twrexStructuredSentence['terms']['first']['startIndex'];
@@ -331,11 +376,11 @@ class TwrexStructurer {
 
 		if($b1 < $b2)
 		{
-			$textWithAndBetweenTerms = substr($sentenceText, $b1, $e2);
+			$textWithAndBetweenTerms = substr($sentenceText, $b1, $e2 - $b1);
 		}
 		else
 		{
-			$textWithAndBetweenTerms = substr($sentenceText, $b2, $e1);
+			$textWithAndBetweenTerms = substr($sentenceText, $b2, $e1 - $b2);
 		}
 
 
@@ -359,11 +404,40 @@ class TwrexStructurer {
 		// {
 		// 	return 1;
 		// }
+
+		$pattern = '#' . preg_quote($firstTerms, '#') . '\s*(and|or|,)\s*' . preg_quote($secondTerms, '#') . '#i';
+
+		try {
+			if(preg_match_all($pattern, $sentenceText, $matches, PREG_OFFSET_CAPTURE))
+			{
+				foreach($matches as $match)
+				{
+					if(filter_var(
+					    $b1, 
+					    FILTER_VALIDATE_INT, 
+					    array(
+					        'options' => array(
+					            'min_range' => $match[0][1], 
+					            'max_range' => (strlen($match[0][0]) + $match[0][1])
+					        )
+					    )
+					))
+					{
+						// return array("andor" => $matches);					
+						return 1;
+					}
+				}
+			}
+		}
+		catch (Exception $e)
+		{
+			dd($twrexStructuredSentence);
+		}
 			
 		return 0;
 	}
 
-	protected function parenthesisAroundTerms($twrexStructuredSentence)
+	public function parenthesisAroundTerms($twrexStructuredSentence)
 	{
 		$sentenceText = strtolower($twrexStructuredSentence['sentence']['text']);
 		$firstTerms = strtolower($twrexStructuredSentence['terms']['first']['text']);
@@ -379,10 +453,56 @@ class TwrexStructurer {
 			return 1;
 		}
 
+		$pattern = '#\([^)]*' . preg_quote($firstTerms, '#') . '[^)]*\)#i';
+
+		if(preg_match_all($pattern, $sentenceText, $matches, PREG_OFFSET_CAPTURE))
+		{
+			foreach($matches as $match)
+			{
+				if(filter_var(
+				    $twrexStructuredSentence['terms']['first']['startIndex'], 
+				    FILTER_VALIDATE_INT, 
+				    array(
+				        'options' => array(
+				            'min_range' => $match[0][1], 
+				            'max_range' => (strlen($match[0][0]) + $match[0][1])
+				        )
+				    )
+				))
+				{
+					// return array("debug_first" => $matches);
+					return 1;					
+				}
+			}
+		}
+
+		$pattern = '#\([^)]*' . preg_quote($secondTerms, '#') . '[^)]*\)#i';
+
+		if(preg_match_all($pattern, $sentenceText, $matches, PREG_OFFSET_CAPTURE))
+		{
+			foreach($matches as $match)
+			{
+				if(filter_var(
+				    $twrexStructuredSentence['terms']['second']['startIndex'], 
+				    FILTER_VALIDATE_INT, 
+				    array(
+				        'options' => array(
+				            'min_range' => $match[0][1], 
+				            'max_range' => (strlen($match[0][0]) + $match[0][1])
+				        )
+				    )
+				))
+				{
+					// return array("debug_second" => $matches);
+					return 1;					
+				}
+			}
+		}
+
 		return 0;
 	}
 
-	protected function overlappingTerms($twrexStructuredSentence)
+	public function overlappingTerms($twrexStructuredSentence)
 	{
 		$firstTerms = strtolower($twrexStructuredSentence['terms']['first']['text']);
 		$secondTerms = strtolower($twrexStructuredSentence['terms']['second']['text']);
@@ -399,7 +519,7 @@ class TwrexStructurer {
 		return 0;	
 	}
 
-	protected function overlappingOffsets($twrexStructuredSentence)
+	public function overlappingOffsets($twrexStructuredSentence)
 	{
 		$b1 = $twrexStructuredSentence['terms']['first']['startIndex'];
 		$b2 = $twrexStructuredSentence['terms']['second']['startIndex'];
@@ -422,6 +542,24 @@ class TwrexStructurer {
 		        'options' => array(
 		            'min_range' => $b1, 
 		            'max_range' => $e1
+		        )
+		    )
+		) || filter_var(
+		    $b1, 
+		    FILTER_VALIDATE_INT, 
+		    array(
+		        'options' => array(
+		            'min_range' => $b2, 
+		            'max_range' => $e2
+		        )
+		    )
+		) || filter_var(
+		    $e1, 
+		    FILTER_VALIDATE_INT, 
+		    array(
+		        'options' => array(
+		            'min_range' => $b2, 
+		            'max_range' => $e2
 		        )
 		    )
 		))
@@ -453,6 +591,130 @@ class TwrexStructurer {
 
 	public function store($parentEntity, $twrexStructuredSentences)
 	{
+		$status = array();
+
+		try {
+			$this->createTwrexStructurerSoftwareAgent();
+		} catch (Exception $e) {
+			$status['error']['TwrexStructurer'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$activity = new Activity;
+			$activity->softwareAgent_id = "twrexstructurer";
+			$activity->save();
+
+		} catch (Exception $e) {
+			// Something went wrong with creating the Activity
+			$activity->forceDelete();
+			$status['error']['activity'] = $e->getMessage();
+			return $status;
+		}
+
+        $lastMongoURIUsed = Entity::where('format', 'text')->where('domain', 'medical')->where("documentType", 'twrex-structured-sentence')->get(array("_id"));
+    
+        if(count($lastMongoURIUsed) > 0) {
+            $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
+                return $entity->_id;
+            }, SORT_NATURAL)->toArray();
+
+            if(end($lastMongoURIUsed)){
+                $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
+                $inc = end($lastMongoIDUsed) + 1;          
+            }
+        }
+        else
+        {
+        	$inc = 0;
+        }
+
+        $allEntities = array();
+
+		foreach($twrexStructuredSentences as $twrexStructuredSentence){
+			$twrexStructuredSentence = unserialize($twrexStructuredSentence);
+
+			$title = $parentEntity->title . "_index_" . $inc;
+
+			$hash = md5(serialize(array_except($twrexStructuredSentence, ['properties'])));
+
+			if($dup = Entity::where('hash', $hash)->first())
+			{
+				$status['error'][$title] = "Already exists in the database -> {$dup->_id}";
+				continue;
+			}
+
+            if (Auth::check())
+            {
+                $user_id = Auth::user()->_id;
+            } else 
+            {
+                $user_id = "crowdwatson";
+            } 			
+
+			$entity = [
+				"_id" => 'entity/text/medical/twrex-structured-sentence/' . $inc,
+				"title" => strtolower($title),
+				"domain" => $parentEntity->domain,
+				"format" => $parentEntity->format,
+				"documentType" => "twrex-structured-sentence",
+				"parents" => [$parentEntity->_id],
+				"content" => $twrexStructuredSentence,
+				"hash" => $hash,
+				"activity_id" => $activity->_id,
+				"user_id" => $user_id,
+				"updated_at" => new MongoDate(time()),
+				"created_at" => new MongoDate(time())
+			];
+
+			array_push($allEntities, $entity);
+
+			$inc++;
+
+			$status['success'][$title] = $title . " was successfully processed into a twrex-structured-sentence. (URI: {$entity['_id']})";
+		}
+
+		//	$allEntities = array_slice($allEntities, 0, 100);
+
+		if(count($allEntities) > 1)
+		{
+			if(count($allEntities) > 20000)
+			{
+				$chunkSize = ceil(count($allEntities) / 20000);
+				$arrayChunks = array_chunk($allEntities, $chunkSize);
+
+				foreach($arrayChunks as $chunkKey => $chunkVal)
+				{
+					try{
+						\DB::collection('entities')->insert($chunkVal);
+					} catch (Exception $e) {
+						$status['error']['insert_chunk' . $chunkKey] = $e->getMessage();
+					}
+				}	
+			}
+			else
+			{
+				try{
+					\DB::collection('entities')->insert($allEntities);
+				} catch (Exception $e) {
+					$status['error']['insert_batch'] = $e->getMessage();
+				}
+
+			}
+		}
+		else
+		{
+			$activity->forceDelete();
+		}
+
+		return $status;
+	}
+
+	public function originalStore($parentEntity, $twrexStructuredSentences)
+	{
+		// echo "storing";
+		// 		fastcgi_finish_request();
+
 		$tempEntityID = null;
 		$status = array();
 
@@ -471,7 +733,7 @@ class TwrexStructurer {
 		} catch (Exception $e) {
 			// Something went wrong with creating the Activity
 			$activity->forceDelete();
-			$status['error'][$title] = $e->getMessage();
+			$status['error']['activity'] = $e->getMessage();
 			return $status;
 		}
 

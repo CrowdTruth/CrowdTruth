@@ -13,6 +13,9 @@ use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDB\CrowdAgent as CrowdAgent;
 
+use League\Csv\Reader as Reader;
+use League\Csv\Writer as Writer;
+
 class apiController extends BaseController {
 
 	protected $repository;
@@ -39,8 +42,6 @@ class apiController extends BaseController {
 	 */
 	public function getIndex()
 	{
-		// return Input::all();
-
 		$c = Input::get('collection', 'Entity');
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
@@ -50,10 +51,10 @@ class apiController extends BaseController {
 			$collection = $this->processFields($collection);
 		}
 
-		if(!array_key_exists('noCache', Input::all()))
-		{
-			$collection = $collection->remember(1, md5(serialize(array_values(Input::except('pretty')))));
-		}
+		// if(!array_key_exists('noCache', Input::all()))
+		// {
+		// 	$collection = $collection->remember(1, md5(serialize(array_values(Input::except('pretty')))));
+		// }
 
 		$start = (int) Input::get('start', 0);
 		$limit = (int) Input::get('limit', 100);
@@ -121,9 +122,72 @@ class apiController extends BaseController {
 		unset($count['data']);
 		$documents = $collection->toArray()['data'];
 
+		if(array_key_exists('tocsv', Input::all()))
+		{	
+			set_time_limit(1200);
+			$writer = new Writer(new \SplTempFileObject);
+			$writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
+
+			foreach($documents as $line_index => $row)
+			{
+				// $this->recur_ksort($documentValue['content']);
+
+				// $row['_id'] = $documentValue['_id'];
+
+				if(isset($row['parents']))
+				{
+					$row['wasDerivedFrom'] = implode(",", $row['parents']);
+					unset($row['parents']);
+				}
+
+				// $row['content'] = $documentValue['content'];
+
+				if($line_index == 0)
+				{
+					$headerDotted = array_dot($row);
+					$header = array_change_key_case(str_replace('.', '_', array_keys($headerDotted)), CASE_LOWER);
+					$writer->insertOne($header);
+				}
+
+				$row = array_dot($row);
+
+				$csvRow = array();
+
+				// foreach($row as $columnKey => $columnValue)
+				// {
+				// 	if($columnKey == "parents")
+				// 	{
+				// 		$columnKey = "wasDerivedFrom";
+				// 	}
+
+				// 	$csvRow[str_replace('.', '_', $columnKey)] = $columnValue;
+				// }
+
+				foreach($headerDotted as $columnKey => $columnValue)
+				{
+					// if($columnKey == "parents")
+					// {
+					// 	$columnKey = "wasDerivedFrom";
+					// }
+
+					$csvRow[str_replace('.', '_', $columnKey)] = $row[$columnKey];
+				}				
+
+				// return $csvRow;
+
+				$writer->insertOne($csvRow);
+			}
+
+			$writer->output(time() . '.csv');
+
+			die;
+			// return array_dot($csv);
+		}		
+
 		return Response::json([
 			"count" => $count,
 			"pagination" => $pagination,
+			"searchQuery" => Input::all(),
 			"documents" => $documents
 			]);
 
@@ -141,6 +205,13 @@ class apiController extends BaseController {
 		return Response::json($collection->toArray());
 
 	}
+
+	public function recur_ksort(&$array) {
+	   foreach ($array as &$value) {
+	      if (is_array($value)) $this->recur_ksort($value);
+	   }
+	   return ksort($array);
+	}	
 
 	public function anyPost()
 	{
@@ -214,7 +285,7 @@ class apiController extends BaseController {
 
 						if($operator == "like")
 						{
-							$collection = $collection->where($field, $operator, "%" . $subvalue . "%");
+							$collection = $collection->where($field, $operator, "%" . preg_quote($subvalue, '/') . "%");
 						}
 						else
 						{
