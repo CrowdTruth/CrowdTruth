@@ -459,7 +459,7 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter, $http) 
  		else if(action == 'cancel') newstatus = 'canceled';
  		else if(action == 'delete') {alert('Deletion is not yet implemented.'); return;}
  		else return;
-
+console.log(action);
  		$http({method: 'GET', url: '/api/actions/'+job._id+'/'+action}).
 		    success(function(data, status, headers, config) {
 		      	if(data.status == 'ok'){
