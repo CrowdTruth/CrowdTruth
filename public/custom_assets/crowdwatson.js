@@ -450,8 +450,34 @@ app.controller("resourceCtrl", function($scope, $resource, filterFilter) {
             window.location = '/analyze/view?jobs=' + $scope.selection;
         }
  	}
+
+
+ 	$scope.perform = function(job, action){
+ 		var newstatus = '';
+ 		if(action == 'pause') newstatus = 'paused';
+ 		else if(action == 'order' || action == 'resume') newstatus = 'running';
+ 		else if(action == 'cancel') newstatus = 'canceled';
+ 		else if(action == 'delete') {alert('Deletion is not yet implemented.'); return;}
+ 		else return;
+
+ 		$http({method: 'GET', url: '/api/actions/'+job._id+'/'+action}).
+		    success(function(data, status, headers, config) {
+		      	if(data.status == 'ok'){
+ 					job.status = newstatus;
+ 				} else {
+ 					alert(data.message);
+ 				}	
+		     }).
+		    error(function(data, status, headers, config) {
+		      console.log(status);
+		     // alert(status);
+		});
+ 	}
  	
 });
+
+
+
 
 
 var getJobs = function($resource, page, perPage, sort, filter){

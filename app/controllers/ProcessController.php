@@ -18,7 +18,8 @@ class ProcessController extends BaseController {
 // relex 277 - 1530
 // FactSpan 916 - 192
 	
-	public function getLoop(){
+
+/*	public function getLoop(){
 		foreach (Job::get() as $job){
 			if(!isset($job->projectedCost)){
 				try{
@@ -40,7 +41,7 @@ class ProcessController extends BaseController {
 				}
 			}
 		}
-	}
+	}*/
 
 
 	public function getBatch() {
