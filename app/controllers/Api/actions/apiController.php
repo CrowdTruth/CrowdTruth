@@ -67,6 +67,9 @@ class apiController extends BaseController {
 							$job->order();
 							$return['message'] = 'Job ordered successfully.';
 							break;
+						case 'delete':
+							$job->cancel(); // TODO SOFT DELETE
+							$return['message'] = 'Job canceled, soft delete not yet implemented.';
 						default:
 							throw new Exception('Action unknown.');
 							break;

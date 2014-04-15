@@ -161,7 +161,7 @@ class Annotation extends Entity {
                 Log::debug($ans);
              
                 // Patching the fact that the CML is different from the WebSci results [fugly]
-                if(!isset($ans['confirmfirstfactor'])){
+                //if(!isset($ans['confirmfirstfactor'])){
                     $ans['firstfactor'] = $ans['factor1'];
                     $ans['secondfactor'] = $ans['factor2'];
 
@@ -178,7 +178,7 @@ class Annotation extends Entity {
                     } else {
                         $ans['saveselectionids2'] = $ans['b2']; 
                     }
-                }
+                //}
 
                 Log::debug($ans);
                 

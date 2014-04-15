@@ -423,7 +423,7 @@ class ProcessController extends BaseController {
 			//Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
 			//				strtoupper(implode(', ', $jc->content['platform'])) . '.');
 			Session::flash('flashSuccess', "Created job" . (count($jc->content['platform']) == 1 ? '' : 's') . " on " . 
-							strtoupper(implode(', ', $jc->content['platform'])) . '. Click on \'actions\' on the job to start it.');
+							strtoupper(implode(', ', $jc->content['platform'])) . '. Click on \'actions\' on the job to order it.');
 			return Redirect::to("jobs/listview");
 
 		} catch (Exception $e) {
