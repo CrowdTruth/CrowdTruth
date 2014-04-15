@@ -12,7 +12,6 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
 		<script src="//cdn.jsdelivr.net/lodash/2.4.1/lodash.underscore.min.js"></script>
 		<script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
-		<link rel="stylesheet" type="text/css" href="/custom_assets/custom.css"></link>
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js"></script>
 					
 @yield('head')
