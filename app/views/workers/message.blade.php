@@ -2,6 +2,8 @@
 
 @section('head')
 <script type="text/javascript" src="/custom_assets/crowdwatson.js"></script>  
+<script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
+<script type="text/javascript" src="/custom_assets/moment.js"></script>
 
 @stop
 

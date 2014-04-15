@@ -35,7 +35,7 @@ class apiController extends BaseController {
 		return $this->returnJson($return);
 	}
 
-	public function getImageFeatures($domain, $type, $url){
+	public function getImagefeatures($domain, $type, $url){
 		return Response::json("Received images");
 		// Store url in to database as parent 
 

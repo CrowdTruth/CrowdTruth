@@ -25,6 +25,10 @@
 						 </h3>
 					</div>
 					<div ng-show="sortVisible">
+						<div id="completion" class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'status' };">
+							<i class="fa fa-check-circle"></i> Status <div class="pull-right"> <i ng-click="setSortDesc('status')" class="fa fa-caret-down"></i>
+										<i ng-click="setSortAsc('status')" class="fa fa-caret-up"></i></div>
+						</div>
 						<div id="completion" class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'completion' };">
 							<i class="fa fa-check-circle"></i> Completion <div class="pull-right"> <i ng-click="setSortDesc('completion')" class="fa fa-caret-down"></i>
 										<i ng-click="setSortAsc('completion')" class="fa fa-caret-up"></i></div>
@@ -37,6 +41,7 @@
 							<i class="fa fa-clock-o"></i> Created at <div class="pull-right"> <i ng-click="setSortDesc('created_at')" class="fa fa-caret-down"></i>
 										<i ng-click="setSortAsc('created_at')" class="fa fa-caret-up"></i> </div>
 						</div>
+						<!-- FLAGGED WORKERS IS NOT IN DATAMODEL YET -->
 						<div id="flaggedWorkers" class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'flaggedWorkers' }">
 							<i class="fa fa-flag"></i> Flagged workers <div class="pull-right"> <i ng-click="setSortDesc('flaggedWorkers')" class="fa fa-caret-down"></i>
 										<i ng-click="setSortAsc('flaggedWorkers')" class="fa fa-caret-up"></i></div>
@@ -59,6 +64,11 @@
 						</div>
 						<div class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'hasConfiguration.type' }" id="">
 							<i class="fa fa-file"></i> Task <div class="pull-right"> <i ng-click="setSortDesc('hasConfiguration.type')" class="fa fa-caret-down"></i>
+										<i ng-click="setSortAsc('hasConfiguration.type')" class="fa fa-caret-up"></i></div>
+						</div>
+						<!-- TIME RUNNING DOES NOT EXIST IN DATAMODEL YET -->
+						<div class="panel-body panel-nav-bar bordered ng-class: { 'panel-nav-bar-active': selectedIndex == 'hasConfiguration.type' }" id="">
+							<i class="fa fa-file"></i> Time running <div class="pull-right"> <i ng-click="setSortDesc('hasConfiguration.type')" class="fa fa-caret-down"></i>
 										<i ng-click="setSortAsc('hasConfiguration.type')" class="fa fa-caret-up"></i></div>
 						</div>
 					</div>
@@ -94,6 +104,48 @@
 						</div>
 						<div class="panel-body bordered" >
 							<i class="fa fa-check"></i> Status:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.status">
+						</div>
+						<div class="panel-body bordered" >
+							<i class="fa fa-check"></i> Job ID:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter._id">
+						</div>
+						<div class="panel-body bordered" >
+							<i class="fa fa-check"></i> Title:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.title">
+						</div>
+						<!-- TOTAL ANNOTATIONS DOES NOT EXIST -->
+						<div class="panel-body bordered" >
+							<i class="fa fa-check"></i> Job size:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.totalannotations">
+						</div>
+						<!-- TOTAL PROJECTED COST DOES NOT EXIST -->
+						<div class="panel-body bordered" >
+							<i class="fa fa-check"></i> Projected Cost:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.cost">
+						</div>
+						<div class="panel-body bordered" >
+							<i class="fa fa-check"></i> Creation date:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.created_at">
+						</div>
+						<!-- COMPLETION IS COMPOSITE< DOES NOT EXIST IN DOCUMENT -->
+						<div class="panel-body bordered" >
+							<i class="fa fa-check"></i> Completion:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.status">
+						</div>
+						<!-- COMPOSITE -->
+						<div class="panel-body bordered" >
+							<i class="fa fa-check"></i> #Workers / Unit:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.status">
+						</div>
+						<!-- SHOULD BE THERE BUT NOT IN DATAMODEL YET -->
+						<div class="panel-body bordered" >
+							<i class="fa fa-check"></i> #Flagged workers:
+							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.flaggedworkers">
+						</div>
+						<!-- TOTAL ANNOTATIONS IS SAME AS JOB SIZE?? -->
+						<div class="panel-body bordered" >
+							<i class="fa fa-check"></i> #Annotations:
 							<input type="text" class="pull-right" ng-keyup="setFilter()" ng-model="filter.status">
 						</div>
 					</div>
@@ -151,6 +203,7 @@
 	               		<div class="row" style="border-bottom: 1px solid #eee;">
 		               		<div class="col-md-10" style="border-right: 1px solid #eee;">
 		               			<h4>@{{result.hasConfiguration.content.title}}</h4>
+		               			<p>@{{result._id}}</p>
 		               			<p>@{{result.hasConfiguration.content.description }}</p>
 		               			<strong style="font-size: 18px;"><i class="fa fa-file"></i> @{{result.hasConfiguration.type}}</strong> 
 		               		</div>
