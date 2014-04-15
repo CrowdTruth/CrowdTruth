@@ -6,6 +6,7 @@
 				<option value="25">25 Records per page</option>
 				<option value="50">50 Records per page</option>
 				<option value="100">100 Records per page</option>
+				<option value="1000">1000 Records per page</option>
 			</select>
 			<div class="btn-group pull-right vbColumns">
 				<a href='#' class="btn btn-warning toCSV">Export results to CSV</a>				
@@ -140,11 +141,11 @@
 					<input type='text' data-query-key="field[content.sentence.text]" data-query-operator="[like]" />
 				</td>
 				<td data-vbIdentifier="sentence_formatted">
-					<input type='text' data-query-key="field[content.sentence.formatted]" data-query-operator="[like]" />
+					<input type='text' data-query-key="field[content.sentence.formatted]" data-query-operator="[like]" placeholder="Enter your search keywords here" />
 				</td>
 				<td data-vbIdentifier="sentence_wordcount">
-					<input type='text' data-query-key="field[content.properties.sentenceWordCount]" data-query-operator="[>]" style="width:49%; float:left;" placeholder="gt" />
-					<input type='text' data-query-key="field[content.properties.sentenceWordCount]" data-query-operator="[<]" style="width:49%; float:right;" placeholder="lt" />
+					<input type='text' data-query-key="field[content.properties.sentenceWordCount]" data-query-operator="[>]" style="width:49%; float:left;" placeholder="gt" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input type='text' data-query-key="field[content.properties.sentenceWordCount]" data-query-operator="[<]" style="width:49%; float:right;" placeholder="lt" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 			</tr>											        
         </thead>

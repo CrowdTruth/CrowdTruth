@@ -9,9 +9,10 @@ Route::group(array('before' => 'auth'), function()
 {
 	Route::get('/', function()
 	{
+
 		// $units = \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->where('activity_id', 'like', '%twrexstructurer%')->get();
 
-		// // $units = \MongoDB\Entity::where('content.sentence.text', 'like', '%antigen permits%')->get();
+		// return $units = \MongoDB\Entity::where('content.sentence.text', 'like', '%antigen permits%')->get();
 
 		// $twrexStructurer = \App::make('\preprocess\TwrexStructurer');
 
@@ -42,10 +43,9 @@ Route::group(array('before' => 'auth'), function()
 
 		// return \MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->where('user_id', 'khamkham')->count();
 
-
         //$result = \MongoDB\Entity::where('documentType', 'job')->whereIn('softwareAgent_id', ['cf', 'amt'])->count();
         //return $result;
-        
+
 	    return Redirect::to('home');
 	});
 
