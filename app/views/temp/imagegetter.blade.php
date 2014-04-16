@@ -59,20 +59,28 @@
 		</div>
 
 		<div class="panelbody" ng-show="imageGetting" style="height: 600px; overflow-y: scroll;">
+
 			<div ng-show="loading" class="loading"><img class="loading-img" src="/loading.gif"><div>Loading..</div></div>
 			<div ng-show="empty" style="margin-left: 20px;"><h3> No images found in this query </h3><a ng-click="emptyArray()"> click here to go back</a> </div>
-			<div class="image-box pull-left space-left" style="margin-top: 30px;" ng-show="!loading && !empty" ng-repeat="image in pictures">
-				<div class="image-selectable" style="background-image: url(@{{image.url}}); background-size: 100%">
-					<div class="image-hover" ng-class="{overlay: image.checked}">
-						<div class="image-checkbox">
-							<input type="checkbox" ng-model="image.checked">
+
+			<div class="space-left" style="margin-top: 30px;">
+				
+				<div class="image-box pull-left" ng-show="!loading && !empty" ng-repeat="image in pictures" style="background-image: url(@{{image.url}}); background-size: 100%">
+					
+						<div ng-class="{overlay: image.checked}" class="image-selectable" >
+							
+								<div class="image-checkbox">
+									<input type="checkbox" ng-model="image.checked">
+								</div>
+							
 						</div>
-					</div>
+					
 				</div>
 			</div>
+
 		</div>
 		<div class="panelfooter" ng-show="imageGetting">
-			<div class="space-left" style="margin-bottom: 30px;">
+			<div class="space-left" style="margin-bottom: 30px; margin-top: 20px;">
 				<button ng-click="executeScript()" ng-show="!loading && !empty" class="btn btn-primary">Execute script!</button>
 			</div>
 		</div>

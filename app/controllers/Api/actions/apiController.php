@@ -35,15 +35,66 @@ class apiController extends BaseController {
 		return $this->returnJson($return);
 	}
 
-	public function postFeatures($domain, $type, $url){
-		return Response::json("Received images");
-		// Store url in to database as parent 
+	public function postFeatures(){
+		
+		$input = Input::get();
+		
+		$url = $input[0];
+		$domain = $input[1];
+		$type = $input[2];
+		$parse = parse_url($url);
+		$source = $parse['host'];
 
-		// Return id of parent to use in script
-
-		// Run python script
+		// CREATE ENTITY & ACTIVITY FOR NEW IMAGES
 		try {
-			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py" . $domain . $type . $url;
+			// Save activity
+			$activity = new Activity;
+			$activity->label = "Images posted for processing.";
+			$activity->softwareAgent_id = 'ImageGetter'; 
+			$activity->save();
+			
+			// Save images as parent
+			$image = new Entity;
+			$image->domain = $domain;
+			$image->format = "image";
+			$content = $image->content; 
+			$content['url'] = $url; 
+			$image->content = $content;
+			$image->documentType = $type;
+			$image->source = $source;
+			$image->softwareAgent_id = "imagegetter";
+
+
+			// CHECK WHETHER URL EXISTS ALREADY
+			$hash = md5(serialize($image->content));
+            if($existingid = Entity::where('hash', $hash)->pluck('_id'))
+                $imageid = $existingid; // Don't save, it already exists.
+            else {
+	            $image->hash = $hash;
+				$image->activity_id = $activity->_id;
+				$image->save();
+				$id = $image->_id;
+			}
+			
+			Session::flash('flashSuccess', "Stored image to database, features will be added shortly.");
+				
+
+		}	catch (Exception $e){
+			//delete image
+			if(isset($image))
+				$image->forceDelete();
+					
+			//delete activity
+			if($activity) $activity->forceDelete();
+			
+			Session::flash('flashError', $e->getMessage());
+			return Redirect::to("temp");
+		
+		}
+
+		// RUN PYTHON SCRIPT THAT CALLS APIs TO ADD FEATURES TO IMAGE
+		try {
+			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py" . $domain . " " . $type . " " .  $url . " " . $id;
 			
 			exec($command,$output,$error);
 			

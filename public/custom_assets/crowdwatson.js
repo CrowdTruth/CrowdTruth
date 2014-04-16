@@ -600,12 +600,15 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
  			domain = $scope.domain.toLowerCase();
 			type = $scope.type.toLowerCase();
 			angular.forEach($scope.selection, function(value, key){
-					data = [];
-					data.push(value).push(domain).push(type);
-					console.log(data); 
+					arr = [];
+					arr.push(value);
+					arr.push(domain);
+					arr.push(type);
+					console.log(arr); 
 					url = '/api/actions/features';
 					console.log("This is the url: " + url);
-					$http.post(url, data)
+					alert("Your images are being processed and stored in the database. This may take a while (~20 sec per image). Please continue browsing.")
+					$http.post(url, arr)
 					.success(function (data, status){
 						console.log("Succesful callback" + data);
 					})
