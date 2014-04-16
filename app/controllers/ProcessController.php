@@ -19,9 +19,9 @@ class ProcessController extends BaseController {
 // FactSpan 916 - 192
 	
 
-/*	public function getLoop(){
+	public function getLoop(){
 		foreach (Job::get() as $job){
-			if(!isset($job->projectedCost)){
+			//if(!isset($job->projectedCost)){
 				try{
 				$batch = $job->batch;
 				$reward = $job->jobConfiguration->content['reward'];
@@ -29,19 +29,31 @@ class ProcessController extends BaseController {
 				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);
 				$unitsCount = count($batch->wasDerivedFrom);
 	            if(!$unitsPerTask)
-	                $projectedCost = 0;
-	            else
-				    $projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
+	                $unitsPerTask = 1;
+				    
+				$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
+
+				$count = 0;
+				foreach ($job->annotations as $ann) {
+					$count++;
+				}
+				$job->realCost = $count*$reward;
 
 				$job->unitsCount = $unitsCount;
 				$job->projectedCost = $projectedCost;
 				$job->save;
 				} catch (LogicException $e) {
-					//dd($job);
+					echo $e->getMessage();
 				}
-			}
+			//}
 		}
-	}*/
+	}
+
+	public function getRegenerateamtfactspan(){
+		foreach (Job::type('FactSpan')->where('softwareAgent_id', 'amt')->get() as $job) {
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+		}
+	}
 
 
 	public function getBatch() {

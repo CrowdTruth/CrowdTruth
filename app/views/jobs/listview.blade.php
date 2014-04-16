@@ -173,7 +173,7 @@
 		                   	</div>
 						    <div class="col-md-2" style="border-right: 1px solid #eee; height: 100%; text-align: center; display: table-cell; padding-top: 10px; vertical-align: middle;">
 						    	<i class="fa fa-dollar"></i><strong> /</strong> <i class="fa fa-gavel"></i> <strong> @{{result.hasConfiguration.content.reward | number: 2}}</strong>
-						       	<h2><i class="fa fa-dollar"></i> @{{result.projectedCost | number: 2}}</h2>
+						       	<h2><i class="fa fa-dollar"></i> @{{result.realCost | number: 2}}</h2>
 						    </div>
 						    <div class="col-md-2" style="text-align: center; height: 100%; display: table-cell; vertical-align: middle; padding-top: 10px;">
 						    	<strong> <i class="fa fa-gavel"></i> @{{result.completion * result.unitsCount | number: 0}} / @{{result.unitsCount}} </strong>

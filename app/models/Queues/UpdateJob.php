@@ -10,8 +10,9 @@ class UpdateJob {
 		//dd($j);
 		$annotations = $j->annotations;
         $result = array();
-
+		$count = 0;
         foreach($annotations as $annotation){ 
+        	$count++;
         	if(empty($annotation->dictionary))
         		continue; // Skip if no dictionary.
 
@@ -46,6 +47,7 @@ class UpdateJob {
 		else $j->completion = 0.00;
 
 		if($j->completion == 1) $j->status = 'finished'; // Todo: Not sure if this works
+		$j->realCost = $count*$j->jobConfiguration->content['reward'];
 		$j->update();
 		\Log::debug("Updated Job {$j->_id}.");
 

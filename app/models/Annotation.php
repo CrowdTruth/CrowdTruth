@@ -80,11 +80,7 @@ class Annotation extends Entity {
         if(empty($this->unit_id))
             return null;
 
-            //if(isset($this->unit->content['sentence']['formatted']))
-                $sentence = $this->unit->content['sentence']['formatted'];
-            //else 
-            //    $sentence = $this->unit->content['sentence']['text'];
-            
+            $sentence = $this->unit->content['sentence']['formatted'];
             $term1 = $this->unit->content['terms']['first']['formatted'];
             $term2 = $this->unit->content['terms']['second']['formatted'];
 
@@ -105,17 +101,19 @@ class Annotation extends Entity {
             $ans = $this->content;
 
             //AMT
-            if(isset($ans['expl1span'])){ // TODO
+            if(isset($ans['expl1span'])){
                 $expl1span = $ans["expl1span"];
                 $expl2span = $ans["expl2span"];
+                
                 $a1indices = explode(',', $ans['expl1span']);
                 $a2indices = explode(',', $ans['expl2span']);
+                
                 $expltext1 = rtrim($ans["expltext1"]);
                 $expltext1yesquestion = $ans['expltext1yesquestion'];
                 $expltext2 = rtrim($ans["expltext2"]);
                 $expltext2yesquestion = $ans['expltext2yesquestion'];
 
-                // Sometimes, in AMT, this is missing. It seems like it should be 'YES' in those cases.
+                // Sometimes this is missing. It seems like it should be 'YES' in those cases.
                 if(!isset($ans['Q1'])) $ans['Q1'] = 'YES';
                 if(!isset($ans['Q2'])) $ans['Q2'] = 'YES';
 
@@ -197,6 +195,26 @@ class Annotation extends Entity {
      }
 
 
+    private function isOkYesQuestion($yesquestion, $term, $inputsentence){
+        
+        if(strpos($yesquestion, $term) === false)
+            return false;
+
+        if(substr_count($yesquestion, ' ') < 4)
+            return false;
+
+        if($inputsentence == $yesquestion)
+            return false;
+
+        return true;
+
+
+/*      1. the sentence contains the complete term
+        2. the sentence has more than 4 words
+        3. the sentence is not equal to the input sentence*/
+
+    }
+
     private function createSingleFactVect($confirmids, $confirmfactor, $term, $b, $saveselectionids, $factor){
         $sentence = strtolower($this->unit->content['sentence']['text']);
         echo "{$this->_id}: ";
@@ -276,14 +294,6 @@ class Annotation extends Entity {
 
 
 
-    private function isOkYesQuestion($yesquestion, $term, $inputsentence){
-        
-/*      1. the sentence contains the complete term
-        2. the sentence has more than 4 words
-        3. the sentence is not equal to the input sentence*/
-        return true;
-
-    }
 
     private function createFactVect($failed = false, $startdiff=null, $enddiff=null){
         $vector = array(

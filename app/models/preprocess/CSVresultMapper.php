@@ -12,7 +12,7 @@ use URL, Session, Exception, File, Input, Redirect, App;
 
 use League\Csv\Reader as Reader;
 
-class AMTCSVresultMapper {
+class CSVresultMapper {
 
 	public function processInputData($csvresult, $preview = false)
 	{
@@ -1290,131 +1290,6 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 	}
 
 	public function createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job_id, $taskType = "FactSpan")
-<<<<<<< HEAD:app/models/preprocess/AMTCSVresultMapper.php
-=======
-	{
-		$status = array();
-		$index = 0;
-
-		try {
-			$activity = new Activity;
-			$activity->softwareAgent_id = "cf";
-			$activity->save();
-		} catch (Exception $e) {
-			$activity->forceDelete();	
-			$status['error'][$index]['activity'] = $e->getMessage();
-		}		
-
-
-        // $lastMongoURIUsed = Entity::where('format', 'text')->where('domain', 'medical')->where("documentType", 'annotation')->get(array("_id"));
-    
-        // if(count($lastMongoURIUsed) > 0) {
-        //     $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
-        //         return $entity->_id;
-        //     }, SORT_NATURAL)->toArray();
-
-        //     if(end($lastMongoURIUsed)){
-        //         $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
-        //         $inc = end($lastMongoIDUsed) + 1;                
-        //     }
-        // }
-        // else
-        // {
-        // 	$inc = 0;
-        // }
-
-        $allEntities = array();
-
-		foreach($mappedAnnotationsWithUnits as $mappedAnnotationsWithUnit)
-		{
-			$index++;
-
-			$crowdagent = CrowdAgent::where('platformAgentId', $mappedAnnotationsWithUnit['_worker_id'])
-								->where('softwareAgent_id', 'cf')
-								->first();
-
-			if(!$crowdagent)
-			{
-				try {
-					$crowdagent = new CrowdAgent;
-					$crowdagent->_id= "crowdagent/cf/" . $mappedAnnotationsWithUnit['_worker_id'];
-					$crowdagent->softwareAgent_id= 'cf';
-					$crowdagent->platformAgentId = (int) $mappedAnnotationsWithUnit['_worker_id'];
-					$crowdagent->country = $mappedAnnotationsWithUnit['_country'];
-					$crowdagent->region = $mappedAnnotationsWithUnit['_region'];
-					$crowdagent->city = $mappedAnnotationsWithUnit['_city'];			
-					$crowdagent->cfWorkerTrust = (float) $mappedAnnotationsWithUnit['_trust'];	
-					$crowdagent->save();	
-				} catch(Exception $e) {
-					$status['error'][$index]['crowdagent'] = $e->getMessage();
-					// continue;
-				}				
-			}		
-
-			if(!Entity::where('softwareAgent_id', 'cf')
-				->where('platformAnnotationId', $mappedAnnotationsWithUnit['_id'])
-				->first())
-			{
-				$entity = new Entity;
-				$entity->format = "text";
-				$entity->domain = "medical";
-				$entity->documentType = "annotation";
-				$entity->job_id = $job_id;
-				$entity->activity_id = $activity->_id;
-				$entity->crowdAgent_id = $crowdagent->_id;
-				$entity->softwareAgent_id = "cf";
-				$entity->unit_id = $mappedAnnotationsWithUnit['unit']['_id'];
-				$entity->platformAnnotationId = (int) $mappedAnnotationsWithUnit['_id'];
-				$entity->cfChannel = $mappedAnnotationsWithUnit['_channel'];
-				$entity->acceptTime = new MongoDate(strtotime($mappedAnnotationsWithUnit['_started_at']));
-				$entity->submitTime = new MongoDate(strtotime($mappedAnnotationsWithUnit['_created_at']));
-				$entity->cfTrust = (float) $mappedAnnotationsWithUnit['_trust'];
-
-				if($taskType == "FactSpan")
-				{
-					$entity->content = [
-						"confirmfirstfactor" => $mappedAnnotationsWithUnit['confirmfirstfactor'],
-						"confirmsecondfactor" => $mappedAnnotationsWithUnit['confirmsecondfactor'],
-						"firstfactor" => $mappedAnnotationsWithUnit['firstfactor'],
-						"secondfactor" => $mappedAnnotationsWithUnit['secondfactor'],
-						"saveselectionids1" => $mappedAnnotationsWithUnit['saveselectionids1'],
-						"saveselectionids2" => $mappedAnnotationsWithUnit['saveselectionids2'],
-						"confirmids1" => $mappedAnnotationsWithUnit['confirmids1'],
-						"confirmids2" => $mappedAnnotationsWithUnit['confirmids2'],
-						"sentencefirstfactor" => $mappedAnnotationsWithUnit['sentencefirstfactor'],
-						"sentencesecondfactor" => $mappedAnnotationsWithUnit['sentencesecondfactor'],
-					];
-				}
-				elseif($taskType == "RelEx")
-				{
-					$entity->content = [
-						"step_1_select_the_valid_relations" => $mappedAnnotationsWithUnit['step_1_select_the_valid_relations'],
-						"step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1" => $mappedAnnotationsWithUnit['step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1'],
-						"step_2b_if_you_selected_none_in_step_1_explain_why" => $mappedAnnotationsWithUnit['step_2b_if_you_selected_none_in_step_1_explain_why']
-					];
-				}
-				elseif($taskType == "RelDir")
-				{
-					$entity->content = [
-						"direction" => $mappedAnnotationsWithUnit['direction']
-					];
-				}
-
-				try {
-					$entity->save();
-				}
-				catch (Exception $e)
-				{
-					$status['error'][$index]['entity'] = $e->getMessage();
-				}
-			}
-		}
-
-		return $status;
-	}
-
-	public function OldcreateAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job_id, $taskType = "FactSpan")
->>>>>>> e663a3fb618c852e702b12a340c5d8906aea2e9a:app/models/preprocess/CSVresultMapper.php
 	{
 		$status = array();
 		$index = 0;
