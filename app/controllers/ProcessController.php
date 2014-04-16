@@ -83,7 +83,7 @@ public function getTest(){
 		$jc = unserialize(Session::get('jobconf'));	
 		if(empty($jc)) $jc = new JobConfiguration;
 		$currenttemplate = Session::get('template');
-		if(empty($currenttemplate)) $currenttemplate = 'RelDir/relation_direction_old';
+		if(empty($currenttemplate)) $currenttemplate = 'RelDir/relation_direction';
 		$treejson = $this->makeDirTreeJSON($currenttemplate);
 
 		return View::make('process.tabs.template')
