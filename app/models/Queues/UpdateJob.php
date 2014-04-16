@@ -12,12 +12,15 @@ class UpdateJob {
         $result = array();
 		$count = 0;
         foreach($annotations as $annotation){ 
-        	$count++;
+        	
         	if(empty($annotation->dictionary))
         		continue; // Skip if no dictionary.
 
-			$uid = $annotation->unit_id;
-			if(empty($uid)) $uid = 'unknown'; // to prevent mongoException: zero length key not allowed. Could also 'continue;'
+
+			$uid = $annotation->unit_id; // to prevent mongoException: zero length key not allowed. Could also 'continue;'
+			if(empty($uid)) $uid = 'unknown';
+			else $count++;
+
 			if(!isset($result[$uid]))
 				$result[$uid] = $annotation->dictionary;
 			else {
@@ -39,16 +42,20 @@ class UpdateJob {
 		
 		$j->results = $result;
 
-        $j->annotationsCount = count($annotations);
+        $j->annotationsCount = $count;
     	//$this->annotationsCount+=$count;
 		$jpu = intval($j->jobConfiguration->content['annotationsPerUnit']);		
 		$uc = intval($j->unitsCount);
+		echo "{$j->completion} = {$j->annotationsCount} / ($uc * $jpu);	";
 		if($uc > 0 and $jpu > 0) $j->completion = $j->annotationsCount / ($uc * $jpu);	
 		else $j->completion = 0.00;
+		
+		if($j->completion>1)
+			$j->completion = 1.00; // TODO: HACK
 
 		if($j->completion == 1) $j->status = 'finished'; // Todo: Not sure if this works
 		$j->realCost = $count*$j->jobConfiguration->content['reward'];
-		$j->update();
+		$j->save();
 		\Log::debug("Updated Job {$j->_id}.");
 
 		$job->delete();

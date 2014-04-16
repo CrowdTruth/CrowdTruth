@@ -12,7 +12,18 @@ class ProcessController extends BaseController {
 	}
 
 
+public function getFixcfjobid(){
+	foreach (Job::where('softwareAgent_id', 'cf')->get() as $job) {
+		dd($job->annotationsCount);
+	}
+}
 
+
+public function getTest(){
+		foreach (Job::get() as $job) {
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+		}
+}
 // Status: Units found / not found
 // reldir 360 - 1420
 // relex 277 - 1530
