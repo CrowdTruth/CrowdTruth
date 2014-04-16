@@ -594,30 +594,32 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
  	}, true);
 
  	$scope.executeScript = function(){
- 		if($scope.selection[0] == null ){
+ 		if ($scope.selection[0] == null ){
  			alert('Select an image first.')
- 		}else{
+ 		} else {
  			domain = $scope.domain.toLowerCase();
 			type = $scope.type.toLowerCase();
-			angular.forEach($scope.selection, function(value, key){
-					arr = [];
-					arr.push(value);
-					arr.push(domain);
-					arr.push(type);
-					console.log(arr); 
-					url = '/api/actions/features';
-					console.log("This is the url: " + url);
-					alert("Your images are being processed and stored in the database. This may take a while (~20 sec per image). Please continue browsing.")
-					$http.post(url, arr)
-					.success(function (data, status){
-						console.log("Succesful callback" + data);
-					})
- 					.error( function(data, status){
- 						console.log("Script went bad" + status)
-					});
- 			})
-			
+			arr = [];
+			arr.push($scope.selection);
+			arr.push(domain);
+			arr.push(type);
+			console.log(arr); 
+	
+			url = '/api/actions/features';
+			console.log("This is the url: " + url);
+	
+			alert("Your images are being processed and stored in the database. This may take a while (~20 sec per image). Please continue browsing.")
+	
+			$http.post(url, arr)
+				.success(function (data, status){
+					console.log("Succesful callback" + data);
+				})
+				.error( function(data, status){
+					console.log("Script went bad" + status)
+				});
  		}
+		
+ 		
  	}
 
 });

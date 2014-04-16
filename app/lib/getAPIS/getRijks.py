@@ -4,12 +4,13 @@ import requests
 import random
 import urllib2, os
 import urllib, cStringIO
-# import numpy as np
+import predict_adopted
+import numpy as np
 import sys
 import cPickle as pickle
 import urlparse
 import string
-# import Image, ImageFilter
+import Image, ImageFilter
 
 
 _domain = sys.argv[1]
@@ -44,11 +45,16 @@ try:
         Comm = "https://www.rijksmuseum.nl/api/en/collection?key=" + key +"&format=json&ps="+str(100) +"&p=" + str(page) + "&q=" + _keywords +"&type=" + _type 
         response = urllib2.urlopen(Comm)    
         data0 = json.load(response)  
+        #print ('a')
         for a in data0["artObjects"]:
             if len(URLLIST)>= N:
                 break
             URLLIST.append(a["webImage"]["url"])
         page+=1
+        try: # where handle is the object you get from urllib2's urlopen
+            response.fp._sock.recv = None
+        except: # in case it's not applicable, ignore this.
+            pass
 except Exception, e:
     print('We have__: '+ str(len(URLLIST)) + 'Exception getting' + str(e), file=sys.stderr)
     
