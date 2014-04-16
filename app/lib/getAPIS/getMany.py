@@ -17,6 +17,7 @@ import cloudinary.uploader
 import cloudinary.api
 
 DELAY = 2    
+WRITE_FILE = 0
 if len(sys.argv) < 4:
     print('wrong parameters', file=sys.stderr)
     exit()
@@ -33,44 +34,50 @@ try:
     )
 except:
     print('error CLOUDINARY connecting', file=sys.stderr)
-    
+   
 
-for iter in range(3, len(sys.argv)):
+url = 'http://jolicrowd.net/api/media/post'
+headers = {'content-type': 'application/json'}
+
+if WRITE_FILE==1:
+    output = open('data.json', 'wb')
+  
+
+for iter in range(3, len(sys.argv), 2):
     time.sleep(DELAY)
     ImURL = sys.argv[iter]
-    
-    
-    Features = {}
-    Features['FacesNumber'] = {'rekognition':'_', 'skybiometry':'_', 'cloudinary':'_', }
+    parentID = sys.argv[iter+1]
+  
     
     data = {}
     data['content'] = {}
-    
-    data['title'] = ImURL.split('/')[-1]
-    data['domain'] = sys.argv[1]
-    parsed_uri = urlparse.urlparse(ImURL )
-    domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
-    
-    data['source'] = domain
-    data['format'] = "Image"
-    data['documentType'] = sys.argv[2]
+    data['parents'] = [parentID]
     data['content']['URL'] = ImURL
-    data['softwareAgent_id'] = 'featureRecognizer'
-    data['softwareAgent_label'] = 'Recognizes different features [objects, scene, faces, ...] in the image'
-    data['softwareAgent_configuration'] = 1
+    
 
 
     #####################   REKOGNITION   ####################################
     Reck_key = "kVnLUSqqaPlnpzdq"
     Reck_secret = "smLk6SzFKAENwmc8"
+    data['softwareAgent_id'] = 'fr_rekognition'
+    data['softwareAgent_label'] = 'rekognition: [object, scene, faces]'
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
         "jobs=scene_understanding_2&urls="+ImURL + "&num_return=7"
         response = urllib2.urlopen(Comm)    
         data1 = json.load(response)    
         # print data1["scene_understanding"]
-        Features['Scene'] = data1["scene_understanding"]
-    except urllib2.URLError, e:
+        
+        data['softwareAgent_configuration'] = "scene"
+        Features = {}
+        Features['scene'] = data1["scene_understanding"]
+        data['content']['features'] = Features   
+        r = requests.post(url, data=json.dumps(data), headers=headers)
+        if WRITE_FILE==1:
+            output.write(json.dumps(data, indent = 2))  
+        
+        print (r)        
+    except Exception, e:
         print('error REKOGNITION a' + str(e), file=sys.stderr)
         
     try:
@@ -79,8 +86,15 @@ for iter in range(3, len(sys.argv)):
         response = urllib2.urlopen(Comm)
         data2 = json.load(response)    
         # print data2["scene_understanding"] 
-        Features['Object'] = data2["scene_understanding"]
-    except urllib2.URLError, e:
+        Features = {}
+        data['softwareAgent_configuration'] = "object"
+        Features['object'] = data2["scene_understanding"]
+        data['content']['features'] = Features    
+        r = requests.post(url, data=json.dumps(data), headers=headers)
+        print (r)  
+        if WRITE_FILE==1:        
+            output.write(json.dumps(data, indent = 2))      
+    except Exception, e:
          print('error REKOGNITION b' + str(e), file=sys.stderr)
         
     try:
@@ -89,32 +103,56 @@ for iter in range(3, len(sys.argv)):
         response = urllib2.urlopen(Comm)
         data3 = json.load(response)    
         # print (data3 )
-        Features['FacesNumber']['rekognition'] = len(data3["face_detection"])
+        data['softwareAgent_configuration'] = "faces"
+        Features = {}
+        Features['FacesNumber'] = len(data3["face_detection"])
         Features['Faces'] = data3["face_detection"]
-        if Features['FacesNumber']['rekognition'] > 0:
-            Features['AverageSexRekognition'] = np.mean([float(a["sex"]) for a in data3["face_detection"]])
-    except urllib2.URLError, e:
+        if Features['FacesNumber']> 0:
+            Features['AverageSex'] = np.mean([float(a["sex"]) for a in data3["face_detection"]])
+        data['content']['features'] = Features  
+        r = requests.post(url, data=json.dumps(data), headers=headers)
+        print (r)  
+        if WRITE_FILE==1:        
+            output.write(json.dumps(data, indent = 2))  
+    except Exception, e:
          print('error REKOGNITION c' + str(e), file=sys.stderr) 
     #########################   CLOUDINARY   ############################################    
 
     try:
         data4 = cloudinary.uploader.upload(ImURL, faces = True, colors=True)
+        Features = {}
         # print (json.dumps(data4, indent=1))
+        data['softwareAgent_id'] = 'fr_cloudinary'
+        data['softwareAgent_label'] = 'cloudinary: faces, colors'
+        data['softwareAgent_configuration'] = "faces"
         if "faces" in data4:
-            Features['FacesRekognition'] = data4["faces"]
-            Features['FacesNumber']['cloudinary']  = len(data4["faces"])
+            Features['Faces'] = data4["faces"]
+            Features['FacesNumber']  = len(data4["faces"])
         else:
-            Features['FacesRekognition'] = 0
-            Features['FacesNumber']['cloudinary'] = 0
+            Features['Faces'] = 0
+            Features['FacesNumber'] = 0
+        r = requests.post(url, data=json.dumps(data), headers=headers)
+        if WRITE_FILE==1:
+            output.write(json.dumps(data, indent = 2))  
+        Features = {}
+        data['softwareAgent_configuration'] = "colors"
         Features['ColorsHistogram'] = data4["colors"]
         Features['ColorsMain'] = data4["predominant"]["google"]
-        
-    except urllib2.URLError, e:
+        data['content']['features'] = Features    
+        r = requests.post(url, data=json.dumps(data), headers=headers)
+        print (r)   
+        if WRITE_FILE==1:        
+            output.write(json.dumps(data, indent = 2))  
+    except Exception, e:
         print('error CLOUDINARY' + str(e), file=sys.stderr)  
 
     ###############################   SKYBIOMETRY   ############################################  
     Sky_key = "7e544588316542b382d286988b83d679"
     Sky_secret = "3bb713ca57b94c709d55c2add9d1c882"
+    data['softwareAgent_id'] = 'fr_skybiometry'
+    data['softwareAgent_label'] = 'skybiometry: faces'
+    data['softwareAgent_configuration'] = "faces"
+    Features = {}
     try:
         Comm = "http://api.skybiometry.com/fc/faces/detect.json?api_key="+Sky_key + "&api_secret="+Sky_secret+"&urls=" +ImURL + "&attributes=all"
         response = urllib2.urlopen(Comm)
@@ -132,57 +170,75 @@ for iter in range(3, len(sys.argv)):
                         else:
                             val = 0.5 - val / 2
                         l.append(val)
-        Features['FacesNumber']['skybiometry'] = len(l)
-        if Features['FacesNumber']['skybiometry'] > 0:
-            Features['AverageSexSkybiometry'] = np.mean(l)
+        Features['FacesNumber'] = len(l)
+        if Features['FacesNumber'] > 0:
+            Features['AverageSex'] = np.mean(l)
         data['content']['height'] = data4['height']
         data['content']['width'] = data4['width']
-        # print len(l), l
+        data['content']['features'] = Features    
+        r = requests.post(url, data=json.dumps(data), headers=headers)
+        print (r)     
+        if WRITE_FILE==1:        
+            output.write(json.dumps(data, indent = 2))  
 
-    except urllib2.URLError, e:
+    except Exception, e:
         print('error SKYBIOMETRY' + str(e), file=sys.stderr)
 
           
     #############################   LUKASZ.FLOWERS, BIRDS        ################################# 
+    data['softwareAgent_id'] = 'fr_classifier'
+    data['softwareAgent_label'] = 'classifier: set of classes'
+    data['softwareAgent_configuration'] = "flowers"
+    data['content'] = {}
+    data['parents'] = [parentID]
+    data['content']['URL'] = ImURL
+    Features = {}
     Features["Classifier"] = {}
     try:
         file = cStringIO.StringIO(urllib.urlopen(ImURL).read())
         image = Image.open(file)
         Features["Classifier"]['Flowers'] = predict_adopted.predict("FLOWERS", image)
-       
+        data['content']['features'] = Features    
+        r = requests.post(url, data=json.dumps(data), headers=headers)
+        print (r)      
+        if WRITE_FILE==1:        
+            output.write(json.dumps(data, indent = 2))  
     except Exception, e:
         print('error CLASSIFIER' + str(e), file=sys.stderr)
+        
+    Features = {}
+    Features["Classifier"] = {}
     try:
-        file = cStringIO.StringIO(urllib.urlopen(ImURL).read())
-        image = Image.open(file)
-        Features["Classifier"]['Birds'] = -1
+        data['softwareAgent_configuration'] = "birds"
+        #file = cStringIO.StringIO(urllib.urlopen(ImURL).read())
+       # image = Image.open(file)
+        Features["Classifier"]['Birds'] = predict_adopted.predict("BIRDS", image)
+        data['content']['features'] = Features    
+        r = requests.post(url, data=json.dumps(data), headers=headers)
+        print (r)  
+        if WRITE_FILE==1:        
+            output.write(json.dumps(data, indent = 2))  
+        
     except Exception, e:
-        print('error CLASSIFIER' + str(e), file=sys.stderr)
+        print('error CLASSIFIER' + str(e), file=sys.stderr)   
+    
     #############################   SAVE [ TO FILE + STDOUT ]       #################################    
 
       
-    try:
+    # try:
       
-        data['content']['features'] = Features     
+        # data['content']['features'] = Features     
 
-        output = open('data.json', 'wb')
-        output.write(json.dumps(data, indent = 2))
+    if WRITE_FILE==1:
         output.close()
-    except Exception, e:
-        print('error FINALIZE' + str(e), file=sys.stderr)
-
+    # except Exception, e:
+        # print('error FINALIZE' + str(e), file=sys.stderr)
+    # data['processed'] = 1
     # output = open('data.json', 'rb')
     # data = json.load(output)
     # output.close()      
 
-    url = 'http://jolicrowd.net/api/media/post'
-
-    # http://localhost:8888/media/api/post
-    # http://localhost:8888/api/v1/
-
-    headers = {'content-type': 'application/json'}
-    r = requests.post(url, data=json.dumps(data), headers=headers)
-    print (r)
+   
  
  
      

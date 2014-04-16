@@ -548,6 +548,7 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
 		$http.get(url)
 		.success(function (data, status){
 			$scope.status = status;
+			console.log(data);
 			// JSON.parse first time for removing ""
 			withoutslashesdata = JSON.parse(data);
 			// JSON.parse second time to form array
