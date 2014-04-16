@@ -217,9 +217,6 @@
 	width: 275px;
 }
 
-.modal {
-  display: block;
-}
 
 .modal-body:before,
   .modal-body:after {
