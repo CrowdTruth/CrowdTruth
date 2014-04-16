@@ -46,7 +46,6 @@ class UpdateJob {
     	//$this->annotationsCount+=$count;
 		$jpu = intval($j->jobConfiguration->content['annotationsPerUnit']);		
 		$uc = intval($j->unitsCount);
-		echo "{$j->completion} = {$j->annotationsCount} / ($uc * $jpu);	";
 		if($uc > 0 and $jpu > 0) $j->completion = $j->annotationsCount / ($uc * $jpu);	
 		else $j->completion = 0.00;
 		

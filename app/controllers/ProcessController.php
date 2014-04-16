@@ -20,9 +20,22 @@ public function getFixcfjobid(){
 
 
 public function getTest(){
-		foreach (Job::get() as $job) {
+/*		foreach (Job::get() as $job) {
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+		}*/
+		$count = 0;
+		$c2=0;
+		foreach (Job::get() as $job) {
+			foreach ($job->annotations as $ann) {
+				if(empty($ann->unit_id)){
+					$count++;
+					$ann->forceDelete();
+				} else {
+					$c2++;
+				}
+			}
 		}
+		dd("Deleted $count annotations without unit (left:$c2).");
 }
 // Status: Units found / not found
 // reldir 360 - 1420
@@ -62,6 +75,10 @@ public function getTest(){
 
 	public function getRegenerateamtfactspan(){
 		foreach (Job::type('FactSpan')->where('softwareAgent_id', 'amt')->get() as $job) {
+			foreach ($job->annotations as $ann) {
+				$ann->dictionary=$ann->createDictionary();
+				$ann->save();
+			}
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 		}
 	}

@@ -114,6 +114,43 @@
 
 							</div>
 						</div>
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h4><i class="fa fa-upload fa-fw"></i>Online Sources</h4>
+							</div>
+							<div class="panel-body">
+								{{ Form::open(array('action' => 'FilesController@postOnlinedata')) }}
+								<div class="form-horizontal">
+									<div class="form-group">
+										<label for="source_name" class="col-sm-3 control-label">Source Name</label>
+										<div class="col-sm-5">
+											<select name="source_name" class="form-control toggle-data" id="source_name">
+												<option value="">--</option>
+												<option value="source_beeldengeluid" data-toggle="source_name">Netherlands Institute for Sound and Vision</option>
+												<option value="source_rijksmuseum" data-toggle="source_name" disabled="true">Rijksmuseum</option>
+											</select>
+										</div>
+									</div>
+									<div class="form-group is_source_beeldengeluid hidden">
+										<label for="number" class="col-sm-3 control-label" class="numberVideos">Number of videos:</label>
+										<div class="col-sm-6">
+											<input type="number" name="numberVideos" min="0" />
+										</div>
+										
+									</div>
+
+									<div class="form-group hidden is_source_beeldengeluid">
+										<div class="col-sm-offset-3 col-sm-5">
+										{{ Form::button('Submit', array('type' => 'submit', 'value' => 'onlinedata', 'class' => 'btn btn-info')) }} 
+										
+										</div>
+									</div>
+								</div>
+
+								{{ Form::close() }}				
+
+							</div>
+						</div>
 					</div>
 				</div>
 				<!-- STOP upload_content --> 				
@@ -127,5 +164,12 @@
 			$("#domain_type").chainedTo("#file_format");
 			$("#document_type").chainedTo("#domain_type");
 		});
+
+		$('.toggle-data').on('change', function() {
+    			var toggle = $(".toggle-data option:selected").val();
+			var optionDiv = $(".is_" + toggle);
+			optionDiv.removeClass("hidden");
+		});
+
 	</script>
 @stop

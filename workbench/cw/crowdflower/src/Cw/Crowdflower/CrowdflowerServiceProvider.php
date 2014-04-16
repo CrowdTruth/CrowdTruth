@@ -32,6 +32,7 @@ class CrowdflowerServiceProvider extends ServiceProvider {
 			$cfwebhook->getSignal();
 		});
 
+		// Important! Bind the shorthand name of the platform. This should be the same as the name in App/config/config.php.
 		$this->app->bind('cf', function()
 	    {
 	    	return new Crowdflower;

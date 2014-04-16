@@ -83,6 +83,8 @@ class Annotation extends Entity {
             $sentence = $this->unit->content['sentence']['formatted'];
             $term1 = $this->unit->content['terms']['first']['formatted'];
             $term2 = $this->unit->content['terms']['second']['formatted'];
+            $term1text = $this->unit->content['terms']['first']['text'];
+            $term2text = $this->unit->content['terms']['second']['text'];
 
             // Set indices1
             $charindex1 = strpos($sentence, $term1);
@@ -119,7 +121,7 @@ class Annotation extends Entity {
 
                 // Q1
                 if($ans["Q1"] == 'YES'){
-                    if((rtrim($expltext1) != $term1) or (!$this->isOkYesQuestion($expltext1yesquestion, $term1, $sentence))) // [maybe check indices as well?]
+                    if((rtrim($expltext1) != $term1) or (!$this->isOkYesQuestion($expltext1yesquestion, $term1, $term1text, $sentence))) // [maybe check indices as well?]
                         $vector1 = $this->createFactVect(true); // FAILED
                     else {
                         $vector1 = $this->createFactVect(false, 0, 0); // YES it's the same.
@@ -136,7 +138,7 @@ class Annotation extends Entity {
                 
                 // Q2
                 if($ans["Q2"] == 'YES'){
-                    if(($expltext2 != $term2) or (!$this->isOkYesQuestion($expltext2, $term2, $sentence))) // TODO: harsher
+                    if(($expltext2 != $term2) or (!$this->isOkYesQuestion($expltext2, $term2, $term2text, $sentence))) // TODO: harsher
                         $vector2 = $this->createFactVect(true); // FAILED
                     else {
                         $vector2 = $this->createFactVect(false, 0, 0); // YES it's the same.
@@ -195,9 +197,9 @@ class Annotation extends Entity {
      }
 
 
-    private function isOkYesQuestion($yesquestion, $term, $inputsentence){
+    private function isOkYesQuestion($yesquestion, $term, $termtext, $inputsentence){
         
-        if(strpos($yesquestion, $term) === false)
+        if(strpos($yesquestion, $termtext) === false and strpos($yesquestion, $term))
             return false;
 
         if(substr_count($yesquestion, ' ') < 4)
