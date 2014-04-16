@@ -60,8 +60,8 @@
 
 		<div class="panelbody" ng-show="imageGetting" style="height: 600px; overflow-y: scroll;">
 			<div ng-show="loading" class="loading"><img class="loading-img" src="/loading.gif"><div>Loading..</div></div>
-			
-			<div class="image-box pull-left space-left" style="margin-top: 30px;" ng-show="!loading" ng-repeat="image in pictures">
+			<div ng-show="empty" style="margin-left: 20px;"><h3> No images found in this query </h3><a ng-click="emptyArray()"> click here to go back</a> </div>
+			<div class="image-box pull-left space-left" style="margin-top: 30px;" ng-show="!loading && !empty" ng-repeat="image in pictures">
 				<div class="image-selectable" style="background-image: url(@{{image.url}}); background-size: 100%">
 					<div class="image-hover" ng-class="{overlay: image.checked}">
 						<div class="image-checkbox">
@@ -69,14 +69,11 @@
 						</div>
 					</div>
 				</div>
-				<div class="image-metadata">
-						@{{image.name}}
-				</div>
 			</div>
 		</div>
 		<div class="panelfooter" ng-show="imageGetting">
 			<div class="space-left" style="margin-bottom: 30px;">
-				<button ng-click="executeScript()" ng-show="!loading" class="btn btn-primary">Execute script!</button>
+				<button ng-click="executeScript()" ng-show="!loading && !empty" class="btn btn-primary">Execute script!</button>
 			</div>
 		</div>
 	

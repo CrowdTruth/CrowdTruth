@@ -541,11 +541,10 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
 		type = $scope.type.toLowerCase();
 		numImg = $scope.numImg.toString();
 		keyphrase = $scope.keyphrase.toLowerCase();
+		$scope.empty = false;
 
 		var url = '/api/actions/image/' + domain + '/' + type + '/' + numImg + '/' + keyphrase + '';
 		
-		
-
 		$http.get(url)
 		.success(function (data, status){
 			$scope.status = status;
@@ -561,6 +560,9 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
 				image.title = "Image #" + value;
 				$scope.pictures.push(image);
 			})
+			if($scope.pictures.length == 0){
+				$scope.empty = true;
+			}
 			console.log("Get request success! Pictures array:");
 			console.log($scope.pictures);
 			$scope.loading = false;
@@ -573,6 +575,12 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
 			console.log(status + data);
 			$scope.loading = false;
 		});
+
+
+    }
+
+    $scope.emptyArray = function(){
+    	$scope.imageGetting = false;
     }
 
 	$scope.selection = [];
@@ -592,14 +600,18 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
  			domain = $scope.domain.toLowerCase();
 			type = $scope.type.toLowerCase();
 			angular.forEach($scope.selection, function(value, key){
-					value = "\"" + value + "\""; 
-					url = '/api/actions/imagefeatures/' + domain + "/" + type + "/" + value;
+					data = [];
+					data.push(value).push(domain).push(type);
+					console.log(data); 
+					url = '/api/actions/features';
 					console.log("This is the url: " + url);
-					$http.get(url)
+					$http.post(url, data)
 					.success(function (data, status){
 						console.log("Succesful callback" + data);
 					})
- 					.error();
+ 					.error( function(data, status){
+ 						console.log("Script went bad" + status)
+					});
  			})
 			
  		}
@@ -666,11 +678,8 @@ app.controller("unitByIdCtrl", function($scope, $resource){
 	$scope.annotationsVisible = false;
 
 	$scope.setAnnotationsVisible = function(){
-		if($scope.annotationsVisible == true){
-			$scope.annotationsVisible = false;
-		} else {
-			$scope.annotationsVisible = true;
-		}
+		$scope.annotationsVisible == true ? $scope.annotationsVisible = false : $scope.annotationsVisible = true;
+		
 	}
 
 	$scope.gotoAnnotation = function(id){
