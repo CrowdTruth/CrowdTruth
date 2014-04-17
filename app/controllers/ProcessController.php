@@ -18,24 +18,186 @@ public function getFixcfjobid(){
 	}
 }
 
+public function getVector(){
+	if (($handle = fopen(storage_path() . '/output_AMT_FactSpan_merged_sentences.csv', 'r')) === false) {
+		    die('Error opening file');
+	}
+	$headers = fgetcsv($handle, 1024, ',');
+	$count = 0;
+	$complete = array();
+	$return = array();
+	$count = 0;
+	$skip = false;
 
-public function getTest(){
-/*		foreach (Job::get() as $job) {
-			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-		}*/
-		$count = 0;
-		$c2=0;
-		foreach (Job::get() as $job) {
-			foreach ($job->annotations as $ann) {
-				if(empty($ann->unit_id)){
-					$count++;
-					$ann->forceDelete();
-				} else {
-					$c2++;
+	while ($row = fgetcsv($handle, 1024, ',')) {
+		set_time_limit(30);
+
+		$skip=!$skip;
+		if($skip)
+			continue;
+
+		$count++;
+		$c = array_combine($headers, $row);
+
+		$sentence = rtrim($c['sentence'], '.');
+		$term1 = $c['term1'];
+		$term2 = $c['term2'];
+
+		$found = false;
+		foreach (MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->get() as $unit) {
+			if($unit['content']['sentence']['formatted'] == $sentence and
+				$unit['content']['terms']['first']['formatted'] == $term1 and
+				$unit['content']['terms']['second']['formatted'] == $term2){
+				$found = true;
+				// THis can also be used to compare with CF.
+				//foreach (Job::type('FactSpan')->where('softwareAgent_id', 'amt')->get() as $job) {
+				$job = Job::id('entity/text/medical/job/0')->first();
+					if(in_array($unit->_id, array_keys($job->results))){
+						$vector = $job->results[$unit->_id];
+
+						if(isset($vector['term1'])){
+							$temp = $this->computeSimilarity($vector['term1'], 1, $unit->_id, $job->softwareAgent_id);
+							$temp['sentence']=$sentence;
+							$temp['term1']=$term1;
+							$temp['term2']=$term2;
+							$result[] = $temp;
+						}
+
+						if(isset($vector['term2'])){
+							$temp = $this->computeSimilarity($vector['term2'], 2, $unit->_id, $job->softwareAgent_id);
+							$temp['sentence']=$sentence;
+							$temp['term1']=$term1;
+							$temp['term2']=$term2;
+							$result[] = $temp;
+						}
+						
+					}
 				}
-			}
+				
+			//}
+			
 		}
-		dd("Deleted $count annotations without unit (left:$c2).");
+
+		if(!$found){
+			$result[] = array('','','','','','','','','','','','','','');
+			$result[] = array('','','','','','','','','','','','','','');
+		}
+		//if($count==5) dd($result);
+/*	
+	if($count == 5){
+		$path =storage_path() . '/amt_new_output.csv';
+		$out = fopen($path, 'w');
+
+		fputcsv($out, array_keys($result[0]));
+		foreach ($result as $row)
+			fputcsv($out, $row);	
+		
+		// Close file
+		rewind($out);
+		fclose($out);
+		dd($path);
+	}*/
+}
+
+		$path =storage_path() . '/amt_new_output_without_yescheck.csv';
+		$out = fopen($path, 'w');
+
+		fputcsv($out, array_keys($result[0]));
+		foreach ($result as $row)
+			fputcsv($out, $row);	
+		
+		// Close file
+		rewind($out);
+		fclose($out);
+		dd($path);
+
+
+}
+
+
+private function computeSimilarity($vector, $num, $uid, $softwareAgent_id = 'amt'){
+	$temp = array();
+	foreach ($vector as $key=>$val) {
+			$arr2 = array(
+		        "[WORD_-3]"=>0,
+		        "[WORD_-2]"=>0,
+		        "[WORD_-1]"=>0,
+		        "[WORD_+1]"=>0,
+		        "[WORD_+2]"=>0,
+		        "[WORD_+3]"=>0,
+		        "[WORD_OTHER]"=>0,
+		        "[NIL]"=>0,
+		        "[CHECK_FAILED]"=>0);
+
+			$arr2[$key] = 1;
+			$temp[$key] = $this->similarity($vector, $arr2);
+
+		}
+	$temp['maxRelCos'] = max($temp);
+	$temp['termno'] = $num;
+	$temp['unit_id'] = $uid;
+	$temp['numAnnots']= Annotation::where('unit_id', $uid)->where('softwareAgent_id', $softwareAgent_id)->count();
+	return $temp;
+}
+ public function similarity(array $vec1, array $vec2) {
+    return $this->_dotProduct($vec1, $vec2) / ($this->_absVector($vec1) * $this->_absVector($vec2));
+  }
+  
+  protected function _dotProduct(array $vec1, array $vec2) {
+    $result = 0;
+    
+    foreach (array_keys($vec1) as $key1) {
+      foreach (array_keys($vec2) as $key2) {
+	if ($key1 === $key2) $result += $vec1[$key1] * $vec2[$key2];
+      }
+    }
+    
+    return $result;
+  }
+  
+  protected function _absVector(array $vec) {
+    $result = 0;
+    
+    foreach (array_values($vec) as $value) {
+      $result += $value * $value;
+    }
+    
+    return sqrt($result);
+  }
+
+public function getTest($entity, $format, $domain, $docType, $incr){
+
+		$id = "$entity/$format/$domain/$docType/$incr";
+
+		$unit = MongoDB\Entity::id($id)->first();
+		echo "<h1>{$unit->_id}</h1>\n";
+		echo "-Sentence:{$unit->content['sentence']['formatted']}<br>\n";
+		echo "-Term1:{$unit->content['terms']['first']['formatted']}<br>\n";
+		echo "-Term2:{$unit->content['terms']['second']['formatted']}<br>\n";
+		echo "<hr>\r\n";
+		foreach(Annotation::where('unit_id', $unit->_id)->where('softwareAgent_id', 'amt')->get() as $ann){
+			$dic = $ann->createDictionary();
+
+			echo "<table>";
+			foreach ($ann->content as $key => $value) {
+				echo "<tr><td><b>$key</b></td><td>$value</td></tr>\r\n";
+			}
+			echo "</table>";
+			echo "\r\nTERM1\r\n";
+			echo "<table>";
+			foreach ($dic['term1'] as $key => $value) {
+				echo "<tr><td><b>$key</b></td><td>$value</td></tr>\r\n";
+			}
+			echo "</table>";
+			echo "\r\nTERM2\r\n";
+			echo "<table>";
+			foreach ($dic['term2'] as $key => $value) {
+				echo "<tr><td><b>$key</b></td><td>$value</td></tr>\r\n";
+			}
+			echo "</table>";
+			echo "\r\n<hr>\r\n";
+		}
+
 }
 // Status: Units found / not found
 // reldir 360 - 1420
@@ -78,6 +240,7 @@ public function getTest(){
 			foreach ($job->annotations as $ann) {
 				$ann->dictionary=$ann->createDictionary();
 				$ann->save();
+				echo "saved";
 			}
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 		}

@@ -105,7 +105,6 @@ class RetrieveJobs extends Command {
 			$job = $this->getJob($cfjobid);
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 
-			
 			//Log::debug("Saved new annotations to {$job->_id} to DB.");	
 		} catch (CFExceptions $e){
 			Log::warning($e->getMessage());

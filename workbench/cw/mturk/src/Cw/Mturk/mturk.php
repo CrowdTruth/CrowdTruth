@@ -93,7 +93,7 @@ class Mturk extends \FrameWork {
 			$platformjobids = $this->amtpublish($job, $sandbox);
 			$fullplatformjobids = array();
 			foreach($platformjobids as $id)
-				array_push($fullplatformjobids, array('id' => $id, 'status' => $status, 'timestamp' => time()));
+				array_push($fullplatformjobids, array('id' => $id, 'status' => $status));
 			return $fullplatformjobids;
 		} catch (AMTException $e) {
 			if(isset($fullplatformjobids)) $this->undoCreation($fullplatformjobids);

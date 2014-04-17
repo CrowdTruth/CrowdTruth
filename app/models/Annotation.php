@@ -80,11 +80,11 @@ class Annotation extends Entity {
         if(empty($this->unit_id))
             return null;
 
-            $sentence = $this->unit->content['sentence']['formatted'];
-            $term1 = $this->unit->content['terms']['first']['formatted'];
-            $term2 = $this->unit->content['terms']['second']['formatted'];
-            $term1text = $this->unit->content['terms']['first']['text'];
-            $term2text = $this->unit->content['terms']['second']['text'];
+            $sentence = str_replace('/', ' ', $this->unit->content['sentence']['formatted']);
+            $term1 = str_replace('/', ' ', $this->unit->content['terms']['first']['formatted']);
+            $term2 = str_replace('/', ' ', $this->unit->content['terms']['second']['formatted']);
+            $term1text = str_replace('/', ' ', $this->unit->content['terms']['first']['text']);
+            $term2text = str_replace('/', ' ', $this->unit->content['terms']['second']['text']);
 
             // Set indices1
             $charindex1 = strpos($sentence, $term1);
@@ -120,65 +120,88 @@ class Annotation extends Entity {
                 if(!isset($ans['Q2'])) $ans['Q2'] = 'YES';
 
                 // Q1
-                if($ans["Q1"] == 'YES'){
-                    if((rtrim($expltext1) != $term1) or (!$this->isOkYesQuestion($expltext1yesquestion, $term1, $term1text, $sentence))) // [maybe check indices as well?]
-                        $vector1 = $this->createFactVect(true); // FAILED
-                    else {
-                        $vector1 = $this->createFactVect(false, 0, 0); // YES it's the same.
-                    }   
-                } else {
-                    if(rtrim($expltext1 == $term1) or (empty($expl1span)))
-                        $vector1 = $this->createFactVect(true); // FAILED
-                    else {
+                try{
+                    if($ans["Q1"] == 'YES'){
+                        if($this->isOkYesQuestion($expltext1, $expltext1yesquestion, $term1, $term1text, $sentence)){
+                            $vector1 = $this->createFactVect(false, 0, 0); // YES it's the same. 
+                        }    
+                    } else {
+                        if(preg_replace("/[^A-Za-z]/",'',$expltext1) == preg_replace("/[^A-Za-z]/",'',$term1))
+                            throw new Exception("User selected NO but Expltext $expltext1 != term $term1.");
+
+                        if(empty($expl1span))
+                            throw new Exception("User selected NO but Explspan is empty.");
+
                         $startdiff = $a1indices[0] - $indices1[0];
                         $enddiff = end($a1indices) - end($indices1);
+
+/*                        // HACK
+                        if(strpos($expltext1, '/') > 0)
+                            $enddiff += 1;*/
+
                         $vector1 = $this->createFactVect(false, $startdiff, $enddiff);      
-                    }   
-                }
+                    }
+                } catch (Exception $e) {
+                    echo "\r\n<span style='color:red'>!!! {$e->getMessage()}</span><br>\r\n";
+                    $vector1 = $this->createFactVect(true);
+                }  
                 
                 // Q2
-                if($ans["Q2"] == 'YES'){
-                    if(($expltext2 != $term2) or (!$this->isOkYesQuestion($expltext2, $term2, $term2text, $sentence))) // TODO: harsher
-                        $vector2 = $this->createFactVect(true); // FAILED
-                    else {
-                        $vector2 = $this->createFactVect(false, 0, 0); // YES it's the same.
-                    }   
-                } else {
-                    if(($expltext1 == $term2) or (empty($expl2span)))
-                        $vector2 = $this->createFactVect(true); // FAILED
-                    else {
+                try {
+                    if($ans["Q2"] == 'YES'){
+                        if ($this->isOkYesQuestion($expltext2, $expltext2yesquestion, $term2, $term2text, $sentence)){
+                            $vector2 = $this->createFactVect(false, 0, 0); // YES it's the same.
+                        }    
+                    } else {
+                        if(preg_replace("/[^A-Za-z]/",'',$expltext2) == preg_replace("/[^A-Za-z]/",'',$term2))
+                            throw new Exception("User selected NO but Expltext $expltext2 != term $term2.");
+
+                        if(empty($expl2span))
+                            throw new Exception("User selected NO but Explspan is empty.");
+/*
+                       // HACK
+                        if(strpos($expltext2, '/') > 0)
+                            $enddiff += 1;*/
+
                         $startdiff = $a2indices[0] - $indices2[0];
                         $enddiff = end($a2indices) - end($indices2);
                         $vector2 = $this->createFactVect(false, $startdiff, $enddiff); 
-                    }
-                }   
+
+                     } 
+                } catch (Exception $e) {
+                    echo "\r\n<span style='color:red'>!!! {$e->getMessage()}</span><br>\r\n";
+                    $vector2 = $this->createFactVect(true);
+                }  
 
 
 
             // CF
-            } elseif(isset($ans['confirmfirstfactor']) or isset($ans['saveselectionids1']) or isset($ans['factor1'])) {
+            } elseif(isset($ans['confirmfirstfactor']) or isset($ans['factor1'])) {
                // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));
                 Log::debug($ans);
-             
+
                 // Patching the fact that the CML is different from the WebSci results [fugly]
                 //if(!isset($ans['confirmfirstfactor'])){
-                    $ans['firstfactor'] = $ans['factor1'];
-                    $ans['secondfactor'] = $ans['factor2'];
+                    if(isset($ans['factor1'])) $ans['firstfactor'] = $ans['factor1'];
+                    if(isset($ans['factor2'])) $ans['secondfactor'] = $ans['factor2'];
 
-                    if($ans['question1'] == 'no'){
-                        $ans['confirmfirstfactor'] = '';
-                        $ans['confirmids1'] = '';
-                    } else {
-                        $ans['saveselectionids1'] = $ans['b1'];  
-                    }
+                    if(isset($ans['question1'])){
+                        if($ans['question1'] == 'no'){
+                            $ans['confirmfirstfactor'] = '';
+                            $ans['confirmids1'] = '';
+                        } else {
+                            $ans['saveselectionids1'] = $ans['b1'];  
+                        }
+                    }    
 
-                    if($ans['question2'] == 'no'){
-                        $ans['confirmsecondfactor'] = '';
-                        $ans['confirmids2'] = '';  
-                    } else {
-                        $ans['saveselectionids2'] = $ans['b2']; 
+                    if(isset($ans['question2'])){
+                        if ($ans['question2'] == 'no'){
+                            $ans['confirmsecondfactor'] = '';
+                            $ans['confirmids2'] = '';  
+                        } else {
+                            $ans['saveselectionids2'] = $ans['b2']; 
+                        }
                     }
-                //}
 
                 Log::debug($ans);
                 
@@ -197,16 +220,23 @@ class Annotation extends Entity {
      }
 
 
-    private function isOkYesQuestion($yesquestion, $term, $termtext, $inputsentence){
-        
-        if(strpos($yesquestion, $termtext) === false and strpos($yesquestion, $term))
-            return false;
+    private function isOkYesQuestion($expltext, $yesquestion, $term, $termtext, $inputsentence){
+        $yesquestion = strtolower($yesquestion);
+        $termtext = strtolower($termtext);
+
+/*        if(preg_replace("/[^A-Za-z]/",'',$expltext) !=  preg_replace("/[^A-Za-z]/",'',$term)
+            and strpos($expltext, '/') === false and strpos($expltext, '-') === false) // HACK, SOME CHEATS PASS
+           throw new Exception("User selected YES but Expltext $expltext != term $term");*/
+
+        if(strpos($yesquestion, $termtext) === false and strpos($yesquestion, $term)=== false)
+            throw new Exception("User selected YES but term $term is not in explanation text.");
 
         if(substr_count($yesquestion, ' ') < 4)
-            return false;
+           throw new Exception("User selected YES but explanationtext < 4 words.");
 
         if($inputsentence == $yesquestion)
-            return false;
+           throw new Exception("User selected YES but Explanationtext == input sentence.");
+
 
         return true;
 
@@ -317,7 +347,8 @@ class Annotation extends Entity {
         if($startdiff<-3 or $enddiff > 3){
             $vector["[WORD_OTHER]"]=1;
             return $vector;
-        } // TODO; when else?
+            // TODO: ALSO THE WORDS BETWEEN THIS AND NIL?
+        } 
 
         if($startdiff == 0 and $enddiff == 0){
             $vector["[NIL]"]=1;
