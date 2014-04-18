@@ -49,7 +49,7 @@
 				</div>
 			</div>
 			<div>
-				<pre>@{{annotation.content | json}}</pre>
+				<pre style="height: 220px;">@{{annotation.content | json}}</pre>
 			</div>
 		</div>
 		<div class="bordered">
@@ -64,7 +64,7 @@
 				</div>
 			</div>
 			<div>
-				<pre>@{{unit.content | json}}</pre>
+				<pre style="height: 300px;">@{{unit.content | json}}</pre>
 			</div>
 		</div>
 	</div>

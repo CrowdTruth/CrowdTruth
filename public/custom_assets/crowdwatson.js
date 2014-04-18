@@ -264,7 +264,7 @@ app.controller("workerCtrl", function($scope, $resource, filterFilter, workerSer
 
 app.controller('messageCtrl', function($scope, $http, $resource){
 	$scope.showPrevious = function(){
-		// window.history.back();
+		window.history.back();
 		// In case of browser incompatibility there is also:
 		// var oldURL = document.referrer;
 		// window.location = oldUrl;
@@ -277,15 +277,21 @@ app.controller('messageCtrl', function($scope, $http, $resource){
     	return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 	}
 
-	/* THIS METHOD PUTS THE IDs BACK IN AN ARRAY */
+	/* IN CASE OF MULTIPLE RECIPIENT, THIS METHOD PUTS THE IDs BACK IN AN ARRAY */
 	function getIds(name){
-		res = getParameterByName(name);
+		var res = getParameterByName(name);
 		selection = res.split(',');
 		return selection;
 	}
 
 	function getFlagId(name){
-		return getParameterByName(name);
+		var res = getParameterByName(name);
+		// selection = res.split(',');
+		// if(selection.length >= 1 || selection.length <= 0){
+		// 	alert("Stop cheating. You can only flag per one worker.");
+		// 	$scope.showPrevious();
+		// }
+		return res;
 		
 	}
 
@@ -294,21 +300,40 @@ app.controller('messageCtrl', function($scope, $http, $resource){
 	$scope.flagselected = getFlagId('selection');
 
 	$scope.sendMessage = function(){
+		if($scope.message == undefined){
+			console.log("Message empty");
+			alert("Please, write a message including subject first or select a template.");
+		} else {
+		
 		data = [];
 		data.push($scope.message, $scope.selection);
 		
-		$http.post("/api/actions/message", data).success(function (data,status, headers){
-			console.log(data);
-		})
+		$http.post("/api/actions/message", data)
+			.success(function (data,status, headers){
+				alert(data.message);
+				$scope.showPrevious();
+			})
+
 		}
 
+	}
+
 	$scope.flagWorker = function(){
+		if($scope.message == undefined ){
+			console.log("No message found");
+			alert("Please, write a message including subject first or select a template.");
+
+		} else {
+
 		data = [];
 		data.push($scope.message, $scope.selection);
 		
 		$http.post("/api/actions/flag", data).success(function (data,status, headers){
-			console.log(data);
-		})
+			alert("Worker flagged!");
+			$scope.showPrevious();
+
+			})
+		}
 		
 	}
 
@@ -551,14 +576,14 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
 			console.log(data);
 			// JSON.parse first time for removing ""
 			withoutslashesdata = JSON.parse(data);
+			console.log(withoutslashesdata);
 			// JSON.parse second time to form array
 			data = JSON.parse(withoutslashesdata);
-			
+			// console.log(data);
 			$scope.pictures = [];
 			angular.forEach(data, function(key, value){
 				image = {};
 				image.url = key;
-				image.title = "Image #" + value;
 				$scope.pictures.push(image);
 			})
 			if($scope.pictures.length == 0){

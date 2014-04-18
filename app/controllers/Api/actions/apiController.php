@@ -20,10 +20,10 @@ class apiController extends BaseController {
 	//i.e.: image/art/painting/40/boat
 	public function getImage($domain, $type, $numImg, $keyphrase){
 		try {
+			
 			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . $numImg . " " . $keyphrase;
-			
 			exec($command,$output,$error);
-			
+						
 			return Response::json($output[0]);
 
 		} catch (Exception $e){
@@ -50,7 +50,7 @@ class apiController extends BaseController {
 		// CREATE ACTIVITY FOR BATCH
 		$activity = new Activity;
 		$activity->label = "Images posted for processing.";
-		$activity->softwareAgent_id = 'ImageGetter'; 
+		$activity->softwareAgent_id = 'imagegetter'; 
 		$activity->save();
 		// LOOP THROUGH IMAGES CREATE ENTITIES WITH ACTIVITY-ID FOR NEW IMAGES
 		foreach ( $urlset as $img){
@@ -84,9 +84,7 @@ class apiController extends BaseController {
 					
 				}
 				
-				// Session::flash('flashSuccess', "Stored image to database, features will be added shortly.");
-					
-				
+						
 			}	catch (Exception $e){
 				//delete image
 				if(isset($image))
@@ -104,10 +102,7 @@ class apiController extends BaseController {
 			try {
 				$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py" . $domain . " " . $type . " " .  $url . " " . $id;
 				
-				exec($command,$output,$error);
-				
-				
-				
+				exec($command,$output,$error);				
 
 			} catch (Exception $e){
 				//throw $e; // for debugging.
@@ -179,7 +174,6 @@ class apiController extends BaseController {
 	/* Data in post is object with an array of recipients plus a message-object */
 	public function postMessage(){
 		
-
 		$return = array('status' => 'ok');
 		$groupedarray = array();
 
@@ -206,6 +200,7 @@ class apiController extends BaseController {
 
 	/* Data in post is object with an array of recipients plus a message-object */
 	public function postFlag(){
+
 
 	}
 }

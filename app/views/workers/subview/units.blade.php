@@ -11,6 +11,6 @@
 		</div>
 	</div>
 	<div>
-		<pre>@{{unit.content | json}}</pre>
+		<pre style="height: 300px;">@{{unit.content | json}}</pre>
 	</div>
 </div>

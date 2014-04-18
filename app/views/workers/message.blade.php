@@ -11,7 +11,8 @@
 @section('content')
 
   <!-- Main column with results -->
-   <div ng-controller="messageCtrl">
+<div class="col-md-4 col-md-offset-3" style="align: center;">
+  <div ng-controller="messageCtrl">
      <div class="row">
     
       <div class="ng-scope disabled pull-left">
@@ -46,11 +47,12 @@
         </div>
       </div>
       <div class="modal-footer">
-          <button class="btn btn-danger" data-dismiss="modal">Cancel</button>
-          <button class="btn btn-primary" ng-click="modal.close()">Send</button>
+          <button class="btn btn-danger" ng-click="showPrevious()">Cancel</button>
+          <button class="btn btn-primary" ng-click="sendMessage()">Send</button>
       </div>
     </div>
   </div>  
+</div>
 
 
 @stop
