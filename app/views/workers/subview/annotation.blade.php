@@ -15,6 +15,6 @@
 		</div>
 	</div>
 	<div>
-		<pre>@{{annotation.content | json}}</pre>
+		<pre style="height: 200px;">@{{annotation.content | json}}</pre>
 	</div>
 </div>

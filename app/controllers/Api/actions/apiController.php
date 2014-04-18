@@ -20,11 +20,10 @@ class apiController extends BaseController {
 	//i.e.: image/art/painting/40/boat
 	public function getImage($domain, $type, $numImg, $keyphrase){
 		try {
+			
 			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . $numImg . " " . $keyphrase;
-			
 			exec($command,$output,$error);
-			dd($output);
-			
+						
 			return Response::json($output[0]);
 
 		} catch (Exception $e){
@@ -34,6 +33,85 @@ class apiController extends BaseController {
 		} 
 
 		return $this->returnJson($return);
+	}
+
+	public function postFeatures(){
+		
+		$input = Input::get();
+		
+		$urlset = array();
+		foreach($input[0] as $url){
+			array_push($urlset, $url);
+		}
+				
+		$domain = $input[1];
+		$type = $input[2];
+		
+		// CREATE ACTIVITY FOR BATCH
+		$activity = new Activity;
+		$activity->label = "Images posted for processing.";
+		$activity->softwareAgent_id = 'imagegetter'; 
+		$activity->save();
+		// LOOP THROUGH IMAGES CREATE ENTITIES WITH ACTIVITY-ID FOR NEW IMAGES
+		foreach ( $urlset as $img){
+
+			try {
+				
+				$parse = parse_url($img);
+				$source = $parse['host'];
+								
+				// Save images as parent
+				$image = new Entity;
+				$image->domain = $domain;
+				$image->format = "image";
+				$content = $image->content; 
+				$content['url'] = $img; 
+				$image->content = $content;
+				$image->documentType = $type;
+				$image->source = $source;
+				$image->softwareAgent_id = "imagegetter";
+
+
+				// CHECK WHETHER URL EXISTS ALREADY
+				$hash = md5(serialize($image->content));
+	            if($existingid = Entity::where('hash', $hash)->pluck('_id'))
+	                $imageid = $existingid; // Don't save, it already exists.
+	            else {
+		            $image->hash = $hash;
+					$image->activity_id = $activity->_id;
+					$image->save();
+					$id = $image->_id;
+					
+				}
+				
+						
+			}	catch (Exception $e){
+				//delete image
+				if(isset($image))
+					$image->forceDelete();
+				
+						
+				//delete activity
+				if(isset($activity)) $activity->forceDelete();
+				
+				Session::flash('flashError', $e->getMessage());
+				return Redirect::to("temp");
+			
+			}
+			// RUN PYTHON SCRIPT THAT CALLS APIs TO ADD FEATURES TO IMAGE
+			try {
+				$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py" . $domain . " " . $type . " " .  $url . " " . $id;
+				
+				exec($command,$output,$error);				
+
+			} catch (Exception $e){
+				//throw $e; // for debugging.
+				$return['error'] = $e->getMessage();
+				$return['status'] = 'bad';
+			} 
+
+			return $this->returnJson($return);
+		}
 	}
 
 	//i.e.: entity/text/medical/job/1
@@ -97,9 +175,8 @@ class apiController extends BaseController {
 	}
 
 	/* Data in post is object with an array of recipients plus a message-object */
-	public function getMessage(){
+	public function postMessage(){
 		
-
 		$message = Input::get('message');
 		$recipients = Input::get('recipients');
 
@@ -129,6 +206,7 @@ class apiController extends BaseController {
 
 	/* Data in post is object with an array of recipients plus a message-object */
 	public function postFlag(){
+
 
 	}
 

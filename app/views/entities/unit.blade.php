@@ -30,7 +30,7 @@
          		</div>
    	     	</div>
 			<div>
-				<pre>@{{unit.content | json}}</pre>
+				<pre style="height: 350px;">@{{unit.content | json}}</pre>
 			</div>
 		</div>
 		<div class="bordered">

@@ -38,9 +38,9 @@
            			<div class="wp-from"><span ng-show="worker.city">@{{worker.city}},</span><span ng-show="worker.region"> @{{worker.region}},</span> @{{worker.country}}</div>
            			<div class="wp-created">First seen: @{{worker.created_at}}</div>
            		</div>
-           		<div class="col-md-2 box-icon">
+           		<!-- <div class="col-md-2 box-icon">
            			<strong style="font-size: 12pt;"><i class="fa fa-file fa-2x"></i><br>Favourite task</strong> 
-           		</div>
+           		</div> -->
           		<div class="col-md-2 box-icon right-end">
            			<strong style="font-size: 12pt; "><i class="fa fa-clock-o fa-2x"></i><br><span am-time-ago="worker.updated_at"></span></strong>
            		</div>	
