@@ -140,6 +140,7 @@ class Mturk extends \FrameWork {
 		$count = 0;
 		$platformids = array();
 		$c = $job->jobConfiguration->content;
+		if(!isset($c['frameheight'])) $c['frameheight'] = 450;
 		$hit = $this->jobConfToHIT($c);
 		$upt = $c['unitsPerTask'];
 		$assRevPol = $hit->getAssignmentReviewPolicy();

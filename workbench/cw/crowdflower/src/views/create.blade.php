@@ -54,11 +54,11 @@ $('#deselectcountries').click(function(){
 })
 
 $('#englishcountries').click(function(){
-	$('#countries').selectpicker('val', {{ Config::get('crowdflower::englishcountries') }}); //'IE', 'NZ', 'JA'
+	$('#countries').selectpicker('val', {{ Config::get('crowdflower::englishcountries') }}).selectpicker('render'); //'IE', 'NZ', 'JA'
 })
 
 $('#customcountries').click(function(){
-	$('#countries').selectpicker('val', {{ Config::get('crowdflower::customcountries')['countries'] }}); //'AW', 
+	$('#countries').selectpicker('val', {{ Config::get('crowdflower::customcountries')['countries'] }}).selectpicker('render'); //'AW', 
 })
 </script>
 @stop

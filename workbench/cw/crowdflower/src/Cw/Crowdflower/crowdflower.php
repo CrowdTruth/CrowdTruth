@@ -131,56 +131,66 @@ class Crowdflower extends \FrameWork {
 				if($debug) {
 					print "\r\n\r\nRESULT";
 					print_r($result);
-				}				
+				}	
+
 				$csvresult = $this->CFJob->uploadInputFile($id, $csv);
 				unlink($csv); // DELETE temporary CSV.
-				if(isset($csvresult['result']['error']['message']))
-					throw new CFExceptions("CSV: " . $csvresult['result']['error']['message']);
-				
+
 				if($debug) {
 					print "\r\n\r\nCSVRESULT";
 					print_r($csvresult);
 				}	
 
+				if(isset($csvresult['result']['error']['message']))
+					throw new CFExceptions("CSV: " . $csvresult['result']['error']['message']);
+
 				$optionsresult = $this->CFJob->setOptions($id, array('options' => $options));
-				if(isset($optionsresult['result']['error']['message']))
-					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
-				
+
 				if($debug) {
 					print "\r\n\r\nOPTIONSRESULT";
 					print_r($optionsresult);
 				}
 
+
+				if(isset($optionsresult['result']['error']['message']))
+					throw new CFExceptions("setOptions: " . $optionsresult['result']['error']['message']);
+
 				$channelsresult = $this->CFJob->setChannels($id, array('cf_internal'));
-				if(isset($channelsresult['result']['error']['message']))
-					throw new CFExceptions($channelsresult['result']['error']['message']); 
 				
 				if($debug) {
 					print "\r\n\r\nCHANNELSRESULT";
 					print_r($channelsresult);
 				}
+
+				if(isset($channelsresult['result']['error']['message']))
+					throw new CFExceptions($channelsresult['result']['error']['message']); 
+
 					
 				if(is_array($gold) and count($gold) > 0){
 					// TODO: Foreach? 
 					$goldresult = $this->CFJob->manageGold($id, array('check' => $gold[0]));
-					if(isset($goldresult['result']['error']['message']))
-						throw new CFExceptions("Gold: " . $goldresult['result']['error']['message']);
+					
 					if($debug) {
 						print "\r\n\r\nGOLDRESULT";
 						print_r($goldresult);
 					}
 
+					if(isset($goldresult['result']['error']['message']))
+						throw new CFExceptions("Gold: " . $goldresult['result']['error']['message']);
+
 				}
 
 				if(isset($jc->content['countries']) and is_array($jc->content['countries']) and count($jc->content['countries']) > 0){
-					$countriesresult = $this->CFJob->setIncludedCountries($id, $jc['countries']);
-					if(isset($countriesresult['result']['error']['message']))
-						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
-				
+					$countriesresult = $this->CFJob->setIncludedCountries($id, $jc->content['countries']);
+					
 					if($debug) {
 						print "\r\n\r\nCOUNTRIESRESULT";
 						print_r($countriesresult);
-					}					
+					}	
+
+					if(isset($countriesresult['result']['error']['message']))
+						throw new CFExceptions("Countries: " . $countriesresult['result']['error']['message']);
+							
 				}
 
 				if(!$sandbox and isset($csvresult)){
