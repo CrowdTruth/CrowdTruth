@@ -32,6 +32,7 @@ abstract class FrameWork {
 	/**
 	* Is fired after submitting the specific JobConf settings. 
 	* Can handle the Input of the view, optionally performing some logic on it.
+	* @param JobConfiguration
 	* @return JobConfiguration
 	*/
 	public function updateJobConf($jc){
@@ -41,12 +42,15 @@ abstract class FrameWork {
 	/**
 	* Create the job on the platform and in our database, but don't order it yet.
 	* Important: when you catch an error in creating, call $this->undoCreation
+	* @param Job $job
+	* @param boolean $sandbox (should be TRUE in our current implementation).
 	* @return platformJobId
 	*/
 	abstract public function publishJob($job, $sandbox);
 
 	/**
 	* If an error occurs during creation, this method gets called. Make sure the job is deleted on the platform.
+	* @param mixed $ids may be an array or just one, depending on your implementation.
 	* @throws Exception
 	*/
 	abstract public function undoCreation($ids);
@@ -65,6 +69,15 @@ abstract class FrameWork {
 	* @throws Exception
 	*/
 	abstract public function resumeJob($id);
+
+	/**
+	* Send message to workers. If your platform doesn't support multiple messages, make sure you handle this yourself.
+	* @param string $subject
+	* @param string $body
+	* @param array $workerids 
+	* @throws Exception
+	*/
+	abstract public function sendMessage($subject, $body, $workerids);
 
 
 }

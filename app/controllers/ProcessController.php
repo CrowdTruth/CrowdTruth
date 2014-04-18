@@ -19,14 +19,13 @@ public function getFixcfjobid(){
 }
 
 public function getVector(){
-	if (($handle = fopen(storage_path() . '/output_AMT_FactSpan_merged_sentences.csv', 'r')) === false) {
+	if (($handle = fopen(storage_path() . '/output_AMT_FactSpan_sentences_raw.csv', 'r')) === false) {
 		    die('Error opening file');
 	}
 	$headers = fgetcsv($handle, 1024, ',');
 	$count = 0;
 	$complete = array();
 	$return = array();
-	$count = 0;
 	$skip = false;
 
 	while ($row = fgetcsv($handle, 1024, ',')) {
@@ -56,7 +55,8 @@ public function getVector(){
 						$vector = $job->results[$unit->_id];
 
 						if(isset($vector['term1'])){
-							$temp = $this->computeSimilarity($vector['term1'], 1, $unit->_id, $job->softwareAgent_id);
+							//$temp = $this->computeSimilarity($vector['term1'], 1, $unit->_id, $job->softwareAgent_id);
+							$temp = $vector['term1'];
 							$temp['sentence']=$sentence;
 							$temp['term1']=$term1;
 							$temp['term2']=$term2;
@@ -64,7 +64,8 @@ public function getVector(){
 						}
 
 						if(isset($vector['term2'])){
-							$temp = $this->computeSimilarity($vector['term2'], 2, $unit->_id, $job->softwareAgent_id);
+							//$temp = $this->computeSimilarity($vector['term2'], 2, $unit->_id, $job->softwareAgent_id);
+							$temp = $vector['term2'];
 							$temp['sentence']=$sentence;
 							$temp['term1']=$term1;
 							$temp['term2']=$term2;
@@ -85,6 +86,7 @@ public function getVector(){
 		//if($count==5) dd($result);
 /*	
 	if($count == 5){
+		dd($result);
 		$path =storage_path() . '/amt_new_output.csv';
 		$out = fopen($path, 'w');
 
@@ -97,19 +99,19 @@ public function getVector(){
 		fclose($out);
 		dd($path);
 	}*/
-}
+	}
 
-		$path =storage_path() . '/amt_new_output_without_yescheck.csv';
-		$out = fopen($path, 'w');
+	$path =storage_path() . '/amt_new_output.csv';
+	$out = fopen($path, 'w');
 
-		fputcsv($out, array_keys($result[0]));
-		foreach ($result as $row)
-			fputcsv($out, $row);	
-		
-		// Close file
-		rewind($out);
-		fclose($out);
-		dd($path);
+	fputcsv($out, array_keys($result[0]));
+	foreach ($result as $row)
+		fputcsv($out, $row);	
+	
+	// Close file
+	rewind($out);
+	fclose($out);
+	dd($path);
 
 
 }
@@ -235,6 +237,13 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		}
 	}
 
+	public function getUpdatecrowdagent(){
+		foreach (MongoDB\CrowdAgent::get() as $worker) {
+			set_time_limit(30);
+			Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($worker)));
+		}
+	}
+
 	public function getRegenerateamtfactspan(){
 		foreach (Job::type('FactSpan')->where('softwareAgent_id', 'amt')->get() as $job) {
 			foreach ($job->annotations as $ann) {
@@ -245,6 +254,24 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 		}
 	}
+
+
+	public function getRegenerateamtrelex(){
+		$count = $failed = 0;
+		foreach (Job::type('RelEx')->where('softwareAgent_id', 'amt')->get() as $job) {
+			foreach ($job->annotations as $ann) {
+				//dd($ann);
+				$ann->dictionary=$ann->createDictionary();
+				$ann->save();
+				echo "saved";
+				if(is_null($ann->dictionary)) $failed++;
+				else $count++;
+			}
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+		}
+		echo "\r\nOK: $count. Failed: $failed";
+	}
+
 
 
 	public function getBatch() {

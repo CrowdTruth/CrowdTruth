@@ -349,6 +349,14 @@ class Mturk extends \FrameWork {
 			));
 	}*/
 
+	public function sendMessage($subject, $body, $workerids){
+		try {
+			$mechanicalTurk->notifyWorkers($subject, $body, $workerids);
+		} catch(AMTException $e){
+			throw new Exception($e->getMessage());
+		}
+	}
+
 
 
 }

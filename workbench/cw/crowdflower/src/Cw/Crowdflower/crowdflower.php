@@ -331,6 +331,10 @@ class Crowdflower extends \FrameWork {
 		return $path;
 	}
 
+	public function sendMessage($subject, $body, $workerids){
+		echo 'cf working!';
+	}
+
 }
 
 ?>

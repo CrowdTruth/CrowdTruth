@@ -26,31 +26,35 @@ class CrowdAgent extends Moloquent {
     	}
     	$this->annotationCount = $total;
 
-    	// Jobs
-    	$total = array('count' => count(array_unique($jobids)));
-    	foreach(array_unique($jobids) as $jobid){
-            if($a = \Job::id($jobid)->first()){
-        		foreach($countthese as $x){
-        			if(isset($total[$x][$a->$x])) $total[$x][$a->$x]++;
-        			else $total[$x][$a->$x] = 1;
-        		}
-            }
-    	}
-    	$this->jobCount = $total;
-		
-    	// Units
-    	$countthese = array_diff($countthese, array('type')); // UNITs have no type, so remove this from the array.
-    	$total = array('count' => count(array_unique($unitids)));
-    	foreach(array_unique($unitids) as $unitid){
-    		if($a = \MongoDB\Entity::id($unitid)->first()){
-        		foreach($countthese as $x){
-        			if(isset($total[$x][$a->$x])) $total[$x][$a->$x]++;
-        			else $total[$x][$a->$x] = 1;
-        		}
-            }
-    	}
+        if(isset($jobids)){
+        	// Jobs
+        	$total = array('count' => count(array_unique($jobids)));
+        	foreach(array_unique($jobids) as $jobid){
+                if($a = \Job::id($jobid)->first()){
+            		foreach($countthese as $x){
+            			if(isset($total[$x][$a->$x])) $total[$x][$a->$x]++;
+            			else $total[$x][$a->$x] = 1;
+            		}
+                }
+        	}
+        	$this->jobCount = $total;
+		}
 
-    	$this->unitCount = $total;
+    	// Units
+        if(isset($unitids)){
+        	$countthese = array_diff($countthese, array('type')); // UNITs have no type, so remove this from the array.
+        	$total = array('count' => count(array_unique($unitids)));
+        	foreach(array_unique($unitids) as $unitid){
+        		if($a = \MongoDB\Entity::id($unitid)->first()){
+            		foreach($countthese as $x){
+            			if(isset($total[$x][$a->$x])) $total[$x][$a->$x]++;
+            			else $total[$x][$a->$x] = 1;
+            		}
+                }
+        	}
+        	$this->unitCount = $total;
+        }
+        
     	$this->save();
     }
 

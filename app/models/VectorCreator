@@ -1,5 +1,0 @@
-<?php
-use \MongoDB\Activity;
-
-class JobConfiguration extends Entity {
-}

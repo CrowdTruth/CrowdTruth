@@ -24,6 +24,19 @@ class JobConfiguration extends Entity {
         static::saving(function ( $jobconf )
         {
         	// IFEXISTS CHECK IS NOT HERE.
+            try{
+                $c = $jobconf->content;
+                if(isset($c['reward'])) $c['reward'] = (double) $c['reward'];
+                if(isset($c['hitLifetimeInMinutes'])) $c['hitLifetimeInMinutes'] = intval($c['hitLifetimeInMinutes']);
+                if(isset($c['autoApprovalDelayInMinutes'])) $c['autoApprovalDelayInMinutes'] = intval($c['autoApprovalDelayInMinutes']);
+                if(isset($c['expirationInMinutes'])) $c['expirationInMinutes'] = intval($c['expirationInMinutes']);
+                if(isset($c['annotationsPerUnit'])) $c['annotationsPerUnit'] = intval($c['annotationsPerUnit']);
+                if(isset($c['unitsPerTask'])) $c['annotationsPerUnit'] = intval($c['annotationsPerUnit']);
+
+            } catch (Exception $e){
+                if($jobconf) $jobconf->forceDelete();
+                throw new Exception('Error saving JobConfiguration.');
+            }
 
             if(empty($jobconf->activity_id)){
                 try {
@@ -40,6 +53,7 @@ class JobConfiguration extends Entity {
                     throw new Exception('Error saving activity for JobConfiguration.');
                 }
             }
+
         });
 
      } 

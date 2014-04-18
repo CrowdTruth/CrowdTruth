@@ -97,24 +97,27 @@ class apiController extends BaseController {
 	}
 
 	/* Data in post is object with an array of recipients plus a message-object */
-	public function postMessage(){
+	public function getMessage(){
 		
 
-		$return = array('status' => 'ok');
-		$groupedarray = array();
+		$message = Input::get('message');
+		$recipients = Input::get('recipients');
 
+		$message = array('content'=>'testttt', 'subject'=>'subject of message');
+		$recipients = array('crowdagent/amt/1111', 'crowdagent/amt/2222', 'crowdagent/cf/3333', 'crowdagent/amt/4444');
+		
 		try {
-			foreach ($recipient as $r) {
-				$explid = explode('/', $r);
+			$groupedarray = array();
+
+			foreach ($recipients as $recipient) {
+				$explid = explode('/', $recipient);
 				$platformid = $explid[1];
 				$groupedarray[$platformid][] = $recipient;
 			}
-
-			foreach ($groupedarray as $platformworkers) {
-				$platform = App::make(array_keys($platformworkers));
-				//$platform->sendMessage(array_values($platformworkers), $subject, $content);
-				dd(json_encode($platformworkers));
-				$return['message'] = 'sent';
+			foreach ($groupedarray as $platformid=>$workers) {
+				$platform = \App::make($platformid);
+				$platform->sendMessage($workers, $message['subject'], $message['content']);
+				$return['message'] = 'Message' . (count($workers)>1 ? 's' : '') . ' sent successfully!';
 			}
 
 		} catch (Exception $e){
