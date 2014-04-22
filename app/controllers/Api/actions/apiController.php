@@ -173,10 +173,10 @@ class apiController extends BaseController {
 
 
 	private function authenticateUser(){
-		if (!Auth::check())
+		if (!\Auth::check())
 			throw new Exception("Authentication failed.");   
 
-		if (Auth::user()->role = 'demo')
+		if (\Auth::user()->role = 'demo')
 			throw new Exception("Demo accounts are not allowed to do this.");  
 		
 	}
