@@ -176,7 +176,7 @@ class apiController extends BaseController {
 		if (!\Auth::check())
 			throw new Exception("Authentication failed.");   
 
-		if (\Auth::user()->role = 'demo')
+		if (\Auth::user()->role == 'demo')
 			throw new Exception("Demo accounts are not allowed to do this.");  
 		
 	}
