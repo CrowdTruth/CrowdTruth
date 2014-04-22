@@ -352,7 +352,7 @@ class Annotation extends Entity {
         $vector["[WORD_+2]"]= ($enddiff   >  1 ? 1 : 0);
         $vector["[WORD_+3]"]= ($enddiff   >  2 ? 1 : 0);
 
-        $vector["[WORD_OTHER]"]=($startdiff<-3 or $enddiff > 3 ? 1 : 0);
+        $vector["[WORD_OTHER]"]=(($startdiff < -3 or $enddiff > 3) ? 1 : 0);
 
         return $vector;
     }

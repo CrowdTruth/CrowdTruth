@@ -128,6 +128,8 @@ class apiController extends BaseController {
 					if(!$job)
 						throw new Exception('Job not found.');
 					
+					$this->authenticateUser();
+
 					switch ($action) {
 						case 'pause':
 							$job->pause();
@@ -169,6 +171,15 @@ class apiController extends BaseController {
 		return $this->returnJson($return);
 	}
 
+
+	private function authenticateUser(){
+		if (!Auth::check())
+			throw new Exception("Authentication failed.");   
+
+		if (Auth::user()->role = 'demo')
+			throw new Exception("Demo accounts are not allowed to do this.");  
+		
+	}
 
 	private function returnJson($return){
 		return Response::json($return);

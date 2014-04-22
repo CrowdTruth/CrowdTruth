@@ -52,12 +52,20 @@ class UpdateJob {
 		if($j->completion>1)
 			$j->completion = 1.00; // TODO: HACK
 
-		if($j->completion == 1) $j->status = 'finished'; // Todo: Not sure if this works
+		if($j->completion == 1) {
+			$j->status = 'finished';
+			if(!isset($j->finishedAt)) 
+				$j->finishedAt = new \MongoDate;
+			
+			if(isset($j->startedAt) and isset($j->startedAt->sec))
+				$j->runningTimeInSeconds = $j->startedAt->sec - $j->finishedAt->sec;
+		}
+
 		$j->realCost = $count*$j->jobConfiguration->content['reward'];
 		$j->save();
 		\Log::debug("Updated Job {$j->_id}.");
 
-		$job->delete();
+		$job->delete(); // This is the Queue job and not our Job!
 	}
 
 

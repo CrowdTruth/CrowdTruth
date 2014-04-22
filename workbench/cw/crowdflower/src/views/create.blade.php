@@ -29,8 +29,8 @@
 									{{ Form::select('countries[]', Config::get('crowdflower::allcountries'), null, array('id' => 'countries', 'class'=>'selectpicker', 'data-live-search' => 'true', 'multiple', 'title' => 'Select countries...', 'data-selected-text-format' => 'count>3')) }}
 								<br>
 								<a id='deselectcountries' class='btn btn-small'>None</a>
-								<a id='englishcountries' class='btn btn-small' title='{{ Config::get('crowdflower::englishcountries')}}'>English</a>
-								<a id='customcountries' class='btn btn-small' title='{{ Config::get('crowdflower::customcountries')['countries'] }}'>{{ Config::get('crowdflower::customcountries')['language'] }}</a>
+								<a id='englishcountries' class='btn btn-small' title='{{ Config::get("crowdflower::englishcountries")}}'>English</a>
+								<a id='customcountries' class='btn btn-small' title='{{ Config::get("crowdflower::customcountries")["countries"] }}'>{{ Config::get('crowdflower::customcountries')['language'] }}</a>
 								</div>
 
 							</fieldset><br>	

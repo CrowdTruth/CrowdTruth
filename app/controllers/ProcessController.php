@@ -12,6 +12,22 @@ class ProcessController extends BaseController {
 	}
 
 
+
+public function getStartedat(){
+	foreach (Job::get() as $j) {
+		$c = $j->jobConfiguration->content;
+		if(isset($c['startedAt'])){
+			$j->startedAt = $c['startedAt'];
+			unset($c['startedAt']);
+			$j->jobConfiguration->content = $c;
+			$j->jobConfiguration->save();
+			$j->save();
+		}
+	}
+}
+
+
+
 public function getFixcfjobid(){
 	foreach (Job::where('softwareAgent_id', 'cf')->get() as $job) {
 		dd($job->annotationsCount);
@@ -653,7 +669,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			//Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
 			//				strtoupper(implode(', ', $jc->content['platform'])) . '.');
 			Session::flash('flashSuccess', "Created job" . (count($jc->content['platform']) == 1 ? '' : 's') . " on " . 
-							strtoupper(implode(', ', $jc->content['platform'])) . '. Click on \'actions\' on the job to order it.');
+							strtoupper(implode(', ', $jc->content['platform'])) . (Auth::user()->role == 'demo' ? '. Because this is a demo account, you can not order it. Please take a look at our finished jobs!' : '. Click on \'actions\' on the job to order it.'));
 			return Redirect::to("jobs/listview");
 
 		} catch (Exception $e) {

@@ -21,7 +21,7 @@ class JobConfiguration extends Entity {
     {
         parent::boot();
 
-        static::saving(function ( $jobconf )
+        static::creating(function ( $jobconf )
         {
         	// IFEXISTS CHECK IS NOT HERE.
             try{
@@ -31,7 +31,7 @@ class JobConfiguration extends Entity {
                 if(isset($c['autoApprovalDelayInMinutes'])) $c['autoApprovalDelayInMinutes'] = intval($c['autoApprovalDelayInMinutes']);
                 if(isset($c['expirationInMinutes'])) $c['expirationInMinutes'] = intval($c['expirationInMinutes']);
                 if(isset($c['annotationsPerUnit'])) $c['annotationsPerUnit'] = intval($c['annotationsPerUnit']);
-                if(isset($c['unitsPerTask'])) $c['annotationsPerUnit'] = intval($c['annotationsPerUnit']);
+                if(isset($c['unitsPerTask'])) $c['unitsPerTask'] = intval($c['unitsPerTask']);
 
             } catch (Exception $e){
                 if($jobconf) $jobconf->forceDelete();
