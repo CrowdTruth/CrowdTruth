@@ -70,6 +70,9 @@ class apiController extends BaseController {
 				$image->documentType = $type;
 				$image->source = $source;
 				$image->softwareAgent_id = "imagegetter";
+				// Take last part of URL as image title
+				$temp = explode('/', $img);
+				$image->title = end($temp);
 
 
 				// CHECK WHETHER URL EXISTS ALREADY

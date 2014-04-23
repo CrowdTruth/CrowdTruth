@@ -4,13 +4,13 @@ import requests
 import random
 import urllib2, os
 import urllib, cStringIO
-import predict_adopted
+# import predict_adopted
 import numpy as np
 import sys
 import cPickle as pickle
 import urlparse
 import string
-import Image, ImageFilter
+# import Image, ImageFilter
 
 
 _domain = sys.argv[1]

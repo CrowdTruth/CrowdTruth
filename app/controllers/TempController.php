@@ -6,8 +6,8 @@ class TempController extends BaseController {
 	  	return View::make('temp.imagegetter');
 	}
 
-	public function getImgselection() {
-		return View::make('temp.imgselection');
-	}
 	
+	public function getImagegetter(){
+		return View::make('temp.imagegetter');
+	}
 }
