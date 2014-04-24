@@ -127,7 +127,7 @@
 											<select name="source_name" class="form-control toggle-data" id="source_name">
 												<option value="">--</option>
 												<option value="source_beeldengeluid" data-toggle="source_name">Netherlands Institute for Sound and Vision</option>
-												<option value="source_rijksmuseum" data-toggle="source_name" disabled="true">Rijksmuseum</option>
+												<option value="source_rijksmuseum" data-toggle="source_name">Rijksmuseum</option>
 											</select>
 										</div>
 									</div>
@@ -141,8 +141,13 @@
 
 									<div class="form-group hidden is_source_beeldengeluid">
 										<div class="col-sm-offset-3 col-sm-5">
-										{{ Form::button('Submit', array('type' => 'submit', 'value' => 'onlinedata', 'class' => 'btn btn-info')) }} 
-										
+										{{ Form::button('Submit', array('type' => 'submit', 'value' => 'onlinedata', 'class' => 'btn btn-info')) }} 										
+										</div>
+									</div>
+
+									<div class="form-group hidden is_source_rijksmuseum">
+										<div class="col-sm-offset-3 col-sm-5">
+										{{ Form::button('Next', array('type' => 'submit' , 'value' => 'onlinedata',  'class' => 'btn btn-info')) }}										
 										</div>
 									</div>
 								</div>

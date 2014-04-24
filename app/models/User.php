@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Auth\UserInterface;
-use Illuminate\Auth\Reminders\RemindableInterface;
 
 class User extends Moloquent implements UserInterface {
 
@@ -76,5 +75,18 @@ class User extends Moloquent implements UserInterface {
 
     public function associatedEntities(){
     	return $this->hasMany('\MongoDB\Entity', 'user_id', '_id');
+    }
+
+    /* INTERFACE METHODS FOR USERINTERFACE */
+    public function getRememberToken(){
+
+    }
+
+    public function setRememberToken($value){
+
+    }
+
+    public function getRememberTokenName(){
+    	
     }
 }
