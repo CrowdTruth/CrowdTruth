@@ -41,8 +41,12 @@ class FilesController extends BaseController {
 	}
 
 	public function postOnlinedata()
-	{
-		//dd(Input::all());
+	{	
+		if (Input::get("source_name") == "source_rijksmuseum"){
+			return Redirect::to('onlinesource/imagegetter');
+		}
+
+		// dd(Input::all());
 		$onlineDataHelper = new OnlineDataHelper(Input::all());
 		try {
 			$format = $onlineDataHelper->getType();
