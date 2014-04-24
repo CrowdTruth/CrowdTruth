@@ -17,7 +17,14 @@
 					<div class="panel-body">
 
 
-						
+						<div class="well">
+							<p>On this page, you can select a template for the job you want the workers to perform. In the tree, the parent is the job's <i>type</i> and the child is the specific template in this category.
+							</p>
+							<p>
+							 The preview you see below is how the job will look on Mechanical Turk. The variables between @{{curly_braces}} will be replaced with values from the batch or, in case of the @{{instructions}} variables, from the job settings. 
+							</p>
+
+						</div>
 			  
 						<div id="jstree"></div>
 						<br>

@@ -14,10 +14,22 @@ class ProcessController extends BaseController {
 
 
 public function getTestamt(){
-	foreach(Job::where('softwareAgent_id', 'amt')->get() as $job){
+	//dd(Batch::with('wasDerivedFrom')->first());
+	foreach (JobConfiguration::get() as $jc) {
+		if(!is_array($jc->content['platform'])){
+			$jc->setValue('platform', array('cf'));
+			$jc->save();
+		}	
+
+/*		$parents = $batch->parents;
+		natsort($parents);
+		$parents = array_values($parents);
+
+		$batch->parents = $parents;
+		$batch->hash = md5(serialize($parents));
+		$batch->save();*/
 
 	}
-
 
 /*	//$job = Job::where('softwareAgent_id', 'cf')->first();
 	$id = 414274;//= $job->jobConfiguration->content['jobId'];
@@ -305,9 +317,6 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 
 	public function getBatch() {
-
-		//dd(unserialize(Session::get('jobconf')));
-		//$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 
@@ -318,8 +327,14 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	public function getTemplate() {
 		// Create array for the tree
 		$jc = unserialize(Session::get('jobconf'));	
-		if(empty($jc)) $jc = new JobConfiguration;
-		$currenttemplate = Session::get('template');
+		if(empty($jc)) {
+			$jc = new JobConfiguration;
+			$currenttemplate = Session::get('template');
+		} else {
+			$currenttemplate = $jc->template;
+		}
+			
+		
 		if(empty($currenttemplate)) $currenttemplate = 'RelDir/relation_Direction';
 		$treejson = $this->makeDirTreeJSON($currenttemplate);
 
@@ -340,7 +355,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$unitscount = count($batch->wasDerivedFrom);
 
 		if($jc->content['unitsPerTask'] > $unitscount){
-			$jc->setKey('unitsPerTask', $unitscount); 
+			$jc->setValue('unitsPerTask', $unitscount); 
 			Session::flash('flashNotice', 'Adapted units per task to match the batch size.');
 		}	
 
@@ -441,7 +456,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 		$toomany = '';
 		if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)){
-			$jc->setKey('unitsPerTask', count($batch->wasDerivedFrom)); 
+			$jc->setValue('unitsPerTask', count($batch->wasDerivedFrom)); 
 			Session::flash('flashNotice', 'Adapted units per task to match the batch size.');
 		}	
 

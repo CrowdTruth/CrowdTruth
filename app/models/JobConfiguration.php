@@ -167,7 +167,7 @@ class JobConfiguration extends Entity {
         }    
 	}
 
-    public function setKey($key, $value){
+    public function setValue($key, $value){
         $c = $this->content;
         $c[$key] = $value;
         $this->content = $c;

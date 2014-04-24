@@ -7,7 +7,7 @@ class Batch extends Entity {
 	protected $attributes = array('documentType' => 'batch');
 
 
-// DOESN'T SEEM TO WORK WITH wasDerivedFrom! 
+// DOESN'T WORK WITH wasDerivedFrom! 
 	/**
     *   Override the standard query to include documenttype.
     */

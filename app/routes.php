@@ -60,6 +60,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('process', 'ProcessController');
 	Route::controller('jobs', 'JobsController');
 	Route::controller('workers', 'WorkersController');
+	Route::controller('entities', 'EntitiesController');
         Route::controller('analyze','AnalyticsController');
 	
 

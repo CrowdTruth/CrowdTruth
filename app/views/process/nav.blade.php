@@ -81,6 +81,7 @@ calculate();
     	}
     } 
 
+$("[data-toggle=tooltip]").tooltip();
 </script>
 @endsection
 
