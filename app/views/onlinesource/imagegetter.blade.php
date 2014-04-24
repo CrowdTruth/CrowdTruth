@@ -4,6 +4,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
 <script type="text/javascript" src="/custom_assets/crowdwatson.js"></script>
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.0rc2/angular-resource.min.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
 <script type="text/javascript" src="/custom_assets/angular-form-builder/angular-form-builder.js"></script>
 <script type="text/javascript" src="/custom_assets/angular-form-builder/angular-form-builder-components.js"></script>
