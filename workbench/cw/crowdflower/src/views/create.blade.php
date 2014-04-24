@@ -47,7 +47,7 @@
 
 @section('platformend')
 <script>
-$('.selectpicker').selectpicker();
+$('.selectpicker').selectpicker('render');
 
 $('#deselectcountries').click(function(){
 	$('#countries').selectpicker('deselectAll');

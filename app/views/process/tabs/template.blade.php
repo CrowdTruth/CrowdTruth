@@ -58,9 +58,12 @@
 						      <div class="modal-body">
 								<div class="form-group">
 									{{ Form::open(array('action' => 'ProcessController@postUploadTemplate', 'files' => 'true')) }}
-									<p>You can upload your own templates here. Currently, HTML is supported for Amazon Mechanical Turk and CML for Crowdflower. Any CSS or JS will need to be inserted into the AMT HTML and uploaded as separate files for CF. Read the documentation for more info.</p> 
+									<p>You can upload your own templates here. Currently, HTML is supported for Amazon Mechanical Turk and CML for Crowdflower. Any CSS or JS will need to be inserted into the AMT HTML and uploaded as separate files with the same name for CF. Read the documentation for more info.</p> 
 									<p>
-									In the near future, we will have our own format that will convert to both (or more) types of template, so you'll have to create only one.
+									You can save the job settings in the 'Submit' tab.
+									</p>
+									<p>
+									In the near future, we will have our own format for questions that will convert to both (and more) types of template, so you'll have to create only one.
 									</p>
 									{{ Form::text('type', null, array('class' => 'form-control col-xs-6', 'placeholder' => 'Type (like \'FactSpan\' or \'RelEx\')')) }}<br><br>
 									<input type="file" name="files[]" class="btn uploadInput" multiple style="display:inline-block"/>

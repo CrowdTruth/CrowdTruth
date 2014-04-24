@@ -126,7 +126,7 @@ class Mturk extends \FrameWork {
 	* @throws AMTException
 	* @return string platformid's
 	*/
-	public function amtpublish($job, $sandbox, $justpreview = false){ //todo: private, remove justpreview.
+	public function amtpublish($job, $sandbox, $justpreview = false, $jc = null){ //todo: private, remove justpreview and jc.
 		if($sandbox) $this->mechanicalTurk->setRootURL(Config::get('mturk::sandboxurl'));
 		else $this->mechanicalTurk->setRootURL(Config::get('mturk::rooturl'));
 		$htmlfilename = public_path() . "/templates/{$job->template}.html";//dd($htmlfilename);
@@ -139,7 +139,13 @@ class Mturk extends \FrameWork {
 		$questionsbuilder = '';
 		$count = 0;
 		$platformids = array();
-		$c = $job->jobConfiguration->content;
+		
+
+		if($jc) $c = $jc->content;
+		else $c = $job->jobConfiguration->content;
+
+
+
 		if(!isset($c['frameheight'])) $c['frameheight'] = 450;
 		$hit = $this->jobConfToHIT($c);
 		$upt = $c['unitsPerTask'];

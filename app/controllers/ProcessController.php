@@ -13,6 +13,20 @@ class ProcessController extends BaseController {
 
 
 
+public function getTestamt(){
+	foreach(Job::where('softwareAgent_id', 'amt')->get() as $job){
+
+	}
+
+
+/*	//$job = Job::where('softwareAgent_id', 'cf')->first();
+	$id = 414274;//= $job->jobConfiguration->content['jobId'];
+	$cfjob = new Cw\Crowdflower\Cfapi\Job(Config::get('crowdflower::apikey'));
+	$info = $cfjob->readJob($id);
+	dd($info);*/
+}
+
+
 public function getStartedat(){
 	foreach (Job::get() as $j) {
 		$c = $j->jobConfiguration->content;
@@ -306,7 +320,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$jc = unserialize(Session::get('jobconf'));	
 		if(empty($jc)) $jc = new JobConfiguration;
 		$currenttemplate = Session::get('template');
-		if(empty($currenttemplate)) $currenttemplate = 'RelDir/relation_direction';
+		if(empty($currenttemplate)) $currenttemplate = 'RelDir/relation_Direction';
 		$treejson = $this->makeDirTreeJSON($currenttemplate);
 
 		return View::make('process.tabs.template')
@@ -324,6 +338,12 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$questionids = array();
 		$goldfields = array();
 		$unitscount = count($batch->wasDerivedFrom);
+
+		if($jc->content['unitsPerTask'] > $unitscount){
+			$jc->setKey('unitsPerTask', $unitscount); 
+			Session::flash('flashNotice', 'Adapted units per task to match the batch size.');
+		}	
+
 /*		try {
 			$questionids = $j->getQuestionIds();
 			$goldfields = $j->getGoldFields();	
@@ -402,28 +422,29 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$questiontemplateid = Session::get('questiontemplateid');
 		$treejson = $this->makeDirTreeJSON($template, false);
 		
+		$jc->unsetKey('platformpage');
 		// TODO: this here is really bad.
+		// The previews should be decoupled form AMT.
+		// HTML should be generated based on the QuestionTemplate.
 		try {
-			$jobconf = JobConfiguration::first();
-			if($jobconf){
-				$j = new Job;
-				$j->batch_id = $batch->_id;
-				$j->template = $template;
-				$j->questionTemplate_id = $questiontemplateid;
-				$j->jobConf_id = $jobconf->_id;  // BAD
-				$amt = App::make('amt');
-				$questions = $amt->amtPublish($j, true,true);//$j->getPreviews();
-			} else {
-				$questions = array();
-			}	
+			$j = new Job;
+			$j->batch_id = $batch->_id;
+			$j->template = $template;
+			$j->questionTemplate_id = $questiontemplateid;
+			//$j->jobConf_id = $jobconf->_id;  // BAD
+			$amt = App::make('amt');
+			$questions = $amt->amtPublish($j, true,true, $jc);//$j->getPreviews();
 		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
 		}
 
 		$toomany = '';
-		if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)) 
-			$toomany = '<li>Units per task should be smaller than the batch.</li>';
+		if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)){
+			$jc->setKey('unitsPerTask', count($batch->wasDerivedFrom)); 
+			Session::flash('flashNotice', 'Adapted units per task to match the batch size.');
+		}	
+
 		if(!$jc->validate() or !empty($toomany)){
 			$msg = '<ul>';
 			foreach ($jc->getErrors()->all() as $message)
@@ -510,6 +531,10 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			Session::put('batch', serialize($batch));
 		} else {
 			$batch = unserialize(Session::get('batch'));
+			if(empty($batch)){
+				Session::flash('flashNotice', 'Please select a batch first.');
+				return Redirect::to("process/batch");
+			}	
 		}
 
 		if(Input::has('template')){
@@ -565,7 +590,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 							$next = $jcc['platform'][0];
 						} else {
 							Session::flash('flashNotice', 'Please select a platform first');
-							Redirect::to("process/platform");
+							return Redirect::to("process/platform");
 						}
 					}
 				}
@@ -705,7 +730,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		   	else $displaydir = $dirname;
 
 			$r[] = array('id' => $dirname, 'parent' => '#', 'text' => $displaydir); 
-			$oldfilename = '';
+			$donefilenames = array();
 			foreach(File::allFiles($dir) as $file){
 				$fullfilename = $file->getFileName();
 				if (substr($fullfilename, -5) == '.html')
@@ -715,7 +740,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				if (substr($fullfilename, -3) == '.js')
 					$filename = substr($fullfilename, 0, -3);
 
-				if (isset($filename) and $filename != $oldfilename) {
+				if (isset($filename) and !(in_array($filename, $donefilenames))) {
 		   			if($pretty) $displayname = ucfirst(str_replace('_', ' ', $filename));
 		   			else $displayname = $filename;
 		   			if("$dirname/$filename" == $currenttemplate)
@@ -723,7 +748,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		   			else
 		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $displayname);
 		   			
-		   			$oldfilename = $filename;
+		   			$donefilenames[] = $filename;
 		   		}	
 			}
 		}
