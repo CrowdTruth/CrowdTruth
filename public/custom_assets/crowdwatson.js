@@ -592,6 +592,18 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
  		}
  	}, true);
 
+ 	$scope.selectAll = function(){
+ 		angular.forEach($scope.pictures, function(value, key){
+ 			this.checked = true;
+ 		})
+ 	}
+
+ 	$scope.deselectAll = function(){
+ 		angular.forEach($scope.pictures, function(value, key){
+ 			this.checked = false;
+ 		})
+ 	}
+
  	$scope.executeScript = function(){
  		if ($scope.selection[0] == null ){
  			alert('Select an image first.')
