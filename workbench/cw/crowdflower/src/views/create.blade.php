@@ -21,7 +21,7 @@
 								<legend>CrowdFlower</legend> 
 								{{ Form::label('annotationsPerWorker', 'Max annotations per worker', array('class'=>'col-xs-4 control-label')) }}
 								<div class="input-group col-xs-2">
-									{{ Form::input('number', 'annotationsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1')) }}
+									{{ Form::input('number', 'annotationsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1', 'data-toggle'=> 'tooltip', 'title'=>'Amount of units a worker is allowed to annotate', 'data-placement'=>'right')) }}
 								</div>
 								<br>
 								{{ Form::label('countries[]', 'Countries', array('class'=>'col-xs-4 control-label')) }}
@@ -47,7 +47,7 @@
 
 @section('platformend')
 <script>
-$('.selectpicker').selectpicker();
+$('.selectpicker').selectpicker('render');
 
 $('#deselectcountries').click(function(){
 	$('#countries').selectpicker('deselectAll');

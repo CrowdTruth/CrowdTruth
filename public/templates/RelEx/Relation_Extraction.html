@@ -5,89 +5,61 @@
 <div class="highlight-box">
 <div class="highlight-box">
 <div class="collapse in well">
-<p><strong>STEP 1:</strong> Read the SENTENCE below and select all the RELATION TYPE(s) that you think are expressed between the TWO HIGHLIGHTED WORDS in the text.</p>
-
-<p>Note that if one of the WORDS appears multiple time you will have to consider only the highlighted one.</p>
-
-<p><strong>STEP 2a:</strong> Highlight the words from the text that support or indicate that the selected RELATION TYPE holds in this sentece.</p>
-
-<pre>
-<code>     Example 1:  
-     for the relation &#39;PREVENTS&#39; between &#39;INFLUENZA&#39; and &#39;VITAMIN C&#39; 
-     in the sentence &quot;.... the risk of influenza is reduced by vitamin C...&quot;
-     highlight the words: &quot;reduced by&quot;
-
-     Example 2: 
-     for the relation &#39;DIAGNOSE&#39; between &#39;RINNE TEST&#39; and &#39;HEARING LOSS&#39; 
-     in the sentence &quot; ... RINNE test is used for determining hearing loss ...&quot;
-     highlight the words: &quot;used for determining&quot;</code></pre>
-
-<p>How to HIGHLIGHT words in the TEXT:</p>
-
-<ul>
-	<li>click on each word in the text that you want to SELECT</li>
-	<li>click on already highlighted word to DE-SELECT it</li>
-</ul>
-
-<p><em>NOTE:</em> You can inspect your current selection in the text field below.</p>
-
-<p><strong>STEP 2b:</strong> If you select &lsquo;NONE&rsquo; in STEP 1, then explain why do you think there is no relationship between the two words in the sentence.</p>
-
-<p><em>NOTE:</em> You are not expected to have a domain knowledge in the topic of the sentence. It doesn&rsquo;t matter if you don&rsquo;t know what the highlighted words mean. It is important to understand what the different relation types mean (in STEP 1). HOVER MOUSE over each relation name to see the DEFINITION and an EXAMPLE.</p>
+{{instructions}}
 </div>
 </div>
 </div>
 
 <p>In this sentence:</p>
 
-<p><em><span class="senval" id="senval" style="color:#0000CD;">${sentence.text}</span></em></p>
+<p><em><span class="senval" id="senval" style="color:#0000CD;">{{sentence_formatted}}</span></em></p>
 
-<p>Is <em><span style="color:#0000CD;">${term.first.text}</span></em> ---<strong>related to</strong>--- <em><span style="color:#0000CD;">${term.second.text}</span></em>?</p>
+<p>Is <em><span style="color:#0000CD;">{{terms_first_formatted}}</span></em> ---<strong>related to</strong>--- <em><span style="color:#0000CD;">{{terms_second_formatted}}</span></em>?</p>
 
 <h3><strong>STEP 1: Select the valid RELATION(s)</strong></h3>
 
 <table border="0" cellpadding="0" cellspacing="4">
 	<tbody>
 		<tr>
-			<td valign="center"><input id="A0" name="Q1" onclick="setRelTextBox(0);" type="checkbox" value="treats" /></td>
+			<td valign="center"><input id="A0" name="{uid}_Q1" onclick="setRelTextBox(0);" type="checkbox" value="treats" /></td>
 			<td><span class="answertext" title="TREATS: Therapeutic use of an ingredient or a drug, e.g. penicillin cures infection, etc.">[TREATS]</span></td>
-			<td valign="center"><input id="A1" name="Q1" onclick="setRelTextBox(1);" type="checkbox" value="prevents" /></td>
+			<td valign="center"><input id="A1" name="{uid}_Q1" onclick="setRelTextBox(1);" type="checkbox" value="prevents" /></td>
 			<td><span class="answertext" title="PREVENTS: Preventative use of an ingredient or a drug, e.g. vitamin C reduces the risk of influenza, etc.">[PREVENTS]</span></td>
 		</tr>
 		<tr>
-			<td valign="center"><input id="A2" name="Q1" onclick="setRelTextBox(2);" type="checkbox" value="diagnosed_by_test_or_drug" /></td>
+			<td valign="center"><input id="A2" name="{uid}_Q1" onclick="setRelTextBox(2);" type="checkbox" value="diagnosed_by_test_or_drug" /></td>
 			<td><span class="answertext" title="DIAGNOSE_BY_TEST_OR_DRUG: Diagnostic use of an ingredient, test or a drug, e.g.  RINNE test is used for determining hearing loss, etc.">[DIAGNOSED BY TEST OR DRUG]</span></td>
-			<td valign="center"><input id="A3" name="Q1" onclick="setRelTextBox(3);" type="checkbox" value="causes" /></td>
+			<td valign="center"><input id="A3" name="{uid}_Q1" onclick="setRelTextBox(3);" type="checkbox" value="causes" /></td>
 			<td><span class="answertext" title="CAUSES: The underlying reason for a symptom or a disease, e.g. fever induces dizziness etc.">[CAUSES]</span></td>
 		</tr>
 		<tr>
-			<td valign="center"><input id="A4" name="Q1" onclick="setRelTextBox(4);" type="checkbox" value="location" /></td>
+			<td valign="center"><input id="A4" name="{uid}_Q1" onclick="setRelTextBox(4);" type="checkbox" value="location" /></td>
 			<td><span class="answertext" title="LOCATION: Body part or anatomical structure in which disease or disorder is observed, e.g. leukimia is found in the circulatory system, etc.">[LOCATION]</span></td>
-			<td valign="center"><input id="A5" name="Q1" onclick="setRelTextBox(5);" type="checkbox" value="symptom" /></td>
+			<td valign="center"><input id="A5" name="{uid}_Q1" onclick="setRelTextBox(5);" type="checkbox" value="symptom" /></td>
 			<td><span class="answertext" title="SYMPTOM: Deviation from normal function indicating the presence of disease or abnormality, e.g. pain is a symptom of a broken arm, etc.">[SYMPTOM]</span></td>
 		</tr>
 		<tr>
-			<td valign="center"><input id="A6" name="Q1" onclick="setRelTextBox(6);" type="checkbox" value="manifestation" /></td>
+			<td valign="center"><input id="A6" name="{uid}_Q1" onclick="setRelTextBox(6);" type="checkbox" value="manifestation" /></td>
 			<td><span class="answertext" title="MANIFESTATION: Links disorders to the observations (manifestations) that are closely associated with them, e.g. abdominal distension is a manifestation of liver failure.">[MANIFESTATION]</span></td>
-			<td valign="center"><input id="A7" name="Q1" onclick="setRelTextBox(7);" type="checkbox" value="contraindicates" /></td>
+			<td valign="center"><input id="A7" name="{uid}_Q1" onclick="setRelTextBox(7);" type="checkbox" value="contraindicates" /></td>
 			<td><span class="answertext" title="CONTRAINDICATES: A condition that indicates that drug or treatment SHOULD NOT BE USED, e.g. patients with obesity should avoid using danazol.">[CONTRAINDICATES]</span></td>
 		</tr>
 		<tr>
-			<td valign="center"><input id="A8" name="Q1" onclick="setRelTextBox(8);" type="checkbox" value="associated_with" /></td>
+			<td valign="center"><input id="A8" name="{uid}_Q1" onclick="setRelTextBox(8);" type="checkbox" value="associated_with" /></td>
 			<td><span class="answertext" title="ASSOCIATED_WITH: Signs, symptoms or findings that often appear together, e.g. patients who smoke often have yellow teeth.">[ASSOCIATED WITH]</span></td>
-			<td valign="center"><input id="A9" name="Q1" onclick="setRelTextBox(9);" type="checkbox" value="side_effect" /></td>
+			<td valign="center"><input id="A9" name="{uid}_Q1" onclick="setRelTextBox(9);" type="checkbox" value="side_effect" /></td>
 			<td><span class="answertext" title="SIDE_EFFECT: A secondary condition or symptom that results from a drug or treatment, e.g. use of antidepressants causes dryness in the eyes.">[SIDE EFFECT]</span></td>
 		</tr>
 		<tr>
-			<td valign="center"><input id="A10" name="Q1" onclick="setRelTextBox(10);" type="checkbox" value="is_a" /></td>
+			<td valign="center"><input id="A10" name="{uid}_Q1" onclick="setRelTextBox(10);" type="checkbox" value="is_a" /></td>
 			<td><span class="answertext" title="IS_A: A relation that indicates that one of the terms is more specific variation of the other, e.g. migraine is a kind of headache.">[IS A]</span></td>
-			<td valign="center"><input id="A11" name="Q1" onclick="setRelTextBox(11);" type="checkbox" value="part_of" /></td>
+			<td valign="center"><input id="A11" name="{uid}_Q1" onclick="setRelTextBox(11);" type="checkbox" value="part_of" /></td>
 			<td><span class="answertext" title="PART_OF: An anatomical or structural sub-component, e.g. the left ventrical is part of the heart.">[PART OF]</span></td>
 		</tr>
 		<tr>
-			<td valign="center"><input id="A12" name="Q1" onclick="setRelTextBox(12);" type="checkbox" value="other" /></td>
+			<td valign="center"><input id="A12" name="{uid}_Q1" onclick="setRelTextBox(12);" type="checkbox" value="other" /></td>
 			<td><span class="answertext" title="OTHER: The words are related, but not by any of the above relations.">[OTHER]</span></td>
-			<td valign="center"><input id="A13" name="Q1" onclick="setRelTextBox(13);" type="checkbox" value="none" /></td>
+			<td valign="center"><input id="A13" name="{uid}_Q1" onclick="setRelTextBox(13);" type="checkbox" value="none" /></td>
 			<td><span class="answertext" title="NONE: There is no relation between those words in this sentence">[NONE]</span></td>
 		</tr>
 	</tbody>
@@ -97,22 +69,20 @@
 
 <h3><strong>Selected relations</strong></h3>
 
-<p><input id="Q1text" name="Q1text" size="50" type="text" value="" /></p>
+<p><input id="Q1text" name="{uid}_Q1text" size="50" type="text" value="" /></p>
 
 <h3><strong>STEP 2a: Highlight in the sentence ONLY the words that express the RELATION you selected in STEP1</strong></h3>
 
-<p><input id="Q2a" name="Q2a" size="50" type="text" value="" /></p>
+<p><input id="Q2a" name="{uid}_Q2a" size="50" type="text" value="" /></p>
 
 <h5><span style="color:#FF0000;"><img src="http://www.ancad.ro/wp-content/uploads/2013/12/info.gif" /> Highlight ONLY the words that express the RELATION you have selected in STEP1. DO NOT copy the whole sentence.</span></h5>
 
 <h3><strong>STEP 2b: If you selected [NONE] in STEP 1, explain why</strong></h3>
 
-<p><textarea cols="50" id="Q2b" name="Q2b" rows="5"></textarea></p>
+<p><textarea cols="50" id="Q2b" name="{uid}_Q2b" rows="5"></textarea></p>
 
 <h5><span style="color:#FF0000;"><img src="http://www.ancad.ro/wp-content/uploads/2013/12/info.gif" /> If you think there is a relation between those two words, but it is different than any of the relations in STEP 1, then type the relation here. If you think there is no relation between those terms, explain why you think that is.</span></h5>
-
-<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script type="text/javascript">
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script><script type="text/javascript">
 
 	var relations = new Array(
 		"[TREATS]",

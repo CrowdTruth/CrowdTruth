@@ -40,8 +40,9 @@ calculate();
 	$('#jstree').jstree({ 'core' : {
 	"theme" : {
       "variant" : "large",
-      "icons" : "false"
-    },	
+      "icons" : false
+    },
+    "multiple":false,	
     'data' : {{ $treejson }},
 
 } }).on('changed.jstree', function (e, data) {
@@ -80,6 +81,7 @@ calculate();
     	}
     } 
 
+$("[data-toggle=tooltip]").tooltip();
 </script>
 @endsection
 

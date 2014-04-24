@@ -23,14 +23,14 @@
 										array('class' => 'col-xs-4 control-label')) }}
 									<div class="input-group col-xs-2">
 										{{ Form::input('number','hitLifetimeInMinutes',  null, 
-											array('class' => 'form-control input-sm', 'min' => '1', 'placeholder' => '1 day = 1440')) }}
+											array('class' => 'form-control input-sm', 'min' => '1', 'placeholder' => '1 day = 1440', 'data-toggle'=> 'tooltip', 'title'=>'The HIT expires in this time, even if it\'s not finished', 'data-placement'=>'right')) }}
 									</div>
 									<br>
 									{{ Form::label('autoApprovalDelayInMinutes', 'Auto approval delay (minutes)', 
 										array('class' => 'col-xs-4 control-label')) }}
 									<div class="input-group col-xs-2">
 									{{ Form::input('number','autoApprovalDelayInMinutes',  null, 
-										array('class' => 'form-control input-sm', 'placeholder' => '1 day = 1440', 'min' => '1')) }}
+										array('class' => 'form-control input-sm', 'placeholder' => '1 day = 1440', 'min' => '1', 'data-toggle'=> 'tooltip', 'title'=>'After the Assignment is finished, automatically approve after...', 'data-placement'=>'right')) }}
 									</div>
 							</fieldset>
 							<br>
@@ -122,7 +122,7 @@
 									array('class' => 'col-xs-4 control-label')) }}
 								<div class="input-group col-xs-2">
 									{{ Form::input('number','frameheight',  null, 
-										array('class' => 'form-control input-sm', 'min' => '300')) }}
+										array('class' => 'form-control input-sm', 'min' => '300', 'data-toggle'=> 'tooltip', 'title'=>'The height of the frame the worker sees the assignment in.', 'data-placement'=>'right')) }}
 								</div>
 							</fieldset>		
 						</div>

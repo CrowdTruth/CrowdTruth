@@ -1,6 +1,10 @@
 @extends('layouts.default')
 
 @section('head')
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
+<script type="text/javascript" src="http://code.angularjs.org/1.2.9/angular-resource.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js"></script>
+
 <script type="text/javascript" src="/custom_assets/crowdwatson.js"></script>	
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>

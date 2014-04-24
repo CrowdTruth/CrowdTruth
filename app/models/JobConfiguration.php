@@ -109,7 +109,7 @@ class JobConfiguration extends Entity {
 		    	$rules = array_merge($rules, $platform->getJobConfValidationRules());
 		    }	
    	 	} else {
-   	 		$this->errors->add('platform', 'Please provide at least one platform.');
+   	 		$this->errors->add('platform', 'Please provide at least one <a href="/process/platform">platform</a>.');
    	 		$isok = false;
    	 	}
 
@@ -166,6 +166,18 @@ class JobConfiguration extends Entity {
             return $jc;
         }    
 	}
+
+    public function setValue($key, $value){
+        $c = $this->content;
+        $c[$key] = $value;
+        $this->content = $c;
+    }
+
+    public function unsetKey($key){
+        $c = $this->content;
+        unset($c[$key]);
+        $this->content = $c;
+    }
 
 }
 	
