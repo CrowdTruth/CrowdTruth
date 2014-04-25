@@ -94,5 +94,17 @@
 @yield('end_javascript')
 @yield('platformend')
 @yield('selection_user_javascript')
+<footer class="navbar-fixed-bottom">
+	<?php 
+	$all = array();
+
+	foreach(scandir(app_path()) as $d){
+		$path = app_path()  . DIRECTORY_SEPARATOR . $d;
+		if((is_dir($path)) and ($d!='.') and ($d!='..') and ($d!='storage')){
+			$all[]=filemtime($path);
+		}
+	}
+	echo date("Y-m-d", max($all)); ?>
+</footer>
 	</body>
 </html>
