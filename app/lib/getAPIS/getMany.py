@@ -43,6 +43,8 @@ def closse(response):
 #url = 'http://jolicrowd.net/api/media/post'
 url = 'http://127.0.0.1:8888/api/media/test'
 url = 'http://127.0.0.1/api/media/test'
+url = 'http://jolicrowd.net/api/media/test'
+
 headers = {'content-type': 'application/json'}
 
 
