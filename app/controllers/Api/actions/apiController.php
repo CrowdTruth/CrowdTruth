@@ -102,19 +102,21 @@ class apiController extends BaseController {
 			
 			}
 			// RUN PYTHON SCRIPT THAT CALLS APIs TO ADD FEATURES TO IMAGE
-			try {
-				$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py" . $domain . " " . $type . " " .  $url . " " . $id;
-				
-				exec($command,$output,$error);				
-
-			} catch (Exception $e){
-				//throw $e; // for debugging.
-				$return['error'] = $e->getMessage();
-				$return['status'] = 'bad';
-			} 
-
-			return $this->returnJson($return);
 		}
+	
+		try {
+			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py" . $domain . " " . $type . " " .  $urlset . " " . $id;
+			
+			exec($command,$output,$error);				
+
+		} catch (Exception $e){
+			//throw $e; // for debugging.
+			$return['error'] = $e->getMessage();
+			$return['status'] = 'bad';
+		} 
+
+		return $this->returnJson($return);
+
 	}
 
 	//i.e.: entity/text/medical/job/1

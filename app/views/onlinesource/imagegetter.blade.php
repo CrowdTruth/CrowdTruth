@@ -4,6 +4,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.13/angular.min.js"></script>
 <script type="text/javascript" src="/custom_assets/crowdwatson.js"></script>
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.0rc2/angular-resource.min.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
 <script type="text/javascript" src="/custom_assets/angular-form-builder/angular-form-builder.js"></script>
 <script type="text/javascript" src="/custom_assets/angular-form-builder/angular-form-builder-components.js"></script>
@@ -77,18 +78,24 @@
 				<div ng-show="loading" class="loading"><img class="loading-img" src="/loading.gif"><div>Loading..</div></div>
 				<div ng-show="empty" style="margin-left: 20px;"><h3> No images found in this query </h3><a ng-click="emptyArray()"> click here to go back</a> </div>
 
+				<div ng-show="!loading && !empty" class="space-left" style="margin-top: 10px;">
+					<button ng-click="selectAll()" ng-show="!allSelected">Select all</button>
+					<button ng-click="deselectAll()" ng-show="allSelected">Deselect all</button>
+				</div>
+
 				<div class="space-left" style="margin-top: 30px;">
-					
-					<div class="image-box pull-left" ng-show="!loading && !empty" ng-repeat="image in pictures" style="background-image: url(@{{image.url}}); background-size: 100%">
-						
-							<div ng-class="{overlay: image.checked}" class="image-selectable" >
-								
-									<div class="image-checkbox">
-										<input type="checkbox" ng-model="image.checked">
-									</div>
-								
+					<div class="image-box pull-left" ng-show="!loading && !empty" ng-repeat="image in pictures" style="background-image: url(@{{image.url}}); background-size: 100%; background-repeat: no-repeat">
+						<a ng-click="image.checked">
+							<div class="non-overlay">
+								<div ng-class="{overlay: image.checked}" class="image-selectable" >
+									
+										<div class="image-checkbox">
+											<input type="checkbox" ng-model="image.checked">
+										</div>
+									
+								</div>
 							</div>
-						
+						</a>
 					</div>
 				</div>
 
