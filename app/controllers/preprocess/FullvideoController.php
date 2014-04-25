@@ -19,12 +19,12 @@ class FullvideoController extends BaseController {
 
 	public function getIndex()
 	{
-		return Redirect::to('preprocess/fullvideo/actions');
+		return Redirect::to('media/preprocess/fullvideo/actions');
 	}
 
 	public function getInfo()
 	{
-		return View::make('preprocess.fullvideo.pages.info');
+		return View::make('media.preprocess.fullvideo.pages.info');
 	}
 
 	public function getActions()
@@ -33,10 +33,10 @@ class FullvideoController extends BaseController {
 
 		if(count($entities) > 0)
 		{
-			return View::make('preprocess.fullvideo.pages.actions', compact('entities'));
+			return View::make('media.preprocess.fullvideo.pages.actions', compact('entities'));
 		}
 
-		return Redirect::to('files/upload')->with('flashNotice', 'You have not uploaded any "fullvideo" documents yet');
+		return Redirect::to('media/upload')->with('flashNotice', 'You have not uploaded any "fullvideo" documents yet');
 
 
 		$items = Cart::content();
@@ -64,7 +64,7 @@ class FullvideoController extends BaseController {
 
 		}
 
-		return Redirect::to('files/browse')->with('flashNotice', 'You have not added any "fullvideo" items to your selection yet');
+		return Redirect::to('media/browse')->with('flashNotice', 'You have not added any "fullvideo" items to your selection yet');
 
 	}
 

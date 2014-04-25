@@ -335,7 +335,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		}
 			
 		
-		if(empty($currenttemplate)) $currenttemplate = 'RelDir/relation_Direction';
+		if(empty($currenttemplate)) $currenttemplate = 'RelDir/relation_direction';
 		$treejson = $this->makeDirTreeJSON($currenttemplate);
 
 		return View::make('process.tabs.template')

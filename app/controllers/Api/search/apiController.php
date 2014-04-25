@@ -46,7 +46,8 @@ class apiController extends BaseController {
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
 
-    	if(Input::has('field'))
+
+    	if(Input::has('match'))
     	{
 			$collection = $this->processFields($collection);
 		}
@@ -77,7 +78,7 @@ class apiController extends BaseController {
 		
 			$collection = $collection->skip($start)->orderBy($sortingColumnName, $sortingDirection)->take($limit)->get($only);
 
-			if($input = Input::get('field'))
+			if($input = Input::get('match'))
 			{
 				$iTotalRecords = new \MongoDB\Entity;
 
@@ -187,7 +188,7 @@ class apiController extends BaseController {
 		return Response::json([
 			"count" => $count,
 			"pagination" => $pagination,
-			"searchQuery" => Input::all(),
+			"searchQuery" => Input::except('page'),
 			"documents" => $documents
 			]);
 
@@ -219,7 +220,7 @@ class apiController extends BaseController {
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
 
-    	if(isset(Input::get('field')['_id']))
+    	if(isset(Input::get('match')['_id']))
     	{
 			$collection = $this->processFields($collection);
 
@@ -240,7 +241,7 @@ class apiController extends BaseController {
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
 
-    	if(isset(Input::get('field')['_id']))
+    	if(isset(Input::get('match')['_id']))
     	{
 			$collection = $this->processFields($collection);
 
@@ -264,7 +265,7 @@ class apiController extends BaseController {
 
 	protected function processFields($collection)
 	{
-		foreach(Input::get('field') as $field => $value)
+		foreach(Input::get('match') as $field => $value)
 		{
 			if(is_array($value))
 			{
@@ -287,10 +288,22 @@ class apiController extends BaseController {
 						{
 							$collection = $collection->where($field, $operator, "%" . preg_quote($subvalue, '/') . "%");
 						}
+						elseif($field == "created_at" || $field == "updated_at")
+						{
+							$date = new \DateTime($subvalue);
+
+							if($operator == "<=")
+							{
+								$date->add(new \DateInterval('P1D'));
+								$operator = "<";
+							}
+
+							$collection = $collection->where($field, $operator, $date);
+						}
 						else
 						{
 							$collection = $collection->where($field, $operator, $subvalue);
-						}						
+						}		
 					}
 				}
 
@@ -304,7 +317,6 @@ class apiController extends BaseController {
 
 				$collection = $collection->whereIn($field, array($value));
 			}
-
 		}
 
 		return $collection;		

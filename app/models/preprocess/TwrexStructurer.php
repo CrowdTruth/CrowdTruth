@@ -6,37 +6,77 @@ use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDate;
-use URL, Session, Exception, Auth;
+use Exception, Auth;
 
 class TwrexStructurer {
 
-	public function __construct()
+	protected $activity, $softwareAgent;
+	protected $status = [
+		"store" => [
+			"error" => [
+				"skipped_duplicates" => []
+			],
+			"success" => []
+		]
+	];
+
+	public function __construct(Activity $activity, SoftwareAgent $softwareAgent)
 	{
 		set_time_limit(1200);
 		\DB::connection()->disableQueryLog();
+		$this->activity = $activity;
+		$this->softwareAgent = $softwareAgent;
 	}
-
-	public function array_unique_multidimensional($array)
-	{
-		return array_intersect_key($array, array_unique(array_map('serialize', $array)));	    
-	}	
 
 	public function process($twrex, $preview = false)
 	{
-		// fastcgi_finish_request();
-		$twrexLines = $this->array_unique_multidimensional(explode("\n", $twrex->content));
+		$twrexLines = $this->array_unique_multidimensional(explode("\n", $twrex['content']));
+		$twrex['content'] = null;
 
 		if($preview)
 		{
 			$twrexLines = array_slice($twrexLines, 0, 100);
+			return $this->processLines($twrexLines);
 		}
 
+		if(count($twrexLines) > 10000)
+		{
+			$arrayChunks = array_chunk($twrexLines, 10000);
+		}
+		else
+		{
+			$arrayChunks = array($twrexLines);
+		}
+
+		unset($twrexLines);
+
+		$this->createSoftwareAgent();
+		$this->createActivity();
+		$inc = $this->getLastDocumentInc();
+
+		foreach($arrayChunks as &$chunkVal)
+		{
+			try {
+				$inc = $this->store($twrex, $this->processLines($chunkVal), $inc);		
+			} catch(Exception $e) {
+				$this->status['store'] = $e->getMessage();
+				$this->activity->forceDelete();
+			}
+
+		}
+
+		return $this->status;
+	}
+
+	public function processLines(&$twrexLines)
+	{
+		// fastcgi_finish_request();
 		// dd(count($twrexLines));
 
 		$twrexStructuredSentences = array();
 		$tempTwrexStructuredSentences = array();
 
-		foreach($twrexLines as $twrexLineKey => $twrexLineVal)
+		foreach($twrexLines as $twrexLineKey => &$twrexLineVal)
 		{
 			$twrexLineSegments = explode("\t", $twrexLineVal);
 
@@ -82,14 +122,17 @@ class TwrexStructurer {
 		// dd(count($this->array_unique_multidimensional($tempTwrexStructuredSentences)));
 		// dd(count($tempTwrexStructuredSentences));
 
-		unset($twrex, $twrexLines);
+		unset($twrexLines);
 
 		$tempTwrexStructuredSentences = $this->array_unique_multidimensional($tempTwrexStructuredSentences);
-		
-		$overlappingOffsetSentences = [];
 
-		foreach($tempTwrexStructuredSentences as $tKey => $tempTwrexStructuredSentence)
+		$length = count($tempTwrexStructuredSentences);
+
+		for($i = 0; $i < $length; $i++)
 		{
+			$tempTwrexStructuredSentence = $tempTwrexStructuredSentences[$i];
+			unset($tempTwrexStructuredSentences[$i]);
+
 			foreach($tempTwrexStructuredSentence['terms']['first'] as $firstTerm)
 			{
 				foreach($tempTwrexStructuredSentence['terms']['second'] as $secondTerm)
@@ -100,7 +143,7 @@ class TwrexStructurer {
 
 					if($this->overlappingOffsets($twrexStructuredSentence))
 					{
-						array_push($overlappingOffsetSentences, $twrexStructuredSentence);
+						// array_push($overlappingOffsetSentences, $twrexStructuredSentence);
 						continue;
 					}
 
@@ -119,20 +162,15 @@ class TwrexStructurer {
 
 					ksort($twrexStructuredSentence['terms']);
 
-					if($preview)
-					{
-						array_push($twrexStructuredSentences, $twrexStructuredSentence);
-					}
-					else
-					{
-						array_push($twrexStructuredSentences, serialize($twrexStructuredSentence));
-					}
+					array_push($twrexStructuredSentences, $twrexStructuredSentence);
 
 				}
 			}
 
-			unset($tempTwrexStructuredSentences[$tKey]);
+			// unset($tempTwrexStructuredSentences[$tKey]);
 		}
+
+		return $twrexStructuredSentences;
 
 		// $allHashes = array();
 		// $duplicates = array();
@@ -170,6 +208,11 @@ class TwrexStructurer {
 
 		return $twrexStructuredSentences;
 	}
+
+	public function array_unique_multidimensional($array)
+	{
+		return array_values(array_intersect_key($array, array_unique(array_map('serialize', $array))));	    
+	}	
 
 	public function formatUppercase($twrexStructuredSentence)
 	{
@@ -213,7 +256,7 @@ class TwrexStructurer {
 		return $twrexStructuredSentence;
 	}
 
-	public function getAllTermCombinations($tempTwrexStructuredSentence)
+	public function getAllTermCombinations(&$tempTwrexStructuredSentence)
 	{
 		$firstTerm = strtolower($tempTwrexStructuredSentence['terms']['first']['text']);
 		$secondTerm = strtolower($tempTwrexStructuredSentence['terms']['second']['text']);
@@ -277,7 +320,7 @@ class TwrexStructurer {
 		return 0;
 	}
 
-	public function relationOutsideTerms($twrexStructuredSentence)
+	public function relationOutsideTerms(&$twrexStructuredSentence)
 	{
 		$sentenceText = strtolower($twrexStructuredSentence['sentence']['text']);
 		$b1 = $twrexStructuredSentence['terms']['first']['startIndex'];
@@ -312,7 +355,7 @@ class TwrexStructurer {
 		return 0;		
 	}
 
-	public function relationBetweenTerms($twrexStructuredSentence)
+	public function relationBetweenTerms(&$twrexStructuredSentence)
 	{
 		$sentenceText = strtolower($twrexStructuredSentence['sentence']['text']);
 		$b1 = $twrexStructuredSentence['terms']['first']['startIndex'];
@@ -339,7 +382,7 @@ class TwrexStructurer {
 		return 0;
 	}
 
-	public function semicolonBetweenTerms($twrexStructuredSentence)
+	public function semicolonBetweenTerms(&$twrexStructuredSentence)
 	{
 		$sentenceText = strtolower($twrexStructuredSentence['sentence']['text']);
 		$b1 = $twrexStructuredSentence['terms']['first']['startIndex'];
@@ -363,7 +406,7 @@ class TwrexStructurer {
 		return 0;
 	}
 
-	public function commaSeparatedTerms($twrexStructuredSentence)
+	public function commaSeparatedTerms(&$twrexStructuredSentence)
 	{
 		$sentenceText = strtolower($twrexStructuredSentence['sentence']['text']);
 		$b1 = $twrexStructuredSentence['terms']['first']['startIndex'];
@@ -437,7 +480,7 @@ class TwrexStructurer {
 		return 0;
 	}
 
-	public function parenthesisAroundTerms($twrexStructuredSentence)
+	public function parenthesisAroundTerms(&$twrexStructuredSentence)
 	{
 		$sentenceText = strtolower($twrexStructuredSentence['sentence']['text']);
 		$firstTerms = strtolower($twrexStructuredSentence['terms']['first']['text']);
@@ -502,7 +545,7 @@ class TwrexStructurer {
 		return 0;
 	}
 
-	public function overlappingTerms($twrexStructuredSentence)
+	public function overlappingTerms(&$twrexStructuredSentence)
 	{
 		$firstTerms = strtolower($twrexStructuredSentence['terms']['first']['text']);
 		$secondTerms = strtolower($twrexStructuredSentence['terms']['second']['text']);
@@ -519,7 +562,7 @@ class TwrexStructurer {
 		return 0;	
 	}
 
-	public function overlappingOffsets($twrexStructuredSentence)
+	public function overlappingOffsets(&$twrexStructuredSentence)
 	{
 		$b1 = $twrexStructuredSentence['terms']['first']['startIndex'];
 		$b2 = $twrexStructuredSentence['terms']['second']['startIndex'];
@@ -589,29 +632,130 @@ class TwrexStructurer {
 		return $relationWithoutPrefix;
 	}
 
-	public function store($parentEntity, $twrexStructuredSentences)
+	public function store(&$parentEntity, $twrexStructuredSentences, $inc)
 	{
-		$status = array();
+		// dd('test');
 
-		try {
-			$this->createTwrexStructurerSoftwareAgent();
-		} catch (Exception $e) {
-			$status['error']['TwrexStructurer'] = $e->getMessage();
-			return $status;
+		$allEntities = array();
+
+        foreach($twrexStructuredSentences as $tKey => &$twrexStructuredSentence)
+        {
+
+			$title = $parentEntity['title'] . "_index_" . $inc;
+
+			$hash = md5(serialize(array_except($twrexStructuredSentence, ['properties'])));
+
+			if($dup = Entity::where('hash', $hash)->first())
+			{
+				array_push($this->status['store']['error']['skipped_duplicates'], $tKey . " ---> " . $dup->_id);
+				continue;
+			}
+
+            if (Auth::check())
+            {
+                $user_id = Auth::user()->_id;
+            } else 
+            {
+                $user_id = "crowdwatson";
+            } 			
+
+			$entity = [
+				"_id" => 'entity/text/medical/twrex-structured-sentence/' . $inc,
+				"title" => strtolower($title),
+				"domain" => $parentEntity['domain'],
+				"format" => $parentEntity['format'],
+				"documentType" => "twrex-structured-sentence",
+				"parents" => [$parentEntity['_id']],
+				"content" => $twrexStructuredSentence,
+				"hash" => $hash,
+				"activity_id" => $this->activity->_id,
+				"user_id" => $user_id,
+				"updated_at" => new MongoDate(time()),
+				"created_at" => new MongoDate(time())
+			];
+
+			array_push($allEntities, $entity);
+
+			$inc++;
+
+			// array_push($this->status['store']['success'], $tKey);
+
+			array_push($this->status['store']['success'], $tKey . " ---> URI: {$entity['_id']}");
+
+			// $this->status['store']['success'][$title] = "URI: {$entity['_id']})";
 		}
 
-		try {
-			$activity = new Activity;
-			$activity->softwareAgent_id = "twrexstructurer";
-			$activity->save();
+		if(count($allEntities) > 1)
+		{
+			\DB::collection('entities')->insert($allEntities);
+		}
 
+		//	$allEntities = array_slice($allEntities, 0, 100);
+
+		// dd('yes');
+
+		// if(count($allEntities) > 1)
+		// {
+		// 	if(count($allEntities) > 20000)
+		// 	{
+		// 		$chunkSize = ceil(count($allEntities) / 20000);
+		// 		$arrayChunks = array_chunk($allEntities, $chunkSize);
+		// 		unset($allEntities);
+
+		// 		foreach($arrayChunks as $chunkKey => &$chunkVal)
+		// 		{
+		// 			try{
+		// 				\DB::collection('entities')->insert($chunkVal);
+		// 			} catch (Exception $e) {
+		// 				$status['error']['insert_chunk' . $chunkKey] = $e->getMessage();
+		// 			}
+		// 		}	
+		// 	}
+		// 	else
+		// 	{
+		// 		try{
+		// 			\DB::collection('entities')->insert($allEntities);
+		// 		} catch (Exception $e) {
+		// 			$status['error']['insert_batch'] = $e->getMessage();
+		// 		}
+
+		// 	}
+		// }
+		// else
+		// {
+		// 	$activity->forceDelete();
+		// }
+
+		return $inc;
+	}
+
+	public function createActivity()
+	{
+		try {
+			$this->activity->softwareAgent_id = "twrexstructurer";
+			$this->activity->save();
 		} catch (Exception $e) {
 			// Something went wrong with creating the Activity
-			$activity->forceDelete();
-			$status['error']['activity'] = $e->getMessage();
-			return $status;
-		}
+			$this->activity->forceDelete();
+			$this->status['error']['activity'] = $e->getMessage();
+		}		
+	}
 
+	public function createSoftwareAgent(){
+		try {
+			if(!\MongoDB\SoftwareAgent::find('twrexstructurer'))
+			{
+				$this->softwareAgent->_id = "twrexstructurer";
+				$this->softwareAgent->label = "This component (pre)processes chang documents into structured twrex documents";
+				$this->softwareAgent->save();
+			}
+		} catch (Exception $e) {
+			$this->status['error']['twrexstructurer'] = $e->getMessage();
+		}
+	}	
+
+	public function getLastDocumentInc()
+	{
         $lastMongoURIUsed = Entity::where('format', 'text')->where('domain', 'medical')->where("documentType", 'twrex-structured-sentence')->get(array("_id"));
     
         if(count($lastMongoURIUsed) > 0) {
@@ -629,152 +773,60 @@ class TwrexStructurer {
         	$inc = 0;
         }
 
-        $allEntities = array();
+        unset($lastMongoURIUsed);
 
-		foreach($twrexStructuredSentences as $twrexStructuredSentence){
-			$twrexStructuredSentence = unserialize($twrexStructuredSentence);
-
-			$title = $parentEntity->title . "_index_" . $inc;
-
-			$hash = md5(serialize(array_except($twrexStructuredSentence, ['properties'])));
-
-			if($dup = Entity::where('hash', $hash)->first())
-			{
-				$status['error'][$title] = "Already exists in the database -> {$dup->_id}";
-				continue;
-			}
-
-            if (Auth::check())
-            {
-                $user_id = Auth::user()->_id;
-            } else 
-            {
-                $user_id = "crowdwatson";
-            } 			
-
-			$entity = [
-				"_id" => 'entity/text/medical/twrex-structured-sentence/' . $inc,
-				"title" => strtolower($title),
-				"domain" => $parentEntity->domain,
-				"format" => $parentEntity->format,
-				"documentType" => "twrex-structured-sentence",
-				"parents" => [$parentEntity->_id],
-				"content" => $twrexStructuredSentence,
-				"hash" => $hash,
-				"activity_id" => $activity->_id,
-				"user_id" => $user_id,
-				"updated_at" => new MongoDate(time()),
-				"created_at" => new MongoDate(time())
-			];
-
-			array_push($allEntities, $entity);
-
-			$inc++;
-
-			$status['success'][$title] = $title . " was successfully processed into a twrex-structured-sentence. (URI: {$entity['_id']})";
-		}
-
-		//	$allEntities = array_slice($allEntities, 0, 100);
-
-		if(count($allEntities) > 1)
-		{
-			if(count($allEntities) > 20000)
-			{
-				$chunkSize = ceil(count($allEntities) / 20000);
-				$arrayChunks = array_chunk($allEntities, $chunkSize);
-
-				foreach($arrayChunks as $chunkKey => $chunkVal)
-				{
-					try{
-						\DB::collection('entities')->insert($chunkVal);
-					} catch (Exception $e) {
-						$status['error']['insert_chunk' . $chunkKey] = $e->getMessage();
-					}
-				}	
-			}
-			else
-			{
-				try{
-					\DB::collection('entities')->insert($allEntities);
-				} catch (Exception $e) {
-					$status['error']['insert_batch'] = $e->getMessage();
-				}
-
-			}
-		}
-		else
-		{
-			$activity->forceDelete();
-		}
-
-		return $status;
+        return $inc;		
 	}
 
-	public function originalStore($parentEntity, $twrexStructuredSentences)
-	{
-		// echo "storing";
-		// 		fastcgi_finish_request();
+	// public function originalStore($parentEntity, $twrexStructuredSentences)
+	// {
+	// 	// echo "storing";
+	// 	// 		fastcgi_finish_request();
 
-		$tempEntityID = null;
-		$status = array();
+	// 	$tempEntityID = null;
+	// 	$status = array();
 
-		try {
-			$this->createTwrexStructurerSoftwareAgent();
-		} catch (Exception $e) {
-			$status['error']['TwrexStructurer'] = $e->getMessage();
-			return $status;
-		}
 
-		try {
-			$activity = new Activity;
-			$activity->softwareAgent_id = "twrexstructurer";
-			$activity->save();
+	// 	try {
+	// 		$activity = new Activity;
+	// 		$activity->softwareAgent_id = "twrexstructurer";
+	// 		$activity->save();
 
-		} catch (Exception $e) {
-			// Something went wrong with creating the Activity
-			$activity->forceDelete();
-			$status['error']['activity'] = $e->getMessage();
-			return $status;
-		}
+	// 	} catch (Exception $e) {
+	// 		// Something went wrong with creating the Activity
+	// 		$activity->forceDelete();
+	// 		$status['error']['activity'] = $e->getMessage();
+	// 		return $status;
+	// 	}
 
-		foreach($twrexStructuredSentences as $twrexStructuredSentenceKey => $twrexStructuredSentenceKeyVal){
-			$title = $parentEntity->title . "_index_" . $twrexStructuredSentenceKey;
+	// 	foreach($twrexStructuredSentences as $twrexStructuredSentenceKey => $twrexStructuredSentenceKeyVal){
+	// 		$title = $parentEntity->title . "_index_" . $twrexStructuredSentenceKey;
 
-			try {
-				$entity = new Entity;
-				$entity->_id = $tempEntityID;
-				$entity->title = strtolower($title);
-				$entity->domain = $parentEntity->domain;
-				$entity->format = $parentEntity->format;
-				$entity->documentType = "twrex-structured-sentence";
-				$entity->parents = array($parentEntity->_id);
-				$entity->content = $twrexStructuredSentenceKeyVal;
+	// 		try {
+	// 			$entity = new Entity;
+	// 			$entity->_id = $tempEntityID;
+	// 			$entity->title = strtolower($title);
+	// 			$entity->domain = $parentEntity->domain;
+	// 			$entity->format = $parentEntity->format;
+	// 			$entity->documentType = "twrex-structured-sentence";
+	// 			$entity->parents = array($parentEntity->_id);
+	// 			$entity->content = $twrexStructuredSentenceKeyVal;
 
-				unset($twrexStructuredSentenceKeyVal['properties']);
-				$entity->hash = md5(serialize($twrexStructuredSentenceKeyVal));
-				$entity->activity_id = $activity->_id;
-				$entity->save();
+	// 			unset($twrexStructuredSentenceKeyVal['properties']);
+	// 			$entity->hash = md5(serialize($twrexStructuredSentenceKeyVal));
+	// 			$entity->activity_id = $activity->_id;
+	// 			$entity->save();
 
-				$status['success'][$title] = $title . " was successfully processed into a twrex-structured-sentence. (URI: {$entity->_id})";
-			} catch (Exception $e) {
-				// Something went wrong with creating the Entity
-				$entity->forceDelete();
-				$status['error'][$title] = $e->getMessage();
-			}
+	// 			$status['success'][$title] = $title . " was successfully processed into a twrex-structured-sentence. (URI: {$entity->_id})";
+	// 		} catch (Exception $e) {
+	// 			// Something went wrong with creating the Entity
+	// 			$entity->forceDelete();
+	// 			$status['error'][$title] = $e->getMessage();
+	// 		}
 
-			$tempEntityID = $entity->_id;
-		}
+	// 		$tempEntityID = $entity->_id;
+	// 	}
 
-		return $status;
-	}
-
-	public function createTwrexStructurerSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('twrexstructurer'))
-		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
-			$softwareAgent->_id = "twrexstructurer";
-			$softwareAgent->label = "This component (pre)processes chang documents into structured twrex documents";
-			$softwareAgent->save();
-		}
-	}	
+	// 	return $status;
+	// }
 }

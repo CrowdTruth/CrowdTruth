@@ -114,6 +114,8 @@ class Repository {
 		    case 'users':
 		        return new \User;
 		        return new \User;
+		    case 'temp':
+		        return new \MongoDB\Temp;
 		}
 
 		throw new Exception('Collection / Model does not exist');
