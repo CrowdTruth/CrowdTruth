@@ -7,6 +7,7 @@ use \View;
 use \Input;
 use \Cw\Crowdflower\Cfapi\CFExceptions;
 use \Cw\Crowdflower\Cfapi\Job;
+use \Cw\Crowdflower\Cfapi\Worker;
 //use Job;
 
 class Crowdflower extends \FrameWork {
@@ -268,6 +269,16 @@ class Crowdflower extends \FrameWork {
     	if($result['result']['state'] != $state)
     		throw new Exception("Can't perform action; state is '{$result['result']['state']}' (should be '$state')");
 	}
+
+	public function blockWorker($id, $message){
+		$cfWorker = new Worker(Config::get('crowdflower::apikey'));
+		try {
+			$cfWorker->blockWorker($id, $message);
+		} catch (CFExceptions $e){
+			throw new Exception($e->getMessage());
+		} 
+	}
+
 
     private function jobConfToCFData($jc){
 		$jc=$jc->content;

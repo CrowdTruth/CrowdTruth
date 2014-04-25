@@ -285,6 +285,14 @@ class Mturk extends \FrameWork {
         
 	}
 
+	public function blockWorker($id, $message){
+		try {
+			$this->mechanicalTurk->blockWorker($id, $message);
+		} catch (AMTException $e){
+			throw new Exception($e->getMessage());
+		} 
+	}
+
 
 
 	private function jobConfToHIT($jc){

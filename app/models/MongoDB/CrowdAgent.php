@@ -78,4 +78,18 @@ class CrowdAgent extends Moloquent {
 		// TODO
 	}
 
+    /**
+    * @throws Exception
+    */
+    public function flag($message){
+        if($this->flagged==true)
+            throw new Exception('Worker is already blocked.');
+
+        $platformid = $this->softwareAgent_id;
+        $platform = App::make($platformid);
+        $platform->blockWorker($this->platformWorkerId, $message);
+        $this->flagged = true;
+    }
+
+
 }
