@@ -14,6 +14,7 @@ import ImageEnhance
 import sklearn.utils.sparsetools._graph_validation
 import ImageOps
 from HSV import double, flatten_image, img_to_matrix
+#from sklearn import svm
 from sklearn.decomposition import RandomizedPCA, PCA
 
 def predict(classifier, image):

@@ -35,14 +35,23 @@ class apiController extends BaseController {
 		return $this->returnJson($return);
 	}
 
+
+
+
+
+
+
+
+
+
 	public function postFeatures(){
-		$return = array();
+		$return = array('status'=>'ok');
 		$input = Input::get();
-		
+		//dd($input);
 		$urlset = array();
 		foreach($input[0] as $url){
 			array_push($urlset, $url);
-		}
+		} // Jelle..
 				
 		$domain = $input[1];
 		$type = $input[2];
@@ -53,8 +62,9 @@ class apiController extends BaseController {
 		$activity->softwareAgent_id = 'imagegetter'; 
 		$activity->save();
 		// LOOP THROUGH IMAGES CREATE ENTITIES WITH ACTIVITY-ID FOR NEW IMAGES
+		$url_ids = "";
 		foreach ( $urlset as $img){
-
+			
 			try {
 				
 				$parse = parse_url($img);
@@ -69,6 +79,7 @@ class apiController extends BaseController {
 				$image->content = $content;
 				$image->documentType = $type;
 				$image->source = $source;
+				$image->activity_id = $activity->_id;
 				$image->softwareAgent_id = "imagegetter";
 				// Take last part of URL as image title
 				$temp = explode('/', $img);
@@ -83,10 +94,10 @@ class apiController extends BaseController {
 		            $image->hash = $hash;
 					$image->activity_id = $activity->_id;
 					$image->save();
-					$id = $image->_id;
+					$existingid = $image->_id;
 					
 				}
-				
+				$url_ids .= "$img $existingid ";
 						
 			}	catch (Exception $e){
 				//delete image
@@ -97,17 +108,26 @@ class apiController extends BaseController {
 				//delete activity
 				if(isset($activity)) $activity->forceDelete();
 				
-				Session::flash('flashError', $e->getMessage());
-				return Redirect::to("temp");
+				//Session::flash('flashError', $e->getMessage());
+				$return['error'] = $e->getMessage();
+				$return['status'] = 'bad';
+				return $return;
 			
 			}
 			// RUN PYTHON SCRIPT THAT CALLS APIs TO ADD FEATURES TO IMAGE
 		}
-	
+		//return $url_ids;
 		try {
-			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py" . $domain . " " . $type . " " .  $urlset . " " . $id;
-			
-			exec($command,$output,$error);				
+			//$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . 4 . " " . "vogel";
+			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py " . $domain . " " . $type . " " . $url_ids;
+			//$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py art painting http://lh3.ggpht.com/Q1GZTdmwa8iTLgdbu5uAgzovmLbb7lsYhG-QgVcoN8A-WJtIsNUo4-VyTMd9iKHLp-XNm812WyUaSgQdHdjQjDioJQI=s0 999";
+			//return $command;
+		    exec($command, $output, $error);	
+			$return['oo'] = $output; 			
+			$return['ee'] = $error;
+			//$return['a'] = $a;
+						//throw $e; // for debugging.
+			//return $error; 
 
 		} catch (Exception $e){
 			//throw $e; // for debugging.
