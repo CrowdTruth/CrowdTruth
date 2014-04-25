@@ -19,12 +19,12 @@ class TwrexController extends BaseController {
 
 	public function getIndex()
 	{
-		return Redirect::to('preprocess/twrex/actions');
+		return Redirect::to('media/preprocess/twrex/actions');
 	}
 
 	public function getInfo()
 	{
-		return View::make('preprocess.twrex.pages.info');
+		return View::make('media.preprocess.twrex.pages.info');
 	}
 
 	public function getActions()
@@ -33,39 +33,10 @@ class TwrexController extends BaseController {
 
 		if(count($entities) > 0)
 		{
-			return View::make('preprocess.twrex.pages.actions', compact('entities'));
+			return View::make('media.preprocess.twrex.pages.actions', compact('entities'));
 		}
 
-		return Redirect::to('files/upload')->with('flashNotice', 'You have not uploaded any "twrex" documents yet');
-
-
-		$items = Cart::content();
-
-		if(count($items) > 0)
-		{
-			$entities = array();
-
-			foreach($items as $item)
-			{
-				if($entity = $this->repository->find($item['id']))
-				{
-					if($entity->documentType != "twrex")
-					{
-						continue;
-					}
-						
-					$entity['rowid'] = $item['rowid'];
-					array_push($entities, $entity);
-				}
-					
-			}
-
-			return View::make('preprocess.twrex.pages.actions', compact('entities'));
-
-		}
-
-		return Redirect::to('files/browse')->with('flashNotice', 'You have not added any "twrex" items to your selection yet');
-
+		return Redirect::to('media/upload')->with('flashNotice', 'You have not uploaded any "twrex" documents yet');
 	}
 
 	public function getPreview()
@@ -78,10 +49,10 @@ class TwrexController extends BaseController {
 					continue;
 				}
 
-				return $document = $this->twrexStructurer->process($entity, true);
+				$document = $this->twrexStructurer->process($entity, true);
 				// print_r($document);
 				// exit;
-				return View::make('preprocess.twrex.pages.view', array('entity' => $entity, 'lines' => $document));
+				return View::make('media.preprocess.twrex.pages.view', array('entity' => $entity, 'lines' => $document));
 			}
 		} 
 		else 
@@ -100,7 +71,9 @@ class TwrexController extends BaseController {
 					continue;
 				}
 
-				return $status_processing = $this->twrexStructurer->store($entity, $this->twrexStructurer->process($entity));
+				$entity = $entity->toArray();
+
+				return $status_processing = $this->twrexStructurer->process($entity);
 				echo "<pre>";
 				dd($status_processing);
 				return Redirect::back();

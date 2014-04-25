@@ -25,6 +25,7 @@ class Entity extends Moloquent {
         if(array_key_exists('wasAttributedTo', $input))    $this->with = array_merge($this->with, array('wasAttributedToUserAgent', 'wasAttributedToCrowdAgent'));
         if(array_key_exists('wasAttributedToUserAgent', $input))    array_push($this->with, 'wasAttributedToUserAgent');
         if(array_key_exists('wasAttributedToCrowdAgent', $input))    array_push($this->with, 'wasAttributedToCrowdAgent');
+        if(array_key_exists('hasConfiguration', $input))    array_push($this->with, 'hasConfiguration');
         if(isset($input['wasDerivedFrom']['without'])) $this->hidden = array_merge($this->hidden, array_flatten(array($input['wasDerivedFrom']['without'])));
         if(isset($input['without'])) $this->hidden = array_merge($this->hidden, array_flatten(array($input['without'])));
     }       
@@ -155,9 +156,9 @@ class Entity extends Moloquent {
         }
     }
 
-	public static function createSchema(){
-		Schema::create('entities', function($collection)
-		{
+    public static function createSchema(){
+        Schema::create('entities', function($collection)
+        {
             $collection->index('hash');
             $collection->index('domain');
             $collection->index('documentType');    
@@ -222,7 +223,7 @@ class Entity extends Moloquent {
         return $this->hasOne('\MongoDB\Entity', '_id', 'unit_id');
     }
 
-    public function hasAnnotations(){
+    public function annotations(){
         return $this->hasMany('\MongoDB\Entity', 'unit_id', '_id');
     }
 
@@ -230,9 +231,9 @@ class Entity extends Moloquent {
     {
         if(isset($this->parents))
         {
-            return Entity::whereIn('_id', $this->parents)->remember(1)->get()->toArray();         
+            return Entity::whereIn('_id', array_values($this->parents))->remember(1)->get()->toArray();         
         }
-    } 
+    }
 
     public function scopeDomain($query, $domain)
     {
@@ -253,4 +254,24 @@ class Entity extends Moloquent {
     {
         return $query->where_id($id);
     }
+    
+    public function getJobCountAttribute(){
+        if($this->documentType == "twrex-structured-sentence"){
+            return $annotations = count(array_flatten(Entity::where('unit_id', $this->_id)->distinct('job_id')->get()->toArray()));
+        }
+    }
+
+    public function toArray()
+    {
+        if(\Session::has('rawArray'))
+        {
+            $attributes = $this->getArrayableAttributes();
+        }
+        else
+        {
+            $attributes = $this->attributesToArray();
+        }
+        
+        return array_merge($attributes, $this->relationsToArray());
+    }        
 }

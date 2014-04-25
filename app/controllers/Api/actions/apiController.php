@@ -210,13 +210,15 @@ class apiController extends BaseController {
 		return Response::json($return);
 	}
 
-	/* Data in post is object with an array of recipients plus a message-object */
+	/* Data in post an array of 'recipients' plus a 'message' array (with content and subject) */
 	public function postMessage(){
-		
-		$message = Input::get('message');
+		$return = array('status' => 'ok');
+		$content = Input::get('content');
+		$subject = Input::get('subject');
 		$recipients = Input::get('recipients');
 
-		$message = array('content'=>'testttt', 'subject'=>'subject of message');
+		$content = 'testttt';
+		$subject = 'subject of message';
 		$recipients = array('crowdagent/amt/1111', 'crowdagent/amt/2222', 'crowdagent/cf/3333', 'crowdagent/amt/4444');
 		
 		try {
@@ -229,20 +231,42 @@ class apiController extends BaseController {
 			}
 			foreach ($groupedarray as $platformid=>$workers) {
 				$platform = \App::make($platformid);
-				$platform->sendMessage($workers, $message['subject'], $message['content']);
+				$platform->sendMessage($workers, $subject, $content);
 				$return['message'] = 'Message' . (count($workers)>1 ? 's' : '') . ' sent successfully!';
+				
+				foreach($workers as $workerid){
+					//$crowdagent = CrowdAgent::where('_id', $workerid)->first();
+					//$crowdagent->
+				}		
+
 			}
 
 		} catch (Exception $e){
-			$return['error'] = $e->getMessage();
+			$return['message'] = $e->getMessage();
 			$return['status'] = 'bad';
 		}
 		return $return;
 	}
 
-	/* Data in post is object with an array of recipients plus a message-object */
-	public function postFlag(){
 
+	/**
+	* Needs 'message' and 'workerid' in POST
+	*/
+	public function postFlag(){
+		try {
+			$return = array('status' => 'ok');
+			$message = Input::get('message');
+			$workerid = Input::get('workerid');
+
+			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
+			$crowdagent->flag();
+
+		} catch (Exception $e){
+			$return['message'] = $e->getMessage();
+			$return['status'] = 'bad';
+		}
+
+		return $return;
 
 	}
 

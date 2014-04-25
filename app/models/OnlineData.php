@@ -3,7 +3,7 @@
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 use \CurlRequest\SVBasicRequest as SVRequest;
-use Moloquent, Schema, URL, File, Exception;
+//use Moloquent, Schema, URL, File, Exception;
 
 class OnlineData extends Moloquent {
 	private $url = "http://openbeelden.nl/feeds/oai/?";
@@ -403,6 +403,7 @@ class OnlineData extends Moloquent {
 				$status['error'][$title] = $e->getMessage();
 			}	
 		}			
+		
 		return $status;
 	}
 
