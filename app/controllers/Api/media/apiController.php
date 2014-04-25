@@ -48,7 +48,7 @@ class apiController extends BaseController {
 		if(empty($data))
 			return false;
 
-		return $data;
+		//return $data;
 
 		$data = json_decode($data, true);
 		$data['softwareAgent_id'] = strtolower($data['softwareAgent_id']);
@@ -102,6 +102,115 @@ class apiController extends BaseController {
 
 		return Response::json($entity);
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	public function anyTest()
+	{
+		try{
+		if(!$data = Input::get('data'))
+		{
+			if(!$data = \Request::getContent())
+			{
+				return false;
+			}
+		}
+			
+		if(empty($data))
+			return false;
+
+		//return $data;
+
+		$data = json_decode($data, true);
+		$data['softwareAgent_id'] = strtolower($data['softwareAgent_id']);
+
+		try {
+			$this->createPostSoftwareAgent($data);
+		} catch (Exception $e) {
+			return serialize([$e->getMessage()]);
+		}
+
+		try {
+			$activity = new Activity;
+			$activity->softwareAgent_id = $data['softwareAgent_id'];
+			$activity->save();
+		} catch (Exception $e) {
+			// Something went wrong with creating the Activity
+			$activity->forceDelete();
+			return serialize([$e->getMessage()]);
+		}
+
+		$entity = new Entity;
+		$entity->format = 'image';
+		$entity->domain = $data['domain'];
+		$entity->documentType = $data['documentType'];
+		
+
+		if(isset($data['parents']))
+		{
+			$entity->parents = $data['parents'];
+		}
+
+		$entity->content = $data['content'];
+
+		if(isset($data['hash']))
+		{
+			$entity->hash = $data['hash'];
+		}
+		else
+		{
+			$entity->hash = md5(serialize($data['content']));
+		}
+		
+		$entity->activity_id = $activity->_id;
+		$entity->save();
+
+		return Response::json($entity);
+		} catch (Exception $e){
+			dd($e->getMessage());
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	public function createPostSoftwareAgent($data){
 		if(isset($data['softwareAgent_id']))

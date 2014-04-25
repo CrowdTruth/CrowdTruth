@@ -35,13 +35,40 @@ try:
 except:
     print('error CLOUDINARY connecting', file=sys.stderr)
    
-
-url = 'http://jolicrowd.net/api/media/post'
+def closse(response):
+    try: # where handle is the object you get from urllib2's urlopen
+                response.fp._sock.recv = None
+    except: # in case it's not applicable, ignore this.
+        pass
+#url = 'http://jolicrowd.net/api/media/post'
+url = 'http://127.0.0.1/api/media/test'
 headers = {'content-type': 'application/json'}
+
+
+# data1 = {
+# "_id": "entity/image/art/painting/1",
+# "format": "image",
+# "domain": "art",
+# "documentType": "painting",
+# "source": "lh4.ggpht.com",
+# "parents": "entity/image/art/painting/0",
+# "content": {
+# "url": "http://lh4.ggpht.com/5EAw9FBBwVmOwHhFvXCUupfoMZjd3-NHj8HdDvVecJEgFHfKeofAfpEEEvj4MTn3JBW-hhLABubkbchqMVYjdL0nxIo=s0",
+# "features" : 'yes55'
+# },
+# "user_id": "lukasz"
+# }
+
+
 
 if WRITE_FILE==1:
     output = open('data.json', 'wb')
-  
+# output.write(json.dumps(data1, indent = 2)) 
+# r = requests.post(url, data=json.dumps(data1), headers=headers)
+# print (r)   
+
+
+ 
 
 for iter in range(3, len(sys.argv), 2):
     time.sleep(DELAY)
@@ -52,6 +79,8 @@ for iter in range(3, len(sys.argv), 2):
     data = {}
     data['content'] = {}
     data['parents'] = [parentID]
+    data['domain'] = sys.argv[1]
+    data['documentType'] = sys.argv[2]
     data['content']['URL'] = ImURL
     
 
@@ -72,14 +101,15 @@ for iter in range(3, len(sys.argv), 2):
         Features = {}
         Features['scene'] = data1["scene_understanding"]
         data['content']['features'] = Features   
+        print (data)
         r = requests.post(url, data=json.dumps(data), headers=headers)
         if WRITE_FILE==1:
             output.write(json.dumps(data, indent = 2))  
         
-        print (r)        
+        print (r)    
+        closse(response)        
     except Exception, e:
-        print('error REKOGNITION a' + str(e), file=sys.stderr)
-        
+        print('error REKOGNITION a' + str(e), file=sys.stderr)  
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
         "jobs=scene_understanding_3&urls="+ImURL + "&num_return=7"
@@ -93,7 +123,8 @@ for iter in range(3, len(sys.argv), 2):
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)  
         if WRITE_FILE==1:        
-            output.write(json.dumps(data, indent = 2))      
+            output.write(json.dumps(data, indent = 2))   
+        closse(response)            
     except Exception, e:
          print('error REKOGNITION b' + str(e), file=sys.stderr)
         
@@ -114,6 +145,7 @@ for iter in range(3, len(sys.argv), 2):
         print (r)  
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))  
+        closse(response)    
     except Exception, e:
          print('error REKOGNITION c' + str(e), file=sys.stderr) 
     #########################   CLOUDINARY   ############################################    
@@ -143,6 +175,7 @@ for iter in range(3, len(sys.argv), 2):
         print (r)   
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))  
+        closse(response)    
     except Exception, e:
         print('error CLOUDINARY' + str(e), file=sys.stderr)  
 
@@ -156,9 +189,10 @@ for iter in range(3, len(sys.argv), 2):
     try:
         Comm = "http://api.skybiometry.com/fc/faces/detect.json?api_key="+Sky_key + "&api_secret="+Sky_secret+"&urls=" +ImURL + "&attributes=all"
         response = urllib2.urlopen(Comm)
+        
         data5 = json.load(response)    
         l = []
-        
+        closse(response)
         for a in data5["photos"][0]["tags"]:
            
             if "attributes" in a:
@@ -202,7 +236,7 @@ for iter in range(3, len(sys.argv), 2):
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)      
         if WRITE_FILE==1:        
-            output.write(json.dumps(data, indent = 2))  
+            output.write(json.dumps(data, indent = 2))             
     except Exception, e:
         print('error CLASSIFIER' + str(e), file=sys.stderr)
         

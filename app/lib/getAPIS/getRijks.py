@@ -4,13 +4,13 @@ import requests
 import random
 import urllib2, os
 import urllib, cStringIO
-# import predict_adopted
+#import predict_adopted
 import numpy as np
 import sys
 import cPickle as pickle
 import urlparse
 import string
-# import Image, ImageFilter
+#import Image, ImageFilter
 
 
 _domain = sys.argv[1]
@@ -61,20 +61,20 @@ except Exception, e:
 print (json.dumps(URLLIST))
 # print  (URLLIST)
 # print (" :) ")
-url = 'http://jolicrowd.net/api/media/post'
+# url = 'http://jolicrowd.net/api/media/post'
 
-datalist = []   
+# datalist = []   
 
-for u in URLLIST:
-    data = {}
-    data['content'] = {} 
-    data['domain'] = sys.argv[1]
-    data['format'] = "Image"
-    data['documentType'] = sys.argv[2]
-    data['content']['URL'] = u
-    data['softwareAgent_id'] = 'featurerecognizer'   
-    data['processed'] = 0
-    datalist.append(data)
+# for u in URLLIST:
+    # data = {}
+    # data['content'] = {} 
+    # data['domain'] = sys.argv[1]
+    # data['format'] = "Image"
+    # data['documentType'] = sys.argv[2]
+    # data['content']['URL'] = u
+    # data['softwareAgent_id'] = 'featurerecognizer'   
+    # data['processed'] = 0
+    # datalist.append(data)
 #print (json.dumps(datalist, indent = 2))
 #headers = {'content-type': 'application/json'}
 #r = requests.post(url, data=json.dumps(datalist), headers=headers)
