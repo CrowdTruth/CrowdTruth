@@ -529,7 +529,7 @@ var getJobs = function($resource, page, perPage, sort, filter){
 	}
 
 app.controller("imgCtrl", function($scope, $http, filterFilter){
-	
+	$scope.imageGetting = false;
 	$scope.pictures = [];
 
  	$scope.next = function (){
@@ -623,10 +623,14 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
 	
 			$http.post(url, arr)
 				.success(function (data, status){
-					console.log("Succesful callback" + data);
+					if(data.status == 'ok'){
+						console.log(data.message);
+					} else {
+						console.log(data.error);
+					}
 				})
 				.error( function(data, status){
-					console.log("Script went bad" + status)
+					console.log("Script went bad " + status)
 				});
  		}
 		
