@@ -36,7 +36,7 @@ class apiController extends BaseController {
 	}
 
 	public function postFeatures(){
-		
+		$return = array();
 		$input = Input::get();
 		
 		$urlset = array();
@@ -237,7 +237,7 @@ class apiController extends BaseController {
 			$return = array('status' => 'ok');
 			$message = Input::get('message');
 			$workerid = Input::get('workerid');
-			
+
 			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
 			$crowdagent->flag();
 
