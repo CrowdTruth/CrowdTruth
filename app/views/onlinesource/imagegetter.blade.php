@@ -21,7 +21,7 @@
 
 
 @section('content')
-<div class="row">
+<div class="row" ng-app="crowdWatson">
 	<div class="mainContainer" ng-controller="imgCtrl">
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -84,7 +84,7 @@
 				</div>
 
 				<div class="space-left" style="margin-top: 30px;">
-					<div class="image-box pull-left" ng-show="!loading && !empty" ng-repeat="image in pictures" style="background-image: url(@{{image.url}}); background-size: 100%; background-repeat: no-repeat">
+					<div class="image-box pull-left" ng-show="!loading && !empty" ng-repeat="image in pictures" ng-style="background-image: url(@{{image.url}}); background-size: 100%; background-repeat: no-repeat">
 						<a ng-click="image.checked">
 							<div class="non-overlay">
 								<div ng-class="{overlay: image.checked}" class="image-selectable" >
