@@ -4,7 +4,7 @@ import requests
 import random
 import urllib2, os
 import urllib, cStringIO
-import predict_adopted
+#import predict_adopted
 import numpy as np
 import sys
 import time
@@ -41,6 +41,7 @@ def closse(response):
     except: # in case it's not applicable, ignore this.
         pass
 #url = 'http://jolicrowd.net/api/media/post'
+url = 'http://127.0.0.1:8888/api/media/test'
 url = 'http://127.0.0.1/api/media/test'
 headers = {'content-type': 'application/json'}
 
@@ -101,7 +102,7 @@ for iter in range(3, len(sys.argv), 2):
         Features = {}
         Features['scene'] = data1["scene_understanding"]
         data['content']['features'] = Features   
-        print (data)
+        #print (data)
         r = requests.post(url, data=json.dumps(data), headers=headers)
         if WRITE_FILE==1:
             output.write(json.dumps(data, indent = 2))  
@@ -189,10 +190,9 @@ for iter in range(3, len(sys.argv), 2):
     try:
         Comm = "http://api.skybiometry.com/fc/faces/detect.json?api_key="+Sky_key + "&api_secret="+Sky_secret+"&urls=" +ImURL + "&attributes=all"
         response = urllib2.urlopen(Comm)
-        
+        closse(response)
         data5 = json.load(response)    
         l = []
-        closse(response)
         for a in data5["photos"][0]["tags"]:
            
             if "attributes" in a:
