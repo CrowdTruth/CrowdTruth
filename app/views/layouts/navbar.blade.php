@@ -8,16 +8,16 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					{{ link_to('/', "Crowd-Watson", array('class' => 'navbar-brand')); }}
+					{{ link_to('/', "CrowdTruth", array('class' => 'navbar-brand')); }}
 
 				</div>
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li{{ (Request::segment(1) == 'files' ? ' class="active"' : '') }}>{{ link_to('files', "Files") }}</li>
-						<!-- <li{{ (Request::segment(1) == 'api' ? ' class="active"' : '') }}>{{ link_to('api', "APIs") }}</li> -->
-						<li{{ (Request::segment(1) == 'preprocess' ? ' class="active"' : '') }}>{{ link_to('preprocess', "Pre-Process") }}</li>
-						<li{{ (Request::segment(1) == 'jobs' ? ' class="active"' : '') }}>{{ link_to('jobs', "Jobs") }}</li>
-						<li{{ (Request::segment(1) == 'workers' ? ' class="active"' : '') }}>{{ link_to('workers', "Workers") }}</li>
+						<li{{ (Request::segment(1) == 'media' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="Search Existing Media <br /> View Media Analytics <br /> Upload New Media">{{ link_to('media', "Media") }}</li>
+						<li{{ (Request::segment(1) == 'jobs' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="View Existing Job Analytics <br /> Create New Jobs">
+						{{ link_to('jobs', "Jobs") }}</li>
+						<li{{ (Request::segment(1) == 'workers' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="View Worker Analytics">
+						{{ link_to('workers', "Workers") }}</li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown">More <b class="caret"></b></a>
 							<ul class="dropdown-menu">

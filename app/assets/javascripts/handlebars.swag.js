@@ -603,6 +603,7 @@
       digits = Utils.isUndefined(digits) ? 0 : Utils.result(digits);
       return number.toFixed(digits);
     } else {
+      return "-";
       return Utils.err('{{toFixed}} takes at least one argument (number).');
     }
   });
@@ -743,9 +744,9 @@
     var regEx = new RegExp(";", "g");
     formattedSentence = formattedSentence.replace(regEx, '<span class="highlightSemicolon" data-toggle="tooltip" data-placement="top" title="Semicolon">;</span>');
 
-    if(searchQuery.field["content.sentence.formatted"])
+    if(searchQuery.match["content.sentence.formatted"])
     {
-      var highlightedSearchTerm = searchQuery.field["content.sentence.formatted"].like;
+      var highlightedSearchTerm = searchQuery.match["content.sentence.formatted"].like;
       var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
    //   formattedSentence = formattedSentence.replace(regEx, '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="top" title="Your search term">$1</span>');
 

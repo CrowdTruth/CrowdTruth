@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Auth\UserInterface;
+use Illuminate\Auth\Reminders\RemindableInterface;
 
 class User extends Moloquent implements UserInterface {
 
@@ -77,16 +78,18 @@ class User extends Moloquent implements UserInterface {
     	return $this->hasMany('\MongoDB\Entity', 'user_id', '_id');
     }
 
-    /* INTERFACE METHODS FOR USERINTERFACE */
-    public function getRememberToken(){
+	public function getRememberToken()
+	{
+	    return $this->remember_token;
+	}
 
-    }
+	public function setRememberToken($value)
+	{
+	    $this->remember_token = $value;
+	}
 
-    public function setRememberToken($value){
-
-    }
-
-    public function getRememberTokenName(){
-    	
-    }
+	public function getRememberTokenName()
+	{
+	    return 'remember_token';
+	}
 }
