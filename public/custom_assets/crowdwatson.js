@@ -531,6 +531,7 @@ var getJobs = function($resource, page, perPage, sort, filter){
 app.controller("imgCtrl", function($scope, $http, filterFilter){
 	$scope.imageGetting = false;
 	$scope.pictures = [];
+	$scope.domain = 'art';
 
  	$scope.next = function (){
 		$scope.loading = true;
@@ -592,15 +593,21 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
  		}
  	}, true);
 
+ 	$scope.setModel = function(m){
+ 		$scope.numImg = 16;
+ 		$scope.keyphrase = m;
+ 		$scope.type = 'drawing'
+ 	}
+
  	$scope.selectAll = function(){
- 		angular.forEach($scope.pictures, function(value, key){
- 			this.checked = true;
+ 		angular.forEach($scope.pictures, function(pic){
+ 			pic.checked = true;
  		})
  	}
 
  	$scope.deselectAll = function(){
- 		angular.forEach($scope.pictures, function(value, key){
- 			this.checked = false;
+ 		angular.forEach($scope.pictures, function(pic){
+ 			pic.checked = false;
  		})
  	}
 
