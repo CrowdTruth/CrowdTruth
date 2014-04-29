@@ -10,4 +10,9 @@ class OnlineSourceController extends BaseController {
 	public function getImagegetter(){
 		return View::make('onlinesource.imagegetter');
 	}
+
+	/* Rename the template below to fit your online source */
+	// public function getOnlinesourcetemplate() {
+	// 	return View::make('onlinesource.onlinesourcetemplate');
+	// }
 }
