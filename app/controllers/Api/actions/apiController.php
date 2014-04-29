@@ -35,24 +35,10 @@ class apiController extends BaseController {
 		return $this->returnJson($return);
 	}
 
-
-
-
-
-
-
-
-
-
 	public function postFeatures(){
 		$return = array('status'=>'ok');
 		$input = Input::get();
-		//dd($input);
-		$urlset = array();
-		foreach($input[0] as $url){
-			array_push($urlset, $url);
-		} // Jelle..
-				
+		
 		$domain = $input[1];
 		$type = $input[2];
 		

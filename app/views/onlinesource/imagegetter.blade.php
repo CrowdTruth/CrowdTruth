@@ -22,7 +22,7 @@
 
 @section('content')
 <div class="row" ng-app="crowdWatson">
-	<div class="mainContainer" ng-controller="imgCtrl">
+	<div ng-controller="imgCtrl">
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4><i class="fa fa-upload fa-fw"></i>Image getter</h4>
