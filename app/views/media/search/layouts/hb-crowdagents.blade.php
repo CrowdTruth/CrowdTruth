@@ -131,11 +131,14 @@
 		</tr>											        
         </thead>
         <tbody class='results'>								
-			<script class='template' type="text/x-handlebars-template">
+		<script class='template' type="text/x-handlebars-template">
 		        @{{#each documents}}
 		        <tr class="text-center">
 		            <td data-vbIdentifier="checkbox">Checkbox</td>
-		            <td data-vbIdentifier="worker_id">@{{ this.platformAgentId }}</td>
+		            <td data-vbIdentifier="worker_id">
+				<a class='testModal' data-modal-query="&collection=crowdagent&match[_id]=@{{ this._id }}" data-target="#modalTemplate" data-toggle="tooltip" data-placement="top" title="Click to see the individual worker page">@{{ this.platformAgentId }}</a>
+
+			    </td>
 		            <td data-vbIdentifier="worker_platform">@{{ this.softwareAgent_id }}</td>
 		            <td data-vbIdentifier="worker_location">@{{ this.country }}</td>
 		            <td data-vbIdentifier="active_since">@{{ this.created_at }}</td>
@@ -170,5 +173,52 @@
 		        @{{/each}}
 			</script>
         </tbody>
-    </table>											
+    </table>	
+	<div class='hidden' id='modalTemplate'>
+		<script class='template' type="text/x-handlebars-template">
+				<!-- Modal -->
+				<div class="modal bs-example-modal-lg fade" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelWorker" aria-hidden="true">
+				  <div class="modal-dialog modal-lg">
+				    <div class="modal-content">
+				      <div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabelWorker">Individual worker page</h4>
+				      </div>
+				      <div class="modal-body" >
+					@{{#each documents}}
+					<p id="@{{ this._id }}"> <strong> CrowdAgent Id: </strong> @{{ this.platformAgentId }} 
+					<p> <strong> CrowdAgent Platform: </strong> @{{ this.softwareAgent_id }} 
+					<p> <strong> First Seen: </strong> @{{ this.created_at }} 
+					<p> <strong> Last Seen: </strong> @{{ this.updated_at }} 
+					@{{/each}}
+					<!-- Nav tabs -->
+					<ul class="nav nav-pills">
+  						<li class="active"><a href="#jobs" data-toggle="tab"> 
+							<span class="badge pull-right">x</span>
+							 Jobs</a></li>
+  						<li><a href="#units" data-toggle="tab"> 
+							<span class="badge pull-right">y</span>
+							 Units</a></li>
+  						<li><a href="#annotations" data-toggle="tab"> 
+							<span class="badge pull-right">z</span>
+							 Annotations</a></li>
+  					</ul>
+
+					<!-- Tab panes -->
+					<div class="tab-content">
+  						<div class="tab-pane active" id="jobs">
+							@{{#each documents}}
+								@{{ this._id }}
+							@{{/each}}						
+						</div>
+  						<div class="tab-pane" id="units">...</div>
+  						<div class="tab-pane" id="annotations">...</div>
+					</div>
+									
+				      </div>
+				    </div>
+				  </div>
+				</div>
+		</script>
+	</div>										
 </div>

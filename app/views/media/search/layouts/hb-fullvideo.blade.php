@@ -146,44 +146,14 @@
 			    <td data-vbIdentifier="video_language">@{{ this.content.metadata.language }}</td>
 			    <td data-vbIdentifier="video_spatial" >@{{ this.content.metadata.spatial.nl }}</td>
 			    <td data-vbIdentifier="number_of_video_keyframes" id="keyframe_@{{ @index }}">
-				<a data-toggle="modal" data-target="#modal_@{{ @index }}" data-toggle="tooltip" data-placement="top" title="Click to see the keyframes">
+				<a class='testModal' data-modal-query="&only[]=content.storage_url&only[]=content.timestamp&match[documentType]=keyframe&match[parents][]=@{{ this._id }}" data-target="#modalTemplateKeyframes" data-toggle="tooltip" data-placement="top" title="Click to see the keyframes">
 					@{{ this.keyframes.count }}
 				</a>
-
-				<!-- Modal -->
-				<div class="modal fade" id="modal_@{{@index}}" data-entityid="@{{ this._id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-				  <div class="modal-dialog">
-				    <div class="modal-content">
-				      <div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="myModalLabel">Keyframes of the Video</h4>
-				      </div>
-				      <div class="modal-body" >
-					
-				      </div>
-				    </div>
-				  </div>
-				</div>
 			    </td>
 			    <td data-vbIdentifier="number_of_video_segments" id="segment_@{{ @index }}">
-			    <a data-toggle="modal" data-target="#modalsegm_@{{ @index }}" data-toggle="tooltip" data-placement="top" title="Click to see the video segments">
+			    <a class='testModal' data-modal-query="&only[]=content.storage_url&only[]=content.duration&match[documentType]=videosegment&only[]=content.start_time&only[]=content.end_time&match[parents][]=@{{ this._id }}" data-target="#modalTemplateSegments" data-toggle="tooltip" data-placement="top" title="Click to see the video segments">
 					@{{ this.segments.count }}
 				</a>
-
-				<!-- Modal -->
-				<div class="modal fade" id="modalsegm_@{{@index}}" data-entityid="@{{ this._id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-				  <div class="modal-dialog">
-				    <div class="modal-content">
-				      <div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="myModalLabel">Segments of the Video</h4>
-				      </div>
-				      <div class="modal-body" >
-					
-				      </div>
-				    </div>
-				  </div>
-				</div>
 			    </td>
 			    <td data-vbIdentifier="number_of_batches">@{{ this.batches.count }}</td>
 			    <td data-vbIdentifier="number_of_jobs">@{{ this.jobs.count }}</td>
@@ -193,37 +163,92 @@
 			</script>
         </tbody>
     </table>
-	<div class='hidden modalKeyFrameTemplate'>
+	<div class='hidden modalTemplate'>
 		<table>
 		<script class='template' type="text/x-handlebars-template">
-		@{{#each documents}}
-			<tr>
-			<td><img src="@{{ this.content.storage_url }}" width="240" height="160" rel="tooltip" title="Timestamp: @{{ this.content.timestamp }} &#xA; Source name: @{{ this.content.storage_url }} "/></td>
-			<td><strong>Timestamp</strong>: @{{ this.content.timestamp }}</td>
-			</tr>
-		@{{/each}}
+				<!-- Modal -->
+				<div class="modal bs-example-modal-lg fade" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelWorker" aria-hidden="true">
+				  <div class="modal-dialog modal-lg">
+				    <div class="modal-content">
+				      <div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabelWorker">Individual worker page</h4>
+				      </div>
+				      <div class="modal-body" >
+					@{{#each documents}}
+						@{{ this._id }}
+					@{{/each}}				
+				      </div>
+				    </div>
+				  </div>
+				</div>
 		</script>
 		</table>
-	</div>	
+	</div>			
 
-	<div class='hidden modalVideoSegmentTemplate'>
-		<table>
+
+	<div class='hidden' id='modalTemplateSegments'>
 		<script class='template' type="text/x-handlebars-template">
-		@{{#each documents}}
-			<tr>
-			<td><video width="240" height="160" controls preload="none">
-				<source src="@{{ this.content.storage_url }}" type="video/mp4" >
-				<source src="@{{ this.content.storage_url }}" type="video/ogg" >
-					Your browser does not support the video tag.
-				</source>
-			</video></td>
-			<td align="left"><strong>Duration</strong>: @{{ this.content.duration }} <br />
-<strong>Start Time</strong>: @{{ this.content.start_time }} <br />
-<strong>End Time</strong>: @{{ this.content.end_time }} <br />
-			</td>
-			</tr>
-		@{{/each}}
+			<!-- Modal -->
+			<div class="modal fade" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelWorker" aria-hidden="true">
+				<div class="modal-dialog ">
+				    <div class="modal-content">
+				      <div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabelWorker">Segments of the video</h4>
+				      </div>
+				      <div class="modal-body" >
+					<table>
+					@{{#each documents}}
+						<tr>
+							<td>
+								<video width="240" height="160" controls preload="none">
+									<source src="@{{ this.content.storage_url }}" type="video/mp4" >
+									<source src="@{{ this.content.storage_url }}" type="video/ogg" >
+										Your browser does not support the video tag.
+									</source>
+								</video>
+							</td>
+							<td align="left">
+								<strong>Duration</strong>: @{{ this.content.duration }} <br />
+								<strong>Start Time</strong>: @{{ this.content.start_time }} <br />
+								<strong>End Time</strong>: @{{ this.content.end_time }} <br />
+							</td>
+						</tr>
+					@{{/each}}
+					</table>					
+				      </div>
+				    </div>
+				  </div>
+				</div>
 		</script>
-		</table>
-	</div>										
+		
+	</div>	
+	<div class='hidden' id='modalTemplateKeyframes'>
+
+		<script class='template' type="text/x-handlebars-template">
+				<!-- Modal -->
+				<div class="modal fade" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelWorker" aria-hidden="true">
+				  <div class="modal-dialog ">
+				    <div class="modal-content">
+				      <div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabelWorker">Keyframes of the video</h4>
+				      </div>
+				      <div class="modal-body" >
+					<table>
+					@{{#each documents}}
+						<tr>
+							<td><img src="@{{ this.content.storage_url }}" width="240" height="160" rel="tooltip" title="Timestamp: @{{ this.content.timestamp }} &#xA; Source name: @{{ this.content.storage_url }} "/></td>
+							<td><strong>Timestamp</strong>: @{{ this.content.timestamp }}</td>
+						</tr>
+					@{{/each}}
+					</table>					
+				      </div>
+				    </div>
+				  </div>
+				</div>
+		</script>
+
+	</div>								
 </div>
