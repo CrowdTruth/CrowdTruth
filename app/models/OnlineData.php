@@ -19,7 +19,7 @@ class OnlineData extends Moloquent {
 	public function downloadFile($url) {
 		$videoPathSplit = explode("/", (string)$url);
 		$videoName = $videoPathSplit[sizeof($videoPathSplit) - 1];
-		$path = storage_path() . "/videostorage/fullvideos/" . $videoName;
+		$path = public_path() . "/videostorage/fullvideos/" . $videoName;
  		$fp = fopen($path, 'w');
  
     		$ch = curl_init($url);
@@ -206,6 +206,7 @@ class OnlineData extends Moloquent {
 					$metadata["extent"] = $interval->format('%H:%I:%S');
 
 					$added = false;
+					$videoName = "";
 					$mediumJson = array();
 					foreach ($xmlNode->metadata->children('oai_oi', 1)->oi->children('oi', 1)->medium as $medium) {
 						foreach ($medium->attributes() as $format => $value) { 
@@ -225,9 +226,9 @@ class OnlineData extends Moloquent {
 									//echo $identifier . "--------" . (string)$medium . "\n";
 									$videoPathSplit = explode("/", (string)$medium);
 									$videoName = $videoPathSplit[sizeof($videoPathSplit) - 1];
-									$content["storage_url"] = storage_path()."/videostorage/fullvideos/" . $videoName;
+									$content["storage_url"] = "/videostorage/fullvideos/" . $videoName;
 									$this->downloadFile((string)$medium);
-									
+									$metadata["online_url"] = (string)$medium;
 								}
 							}						
 				//			echo (string)$value . "--" . (string)$medium . "\n";
@@ -235,7 +236,8 @@ class OnlineData extends Moloquent {
 						}
 					}
 					$metadata["medium"] = $mediumJson;
-
+					$content["videoName"] = $videoName;
+					
 					$sourceJson = array();
 					foreach ($xmlNode->metadata->children('oai_oi', 1)->oi->children('oi', 1)->source as $source) {
 						foreach ($source->attributes('xml', TRUE) as $lang => $value) { 
@@ -282,7 +284,7 @@ class OnlineData extends Moloquent {
 
 
 					$attributionURL = $xmlNode->metadata->children('oai_oi', 1)->oi->children('oi', 1)->attributionURL;
-					$metadata["attributionURl"] = (string)$attributionURL;
+					$metadata["attributionURL"] = (string)$attributionURL;
 
 					$license = $xmlNode->metadata->children('oai_oi', 1)->oi->children('oi', 1)->license;
 					$metadata["license"] = (string)$license;
@@ -291,7 +293,9 @@ class OnlineData extends Moloquent {
 			$content["metadata"] = $metadata;
 			$record["content"] = $content;
 		}
+	//	dd($record);
 		return $record;
+		
 	}
 
 
@@ -369,6 +373,7 @@ class OnlineData extends Moloquent {
 			$activity->forceDelete();	
 			return $status;
 		}
+		$count["count"] = 0;
 
 		foreach($listOfVideoIdentifiers as $video){
 			$title = $video;
@@ -384,8 +389,10 @@ class OnlineData extends Moloquent {
 				$entity->content = $videoMetadata["content"];	
 				$parents = array();
 				$entity->parents = $parents;
-				$entity->segments = "false";
-				$entity->keyframes = "false";
+				$entity->segments = $count;
+				$entity->keyframes = $count;
+				$entity->batches = $count;
+				$entity->jobs = $count;
 				$entity->hash = md5(serialize([$entity->content]));				
 				$entity->activity_id = $activity->_id;  
 				$entity->save();
@@ -403,7 +410,6 @@ class OnlineData extends Moloquent {
 				$status['error'][$title] = $e->getMessage();
 			}	
 		}			
-		
 		return $status;
 	}
 
