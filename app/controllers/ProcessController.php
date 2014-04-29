@@ -13,6 +13,33 @@ class ProcessController extends BaseController {
 
 
 
+	public function getBla() {
+
+	/*	$j = JobConfiguration::id('entity/medical/text/jobconf/0')->first();
+		$j->save();*/
+		try{
+			foreach (Job::get() as $job) {
+				if(isset( $job->jobConfiguration->content['tag'])){
+					
+					//$job->platformJobId = $jid;
+
+					$c = $job->jobConfiguration->content;
+					$job->jobConfiguration->tag = $c['tag'];
+					unset($c['tag']);
+					$job->jobConfiguration->content = $c;
+
+					$job->jobConfiguration->save();
+					
+				}
+			}
+		} catch (LogicException $ex){
+			echo $ex->getMessage();
+			//dd($e);
+			throw $ex;
+		}
+	}
+
+
 public function getTestamt(){
 	//dd(Batch::with('wasDerivedFrom')->first());
 	foreach (JobConfiguration::get() as $jc) {
@@ -52,13 +79,6 @@ public function getStartedat(){
 	}
 }
 
-
-
-public function getFixcfjobid(){
-	foreach (Job::where('softwareAgent_id', 'cf')->get() as $job) {
-		dd($job->annotationsCount);
-	}
-}
 
 public function getVector(){
 	if (($handle = fopen(storage_path() . '/output_AMT_FactSpan_sentences_raw.csv', 'r')) === false) {

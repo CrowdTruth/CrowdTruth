@@ -10,6 +10,8 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.templatebuilder');
 	}
 
+
+
 	public function getBatch() {
 /*		$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
 		$qt = QuestionTemplate::where('documentType', 'questiontemplate')->first();

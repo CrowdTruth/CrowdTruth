@@ -32,7 +32,7 @@ class JobConfiguration extends Entity {
                 if(isset($c['expirationInMinutes'])) $c['expirationInMinutes'] = intval($c['expirationInMinutes']);
                 if(isset($c['annotationsPerUnit'])) $c['annotationsPerUnit'] = intval($c['annotationsPerUnit']);
                 if(isset($c['unitsPerTask'])) $c['unitsPerTask'] = intval($c['unitsPerTask']);
-
+                $jobconf->content = $c;
             } catch (Exception $e){
                 if($jobconf) $jobconf->forceDelete();
                 throw new Exception('Error saving JobConfiguration.');
@@ -58,43 +58,43 @@ class JobConfiguration extends Entity {
 
      } 
 
-    protected $justusedasareferencenow = array(
+/*    protected $justusedasareferencenow = array(
     								'title', 
     								'description',
-    								'instructions', /* AMT: inject into template */ 
+    								'instructions', // AMT: inject into template
     								'keywords', 
-    								'annotationsPerUnit', /* AMT: maxAssignments */
-    								'unitsPerTask', /* AMT: not in API. Would be 'tasks per assignment' */
+    								'annotationsPerUnit', // AMT: maxAssignments 
+    								'unitsPerTask', // AMT: not in API. Would be 'tasks per assignment'
     								'reward', 
-    								'expirationInMinutes', /* AMT: assignmentDurationInSeconds */
+    								'expirationInMinutes', // AMT: assignmentDurationInSeconds 
     								'notificationEmail',
     								'requesterAnnotation',
     								'instructions',
 
-    								/* AMT specific */
-    	    						'autoApprovalDelayInMinutes', /* AMT API: AutoApprovalDelayInSeconds */
+    								 //AMT specific 
+    	    						'autoApprovalDelayInMinutes', // AMT API: AutoApprovalDelayInSeconds 
 									'hitLifetimeInMinutes', 
 									'qualificationRequirement',
 									'assignmentReviewPolicy', 
 									'frameheight',
 									'eventType',
 
-    	    						/* CF specific */
+    	    						// CF specific 
     	    						'annotationsPerWorker',
     	    						'countries',
 
-    	    						/* for our use */
-    	    						'answerfields', /* The fields of the CSV file that contain the gold answers. */
+    	    						// for our use 
+    	    						'answerfields', // The fields of the CSV file that contain the gold answers. 
     								'platform',
     								'questionTemplate_id'
-    								);
+    								);*/
 
     private $errors;
     private $commonrules = array(
 		'title' => 'required|between:5,128',
 		'description' => 'required|between:5,2000',		
 		'reward' => 'required|numeric', 
-		'expirationInMinutes' => 'required|numeric', /* AMT: assignmentDurationInSeconds */
+		'expirationInMinutes' => 'required|numeric', // AMT: assignmentDurationInSeconds
 		'platform' => 'required'
 	);
 
