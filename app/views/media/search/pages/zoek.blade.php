@@ -16,147 +16,62 @@
 
 @section('content')
 <!-- START search_content --> 
-<div class="col-xs-12 hidden">
+<div class="col-xs-12">
 	<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')						
 @include('media.layouts.nav_new')
+
 		<div class='tab'>
 			<div class='row'>
-				<div class='col-xs-3 hidden'>
-					<div class='facetedSearchFilters'>
-						<div class="panel-group searchAccordion" id="accordion_1">
-							@if(isset($mainSearchFilters['formats']))
-							<div class="panel cw_formats">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseFormats">
-											<i class="fa fa-fw fa-bars"></i>
-											Media Formats
-										</a>
-									</h4>
-								</div>
-								<div id="collapseFormats" class="panel-collapse collapse in">
-									<ul class="nav nav-pills nav-stacked">
-										@foreach($mainSearchFilters['formats'] as $key => $value)	
-										<li data-query-key="match[format][]" data-query-value="{{$key}}">
-											<a href="#" class="filterOption">
-												<i class="fa fa-circle-o fa-fw"></i>
-												<span class="badge pull-right">{{ $value['count'] }}</span>
-												{{ $key }}
-											</a>
-										</li>
-										@endforeach
-									</ul>	
-								</div>
-							</div>
-							@endif
-							@if(isset($mainSearchFilters['domains']))
-							<div class="panel cw_domains">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion_2" href="#collapseDomains">
-											<i class="fa fa-fw fa-folder"></i>
-											Media Domains
-										</a>
-									</h4>
-								</div>
-								<div id="collapseDomains" class="panel-collapse collapse in">
-									<ul class="nav nav-pills nav-stacked">
-										@foreach($mainSearchFilters['domains'] as $key => $value)	
-										<li data-query-key="match[format][]" data-query-value="{{$key}}">
-											<a href="#" class="filterOption">
-												<i class="fa fa-circle-o fa-fw"></i>
-												<span class="badge pull-right">{{ $value['count'] }}</span>
-												{{ $key }}
-											</a>
-										</li>
-										@endforeach
-									</ul>	
-								</div>
-							</div>
-							@endif
-							@if(isset($mainSearchFilters['documentTypes']))
-							<div class="panel cw_documentTypes">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion_3" href="#collapseDocumentTypes">
-											<i class="fa fa-fw fa-file"></i>
-											Media Types
-										</a>
-									</h4>
-								</div>
-								<div id="collapseDocumentTypes" class="panel-collapse collapse in">
-									<ul class="nav nav-pills nav-stacked">
-										@foreach($mainSearchFilters['documentTypes'] as $key => $value)	
-										<li data-query-key="match[format][]" data-query-value="{{$key}}">
-											<a href="#" id='{{$key}}' class="filterOption">
-												<i class="fa fa-circle-o fa-fw"></i>
-												<span class="badge pull-right">{{ $value['count'] }}</span>
-												{{ $key }}
-											</a>
-										</li>
-										@endforeach
-									</ul>	
-								</div>
-							</div>
-							@endif
-							<div class="panel cw_generalFilters">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseGeneralFilters">
-											<i class="fa fa-fw fa-filter"></i>
-											General Filters
-										</a>
-									</h4>
-								</div>
-								<div id="collapseGeneralFilters" class="panel-collapse collapse">
-									<table class='filterSwitches'>
-										<tbody>
-											<tr>
-												<td>
-													Created At
-												</td>
-												<td class="input-daterange">
-								    				<input type="text" class="input-sm form-control" name="start" data-query-key="match[created_at]" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />
-								    				<input type="text" class="input-sm form-control" name="end" data-query-key="match[created_at]" data-query-operator="<=" style="width:49% !important; float:right;" placeholder="End Date" />
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-							</div>
-							<div class="panel cw_specificFilters hidden">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseSpecificFilters">
-											<i class="fa fa-fw fa-filter"></i>
-											Specific Filters
-										</a>
-									</h4>
-								</div>
-								<div id="collapseSpecificFilters" class="panel-collapse collapse specificFilters">
-								</div>
-							</div>
-						</div>
-	<!-- 					<div class='facetedSearchForm'>
-							{{ Form::open(array('action' => 'MediaController@anyBatch')) }}
-								<input type="text" name="selection" value="" class="hidden" />
-								<button type="submit" class="btn btn-info createBatchButton" style="width:100%">Save selection</button>
-							{{ Form::close() }}
-						</div> -->
+				<div class='col-xs-12 searchOptions'>
+					@if(isset($mainSearchFilters['formatsq']))
+						<select name="format" data-query-key="match[format][]" class="selectpicker pull-left" title='Choose format(s)' data-width="auto" multiple>
+							@foreach($mainSearchFilters['formats'] as $key => $value)	
+							<option value="{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
+							@endforeach
+						</select>	
+					@endif
+					@if(isset($mainSearchFilters['domainsq']))
+						<select name="domain" data-query-key="match[domain][]" class="selectpicker pull-left" title='Choose domain(s)' data-width="auto" multiple>
+							@foreach($mainSearchFilters['domains'] as $key => $value)	
+							<option value="{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
+							@endforeach
+						</select>	
+					@endif
+					@if(isset($mainSearchFilters['documentTypes']))
+						<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title='Choose Document-Type(s)' data-width="auto" data-show-subtext="true">
+							<optgroup label="Media-Type">
+								@foreach($mainSearchFilters['documentTypes'] as $key => $value)	
+								<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
+								@endforeach
+							</optgroup>
+						</select>	
+					@endif
+					<div class='tabOptions pull-left'>
+
 					</div>
-				</div>	
-
-				<div class='col-xs-12 facetedSearchResults'>
-					<ul class="nav nav-tabs documentTypesNav">
-						<li class="active" id="all_nav">
+					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right">
+						<option value="10">10 Records per page</option>
+						<option value="25">25 Records per page</option>
+						<option value="50">50 Records per page</option>
+						<option value="100">100 Records per page</option>
+					</select>
+				</div>
+				<div class='col-xs-12'>
+					<div class='searchStats pull-left'>
+					</div>
+					<div class='cw_pagination pull-right'>
+					</div>
+				</div>
+				<div class='col-xs-12'>				
+					<ul class="nav nav-tabs documentTypesNav hidden">
+						<li id="all_nav">
 							<a href="#all_tab" data-toggle="tab">
-								Results
+								All
 							</a>
-						</li>
-
+						</li>						
 						@foreach($mainSearchFilters['documentTypes'] as $key => $value)
-						<li class="hidden" id="{{$key}}_nav">
+						<li id="{{$key}}_nav">
 							<a href="#{{$key}}_tab" data-toggle="tab">
 								{{$key}}
 							</a>
@@ -165,59 +80,53 @@
 					</ul>    								
 					<div class="tab-content documentTypesTabs">
 						<div class="tab-pane active" id="all_tab">
-						<div class='row'>
-							<div class='searchOptions col-xs-12'>
-								<select name="search_limit" class="selectpicker pull-left">
-									<option value="10">10 Records per page</option>
-									<option value="25">25 Records per page</option>
-									<option value="50">50 Records per page</option>
-									<option value="100">100 Records per page</option>
-								</select>
-								<div class='visibleColumns pull-left'>
-								</div>
-							</div>
-						</div>
-						<div class='row'>
-							<div class='col-xs-12 cw_pagination'>
-							</div>								
-						</div>
 						    <table class="table table-striped">
 						        <thead>
 							        <tr>
 							            <th>Checkbox</th>
 							            <th class="sorting" data-query-key="orderBy[_id]">ID</th>
-							            <th class="sorting" data-query-key="orderBy[title]">Title</th>
+							            <th class="sorting" data-query-key="orderBy[format]">Format</th>
 							            <th class="sorting" data-query-key="orderBy[domain]">Domain</th>
+							            <th class="sorting" data-query-key="orderBy[documentType]">Document-Type</th>
+							            <th class="sorting" data-query-key="orderBy[title]">Title</th>
 							        </tr>
 									<tr class="inputFilters">
 										<td>
 											<input type="checkbox" class="checkAll" />
 										</td>
 										<td>
-											<input type='text' data-query-key="match[_id]" data-query-operator="[like]" />
+											<input class="input-sm form-control" type='text' data-query-key="match[_id]" data-query-operator="like" />
 										</td>
 										<td>
-											<input type='text' data-query-key="match[title]" data-query-operator="[like]" />
+											<input class="input-sm form-control" type='text' data-query-key="match[format]" data-query-operator="like" />
 										</td>
 										<td>
-											<input type='text' data-query-key="match[domain]" data-query-operator="[like]" />
+											<input class="input-sm form-control" type='text' data-query-key="match[domain]" data-query-operator="like" />
 										</td>
+										<td>
+											<input class="input-sm form-control" type='text' data-query-key="match[documentType]" data-query-operator="like" />
+										</td>
+										<td>
+											<input class="input-sm form-control" type='text' data-query-key="match[title]" data-query-operator="like" />
+										</td>										
 									</tr>											        
 						        </thead>
-					        <tbody class='results'>											
-								<script class='template' type="text/x-handlebars-template">
-							        @{{#each documents}}
-							        <tr>
-							            <td>Checkbox</td>
-							            <td>@{{ this._id }}</td>
-							            <td>@{{ this.title }}</td>
-							            <td>@{{ this.domain }}</td>
-							        </tr>
-							        @{{/each}}
-								</script>
-					        </tbody>
-					    </table>											
-					</div>
+						        <tbody class='results'>											
+									<script class='template' type="text/x-handlebars-template">
+								        @{{#each documents}}
+								        <tr>
+								            <td>Checkbox</td>
+								            <td>@{{ this._id }}</td>
+								            <td>@{{ this.format }}</td>
+								            <td>@{{ this.domain }}</td>
+								            <td>@{{ this.documentType }}</td>
+								            <td>@{{ this.title }}</td>							            
+								        </tr>
+								        @{{/each}}
+									</script>
+						        </tbody>
+						    </table>											
+						</div>
 						@if(isset($mainSearchFilters['documentTypes']['job']))
 							@include('media.search.layouts.hb-job')
 						@endif
@@ -239,7 +148,7 @@
 						@endif
 
 						<script class='searchStatsTemplate' type="text/x-handlebars-template">
-							<button class="btn btn-sm btn-info disabled resultsInfo" style="font-weight:bold; opacity:0.8 !important;">Showing @{{ count.from }} to @{{ count.to }} of @{{ count.total}} entries</button>
+							Showing @{{ count.from }} to @{{ count.to }} of @{{ count.total}} entries
 						</script>
 					</div>
 				</div>
@@ -259,7 +168,6 @@
 <script>
 $('document').ready(function(){
 
-
 Swag.registerHelpers();
 
 $('.selectpicker').selectpicker();
@@ -278,6 +186,19 @@ var lastQueryResult;
 //    }
 // });
 
+var getActiveTabKey = function(){
+	return '#' + $('.tab-pane.active').attr('id');
+}
+
+var getSearchLimitValue = function(){
+	return $('.searchOptions').find("[name='search_limit']").val();
+}
+
+var updateReponsiveTableHeight = function() {
+	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 260 + "px");	
+}
+
+
 var delay = (function(){
 	var timer = 0;
 	return function(callback, ms){
@@ -285,6 +206,92 @@ var delay = (function(){
 		timer = setTimeout(callback, ms);
 	};
 })();
+
+$('.searchOptions').on('change', ".selectpicker", function(){
+	if($(this).attr('name') == "documentType")
+	{
+		if($(this).val() != null)
+		{
+			if($(this).val().length == 1)
+			{
+				$('.documentTypesNav').find('#' + $(this).val()[0] + '_nav a').click();
+			} else {
+
+				$('.documentTypesNav').find('#' + $(this).val() + '_nav a').click();
+			}
+			getResults();
+			return;				
+		}	
+	}
+
+	if($(this).attr('name') == "search_limit"){
+		getResults();
+		return;
+	}
+
+	$('.documentTypesNav').find('#all_nav a').click();
+
+	getResults();
+});
+
+var initializeSpecificFilter = function() {
+	$(".searchOptions .specificFilter").popover({
+	    trigger: "manual",
+	    html: true,
+	    'animation' : false,
+	    'containter' : 'body',
+	    'content' : function(){ return $('.searchOptions .specificFilterContent').html() },
+	    'placement' : 'bottom',
+	     template: '<div class="popover tssPopover"><div class="arrow"></div><div class="popover-content"></div></div>'
+	}).on("mouseenter", function () {
+	        var _this = this;
+	        $(this).popover("show"); 
+	        $(".popover").on("mouseleave", function () {
+	            $(_this).popover('hide');
+	        });
+	}).on("mouseleave", function () {
+	    var _this = this;
+	    setTimeout(function () {
+	        if (!$(".popover:hover").length) {
+	            $(_this).popover("hide");
+	        }
+	    }, 100);
+	}); 	
+}
+
+var getGeneralFilterQueries = function() {
+	var generalFilterQuery = "";
+
+	$('.searchOptions .selectpicker').each(function() {
+		if($(this).is('[data-query-key]')){
+			if($(this).val())
+			{
+				$(this).find("option:selected").each(function() {
+					generalFilterQuery += "&" + $(this).parent().attr('data-query-key') + "=" + $(this).val();
+			    });
+			}
+		}
+	});
+
+	return generalFilterQuery;
+}
+
+$('.searchOptions .tabOptions').on('click', "[data-vbSelector]", function(){
+	if($(this).attr('data-vb') == "show")
+	{
+		$(this).attr('data-vb', 'hide');
+		$(this).find('.fa').remove();
+		$(this).prepend('<i class="fa fa-circle-o fa-fw"></i>');
+	}
+	else
+	{
+		$(this).attr('data-vb', 'show');					
+		$(this).find('.fa').remove();
+		$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
+	}
+
+	visibleColumns();
+});
 
 $('body').on('keyup', '.inputFilters input', function(){
 	var inputFilter = $(this);
@@ -298,7 +305,7 @@ $('body').on('keyup', '.inputFilters input', function(){
 			inputFilter.removeAttr('data-query-value');
 
 	 	getResults();
-	}, 300);
+	}, 200);
 });
 
 $('body').on('click', '.checkAll', function(){
@@ -340,8 +347,10 @@ $('body').on('click', 'input[name=rowchk]', function(event){
 });
 
 $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
-	$('.specificFilters .specificFilterOptions').prependTo($('.tab-pane.active'));
-	$('.cw_specificFilters').addClass('hidden');
+	// $('.specificFilters .specificFilterOptions').prependTo($('.tab-pane.active'));
+	// $('.cw_specificFilters').addClass('hidden');
+
+	$('.searchOptions .tabOptions > *').appendTo('.tab-pane.active .tabOptions');
 });
 
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -350,19 +359,27 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 	if($(this).attr('href') == "#all_tab")
 		return false;
 
+	$(activeTabKey + ' .tabOptions > *').appendTo('.searchOptions .tabOptions');
+
 	if($(this).closest('li').hasClass('active')){
-		$('.specificFilters').empty().append($('.tab-pane.active .specificFilterOptions'));
-		$('.cw_specificFilters').removeClass('hidden');
+		// $('.specificFilters').empty().append($('.tab-pane.active .specificFilterOptions'));
+		// $('.cw_specificFilters').removeClass('hidden');
 		if(templates[activeTabKey] == undefined)
 		{		
 			getResults();
 		}
 	}
+
+	initializeSpecificFilter();
 });
 
-$('body').on('click', '.specificFilters button', function(){
-	$(this).siblings().removeClass('btn-success active').addClass('btn-info');
-	$(this).removeClass('btn-info').addClass('btn-success active');
+$('body').on('click', '.specificFilterOptions button', function(){
+	$(this).siblings().removeClass('btn-info active').addClass('btn-default');
+	$(this).removeClass('btn-default').addClass('btn-info active');
+
+	var html = $(this).parent().html();
+	var selector = $(this).parent().attr('id');
+	$('.searchOptions .tabOptions #' + selector).empty().append(html);
 
 	var activeTabKey = getActiveTabKey();
 	selectedRows[activeTabKey] = [];
@@ -388,20 +405,8 @@ $('body').on('click', '.createBatchButton', function(){
 		});
 
 		form.append($("<input type='checkbox' name='searchQuery[]' value='" + searchQuery + "' checked >"));
-		
-
 		form.submit();
 	}
-});
-
-$('.filterOption').on('click', function(){
-	updateFilters($(this));
-	activateNavAndTab($(this));
-	getResults();
-});
-
-$('.tab-pane').on('change', "[name='search_limit']", function(){
-	getResults();
 });
 
 $('.tab-pane').on('click', "th", function(){
@@ -416,32 +421,6 @@ $('.tab-pane').on('click', "th", function(){
 	getResults();
 });
 
-function getActiveTabKey(){
-	return '#' + $('.tab-pane.active').attr('id');
-}
-
-function getSearchLimitValue(){
-	return $(getActiveTabKey()).find("[name='search_limit']").val();
-}
-
-function activateNavAndTab(filterOption){
-	var key = filterOption.closest('li').attr('data-query-value');
-
-	if(!$('.documentTypesTabs').find('#' + key + '_tab').length)
-		return;
-
-	if(filterOption.closest('li').hasClass('active'))
-	{
-		$('.documentTypesNav').find('#' + key + '_nav').removeClass('hidden');
-		$('.documentTypesNav').find('#' + key + '_nav a').click();
-	}
-	else
-	{
-		$('#all_nav a').click();
-		$('.documentTypesNav').find('#' + key + '_nav').addClass('hidden');
-	}
-}
-
 $('body').on('click', 'ul.pagination a', function(e) {
 	e.preventDefault();
 	getResults($(this).attr('href') + "&noCache");
@@ -454,8 +433,12 @@ $('body').on('click', '.toCSV', function(e) {
 
 $('body').tooltip({
     selector: '[data-toggle=tooltip]',
-    html: true,
-    container: 'body'
+    container: 'body',
+    html: true
+});
+
+$(window).resize(function() {
+	updateReponsiveTableHeight();
 });
 
 $('.input-daterange').datepicker({
@@ -483,15 +466,10 @@ function getTabFieldsQuery(){
 	var tabFieldsQuery = '';
 
 	if(activeTabKey == "#all_tab"){
-		$('.filterOption').each(function() {
-			if($(this).closest('li').hasClass('active'))
-			{
-				tabFieldsQuery += "&" + $(this).closest('li').attr('data-query-key') + "=" + $(this).closest('li').attr('data-query-value');
-			}
-		});	
+		tabFieldsQuery = getGeneralFilterQueries();
 	}
 
-	$('.cw_generalFilters, .specificFilters, ' + activeTabKey).find("[data-query-key]").each(function() {
+	$('.searchOptions .specificFilterOptions, ' + activeTabKey).find("[data-query-key]").each(function() {
 		if($(this).hasClass('btn') && !$(this).hasClass('active')){
 			return;
 		}
@@ -514,7 +492,6 @@ function getTabFieldsQuery(){
 	});
 
 	// console.log(tabFieldsQuery);
-
 	return tabFieldsQuery;
 }
 
@@ -535,9 +512,9 @@ function getResults(baseApiURL){
 		return false;
 	}
 
-	// console.log(tabFieldsQuery);
+	console.log(tabFieldsQuery);
 
-	$(activeTabKey + ' .resultsInfo').addClass('btn-danger').text('Processing...');
+	$('.searchStats').text('Processing...');
 
 	abortAjax(xhr);
 
@@ -553,23 +530,23 @@ function getResults(baseApiURL){
 
 		var template = Handlebars.compile(templates[activeTabKey]);
 		var html = template(data);
-		$(activeTabKey).find('.cw_pagination').empty().prepend($(data.pagination));
-		$(activeTabKey).find('.cw_pagination').find('.pagination').addClass('pagination-sm');
+		$('.cw_pagination').empty().prepend($(data.pagination));
+		$('.cw_pagination').find('.pagination').addClass('pagination-sm');
 		$(activeTabKey).find('.results').empty().append(html);
 
 		var searchStats = Handlebars.compile($('.searchStatsTemplate').html());
 		var searchStats = searchStats(data);
-		$(activeTabKey).find('.searchStats').empty().append(searchStats);
+		$('.searchStats').empty().append(searchStats);
 
-		$(activeTabKey + ' .hb_popover').popover({
-			placement : "left",
-			html : true,
-			trigger : "hover",
-			title : "default",
-			content : function(){ return $(this).find('.hidden').html() },
- 			container: 'body',
-            template: '<div class="popover popover-medium"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'			
-		});
+		// $(activeTabKey + ' .hb_popover').popover({
+		// 	placement : "left",
+		// 	html : true,
+		// 	trigger : "hover",
+		// 	title : "default",
+		// 	content : function(){ return $(this).find('.hidden').html() },
+ 	// 		container: 'body',
+  //           template: '<div class="popover popover-medium"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'			
+		// });
 
 		if(templates[activeTabKey + 'date'] == undefined) 
 		{
@@ -578,39 +555,8 @@ function getResults(baseApiURL){
 			// alert(templates[activeTabKey + 'date']);
 		}
 
-		if($(activeTabKey).find(".vbColumns").length){
-			$(activeTabKey).find("[data-vbSelector]").each(function() {
-				if($(this).attr('data-vb') == "show")
-				{
-					$(this).find('.fa').remove();
-					$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
-				}
-				else
-				{
-					$(this).find('.fa').remove();
-					$(this).prepend('<i class="fa fa-circle-o fa-fw"></i>');
-				}
-			});
-
-			$(activeTabKey).find("[data-vbSelector]").off().on("click", function() {
-				if($(this).attr('data-vb') == "show")
-				{
-					$(this).attr('data-vb', 'hide');
-					$(this).find('.fa').remove();
-					$(this).prepend('<i class="fa fa-circle-o fa-fw"></i>');
-				}
-				else
-				{
-					$(this).attr('data-vb', 'show');					
-					$(this).find('.fa').remove();
-					$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
-				}
-
-				visibleColumns();
-			});
-
-			visibleColumns();
-		}
+		initializeVisibleColumns();
+		visibleColumns();		
 
 		// console.dir(selectedRows[activeTabKey]);
 		// console.log('starting search');
@@ -626,7 +572,9 @@ function getResults(baseApiURL){
 				}
 	        }
         });
-	});		
+	});
+
+	updateReponsiveTableHeight();
 }
 
 function abortAjax(xhr) {
@@ -635,10 +583,36 @@ function abortAjax(xhr) {
 	}
 }
 
-function visibleColumns(){
+var initializeVisibleColumns = function(){
+	if($('.searchOptions .tabOptions').find(".vbColumns").length){
+		$('.searchOptions .tabOptions').find("[data-vbSelector]").each(function() {
+			if($(this).attr('data-vb') == "show")
+			{
+				$(this).find('.fa').remove();
+				$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
+			}
+			else
+			{
+				$(this).find('.fa').remove();
+				$(this).prepend('<i class="fa fa-circle-o fa-fw"></i>');
+			}
+		});
+	}
+
+	$('.searchOptions .openAllColumns').off().on("click", function() {
+		$('.searchOptions .tabOptions').find("[data-vbSelector]").each(function() {
+			if($(this).attr('data-vb') == "hide")
+			{
+				$(this).click();
+			}
+		});
+	});
+}
+
+var visibleColumns = function(){
 	var activeTabKey = getActiveTabKey();
 
-	$(activeTabKey).find("[data-vbSelector]").each(function() {
+	$('.searchOptions .tabOptions').find("[data-vbSelector]").each(function() {
 
 		var vbSelector = $(activeTabKey).find($("[" + "data-vbIdentifier='" + $(this).attr('data-vbSelector') + "']"));
 
@@ -653,7 +627,7 @@ function visibleColumns(){
 	});	
 }
 
-function updateFilters(filterOption){
+var updateFilters = function(filterOption){
 	if(filterOption.closest('li').hasClass('active')){
 		filterOption.closest('li').removeClass('active');
 		filterOption.children('i').removeClass('fa-check-circle-o').addClass('fa-circle-o');
@@ -663,8 +637,7 @@ function updateFilters(filterOption){
 	}	
 }
 
-$('#twrex-structured-sentence').click();
-
+$('.select_twrex-structured-sentence').click();
 
 });
 

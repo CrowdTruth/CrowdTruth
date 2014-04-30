@@ -109,7 +109,7 @@ class MediaController extends BaseController {
 		$facetedSearch = App::make('FacetedSearch');
 		$mainSearchFilters = $facetedSearch->getMainSearchFilters();
 
-		return View::make('media.search.pages.index', compact('mainSearchFilters'));
+		return View::make('media.search.pages.zoek', compact('mainSearchFilters'));
 	}
 
 	public function anyBatch(){

@@ -451,8 +451,7 @@ $('body').on('click', '.toCSV', function(e) {
 
 $('body').tooltip({
     selector: '[data-toggle=tooltip]',
-    html: true,
-    container: 'body'
+    html: true
 });
 
 $('.input-daterange').datepicker({

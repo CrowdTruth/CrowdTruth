@@ -12,6 +12,8 @@ Route::group(array('before' => 'auth'), function()
 	    return Redirect::to('home');
 	});
 
+
+
 	Route::get('home', 'PagesController@index');
 	Route::controller('media/preprocess/fullvideo', 'preprocess\FullvideoController');
 	Route::controller('media/preprocess/twrex', 'preprocess\TwrexController');
@@ -25,8 +27,6 @@ Route::group(array('before' => 'auth'), function()
     Route::controller('analyze','AnalyticsController');
     Route::controller('onlinesource', 'OnlineSourceController');
 	
-
-
 });
 
 Route::controller('api/v1', '\Api\v1\apiController');
