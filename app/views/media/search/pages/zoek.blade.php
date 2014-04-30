@@ -50,7 +50,7 @@
 					<div class='tabOptions pull-left'>
 
 					</div>
-					<div class='switchViews'>
+					<div class='switchViews pull-left'>
 						<button type="button" class="btn btn-default listViewButton hidden" style="margin-left:5px;">
 							Switch to List View
 						</button>						
@@ -297,7 +297,7 @@ var getSearchLimitValue = function(){
 }
 
 var updateReponsiveTableHeight = function() {
-	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 290 + "px");	
+	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 260 + "px");	
 }
 
 var delay = (function(){
