@@ -127,7 +127,7 @@
 											<select name="source_name" class="form-control toggle-data" id="source_name">
 												<option value="">--</option>
 												<option value="source_beeldengeluid" data-toggle="source_name">Netherlands Institute for Sound and Vision</option>
-												<option value="source_rijksmuseum" data-toggle="source_name">Rijksmuseum</option>
+												<option value="source_rijksmuseum" data-toggle="source_name">Rijksmuseum ImageGetter</option>
 										   <!-- <option value="source_template" data-toggle="source_name">New online source</option> -->
 											</select>
 										</div>
