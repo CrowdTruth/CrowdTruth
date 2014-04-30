@@ -9,4 +9,9 @@ class PagesController extends BaseController {
 	{
 		return View::make('index');
 	}
+
+	public function info()
+	{
+		return View::make('info');
+	}
 }

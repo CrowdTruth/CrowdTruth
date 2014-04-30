@@ -1,1 +1,4 @@
 services.manifest
+fullvideos/*
+keyframes/*
+segmentvideos/*

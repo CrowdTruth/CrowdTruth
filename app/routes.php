@@ -7,12 +7,8 @@
 
 Route::group(array('before' => 'auth'), function()
 {
-	Route::get('/', function()
-	{
-	    return Redirect::to('home');
-	});
 
-	Route::get('home', 'PagesController@index');
+
 	Route::controller('media/preprocess/fullvideo', 'preprocess\FullvideoController');
 	Route::controller('media/preprocess/twrex', 'preprocess\TwrexController');
 	Route::controller('media/preprocess/CSVresultController', 'preprocess\CSVresultController');
@@ -28,6 +24,13 @@ Route::group(array('before' => 'auth'), function()
 
 
 });
+
+Route::get('/', function()
+{
+    return Redirect::to('home');
+});
+Route::get('home', 'PagesController@index');
+Route::get('info', 'PagesController@info');
 
 Route::controller('api/v1', '\Api\v1\apiController');
 Route::controller('api/media', '\Api\media\apiController');
