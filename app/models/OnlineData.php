@@ -410,9 +410,6 @@ class OnlineData extends Moloquent {
 				$status['error'][$title] = $e->getMessage();
 			}	
 		}			
-
-			dd($status);
-	
 		return $status;
 	}
 

@@ -109,7 +109,7 @@
 			</div>			
 		</div>
 	</div>
-	<div class='ctable-responsive'>
+	<div class='ctable-responsive cResults'>
 	    <table class="table table-striped">
 	        <thead data-query-key="match[documentType]" data-query-value="twrex-structured-sentence">
 		        <tr>

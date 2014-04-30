@@ -50,6 +50,14 @@
 					<div class='tabOptions pull-left'>
 
 					</div>
+					<div class='switchViews'>
+						<button type="button" class="btn btn-default graphViewButton" style="margin-left:5px;">
+							Switch to List View
+						</button>						
+						<button type="button" class="btn btn-default listViewButton hidden" style="margin-left:5px;">
+							Switch to Graph View
+						</button>
+					</div>
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right">
 						<option value="10">10 Records per page</option>
 						<option value="25">25 Records per page</option>
@@ -201,7 +209,6 @@ var getSearchLimitValue = function(){
 var updateReponsiveTableHeight = function() {
 	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 260 + "px");	
 }
-
 
 var delay = (function(){
 	var timer = 0;
@@ -433,6 +440,21 @@ $('body').on('click', 'ul.pagination a', function(e) {
 $('body').on('click', '.toCSV', function(e) {
 	e.preventDefault();
 	location.href = "{{ URL::to("api/search?tocsv&limit=100000") }}" + getTabFieldsQuery();
+});
+
+$('.listViewButton').click(function() {
+	$(this).addClass('hidden');
+	$('.graphViewButton').removeClass('hidden');
+
+	$(getActiveTabKey() + ' tbody.results').hide();
+});
+
+$('.graphViewButton').click(function() {
+	$(this).addClass('hidden');
+	$('.listViewButton').removeClass('hidden');
+
+	$(getActiveTabKey() + ' tbody.results').show();
+
 });
 
 $('body').tooltip({
