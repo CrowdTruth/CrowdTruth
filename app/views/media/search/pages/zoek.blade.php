@@ -51,12 +51,12 @@
 
 					</div>
 					<div class='switchViews'>
-						<button type="button" class="btn btn-default graphViewButton" style="margin-left:5px;">
+						<button type="button" class="btn btn-default listViewButton" style="margin-left:5px;">
+							Switch to Graph View
+						</button>						
+						<button type="button" class="btn btn-default graphViewButton hidden" style="margin-left:5px;">
 							Switch to List View
 						</button>						
-						<button type="button" class="btn btn-default listViewButton hidden" style="margin-left:5px;">
-							Switch to Graph View
-						</button>
 					</div>
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right">
 						<option value="10">10 Records per page</option>
