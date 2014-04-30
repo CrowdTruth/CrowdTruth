@@ -143,7 +143,7 @@ class RetrieveJobs extends Command {
 								$qid = substr($q, $split+1);		// after the first _
 								$groupedbyid[$unitid][$qid] = $ans;// grouped to create an entity for every ID.
 							}
-							
+
 							// Create entity FOR EACH UNIT
 							foreach($groupedbyid as $uid=>$qidansarray){
 								$annotation = new Annotation;
@@ -197,9 +197,10 @@ class RetrieveJobs extends Command {
 						}
 
 						//if(count($newannotations)>0)
-						if($newannotationscount>0)
-							Log::debug("Got $newannotationscount new annotations for {$h['HITId']} - total " . count($assignments) . " assignments.");
-
+						if($newannotationscount>0){
+							Log::debug("Saved $newannotationscount new annotations for {$h['HITId']} - total " . count($assignments) . " assignments.");
+							print "Saved $newannotationscount new annotations for {$h['HITId']} - total " . count($assignments) . " assignments.";
+						}
 					} // foreach assignment
 				} // if / else				
 			} // foreach hit

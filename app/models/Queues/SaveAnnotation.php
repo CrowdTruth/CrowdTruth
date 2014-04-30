@@ -1,5 +1,6 @@
 <?php
 namespace Queues;
+use \Queue;
 class SaveAnnotation {
 
 
@@ -8,7 +9,10 @@ class SaveAnnotation {
 		$annotation = unserialize($data['annotation']);
 		$annotation->save();
 		\Log::debug("Saved annotation {$annotation->_id}.");
-		$job->delete();
+
+		Queue::push('Queues\UpdateUnits', [$annotation->unit_id]);
+
+		$job->delete(); // the Queue job...
 	}
 
 

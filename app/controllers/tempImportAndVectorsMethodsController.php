@@ -4,6 +4,19 @@ use Sunra\PhpSimple\HtmlDomParser;
 class tempImportAndVectorsMethodsController extends BaseController {
 
 
+	public function getGeneraterandomjobfinishdates(){
+		foreach (Job::get() as $job) {
+			$job->finishedAt = new MongoDate($job->startedAt->sec + rand(56400, 200000));
+			echo date('Y-M-d h:i:s', $job->startedAt->sec) . "<br>"; 
+			echo date('Y-M-d h:i:s', $job->finishedAt->sec) . "<br>"; 
+			echo $job->finishedAt->sec - $job->startedAt->sec . "<br>";
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+		}	
+	}
+
+
+
+
 	public function getConvertcsv(){
 		if (($handle = fopen(storage_path() . '/jobs.csv', 'r')) === false) {
 		    die('Error opening file');

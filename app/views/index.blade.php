@@ -7,7 +7,7 @@
 @include('layouts.flashdata')						
 
 					<div class="page-header text-center" style="margin:10px;">
-						<h2>Hi{{ (Auth::check() ? Auth::user()->firstname . ' ': '') }}! <small> Welcome to the CrowdTruth framework </small> </h2>
+						<h2>Hi{{ (Auth::check() ? ' ' . Auth::user()->firstname : '') }}! <small> Welcome to the CrowdTruth framework </small> </h2>
 					</div>
 
 					<ul class="media-list">
@@ -34,12 +34,22 @@
 					    </div>
 					</a>
 					  </li>
+					  <hr>
 					 <li class="media" style='padding:10px;'>
 						<i class="fa fa-fw fa-info pull-left" style='font-size:40px;'></i>				  	
 					    <a href="/info" class="noastyle">
 					    <div class="media-body">
-					      <h4 class="media-heading">Information</h4>
-					      Documentation on the usage and inner workings of the Crowd Truth framework
+					      <h4 class="media-heading">Documentation</h4>
+					      Information on the usage and inner workings of the CrowdTruth framework
+					    </div>
+					</a>
+					  </li>
+					  <li class="media" style='padding:10px;'>
+						<i class="fa fa-fw fa-flask pull-left" style='font-size:40px;'></i>				  	
+					    <a href="/papers" class="noastyle">
+					    <div class="media-body">
+					      <h4 class="media-heading">Papers</h4>
+					      Scientific papers on CrowdTruth (harnessing disagreement)
 					    </div>
 					</a>
 					  </li>
@@ -48,7 +58,7 @@
 
 <footer style="padding:10px"><span class="pull-right">Latest update: 
  <?php 
- 	$all = array();
+/* 	$all = array();
  
  	foreach(scandir(app_path()) as $d){
  		$path = app_path()  . DIRECTORY_SEPARATOR . $d;
@@ -56,7 +66,11 @@
  			$all[]=filemtime($path);
  		}
  	}
- 	echo date("Y-m-d", max($all)); ?></span>
+ 	foreach ($all as $one) {
+ 		echo date("Y-m-d", max($all)) . '<br>';
+ 	}*/
+
+ 	echo date("Y-m-d", filemtime(base_path() . DIRECTORY_SEPARATOR . '.git')); ?></span>
  </footer>
 			</div>
 

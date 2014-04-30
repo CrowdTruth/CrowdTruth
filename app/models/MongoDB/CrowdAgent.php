@@ -2,6 +2,8 @@
 
 namespace MongoDB;
 use \Moloquent;
+use \Job;
+
 class CrowdAgent extends Moloquent {
 
 	protected $collection = 'crowdagents';
@@ -9,22 +11,181 @@ class CrowdAgent extends Moloquent {
 	protected static $unguarded = true;
     public static $snakeAttributes = false;
 	
+
+    public function updateStats2(){
+      
+        // take all the jobs for that worker
+        if($crowdAgentJobs = Job::where('metrics.workers.withoutFilter.' . $this->_id, 'exists', true)->get(['_id']))
+        {
+            //if there is at least one job with that worker
+            if(count($crowdAgentJobs->toArray()) > 0)
+            {   
+                // take all distinct media formats
+                $distinctMediaFormats = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('format')->get()->toArray();
+                $workerParticipatedIn = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->count();
+
+
+                // take all distinct media domains
+                $distinctMediaDomains = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('domain')->get()->toArray();
+                // take all distinct job types
+                $distinctJobTypes = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('type')->get()->toArray();
+
+
+                // count all the annotations
+                $totalNoOfAnnotations = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->sum('metrics.workers.withoutFilter.' . $crowdAgent->_id . '.no_of_units');              
+
+                //count all spam annotations
+                $totalNoOfSpammedAnnotations = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereIn('metrics.spammers.list', [$crowdAgent->_id])->sum('metrics.workers.withoutFilter.' . $crowdAgent->_id . '.no_of_units');
+                if (!isset($totalNoOfSpammedAnnotations)) {
+                    $totalNoOfSpammedAnnotations = 0;
+                }
+
+
+                //count all nonspam annotations
+                $totalNoOfNonspammedAnnotations = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereNotIn('metrics.spammers.list', [$crowdAgent->_id])->sum('metrics.workers.withoutFilter.' . $crowdAgent->_id . '.no_of_units');
+                if (!isset($totalNoOfNonspammedAnnotations)) {
+                    $totalNoOfNonspammedAnnotations = 0;
+                }
+                
+            
+                $cache["annotations"] = [
+                        "count" => $totalNoOfAnnotations,
+                        "spam" => $totalNoOfSpammedAnnotations,
+                        "nonspam" => $totalNoOfNonspammedAnnotations];
+
+
+                // take all distinct batches
+                $distinctBatchIds = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('batch_id')->get(['_id']);
+
+
+                $cache["mediaTypes"] = [
+                    //  "distinct" => count($distinctMediaTypes),
+                        "count" => $workerParticipatedIn, //,
+                        "types" => []
+                    ];
+                
+                foreach($distinctBatchIds as $distinctBatchId) {
+                    $batchParents = array_flatten(\MongoDB\Entity::where('_id', '=', $distinctBatchId[0])->lists('parents'));
+                    //print_r($batchParents[0]);
+                    $batchParentsType = \MongoDB\Entity::where('_id', '=', $batchParents[0])->distinct('documentType')->get(['documentType']);
+                    //print_r(array_flatten($batchParentsType->toArray())[0]);
+                    if(isset($cache["mediaTypes"]["types"][array_flatten($batchParentsType->toArray())[0]])) {
+                        $cache["mediaTypes"]["types"][array_flatten($batchParentsType->toArray())[0]] = $cache["mediaTypes"][array_flatten($batchParentsType->toArray())[0]] + 1;
+                    }
+                    else {
+                        $cache["mediaTypes"]["types"] = [];
+                        $cache["mediaTypes"]["types"][array_flatten($batchParentsType->toArray())[0]] = 1;
+                    }
+                }
+                $cache["mediaTypes"]["distinct"] = sizeof(array_keys($cache["mediaTypes"]["types"]));
+                
+
+
+                if(count($distinctJobTypes) > 0)
+                {
+                    $cache["jobTypes"] = [
+                        "distinct" => count($distinctJobTypes),
+                        "count" => $workerParticipatedIn,
+                        "types" => []
+                    ];
+                    foreach($distinctJobTypes as $distinctJobType)
+                    {
+                        $distinctJobTypeCount = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('type', $distinctJobType[0])->count();
+                        
+                        $distinctJobTemplateTypes = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('type', '=',  $distinctJobType[0])->distinct('template')->get()->toArray();
+                        $countJobTemplateTypes = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('type', '=',  $distinctJobType[0])->count();
+                        //$cache["jobTypes"]["types"][$distinctJobType[0]] = [];
+                        $cache["jobTypes"]["types"][$distinctJobType[0]]['distinct'] = count($distinctJobTemplateTypes);
+                        $cache["jobTypes"]["types"][$distinctJobType[0]]['count'] = count($countJobTemplateTypes);
+                        $cache["jobTypes"]["types"][$distinctJobType[0]]["templates"] = [];
+                        foreach($distinctJobTemplateTypes as $distinctJobTemplateType)
+                        {
+                        
+                            $distinctJobTemplateAndCount = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('template', $distinctJobTemplateType[0])->count();
+                            
+                            $cache["jobTypes"]["types"][$distinctJobType[0]]["templates"][$distinctJobTemplateType[0]] = $distinctJobTemplateAndCount;
+                        }
+                    }   
+                }
+
+
+                if(count($distinctMediaFormats) > 0)
+                {
+                    $cache["mediaFormats"] = [
+                        "distinct" => count($distinctMediaFormats),
+                        "count" => $workerParticipatedIn,
+                        "formats" => []
+                    ];
+
+
+                    $cache["mediaDomains"] = [
+                        "distinct" => count($distinctMediaDomains),
+                        "count" => $workerParticipatedIn,
+                        "domains" => []
+                    ];
+
+
+                    foreach($distinctMediaFormats as $distinctMediaFormat)
+                    {
+                        $distinctMediaFormatAndCount = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('format', $distinctMediaFormat[0])->count();
+                        $cache["mediaFormats"]["formats"][$distinctMediaFormat[0]] = $distinctMediaFormatAndCount;
+                    }           
+
+
+                    foreach($distinctMediaDomains as $distinctMediaDomain)
+                    {
+                        $distinctMediaDomainAndCount = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('domain', $distinctMediaDomain[0])->count();
+                        $cache["mediaDomains"]["domains"][$distinctMediaDomain[0]] = $distinctMediaDomainAndCount;
+                    }                                                   
+                }
+
+                $jobsAsSpammer = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereIn('metrics.spammers.list', [$crowdAgent->_id])->lists('platformJobId');
+                $cache["spammer"]["count"] = count($jobsAsSpammer);
+                $cache["spammer"]["jobs"] = array_flatten($jobsAsSpammer);
+                $cache['flagged'] = 'false';
+                $cache['sentMessagesToWorkers']['count'] = 0;
+                $cache['sentMessagesToWorkers']['messages'] = [];
+                $cache['avg_agreement'] = 0.0;
+                $cache['avg_cosine'] = 0.0;
+
+
+                $this->cache = $cache;
+                
+                $dd($this->cache);        
+                     
+            }
+        }
+  
+    }
+
+
+
+
+
+
+
+
     public function updateStats(){
     	$countthese = array('type', 'domain', 'format');
     	$stats = array();
 
     	// Annotations
     	$total = array('count' => count($this->annotations));
+        $spam = $nonspam = 0;
     	foreach($this->annotations as $a){
     		foreach($countthese as $x){
     			if(isset($total[$x][$a->$x])) $total[$x][$a->$x]++;
     			else $total[$x][$a->$x] = 1;
     		}
 
+            if($a->spam) $spam++;
+            else $nonspam++;
+
     		$jobids[] = $a->job_id;
     		$unitids[] = $a->unit_id;
     	}
-    	$this->annotationCount = $total;
+
+    	$this->annotationStats = array('count'=>$total['count'], 'spam'=>$spam, 'nonspam'=>$nonspam);
 
         if(isset($jobids)){
         	// Jobs
@@ -37,7 +198,7 @@ class CrowdAgent extends Moloquent {
             		}
                 }
         	}
-        	$this->jobCount = $total;
+        	//$this->jobTypes = array('distinct' => $total;
 		}
 
     	// Units

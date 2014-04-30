@@ -12,6 +12,37 @@ class ProcessController extends BaseController {
 	}
 
 
+	public function getResults(){
+		//foreach (Annotation::type('RelDir') as $ann) {
+		foreach(Job::get() as $job){
+
+			//Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+		}
+	}
+
+
+
+
+//test
+	public function getUpdateca(){
+		$ca = MongoDB\CrowdAgent::first();
+		$ca->updateStats2();
+/*
+		//$unitids = array('entity/text/medical/twrex-structured-sentence/1736');
+		Queue::push('Queues\UpdateUnits', $unitids);
+		//dd($unitids);
+		echo count($unitids);*/
+	}
+
+
+
+
+
+
+
+
+
+
 
 	public function getBla() {
 

@@ -28,6 +28,8 @@ class BatchCreator extends Moloquent {
 		}
 
 		try {
+			
+
 			$entity = new Entity;
 			$entity->title = $input['batch_title'];
 			// $entity->extension = $file->getClientOriginalExtension();
@@ -40,6 +42,8 @@ class BatchCreator extends Moloquent {
 			$entity->activity_id = $activity->_id;
 			$entity->save();
 
+			Queue::push('Queues\UpdateUnits', $input['units']);
+			
 			Session::flash("flashSuccess", $input['batch_title'] . " batch was successfully created. (URI: {$entity->_id})");
 		} catch (Exception $e) {
 			// Something went wrong with creating the Entity
