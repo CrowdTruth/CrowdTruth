@@ -12,10 +12,10 @@ class FullvideoStructurer {
 	public function process($fullvideo) 
 	{
 		$retVal = array();
-		if ($fullvideo->keyframes == "false") {
+		if ($fullvideo->keyframes["count"] == 0) {
 			$retVal["keyframes"] = $this->processKeyFrames($fullvideo);	
 		}
-		if ($fullvideo->segments == "false") {
+		if ($fullvideo->segments["count"] == 0) {
 			$retVal["segments"] = $this->processSegments($fullvideo);
 		}
 		return $retVal;
@@ -38,15 +38,15 @@ class FullvideoStructurer {
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
 		
-		$videoPath = $fullvideo->content["storage_url"];
-		$keyframesPath = storage_path() . "/videostorage/keyframes/";
+		$videoPath = public_path() . $fullvideo->content["storage_url"];
+		$keyframesPath = public_path() . "/videostorage/keyframes/";
 		$ffmpegPath = "/var/www/crowd-watson/app/ffmpeg";
 		$ffprobePath = "/var/www/crowd-watson/app/ffprobe";
 		
 		$videoName = explode("/", $videoPath);
 		$thumbnailName = substr($videoName[sizeof($videoName) - 1], 0, -4) . "_keyframe_%02d.jpg";
 		
-		$command = $ffmpegPath . " -i " . $videoPath . " -vf select=\"eq(pict_type\,I)*gt(scene\,0.3)\" -vsync 2 -s 320x240 -f image2 " . $keyframesPath . $thumbnailName . " -loglevel debug 2>&1 | grep \"select:1\" | cut -d \" \" -f 6 -";
+		$command = $ffmpegPath . " -i " . $videoPath . " -vf select=\"gt(scene\,0.5)\" -vsync 2 -s 320x240 -f image2 " . $keyframesPath . $thumbnailName . " -loglevel debug 2>&1 | grep \"select:1\" | cut -d \" \" -f 6 -";
 		$execCommand = exec($command, $output);
 		$files = scandir($keyframesPath);
 		$keyframes = 0;
@@ -64,7 +64,7 @@ class FullvideoStructurer {
 		$keyFramesStructured = array();
 		for ($i = 0; $i < sizeof($keyFrameNames); $i ++) {
 			$keyFramesStructured[$i] = array();
-			$keyFramesStructured[$i]["storage_url"] = $keyframesPath . $keyFrameNames[$i];
+			$keyFramesStructured[$i]["storage_url"] = "/videostorage/keyframes/" . $keyFrameNames[$i];
 			$keyFramesStructured[$i]["height"] = "240";
 			$keyFramesStructured[$i]["width"] = "320";
 			$timestampExtraction = explode(":", $output[$i]);
@@ -79,10 +79,10 @@ class FullvideoStructurer {
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
 		
-		$videoPath = $fullvideo->content["storage_url"];
-		$videoSegmentsPath = storage_path() . "/videostorage/segmentvideos/";
-		$ffmpegPath = "/var/www/crowd-watson/app/ffmpeg";
-		$ffprobePath = "/var/www/crowd-watson/app/ffprobe";
+		$videoPath = public_path() . $fullvideo->content["storage_url"];
+		$videoSegmentsPath = public_path() . "/videostorage/segmentvideos/";
+		$ffmpegPath = app_path() ."/ffmpeg";
+		$ffprobePath = app_path() ."ffprobe";
 		$videoName = explode("/", $videoPath);
 		$segmNames = substr($videoName[sizeof($videoName) - 1], 0, -4) . "_segment_";
 		$segmExtension = ".mp4";
@@ -117,7 +117,7 @@ class FullvideoStructurer {
 		$end_time = 0;
 		for ($i = 0; $i < sizeof($segmentNames); $i ++) {
 			$videoSegmentStructured[$i] = array();
-			$videoSegmentStructured[$i]["storage_url"] = $videoSegmentsPath . $segmentNames[$i];
+			$videoSegmentStructured[$i]["storage_url"] = "/videostorage/segmentvideos/" . $segmentNames[$i];
 
 			$timeProcess = exec($ffmpegPath . " -i " . $videoSegmentsPath . $segmentNames[$i] . " 2>&1 | awk '/Duration/ {split($2,a,\":\");print a[1]*3600+a[2]*60+a[3]}'", $output);
 
@@ -167,7 +167,7 @@ class FullvideoStructurer {
 				$entity->title = strtolower($title);
 				$entity->domain = $parentEntity->domain;
 				$entity->format = "image";
-				$entity->documentType = "key-frame";
+				$entity->documentType = "keyframe";
 				$entity->parents = array($parentEntity->_id);
 				$entity->source = $parentEntity->source;
 				$entity->content = $keyframeExtraction[$i];
@@ -176,9 +176,9 @@ class FullvideoStructurer {
 				$entity->hash = md5(serialize($keyframeExtraction[$i]));
 				$entity->activity_id = $activity->_id;
 				$entity->save();
-
+				
 				$status['success'][$title] = $title . " was successfully processed into a key frame. (URI: {$entity->_id})";
-
+				
 			} catch (Exception $e) {
 				// Something went wrong with creating the Entity
 				$entity->forceDelete();
@@ -188,6 +188,7 @@ class FullvideoStructurer {
 			$tempEntityID = $entity->_id;
 		}
 
+		$status['success']['noEntitiesCreated'] = sizeof($keyframeExtraction);
 		return $status;
 	}
 
@@ -224,7 +225,7 @@ class FullvideoStructurer {
 				$entity->_id = $tempEntityID;
 				$entity->title = strtolower($title);
 				$entity->domain = $parentEntity->domain;
-				$entity->format = "image";
+				$entity->format = "video";
 				$entity->documentType = "videosegment";
 				$entity->parents = array($parentEntity->_id);
 				$entity->source = $parentEntity->source;
@@ -236,7 +237,7 @@ class FullvideoStructurer {
 				$entity->save();
 
 				$status['success'][$title] = $title . " was successfully processed into a video segment. (URI: {$entity->_id})";
-
+				
 			} catch (Exception $e) {
 				// Something went wrong with creating the Entity
 				$entity->forceDelete();
@@ -246,6 +247,8 @@ class FullvideoStructurer {
 			$tempEntityID = $entity->_id;
 		}
 
+		$status['success']['noEntitiesCreated'] = sizeof($videoSegmenting);
+		//dd($status);
 		return $status;
 	}
 

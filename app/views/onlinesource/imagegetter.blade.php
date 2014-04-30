@@ -6,28 +6,23 @@
 <script type="text/javascript" src="/custom_assets/angular-moment.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.0rc2/angular-resource.min.js"></script>
 <script type="text/javascript" src="/custom_assets/moment.js"></script>
-<script type="text/javascript" src="/custom_assets/angular-form-builder/angular-form-builder.js"></script>
-<script type="text/javascript" src="/custom_assets/angular-form-builder/angular-form-builder-components.js"></script>
-<script type="text/javascript" src="/custom_assets/angular-form-builder/angular-validator.min.js"></script>
 <!-- basic rules (not required) -->
 <script type="text/javascript" src="/custom_assets/angular-form-builder/angular-validator-rules.js"></script>
 <link type="text/css" rel="stylesheet" href="/custom_assets/angular-form-builder/angular-form-builder.css"/>
 <script type="text/javascript" src="/custom_assets/ui-bootstrap-tpls-0.10.0.min.js"></script>
-<script type="text/javascript" src="/custom_assets/angular-form-builder/demo.js"></script>
 <script type="text/javascript" src="/custom_assets/src-min-noconflict/ace.js"></script>
-<script type="text/javascript" src="/custom_assets/ui-ace.min.js"></script>
 @stop
 
 
 
 @section('content')
 <div class="row" ng-app="crowdWatson">
-	<div class="mainContainer" ng-controller="imgCtrl">
+	<div ng-controller="imgCtrl">
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4><i class="fa fa-upload fa-fw"></i>Image getter</h4>
 			</div>
-			<div class="panel-body" ng-show="!imageGetting">							
+			<div class="panel-body bordered">							
 				<div class="form-horizontal">
 					<div class="form-group">
 						<label for="domain_type" class="col-sm-3 control-label">Domain</label>
@@ -63,7 +58,11 @@
 							<input type="text" id="category" ng-model="keyphrase"/>
 						</div>
 					</div>
-
+					<div class="form-group">
+						<div class="col-sm-6 col-sm-offset-3">
+							i.e. <a ng-click="setModel('hond')">hond</a>, <a ng-click="setModel('vogel')">vogel</a>
+						</div>
+					</div>
 					<div class="form-group">
 						<div class="col-sm-offset-3 col-sm-5">
 							<button class="btn btn-primary" ng-click="next();">Start</button>
@@ -73,29 +72,29 @@
 				</div>
 			</div>
 
-			<div class="panelbody" ng-show="imageGetting" style="height: 600px; overflow-y: scroll;">
+			<div class="panelbody" ng-show="imageGetting" style="height: 600px; overflow-y: scroll; padding-top:10px;">
 
 				<div ng-show="loading" class="loading"><img class="loading-img" src="/loading.gif"><div>Loading..</div></div>
 				<div ng-show="empty" style="margin-left: 20px;"><h3> No images found in this query </h3><a ng-click="emptyArray()"> click here to go back</a> </div>
 
 				<div ng-show="!loading && !empty" class="space-left" style="margin-top: 10px;">
-					<button ng-click="selectAll()" ng-show="!allSelected">Select all</button>
-					<button ng-click="deselectAll()" ng-show="allSelected">Deselect all</button>
+					<button ng-click="selectAll()">Select all</button>
+					<button ng-click="deselectAll()">Deselect all</button>
 				</div>
 
 				<div class="space-left" style="margin-top: 30px;">
-					<div class="image-box pull-left" ng-show="!loading && !empty" ng-repeat="image in pictures" style="background-image: url(@{{image.url}}); background-size: 100%; background-repeat: no-repeat">
-						<a ng-click="image.checked">
+					<div class="image-box pull-left" ng-show="!loading && !empty" ng-repeat="image in pictures" style="background-image: url(@{{image.url}}); background-size: 100%; background-repeat: no-repeat" ng-click="image.checked=!image.checked">
+						
 							<div class="non-overlay">
 								<div ng-class="{overlay: image.checked}" class="image-selectable" >
 									
-										<div class="image-checkbox">
+										<div class="image-checkbox" ng-click="image.checked=!image.checked">
 											<input type="checkbox" ng-model="image.checked">
 										</div>
 									
 								</div>
 							</div>
-						</a>
+						
 					</div>
 				</div>
 

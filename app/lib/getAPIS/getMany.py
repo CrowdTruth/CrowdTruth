@@ -43,6 +43,8 @@ def closse(response):
 #url = 'http://jolicrowd.net/api/media/post'
 url = 'http://127.0.0.1:8888/api/media/test'
 url = 'http://127.0.0.1/api/media/test'
+url = 'http://jolicrowd.net/api/media/test'
+
 headers = {'content-type': 'application/json'}
 
 
@@ -190,8 +192,9 @@ for iter in range(3, len(sys.argv), 2):
     try:
         Comm = "http://api.skybiometry.com/fc/faces/detect.json?api_key="+Sky_key + "&api_secret="+Sky_secret+"&urls=" +ImURL + "&attributes=all"
         response = urllib2.urlopen(Comm)
-        closse(response)
+        
         data5 = json.load(response)    
+        closse(response)
         l = []
         for a in data5["photos"][0]["tags"]:
            

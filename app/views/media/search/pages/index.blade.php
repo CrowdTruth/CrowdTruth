@@ -231,6 +231,10 @@
 							@include('media.search.layouts.hb-twrex-structured-sentence')
 						@endif
 
+						@if(isset($mainSearchFilters['documentTypes']['fullvideo']))
+							@include('media.search.layouts.hb-fullvideo')
+						@endif
+
 						@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
 							@include('media.search.layouts.hb-painting')
 						@endif
@@ -282,6 +286,7 @@ var delay = (function(){
 		timer = setTimeout(callback, ms);
 	};
 })();
+
 
 $('body').on('keyup', '.inputFilters input', function(){
 	var inputFilter = $(this);
@@ -661,6 +666,67 @@ function updateFilters(filterOption){
 
 
 });
+
+/*
+$('body').on('show.bs.modal', '.modal', function(){
+	if(baseApiURL == undefined)
+	{
+		var baseApiURL = '{{ URL::to("api/search?noCache") }}';
+	}
+
+	var activeTabKey = getActiveTabKey();
+	var modal = $(this);
+	var id = modal.attr('data-entityid');
+	var reqType = $(this).closest('td').attr('id');
+
+	if (reqType.indexOf("keyframe") > -1) {
+		$.getJSON(baseApiURL + "&only[]=content.storage_url&only[]=content.timestamp&match[documentType]=keyframe&match[parents][]=" + id, function(data) {
+		console.log(data);
+		var template = Handlebars.compile($(activeTabKey).find('.modalKeyFrameTemplate .template').html());
+		var html = template(data);
+		modal.find('.modal-body').empty().append(html);
+	});
+	}
+	if (reqType.indexOf("segment") > -1) {
+		$.getJSON(baseApiURL + "&only[]=content.storage_url&only[]=content.duration&match[documentType]=videosegment&only[]=content.start_time&only[]=content.end_time&match[parents][]=" + id, function(data) {
+		console.log(data);
+		var template = Handlebars.compile($(activeTabKey).find('.modalVideoSegmentTemplate .template').html());
+		var html = template(data);
+		modal.find('.modal-body').empty().append(html);
+		});
+	}
+
+});
+*/
+
+$('body').on('click', '.testModal', function(){
+	if(baseApiURL == undefined)
+	{
+		var baseApiURL = '{{ URL::to("api/search?noCache") }}';
+	}
+
+	var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
+	var modalTarget = $(this).attr('data-target');
+	//alert(modalTarget);
+
+	var query = $(this).attr('data-modal-query');
+
+		$.getJSON(baseApiURL + query, function(data) {
+		console.log(data);
+
+		var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+
+		var html = template(data);
+		
+		$('#activeTabModal').remove();
+		$('body').append(html);
+		
+		$('#activeTabModal').modal();
+
+		});
+});
+
+
 
 </script>
 

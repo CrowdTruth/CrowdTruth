@@ -1,5 +1,6 @@
 <div class="navbar-form navbar-right">
     @yield('dynamicButton')
+    @if(Auth::check())
     <div class="btn-group">
          <a href='{{ URL::to('media/upload') }}' class="{{ (Request::is('media/upload') ? 'active' : '') }} btn btn-default">Upload Media</a>
     </div>
@@ -12,4 +13,7 @@
             <li><a href="{{ URL::to('/user/logout') }}"><i class="fa fa-sign-out fa-fw"></i>Log out</a></li>
         </ul> 
     </div>
+    @else
+       {{ link_to('user/login', "Log in", array("class" => "btn btn-primary")) }}
+    @endif
 </div>
