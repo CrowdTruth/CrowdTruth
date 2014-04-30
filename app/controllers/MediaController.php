@@ -101,13 +101,6 @@ class MediaController extends BaseController {
 		return Redirect::to('media/browse')->with('flashError', "No document found at given URI: {$URI}");
 	}
 
-	public function getFacetedsearch(){
-		$facetedSearch = App::make('FacetedSearch');
-		$mainSearchFilters = $facetedSearch->getMainSearchFilters();
-
-		return View::make('media.search.pages.v2', compact('mainSearchFilters'));
-	}
-
 	public function getSearch()
 	{
 		$facetedSearch = App::make('FacetedSearch');
