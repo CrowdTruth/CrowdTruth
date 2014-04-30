@@ -51,11 +51,11 @@
 
 					</div>
 					<div class='switchViews'>
-						<button type="button" class="btn btn-default listViewButton" style="margin-left:5px;">
-							Switch to Graph View
-						</button>						
-						<button type="button" class="btn btn-default graphViewButton hidden" style="margin-left:5px;">
+						<button type="button" class="btn btn-default listViewButton hidden" style="margin-left:5px;">
 							Switch to List View
+						</button>						
+						<button type="button" class="btn btn-default graphViewButton" style="margin-left:5px;">
+							Switch to Graph View
 						</button>						
 					</div>
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right">
@@ -158,6 +158,85 @@
 						@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
 							@include('media.search.layouts.hb-painting')
 						@endif
+						
+						<div class='includeGraph hidden'>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <div id="domain_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="format_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="user_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="relation_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="jobs_div"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr >
+                                    <td>
+                                       <div id="unitsWordCountChart_div" ></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr >
+                                    <td>
+                                    <div id="unitsJobChart_div" ></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            </table>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <div id="workersPie_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="workersBar_div"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <div id="jobsPie_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="jobsBar_div"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <div id="annotationsPie_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="annotationsBar_div"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                            <h4 class="modal-title" id="myModalLabel"></h4>
+                                        </div>
+                                        <div class="modal-body">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
 						<script class='searchStatsTemplate' type="text/x-handlebars-template">
 							Showing @{{ count.from }} to @{{ count.to }} of @{{ count.total}} entries
@@ -177,6 +256,17 @@
 {{ javascript_include_tag('bootstrap-select.js') }}
 {{ javascript_include_tag('bootstrap-datepicker.js') }}
 
+{{ javascript_include_tag('visualizations/d3.min.js')}}
+{{ javascript_include_tag('visualizations/jquery.mediaTable.js') }}
+{{ javascript_include_tag('highcharts.js') }}
+{{ javascript_include_tag('modules/exporting.js') }}
+{{ javascript_include_tag('visualizations/unitsChartFacade.js') }}
+{{ javascript_include_tag('visualizations/unitsWorkerDetails.js') }}
+{{ javascript_include_tag('visualizations/unitsAnnotationDetails.js') }}
+{{ javascript_include_tag('visualizations/unitsJobDetails.js') }}
+{{ javascript_include_tag('visualizations/pieChartGraph.js') }}
+{{ javascript_include_tag('visualizations/barChartGraph.js') }}
+{{ javascript_include_tag('visualizations/unitChartDetails.js') }}
 <script>
 $('document').ready(function(){
 
@@ -445,16 +535,18 @@ $('body').on('click', '.toCSV', function(e) {
 $('.listViewButton').click(function() {
 	$(this).addClass('hidden');
 	$('.graphViewButton').removeClass('hidden');
-
-	$(getActiveTabKey() + ' tbody.results').hide();
+	$('.includeGraph').addClass('hidden');
+	
+	$(getActiveTabKey() + ' tbody.results').show();
 });
 
 $('.graphViewButton').click(function() {
 	$(this).addClass('hidden');
 	$('.listViewButton').removeClass('hidden');
-
-	$(getActiveTabKey() + ' tbody.results').show();
-
+	$('.includeGraph').removeClass('hidden');
+	
+	$(getActiveTabKey() + ' tbody.results').hide();
+	getResults();
 });
 
 $('body').tooltip({
@@ -587,8 +679,16 @@ function getResults(baseApiURL){
 		// console.dir(selectedRows[activeTabKey]);
 		// console.log('starting search');
 
-		$(activeTabKey + ' .checkAll').removeAttr('checked');
+		
+		
+		if($('.graphViewButton').hasClass('hidden')){
+			$(activeTabKey + ' .checkAll').removeAttr('checked');
+			var unitsChart = new unitsChartFacade();
+			unitsChart.init(getTabFieldsQuery(),"");		
+		}
 
+
+			
         $("input[name=rowchk]").each(function(){
         	var val = $(this).attr('value');
 
