@@ -1,6 +1,5 @@
 #
 /app/config/database.php
-/app/config/config.php
 /bootstrap/compiled.php
 /vendor
 .DS_Store

@@ -41,10 +41,13 @@ class Job extends Entity {
                 else
 				    $projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
 
+                $job->expectedAnnotationsCount=$unitsCount*$job->jobConfiguration->content['annotationsPerUnit'];
+                $job->projectedCost = $projectedCost;
 				$job->unitsCount = $unitsCount;
+                
 				$job->annotationsCount = 0;
 				$job->completion = 0.00; // 0.00-1.00
-				$job->projectedCost = $projectedCost;
+				
 			}
 
 			if(!isset($job->activity_id)){

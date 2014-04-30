@@ -8,6 +8,7 @@ class UpdateJob {
 		$j = unserialize($data['job']);
 		//dd($j);
 		//dd($j);
+		$workers = array();
 		$annotations = $j->annotations;
         $result = array();
 		$count = 0;
@@ -16,6 +17,7 @@ class UpdateJob {
         	if(empty($annotation->dictionary))
         		continue; // Skip if no dictionary.
 
+        	$workers[] = $annotation->crowdAgent_id;
 
 			$uid = $annotation->unit_id; // to prevent mongoException: zero length key not allowed. Could also 'continue;'
 			if(empty($uid)) $uid = 'unknown';
@@ -40,10 +42,20 @@ class UpdateJob {
 			}
 		}
 		
-		$j->results = $result;
 
+		// ABOVE HERE MIGHT BE DONE BY THE PYTHON SCRIPT
+
+		if(!isset($j->results)){
+			$j->results = array('withSpam' => $result);
+		} else {
+			$r = $j->results;
+			$r['withSpam'] = $result;
+			$j->results = $r;
+		}
+
+		$j->workersCount = count(array_unique($workers));
         $j->annotationsCount = $count;
-    	//$this->annotationsCount+=$count;
+
 		$jpu = intval($j->jobConfiguration->content['annotationsPerUnit']);		
 		$uc = intval($j->unitsCount);
 		if($uc > 0 and $jpu > 0) $j->completion = $j->annotationsCount / ($uc * $jpu);	
@@ -55,19 +67,24 @@ class UpdateJob {
 		if($j->completion == 1) {
 			$j->status = 'finished';
 			if(!isset($j->finishedAt)) 
-				$j->finishedAt = new \MongoDate;
+				$j->finishedAt = new \MongoDate; 
 			
 			if(isset($j->startedAt) and isset($j->startedAt->sec))
-				$j->runningTimeInSeconds = $j->startedAt->sec - $j->finishedAt->sec;
+				$j->runningTimeInSeconds = $j->finishedAt->sec - $j->startedAt->sec;
 		}
 
-		$j->realCost = $count*$j->jobConfiguration->content['reward'];
+
+		$j->realCost = ($count/$j->jobConfiguration->content['unitsPerTask'])*$j->jobConfiguration->content['reward'];
+
+		//dd($j);
 		$j->save();
 		\Log::debug("Updated Job {$j->_id}.");
 
+
+
+
 		$job->delete(); // This is the Queue job and not our Job!
 	}
-
 
 }
 

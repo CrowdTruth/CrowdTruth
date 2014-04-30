@@ -5,7 +5,8 @@ class Annotation extends Entity {
 
 	protected $attributes = array(  'format' => 'text', 
                                     'domain' => 'medical', 
-                                    'documentType' => 'annotation');
+                                    'documentType' => 'annotation',
+                                    'spam' => false);
 	
     /**
     *   Override the standard query to include documenttype.
@@ -21,18 +22,20 @@ class Annotation extends Entity {
     {
         parent::boot();
 
-        static::saving(function ( $annotation )
+        static::creating(function ( $annotation )
         {
+            
+            // Inherit type, domain and format
             if(empty($annotation->type) or empty($annotation->domain) or empty($annotation->format)){
                 $j = Job::where('_id', $annotation->job_id)->first();
                 $annotation->type = $j->type;
                 $annotation->domain = $j->domain;
                 $annotation->format = $j->format;
-            }
-            
-            if(empty($annotation->dictionary))
-                $annotation->dictionary = $annotation->createDictionary();
+            }  
 
+            $annotation->dictionary = $annotation->createDictionary();
+
+            // Activity if not exists
             if(empty($annotation->activity_id)){
                 try {
                     $activity = new Activity;
@@ -44,7 +47,7 @@ class Annotation extends Entity {
                 } catch (Exception $e) {
 
                     if($activity) $activity->forceDelete();
-                    if($annotation) $annotation->forceDelete();
+                    //if($annotation) $annotation->forceDelete();
                     throw new Exception('Error saving activity for annotation.');
                 }
             }
