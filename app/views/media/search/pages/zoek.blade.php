@@ -297,7 +297,7 @@ var getSearchLimitValue = function(){
 }
 
 var updateReponsiveTableHeight = function() {
-	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 260 + "px");	
+	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 280 + "px");	
 }
 
 var delay = (function(){
