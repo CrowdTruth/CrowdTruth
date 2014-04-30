@@ -8,13 +8,129 @@
 					<div class="row">
 						<div class="col-xs-3">
 						<ul class="nav nav-pills nav-stacked"  data-spy="scroll" data-target=".scrolldiv">
-						 <li><a href="#heading">heading</a></li>
-						 <li><a href="#heading2">heading 2</a></li>
+						 <li><h4>Using CrowdTruth</h4></li>
+						 <li><a href="#process1">Upload media</a></li>
+						 <li><a href="#process2">Pre-process media</a></li>
+						 <li><a href="#process3">Creating a batch</a></li>
+						 <li><a href="#process4">Creating a job</a></li>
+						 <li><a href="#process5">Ordering a job</a></li>
+						 <li><a href="#process6">Receiving annotations</a></li>
+						 <li><a href="#process7">Analyze workers</a></li>
+						 <li><a href="#process8">Analyze jobs and judgements</a></li>
+						 <li><h4>The inner workings</h4></li>
+						 <li><a href="#inner1">The datamodel and provenance</a></li>
+						 <li><a href="#inner2">Adding a crowdsourcing platform</a></li>
+						 <li><a href="#inner3">Adding a template</a></li>
+						 <li><a href="#inner4">Adding an online source</a></li>
 						</ul>
 					</div>
 						<div class="scrolldiv col-xs-9">
-							<h3 id="heading">Heading</h3>
-							<p></p>
+							<h2 id="heading">Documentation</h2>
+								<p>Welcome to the documentation section of the CrowdTruth framework. Please select the process or section of your interest on the left.</p>
+							<h3 id="header1">Using CrowdTruth</h3>
+								<p>In this section you will find guidance with all the activities you can perform on the framework.</p>
+							<h4 id="process1">Upload media</h4>
+								<p>You can upload media to the platform either by uploading your own files or by adressing online resources. Start by pressing the upload media button in the top right corner of the screen.</p>
+							<h4 id="process2">Pre-process media</h4>
+								<p></p>
+							<h4 id="process3">Creating a batch</h4>
+								<p></p>
+							<h4 id="process4">Creating a job</h4>
+								<p></p>
+							<h4 id="process5">Ordering a job</h4>
+								<p></p>
+							<h4 id="process6">Receiving annotations</h4>
+								<p></p>
+							<h4 id="process7">Analyze workers</h4>
+								<p></p>
+							<h4 id="process8">Analyze jobs and judgements</h4>
+								<p></p>
+							<h3 id="header2">The inner workings</h3>
+								<p>This section describes the modules of the framework, and how you can add new modules to the system.</p>
+							<h4 id="inner1">The datamodel and provenance</h4>
+								<p>The datamodel follows the open Provenance model. Which means that every entity is generated with an activity. Each activity has an agent that performed the activity, in our case this can be a crowdagent, useragent or a software agent. Please, look at the diagram below for a high-level concept of our datamodel. For an exact datamodel please follow this <a href="/custom_assets/datamodel.pdf">link</a>.</p>
+								<p style="text-align:center; margin:0px;padding:0px;"><img height="614px" width="644px" style="align:center;" src="/custom_assets/provenance.png"></p>
+							<h4 id="inner2">Adding a crowdsourcing platform</h4>
+								<p align="justify">So, you want to add a new platform to the crowdsourcing framework. Great! Before you start, it’s useful to familiarize yourself a little bit with the PHP framework called Laravel, which is the basis for our distribution. Adding a plaform, in essence, boils down to creating a Laravel Package and implementing the necessary methods. This makes sure that distributing your code is easy and other people can add platforms without having to change the base code of the framework.</p>
+								<p align="justify">In this document we guide you through the process of creating the package. Basically, there are two ways of starting. One is to copy one of our own packages (Cw/CrowdFlower and Cw/Mturk) and replacing the code with your own. The other is to start from scratch with a clean new package. However, we encourage you to look at our packages for inspiration and to check out things that are not covered in this guide. For this guide, we’ll assume you start from scratch.</p>
+								<h5>Overview</h5>
+								<ol type="1">
+									<li>Create a new Laravel Package</li>
+									<li>Create your main class</li>
+									<li>Create the View</li>
+									<li>Translate the QuestionTemplate</li>
+									<li>Retrieve and save annotated data</li>
+									<li>Share</li>
+								</ol>
+								<h5>1. Create a new package</h5>
+								<p>For this step, please refer to <a href="http://laravel.com/docs/packages">the Laravel documentation</a>. More info can be found on various blogs on the internet. The generated clean package has a class called [packagename]ServiceProvider. In the course of this guide, we’ll fill the <code>boot()</code> method of this class with a few lines of code to register the necessary classes.</p>
+								<h5>2. Create your main class</h5>
+								<p>This class will handle most calls. In here, Jobs can be created, ordered, paused, resumed and cancelled. You can also provide validation rules for the fields that you may add in step 3, creating the View. The class has to extend ‘\FrameWork’ (the backslash is necessary because of the namespace). Check out /app/models/FrameWork to see the required methods and some explanation. Now is also a good time to add your platform to the ‘platform’ array in /app/config/config.php. Use a shorthand notation of just a few characters.</p>
+								<p>In the <code>boot()</code> method of your ServiceProvider, write these lines:</p>
+								<pre>$this->app->bind('cf', function() {<br>&nbsp&nbsp return new Crowdflower;<br>&nbsp});</pre>
+								<p>Where cf is the short name of your platform, the same as in the config. This is how our framework finds and instantiates your main class.</p>
+								<h5>3. Create the view</h5>
+								<p>Views are Laravels way of presenting pages. You need to make a View that contains the fields of any extra configuration that you might want to add to a newly created Job. [todo: let it extend a layout]. The names and values of the form fields that you include here will be inserted one-on-one into the JobConfiguration. </p>
+								<p>You need to tell your main class where the View is. In the method createView() in your main class, do at least this: return View::make('packagename::viewname');. It’s also possible to do stuff here (for instance, display an error when the API key is not found with Session::flash('flashError', 'This is an error.'); There’s also flashNotice and flashSuccess  for other types of messages. Hand variables to your View by adding ->with('variablename', $thedata) to the return statement. </p>
+								<p>In some cases, you might want to perform some logic on the input fields after they were submitted. For this, we have the method called ‘updateJobConf($jc)’ in our main class. It fires when the user goes to another tab after your page, and takes a JobConfiguration and returns a JobConfiguration. In the meantime, the input fields are available under Input::get(‘inputname’) and you can manipulate the JobConfiguration in any way you see fit. Keep in mind that the actual configuration options are an  array in the ‘content’ field of the JobConfiguration.</p>
+								<h5>4. Translate the QuestionTemplate</h5>
+								<p>Besides the JobConfiguration, you’ll probably want to include a question for your workers. This part of the framework is still under construction. Currently, a user can upload templates in different formats. Which extension the user is allowed to upload for use with your platform is set in the getExtension() method in your main class. You have access to this file in public/templates/$template. In the next version, QuestionTemplates in JSON format are the norm. What this means for you, is that you’ll have to write a class to translate the JSON to the format that is specific to your crowdsourcing platform. If that format is HTML, you’re lucky because we already include that option in the base code of our platform.</p>
+								<h5>5. Retrieve and save annotated data</h5>
+								<p>We need to add a CLI command for retrieving the jobs on the platform. For this, we use <a href="http://laravel.com/docs/commands" >Laravel’s Command functionality</a>. The name of the command should be ‘[shorthand platform name]:retrievejobs’ and the classname RetrieveJobs. In the fire() method, you contact your API and save the information in the database. This step is important and has a lot of things that need to be in there, so pay attention. It’s probably best to look at our code and copy/adapt what you need.</p>
+								<strong>Register the command</strong>
+								<p>After creating the command, open up composer.json (in the root of your package) and add <code>src/commands</code> to the autoload classmap.</p>
+								<p>Add the following lines to the <code>boot()</code> method of your ServiceProvider class. Replace ‘cf’ by the shorthand name of your platform.</p>
+								<pre>$this->app['cf.retrievejobs'] = $this->app->share(function(){<br>&nbsp&nbsp return new RetrieveJobs;<br>});<br><br>$this->commands('cf.retrievejobs');<br></pre>							
+								<strong>Add the code to the fire() method</strong>
+								<p><a href="#inner1">The Provenance model</a> requires us to save an Agent and an Activity for every Entity we save. The Job already has an activity, but the annotations need a new one. The agent is the CrowdAgent and the softwareAgentId is the shorthand name of your platform. There are many more ‘rules’ and they are important, so please study <a href="#inner1">the data model</a> carefully.</p>
+								<p>When you get the data:</p>
+								<ul>
+									<li>Initiate a new Annotation object and give it the necessary properties. After this, do: <br><code>Queue::push('Queues\SaveAnnotation', array('annotation' => serialize($annotation)));</code></li>
+									<li>Create or update the CrowdAgent and do:<br><code>Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));</code></li>
+									<li>Finally, update the Job (this is necessary to update the vectors and completion count)<br><code>Queue::push('Queues\UpdateJob', array('job' => serialize($job)));</code></li>
+								</ul>
+								<strong>How does retrieveJobs get called?</strong>
+								<p>You may choose to only manually update the jobs that use your platform by doing php artisan cf:retrievejobs form the root directory of the framework in a console. The main reason we made this a CLI job however, is that you now can create a cronjob (linux) or a scheduled task (windows). </p>
+								<p>Another way of handling this, if your platform supports it, is using a webhook. To do this, create a Route in your ServiceProvider’s <code>boot()</code> method somewhat like this:</p>
+								<pre>Route::any('my_webhook_route', function(){<br>&nbsp&nbsp $judgments = Input::get(‘judgments’);<br>&nbsp&nbsp \Artisan::call('cf:retrievejobs', array('--judgments' => serialize($judgments)));<br>});</pre>
+								<p>Lastly, our framework supports messaging from services like iron.io and Amazon SQS (todo). These function more or less the same as a webhook. If you decide to use this, please point <a href="http://laravel.com/docs/queues">the Queue object</a> that listens for message to your CLI command; in this way the user can still click ‘refresh’ on a job to check if all the data made its way to our framework safely (todo).</p>
+								<h5>6. Share</h5>
+								<p>There’s a good chance that other researchers can use the platform you created a package for as well. Please make your code publicly available and let is know, so we can add information about your package to our website!</p>
+							<h4 id="inner3">Adding a template</h4>
+								<p></p>
+							<h4 id="inner4">Adding an online source</h4>
+								<p>Adding a new online source to the CrowdTruth platform is a piece of cake. Let us guide you through the steps you have to take to add your own customized source. This can be any API you want, on the condition it spits out image, text or video.  We take the ImageGetter that takes images from the Rijksmuseum API as an example in this tutorial. We expect you to be able to design and develop a basic webpage and create the service that talks to the API and stores the result to the database. Our platform is build with the Laravel framework and mostly written in PHP. In the end of this tutorial we will point out some examples of using other technologies or languages in combination with the CrowdTruth framework.</p>
+								<h5>Overview</h5>
+								<ol type="1">
+									<li>Create a new page containing your new form</li>
+									<li>Add navigation towards your page</li>
+									<li>Adding data correctly</li>									
+								</ol>
+								<h5>1. Create a new page containing your new form</h5>
+								<p>The CrowdTruth framework uses the Laravel architecture concerning where to find your views, models etc. You will find an empty template to make your form that fits in the framework in the following folder: <code>ROOT_FOLDER/app/views/onlinesource/..</code></p>
+								<p>The template is called onlinesourcetemplate.blade.php. It extends the main layout of the framework. By adding custom CSS in the head-section you can adjust the styling. You can use this template by renaming it into a more suitable name, but keep it in the same folder!</p>
+								<p>You can get some inspiration for what a form can look like by checking out the imagegetter.blade.php file. This file contains the form for the Rijksmuseum API, but it heavily relies on JavaScript. More about using other languages in the last section.</p>									
+								<h5>2. Add navigation towards your page</h5>
+								<p>After you finish your page, you need to set up the navigation towards it. The fieldwork has already been done for this. Let us show you where you need to make a few changes.</p>
+								<p>First, go to the following file: <code>ROOT_FOLDER/app/views/media/pages/upload.blade.php</code></p>
+								<p>This file contains the view for uploading media or selecting an online source. Scroll down past the first panel that is for uploading media until you find yourself at the online sources panel. In the panel body there is a select box with the id source_name. The selectbox has one option commented out:</p>
+								<pre> &lt;!-- &lt;option value="source_template" data-toggle="source_name">New online source&lt;/option> --></pre>
+								<p>Undo the commenting by taking away the arrow tags at the beginning and end of the line. Consequently change the source_template in the value attribute to source_*yourtemplate*, and the text between the option tags to the title of your online source. This should result in the following:</p>
+								<pre> &lt;option value="source_myAPI" data-toggle="source_name">My API&lt;/option></pre>
+								<p>Next we have to catch the post-request of the form in the controller. You find the controller in the place: <code>ROOT_FOLDER/app/controllers/MediaController.php</code> </p>
+								<p>The postOnlinedata method receives the form’s post-request. You can follow the example of the imagegetter and replicate it with the code block underneath it. You just have to uncomment the lines and change two things.</p>
+								<pre>/* Change template to add online source */<br>// if (Input::get("source_name") == "source_template"){<br>// 	return Redirect::to('onlinesource/onlinesourcetemplate')<br>// } </pre>
+								<p>First, in the top line you have to compare the input’s source_name field with the name you gave along with your template, and change the redirection adress to the page you created. It will turn into something like this:</p>
+								<pre>if (Input::get("source_name") == "source_myAPI"){<br>&nbsp&nbsp	 	return Redirect::to('onlinesource/myAPI')<br>}</pre>
+								<p>The final step you have to do is to make sure that the redirect you made above points towards your new page. For this, you have to go to the OnlineSourceController: <code>ROOT_FOLDER/app/controllers/OnlineSourceController.php</code></p>
+								<p>We need to add a method to the OnlineSourceController that makes the view you created earlier. Again, you will find a block of code that is commented out to help you with this:</p>
+								<pre>/* Rename the template below to fit your online source */<br>// public function getOnlinesourcetemplate() {<br>// 	return View::make('onlinesource.onlinesourcetemplate');<br>// }</pre>
+								<p>We simply change the name of the method and the name of the file that the View makes. For our example it will look something like this:</p>
+								<pre>public function getMyAPI() {<br>&nbsp&nbsp return View::make('onlinesource.myAPI);<br>}</pre>
+								<p>Right now, you should have added your own online source to the platform, congrats!</p>
+								<h5>3. Adding data correctly</h5>
+								<p>The CrowdTruth framework heavily relies on provenance in its datamodel for research purposes. When you choose to add data to the database, it is a good idea to take the existing datamodel in regard for consistency. Simply said, provenance ensures that you always now who or what changed an entity and by with which activity they did so. Therefore, keep as rules of thumb, that every mutation to an entity is an activity that generates a new entity. Also, mention the agent that performed that activity in the new activity. For more information you should consult the <a href="#inner1">documentation on our datamodel</a>.</p>
+
 						</div>
 					</div>
 				</div>
