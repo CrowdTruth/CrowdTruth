@@ -1,12 +1,6 @@
 <div class="tab-pane" id="painting_tab">
 	<div class='row'>
 		<div class='searchOptions col-xs-12'>
-			<select name="search_limit" class="selectpicker pull-left">
-				<option value="10">10 Records per page</option>
-				<option value="25">25 Records per page</option>
-				<option value="50">50 Records per page</option>
-				<option value="100">100 Records per page</option>
-			</select>
 			<div class='visibleColumns pull-left'>
 			</div>		
 		</div>

@@ -46,7 +46,11 @@ class FilesController extends BaseController {
 			return Redirect::to('onlinesource/imagegetter');
 		}
 
-		// dd(Input::all());
+		/* Change template to add online source */
+		// if (Input::get("source_name") == "source_template"){
+		// 	return Redirect::to('onlinesource/onlinesourcetemplate')
+		// }
+
 		$onlineDataHelper = new OnlineDataHelper(Input::all());
 		try {
 			$format = $onlineDataHelper->getType();

@@ -52,7 +52,11 @@ class MediaController extends BaseController {
 			return Redirect::to('onlinesource/imagegetter');
 		}
 
-		// dd(Input::all());
+		/* Change template to add online source */
+		// if (Input::get("source_name") == "source_template"){
+		// 	return Redirect::to('onlinesource/onlinesourcetemplate')
+		// }
+
 		$onlineDataHelper = new OnlineDataHelper(Input::all());
 		try {
 			$format = $onlineDataHelper->getType();
@@ -109,7 +113,7 @@ class MediaController extends BaseController {
 		$facetedSearch = App::make('FacetedSearch');
 		$mainSearchFilters = $facetedSearch->getMainSearchFilters();
 
-		return View::make('media.search.pages.index', compact('mainSearchFilters'));
+		return View::make('media.search.pages.zoek', compact('mainSearchFilters'));
 	}
 
 	public function anyBatch(){

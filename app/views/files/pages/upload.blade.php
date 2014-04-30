@@ -127,7 +127,8 @@
 											<select name="source_name" class="form-control toggle-data" id="source_name">
 												<option value="">--</option>
 												<option value="source_beeldengeluid" data-toggle="source_name">Netherlands Institute for Sound and Vision</option>
-												<option value="source_rijksmuseum" data-toggle="source_name">Rijksmuseum</option>
+												<option value="source_rijksmuseum" data-toggle="source_name">Rijksmuseum ImageGetter</option>
+										   <!-- <option value="source_template" data-toggle="source_name">New online source</option> -->
 											</select>
 										</div>
 									</div>
@@ -136,24 +137,16 @@
 										<div class="col-sm-6">
 											<input type="number" name="numberVideos" min="0" />
 										</div>
-										
 									</div>
 
-									<div class="form-group hidden is_source_beeldengeluid">
+									<div class="form-group hidden" id="button">
 										<div class="col-sm-offset-3 col-sm-5">
 										{{ Form::button('Submit', array('type' => 'submit', 'value' => 'onlinedata', 'class' => 'btn btn-info')) }} 										
 										</div>
 									</div>
-
-									<div class="form-group hidden is_source_rijksmuseum">
-										<div class="col-sm-offset-3 col-sm-5">
-										{{ Form::button('Next', array('type' => 'submit' , 'value' => 'onlinedata',  'class' => 'btn btn-info')) }}										
-										</div>
-									</div>
+									
 								</div>
-
 								{{ Form::close() }}				
-
 							</div>
 						</div>
 					</div>
@@ -171,9 +164,17 @@
 		});
 
 		$('.toggle-data').on('change', function() {
-    			var toggle = $(".toggle-data option:selected").val();
+			var toggle = $(".toggle-data option:selected").val();
 			var optionDiv = $(".is_" + toggle);
 			optionDiv.removeClass("hidden");
+
+			var button = $("#button");
+			if( $(".toggle-data option:selected").val() != ""){
+				button.removeClass("hidden");
+			} else {
+				button.addClass("hidden");
+			}
+
 		});
 
 	</script>

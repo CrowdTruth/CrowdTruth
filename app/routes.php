@@ -29,6 +29,7 @@ Route::get('/', function()
 {
     return Redirect::to('home');
 });
+
 Route::get('home', 'PagesController@index');
 Route::get('info', 'PagesController@info');
 

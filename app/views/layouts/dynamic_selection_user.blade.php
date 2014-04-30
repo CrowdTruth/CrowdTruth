@@ -2,6 +2,9 @@
     @yield('dynamicButton')
     @if(Auth::check())
     <div class="btn-group">
+         <a href='{{ URL::to('media/upload') }}' class="{{ (Request::is('media/upload') ? 'active' : '') }} btn btn-default">Upload Media</a>
+    </div>
+    <div class="btn-group">
         <button type="button" class="btn userButton dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user fa-fw"></i>{{ Auth::user()->firstname }}
             <span class="caret"></span>
         </button>
