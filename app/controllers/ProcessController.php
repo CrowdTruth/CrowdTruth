@@ -436,17 +436,23 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$template = Session::get('template');
 		$extensions = array();
 		$possibleplatforms = array();
-		foreach(Config::get('config.platforms') as $platformname){
-			$platform = App::make($platformname);
-			$ext = $platform->getExtension();
-			$extensions[] = $ext;
-			$filename = public_path() . "/templates/$template.$ext";
-			if(file_exists($filename) && is_readable($filename)){
-				$possibleplatforms[] = array('short' => $platformname, 'long' => $platform->getName());
+
+		$pl = Config::get('config.platforms');
+
+		if(empty($pl)){
+			Session::flash('flashError', 'Please include any installed platforms in the config file.');
+		} else {
+			foreach($pl as $platformname){
+				$platform = App::make($platformname);
+				$ext = $platform->getExtension();
+				$extensions[] = $ext;
+				$filename = public_path() . "/templates/$template.$ext";
+				if(file_exists($filename) && is_readable($filename)){
+					$possibleplatforms[] = array('short' => $platformname, 'long' => $platform->getName());
+				}
+				
 			}
-			
 		}
-		
 		if(count($possibleplatforms)==0)
 			Session::flash('flashError', 'No usable templates found. Please upload a template with one of these extensions: ' . implode(', ', $extensions) . '.');
 
