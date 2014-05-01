@@ -30,7 +30,9 @@
 							<h3 id="header1">Using CrowdTruth</h3>
 								<p>In this section you will find guidance with all the activities you can perform on the framework.</p>
 							<h4 id="process1">Upload media</h4>
-								<p>You can upload media to the platform either by uploading your own files or by adressing online resources. Start by pressing the upload media button in the top right corner of the screen.</p>
+								<p>You can upload media to the platform either by uploading your own files or by adressing online resources. Start by pressing the upload media button in the top right corner of the screen. The form consists of two parts. </p>
+								<p>In the upper part you can upload media from your workstation onto the platform. First, you have to select the format of the media you want to upload. This can be either image, video or text. Currently, the domains are limited and coupled to the media format. For instance, when you have selected text, you get the following options for domain: medical, article, other. In your own instance of CrowdTruth you can add domains. Please have a look at the section <a href="#inner5">‘Adding a domain or documentType’</a>. The following step is to select the document type, this is a specific for the type of media you want to upload and can be similar across domains but will differ per media format. For instance, you can upload a document type ‘article’ in the domain medical. This will obviously be a text format. Similarly, you can upload a ‘article’ in the domain art, in case the article is about art. When this combination is not possible yet, please have a look at the section <a href="#inner5">‘Adding a domain or documentType’</a>. </p>
+								<p>In the bottom form you can select one of our online APIs to pull media from. Currently there are two APIs, one for video material and one for images. The APIs are extendable, please have a look at the section <a href="#inner4">‘Adding an online source’</a>.</p>
 							<h4 id="process2">Pre-process media</h4>
 								<p></p>
 							<h4 id="process3">Creating a batch</h4>
@@ -152,7 +154,9 @@
 								<p>Right now, you should have added your own online source to the platform, congrats!</p>
 								<h5>3. Adding data correctly</h5>
 								<p>The CrowdTruth framework heavily relies on provenance in its datamodel for research purposes. When you choose to add data to the database, it is a good idea to take the existing datamodel in regard for consistency. Simply said, provenance ensures that you always now who or what changed an entity and by with which activity they did so. Therefore, keep as rules of thumb, that every mutation to an entity is an activity that generates a new entity. Also, mention the agent that performed that activity in the new activity. For more information you should consult the <a href="#inner1">documentation on our datamodel</a>.</p>
-
+							<h4 id="inner5">Adding a domain or documentType</h4>
+								<p></p>
+								<p><a href="#process1">Back to the top</a></p>
 						</div>
 					</div>
 				</div>
