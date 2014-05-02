@@ -16,6 +16,10 @@ class ProcessController extends BaseController {
 		//foreach (Annotation::type('RelDir') as $ann) {
 		foreach(Job::get() as $job){
 
+/*			$job->template = $job->jobConfiguration->content['template'];
+			$job->jobConfiguration->unsetKey('template');
+			$job->jobConfiguration->save();
+			$job->save();*/
 			//Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 		}
 	}
@@ -377,22 +381,23 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 	public function getTemplate() {
 		// Create array for the tree
-		$jc = unserialize(Session::get('jobconf'));	
-		if(empty($jc)) {
-			$jc = new JobConfiguration;
-			$currenttemplate = Session::get('template');
-		} else {
-			$currenttemplate = $jc->template;
-		}
-			
+		$batch = unserialize(Session::get('batch'));
+		if(!$batch){
+			Session::flash('flashNotice', 'Please select a batch first.');
+			return Redirect::to("process/batch");
+		} 
+
+		$currenttemplate = Session::get('template');	
 		
-		if(empty($currenttemplate)) $currenttemplate = 'RelDir/relation_direction';
-		$treejson = $this->makeDirTreeJSON($currenttemplate);
+		if(empty($currenttemplate)) 
+			$currenttemplate = 'text/RelDir/relation_direction';
+
+		$treejson = $this->makeDirTreeJSON($currenttemplate, $batch->format);
 
 		return View::make('process.tabs.template')
 			->with('treejson', $treejson)
 			->with('currenttemplate', $currenttemplate)
-			->with('jobconf', $jc->content);
+			->with('format', $batch->format);
 	}
 
 	public function getDetails() {
@@ -436,17 +441,23 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$template = Session::get('template');
 		$extensions = array();
 		$possibleplatforms = array();
-		foreach(Config::get('config.platforms') as $platformname){
-			$platform = App::make($platformname);
-			$ext = $platform->getExtension();
-			$extensions[] = $ext;
-			$filename = public_path() . "/templates/$template.$ext";
-			if(file_exists($filename) && is_readable($filename)){
-				$possibleplatforms[] = array('short' => $platformname, 'long' => $platform->getName());
+
+		$pl = Config::get('config.platforms');
+
+		if(empty($pl)){
+			Session::flash('flashError', 'Please include any installed platforms in the config file.');
+		} else {
+			foreach($pl as $platformname){
+				$platform = App::make($platformname);
+				$ext = $platform->getExtension();
+				$extensions[] = $ext;
+				$filename = public_path() . "/templates/$template.$ext";
+				if(file_exists($filename) && is_readable($filename)){
+					$possibleplatforms[] = array('short' => $platformname, 'long' => $platform->getName());
+				}
+				
 			}
-			
 		}
-		
 		if(count($possibleplatforms)==0)
 			Session::flash('flashError', 'No usable templates found. Please upload a template with one of these extensions: ' . implode(', ', $extensions) . '.');
 
@@ -455,8 +466,10 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 	public function postUploadTemplate(){
 		$files = Input::file('files');
+		$batch = unserialize(Session::get('batch'));
+		$format = $batch->format;
  		$type = preg_replace("/[^0-9a-zA-Z ]/m", "", Input::get('type'));
-		$destinationPath =  public_path() . "/templates/$type";
+		$destinationPath =  public_path() . "/templates/$format/$type";
 		$extensions = array();
 
 		try{	
@@ -486,7 +499,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
 		$questiontemplateid = Session::get('questiontemplateid');
-		$treejson = $this->makeDirTreeJSON($template, false);
+		$treejson = $this->makeDirTreeJSON($template, $batch->format, false);
 		
 		$jc->unsetKey('platformpage');
 		// TODO: this here is really bad.
@@ -610,7 +623,6 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				$jc = JobConfiguration::fromJSON(Config::get('config.templatedir') . "$ntemplate.json");
 			$template = $ntemplate;
 			$origjobconf = 'jcid'; // TODO!
-
 
 
 			// FOR TESTING -> static questiontemplate. // TODO!
@@ -787,15 +799,15 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	/*
 	* Create the JSON necessary for jstree to use.
 	*/
-	private function makeDirTreeJSON($currenttemplate, $pretty = true){
+	private function makeDirTreeJSON($currenttemplate, $format, $pretty = true){
 		$r = array();
-		$path = Config::get('config.templatedir');
+		$path = Config::get('config.templatedir') . $format . '/';
 		foreach(File::directories($path) as $dir){
 			$dirname = substr($dir, strlen($path));
 		   	if($pretty) $displaydir = ucfirst(str_replace('_', ' ', $dirname));
 		   	else $displaydir = $dirname;
 
-			$r[] = array('id' => $dirname, 'parent' => '#', 'text' => $displaydir); 
+			$r[] = array('id' => "$format/$dirname", 'parent' => '#', 'text' => $displaydir); 
 			$donefilenames = array();
 			foreach(File::allFiles($dir) as $file){
 				$fullfilename = $file->getFileName();
@@ -809,15 +821,17 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				if (isset($filename) and !(in_array($filename, $donefilenames))) {
 		   			if($pretty) $displayname = ucfirst(str_replace('_', ' ', $filename));
 		   			else $displayname = $filename;
-		   			if("$dirname/$filename" == $currenttemplate)
-		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $displayname, 'state' => array('selected' => 'true'));
+		   			if("$format/$dirname/$filename" == $currenttemplate)
+		   				$r[] = array('id' => $filename, 'parent' => "$format/$dirname", 'text' => $displayname, 'state' => array('selected' => 'true'));
 		   			else
-		   				$r[] = array('id' => $filename, 'parent' => $dirname, 'text' => $displayname);
+		   				$r[] = array('id' => $filename, 'parent' => "$format/$dirname", 'text' => $displayname);
 		   			
 		   			$donefilenames[] = $filename;
 		   		}	
 			}
 		}
+
+//		dd(json_encode($r));
 		return json_encode($r);
 	}
 

@@ -533,6 +533,10 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
 	$scope.pictures = [];
 	$scope.domain = 'art';
 
+	$scope.previous = function(){
+		window.history.back();
+	}
+
  	$scope.next = function (){
 		$scope.loading = true;
 		$scope.imageGetting = true;

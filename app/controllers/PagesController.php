@@ -14,4 +14,12 @@ class PagesController extends BaseController {
 	{
 		return View::make('info');
 	}
+
+
+	public function papers()
+	{
+		return View::make('papers');
+	}
+
+
 }

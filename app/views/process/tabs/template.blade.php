@@ -25,7 +25,7 @@
 							</p>
 
 						</div>
-			  
+			  		<p>Displaying templates with format <b>{{$format}}</b>, based on the selected batch.</p>
 						<div id="jstree"></div>
 						<br>
 						<button class="btn btn-default" data-toggle="modal" data-target="#myModal">
@@ -41,7 +41,7 @@
 						</fieldset>
 						<br>
 						<br>
-						{{ Form::model($jobconf, array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postFormPart', 'details'), 'method' => 'POST'))}}
+						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('ProcessController@postFormPart', 'platform'), 'method' => 'POST'))}}
 						{{ Form::hidden('template', $currenttemplate, array('id' => 'template')) }}
 						{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}
 						{{ Form::close()}}					
@@ -65,7 +65,7 @@
 						      <div class="modal-body">
 								<div class="form-group">
 									{{ Form::open(array('action' => 'ProcessController@postUploadTemplate', 'files' => 'true')) }}
-									<p>You can upload your own templates here. Currently, HTML is supported for Amazon Mechanical Turk and CML for Crowdflower. Any CSS or JS will need to be inserted into the AMT HTML and uploaded as separate files with the same name for CF. Read the documentation for more info.</p> 
+									<p>You can upload your own templates here. Currently, HTML is supported for Amazon Mechanical Turk and CML for Crowdflower. Any CSS or JS will need to be inserted into the AMT HTML and uploaded as separate files with the same name for CF. Read the <a href="/info">documentation</a> for more info.</p> 
 									<p>
 									You can save the job settings in the 'Submit' tab.
 									</p>

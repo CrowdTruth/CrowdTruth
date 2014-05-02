@@ -7,7 +7,7 @@
 @include('layouts.flashdata')						
 
 					<div class="page-header text-center" style="margin:10px;">
-						<h2>Hi {{ (Auth::check() ? ' ' . Auth::user()->firstname : '') }}! <small> Welcome to the CrowdTruth framework </small> </h2>
+						<h2>Hi{{ (Auth::check() ? ' ' . Auth::user()->firstname : '') }}! <small> Welcome to the CrowdTruth framework </small> </h2>
 					</div>
 
 					<ul class="media-list">
