@@ -147,12 +147,12 @@
 				    <td data-vbIdentifier="video_language">@{{ this.content.metadata.language }}</td>
 				    <td data-vbIdentifier="video_spatial" >@{{ this.content.metadata.spatial.nl }}</td>
 				    <td data-vbIdentifier="number_of_video_keyframes" id="keyframe_@{{ @index }}">
-					<a class='testModal' data-modal-query="&only[]=content.storage_url&only[]=content.timestamp&match[documentType]=keyframe&match[parents][]=@{{ this._id }}" data-target="#modalTemplateKeyframes" data-toggle="tooltip" data-placement="top" title="Click to see the keyframes">
+					<a class='testModal' data-modal-query="&only[]=content.storage_url&only[]=content.timestamp&match[documentType]=keyframe&match[parents][]=@{{ this._id }}" data-api-target="{{ URL::to('api/search?noCache') }}" data-target="#modalTemplateKeyframes" data-toggle="tooltip" data-placement="top" title="Click to see the keyframes">
 						@{{ this.keyframes.count }}
 					</a>
 				    </td>
 				    <td data-vbIdentifier="number_of_video_segments" id="segment_@{{ @index }}">
-				    <a class='testModal' data-modal-query="&only[]=content.storage_url&only[]=content.duration&match[documentType]=videosegment&only[]=content.start_time&only[]=content.end_time&match[parents][]=@{{ this._id }}" data-target="#modalTemplateSegments" data-toggle="tooltip" data-placement="top" title="Click to see the video segments">
+				    <a class='testModal' data-modal-query="&only[]=content.storage_url&only[]=content.duration&match[documentType]=videosegment&only[]=content.start_time&only[]=content.end_time&match[parents][]=@{{ this._id }}" data-api-target="{{ URL::to('api/search?noCache') }}" data-target="#modalTemplateSegments" data-toggle="tooltip" data-placement="top" title="Click to see the video segments">
 						@{{ this.segments.count }}
 					</a>
 				    </td>

@@ -766,7 +766,8 @@ var updateFilters = function(filterOption){
 $('body').on('click', '.testModal', function(){
 	if(baseApiURL == undefined)
 	{
-		var baseApiURL = '{{ URL::to("api/search?noCache") }}';
+		
+		var baseApiURL = $(this).attr('data-api-target');
 	}
 
 	var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
