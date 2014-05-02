@@ -21,6 +21,11 @@ class Job extends Entity {
     {
         parent::boot();
 
+        static::saving(function( $job )
+        {
+            \MongoDB\Temp::whereIn('_id', ['mainSearchFilters', 'jobCache'])->forceDelete();
+        });
+
         static::creating(function ( $job )
         {
 

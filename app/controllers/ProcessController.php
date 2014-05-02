@@ -11,17 +11,120 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.templatebuilder');
 	}
 
+/*
+	public function getUpdate(){
+		foreach (Job::get() as $job) {
+			$job->results = null;
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+
+		}
+	}*/
 
 	public function getResults(){
-		//foreach (Annotation::type('RelDir') as $ann) {
-		foreach(Job::get() as $job){
-
-/*			$job->template = $job->jobConfiguration->content['template'];
-			$job->jobConfiguration->unsetKey('template');
-			$job->jobConfiguration->save();
-			$job->save();*/
-			//Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+		if (($handle = fopen(storage_path() . '/test2_sorted.csv', 'r')) === false) {
+		    die('Error opening file');
 		}
+
+		$jobresults = array();
+		foreach(Job::where('softwareAgent_id', 'cf')->type('FactSpan')->get() as $job){
+			$jobresults = array_merge($jobresults, $job->results['withSpam']);
+		}	
+
+		$headers = fgetcsv($handle, 1024, ',');
+		$count = 0;
+		$complete = array();
+		$return = array();
+		$skip = false;
+
+		while ($row = fgetcsv($handle, 1024, ',')) {
+			set_time_limit(30);
+
+			$skip=!$skip;
+			if($skip)
+				continue;
+
+			$count++;
+			$c = array_combine($headers, $row);
+
+			$sentence = rtrim($c['sentence'], '.');
+			$term1 = $c['term1'];
+			$term2 = $c['term2'];
+
+			$found = false;
+			foreach (MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->get() as $unit) {
+				if($unit['content']['sentence']['text'] == $sentence and
+					$unit['content']['terms']['first']['text'] == $term1 and
+					$unit['content']['terms']['second']['text'] == $term2){
+					$found = true;
+				//dd($unit->_id);
+					// THis can also be used to compare with CF.
+					//foreach (Job::type('FactSpan')->where('softwareAgent_id', 'amt')->get() as $job) {
+					//$job = Job::where('softwareAgent_id', 'cf')->type('FactSpan')->first();
+					
+					if(array_key_exists($unit->_id, $jobresults)){
+						$vector = $jobresults[$unit->_id];
+
+						if(isset($vector['term1'])){
+							//$temp = $this->computeSimilarity($vector['term1'], 1, $unit->_id, $job->softwareAgent_id);
+							$temp = $this->computeSimilarity($vector['term1'], 1, $unit->_id, 'cf');
+							$temp['sentence']=$sentence;
+							$temp['term1']=$term1;
+							$temp['term2']=$term2;
+							$result[] = $temp;
+						}
+
+						if(isset($vector['term2'])){
+							//$temp = $this->computeSimilarity($vector['term2'], 2, $unit->_id, $job->softwareAgent_id);
+							$temp = $this->computeSimilarity($vector['term2'], 2, $unit->_id, 'cf');
+							$temp['sentence']=$sentence;
+							$temp['term1']=$term1;
+							$temp['term2']=$term2;
+							$result[] = $temp;
+						}
+						
+					}
+				}
+					
+				//}
+				
+			}
+			
+			if(!$found){
+				$result[] = array('','','','','','','','','','','','','','');
+				$result[] = array('','','','','','','','','','','','','','');
+			}
+			//if($count==5) dd($result);
+	/*	
+		if($count == 5){
+			dd($result);
+			$path =storage_path() . '/amt_new_output.csv';
+			$out = fopen($path, 'w');
+
+			fputcsv($out, array_keys($result[0]));
+			foreach ($result as $row)
+				fputcsv($out, $row);	
+			
+			// Close file
+			rewind($out);
+			fclose($out);
+			dd($path);
+		}*/
+		}
+
+		$path =storage_path() . '/cf_new_output.csv';
+		$out = fopen($path, 'w');
+
+		fputcsv($out, array_keys($result[0]));
+		foreach ($result as $row)
+			fputcsv($out, $row);	
+		
+		// Close file
+		rewind($out);
+		fclose($out);
+		dd($path);
+
+
+
 	}
 
 

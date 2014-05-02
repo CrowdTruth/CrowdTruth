@@ -42,7 +42,6 @@ class UpdateJob {
 			}
 		}
 		
-
 		// ABOVE HERE MIGHT BE DONE BY THE PYTHON SCRIPT
 
 		if(!isset($j->results)){

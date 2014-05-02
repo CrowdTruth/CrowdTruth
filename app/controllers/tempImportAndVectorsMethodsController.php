@@ -15,6 +15,34 @@ class tempImportAndVectorsMethodsController extends BaseController {
 	}
 
 
+	public function getChangereldiramt(){
+		//foreach (Annotation::type('RelDir') as $ann) {
+		foreach(Annotation::type('RelDir')->where('softwareAgent_id', 'amt')->get() as $ann){
+			$c = $ann->content;
+
+			print_r($c);
+			echo "<br>";
+
+
+			foreach ($c as $key => $value) {
+				if ($value == 'Choice1')
+					$value = 'term1_term2';
+				elseif ($value == 'Choice2')
+					$value = 'term2_term1';
+				elseif ($value == 'Choice3')
+					$value = 'no_direction';
+
+				$new = array($key=>$value);
+			}
+
+			$ann->content = $new;
+			$ann->save();
+			print_r($new);
+			echo "<br>";
+		}
+	}
+
+
 
 
 	public function getConvertcsv(){
