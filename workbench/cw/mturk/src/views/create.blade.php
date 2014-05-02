@@ -20,17 +20,17 @@
 							<fieldset>
 								<legend>AMT Duration</legend>
 									{{ Form::label('hitLifetimeInMinutes', 'HIT Lifetime (minutes)', 
-										array('class' => 'col-xs-4 control-label')) }}
+										array('class' => 'col-xs-4 control-label', 'data-toggle'=> 'tooltip', 'title'=>'The HIT expires in this time, even if it\'s not finished')) }}
 									<div class="input-group col-xs-2">
 										{{ Form::input('number','hitLifetimeInMinutes',  null, 
-											array('class' => 'form-control input-sm', 'min' => '1', 'placeholder' => '1 day = 1440', 'data-toggle'=> 'tooltip', 'title'=>'The HIT expires in this time, even if it\'s not finished', 'data-placement'=>'right')) }}
+											array('class' => 'form-control input-sm', 'min' => '1', 'placeholder' => '1 day = 1440')) }}
 									</div>
 									<br>
 									{{ Form::label('autoApprovalDelayInMinutes', 'Auto approval delay (minutes)', 
-										array('class' => 'col-xs-4 control-label')) }}
+										array('class' => 'col-xs-4 control-label', 'data-toggle'=> 'tooltip', 'title'=>'After the Assignment is finished, automatically approve after...')) }}
 									<div class="input-group col-xs-2">
 									{{ Form::input('number','autoApprovalDelayInMinutes',  null, 
-										array('class' => 'form-control input-sm', 'placeholder' => '1 day = 1440', 'min' => '1', 'data-toggle'=> 'tooltip', 'title'=>'After the Assignment is finished, automatically approve after...', 'data-placement'=>'right')) }}
+										array('class' => 'form-control input-sm', 'placeholder' => '1 day = 1440', 'min' => '1')) }}
 									</div>
 							</fieldset>
 							<br>
@@ -119,10 +119,10 @@
 							<fieldset>
 							<legend>AMT Misc.</legend>
 								{{ Form::label('frameheight', 'Frameheight (px)', 
-									array('class' => 'col-xs-4 control-label')) }}
+									array('class' => 'col-xs-4 control-label', 'data-toggle'=> 'tooltip', 'title'=>'The height of the frame the worker sees the assignment in.')) }}
 								<div class="input-group col-xs-2">
 									{{ Form::input('number','frameheight',  null, 
-										array('class' => 'form-control input-sm', 'min' => '300', 'data-toggle'=> 'tooltip', 'title'=>'The height of the frame the worker sees the assignment in.', 'data-placement'=>'right')) }}
+										array('class' => 'form-control input-sm', 'min' => '300')) }}
 								</div>
 							</fieldset>		
 						</div>

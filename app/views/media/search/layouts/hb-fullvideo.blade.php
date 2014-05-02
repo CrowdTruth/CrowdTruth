@@ -3,6 +3,7 @@
 		<div class='tabOptions hidden'>
 			<div class='btn-group' style="margin-left:5px;">
 				<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
+				<button type="button" class="btn btn-default openDefaultColumns hidden">Open default columns</button>
 				<div class="btn-group vbColumns">
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 					<span class="caret"></span>
@@ -11,7 +12,7 @@
 						<li><a href="#" data-vb="show" data-vbSelector="video_content"></i>Video</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="video_name"></i>Name</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="video_identifier"></i>Identifier</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="video_source"></i>Source</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="video_source"></i>Source</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_title"></i>Title</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_subject"></i>Subject</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_description"></i>Description</a></li>
@@ -35,7 +36,7 @@
 	    <table class="table table-striped">
 	       	<thead data-query-key="match[documentType]" data-query-value="fullvideo">
 		        <tr>
-		            <th data-vbIdentifier="checkbox">Checkbox</th>
+		            <th data-vbIdentifier="checkbox">Select</th>
 		            <th class="sorting" data-vbIdentifier="video_content" data-query-key="orderBy[content.identifier]">Video</th>
 		            <th class="sorting" data-vbIdentifier="video_name" data-query-key="orderBy[content.videoName]">Name</th>
 		            <th class="sorting" data-vbIdentifier="video_identifier" data-query-key="orderBy[content.identifier]">Identifier</th>
@@ -43,7 +44,7 @@
 			    <th class="sorting" data-vbIdentifier="video_title" data-query-key="orderBy[content.metadata.title.nl]">Title</th>
 		            <th class="sorting" data-vbIdentifier="video_subject" data-query-key="orderBy[content.metadata.subject.nl]">Subject</th>
 			    <th class="sorting" data-vbIdentifier="video_description" data-query-key="orderBy[content.metadata.description]">Description</th>
-			    <th class="sorting" data-vbIdentifier="video_abstract" data-query-key="orderBy[content.metadata.abstract]">Abstract</th>
+			    <th class="sorting" data-vbIdentifier="video_abstract" data-query-key="orderBy[content.metadata.abstract]" style='min-width:300px'>Abstract</th>
 			    <th class="sorting" data-vbIdentifier="video_date" data-query-key="orderBy[content.metadata.date]">CreationDate</th>
 			    <th class="sorting" data-vbIdentifier="video_duration" data-query-key="orderBy[content.metadata.extent]">Duration</th>
 			    <th class="sorting" data-vbIdentifier="video_language" data-query-key="orderBy[content.metadata.language]">Language</th>
@@ -141,7 +142,7 @@
 			            <td data-vbIdentifier="video_title">@{{ this.content.metadata.title.nl }}</td>
 				    <td data-vbIdentifier="video_subject">@{{ this.content.metadata.subject.nl }}</td>
 			            <td data-vbIdentifier="video_description" >@{{ this.content.metadata.description.nl }}</td>
-				    <td data-vbIdentifier="video_abstract" >@{{ this.content.metadata.abstract.nl }}</td>
+				    <td data-vbIdentifier="video_abstract">@{{ this.content.metadata.abstract.nl }}</td>
 				    <td data-vbIdentifier="video_date" >@{{ this.content.metadata.date }}</td>
 	      			    <td data-vbIdentifier="video_duration"> @{{ this.content.metadata.extent }}	</td>
 				    <td data-vbIdentifier="video_language">@{{ this.content.metadata.language }}</td>

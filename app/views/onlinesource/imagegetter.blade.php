@@ -65,10 +65,11 @@
 					</div>
 					<div class="form-group">
 						<div class="col-sm-offset-3 col-sm-5">
+							<button class="btn btn-danger" ng-click="previous();">Back</button>
 							<button class="btn btn-primary" ng-click="next();">Start</button>
 						</div>
 					</div>
-					<!-- @{{domain}} @{{type}} @{{numImg}} @{{keyphrase}}<br>@{{pictures}}<br>@{{status}} -->
+					
 				</div>
 			</div>
 

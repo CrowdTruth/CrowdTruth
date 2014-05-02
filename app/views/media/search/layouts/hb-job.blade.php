@@ -3,6 +3,7 @@
 		<div class='tabOptions col-xs-12'>
 			<div class='btn-group' style="margin-left:5px;">
 				<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
+				<button type="button" class="btn btn-default openDefaultColumns hidden">Open default columns</button>
 				<div class="btn-group vbColumns">
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 					<span class="caret"></span>

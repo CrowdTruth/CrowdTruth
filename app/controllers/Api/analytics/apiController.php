@@ -182,7 +182,7 @@ class apiController extends BaseController
 
         $jobIDs = array_unique($jobIDs);
         $jobs = \MongoDB\Entity::whereIn('_id', $jobIDs)->get(array('metrics.workers.withFilter.'.$crowdAgentID,
-                                                                     'metrics.aggWorker'))->toArray();
+                                                                     'metrics.aggWorker', 'type', 'template', 'platformJobId', 'metrics.units', 'results'))->toArray();
 
         foreach($jobs as $index =>$value) {
             $result['jobContent'][$value['_id']] = $value;

@@ -13,19 +13,19 @@
 				</div>
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li{{ (Request::segment(1) == 'media' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="Search Existing Media <br /> View Media Analytics <br /> Upload New Media">{{ link_to('media', "Media") }}</li>
+						<li{{ (Request::segment(1) == 'media/search' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="Search Existing Media <br /> View Media Analytics">{{ link_to('media/search', "Media") }}</li>
 						<li{{ (Request::segment(1) == 'jobs' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="View Existing Job Analytics <br /> Create New Jobs">
 						{{ link_to('jobs', "Jobs") }}</li>
 						<li{{ (Request::segment(1) == 'workers' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="View Worker Analytics">
 						{{ link_to('workers', "Workers") }}</li>
 						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown">More <b class="caret"></b></a>
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown">Info <b class="caret"></b></a>
 							<ul class="dropdown-menu">
-								<li><a href="#">Crowd Truth</a></li>
-								<li><a href="#">Dr. Detective</a></li>
+								<li>{{ link_to('info', "Documentation") }}</li>
+								<li>{{ link_to('papers', "Papers") }}</li>
 								<li class="divider"></li>
-								<li><a href="#">VU</a></li>
-								<li><a href="#">IBM</a></li>
+								<li><a href="https://www.vu.nl/en/index.asp" target="_blank">VU</a></li>
+								<li><a href="https://www.ibm.com" target="_blank">IBM</a></li>
 							</ul>
 						</li>
 					</ul>

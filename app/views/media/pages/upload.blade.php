@@ -1,6 +1,7 @@
 @extends('layouts.default_new')
 
 @section('content')
+@section('pageHeader', 'Upload Media')
 
 				<!-- START upload_content --> 
 				<div class="col-xs-10 col-sm-offset-1">

@@ -8,14 +8,15 @@
 			</div>
 			<div class='btn-group' style="margin-left:5px;">
 				<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
+				<button type="button" class="btn btn-default openDefaultColumns hidden">Open default columns</button>
 				<div class="btn-group vbColumns">
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
 						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="format"></i>Format</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="domain"></i>Domain</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="format"></i>Format</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="domain"></i>Domain</a></li>
 						<!-- <li><a href="#" data-vb="show" data-vbSelector="documentType"></i>Document-Type</a></li> -->
 						<li><a href="#" data-vb="show" data-vbSelector="relation"></i>Relation</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="term_1"></i>Term 1</a></li>
@@ -26,8 +27,8 @@
 						<li><a href="#" data-vb="show" data-vbSelector="sentence_processed"></i>Sentence processed</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i># Batches</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i># Jobs</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="sentence_wordcount"></i># Words</a></li>					
-						<li><a href="#" data-vb="show" data-vbSelector="created_at"></i>Created</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="sentence_wordcount"></i># Words</a></li>					
+						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created</a></li>
 					</ul>
 				</div>
 			</div>
@@ -110,7 +111,7 @@
 		</div>
 	</div>
 	<div class='ctable-responsive cResults'>
-	    <table class="table table-striped">
+	    <table class="table table-striped qwe">
 	        <thead data-query-key="match[documentType]" data-query-value="twrex-structured-sentence">
 		        <tr>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>

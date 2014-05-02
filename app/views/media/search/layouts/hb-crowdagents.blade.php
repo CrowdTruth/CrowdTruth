@@ -4,7 +4,8 @@
 			<div class='btn-group' style="margin-left:5px;">
 				<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
 				<div class="btn-group vbColumns">
-					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+					<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
+					<button type="button" class="btn btn-default openDefaultColumns hidden">Open default columns</button>
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
