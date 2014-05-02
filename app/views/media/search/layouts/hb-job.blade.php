@@ -3,6 +3,7 @@
 		<div class='tabOptions col-xs-12'>
 			<div class='btn-group' style="margin-left:5px;">
 				<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
+				<button type="button" class="btn btn-default openDefaultColumns hidden">Open default columns</button>
 				<div class="btn-group vbColumns">
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 					<span class="caret"></span>
@@ -15,7 +16,7 @@
 						<li><a href="#" data-vb="hide" data-vbSelector="job_size"></i># Units</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="units_per_task"></i>units/mTask</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="req_ann_per_unit"></i>Workers/mTask Requested</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="units_per_task"></i># Judgements Requested</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="total_ann"></i># Judgements Requested</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="current_no_ann"></i># Judgements Actual</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="req_ann_per_worker"></i>mTasks/Worker limit</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="total_workers"></i># Workers Actual</a></li>
@@ -49,7 +50,7 @@
 				    <th class="sorting" data-vbIdentifier="cost_per_task" data-query-key="orderBy[hasConfiguration.content.reward]" data-toggle="tooltip" data-placement="top" title="Amount paid to each worker per micro-task, set by the job definition">Cost/mTask</th>
 				    <th class="sorting" data-vbIdentifier="total_job_cost" data-query-key="orderBy[projectedCost]" data-toggle="tooltip" data-placement="top" title="Amount paid so far - <br /> [# mTasks Complete Actual] * [Cost/mTask]">Cost Actual</th>
 				    <th class="sorting" data-vbIdentifier="completion" data-query-key="orderBy[completion]" data-toggle="tooltip" data-placement="top" title="Percent of job complete so far">% Complete Actual</th>
-				    <th class="sorting" data-vbIdentifier="running_time" data-query-key="orderBy[running_time]" data-toggle="tooltip" data-placement="top" title="Amount of time the job has taken so far">Run Time Actual</th>
+				    <th class="sorting" data-vbIdentifier="running_time" data-query-key="orderBy[runningTimeInSeconds]" data-toggle="tooltip" data-placement="top" title="Amount of time the job has taken so far">Run Time Actual</th>
 		            <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the job was created in the framework">Created</th>			    
 		        </tr>
 			<tr class="inputFilters">
@@ -57,7 +58,7 @@
 					<input type="checkbox" class="checkAll" />
 				</td>
 				<td data-vbIdentifier="job_id">
-					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.jobId]" data-query-operator=">" />
+					<input class="input-sm form-control" type='text' data-query-key="match[platformJobId]" data-query-operator=">" />
 				</td>
 				<td data-vbIdentifier="job_title">
 					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.title]" data-query-operator="like" />
@@ -126,7 +127,11 @@
 			        @{{#each documents}}
 			        <tr class="text-center">
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
-			            <td data-vbIdentifier="job_id">@{{ this.hasConfiguration.content.jobId }}</td>
+			            <td data-vbIdentifier="job_id">
+					<a class='testModal' data-modal-query="agent=crowdagent/cf/22031444" data-target="#modalIndividualJob" data-toggle="tooltip" data-placement="top" title="Click to see the individual job page">
+						@{{ this.platformJobId }}
+					</a>
+				    </td>
 			            <td data-vbIdentifier="job_title">@{{ this.hasConfiguration.content.title }}</td>
 			            <td data-vbIdentifier="job_description">@{{ this.hasConfiguration.content.description }}</td>
 			            <td data-vbIdentifier="job_size">@{{ this.unitsCount }}</td>

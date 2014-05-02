@@ -18,8 +18,7 @@
 <!-- START search_content --> 
 <div class="col-xs-12">
 	<div class='maincolumn CW_box_style'>
-@include('layouts.flashdata')						
-@include('media.layouts.nav_new')
+@include('layouts.flashdata')			
 
 		<div class='tab'>
 			<div class='row'>
@@ -50,7 +49,22 @@
 					<div class='tabOptions pull-left'>
 
 					</div>
-					<div class='switchViews pull-left'>
+					<div class="btn-group pull-left" style="margin-left:5px";>
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+						Actions <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
+							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
+						</ul>
+					</div>					
+					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
+						<option value="10">10 Records per page</option>
+						<option value="25">25 Records per page</option>
+						<option value="50">50 Records per page</option>
+						<option value="100">100 Records per page</option>
+					</select>					
+					<div class='switchViews pull-right' style="margin-right:5px;">
 						<button type="button" class="btn btn-default listViewButton hidden" style="margin-left:5px;">
 							Switch to List View
 						</button>						
@@ -58,12 +72,6 @@
 							Switch to Graph View
 						</button>						
 					</div>
-					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right">
-						<option value="10">10 Records per page</option>
-						<option value="25">25 Records per page</option>
-						<option value="50">50 Records per page</option>
-						<option value="100">100 Records per page</option>
-					</select>
 				</div>
 				<div class='col-xs-12'>
 					<div class='searchStats pull-left'>
@@ -71,7 +79,7 @@
 					<div class='cw_pagination pull-right'>
 					</div>
 				</div>
-				<div class='col-xs-12'>				
+				<div class='col-xs-12 searchResults'>				
 					<ul class="nav nav-tabs documentTypesNav hidden">
 						<li id="all_nav">
 							<a href="#all_tab" data-toggle="tab">
@@ -256,6 +264,8 @@
 {{ javascript_include_tag('bootstrap-select.js') }}
 {{ javascript_include_tag('bootstrap-datepicker.js') }}
 
+<script src='http://cdnjs.cloudflare.com/ajax/libs/floatthead/1.2.7/jquery.floatThead.min.js'></script>
+
 {{ javascript_include_tag('visualizations/d3.min.js')}}
 {{ javascript_include_tag('visualizations/jquery.mediaTable.js') }}
 {{ javascript_include_tag('highcharts.js') }}
@@ -276,6 +286,7 @@ $('.selectpicker').selectpicker();
 var xhr;
 var selectedRows = [];
 var templates = {};
+var defaultColumns = {};
 var lastQueryResult;
 
 // $('.maincolumn').css({"min-height:" : ($(window).height()) +  "px"});
@@ -297,7 +308,7 @@ var getSearchLimitValue = function(){
 }
 
 var updateReponsiveTableHeight = function() {
-	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 260 + "px");	
+	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 185 + "px");	
 }
 
 var delay = (function(){
@@ -406,7 +417,7 @@ $('body').on('keyup', '.inputFilters input', function(){
 			inputFilter.removeAttr('data-query-value');
 
 	 	getResults();
-	}, 200);
+	}, 300);
 });
 
 $('body').on('click', '.checkAll', function(){
@@ -644,6 +655,7 @@ function getResults(baseApiURL){
 		if(templates[activeTabKey] == undefined)
 		{
 			templates[activeTabKey] = $(activeTabKey).find('.template').html();
+			defaultColumns[activeTabKey] = $('.searchOptions').find(".vbColumns").html();
 		}
 
 		var template = Handlebars.compile(templates[activeTabKey]);
@@ -676,10 +688,10 @@ function getResults(baseApiURL){
 		initializeVisibleColumns();
 		visibleColumns();		
 
+
+
 		// console.dir(selectedRows[activeTabKey]);
 		// console.log('starting search');
-
-		
 		
 		if($('.graphViewButton').hasClass('hidden')){
 			$(activeTabKey + ' .checkAll').removeAttr('checked');
@@ -726,12 +738,26 @@ var initializeVisibleColumns = function(){
 	}
 
 	$('.searchOptions .openAllColumns').off().on("click", function() {
+		$(this).addClass('hidden');
+		$('.searchOptions .openDefaultColumns').removeClass('hidden');
+
 		$('.searchOptions .tabOptions').find("[data-vbSelector]").each(function() {
 			if($(this).attr('data-vb') == "hide")
 			{
 				$(this).click();
 			}
 		});
+	});
+
+	$('.searchOptions .openDefaultColumns').off().on("click", function() {
+		$(this).addClass('hidden');
+		$('.searchOptions .openAllColumns').removeClass('hidden');
+
+		$('.searchOptions .tabOptions').find(".vbColumns").empty();
+		$('.searchOptions .tabOptions').find(".vbColumns").append(defaultColumns[getActiveTabKey()]);
+
+		initializeVisibleColumns();
+		visibleColumns();
 	});
 }
 
@@ -751,6 +777,23 @@ var visibleColumns = function(){
 			vbSelector.addClass('hidden');
 		}
 	});	
+
+	// initializeFixedThead();
+}
+
+var fixedThead;
+
+var initializeFixedThead = function(){
+	if(typeof fixedThead == 'undefined') {
+		fixedThead = $(getActiveTabKey() + ' .cResults table').floatThead({
+			scrollContainer: function($table){
+				return $table.closest('.ctable-responsive');
+			},
+			useAbsolutePositioning: false
+		});			
+	} else {
+		fixedThead.trigger('reflow');
+	}
 }
 
 var updateFilters = function(filterOption){
@@ -766,7 +809,8 @@ var updateFilters = function(filterOption){
 $('body').on('click', '.testModal', function(){
 	if(baseApiURL == undefined)
 	{
-		var baseApiURL = '{{ URL::to("api/search?noCache") }}';
+		
+		var baseApiURL = $(this).attr('data-api-target');
 	}
 
 	var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
