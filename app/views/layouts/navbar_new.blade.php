@@ -13,7 +13,7 @@
 				</div>
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li{{ (Request::segment(1) == 'media' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="Search Existing Media <br /> View Media Analytics <br /> Upload New Media">{{ link_to('media', "Media") }}</li>
+						<li{{ (Request::segment(1) == 'media/search' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="Search Existing Media <br /> View Media Analytics">{{ link_to('media/search', "Media") }}</li>
 						<li{{ (Request::segment(1) == 'jobs' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="View Existing Job Analytics <br /> Create New Jobs">
 						{{ link_to('jobs', "Jobs") }}</li>
 						<li{{ (Request::segment(1) == 'workers' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="View Worker Analytics">
