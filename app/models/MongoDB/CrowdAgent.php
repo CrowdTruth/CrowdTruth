@@ -15,13 +15,13 @@ class CrowdAgent extends Moloquent {
     public function updateStats2(){
       
         // take all the jobs for that worker
-        if($crowdAgentJobs = Job::where('metrics.workers.withoutFilter.' . $this->_id, 'exists', true)->get(['_id']))
+        if($crowdAgentJobs = Job::where('metrics.workers.withFilter.' . $this->_id, 'exists', true)->get(['_id']))
         {
             //if there is at least one job with that worker
             if(count($crowdAgentJobs->toArray()) > 0)
             {   
                 // take all distinct media formats
-                $distinctMediaFormats = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('format')->get()->toArray();
+/*                $distinctMediaFormats = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('format')->get()->toArray();
                 $workerParticipatedIn = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->count();
 
 
@@ -30,28 +30,34 @@ class CrowdAgent extends Moloquent {
                 // take all distinct job types
                 $distinctJobTypes = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('type')->get()->toArray();
 
+*/
+ 
+                $domains = $formats = $types = $jobids = array();
+                $spam = $nonspam = $totalNoOfAnnotations = 0;
+                foreach($this->annotations as $a){
+                    $totalNoOfAnnotations++;
 
-                // count all the annotations
-                $totalNoOfAnnotations = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->sum('metrics.workers.withoutFilter.' . $crowdAgent->_id . '.no_of_units');              
+                    if($a->spam) $spam++;
+                    else $nonspam++;
 
-                //count all spam annotations
-                $totalNoOfSpammedAnnotations = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereIn('metrics.spammers.list', [$crowdAgent->_id])->sum('metrics.workers.withoutFilter.' . $crowdAgent->_id . '.no_of_units');
-                if (!isset($totalNoOfSpammedAnnotations)) {
-                    $totalNoOfSpammedAnnotations = 0;
+                    $domains[] = $a->domain;
+                    $formats[]=$a->format;
+                    $types[]= $a->type;
+                    $jobids[] = $a->job_id;
+                    $unitids[] = $a->unit_id;
+       
                 }
 
+               // $this->annotationStats = array('count'=>$total['count'], 'spam'=>$spam, 'nonspam'=>$nonspam);
+                $distinctJobTypes = array_unique($types);
+                $distinctMediaFormats = array_unique($formats);
+                $distinctMediaDomains = array_unique($domains);
+                $workerParticipatedIn = count(array_unique($unitids));
 
-                //count all nonspam annotations
-                $totalNoOfNonspammedAnnotations = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereNotIn('metrics.spammers.list', [$crowdAgent->_id])->sum('metrics.workers.withoutFilter.' . $crowdAgent->_id . '.no_of_units');
-                if (!isset($totalNoOfNonspammedAnnotations)) {
-                    $totalNoOfNonspammedAnnotations = 0;
-                }
-                
-            
                 $cache["annotations"] = [
                         "count" => $totalNoOfAnnotations,
-                        "spam" => $totalNoOfSpammedAnnotations,
-                        "nonspam" => $totalNoOfNonspammedAnnotations];
+                        "spam" => $spam,
+                        "nonspam" => $nonspam];
 
 
                 // take all distinct batches
@@ -60,9 +66,11 @@ class CrowdAgent extends Moloquent {
 
                 $cache["mediaTypes"] = [
                     //  "distinct" => count($distinctMediaTypes),
-                        "count" => $workerParticipatedIn, //,
+                        "count" => count($distinctJobTypes), //,
                         "types" => []
                     ];
+
+                dd($cache);
                 
                 foreach($distinctBatchIds as $distinctBatchId) {
                     $batchParents = array_flatten(\MongoDB\Entity::where('_id', '=', $distinctBatchId[0])->lists('parents'));
@@ -81,11 +89,11 @@ class CrowdAgent extends Moloquent {
                 
 
 
-                if(count($distinctJobTypes) > 0)
+                if(count(array_unique($types)) > 0)
                 {
                     $cache["jobTypes"] = [
-                        "distinct" => count($distinctJobTypes),
-                        "count" => $workerParticipatedIn,
+                        "distinct" => count(array_unique($types)),
+                        "count" => count(array_unique($jobids)),
                         "types" => []
                     ];
                     foreach($distinctJobTypes as $distinctJobType)
@@ -139,7 +147,7 @@ class CrowdAgent extends Moloquent {
                     }                                                   
                 }
 
-                $jobsAsSpammer = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereIn('metrics.spammers.list', [$crowdAgent->_id])->lists('platformJobId');
+                $jobsAsSpammer = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereIn('metrics.spammers.list', [$this->_id])->lists('platformJobId');
                 $cache["spammer"]["count"] = count($jobsAsSpammer);
                 $cache["spammer"]["jobs"] = array_flatten($jobsAsSpammer);
                 $cache['flagged'] = 'false';
@@ -150,8 +158,8 @@ class CrowdAgent extends Moloquent {
 
 
                 $this->cache = $cache;
-                
-                $dd($this->cache);        
+                dd($this->cache);
+                //$this->save();        
                      
             }
         }

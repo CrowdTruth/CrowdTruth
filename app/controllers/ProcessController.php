@@ -20,8 +20,21 @@ class ProcessController extends BaseController {
 		}
 	}*/
 
+	public function getDictionary($entity, $format, $domain, $docType, $incr){
+
+		$id = "$entity/$format/$domain/$docType/$incr";
+
+		foreach(Annotation::where('unit_id', $id)->get() as $ann){
+			//$ann = Annotation::id('entity/text/medical/annotation/5265')->first();
+			echo "\r\n{$ann->_id}\r\n";
+			print_r($ann->createDictionary());
+			echo "\r\n\r\n---------------------------------\r\n\r\n";
+		}
+	}
+
+
 	public function getResults(){
-		if (($handle = fopen(storage_path() . '/test2_sorted.csv', 'r')) === false) {
+		if (($handle = fopen(storage_path() . '/test2.csv', 'r')) === false) {
 		    die('Error opening file');
 		}
 
@@ -38,10 +51,10 @@ class ProcessController extends BaseController {
 
 		while ($row = fgetcsv($handle, 1024, ',')) {
 			set_time_limit(30);
-
+/*
 			$skip=!$skip;
 			if($skip)
-				continue;
+				continue;*/
 
 			$count++;
 			$c = array_combine($headers, $row);
@@ -51,10 +64,17 @@ class ProcessController extends BaseController {
 			$term2 = $c['term2'];
 
 			$found = false;
-			foreach (MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->get() as $unit) {
-				if($unit['content']['sentence']['text'] == $sentence and
+			//foreach (MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->get() as $unit) {
+			$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')
+			->where('content.sentence.text', $sentence)
+			->where('content.terms.first.text', $term1)
+			->where('content.terms.second.text', $term2)->first(); 
+
+			if($unit){	
+	
+	/*			if($unit['content']['sentence']['text'] == $sentence and
 					$unit['content']['terms']['first']['text'] == $term1 and
-					$unit['content']['terms']['second']['text'] == $term2){
+					$unit['content']['terms']['second']['text'] == $term2){*/
 					$found = true;
 				//dd($unit->_id);
 					// THis can also be used to compare with CF.
@@ -63,36 +83,46 @@ class ProcessController extends BaseController {
 					
 					if(array_key_exists($unit->_id, $jobresults)){
 						$vector = $jobresults[$unit->_id];
+						$temp = array('Sent id' => $c['Sent id']);
+						if(substr($c['Sent id'], -2) == 'T1'){
+							if(isset($vector['term1'])){
+								//$temp = $this->computeSimilarity($vector['term1'], 1, $unit->_id, $job->softwareAgent_id);
+								
+								$temp = array_merge($this->computeSimilarity($vector['term1'], 1, $unit->_id, 'cf'), $temp);
+								
+								$temp['sentence']=$sentence;
+								$temp['term1']=$term1;
+								$temp['term2']=$term2;
+								$temp['vector'] = '{' . implode(',', array_values($vector['term1'])) . '}';
+								$result[] = $temp;
+								
+							}
+						} elseif(substr($c['Sent id'], -2) == 'T2'){
 
-						if(isset($vector['term1'])){
-							//$temp = $this->computeSimilarity($vector['term1'], 1, $unit->_id, $job->softwareAgent_id);
-							$temp = $this->computeSimilarity($vector['term1'], 1, $unit->_id, 'cf');
-							$temp['sentence']=$sentence;
-							$temp['term1']=$term1;
-							$temp['term2']=$term2;
-							$result[] = $temp;
-						}
-
-						if(isset($vector['term2'])){
-							//$temp = $this->computeSimilarity($vector['term2'], 2, $unit->_id, $job->softwareAgent_id);
-							$temp = $this->computeSimilarity($vector['term2'], 2, $unit->_id, 'cf');
-							$temp['sentence']=$sentence;
-							$temp['term1']=$term1;
-							$temp['term2']=$term2;
-							$result[] = $temp;
+							if(isset($vector['term2'])){
+								//$temp = $this->computeSimilarity($vector['term2'], 2, $unit->_id, $job->softwareAgent_id);
+								$temp = array_merge($this->computeSimilarity($vector['term2'], 2, $unit->_id, 'cf'), $temp);
+								$temp['sentence']=$sentence;
+								$temp['term1']=$term1;
+								$temp['term2']=$term2;
+								$temp['vector'] = '{' . implode(',', array_values($vector['term2'])) . '}';
+								$result[] = $temp;
+							}
 						}
 						
 					}
+				} else {
+					$result[] = array('','','','','','','','','','','','','','');
 				}
-					
+				
 				//}
 				
-			}
+			//}
 			
-			if(!$found){
+/*			if(!$found){
 				$result[] = array('','','','','','','','','','','','','','');
 				$result[] = array('','','','','','','','','','','','','','');
-			}
+			}*/
 			//if($count==5) dd($result);
 	/*	
 		if($count == 5){
@@ -132,8 +162,13 @@ class ProcessController extends BaseController {
 
 //test
 	public function getUpdateca(){
-		$ca = MongoDB\CrowdAgent::first();
-		$ca->updateStats2();
+		$ca = \MongoDB\CrowdAgent::id('crowdagent/cf/19822336')->first();
+$ca->updateStats2();
+
+		foreach(MongoDB\CrowdAgent::get() as $ca){
+			$ca->updateStats2();
+		}
+		//$ca->updateStats2();
 /*
 		//$unitids = array('entity/text/medical/twrex-structured-sentence/1736');
 		Queue::push('Queues\UpdateUnits', $unitids);
@@ -142,7 +177,18 @@ class ProcessController extends BaseController {
 	}
 
 
+	public function getUpdatecfdictionaries(){
+		
+		foreach(Job::where('softwareAgent_id', 'cf')->type('FactSpan')->get() as $job){
+			foreach ($job->annotations as $ann) {
+				$ann->dictionary = $ann->createDictionary();
+				$ann->save();
+			}
 
+
+			//Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+		}
+	}
 
 
 

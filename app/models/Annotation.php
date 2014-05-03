@@ -180,8 +180,8 @@ class Annotation extends Entity {
         // CF
         } elseif(isset($ans['confirmfirstfactor']) or isset($ans['factor1'])) {
            // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));
-            Log::debug($ans);
-
+           // Log::debug($ans);
+            print_r($ans);
             // Patching the fact that the CML is different from the WebSci results [fugly]
             //if(!isset($ans['confirmfirstfactor'])){
             if(isset($ans['factor1'])) $ans['firstfactor'] = $ans['factor1'];
@@ -206,13 +206,18 @@ class Annotation extends Entity {
             }
 
             Log::debug($ans);
-            
+         //   print_r($ans);
+
+
+
             $term = strtolower($this->unit->content['terms']['first']['text']);
             $b = $this->unit->content['terms']['first']['startIndex'];
+             echo "\r\n{$ans['confirmids1']}, {$ans['confirmfirstfactor']}, $term, $b, {$ans['saveselectionids1']}, {$ans['firstfactor']}";
             $vector1 = $this->createSingleFactVect($ans['confirmids1'], $ans['confirmfirstfactor'], $term, $b, $ans['saveselectionids1'], $ans['firstfactor']);
            
             $term = strtolower($this->unit->content['terms']['second']['text']);
             $b = $this->unit->content['terms']['second']['startIndex'];
+             echo "\r\n{$ans['confirmids2']}, {$ans['confirmsecondfactor']}, $term, $b, {$ans['saveselectionids2']}, {$ans['secondfactor']}";
             $vector2 = $this->createSingleFactVect($ans['confirmids2'], $ans['confirmsecondfactor'], $term, $b, $ans['saveselectionids2'], $ans['secondfactor']);
         } else {
             Log::debug("Can't determine if it's CF or AMT.");
@@ -249,7 +254,7 @@ class Annotation extends Entity {
         try{
 
             // User selected YES -> NIL or exception
-            if(!empty($confirmids)){  
+            if($confirmids != ''){  
                 $ids = explode('-', $confirmids);
                 sort($ids);
                 $words = $this->getWords($sentence, $ids);
@@ -282,7 +287,7 @@ class Annotation extends Entity {
                 //count($ids) - $wordindex -(count(explode(' ', $words))-1);
 
                 if($startdiff == 0 and $enddiff == 0)
-                    throw new Exception('User selected NO but startdiff and enddiff are 0.');
+                    throw new Exception('User selected NO but answered NIL.');
                 
                 if($words == $term)
                     throw new Exception('User selected NO but provided the same term.');
@@ -296,9 +301,10 @@ class Annotation extends Entity {
             }
 
         }catch(Exception $e){
+             Log::debug("\r\nFAIL: {$e->getMessage()}\r\n");
+            echo "\r\n\r\nException: {$e->getMessage()}\r\n\r\n";
             return $this->createFactVect(true);
-            Log::debug("{$e->getMessage()}");
-            echo $e->getMessage() . "\r\n";
+
         }
      }
 
