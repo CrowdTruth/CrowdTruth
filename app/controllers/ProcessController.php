@@ -24,7 +24,7 @@ class ProcessController extends BaseController {
 
 		$id = "$entity/$format/$domain/$docType/$incr";
 
-		foreach(Annotation::where('unit_id', $id)->get() as $ann){
+		foreach(Annotation::where('unit_id', $id)->where('softwareAgent_id', 'cf')->get() as $ann){
 			//$ann = Annotation::id('entity/text/medical/annotation/5265')->first();
 			echo "\r\n{$ann->_id}\r\n";
 			print_r($ann->createDictionary());
