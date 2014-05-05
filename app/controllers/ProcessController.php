@@ -163,7 +163,7 @@ class ProcessController extends BaseController {
 //test
 	public function getUpdateca(){
 		$ca = \MongoDB\CrowdAgent::id('crowdagent/cf/19822336')->first();
-$ca->updateStats2();
+		$ca->updateStats2();
 
 		foreach(MongoDB\CrowdAgent::get() as $ca){
 			$ca->updateStats2();
@@ -186,7 +186,7 @@ $ca->updateStats2();
 			}
 
 
-			//Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 		}
 	}
 

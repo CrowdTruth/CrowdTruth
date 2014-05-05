@@ -42,8 +42,6 @@ class UpdateJob {
 			}
 		}
 		
-		// ABOVE HERE MIGHT BE DONE BY THE PYTHON SCRIPT
-
 		if(!isset($j->results)){
 			$j->results = array('withSpam' => $result);
 		} else {
@@ -70,6 +68,12 @@ class UpdateJob {
 			
 			if(isset($j->startedAt) and isset($j->startedAt->sec))
 				$j->runningTimeInSeconds = $j->finishedAt->sec - $j->startedAt->sec;
+		}
+
+		if(($j->completion > .25) and ($j->latestMetrics < .25)){
+			// do the metrics, we're in a queue anyway.
+			$j->latestMetrics = .25;
+			$this->createMetricActivity();
 		}
 
 
