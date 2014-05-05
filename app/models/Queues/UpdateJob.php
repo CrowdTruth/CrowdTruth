@@ -70,11 +70,17 @@ class UpdateJob {
 				$j->runningTimeInSeconds = $j->finishedAt->sec - $j->startedAt->sec;
 		}
 
+		// METRICS
 		if(($j->completion > .25) and ($j->latestMetrics < .25)){
 			// do the metrics, we're in a queue anyway.
-			$j->latestMetrics = .25;
-			$this->createMetricActivity();
+			//$j->latestMetrics = .25;
+			//$this->createMetricActivity();
 		}
+		//
+
+
+
+
 
 
 		$j->realCost = ($count/$j->jobConfiguration->content['unitsPerTask'])*$j->jobConfiguration->content['reward'];

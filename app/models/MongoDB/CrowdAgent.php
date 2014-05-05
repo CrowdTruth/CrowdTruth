@@ -11,7 +11,7 @@ class CrowdAgent extends Moloquent {
 	protected static $unguarded = true;
     public static $snakeAttributes = false;
 	
-    // TODO: optimize (less db calls)
+    // TODO: optimize
     public function updateStats2(){
       
         // take all the jobs for that worker
@@ -20,18 +20,7 @@ class CrowdAgent extends Moloquent {
             //if there is at least one job with that worker
             if(count($crowdAgentJobs->toArray()) > 0)
             {   
-                // take all distinct media formats
-/*                $distinctMediaFormats = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('format')->get()->toArray();
-                $workerParticipatedIn = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->count();
 
-
-                // take all distinct media domains
-                $distinctMediaDomains = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('domain')->get()->toArray();
-                // take all distinct job types
-                $distinctJobTypes = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('type')->get()->toArray();
-
-*/
- 
                 $domains = $formats = $types = $jobids = array();
                 $spam = $nonspam = $totalNoOfAnnotations = 0;
                 foreach($this->annotations as $a){

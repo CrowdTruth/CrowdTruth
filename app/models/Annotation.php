@@ -79,6 +79,9 @@ class Annotation extends Entity {
     }
     //todo should be private
     public function createDictionaryFactSpan(){
+        $debug = false;
+
+
         if(empty($this->unit_id))
             return null;
 
@@ -181,7 +184,7 @@ class Annotation extends Entity {
         } elseif(isset($ans['confirmfirstfactor']) or isset($ans['factor1'])) {
            // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));
            // Log::debug($ans);
-            print_r($ans);
+            if($debug) print_r($ans);
             // Patching the fact that the CML is different from the WebSci results [fugly]
             //if(!isset($ans['confirmfirstfactor'])){
             if(isset($ans['factor1'])) $ans['firstfactor'] = $ans['factor1'];
@@ -212,12 +215,12 @@ class Annotation extends Entity {
 
             $term = strtolower($this->unit->content['terms']['first']['text']);
             $b = $this->unit->content['terms']['first']['startIndex'];
-             echo "\r\n{$ans['confirmids1']}, {$ans['confirmfirstfactor']}, $term, $b, {$ans['saveselectionids1']}, {$ans['firstfactor']}";
+            if($debug) echo "\r\n{$ans['confirmids1']}, {$ans['confirmfirstfactor']}, $term, $b, {$ans['saveselectionids1']}, {$ans['firstfactor']}";
             $vector1 = $this->createSingleFactVect($ans['confirmids1'], $ans['confirmfirstfactor'], $term, $b, $ans['saveselectionids1'], $ans['firstfactor']);
            
             $term = strtolower($this->unit->content['terms']['second']['text']);
             $b = $this->unit->content['terms']['second']['startIndex'];
-             echo "\r\n{$ans['confirmids2']}, {$ans['confirmsecondfactor']}, $term, $b, {$ans['saveselectionids2']}, {$ans['secondfactor']}";
+            if($debug) echo "\r\n{$ans['confirmids2']}, {$ans['confirmsecondfactor']}, $term, $b, {$ans['saveselectionids2']}, {$ans['secondfactor']}";
             $vector2 = $this->createSingleFactVect($ans['confirmids2'], $ans['confirmsecondfactor'], $term, $b, $ans['saveselectionids2'], $ans['secondfactor']);
         } else {
             Log::debug("Can't determine if it's CF or AMT.");
@@ -249,6 +252,7 @@ class Annotation extends Entity {
     }
 
     private function createSingleFactVect($confirmids, $confirmfactor, $term, $b, $saveselectionids, $factor){
+        $debug = false;
         $sentence = strtolower($this->unit->content['sentence']['text']);
        // echo "{$this->_id}: ";
         try{
@@ -302,7 +306,7 @@ class Annotation extends Entity {
 
         }catch(Exception $e){
              Log::debug("\r\nFAIL: {$e->getMessage()}\r\n");
-            echo "\r\n\r\nException: {$e->getMessage()}\r\n\r\n";
+            if($debug) echo "\r\n\r\nException: {$e->getMessage()}\r\n\r\n";
             return $this->createFactVect(true);
 
         }
