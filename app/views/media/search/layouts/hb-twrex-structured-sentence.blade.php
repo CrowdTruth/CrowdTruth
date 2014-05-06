@@ -51,7 +51,7 @@
 							<td class="text-right">
 								<div class="btn-group" id='relationOutsideTerms'>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationOutsideTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
-								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.propertimes.relationOutsideTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationOutsideTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
 								  <button type="button" class="btn btn-sm btn-info active twrexNone">Not Applied</button>
 								</div>
 							</td>

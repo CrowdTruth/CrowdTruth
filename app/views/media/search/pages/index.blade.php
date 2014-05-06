@@ -69,8 +69,10 @@
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
+							@if(Request::segment(1) != 'jobs' && Request::segment(1) != 'workers')
 							<li><a href="#" class='toSelection'>Save Selection</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
+							@endif
 						</ul>
 					</div>					
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
