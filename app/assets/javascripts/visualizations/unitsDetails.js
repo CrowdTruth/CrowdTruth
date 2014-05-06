@@ -1,8 +1,8 @@
-function unitsWorkerDetails(category) {
+function unitsDetails(category) {
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
     var unitsWorkersInfo = {};
     var currentSelection = [];
-    var queryFields = {'#twrex-structured-sentence_tab': 'unit_id', '#fullvideo_tab': 'unit_id', '#job_tab': 'job_id'};
+    var queryFields = {'#crowdagents_tab': 'crowdAgent_id', '#job_tab': 'job_id'};
     var spammers = [];
     var seriesBase = [];
     var pieChart = "";
@@ -11,16 +11,16 @@ function unitsWorkerDetails(category) {
     var drawPieChart = function (platform, spam) {
         pieChart = new Highcharts.Chart({
             chart: {
-                renderTo: 'workersPie_div',
+                renderTo: 'unitsPie_div',
                 type: 'pie',
                 width: (2*(($('.maincolumn').width() - 50)/5)),
                 height: 400
             },
             title: {
-                text: 'Workers of the selected elements'
+                text: 'Units of the selected elements'
             },
             subtitle: {
-                text: 'Click a category to see the distribution of annotations per worker'
+                text: 'Click a category to see the distribution of annotations per unit'
             },
             yAxis: {
                 title: {
@@ -65,10 +65,10 @@ function unitsWorkerDetails(category) {
                                 }
 
 
-                               /* console.dir(urlBase + this.options.match + '&');
-                                getWorkersData(urlBase + this.options.match + '&');
-                                ///pieChart.series[this.options.ser_nr].data[this.x].select(null,true);
-                                console.dir(pieChart.getSelectedPoints());*/
+                                /* console.dir(urlBase + this.options.match + '&');
+                                 getWorkersData(urlBase + this.options.match + '&');
+                                 ///pieChart.series[this.options.ser_nr].data[this.x].select(null,true);
+                                 console.dir(pieChart.getSelectedPoints());*/
                                 /*var elem = mapping[this.name];
                                  url = '/api/analytics/piegraph/?match[documentType][]=annotation' +
                                  '&match[unit_id][]='+elem['id']+
@@ -88,7 +88,7 @@ function unitsWorkerDetails(category) {
 
             series: [
                 {
-                    name: '# of workers',
+                    name: '# of units',
                     data: platform,
                     size: '40%',
                     dataLabels: {
@@ -103,7 +103,7 @@ function unitsWorkerDetails(category) {
 
                 },
                 {
-                    name: '# of workers',
+                    name: '# of units',
                     data: spam,
                     size: '60%',
                     innerSize: '40%',
@@ -126,13 +126,13 @@ function unitsWorkerDetails(category) {
         barChart = new Highcharts.Chart({
             chart: {
                 zoomType: 'x',
-                renderTo: 'workersBar_div',
+                renderTo: 'unitsBar_div',
                 type: 'column',
                 width: (3*(($('.maincolumn').width() - 50)/5)),
                 height: 400
             },
             title: {
-                text: 'Annotations of workers'
+                text: 'Annotations of units'
             },
 
             xAxis: {
@@ -165,7 +165,7 @@ function unitsWorkerDetails(category) {
                 crosshairs: true,
                 shared: true,
                 useHTML: true,
-                headerFormat: '<b>Wroker {point.key}</b></br><p>(Click for details)</p><table>',
+                headerFormat: '<b>Unit {point.key}</b></br><p>(Click for details)</p><table>',
                 pointFormat: '<tr><td style="color: {series.color};text-align: left">{series.name}: </td>' +
                     '<td style="text-align: right"><b>{point.y} annotations</b></td></tr>',
                 footerFormat: '</table>',
@@ -279,7 +279,7 @@ function unitsWorkerDetails(category) {
         var categories = [];
         var series = seriesBase;
         workersURL = url + 'project[' + queryFields[category] + ']=' + queryFields[category] +
-            '&group=crowdAgent_id&push[' + queryFields[category] + ']=' + queryFields[category];
+            '&group=unit_id&push[' + queryFields[category] + ']=' + queryFields[category];
         for (var iterSeries in series) {
             series[iterSeries]['data'] = [];
         }
@@ -314,7 +314,7 @@ function unitsWorkerDetails(category) {
 
         getWorkersData(urlBase);
         //get the workers grouped by platform and spam, nonspam
-        platformURL = urlBase + 'project[crowdAgent_id]=crowdAgent_id&group=softwareAgent_id&addToSet=crowdAgent_id';
+        platformURL = urlBase + 'project[unit_id]=unit_id&group=softwareAgent_id&addToSet=unit_id';
         $.getJSON(platformURL, function (data) {
             var platformData = [];
             var spamData = [];
@@ -331,71 +331,17 @@ function unitsWorkerDetails(category) {
                 unitsWorkersInfo[platformID] ={};
                 unitsWorkersInfo[platformID]['all'] = data[platformIter]['content'];
                 //get the spam, nonspam count
-                requests.push($.get(urlBase + 'match[softwareAgent_id][]=' + data[platformIter]['_id'] + '&project[crowdAgent_id]=crowdAgent_id&group=spam&addToSet=crowdAgent_id'));
+          //      requests.push($.get(urlBase + 'match[softwareAgent_id][]=' + data[platformIter]['_id'] + '&project[crowdAgent_id]=crowdAgent_id&group=spam&addToSet=crowdAgent_id'));
 
             }
-            var defer = $.when.apply($, requests);
-            defer.done(function () {
+            drawPieChart(platformData, spamData);
 
-                $.each(arguments, function (index, responseData) {
-                    // "responseData" will contain an array of response information for each specific request
-                    if ($.isArray(responseData)) {
-                        if (responseData[1] == 'success') {
-                            responseData = responseData[0];
-                        }
-
-                        var commonWorkers = [];
-                        responseData[0].content.forEach(function(key) {
-                            if (!(-1 === responseData[1].content.indexOf(key))) {
-                                commonWorkers.push(key);
-                            }
-                        }, this);
-
-                        //get common workers
-                        for (var iterObj in responseData) {
-                            var content = []
-                            responseData[iterObj].content.forEach(function(key) {
-                                if (-1 === commonWorkers.indexOf(key)) {
-                                    content.push(key);
-                                }
-                            }, this);
-
-                            if (responseData[iterObj]['_id'] === true) {
-                                spamData.push({name: 'low quality',
-                                    spam: true,
-                                    y: content.length,
-                                    color: Highcharts.Color(colors[index]).brighten(-0.05).get(),
-                                    platform: data[index]['_id']});
-                                unitsWorkersInfo[data[index]['_id']]['spam'] = content;
-                            } else {
-                                spamData.push({name: 'high quality',
-                                    spam: false,
-                                    y: content.length,
-                                    color: colors[index],
-                                    platform: data[index]['_id']});
-                                unitsWorkersInfo[data[index]['_id']]['nonSpam'] = content;
-                            }
-                        }
-                        if(commonWorkers.length > 0) {
-                            spamData.push({name: 'potential spam',
-                                spam: true,
-                                y: commonWorkers.length,
-                                color: Highcharts.Color(colors[index]).brighten(-0.09).get(),
-                                platform: data[index]['_id']});
-                            unitsWorkersInfo[data[index]['_id']]['potential'] = commonWorkers;
-                        }
-                    }
-                });
-                drawPieChart(platformData, spamData);
-            });
 
         });
     }
 
-    this.createUnitsWorkerDetails = function () {
-        $.getJSON('/api/analytics/spammers', function (data) {
-            spammers = data;
-        });
+    this.createUnitsDetails = function () {
+       //get filtered units
     }
 
 }

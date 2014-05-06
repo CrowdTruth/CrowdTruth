@@ -36,6 +36,7 @@ class apiController extends BaseController
         '>' => '$gt',
         '>=' => '$gte',
     );
+    protected $pipelineList = array('$match','$sort','$project','$group');
 
     public $restful = true;
     private $content_type = 'application/json';
@@ -51,6 +52,7 @@ class apiController extends BaseController
     {
 
         $aggregateOperators = array();
+
         if (Input::has('match')) {
             foreach (input::get('match') as $field => $value) {
 
@@ -150,7 +152,7 @@ class apiController extends BaseController
             $result['annotationContent'][$value['_id']] = $value;
             array_push($unitIDs, $value['_id']);
             $annotationType = array();
-            foreach ($value['type'] as $index => $type) {
+            foreach ($value['job_id'] as $index => $type) {
                 array_push($jobIDs, $value['job_id'][$index]);
                 if (!array_key_exists($type, $annotationType)) {
                     $annotationType[$type] = $value['annotation'][$index];
@@ -167,32 +169,144 @@ class apiController extends BaseController
                     }
                 }
             }
-            $result['annotationContent'][$value['_id']]['annotationType'] = $annotationType;
+     //       $result['annotationContent'][$value['_id']]['annotationType'] = $annotationType;
+        $result['annotationContent'][$value['_id']]['annotationType'] = array();
+            foreach ($annotationType as $job => $annotation) {
+                $annotationInfo = array('job_id' => $job, 'annotation' => $annotation);
+                $result['annotationContent'][$value['_id']]['annotationType'][$job] = $annotationInfo;
+            }
         }
 
         $unitIDs = array_unique($unitIDs);
         $units = \MongoDB\Entity::whereIn('_id', $unitIDs)->get(array('content.sentence.formatted',
                                                                     'content.sentence.formatted',
+                                    'documentType',
+                                    'domain',
                                                                     'content.relation.noPrefix',
                                                                     'content.terms.first.formatted',
                                                                     'content.terms.second.formatted'))->toArray();
         foreach($units as $index =>$value) {
-            $result['unitContent'][$value['_id']] = $value;
+            $result['annotationContent'][$value['_id']]['unitContent'] = $value;
         }
 
         $jobIDs = array_unique($jobIDs);
         $jobs = \MongoDB\Entity::whereIn('_id', $jobIDs)->get(array('metrics.workers.withFilter.'.$crowdAgentID,
-                                                                     'metrics.aggWorker.avg', 'type', 'template', 'platformJobId', 'metrics.units', 'results'))->toArray();
-
-        foreach($jobs as $index =>$value) {
-            $result['jobContent'][$value['_id']] = $value;
+                                                                     'metrics.aggWorker', 'type', 'jobConf_id', 'template', 'platformJobId', 'metrics.units', 'results'))->toArray();
+    foreach($jobs as $index =>$value) {
+        $result['jobContent'][$value['_id']] = $value;
+        $jobConfID = \MongoDB\Entity::where('_id', '=', $value['_id'])->lists('jobConf_id');
+        $jobTitle = \MongoDB\Entity::whereIn('_id', $jobConfID)->get(array('content.title'))->toArray();
+        $result['jobContent'][$value['_id']]['jobConf'] = $jobTitle[0];
+    }
+    
+    foreach($result['annotationContent'] as $id => $annInfo ) {
+            foreach ($result['annotationContent'][$id]['annotationType'] as $index => $value) {
+                $job_id = $value['job_id'];
+                $result['annotationContent'][$id]['annotationType'][$index]['job_info'] =  $result['jobContent'][$job_id];
+            }
         }
-
+    
         return $result;
 
     }
 
-    public function getUnitworkerpie()
+   public function getUnit()
+    {
+        $result = array();
+        $aggregateOperators = $this->processAggregateInput(Input::all());
+        $unitID = Input::get('unit');
+        $result['infoStat'] = \MongoDB\Entity::where('_id', $unitID)->get()->toArray()[0];
+
+        $selection = \MongoDB\Entity::raw(function ($collection) use ($aggregateOperators, $unitID) {
+            $aggregateOperators['$match']['unit_id'] = $unitID;
+            $aggregateOperators['$match']['documentType'] = 'annotation';
+            $aggregateOperators['$project']['job_id'] = array('$ifNull' => array('$' . 'job_id', 0));
+            $aggregateOperators['$project']['crowdAgent_id'] = array('$ifNull' => array('$' . 'crowdAgent_id', 0));
+            $aggregateOperators['$project']['type'] = array('$ifNull' => array('$' . 'type', 0));
+            $aggregateOperators['$project']['annotation'] = array('$ifNull' => array('$' . 'dictionary', 0));
+
+            $aggregateOperators['$group']['_id'] = '$crowdAgent_id';
+            $aggregateOperators['$group']['count'] = array('$sum' => 1);
+            $aggregateOperators['$group']['job_id'] = array('$push' => ('$job_id'));
+            $aggregateOperators['$group']['type'] = array('$push' => ('$type'));
+            $aggregateOperators['$group']['annotation'] = array('$push' => ('$annotation'));
+
+            return $collection->aggregate(array
+            (array('$match' => $aggregateOperators['$match']),
+                array('$project' => $aggregateOperators['$project']),
+                array('$group' => $aggregateOperators['$group'])));
+        });
+        $response = $selection['result'];
+        $crowdAgentIDs = array();
+        $jobIDs = array();
+    $result['annotationContent'] = array();
+    $result['jobContent'] = array();
+    $result['agentContent'] = array();
+        foreach ($response as $agent => $value) {
+            $result['annotationContent'][$value['_id']] = $value;
+            array_push($crowdAgentIDs, $value['_id']);
+            $annotationType = array();
+            foreach ($value['job_id'] as $index => $type) {
+                array_push($jobIDs, $value['job_id'][$index]);
+                if (!array_key_exists($type, $annotationType)) {
+                    $annotationType[$type] = $value['annotation'][$index];
+                } else {
+                    $annInfo = $value['annotation'][$index];
+                    foreach ($annInfo as $k => $v) {
+                        if (is_numeric($v)) {
+                            $annotationType[$type][$k] += $v;
+                        } else {
+                            foreach ($v as $embeddedK => $embeddedV) {
+                                $annotationType[$type][$k][$embeddedK] += $embeddedV;
+                            }
+                        }
+                    }
+                }
+            }
+            $result['annotationContent'][$value['_id']]['annotationType'] = array();
+            foreach ($annotationType as $job => $annotation) {
+                $annotationInfo = array('job_id' => $job, 'annotation' => $annotation);
+                $result['annotationContent'][$value['_id']]['annotationType'][$job] = $annotationInfo;
+            }
+
+        }
+
+        $crowdAgentIDs = array_unique($crowdAgentIDs);
+        $agents = \MongoDB\CrowdAgent::whereIn('_id', $crowdAgentIDs)->get(array('cache',
+            'cfWorkerTrust',
+            'softwareAgent_id'))->toArray();
+        foreach($agents as $index =>$value) {
+        $result['annotationContent'][$value['_id']]["valuesWorker"] = $value;
+    //        $result['agentContent'][$value['_id']] = $value;
+        }
+
+        $jobIDs = array_unique($jobIDs);
+        $jobs = \MongoDB\Entity::whereIn('_id', $jobIDs)->get(array('results.withoutSpam.'.$unitID,
+            'results.withSpam.'.$unitID,
+            'metrics.units.withoutSpam.'.$unitID,
+            'metrics.aggUnits',
+            'metrics.filteredUnits',
+            'metrics.workers.withFilter', 
+            'sofwareAgent_id', 
+        'platformJobId'))->toArray();
+
+        foreach($jobs as $index =>$value) {
+            $result['jobContent'][$value['_id']] = $value;
+        $jobConfID = \MongoDB\Entity::where('_id', '=', $value['_id'])->lists('jobConf_id');
+        $jobTitle = \MongoDB\Entity::whereIn('_id', $jobConfID)->get(array('content.title'))->toArray();
+        $result['jobContent'][$value['_id']]['jobConf'] = $jobTitle[0];
+        }
+        
+        foreach($result['annotationContent'] as $id => $annInfo ) {
+            foreach ($result['annotationContent'][$id]['annotationType'] as $index => $value) {
+                $job_id = $value['job_id'];
+                $result['annotationContent'][$id]['annotationType'][$index]['job_info'] =  $result['jobContent'][$job_id];
+            }
+        }
+        return $result;
+    }
+
+   public function getUnitworkerpie()
     {
         $selection = \MongoDB\Entity::raw(function ($collection) {
 
@@ -257,21 +371,101 @@ class apiController extends BaseController
             return 'No Data';
         }
 
-        $selection = \MongoDB\Entity::raw(function ($collection) {
+        $c = Input::get('collection', 'Entity');
 
+        $collection = $this->repository->returnCollectionObjectFor($c);
+
+        $selection = $collection->raw(function ($collection) {
+            $groupValue = Input::get('group');
             $aggregateOperators = $this->processAggregateInput(Input::all());
-            $aggregateOperators['$group']['_id'] = "$" . Input::get('group');
+            $aggregateOperators['$project'][$groupValue] = "$" . $groupValue;
+
+            //:{ 'jobs': {$cond: [{ $gt: [{$ifNull: [ '$cache.jobs.count', 0 ] }, 0]}, 'inJobs', 'notInJobs']}}}
+            $aggregateOperators['$project']['jobs'] = array('$cond' =>
+                array( array('$gt'=>array( array('$ifNull' => array ('$cache.jobs.count', 0)),0)), 'inJobs', 'notInJobs'));
+            $aggregateOperators['$group']['_id'] = "$" . $groupValue;
             $aggregateOperators['$group']['count'] = array('$sum' => 1);
 
-            return $collection->aggregate(array
-            (array('$match' => $aggregateOperators['$match']),
-                array('$group' => $aggregateOperators['$group'])));
+            $aggregateQuery = array();
+            foreach($this->pipelineList as $operator){
+                if(array_key_exists($operator, $aggregateOperators)) {
+                    array_push( $aggregateQuery, array($operator=>$aggregateOperators[$operator]));
+                }
+            }
+            return $collection->aggregate($aggregateQuery);
         });
 
         $results = $selection['result'];
 
         return $results;
     }
+    public function getWorkergraph()
+    {
+        $c = Input::get('collection', 'Entity');
+
+        $collection = $this->repository->returnCollectionObjectFor($c);
+
+        $selection = $collection->raw(function ($collection) {
+
+            $aggregateOperators = $this->processAggregateInput(Input::all());
+
+            //additionally project
+            //a constField field to create the lists
+            $aggregateOperators['$project']['constField'] = array('$const' => 0);
+
+            //project the id as well
+            $aggregateOperators['$project']['_id'] = 1;
+
+            //push all the values in a list
+            foreach (Input::get('project') as $field => $value) {
+                $aggregateOperators['$group'][$field] = array('$push' => ('$' . $field));
+            }
+            $aggregateOperators['$project']['workers'] = array('$ifNull' => array(array('$subtract' => array('$cache.jobTypes.count', '$cache.spammer.count')), 0));
+            $aggregateOperators['$project']['jobsCount'] = array('$ifNull' => array('$' . 'cache.jobTypes.count', 0));
+            $aggregateOperators['$project']['annotationsCount'] = array('$ifNull' => array('$' . 'cache.annotations.count', 0));
+            $aggregateOperators['$group']['id'] = array('$push' => ('$_id'));
+            $aggregateOperators['$group']['workers'] = array('$push' => ('$workers'));
+
+            //group by id to create the lists and compute average of workers, units, annotatations
+            $aggregateOperators['$group']['_id'] = '$constField';
+            $aggregateOperators['$group']['avgAnnotations'] = array('$avg' => '$annotationsCount');
+            $aggregateOperators['$group']['avgJobs'] = array('$avg' => '$jobsCount');
+
+
+            $aggregateQuery = array();
+            foreach($this->pipelineList as $operator){
+                if(array_key_exists($operator, $aggregateOperators)) {
+                    array_push( $aggregateQuery, array($operator=>$aggregateOperators[$operator]));
+                }
+            }
+            return $collection->aggregate($aggregateQuery);
+
+        });
+        if (count($selection['result']) == 0) {
+            foreach (Input::get('project') as $field => $value) {
+                $results[$field] = array();
+            }
+            $results['jobsCount'] = array();
+            $results['annotationsCount'] = array();
+            $results['id'] = array();
+            $results['workers'] = array();
+            $results['avgAnnotations'] = array();
+            $results['avgJobs'] = array();
+            return $results;
+        }
+        $results = $selection['result'][0];
+
+        //get the workers found as spammers in other jobs
+        $ids = $selection['result'][0]['id'];
+        $sizeIDs = count($ids);
+        $results['avgAnnotations'] = array_fill(0, $sizeIDs, $results['avgAnnotations']);
+        $results['avgWorkers'] = array_fill(0, $sizeIDs, $results['avgJobs']);
+
+
+        return $results;
+    }
+
+
 
     public function getUnitgraph()
     {
@@ -310,6 +504,20 @@ class apiController extends BaseController
                 array('$group' => $aggregateOperators['$group'])));
 
         });
+        if (count($selection['result']) == 0) {
+            foreach (Input::get('project') as $field => $value) {
+                $results[$field] = array();
+            }
+            $results['id'] = array();
+            $results['workersCount'] = array();
+            $results['annotationsCount'] = array();
+            $results['jobsCount'] = array();
+            $results['id'] = array();
+            $results['avgWorkers'] = array();
+            $results['avgAnnotations'] = array();
+            $results['avgJobs'] = array();
+            return $results;
+        }
         $results = $selection['result'][0];
 
         //get the workers found as spammers in other jobs
@@ -327,18 +535,17 @@ class apiController extends BaseController
     public function getJobgraph()
     {
 
-        $selection = \MongoDB\Entity::raw(function ($collection) {
+        $c = Input::get('collection', 'Entity');
+
+        $collection = $this->repository->returnCollectionObjectFor($c);
+
+        $selection = $collection->raw(function ($collection) {
 
             $aggregateOperators = $this->processAggregateInput(Input::all());
 
             //additionally project
             //a constField field to create the lists
             $aggregateOperators['$project']['constField'] = array('$const' => 0);
-
-            //the job createdAt and updatedAt to get the time
-            $aggregateOperators['$project']['created_at'] = 1;
-            $aggregateOperators['$project']['updated_at'] = 1;
-
             //project the id as well
             $aggregateOperators['$project']['_id'] = 1;
 
@@ -346,8 +553,6 @@ class apiController extends BaseController
             foreach (Input::get('project') as $field => $value) {
                 $aggregateOperators['$group'][$field] = array('$push' => ('$' . $field));
             }
-            $aggregateOperators['$group']['created_at'] = array('$push' => ('$created_at'));
-            $aggregateOperators['$group']['updated_at'] = array('$push' => ('$updated_at'));
             $aggregateOperators['$group']['id'] = array('$push' => ('$_id'));
 
             //group by id to create the lists and compute average of workers, units, annotatations
@@ -397,7 +602,7 @@ class apiController extends BaseController
             $results['workers'][$iter] = count($workersOfJob) - count($potentialSpammers);
 
             //add the time value
-            $time[$iter] = $results['updated_at'][$iter]->sec - $results['created_at'][$iter]->sec;
+
 
         }
 
@@ -405,7 +610,6 @@ class apiController extends BaseController
         $results['avgAnnotations'] = array_fill(0, $sizeIDs, $results['avgAnnotations']);
         $results['avgUnits'] = array_fill(0, $sizeIDs, $results['avgUnits']);
         $results['potentialSpamWorkers'] = $potentialSpammersCount;
-        $results['time'] = $time;
 
         return $results;
     }
@@ -420,59 +624,6 @@ class apiController extends BaseController
 
 
     }
-
-    /*//i.e.: entity/text/medical/job/1
-    public function getEntity($format, $domain, $docType, $incr, $action){
-        try {
-            $return = array('status' => 'ok');
-            $id = "entity/$format/$domain/$docType/$incr";
-            switch ($docType) {
-
-                case 'job':
-
-                    $job = Job::where('_id', $id)->first();
-
-                    if(!$job)
-                        throw new Exception('Job not found.');
-
-                    switch ($action) {
-                        case 'pause':
-                            $job->pause();
-                            $return['message'] = 'Job paused successfully.';
-                            break;
-                        case 'resume':
-                            $job->resume();
-                            $return['message'] = 'Job resumed successfully.';
-                            break;
-                        case 'cancel':
-                            $job->cancel();
-                            $return['message'] = 'Job canceled successfully.';
-                            break;
-                        case 'order':
-                            $job->order();
-                            $return['message'] = 'Job ordered successfully.';
-                            break;
-                        default:
-                            throw new Exception('Action unknown.');
-                            break;
-                    }
-                    break;
-                default:
-                    throw new Exception("Unknown documenttype '$docType'.");
-                    break;
-            }
-
-
-
-        } catch (Exception $e){
-            //throw $e; // for debugging.
-            $return['message'] = $e->getMessage();
-            $return['status'] = 'bad';
-        }
-
-        return $this->returnJson($return);
-    }
-*/
 
     private function returnJson($return)
     {

@@ -6,9 +6,13 @@ class JobsController extends BaseController {
 
  	public $restful = true;
 
-	public function getIndex() {
-	   return Redirect::to('jobs/listview');
-	}
+	public function getIndex()
+	{
+		$facetedSearch = App::make('FacetedSearch');
+		$mainSearchFilters = $facetedSearch->getMainSearchFilters("job");
+
+		return View::make('media.search.pages.index', compact('mainSearchFilters'));
+	}	
 
 	//Change JobConfiguration into JobConfiguration
 	public function getListview() {
