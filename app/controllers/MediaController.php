@@ -106,7 +106,7 @@ class MediaController extends BaseController {
 		$facetedSearch = App::make('FacetedSearch');
 		$mainSearchFilters = $facetedSearch->getMainSearchFilters();
 
-		return View::make('media.search.pages.zoek', compact('mainSearchFilters'));
+		return View::make('media.search.pages.index', compact('mainSearchFilters'));
 	}
 
 	public function anyBatch(){
@@ -114,12 +114,13 @@ class MediaController extends BaseController {
 		{
 			$batchCreator = App::make('BatchCreator');
 			$status = $batchCreator->store(Input::all());
-			return Redirect::to('media/facetedsearch');
+			return Redirect::to('media/search');
 		}
 
-		return Input::all();
+		$units = Input::get('selection');
+		natsort($units);
+		$units = array_values($units);
 
-		$units = json_decode(Input::get('selection'));
 		$fields = explode("/", $units[0]);
 
 		return View::make('media.pages.createbatch', compact('units', 'fields'));

@@ -113,6 +113,112 @@ class apiController extends BaseController
         return $aggregateOperators;
     }
 
+public function getUnit()
+    {
+        $result = array();
+        $aggregateOperators = $this->processAggregateInput(Input::all());
+        $unitID = Input::get('unit');
+        $result['infoStat'] = \MongoDB\Entity::where('_id', $unitID)->get()->toArray()[0];
+
+        $selection = \MongoDB\Entity::raw(function ($collection) use ($aggregateOperators, $unitID) {
+            $aggregateOperators['$match']['unit_id'] = $unitID;
+            $aggregateOperators['$match']['documentType'] = 'annotation';
+            $aggregateOperators['$project']['job_id'] = array('$ifNull' => array('$' . 'job_id', 0));
+            $aggregateOperators['$project']['crowdAgent_id'] = array('$ifNull' => array('$' . 'crowdAgent_id', 0));
+            $aggregateOperators['$project']['type'] = array('$ifNull' => array('$' . 'type', 0));
+            $aggregateOperators['$project']['annotation'] = array('$ifNull' => array('$' . 'dictionary', 0));
+
+            $aggregateOperators['$group']['_id'] = '$crowdAgent_id';
+            $aggregateOperators['$group']['count'] = array('$sum' => 1);
+            $aggregateOperators['$group']['job_id'] = array('$push' => ('$job_id'));
+            $aggregateOperators['$group']['type'] = array('$push' => ('$type'));
+            $aggregateOperators['$group']['annotation'] = array('$push' => ('$annotation'));
+
+            return $collection->aggregate(array
+            (array('$match' => $aggregateOperators['$match']),
+                array('$project' => $aggregateOperators['$project']),
+                array('$group' => $aggregateOperators['$group'])));
+        });
+        $response = $selection['result'];
+        $crowdAgentIDs = array();
+        $jobIDs = array();
+    $result['annotationContent'] = array();
+    $result['jobContent'] = array();
+    $result['agentContent'] = array();
+        foreach ($response as $agent => $value) {
+            $result['annotationContent'][$value['_id']] = $value;
+            array_push($crowdAgentIDs, $value['_id']);
+            $annotationType = array();
+            foreach ($value['job_id'] as $index => $type) {
+                array_push($jobIDs, $value['job_id'][$index]);
+                if (!array_key_exists($type, $annotationType)) {
+                    $annotationType[$type] = $value['annotation'][$index];
+                } else {
+                    $annInfo = $value['annotation'][$index];
+                    foreach ($annInfo as $k => $v) {
+                        if (is_numeric($v)) {
+                            $annotationType[$type][$k] += $v;
+                        } else {
+                            foreach ($v as $embeddedK => $embeddedV) {
+                                $annotationType[$type][$k][$embeddedK] += $embeddedV;
+                            }
+                        }
+                    }
+                }
+            }
+            $result['annotationContent'][$value['_id']]['annotationType'] = array();
+            foreach ($annotationType as $job => $annotation) {
+                $annotationInfo = array('job_id' => $job, 'annotation' => $annotation);
+                $result['annotationContent'][$value['_id']]['annotationType'][$job] = $annotationInfo;
+            }
+
+        }
+
+        $crowdAgentIDs = array_unique($crowdAgentIDs);
+        $agents = \MongoDB\CrowdAgent::whereIn('_id', $crowdAgentIDs)->get(array('cache',
+            'cfWorkerTrust',
+            'softwareAgent_id'))->toArray();
+        foreach($agents as $index =>$value) {
+        $result['annotationContent'][$value['_id']]["valuesWorker"] = $value;
+    //        $result['agentContent'][$value['_id']] = $value;
+        }
+
+        $jobIDs = array_unique($jobIDs);
+        $jobs = \MongoDB\Entity::whereIn('_id', $jobIDs)->get(array('results.withoutSpam.'.$unitID,
+            'results.withSpam.'.$unitID,
+            'metrics.units.withoutSpam.'.$unitID,
+            'metrics.aggUnits',
+            'metrics.filteredUnits',
+            'metrics.workers.withFilter', 
+            'sofwareAgent_id', 
+        'platformJobId'))->toArray();
+
+        foreach($jobs as $index =>$value) {
+            $result['jobContent'][$value['_id']] = $value;
+        $jobConfID = \MongoDB\Entity::where('_id', '=', $value['_id'])->lists('jobConf_id');
+        $jobTitle = \MongoDB\Entity::whereIn('_id', $jobConfID)->get(array('content.title'))->toArray();
+        $result['jobContent'][$value['_id']]['jobConf'] = $jobTitle[0];
+        }
+        
+        foreach($result['annotationContent'] as $id => $annInfo ) {
+            foreach ($result['annotationContent'][$id]['annotationType'] as $index => $value) {
+                $job_id = $value['job_id'];
+                $result['annotationContent'][$id]['annotationType'][$index]['job_info'] =  $result['jobContent'][$job_id];
+            }
+        }
+        return $result;
+    }
+
+    public function getJob()
+    {
+        $result = array();
+        $aggregateOperators = $this->processAggregateInput(Input::all());
+        $jobID = Input::get('job');
+        $result['infoStat'] = \MongoDB\Entity::where('_id', $jobID)->get()->toArray()[0];
+        return $result;
+
+    }
+
     public function getWorker()
     {
         $result = array();
@@ -150,7 +256,7 @@ class apiController extends BaseController
             $result['annotationContent'][$value['_id']] = $value;
             array_push($unitIDs, $value['_id']);
             $annotationType = array();
-            foreach ($value['type'] as $index => $type) {
+            foreach ($value['job_id'] as $index => $type) {
                 array_push($jobIDs, $value['job_id'][$index]);
                 if (!array_key_exists($type, $annotationType)) {
                     $annotationType[$type] = $value['annotation'][$index];
@@ -167,27 +273,43 @@ class apiController extends BaseController
                     }
                 }
             }
-            $result['annotationContent'][$value['_id']]['annotationType'] = $annotationType;
+     //       $result['annotationContent'][$value['_id']]['annotationType'] = $annotationType;
+        $result['annotationContent'][$value['_id']]['annotationType'] = array();
+            foreach ($annotationType as $job => $annotation) {
+                $annotationInfo = array('job_id' => $job, 'annotation' => $annotation);
+                $result['annotationContent'][$value['_id']]['annotationType'][$job] = $annotationInfo;
+            }
         }
 
         $unitIDs = array_unique($unitIDs);
         $units = \MongoDB\Entity::whereIn('_id', $unitIDs)->get(array('content.sentence.formatted',
                                                                     'content.sentence.formatted',
+                                    'documentType',
+                                    'domain',
                                                                     'content.relation.noPrefix',
                                                                     'content.terms.first.formatted',
                                                                     'content.terms.second.formatted'))->toArray();
         foreach($units as $index =>$value) {
-            $result['unitContent'][$value['_id']] = $value;
+            $result['annotationContent'][$value['_id']]['unitContent'] = $value;
         }
 
         $jobIDs = array_unique($jobIDs);
         $jobs = \MongoDB\Entity::whereIn('_id', $jobIDs)->get(array('metrics.workers.withFilter.'.$crowdAgentID,
-                                                                     'metrics.aggWorker'))->toArray();
-
-        foreach($jobs as $index =>$value) {
-            $result['jobContent'][$value['_id']] = $value;
+                                                                     'metrics.aggWorker', 'type', 'jobConf_id', 'template', 'platformJobId', 'metrics.units', 'results'))->toArray();
+    foreach($jobs as $index =>$value) {
+        $result['jobContent'][$value['_id']] = $value;
+        $jobConfID = \MongoDB\Entity::where('_id', '=', $value['_id'])->lists('jobConf_id');
+        $jobTitle = \MongoDB\Entity::whereIn('_id', $jobConfID)->get(array('content.title'))->toArray();
+        $result['jobContent'][$value['_id']]['jobConf'] = $jobTitle[0];
+    }
+    
+    foreach($result['annotationContent'] as $id => $annInfo ) {
+            foreach ($result['annotationContent'][$id]['annotationType'] as $index => $value) {
+                $job_id = $value['job_id'];
+                $result['annotationContent'][$id]['annotationType'][$index]['job_info'] =  $result['jobContent'][$job_id];
+            }
         }
-
+    
         return $result;
 
     }

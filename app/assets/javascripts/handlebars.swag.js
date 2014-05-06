@@ -198,6 +198,23 @@
     }
   });
 
+Swag.addHelper('ifvalue', function (conditional, options) {
+  if (options.hash.value === conditional) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this);
+  }
+});
+
+Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
+    if (val1 === val2) {
+        return fn();
+    }
+    else if (elseFn) {
+        return elseFn();
+    }
+});
+
   Swag.addHelper('center', function(str, spaces) {
     var i, space;
     if (!((Utils.isUndefined(str)) && (Utils.isUndefined(spaces)))) {
@@ -715,6 +732,83 @@
 
 
     return new Handlebars.SafeString(result);
+  });
+  
+  Swag.addHelper('abrWords', function(content, options) {
+  if (content == "[WORD_-3]") {
+    content = "[W_-3]";
+  }
+  if (content == "[WORD_-2]") {
+    content = "[W_-2]";
+  }
+  if (content == "[WORD_-1]") {
+    content = "[W_-1]";
+  }
+  if (content == "[WORD_+1]") {
+    content = "[W_+1]";
+  }
+  if (content == "[WORD_+2]") {
+    content = "[W_+2]";
+  }
+  if (content == "[WORD_+3]") {
+    content = "[W_+3]";
+  }
+  if (content == "[WORD_-3]") {
+    content = "[W_-3]";
+  }
+  if (content == "[WORD_OTHER]") {
+    content = "[W_OTH]";
+  }
+  if (content == "[CHECK_FAILED]") {
+    content = "[FAILED]";
+  }
+  if (content == "[TREATS]") {
+    content = "[T]";
+  }
+  if (content == "[CAUSES]") {
+    content = "[C]";
+  }
+  if (content == "[PREVENTS]") {
+    content = "[P]";
+  }
+  if (content == "[IS_A]") {
+    content = "[IS_A]";
+  }
+  if (content == "[OTHER]") {
+    content = "[OTH]";
+  }
+  if (content == "[NONE]") {
+    content = "[NONE]";
+  }
+  if (content == "[PART_OF]") {
+    content = "[PO]";
+  }
+  if (content == "[DIAGNOSE_BY_TEST_OR_DRUG]") {
+    content = "[D]";
+  }
+  if (content == "[ASSOCIATED_WITH]") {
+    content = "[AW]";
+  }
+  if (content == "[SIDE_EFFECT]") {
+    content = "[SE]";
+  }
+  if (content == "[SYMPTOM]") {
+    content = "[S]";
+  }
+  if (content == "[LOCATION]") {
+    content = "[L]";
+  }
+  if (content == "[MANIFESTATION]") {
+    content = "[M]";
+  }
+  if (content == "[CONTRAINDICATES]") {
+    content = "[CI]";
+  }
+  return new Handlebars.SafeString(content);
+  });
+
+  Swag.addHelper('createPercentage', function(value, options) {
+  return value * 100;
   });
 
   Swag.addHelper('highlightTerms', function(searchQuery, content, options) {
