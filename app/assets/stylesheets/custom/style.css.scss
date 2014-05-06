@@ -549,6 +549,14 @@ border-top:1px solid #e0e0e0;
 		margin-bottom:70px;
 	}
 }
+.highcharts-tooltip span {
+  width:300px!important;
+  overflow:auto;
+  white-space:normal !important;
+  table {
+    margin-bottom:0px;
+  }
+}
 
 .tooltip {
     z-index: 2000 !important;

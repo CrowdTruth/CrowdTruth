@@ -190,27 +190,25 @@
                                         <div id="user_div"></div>
                                     </td>
                                     <td>
-                                        <div id="relation_div"></div>
+                                        <div id="optional1_div"></div>
                                     </td>
                                     <td>
-                                        <div id="jobs_div"></div>
+                                        <div id="optional2_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="optional3_div"></div>
                                     </td>
                                 </tr>
                             </table>
+                            @if ((isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']) or isset($mainSearchFilters['documentTypes']['fullvideo'])))
+                                @include('media.search.layouts.specificBarChart')
+                            @endif
                             <table>
                                 <tr >
                                     <td>
-                                       <div id="unitsWordCountChart_div" ></div>
+                                    <div id="generalBarChart_div" ></div>
                                     </td>
                                 </tr>
-                            </table>
-                            <table>
-                                <tr >
-                                    <td>
-                                    <div id="unitsJobChart_div" ></div>
-                                    </td>
-                                </tr>
-                            </table>
                             </table>
                             <table>
                                 <tr>
@@ -235,14 +233,24 @@
                             <table>
                                 <tr>
                                     <td>
+                                        <div id="unitsPie_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="unitsBar_div"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr>
+                                    <td>
                                         <div id="annotationsPie_div"></div>
                                     </td>
                                     <td>
                                         <div id="annotationsBar_div"></div>
                                     </td>
                                 </tr>
-                            </table>
-                            <div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            </table>    
+							<div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -277,16 +285,19 @@
 {{ javascript_include_tag('jquery.tablesorter.widgets.min.js') }}
 
 <!-- <script src='http://cdnjs.cloudflare.com/ajax/libs/floatthead/1.2.7/jquery.floatThead.min.js'></script> -->
-
 {{ javascript_include_tag('visualizations/jquery.mediaTable.js') }}
 {{ javascript_include_tag('highcharts.js') }}
 {{ javascript_include_tag('modules/exporting.js') }}
+{{ javascript_include_tag('no-data-to-display.js') }}
 {{ javascript_include_tag('visualizations/unitsChartFacade.js') }}
 {{ javascript_include_tag('visualizations/unitsWorkerDetails.js') }}
 {{ javascript_include_tag('visualizations/unitsAnnotationDetails.js') }}
 {{ javascript_include_tag('visualizations/unitsJobDetails.js') }}
+{{ javascript_include_tag('visualizations/unitsDetails.js') }}
 {{ javascript_include_tag('visualizations/pieChartGraph.js') }}
-{{ javascript_include_tag('visualizations/barChartGraph.js') }}
+{{ javascript_include_tag('visualizations/unitsBarChartGraph.js') }}
+{{ javascript_include_tag('visualizations/workersBarChartGraph.js') }}
+{{ javascript_include_tag('visualizations/jobsBarChartGraph.js') }}
 {{ javascript_include_tag('visualizations/unitChartDetails.js') }}
 <script>
 $('document').ready(function(){
@@ -704,8 +715,9 @@ function getResults(baseApiURL){
 		// console.log('starting search');
 		
 		if($('.graphViewButton').hasClass('hidden')){
+            var selectedCategory = activeTabKey;
 			$(activeTabKey + ' .checkAll').removeAttr('checked');
-			var unitsChart = new unitsChartFacade();
+			var unitsChart = new unitsChartFacade(selectedCategory);
 			unitsChart.init(getTabFieldsQuery(),"");		
 		}
 
