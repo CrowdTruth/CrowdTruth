@@ -80,6 +80,8 @@ abstract class FrameWork {
 	abstract public function sendMessage($subject, $body, $workerids);
 
 	abstract public function blockWorker($id, $message);
+	
+	abstract public function unBlockWorker($id, $message);
 }
 
 ?>

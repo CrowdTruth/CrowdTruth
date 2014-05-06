@@ -21,6 +21,11 @@ class Job extends Entity {
     {
         parent::boot();
 
+        static::saving(function( $job )
+        {
+            \MongoDB\Temp::whereIn('_id', ['mainSearchFilters', 'jobCache'])->forceDelete();
+        });
+
         static::creating(function ( $job )
         {
 
@@ -44,7 +49,7 @@ class Job extends Entity {
                 $job->expectedAnnotationsCount=$unitsCount*$job->jobConfiguration->content['annotationsPerUnit'];
                 $job->projectedCost = $projectedCost;
 				$job->unitsCount = $unitsCount;
-                
+                $job->latestMetrics = 0;
 				$job->annotationsCount = 0;
 				$job->completion = 0.00; // 0.00-1.00
 				

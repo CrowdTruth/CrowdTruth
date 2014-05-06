@@ -11,17 +11,150 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.templatebuilder');
 	}
 
+/*
+	public function getUpdate(){
+		foreach (Job::get() as $job) {
+			$job->results = null;
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+
+		}
+	}*/
+
+	public function getDictionary($entity, $format, $domain, $docType, $incr){
+
+		$id = "$entity/$format/$domain/$docType/$incr";
+
+		foreach(Annotation::where('unit_id', $id)->where('softwareAgent_id', 'cf')->get() as $ann){
+			//$ann = Annotation::id('entity/text/medical/annotation/5265')->first();
+			echo "\r\n{$ann->_id}\r\n";
+			print_r($ann->createDictionary());
+			echo "\r\n\r\n---------------------------------\r\n\r\n";
+		}
+	}
+
 
 	public function getResults(){
-		//foreach (Annotation::type('RelDir') as $ann) {
-		foreach(Job::get() as $job){
-
-/*			$job->template = $job->jobConfiguration->content['template'];
-			$job->jobConfiguration->unsetKey('template');
-			$job->jobConfiguration->save();
-			$job->save();*/
-			//Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+		if (($handle = fopen(storage_path() . '/test2.csv', 'r')) === false) {
+		    die('Error opening file');
 		}
+
+		$jobresults = array();
+		foreach(Job::where('softwareAgent_id', 'cf')->type('FactSpan')->get() as $job){
+			$jobresults = array_merge($jobresults, $job->results['withSpam']);
+		}	
+
+		$headers = fgetcsv($handle, 1024, ',');
+		$count = 0;
+		$complete = array();
+		$return = array();
+		$skip = false;
+
+		while ($row = fgetcsv($handle, 1024, ',')) {
+			set_time_limit(30);
+/*
+			$skip=!$skip;
+			if($skip)
+				continue;*/
+
+			$count++;
+			$c = array_combine($headers, $row);
+
+			$sentence = rtrim($c['sentence'], '.');
+			$term1 = $c['term1'];
+			$term2 = $c['term2'];
+
+			$found = false;
+			//foreach (MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->get() as $unit) {
+			$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')
+			->where('content.sentence.text', $sentence)
+			->where('content.terms.first.text', $term1)
+			->where('content.terms.second.text', $term2)->first(); 
+
+			if($unit){	
+	
+	/*			if($unit['content']['sentence']['text'] == $sentence and
+					$unit['content']['terms']['first']['text'] == $term1 and
+					$unit['content']['terms']['second']['text'] == $term2){*/
+					$found = true;
+				//dd($unit->_id);
+					// THis can also be used to compare with CF.
+					//foreach (Job::type('FactSpan')->where('softwareAgent_id', 'amt')->get() as $job) {
+					//$job = Job::where('softwareAgent_id', 'cf')->type('FactSpan')->first();
+					
+					if(array_key_exists($unit->_id, $jobresults)){
+						$vector = $jobresults[$unit->_id];
+						$temp = array('Sent id' => $c['Sent id']);
+						if(substr($c['Sent id'], -2) == 'T1'){
+							if(isset($vector['term1'])){
+								//$temp = $this->computeSimilarity($vector['term1'], 1, $unit->_id, $job->softwareAgent_id);
+								
+								$temp = array_merge($this->computeSimilarity($vector['term1'], 1, $unit->_id, 'cf'), $temp);
+								
+								$temp['sentence']=$sentence;
+								$temp['term1']=$term1;
+								$temp['term2']=$term2;
+								$temp['vector'] = '{' . implode(',', array_values($vector['term1'])) . '}';
+								$result[] = $temp;
+								
+							}
+						} elseif(substr($c['Sent id'], -2) == 'T2'){
+
+							if(isset($vector['term2'])){
+								//$temp = $this->computeSimilarity($vector['term2'], 2, $unit->_id, $job->softwareAgent_id);
+								$temp = array_merge($this->computeSimilarity($vector['term2'], 2, $unit->_id, 'cf'), $temp);
+								$temp['sentence']=$sentence;
+								$temp['term1']=$term1;
+								$temp['term2']=$term2;
+								$temp['vector'] = '{' . implode(',', array_values($vector['term2'])) . '}';
+								$result[] = $temp;
+							}
+						}
+						
+					}
+				} else {
+					$result[] = array('','','','','','','','','','','','','','');
+				}
+				
+				//}
+				
+			//}
+			
+/*			if(!$found){
+				$result[] = array('','','','','','','','','','','','','','');
+				$result[] = array('','','','','','','','','','','','','','');
+			}*/
+			//if($count==5) dd($result);
+	/*	
+		if($count == 5){
+			dd($result);
+			$path =storage_path() . '/amt_new_output.csv';
+			$out = fopen($path, 'w');
+
+			fputcsv($out, array_keys($result[0]));
+			foreach ($result as $row)
+				fputcsv($out, $row);	
+			
+			// Close file
+			rewind($out);
+			fclose($out);
+			dd($path);
+		}*/
+		}
+
+		$path =storage_path() . '/cf_new_output.csv';
+		$out = fopen($path, 'w');
+
+		fputcsv($out, array_keys($result[0]));
+		foreach ($result as $row)
+			fputcsv($out, $row);	
+		
+		// Close file
+		rewind($out);
+		fclose($out);
+		dd($path);
+
+
+
 	}
 
 
@@ -29,8 +162,16 @@ class ProcessController extends BaseController {
 
 //test
 	public function getUpdateca(){
-		$ca = MongoDB\CrowdAgent::first();
-		$ca->updateStats2();
+		/*$ca = \MongoDB\CrowdAgent::id('crowdagent/cf/19822336')->first();
+		$ca->updateStats2();*/
+
+		foreach(MongoDB\CrowdAgent::get() as $ca){
+			//$ca->updateStats2();
+			$ca->blocked = false;
+			//$ca->messagesRecieved = array('count'=>0, 'messages'=>[]);
+			$ca->save();
+		}
+		//$ca->updateStats2();
 /*
 		//$unitids = array('entity/text/medical/twrex-structured-sentence/1736');
 		Queue::push('Queues\UpdateUnits', $unitids);
@@ -39,80 +180,19 @@ class ProcessController extends BaseController {
 	}
 
 
-
-
-
-
-
-
-
-
-
-	public function getBla() {
-
-	/*	$j = JobConfiguration::id('entity/medical/text/jobconf/0')->first();
-		$j->save();*/
-		try{
-			foreach (Job::get() as $job) {
-				if(isset( $job->jobConfiguration->content['tag'])){
-					
-					//$job->platformJobId = $jid;
-
-					$c = $job->jobConfiguration->content;
-					$job->jobConfiguration->tag = $c['tag'];
-					unset($c['tag']);
-					$job->jobConfiguration->content = $c;
-
-					$job->jobConfiguration->save();
-					
-				}
+	public function getUpdatecfdictionaries(){
+		
+		foreach(Job::where('softwareAgent_id', 'cf')->type('FactSpan')->get() as $job){
+			foreach ($job->annotations as $ann) {
+				$ann->dictionary = $ann->createDictionary();
+				$ann->save();
 			}
-		} catch (LogicException $ex){
-			echo $ex->getMessage();
-			//dd($e);
-			throw $ex;
+
+
+			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 		}
 	}
 
-
-public function getTestamt(){
-	//dd(Batch::with('wasDerivedFrom')->first());
-	foreach (JobConfiguration::get() as $jc) {
-		if(!is_array($jc->content['platform'])){
-			$jc->setValue('platform', array('cf'));
-			$jc->save();
-		}	
-
-/*		$parents = $batch->parents;
-		natsort($parents);
-		$parents = array_values($parents);
-
-		$batch->parents = $parents;
-		$batch->hash = md5(serialize($parents));
-		$batch->save();*/
-
-	}
-
-/*	//$job = Job::where('softwareAgent_id', 'cf')->first();
-	$id = 414274;//= $job->jobConfiguration->content['jobId'];
-	$cfjob = new Cw\Crowdflower\Cfapi\Job(Config::get('crowdflower::apikey'));
-	$info = $cfjob->readJob($id);
-	dd($info);*/
-}
-
-
-public function getStartedat(){
-	foreach (Job::get() as $j) {
-		$c = $j->jobConfiguration->content;
-		if(isset($c['startedAt'])){
-			$j->startedAt = $c['startedAt'];
-			unset($c['startedAt']);
-			$j->jobConfiguration->content = $c;
-			$j->jobConfiguration->save();
-			$j->save();
-		}
-	}
-}
 
 
 public function getVector(){

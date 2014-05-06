@@ -203,9 +203,10 @@ class apiController extends BaseController {
 		$subject = Input::get('subject');
 		$recipients = Input::get('recipients');
 
-		$content = 'testttt';
+		// test data
+/*		$content = 'testttt';
 		$subject = 'subject of message';
-		$recipients = array('crowdagent/amt/1111', 'crowdagent/amt/2222', 'crowdagent/cf/3333', 'crowdagent/amt/4444');
+		$recipients = array('crowdagent/amt/A014570429HSF84C0QZCF');*/
 		
 		try {
 			$groupedarray = array();
@@ -215,14 +216,15 @@ class apiController extends BaseController {
 				$platformid = $explid[1];
 				$groupedarray[$platformid][] = $recipient;
 			}
+
 			foreach ($groupedarray as $platformid=>$workers) {
 				$platform = \App::make($platformid);
 				$platform->sendMessage($workers, $subject, $content);
 				$return['message'] = 'Message' . (count($workers)>1 ? 's' : '') . ' sent successfully!';
 				
 				foreach($workers as $workerid){
-					//$crowdagent = CrowdAgent::where('_id', $workerid)->first();
-					//$crowdagent->
+					$crowdagent = CrowdAgent::where('_id', $workerid)->first();
+					$crowdagent->recievedMessage($subject, $content);
 				}		
 
 			}
@@ -236,17 +238,17 @@ class apiController extends BaseController {
 
 
 	/**
-	* Needs 'message' and 'workerid' in POST
+	* needs workerId and message in postdata.
 	*/
-	public function postFlag(){
+	public function postBlock(){
 		try {
 			$return = array('status' => 'ok');
 			$message = Input::get('message');
 			$workerid = Input::get('workerid');
 
 			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
-			$crowdagent->flag();
-
+			$crowdagent->block($message);
+			$return['message'] = "Blocked worker $workerid successfully.";
 		} catch (Exception $e){
 			$return['message'] = $e->getMessage();
 			$return['status'] = 'bad';
@@ -256,7 +258,43 @@ class apiController extends BaseController {
 
 	}
 
-	public function getGetdropdowninfos(){
+	/**
+	* needs workerId and message in postdata.
+	*/
+	public function postUnblock(){
+		try {
+			$return = array('status' => 'ok');
+			$message = Input::get('message');
+			$workerid = Input::get('workerid');
+
+			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
+			$crowdagent->unblock($message);
+			$return['message'] = "Unblocked worker $workerid successfully.";
+		} catch (Exception $e){
+			$return['message'] = $e->getMessage();
+			$return['status'] = 'bad';
+		}
+
+		return $return;
+
+	}
+
+	public function postFlag(){
+		try{
+			$return = array('status' => 'ok');
+			$workerid = Input::get('workerid');
+			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
+			$crowdagent->flag();
+			$return['message'] = "Flagged worker $workerid.";
+		} catch (Exception $e) {
+			$return['message'] = $e->getMessage();
+			$return['status'] = 'bad';
+		}
+
+		return $return;
+	}
+
+/*	public function getGetdropdowninfos(){
 		foreach(Job::get() as $job){
 			$format[] = $job->format;
 			$domain[] = $job->domain;
@@ -271,7 +309,7 @@ class apiController extends BaseController {
 					'user'=> array_unique($format),
 					'template'=> array_unique($format),
 					'status'=> array_unique($format));
-	}
+	}*/
 }
 
 ?>

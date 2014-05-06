@@ -79,6 +79,9 @@ class Annotation extends Entity {
     }
     //todo should be private
     public function createDictionaryFactSpan(){
+        $debug = false;
+
+
         if(empty($this->unit_id))
             return null;
 
@@ -180,8 +183,8 @@ class Annotation extends Entity {
         // CF
         } elseif(isset($ans['confirmfirstfactor']) or isset($ans['factor1'])) {
            // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));
-            Log::debug($ans);
-
+           // Log::debug($ans);
+            if($debug) print_r($ans);
             // Patching the fact that the CML is different from the WebSci results [fugly]
             //if(!isset($ans['confirmfirstfactor'])){
             if(isset($ans['factor1'])) $ans['firstfactor'] = $ans['factor1'];
@@ -206,13 +209,18 @@ class Annotation extends Entity {
             }
 
             Log::debug($ans);
-            
+         //   print_r($ans);
+
+
+
             $term = strtolower($this->unit->content['terms']['first']['text']);
             $b = $this->unit->content['terms']['first']['startIndex'];
+            if($debug) echo "\r\n{$ans['confirmids1']}, {$ans['confirmfirstfactor']}, $term, $b, {$ans['saveselectionids1']}, {$ans['firstfactor']}";
             $vector1 = $this->createSingleFactVect($ans['confirmids1'], $ans['confirmfirstfactor'], $term, $b, $ans['saveselectionids1'], $ans['firstfactor']);
            
             $term = strtolower($this->unit->content['terms']['second']['text']);
             $b = $this->unit->content['terms']['second']['startIndex'];
+            if($debug) echo "\r\n{$ans['confirmids2']}, {$ans['confirmsecondfactor']}, $term, $b, {$ans['saveselectionids2']}, {$ans['secondfactor']}";
             $vector2 = $this->createSingleFactVect($ans['confirmids2'], $ans['confirmsecondfactor'], $term, $b, $ans['saveselectionids2'], $ans['secondfactor']);
         } else {
             Log::debug("Can't determine if it's CF or AMT.");
@@ -244,12 +252,13 @@ class Annotation extends Entity {
     }
 
     private function createSingleFactVect($confirmids, $confirmfactor, $term, $b, $saveselectionids, $factor){
+        $debug = false;
         $sentence = strtolower($this->unit->content['sentence']['text']);
        // echo "{$this->_id}: ";
         try{
 
             // User selected YES -> NIL or exception
-            if(!empty($confirmids)){  
+            if($confirmids != ''){  
                 $ids = explode('-', $confirmids);
                 sort($ids);
                 $words = $this->getWords($sentence, $ids);
@@ -282,7 +291,7 @@ class Annotation extends Entity {
                 //count($ids) - $wordindex -(count(explode(' ', $words))-1);
 
                 if($startdiff == 0 and $enddiff == 0)
-                    throw new Exception('User selected NO but startdiff and enddiff are 0.');
+                    throw new Exception('User selected NO but answered NIL.');
                 
                 if($words == $term)
                     throw new Exception('User selected NO but provided the same term.');
@@ -296,9 +305,10 @@ class Annotation extends Entity {
             }
 
         }catch(Exception $e){
+             Log::debug("\r\nFAIL: {$e->getMessage()}\r\n");
+            if($debug) echo "\r\n\r\nException: {$e->getMessage()}\r\n\r\n";
             return $this->createFactVect(true);
-            Log::debug("{$e->getMessage()}");
-            //echo $e->getMessage() . "\r\n";
+
         }
      }
 
@@ -360,7 +370,7 @@ class Annotation extends Entity {
         return $vector;
     }
 
-
+    // TODO: unify templates
     private function createDictionaryRelDir(){
         if(isset($this->content['direction']))
             $ans = $this->content['direction'];
@@ -370,21 +380,20 @@ class Annotation extends Entity {
         // The CF template works like this.
         if($this->softwareAgent_id == 'cf'){
             $u = $this->unit->content;
-            if($ans == 'no_relation')
-                $ans = 'Choice3';
-            elseif (strpos($ans, $u['terms']['first']['formatted']) === 0)
-                $ans = 'Choice1';
+/*            if($ans == 'no_relation')
+                $ans = 'Choice3';*/
+            
+            if (strpos($ans, $u['terms']['first']['formatted']) === 0)
+                $ans = 'term1_term2';
             elseif (strpos($ans, $u['terms']['first']['formatted']) > 0)
-                $ans = 'Choice2';
-            else
-                $ans = '-------';
+                $ans = 'term2_term1';
         }
 
-        return array(
-            'Choice1' => (($ans == 'Choice1') ? 1 : 0),
-            'Choice2' => (($ans == 'Choice2') ? 1 : 0),
-            'Choice3' => (($ans == 'Choice3') ? 1 : 0)
-            );
+        return array('direction' => array(
+            'term1_term2' => (($ans == 'term1_term2') ? 1 : 0),
+            'term2_term1' => (($ans == 'term2_term1') ? 1 : 0),
+            'no_relation' => (($ans == 'no_relation') ? 1 : 0)
+            ));
 
     }
 
@@ -465,7 +474,7 @@ class Annotation extends Entity {
                 throw new Exception('Can\'t determine if it\'s CF or AMT.');
             }
            
-            if(in_array("[NONE]", $ans)){
+/*            if(in_array("[NONE]", $ans)){
                 if(count($ans)>1)
                     throw new Exception('Worker selected none but also other relations.');
 
@@ -474,7 +483,7 @@ class Annotation extends Entity {
 
             } elseif(empty($this->content['Q2a'])){
                 throw new Exception('Worker selected a relation but didn\'t hightlight words');
-            }
+            }*/
                 
 
             $dic = array(
@@ -493,18 +502,21 @@ class Annotation extends Entity {
             "[MANIFESTATION]" =>            (in_array("[MANIFESTATION]",            $ans ) ? 1 : 0),
             "[CONTRAINDICATES]" =>          (in_array("[CONTRAINDICATES]",          $ans ) ? 1 : 0));
 
-            foreach($ans as $a){
+            // We decided to give the spammers just empty vectors.
+
+/*            foreach($ans as $a){
                 if(!in_array($a, array_keys($dic)))
                    throw new Exception("Answer $a not in dictionary.");  
             }
 
             if(!in_array(1, $dic)){
                 throw new Exception('Dictionary EMPTY');
-            }
+            }*/
 
-            return $dic;
+            return array('extraction'=>$dic);
 
         } catch (Exception $e){
+            echo $e->getMessage();
             Log::debug($e->getMessage());
             return null;
         }    
