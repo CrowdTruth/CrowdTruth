@@ -39,7 +39,6 @@ class apiController extends BaseController {
 	public function postFeatures(){
 		$return = array('status'=>'ok');
 		$input = Input::get();
-		dd($input);
 		$domain = $input[1];
 		$type = $input[2];
 		
@@ -50,8 +49,9 @@ class apiController extends BaseController {
 		$activity->save();
 		// LOOP THROUGH IMAGES CREATE ENTITIES WITH ACTIVITY-ID FOR NEW IMAGES
 		$url_ids = "";
+		\Log::debug(json_encode($input[0]));
 		foreach ($input[0] as $img){
-			
+			\Log::debug($img);
 			try {
 				
 				$parse = parse_url($img);
