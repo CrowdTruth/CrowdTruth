@@ -230,56 +230,6 @@ class Crowdflower extends \FrameWork {
     }
 
 
-    public function orderJob($job){
-    	$id = $job->platformJobId;
-    	$unitcount = count($job->batch->wasDerivedFrom);
-    	$this->hasStateOrFail($id, 'unordered');
-		$result = $this->CFJob->sendOrder($id, $unitcount, array("cf_internal"));
-		if(isset($result['result']['error']['message']))
-			throw new Exception("Order: " . $result['result']['error']['message']);
-	}
-
-	public function pauseJob($id){
-		$this->hasStateOrFail($id, 'running');
-		$result = $this->CFJob->pauseJob($id);
-		if(isset($result['result']['error']['message']))
-			throw new Exception("Pause: " . $result['result']['error']['message']);
-	}
-
-	public function resumeJob($id){
-		$this->hasStateOrFail($id, 'paused');
-		$result = $this->CFJob->resumeJob($id);
-		if(isset($result['result']['error']['message']))
-			throw new Exception("Resume: " . $result['result']['error']['message']);
-	}
-
-	public function cancelJob($id){
-		//$this->hasStateOrFail($id, 'running'); // Rules?
-		$result = $this->CFJob->cancelJob($id);
-		if(isset($result['result']['error']['message']))
-			throw new Exception("Cancel: " . $result['result']['error']['message']);
-	}
-
-	private function hasStateOrFail($id, $state){
-		$result = $this->CFJob->readJob($id);
-
-		if(isset($result['result']['error']['message']))
-			throw new Exception("Read Job: " . $result['result']['error']['message']);
-
-    	if($result['result']['state'] != $state)
-    		throw new Exception("Can't perform action; state is '{$result['result']['state']}' (should be '$state')");
-	}
-
-	public function blockWorker($id, $message){
-		$cfWorker = new Worker(Config::get('crowdflower::apikey'));
-		try {
-			$cfWorker->blockWorker($id, $message);
-		} catch (CFExceptions $e){
-			throw new Exception($e->getMessage());
-		} 
-	}
-
-
     private function jobConfToCFData($jc){
 		$jc=$jc->content;
 		$data = array();
@@ -352,8 +302,67 @@ class Crowdflower extends \FrameWork {
 		return $path;
 	}
 
+    public function orderJob($job){
+    	$id = $job->platformJobId;
+    	$unitcount = count($job->batch->wasDerivedFrom);
+    	$this->hasStateOrFail($id, 'unordered');
+		$result = $this->CFJob->sendOrder($id, $unitcount, array("cf_internal"));
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Order: " . $result['result']['error']['message']);
+	}
+
+	public function pauseJob($id){
+		$this->hasStateOrFail($id, 'running');
+		$result = $this->CFJob->pauseJob($id);
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Pause: " . $result['result']['error']['message']);
+	}
+
+	public function resumeJob($id){
+		$this->hasStateOrFail($id, 'paused');
+		$result = $this->CFJob->resumeJob($id);
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Resume: " . $result['result']['error']['message']);
+	}
+
+	public function cancelJob($id){
+		//$this->hasStateOrFail($id, 'running'); // Rules?
+		$result = $this->CFJob->cancelJob($id);
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Cancel: " . $result['result']['error']['message']);
+	}
+
+	private function hasStateOrFail($id, $state){
+		$result = $this->CFJob->readJob($id);
+
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Read Job: " . $result['result']['error']['message']);
+
+    	if($result['result']['state'] != $state)
+    		throw new Exception("Can't perform action; state is '{$result['result']['state']}' (should be '$state')");
+	}
+
+	public function blockWorker($id, $message){
+		$cfWorker = new Worker(Config::get('crowdflower::apikey'));
+		try {
+			$cfWorker->blockWorker($id, $message);
+		} catch (CFExceptions $e){
+			throw new Exception($e->getMessage());
+		} 
+	}
+
+	public function unblockWorker($id, $message){
+		$cfWorker = new Worker(Config::get('crowdflower::apikey'));
+		try {
+			$cfWorker->unblockWorker($id, $message);
+		} catch (CFExceptions $e){
+			throw new Exception($e->getMessage());
+		} 
+	}
+
+
 	public function sendMessage($subject, $body, $workerids){
-		echo 'cf working!';
+		throw new Exception('Messaging is currently not possible with CrowdFlower, sorry!');
 	}
 
 }

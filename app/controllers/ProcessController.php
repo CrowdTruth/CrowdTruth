@@ -162,11 +162,14 @@ class ProcessController extends BaseController {
 
 //test
 	public function getUpdateca(){
-		$ca = \MongoDB\CrowdAgent::id('crowdagent/cf/19822336')->first();
-		$ca->updateStats2();
+		/*$ca = \MongoDB\CrowdAgent::id('crowdagent/cf/19822336')->first();
+		$ca->updateStats2();*/
 
 		foreach(MongoDB\CrowdAgent::get() as $ca){
-			$ca->updateStats2();
+			//$ca->updateStats2();
+			$ca->blocked = false;
+			//$ca->messagesRecieved = array('count'=>0, 'messages'=>[]);
+			$ca->save();
 		}
 		//$ca->updateStats2();
 /*
@@ -190,78 +193,6 @@ class ProcessController extends BaseController {
 		}
 	}
 
-
-
-
-
-
-
-
-	public function getBla() {
-
-	/*	$j = JobConfiguration::id('entity/medical/text/jobconf/0')->first();
-		$j->save();*/
-		try{
-			foreach (Job::get() as $job) {
-				if(isset( $job->jobConfiguration->content['tag'])){
-					
-					//$job->platformJobId = $jid;
-
-					$c = $job->jobConfiguration->content;
-					$job->jobConfiguration->tag = $c['tag'];
-					unset($c['tag']);
-					$job->jobConfiguration->content = $c;
-
-					$job->jobConfiguration->save();
-					
-				}
-			}
-		} catch (LogicException $ex){
-			echo $ex->getMessage();
-			//dd($e);
-			throw $ex;
-		}
-	}
-
-
-public function getTestamt(){
-	//dd(Batch::with('wasDerivedFrom')->first());
-	foreach (JobConfiguration::get() as $jc) {
-		if(!is_array($jc->content['platform'])){
-			$jc->setValue('platform', array('cf'));
-			$jc->save();
-		}	
-
-/*		$parents = $batch->parents;
-		natsort($parents);
-		$parents = array_values($parents);
-
-		$batch->parents = $parents;
-		$batch->hash = md5(serialize($parents));
-		$batch->save();*/
-
-	}
-
-/*	//$job = Job::where('softwareAgent_id', 'cf')->first();
-	$id = 414274;//= $job->jobConfiguration->content['jobId'];
-	$cfjob = new Cw\Crowdflower\Cfapi\Job(Config::get('crowdflower::apikey'));
-	$info = $cfjob->readJob($id);
-	dd($info);*/
-}
-
-
-public function getStartedat(){
-	foreach (Job::get() as $j) {
-		$c = $j->jobConfiguration->content;
-		if(isset($c['startedAt'])){
-			$j->startedAt = $c['startedAt'];
-			unset($c['startedAt']);
-			$j->jobConfiguration->content = $c;
-			$j->jobConfiguration->save();
-			$j->save();
-		}
-	}
-}
 
 
 public function getVector(){

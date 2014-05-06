@@ -7,6 +7,11 @@ use \Job;
 class CrowdAgent extends Moloquent {
 
 	protected $collection = 'crowdagents';
+    protected $attributes = array(  'messagesRecieved' => array('count'=>0, 'messages'=>[]), 
+                                    'flagged' => false, 
+                                    'blocked' => false,
+                                    'avg_agreement'=>0.0, 
+                                    'avg_cosine'=>0.0  );
 	protected $softDelete = true;
 	protected static $unguarded = true;
     public static $snakeAttributes = false;
@@ -139,26 +144,18 @@ class CrowdAgent extends Moloquent {
                 $jobsAsSpammer = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereIn('metrics.spammers.list', [$this->_id])->lists('platformJobId');
                 $cache["spammer"]["count"] = count($jobsAsSpammer);
                 $cache["spammer"]["jobs"] = array_flatten($jobsAsSpammer);
-                $cache['flagged'] = 'false';
-                $cache['sentMessagesToWorkers']['count'] = 0;
-                $cache['sentMessagesToWorkers']['messages'] = [];
-                $cache['avg_agreement'] = 0.0;
-                $cache['avg_cosine'] = 0.0;
 
                 $this->cache = $cache;
                 $this->save();        
                      
             }
         }
+
   
     }
 
 
-
-
-
-
-
+/*
 
     public function updateStats(){
     	$countthese = array('type', 'domain', 'format');
@@ -213,7 +210,7 @@ class CrowdAgent extends Moloquent {
         
     	$this->save();
     }
-
+*/
 
 	// TODO: Can be removed.
 	public function hasGeneratedAnnotations(){
@@ -237,15 +234,62 @@ class CrowdAgent extends Moloquent {
     /**
     * @throws Exception
     */
-    public function flag($message){
-        if($this->flagged==true)
+    public function flag(){
+        if($this->flagged)
+            throw new Exception('CrowdAgent was flagged already.');
+
+        $this->flagged = true;
+        $this->save();
+    }
+
+    /**
+    * @throws Exception
+    */
+    public function unFlag(){
+        if(!$this->flagged)
+            throw new Exception('CrowdAgent is not flagged.');
+        
+        $this->flagged = false;
+        $this->save();
+    }
+
+    /**
+    * @param string $message The message to the CrowdAgent (IE why we blocked him)
+    * @throws Exception
+    */
+    public function block($message){
+        if($this->blocked)
             throw new Exception('Worker is already blocked.');
 
         $platformid = $this->softwareAgent_id;
         $platform = App::make($platformid);
         $platform->blockWorker($this->platformWorkerId, $message);
-        $this->flagged = true;
+        $this->blocked = true;
+    }
+
+    /**
+    * @param string $message The message to the CrowdAgent (IE why we unblocked him)
+    * @throws Exception
+    */
+    public function unblock($message){
+        if(!$this->blocked)
+            throw new Exception('Worker is not blocked.');
+
+        $platformid = $this->softwareAgent_id;
+        $platform = App::make($platformid);
+        $platform->unblockWorker($this->platformWorkerId, $message);
+        $this->blocked = true;
     }
 
 
+
+    public function recievedMessage($subject, $message){
+        $messagesRecieved = $this->messagesRecieved;
+        
+        $messagesRecieved['count']++;
+        array_push($messagesRecieved['messages'], array('subject'=>$subject, 'message'=>$message));
+        
+        $this->messagesRecieved = $messagesRecieved;
+        $this->save();
+    }
 }

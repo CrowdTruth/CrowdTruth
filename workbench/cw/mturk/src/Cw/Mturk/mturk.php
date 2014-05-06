@@ -252,49 +252,6 @@ class Mturk extends \FrameWork {
 	}
 
 
-    public function orderJob($job){
-    	try {
-			$platformjobids = $this->amtpublish($job, false);
-			// TODO: (possibly): delete existing results?
-			$fullplatformjobids = array();
-			foreach($platformjobids as $id)
-				array_push($fullplatformjobids, array('id' => $id, 'status' => 'running'));
-			$job->platformJobId = $fullplatformjobids;
-			$job->save();
-		} catch (AMTException $e) {
-			if(isset($fullplatformjobids)) $this->undoCreation($fullplatformjobids);
-			elseif(isset($platformjobids)) $this->undoCreation($platformjobids);
-			throw new Exception($e->getMessage());
-		}	
-	}
-
-	public function pauseJob($id){
-		throw new Exception('AMT can\'t pause/resume.');
-	}
-
-	public function resumeJob($id){
-		throw new Exception('AMT can\'t pause/resume.');
-	}
-
-	public function cancelJob($id){
-		if(empty($id))
-			throw new Exception('Platform Job ID\'s not found. Is this an imported job?');
-
-		foreach($id as $hitid)
-		 	$this->mechanicalTurk->forceExpireHIT($hitid['id']);
-        
-	}
-
-	public function blockWorker($id, $message){
-		try {
-			$this->mechanicalTurk->blockWorker($id, $message);
-		} catch (AMTException $e){
-			throw new Exception($e->getMessage());
-		} 
-	}
-
-
-
 	private function jobConfToHIT($jc){
 		$hit = new Hit();
 		if (isset($jc['title'])) 			 		 	$hit->setTitle						  	($jc['title']); 
@@ -364,6 +321,57 @@ class Mturk extends \FrameWork {
 			));
 	}*/
 
+
+
+    public function orderJob($job){
+    	try {
+			$platformjobids = $this->amtpublish($job, false);
+			// TODO: (possibly): delete existing results?
+			$fullplatformjobids = array();
+			foreach($platformjobids as $id)
+				array_push($fullplatformjobids, array('id' => $id, 'status' => 'running'));
+			$job->platformJobId = $fullplatformjobids;
+			$job->save();
+		} catch (AMTException $e) {
+			if(isset($fullplatformjobids)) $this->undoCreation($fullplatformjobids);
+			elseif(isset($platformjobids)) $this->undoCreation($platformjobids);
+			throw new Exception($e->getMessage());
+		}	
+	}
+
+	public function pauseJob($id){
+		throw new Exception('AMT can\'t pause/resume.');
+	}
+
+	public function resumeJob($id){
+		throw new Exception('AMT can\'t pause/resume.');
+	}
+
+	public function cancelJob($id){
+		if(empty($id))
+			throw new Exception('Platform Job ID\'s not found. Is this an imported job?');
+
+		foreach($id as $hitid)
+		 	$this->mechanicalTurk->forceExpireHIT($hitid['id']);
+        
+	}
+
+	public function blockWorker($id, $message){
+		try {
+			$this->mechanicalTurk->blockWorker($id, $message);
+		} catch (AMTException $e){
+			throw new Exception($e->getMessage());
+		} 
+	}
+
+	public function unblockWorker($id, $message){
+		try {
+			$this->mechanicalTurk->unBlockWorker($id, $message);
+		} catch (AMTException $e){
+			throw new Exception($e->getMessage());
+		} 
+	}
+
 	public function sendMessage($subject, $body, $workerids){
 		try {
 			$mechanicalTurk->notifyWorkers($subject, $body, $workerids);
@@ -371,6 +379,8 @@ class Mturk extends \FrameWork {
 			throw new Exception($e->getMessage());
 		}
 	}
+
+
 
 
 
