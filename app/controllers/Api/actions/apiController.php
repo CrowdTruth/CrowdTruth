@@ -19,6 +19,7 @@ class apiController extends BaseController {
 
 	//i.e.: image/art/painting/40/boat
 	public function getImage($domain, $type, $numImg, $keyphrase){
+		$return = array('status'=>'ok');
 		try {
 			
 			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . $numImg . " " . $keyphrase;
@@ -38,7 +39,7 @@ class apiController extends BaseController {
 	public function postFeatures(){
 		$return = array('status'=>'ok');
 		$input = Input::get();
-		
+		dd($input);
 		$domain = $input[1];
 		$type = $input[2];
 		
@@ -49,7 +50,7 @@ class apiController extends BaseController {
 		$activity->save();
 		// LOOP THROUGH IMAGES CREATE ENTITIES WITH ACTIVITY-ID FOR NEW IMAGES
 		$url_ids = "";
-		foreach ( $urlset as $img){
+		foreach ($input[0] as $img){
 			
 			try {
 				
