@@ -165,15 +165,15 @@ class apiController extends BaseController {
 		{
 			$entity->hash = md5(serialize($data['content']));
 		}
-
-
-		if(Entity::where('hash', $entity->hash)->first()){
-			dd('asdasd');
-		}
-		
 		$entity->activity_id = $activity->_id;
-		$entity->save();
-
+		
+		if(Entity::where('hash', $entity->hash)->first()){
+			//dd('asdasd');
+		}
+		else {
+			
+			$entity->save();
+		}
 		return Response::json($entity);
 		} catch (Exception $e){
 			dd($e->getMessage());

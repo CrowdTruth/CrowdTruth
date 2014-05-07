@@ -42,10 +42,11 @@ def closse(response):
                 response.fp._sock.recv = None
     except: # in case it's not applicable, ignore this.
         pass
-#url = 'http://jolicrowd.net/api/media/post'
-# url = 'http://127.0.0.1:8888/api/media/test'
-url = 'http://127.0.0.1/api/media/test'
-#url = 'http://jolicrowd.net/api/media/test'
+
+#### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#url = 'http://localhost/api/media/test'
+url = 'http://jolicrowd.net/api/media/test'
+#### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 headers = {'content-type': 'application/json'}
 
