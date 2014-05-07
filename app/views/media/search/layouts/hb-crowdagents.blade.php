@@ -128,7 +128,7 @@
 			        <tr class="text-center">
 						<td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
 			            <td data-vbIdentifier="worker_id">
-					<a class='testModal' data-modal-query="agent=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/worker?') }}" data-target="#modalIndividualWorker" data-toggle="tooltip" data-placement="top" title="Click to see the individual worker page">
+					<a class='testModal' id='@{{ this.platformAgentId }}' data-modal-query="agent=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/worker?') }}" data-target="#modalIndividualWorker" data-toggle="tooltip" data-placement="top" title="Click to see the individual worker page">
 						@{{ this.platformAgentId }}
 					</a>
 				    </td>

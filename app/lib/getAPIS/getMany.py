@@ -4,7 +4,7 @@ import requests
 import random
 import urllib2, os
 import urllib, cStringIO
-#import predict_adopted
+import predict_adopted
 import numpy as np
 import sys
 import time
@@ -15,6 +15,8 @@ import Image, ImageFilter
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+import warnings
+warnings.filterwarnings('ignore')
 
 DELAY = 2    
 WRITE_FILE = 0
@@ -40,10 +42,11 @@ def closse(response):
                 response.fp._sock.recv = None
     except: # in case it's not applicable, ignore this.
         pass
-#url = 'http://jolicrowd.net/api/media/post'
-url = 'http://127.0.0.1:8888/api/media/test'
-url = 'http://127.0.0.1/api/media/test'
-url = 'http://jolicrowd.net/api/media/test'
+
+#### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#url = 'http://localhost/api/media/test'
+url = 'http://crowdtruth.org/api/media/test'
+#### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 headers = {'content-type': 'application/json'}
 
@@ -83,7 +86,8 @@ for iter in range(3, len(sys.argv), 2):
     data['content'] = {}
     data['parents'] = [parentID]
     data['domain'] = sys.argv[1]
-    data['documentType'] = sys.argv[2]
+    data['tag'] = 'unit'
+    #data['documentType'] = sys.argv[2]
     data['content']['URL'] = ImURL
     
 
@@ -92,6 +96,7 @@ for iter in range(3, len(sys.argv), 2):
     Reck_key = "kVnLUSqqaPlnpzdq"
     Reck_secret = "smLk6SzFKAENwmc8"
     data['softwareAgent_id'] = 'fr_rekognition'
+    data['documentType'] = data['softwareAgent_id']
     data['softwareAgent_label'] = 'rekognition: [object, scene, faces]'
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
@@ -158,6 +163,7 @@ for iter in range(3, len(sys.argv), 2):
         Features = {}
         # print (json.dumps(data4, indent=1))
         data['softwareAgent_id'] = 'fr_cloudinary'
+        data['documentType'] = data['softwareAgent_id']
         data['softwareAgent_label'] = 'cloudinary: faces, colors'
         data['softwareAgent_configuration'] = "faces"
         if "faces" in data4:
@@ -186,6 +192,7 @@ for iter in range(3, len(sys.argv), 2):
     Sky_key = "7e544588316542b382d286988b83d679"
     Sky_secret = "3bb713ca57b94c709d55c2add9d1c882"
     data['softwareAgent_id'] = 'fr_skybiometry'
+    data['documentType'] = data['softwareAgent_id']
     data['softwareAgent_label'] = 'skybiometry: faces'
     data['softwareAgent_configuration'] = "faces"
     Features = {}
@@ -224,6 +231,7 @@ for iter in range(3, len(sys.argv), 2):
           
     #############################   LUKASZ.FLOWERS, BIRDS        ################################# 
     data['softwareAgent_id'] = 'fr_classifier'
+    data['documentType'] = data['softwareAgent_id']
     data['softwareAgent_label'] = 'classifier: set of classes'
     data['softwareAgent_configuration'] = "flowers"
     data['content'] = {}

@@ -51,7 +51,7 @@
 							<td class="text-right">
 								<div class="btn-group" id='relationOutsideTerms'>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationOutsideTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
-								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.propertimes.relationOutsideTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationOutsideTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
 								  <button type="button" class="btn btn-sm btn-info active twrexNone">Not Applied</button>
 								</div>
 							</td>
@@ -199,6 +199,7 @@
 			            <td data-vbIdentifier="relation">@{{ this.content.relation.noPrefix }}</td>
 				    <td data-vbIdentifier="sent_id">
 					<a class='testModal' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page" id="@{{ this._id }}">
+					<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
 						@{{ this._id }}
 					</a>
 				    </td>

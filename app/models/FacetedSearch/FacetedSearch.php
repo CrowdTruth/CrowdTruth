@@ -29,7 +29,7 @@ class FacetedSearch {
 
             if($page == "media")
             {
-                $mainSearchFilters['documentTypes'] = array_only($mainSearchFilters['documentTypes'], array('twrex-structured-sentence', 'job', "fullvideo"));
+                $mainSearchFilters['documentTypes'] = array_only($mainSearchFilters['documentTypes'], array('twrex-structured-sentence', 'job', "fullvideo", "painting", "drawing", "picture"));
             } elseif ($page == "job")
             {
                 $mainSearchFilters['documentTypes'] = array_only($mainSearchFilters['documentTypes'], array('job'));

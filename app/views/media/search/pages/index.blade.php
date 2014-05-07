@@ -69,8 +69,10 @@
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
+							@if(Request::segment(1) != 'jobs' && Request::segment(1) != 'workers')
 							<li><a href="#" class='toSelection'>Save Selection</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
+							@endif
 						</ul>
 					</div>					
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
@@ -190,27 +192,25 @@
                                         <div id="user_div"></div>
                                     </td>
                                     <td>
-                                        <div id="relation_div"></div>
+                                        <div id="optional1_div"></div>
                                     </td>
                                     <td>
-                                        <div id="jobs_div"></div>
+                                        <div id="optional2_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="optional3_div"></div>
                                     </td>
                                 </tr>
                             </table>
+                            @if ((isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']) or isset($mainSearchFilters['documentTypes']['fullvideo'])))
+                                @include('media.search.layouts.specificBarChart')
+                            @endif
                             <table>
                                 <tr >
                                     <td>
-                                       <div id="unitsWordCountChart_div" ></div>
+                                    <div id="generalBarChart_div" ></div>
                                     </td>
                                 </tr>
-                            </table>
-                            <table>
-                                <tr >
-                                    <td>
-                                    <div id="unitsJobChart_div" ></div>
-                                    </td>
-                                </tr>
-                            </table>
                             </table>
                             <table>
                                 <tr>
@@ -235,14 +235,24 @@
                             <table>
                                 <tr>
                                     <td>
+                                        <div id="unitsPie_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="unitsBar_div"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr>
+                                    <td>
                                         <div id="annotationsPie_div"></div>
                                     </td>
                                     <td>
                                         <div id="annotationsBar_div"></div>
                                     </td>
                                 </tr>
-                            </table>
-                            <div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            </table>    
+							<div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -255,7 +265,6 @@
                                 </div>
                             </div>
                         </div>
-
 						<script class='searchStatsTemplate' type="text/x-handlebars-template">
 							Showing @{{ count.from }} to @{{ count.to }} of @{{ count.total}} entries
 						</script>
@@ -277,16 +286,19 @@
 {{ javascript_include_tag('jquery.tablesorter.widgets.min.js') }}
 
 <!-- <script src='http://cdnjs.cloudflare.com/ajax/libs/floatthead/1.2.7/jquery.floatThead.min.js'></script> -->
-
 {{ javascript_include_tag('visualizations/jquery.mediaTable.js') }}
 {{ javascript_include_tag('highcharts.js') }}
 {{ javascript_include_tag('modules/exporting.js') }}
+{{ javascript_include_tag('no-data-to-display.js') }}
 {{ javascript_include_tag('visualizations/unitsChartFacade.js') }}
 {{ javascript_include_tag('visualizations/unitsWorkerDetails.js') }}
 {{ javascript_include_tag('visualizations/unitsAnnotationDetails.js') }}
 {{ javascript_include_tag('visualizations/unitsJobDetails.js') }}
+{{ javascript_include_tag('visualizations/unitsDetails.js') }}
 {{ javascript_include_tag('visualizations/pieChartGraph.js') }}
-{{ javascript_include_tag('visualizations/barChartGraph.js') }}
+{{ javascript_include_tag('visualizations/unitsBarChartGraph.js') }}
+{{ javascript_include_tag('visualizations/workersBarChartGraph.js') }}
+{{ javascript_include_tag('visualizations/jobsBarChartGraph.js') }}
 {{ javascript_include_tag('visualizations/unitChartDetails.js') }}
 <script>
 $('document').ready(function(){
@@ -704,8 +716,9 @@ function getResults(baseApiURL){
 		// console.log('starting search');
 		
 		if($('.graphViewButton').hasClass('hidden')){
+            var selectedCategory = activeTabKey;
 			$(activeTabKey + ' .checkAll').removeAttr('checked');
-			var unitsChart = new unitsChartFacade();
+			var unitsChart = new unitsChartFacade(selectedCategory, openModal);
 			unitsChart.init(getTabFieldsQuery(),"");		
 		}
 
@@ -815,98 +828,103 @@ var updateFilters = function(filterOption){
 		filterOption.children('i').removeClass('fa-circle-o').addClass('fa-check-circle-o');
 	}	
 }
+var openModal = function(modalAnchor , activeTabKey){
+    if(baseApiURL == undefined)
+    {
+        var baseApiURL = modalAnchor.attr('data-api-target');
+    }
+    console.log(modalAnchor);
+    //var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
+    var modalTarget = modalAnchor.attr('data-target');
+    //alert(modalTarget);
+
+    var query = modalAnchor.attr('data-modal-query');
+    console.log(baseApiURL + query);
+    $.getJSON(baseApiURL + query, function(data) {
+        console.dir(activeTabKey);
+
+        var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+
+        var html = template(data);
+
+        $('#activeTabModal').remove();
+
+        $('body').append(html);
+
+        $('#activeTabModal').modal();
+
+        $(".tablesorter.table.table-striped").tablesorter({
+            // *** Appearance ***
+            // fix the column widths
+            widthFixed : true,
+            // include zebra and any other widgets, options:
+            // 'uitheme', 'filter', 'stickyHeaders' & 'resizable'
+            // the 'columns' widget will require custom css for the
+            // primary, secondary and tertiary columns
+            widgets    : [ 'uitheme', 'zebra' ],
+
+            // *** Functionality ***
+            // starting sort direction "asc" or "desc"
+            sortInitialOrder : "asc",
+            // extract text from the table - this is how is
+            // it done by default
+            textExtraction : {
+                0: function(node) { return $(node).text(); },
+                1: function(node) { return $(node).text(); }
+            },
+
+            // Setting this option to true will allow you to click on the
+            // table header a third time to reset the sort direction.
+            sortReset: true,
+
+            // The key used to select more than one column for multi-column
+            // sorting.
+            sortMultiSortKey : "shiftKey",
+
+            // *** Customize header ***
+            onRenderHeader  : function() {
+                // the span wrapper is added by default
+                $(this).find('span').addClass('headerSpan');
+            },
+            // jQuery selectors used to find the header cells.
+            selectorHeaders : 'thead th',
+
+            // *** css classes to use ***
+            cssAsc        : "headerSortUp",
+            cssChildRow   : "expand-child",
+            cssDesc       : "headerSortDown",
+            cssHeader     : "header",
+            tableClass    : 'tablesorter',
+
+            // *** widget css class settings ***
+            // column classes applied, and defined in the skin
+            widgetColumns : { css: ["primary", "secondary", "tertiary"] },
+            // find these jQuery UI class names by hovering over the
+            // Framework icons on this page:
+            // http://jqueryui.com/themeroller/
+            widgetUitheme : { css: [
+                "ui-icon-arrowthick-2-n-s", // Unsorted icon
+                "ui-icon-arrowthick-1-s",   // Sort up (down arrow)
+                "ui-icon-arrowthick-1-n"    // Sort down (up arrow)
+            ]
+            },
+            // pick rows colors to match ui theme
+            widgetZebra: { css: ["ui-widget-content", "ui-state-default"] },
+
+            // *** prevent text selection in header ***
+            cancelSelection : true,
+
+            // *** send messages to console ***
+            debug : false
+        });
+
+    });
+}
 
 $('body').on('click', '.testModal', function(){
-	if(baseApiURL == undefined)
-	{
-		
-		var baseApiURL = $(this).attr('data-api-target');
-	}
-	console.log(baseApiURL);
-	var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
-	var modalTarget = $(this).attr('data-target');
-	//alert(modalTarget);
+    var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
+    openModal($(this),activeTabKey);
 
-	var query = $(this).attr('data-modal-query');
-		console.log(baseApiURL + query);
-		$.getJSON(baseApiURL + query, function(data) {
-		console.log(data);
-
-		var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
-
-		var html = template(data);
-	
-		$('#activeTabModal').remove();
-		$('body').append(html);
-	
-		$('#activeTabModal').modal();
-		$(".tablesorter.table.table-striped").tablesorter({
-		    // *** Appearance ***
-		    // fix the column widths
-		    widthFixed : true,
-		    // include zebra and any other widgets, options:
-		    // 'uitheme', 'filter', 'stickyHeaders' & 'resizable'
-		    // the 'columns' widget will require custom css for the
-		    // primary, secondary and tertiary columns
-		    widgets    : [ 'uitheme', 'zebra' ],
-		    
-		    // *** Functionality ***
-		    // starting sort direction "asc" or "desc"
-		    sortInitialOrder : "asc",
-		    // extract text from the table - this is how is
-		    // it done by default
-		    textExtraction : {
-			0: function(node) { return $(node).text(); },
-			1: function(node) { return $(node).text(); }
-		    },
-   
-		    // Setting this option to true will allow you to click on the
-		    // table header a third time to reset the sort direction.
-		    sortReset: true,
-    
-		    // The key used to select more than one column for multi-column
-		    // sorting.
-		    sortMultiSortKey : "shiftKey",
-
-		    // *** Customize header ***
-		    onRenderHeader  : function() {
-			// the span wrapper is added by default
-			$(this).find('span').addClass('headerSpan');
-		    },
-		    // jQuery selectors used to find the header cells.
-		    selectorHeaders : 'thead th',
-
-		    // *** css classes to use ***
-		    cssAsc        : "headerSortUp",
-		    cssChildRow   : "expand-child",
-		    cssDesc       : "headerSortDown",
-		    cssHeader     : "header",
-		    tableClass    : 'tablesorter',
-
-		    // *** widget css class settings ***
-		    // column classes applied, and defined in the skin
-		    widgetColumns : { css: ["primary", "secondary", "tertiary"] },
-		    // find these jQuery UI class names by hovering over the
-		    // Framework icons on this page:
-		    // http://jqueryui.com/themeroller/
-		    widgetUitheme : { css: [
-			"ui-icon-arrowthick-2-n-s", // Unsorted icon
-			"ui-icon-arrowthick-1-s",   // Sort up (down arrow)
-			"ui-icon-arrowthick-1-n"    // Sort down (up arrow)
-			]
-		    },
-		    // pick rows colors to match ui theme
-		    widgetZebra: { css: ["ui-widget-content", "ui-state-default"] },
-
-		    // *** prevent text selection in header ***
-		    cancelSelection : true,
-
-		    // *** send messages to console ***
-		    debug : true
-		});
-	
-	});
-	
 });
 
 @if(Request::segment(1) == 'jobs')

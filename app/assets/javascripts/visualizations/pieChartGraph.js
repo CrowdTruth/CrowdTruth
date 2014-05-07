@@ -1,4 +1,4 @@
-function pieChartGraph(matchStr, groupID, chartName, divName) {
+function pieChartGraph(matchStr, groupID, chartName, divName, nrPieCharts) {
     this.url = "/api/analytics/piegraph/?";
     this.matchStr = matchStr;
     this.groupID = groupID;
@@ -10,7 +10,7 @@ function pieChartGraph(matchStr, groupID, chartName, divName) {
         $('#' + divName + "_div").highcharts({
             chart: {
                 type: 'pie',
-                width: (($('.maincolumn').width() - 50) / 5),
+                width: (($('.maincolumn').width() - 50) / nrPieCharts),
                 height: 200
             },
             title: {

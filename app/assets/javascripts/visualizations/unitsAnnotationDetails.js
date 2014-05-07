@@ -1,5 +1,6 @@
-function unitsAnnotationDetails() {
+function unitsAnnotationDetails(category) {
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
+    var queryFields = {'#twrex-structured-sentence_tab': 'unit_id', '#fullvideo_tab': 'unit_id', '#job_tab': 'job_id', '#crowdagents_tab': 'crowdAgent_id'};
     var currentSelection = [];
     var unitsAnnotationInfo = {};
     var spammers = [];
@@ -7,22 +8,17 @@ function unitsAnnotationDetails() {
     var pieChart = "";
     var barChart = "";
 
-
-
-
     var drawBarChart = function (series, categories) {
-        //get the metrics for the units
-        console.dir(series, categories);
-
         barChart = new Highcharts.Chart({
             chart: {
+                zoomType: 'x',
                 renderTo: 'annotationsBar_div',
                 type: 'column',
                 width: (3*(($('.maincolumn').width() - 50)/5)),
                 height: 400
             },
             title: {
-                text: 'Units distributed across jobs'
+                text: 'Aggregated annotations'
             },
 
             xAxis: {
@@ -56,7 +52,7 @@ function unitsAnnotationDetails() {
                 shared: true,
                 useHTML: true,
                 headerFormat: '<b>Annotation {point.key}</b></br><p>(Click for details)</p><table>',
-                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                pointFormat: '<tr><td style="color: {series.color};text-align: left">{series.name}: </td>' +
                     '<td style="text-align: right"><b>{point.y} annotations</b></td></tr>',
                 footerFormat: '</table>',
                 valueDecimals: 2
@@ -77,10 +73,6 @@ function unitsAnnotationDetails() {
                     point: {
                         events: {
                             click: function () {
-                                console.dir(this);
-                                getJobInfo(this.category);
-
-
                             }
                         }
                     }
@@ -91,48 +83,67 @@ function unitsAnnotationDetails() {
 
     }
 
-    var getBarChartData = function(searchSet) {
+    var getBarChartData = function(platform, type) {
         //url to get the annotation
 
         var categories = [];
         var series = [];
-        console.dir(categories);
-        console.dir(series);
         var annotationsURL = urlBase;
-        for (var iterAnn in searchSet){
-            annotationsURL += 'match[_id][]=' + searchSet[iterAnn] + '&';
+        annotationsURL += 'match[softwareAgent_id][]=' + platform ;
+        if (type != ""){
+            annotationsURL += '&match[type][]=' + type;
         }
-        annotationsURL += 'group=unit_id&push[dictionary]=dictionary';
+
+        annotationsURL += '&project[dictionary]=dictionary&group=' + queryFields[category] + '&push[dictionary]=dictionary';
 
         //get the list of workers for this units
         $.getJSON(annotationsURL, function (data) {
-            console.dir(data);
-
+            var colors = ['#528B8B', '#00688B', '#2F4F4F', '#66CCCC' ,'#00CDCD', '#607B8B' ];
             for (var iterData in data) {
-                var newSeries = {'name':  data[iterData]['_id'], data:[], type: 'column'};
 
                 var seriesData = {};
-                for (var iterAnnotation in data[iterData]['dictionary']) {
-                    console.dir(data[iterData]['dictionary']);
-                    var dictionary = data[iterData]['dictionary'][iterAnnotation];
-                    for (var key in dictionary){
-                        if(key in seriesData){
-                            seriesData[key] += dictionary[key];
-                        } else {
-                            seriesData[key] = dictionary[key];
+                for (var iterObject in data[iterData]['dictionary']) {
+                    var object = data[iterData]['dictionary'][iterObject];
+                    for (var microTaskKey in object) {
+                        if (!(microTaskKey in seriesData)) {
+                            seriesData[microTaskKey] = object[microTaskKey];
+                            continue;
+                        }
+
+                        for (var key in object[microTaskKey]){
+                            if(key in seriesData[microTaskKey]){
+                                seriesData[microTaskKey][key] += object[microTaskKey][key];
+                            } else {
+                                seriesData[microTaskKey][key] = object[microTaskKey][key];
+                            }
                         }
                     }
                 }
-                console.dir(categories);
+
                 if (categories.length == 0) {
-                    for(var key in seriesData) {
-                        categories.push(key);
+                    for (var microTaskKey in seriesData) {
+                        for (var key in seriesData[microTaskKey]) {
+                            categories.push(key);
+                        }
+                        break
                     }
                 }
-                for(var iterCategories in categories) {
-                    newSeries.data.push(seriesData[categories[iterCategories]]);
+
+                var first = true;
+                for (var microTaskKey in seriesData) {
+                    var newSeries = {'name':  data[iterData]['_id'], data:[], type: 'column', stack:microTaskKey, color: colors[iterData%data.length]};
+                    if(!(first == true)){
+                        newSeries.linkedTo = ':previous';
+                    } else {
+                        first = false;
+                    }
+                    for(var iterCategories in categories) {
+                        newSeries.data.push(seriesData[microTaskKey][categories[iterCategories]]);
+                    }
+
+                    series.push(newSeries);
                 }
-                series.push(newSeries);
+
             }
 
             drawBarChart(series, categories);
@@ -141,8 +152,6 @@ function unitsAnnotationDetails() {
     }
 
     var drawPieChart = function (platform, spam) {
-        console.dir(platform);
-        console.dir(spam);
         pieChart = new Highcharts.Chart({
             chart: {
                 renderTo: 'annotationsPie_div',
@@ -151,10 +160,10 @@ function unitsAnnotationDetails() {
                 height: 400
             },
             title: {
-                text: 'Annotation distribution across units'
+                text: 'Annotations of the selected elements'
             },
             subtitle: {
-                text: 'Click to see the distribution of units per annotation'
+                text: 'Click a category to see the distribution of annotations'
             },
             yAxis: {
                 title: {
@@ -174,11 +183,12 @@ function unitsAnnotationDetails() {
                     point: {
                         events: {
                             click: function () {
-                                searchSet = unitsAnnotationInfo[this.options.platform]['all'];
+                                var platform = this.options.platform;
+                                var type = "";
                                 if ('type' in this.options) {
-                                    searchSet = unitsAnnotationInfo[this.options.platform][this.options.type];
+                                    type = this.options.type;
                                 }
-                                getBarChartData(searchSet);
+                                getBarChartData(platform, type);
 
 
                                 /* console.dir(urlBase + this.options.match + '&');
@@ -239,20 +249,19 @@ function unitsAnnotationDetails() {
 
 
     this.update = function (selectedUnits) {
-        console.dir(selectedUnits);
 
         currentSelection = selectedUnits;
         seriesBase = [];
         urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
         //create the series data
         for (var indexUnits in selectedUnits) {
-            urlBase += 'match[unit_id][]=' + selectedUnits[indexUnits] + '&';
+            urlBase += 'match[' + queryFields[category] + '][]=' + selectedUnits[indexUnits] + '&';
             seriesBase.push({'name': selectedUnits[indexUnits], data: [],  yAxis: 0,
                 type: 'column'});
         }
 
 
-        platformURL = urlBase + 'group=softwareAgent_id&push[id]=_id';
+        platformURL = urlBase + '&project[_id]=_id&group=softwareAgent_id&push[id]=_id';
         $.getJSON(platformURL, function (data) {
             var platformData = [];
             var categoriesData = [];
@@ -269,12 +278,14 @@ function unitsAnnotationDetails() {
                 unitsAnnotationInfo[platformID] = {};
                 unitsAnnotationInfo[platformID]['all'] = data[platformIter]['id'];
                 //get the jobs by category
-                requests.push($.get(urlBase + 'match[softwareAgent_id][]=' + data[platformIter]['_id'] + '&group=type&addToSet=_id'));
+                requests.push($.get(urlBase + 'match[softwareAgent_id][]=' + data[platformIter]['_id'] + '&project[_id]=_id&group=type&addToSet=_id'));
 
 
             }
             var defer = $.when.apply($, requests);
             defer.done(function () {
+                var platform = "";
+                var type = "";
 
                 $.each(arguments, function (index, responseData) {
                     // "responseData" will contain an array of response information for each specific request
@@ -283,20 +294,20 @@ function unitsAnnotationDetails() {
                             responseData = responseData[0];
                         }
                         for (var iterObj in responseData) {
-                            console.dir(iterObj);
-                            console.dir(responseData[iterObj])
 
                             categoriesData.push({name: responseData[iterObj]['_id'],
                                 type: responseData[iterObj]['_id'],
                                 y: responseData[iterObj].content.length,
                                 color: Highcharts.Color(colors[index]).brighten(-0.01*iterObj).get(),
                                 platform: data[index]['_id']});
-                            unitsAnnotationInfo[data[index]['_id']][responseData[iterObj]['_id']] = responseData[iterObj].content;
+                            platform = data[index]['_id'];
+                            type = responseData[iterObj]['_id']
+                            unitsAnnotationInfo[platform][type] = responseData[iterObj].content;
                         }
                     }
                 });
                 drawPieChart(platformData, categoriesData);
-                console.dir(unitsAnnotationInfo);
+                getBarChartData(platform , type);
             });
 
         });
