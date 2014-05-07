@@ -9,6 +9,7 @@
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
+						<li><a href="#" data-vb="show" data-vbSelector="actions"></i>Actions</a></li>	
 						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>					
 						<li><a href="#" data-vb="show" data-vbSelector="job_id"></i>Job ID</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="job_title"></i>Job Title</a></li>
@@ -35,6 +36,7 @@
 	    <table class="table table-striped">
 	        <thead data-query-key="&collection=temp&match[documentType]" data-query-value="job">
 		        <tr>
+		        	<th data-vbIdentifier="actions" data-toggle="tooltip" data-placement="top" title="Start or duplicate a job">Actions</th>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>
 		            <th class="sorting" data-vbIdentifier="job_id" data-query-key="orderBy[hasConfiguration.content.jobId]" data-toggle="tooltip" data-placement="top" title="ID of the job from the platform that ran it">Job Id</th>
 		            <th class="sorting" data-vbIdentifier="job_title" data-query-key="orderBy[hasConfiguration.content.title]" data-toggle="tooltip" data-placement="top" title="Title of the job published on the platform">Job Title</th>
@@ -54,6 +56,7 @@
 		            <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the job was created in the framework">Created</th>			    
 		        </tr>
 			<tr class="inputFilters">
+				<td></td>
 				<td data-vbIdentifier="checkbox">
 					<input type="checkbox" class="checkAll" />
 				</td>
@@ -126,6 +129,12 @@
 				<script class='template' type="text/x-handlebars-template">
 			        @{{#each documents}}
 			        <tr class="text-center">
+			            <td data-vbIdentifier="actions">
+							<div class="btn-group">
+								<a class="btn btn-default btn-sm" href="/process/duplicate/@{{this._id}}"><i class="fa fa-files-o"></i></a>
+							</div>
+	
+			            </td>
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
 			            <td data-vbIdentifier="job_id">
 					<a class='testModal' data-modal-query="agent=crowdagent/cf/22031444" data-target="#modalIndividualJob" data-toggle="tooltip" data-placement="top" title="Click to see the individual job page">

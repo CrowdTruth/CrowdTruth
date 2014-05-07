@@ -11,6 +11,20 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.templatebuilder');
 	}
 
+	public function getWorkers(){
+		$c = 0;
+		foreach (\MongoDB\CrowdAgent::where('softwareAgent_id', 'amt')->get() as $w) {
+			if(empty($w->country)){
+				$w->country = 'USA';
+				$w->save();
+				$c++;
+			}	
+
+
+		}
+		echo $c;
+	}
+
 /*
 	public function getUpdate(){
 		foreach (Job::get() as $job) {

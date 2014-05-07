@@ -1,0 +1,81 @@
+<div class="content customTask">
+  <cml:hidden name="totaltime"></cml:hidden>
+  <cml:hidden name="tagtiming"></cml:hidden>
+  <cml:hidden name="starttime"></cml:hidden>
+  <cml:hidden name="endtime"></cml:hidden>
+  <cml:hidden name="imageclicked" value="false"></cml:hidden>
+  <cml:hidden name="contributors_browser" validates="user_agent"></cml:hidden>
+  
+  <div class="row">
+    <div class="span5">
+      <a id="imageLink" href="{{image_url}}" target="_blank" title="Click for larger version">
+        <cml:thumb src="{{image_url}}" method="resize"></cml:thumb>
+        <small>Click to enlarge</small>
+      </a>
+     
+    </div>
+    <div class="span5">
+      <div class="border">
+        <cml:text name="nrflowers" validates="required positiveInteger" label="How many flowers in total do you see in the image?*" default="Total number (integer) of flowers" gold="true"></cml:text>
+      </div>
+      <div class="border">
+        <cml:text name="nrflowertypes" validates="required positiveInteger" label="How many different flower types do you see in the image?*" default="Number of different flower types" gold="true"></cml:text>
+      </div>
+      <cml:group only-if="!other">
+      <div class="border">
+      <cml:text name="name1" validates="required minLength:3" label="Flower type name 1*" default="Scientific or common name"></cml:text>
+      <cml:ratings name="confidenceName1" label="Certainty*" validates="required" class="confidence">
+        <cml:instructions>Choose how certain you are of the correctness of Flower name 1.</cml:instructions>
+        <cml:rating value="1" label="1"></cml:rating>                                         
+        <cml:rating value="2" label="2"></cml:rating>                                         
+        <cml:rating value="3" label="3"></cml:rating>                                         
+        <cml:rating value="4" label="4"></cml:rating>                                         
+        <cml:rating value="5" label="5"></cml:rating>                                         
+      </cml:ratings>
+      </div>
+      <div class="border">
+        <cml:text name="name2" label="Flower type name 2" default="Scientific or common name" instructions="Enter another flower name if you can."></cml:text>
+        <cml:ratings name="confidenceName2" label="Certainty*" validates="required" class="confidence" only-if="name2">
+          <cml:instructions>Choose how certain you are of the correctness of Flower name 2.</cml:instructions>
+          <cml:rating value="1" label="1"></cml:rating>                                         
+          <cml:rating value="2" label="2"></cml:rating>                                         
+          <cml:rating value="3" label="3"></cml:rating>                                         
+          <cml:rating value="4" label="4"></cml:rating>                                         
+          <cml:rating value="5" label="5"></cml:rating>                                           
+        </cml:ratings>
+      </div>
+      <div class="border">
+        <cml:text name="name3" label="Flower type name 3" default="Scientific or common name" instructions="Enter another flower name if you can."></cml:text>
+        <cml:ratings name="confidenceName3" label="Certainty*" validates="required" class="confidence" only-if="name3">
+          <cml:instructions>Choose how certain you are of the correctness of Flower name 3.</cml:instructions>
+          <cml:rating value="1" label="1"></cml:rating>                                         
+          <cml:rating value="2" label="2"></cml:rating>                                         
+          <cml:rating value="3" label="3"></cml:rating>                                         
+          <cml:rating value="4" label="4"></cml:rating>                                         
+          <cml:rating value="5" label="5"></cml:rating>                                            
+        </cml:ratings>
+        </div>
+        <div class="border">
+          <cml:textarea name="references" label="References*" validates="required minLength:10" default="Specify here your strategy used, URLs, book titles, etc. to arrive at the answer."></cml:textarea>
+        </div>
+      </cml:group>
+      
+      <cml:checkboxes label="Or choose one of the following and provide an explanation:" name="other">
+        <cml:checkbox label="The flower(s) in the image are not real (fantasy)." value="fantasy"></cml:checkbox>
+        <cml:checkbox label="Unable to identify of name any flower in the image" value="unable"></cml:checkbox>
+      </cml:checkboxes>
+
+      <cml:group only-if="other:[fantasy]||other:[unable]">
+        <div class="border">
+          <cml:textarea name="unableComment" label="Explanation for 'unable'*" validates="required minLength:10" only-if="other:[unable]" default="Provide an explanation why you are unable to identify or name the flowers for this image."></cml:textarea>
+          <cml:textarea name="fantasyComment" label="Explanation for 'fantasy'*" validates="required minLength:10" only-if="other:[fantasy]" default="Provide an explanation why you think the flowers on this image are not real."></cml:textarea>
+        </div>
+      </cml:group>
+    </div>
+  </div>
+</div>
+<div class="jobComments">
+  <hr />
+  <p>If you have comments, suggestions or critique regarding the job please add them here:</p>
+  <cml:textarea name="jobcomments" label=""></cml:textarea>
+</div>
