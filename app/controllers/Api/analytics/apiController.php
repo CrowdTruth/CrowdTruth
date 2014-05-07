@@ -205,6 +205,26 @@ class apiController extends BaseController
                 $result['annotationContent'][$id]['annotationType'][$index]['job_info'] =  $result['jobContent'][$job_id];
             }
         }
+        return $result;
+    }
+
+    public function getJob()
+    {
+        $result = array();
+     //   $aggregateOperators = $this->processAggregateInput(Input::all());
+        $jobID = Input::get('job');
+        $result['infoStat'] = \MongoDB\Entity::where('_id', $jobID)->get()->toArray()[0];
+	$jobConfID = \MongoDB\Entity::where('_id', $jobID)->lists('jobConf_id');
+        $jobConf = \MongoDB\Entity::whereIn('_id', $jobConfID)->get()->toArray();
+        $result['infoStat']['jobConf'] = $jobConf[0];
+	foreach ($result['infoStat']['metrics']['workers']['withoutFilter'] as $workerId => $value) {
+		$result['infoStat']['workers'][$workerId] = \MongoDB\CrowdAgent::where('_id', $workerId)->get()->toArray()[0];
+		
+	}
+	foreach ($result['infoStat']['results']['withSpam'] as $unitId => $value) {
+		$result['infoStat']['units'][$unitId] = \MongoDB\Entity::where('_id', $unitId)->get()->toArray()[0];
+		
+	}
     
         return $result;
 

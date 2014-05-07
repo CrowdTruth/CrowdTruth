@@ -65,6 +65,7 @@ class apiController extends BaseController {
 				$image->content = $content;
 				$image->documentType = $type;
 				$image->source = $source;
+				$image->tags = ['unit'];
 				$image->activity_id = $activity->_id;
 				$image->softwareAgent_id = "imagegetter";
 				// Take last part of URL as image title
@@ -112,6 +113,7 @@ class apiController extends BaseController {
 			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py " . $domain . " " . $type . " " . $url_ids;
 			//$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py art painting http://lh3.ggpht.com/Q1GZTdmwa8iTLgdbu5uAgzovmLbb7lsYhG-QgVcoN8A-WJtIsNUo4-VyTMd9iKHLp-XNm812WyUaSgQdHdjQjDioJQI=s0 999";
 			//return $command;
+
 			\Log::debug("Running $command");
 		    exec($command, $output, $error);	
 			$return['oo'] = $output; 			
