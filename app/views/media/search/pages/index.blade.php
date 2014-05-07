@@ -97,7 +97,7 @@
 					</div>
 				</div>
 				<div class='col-xs-12 searchResults'>				
-					<ul class="nav nav-tabs documentTypesNav hidden">
+					<ul class="nav nav-tabs documentTypesNav">
 						<li id="all_nav">
 							<a href="#all_tab" data-toggle="tab">
 								All
