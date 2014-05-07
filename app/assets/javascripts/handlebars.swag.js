@@ -172,6 +172,10 @@
       return Utils.err('{{sentence}} takes one argument (string).');
     }
   });
+  
+   Swag.addHelper('formatTime', function(seconds) {
+	return new Date(seconds).toString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+   });
 
   Swag.addHelper('reverse', function(str) {
     if (!Utils.isUndefined(str)) {
@@ -214,6 +218,10 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
         return elseFn();
     }
 });
+
+	Swag.addHelper('type', function(value){
+		this.key = value;
+	});
 
   Swag.addHelper('center', function(str, spaces) {
     var i, space;
