@@ -1,12 +1,34 @@
-function unitsChartFacade() {
-    this.unitsWorkerDetails = new unitsWorkerDetails();
-    this.unitsJobDetails = new unitsJobDetails();
-    this.unitsAnnotationDetails = new unitsAnnotationDetails();
-    this.barChartGraph = new barChartGraph(this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
-    this.pieChartIds = [{name:'domain'},{name:'format'},{field:'user_id',name:'created by',divName:"user"},{field:'content.relation.noPrefix',name:'relation'}];
-    this.pieCharts = [];
-    jobsPieChart = new pieChartGraph('','','in jobs','jobs');
+function unitsChartFacade(category, openModal) {
 
+    this.unitsWorkerDetails = new unitsWorkerDetails(category, openModal);
+    this.unitsDetails = new unitsDetails(category);
+    this.unitsJobDetails = new unitsJobDetails(category);
+    this.unitsAnnotationDetails = new unitsAnnotationDetails(category);
+    this.pieChartIds = [{name:'domain'},{name:'format'},{field:'user_id',name:'created by',divName:"user"}];
+    this.barChartGraph = ""
+
+    if (category == '#twrex-structured-sentence_tab') {
+        this.pieChartIds.push({field:'jobs',name:'jobs',divName:"optional1"});
+        this.pieChartIds.push({field:'content.relation.noPrefix',name:'relation', divName:"optional2"});
+        this.barChartGraph = new unitsBarChartGraph(category, this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
+    } else if ((category == '#fullvideo_tab') || (category == '#fullvideo_tab')){
+        this.pieChartIds.push({field:'inJobs',name:'jobs',divName:"optional1"});
+        this.pieChartIds.push({field:'source',name:'source', divName:"optional2"});
+        this.barChartGraph = new unitsBarChartGraph(category, this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
+    } else if (category == '#job_tab') {
+        this.pieChartIds.push({field:'status',name:'status',divName:"optional1"});
+        this.pieChartIds.push({field:'type',name:'type', divName:"optional2"});
+        this.pieChartIds.push({field:'softwareAgent_id',name:'platform', divName:"optional3"});
+        this.barChartGraph = new jobsBarChartGraph(this.unitsDetails, this.unitsWorkerDetails, this.unitsAnnotationDetails);
+    } else if (category == '#crowdagents_tab'){
+        this.pieChartIds = []
+        this.pieChartIds.push({field:'cache.flagged',name:'flagged',divName:"user"});
+        this.pieChartIds.push({field:'softwareAgent_id',name:'platform',divName:"optional1"});
+        this.pieChartIds.push({field:'country',name:'country', divName:"optional2"});
+        this.barChartGraph = new workersBarChartGraph(this.unitsDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
+    }
+
+    this.pieCharts = [];
 
     for (var pieChartIndex in this.pieChartIds){
         var field = this.pieChartIds[pieChartIndex]['name'];
@@ -17,32 +39,16 @@ function unitsChartFacade() {
         if('divName' in this.pieChartIds[pieChartIndex]){
             divName = this.pieChartIds[pieChartIndex]['divName'];
         }
-        this.pieCharts.push(new pieChartGraph('match[documentType][]=twrex-structured-sentence',
-            field, this.pieChartIds[pieChartIndex]['name'],divName));
-    }
-    this.createJobsPieChart = function(matchStr){
-        //get the count for units in jobs
-        $.getJSON('/api/analytics/aggregate/?' + matchStr + '&sort[created_at]=1' + '&match[cache.jobs.count][>]=0',
-                  function(data) {
-            var chartData = [];
-            chartData.push(['in jobs', data['count']]);
-            $.getJSON('/api/analytics/aggregate/?' + matchStr + '&sort[created_at]=1' + '&match[cache.jobs.count]=0',
-                function(data) {
-                chartData.push(['not in jobs', data['count']]);
-                    console.dir(jobsPieChart);
-                jobsPieChart.drawPieChart(chartData);
-            });
-           console.dir(data);
-        });
+        this.pieCharts.push(new pieChartGraph('',
+            field, this.pieChartIds[pieChartIndex]['name'],divName, this.pieChartIds.length));
     }
 
     this.update = function(matchStr, sortStr){
-        this.unitChartContr.updateBarChart(matchStr,sortStr);
+        this.barChartGraph.updateBarChart(matchStr,sortStr);
         for (var pieChart in this.pieCharts){
             pieChart.updatePieChart(matchStr, sortStr);
         }
         //create the jobs pie chart
-        this.createJobsPieChart(matchStr);
         this.unitsWorkerDetails.createUnitsWorkerDetails();
         this.unitsAnnotationDetails.createUnitsAnnotationDetails();
         this.unitsJobDetails.createUnitsJobDetails();
@@ -59,9 +65,7 @@ function unitsChartFacade() {
             //console.dir(matchStr);
             this.pieCharts[pieChartIndex].createPieChart(matchStr);
 
-            console.dir( this.pieCharts[pieChartIndex]);
         }
-        this.createJobsPieChart(matchStr);
         this.unitsWorkerDetails.createUnitsWorkerDetails();
         this.unitsAnnotationDetails.createUnitsAnnotationDetails();
         this.unitsJobDetails.createUnitsJobDetails();

@@ -1,5 +1,6 @@
-function unitsJobDetails() {
+function unitsJobDetails(category) {
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
+    var queryFields = {'#twrex-structured-sentence_tab': 'unit_id', '#fullvideo_tab': 'unit_id', '#crowdagents_tab': 'crowdAgent_id'};
     var currentSelection = [];
     var unitsJobsInfo = {};
     var spammers = [];
@@ -21,18 +22,15 @@ function unitsJobDetails() {
 
         var categories = [];
         var series = seriesBase;
-        console.dir(categories);
-        console.dir(series);
-        jobsURL = url + 'group=job_id&push[unit_id]=unit_id';
+        jobsURL = url + 'project[' + queryFields[category] + ']=' + queryFields[category] +
+            '&group=job_id&push[' + queryFields[category] + ']=' + queryFields[category];
         for (var iterSeries in series) {
             series[iterSeries]['data'] = [];
         }
 
         //get the list of workers for this units
         $.getJSON(jobsURL, function (data) {
-            console.dir(data);
             data.sort(compare);
-            console.dir(series);
             var urlJobMatchStr = "";
             for (var iterData in data) {
                 urlJobMatchStr += "&match[_id][]=" + data[iterData]['_id'];
@@ -40,8 +38,8 @@ function unitsJobDetails() {
                 for (var iterSeries in series) {
                     var unit_id = series[iterSeries]['name'];
                     var value = 0;
-                    for (var iterUnits in data[iterData]['unit_id']) {
-                        if (data[iterData]['unit_id'][iterUnits] == unit_id) {
+                    for (var iterUnits in data[iterData][queryFields[category]]) {
+                        if (data[iterData][queryFields[category]][iterUnits] == unit_id) {
                             value++;
                         }
                     }
@@ -50,10 +48,20 @@ function unitsJobDetails() {
                 }
             }
             var requests = [];
+            var seriesName = 'clarity_';
+            if (queryFields[category] == 'crowdAgent_id') {
+                seriesName = 'agreement_';
+            }
             for (var iterSeries in series) {
-                categories.push('clarity_' + series[iterSeries]['name']);
+                categories.push(seriesName + series[iterSeries]['name']);
+
+                var specificQuery = '&project[metric]=metrics.units.withoutSpam.' + series[iterSeries]['name'] + '.max_relation_Cos.avg';
+                if (queryFields[category] == 'crowdAgent_id') {
+                    specificQuery = '&project[metric]=metrics.workers.withFilter.' + series[iterSeries]['name'] + '.avg_worker_agreement.avg';
+                }
+
                 var urlJobData = '/api/analytics/aggregate/?match[documentType]=job&sort[created_at]=1' + urlJobMatchStr +
-                    '&project[metric]=metrics.units.withoutSpam.' + series[iterSeries]['name'] + '.max_relation_Cos' +
+                    specificQuery +
                     '&project[id]=_id' +
                     '&push[id]=id&push[metric]=metric';
                 requests.push($.get(urlJobData));
@@ -62,14 +70,12 @@ function unitsJobDetails() {
             defer.done(function () {
 
                 if (arguments[1] == 'success'){
-                    console.dir(arguments[0]);
-                    series.push({'name': 'clarity_' + series[0]['name'], data: arguments[0]['metric'],  yAxis: 1,
+                    series.push({'name': seriesName + series[0]['name'], data: arguments[0]['metric'],  yAxis: 1,
                         type: 'spline'});
                 } else {
                     $.each(arguments, function (index, responseData) {
-                        series.push({'name': 'clarity ' + series[index]['name'], data: responseData[0]['metric'],  yAxis: 1,
+                        series.push({'name': seriesName + series[index]['name'], data: responseData[0]['metric'],  yAxis: 1,
                             type: 'spline'});
-                        console.dir(responseData[0]);
                     });
                 }
                 drawBarChart(series, categories);
@@ -83,13 +89,14 @@ function unitsJobDetails() {
 
         barChart = new Highcharts.Chart({
             chart: {
+                zoomType: 'xy',
                 renderTo: 'jobsBar_div',
                 type: 'column',
                 width: (3*(($('.maincolumn').width() - 50)/5)),
                 height: 400
             },
             title: {
-                text: 'Units distributed across jobs'
+                text: 'Annotations of jobs'
             },
 
             xAxis: {
@@ -126,10 +133,11 @@ function unitsJobDetails() {
                     opposite:true
                 }],
             tooltip: {
+                crosshairs: true,
                 shared: true,
                 useHTML: true,
                 headerFormat: '<b>Job {point.key}</b></br><p>(Click for details)</p><table>',
-                pointFormat: '<tr><td style="color: {series.color}">{series.name}: </td>' +
+                pointFormat: '<tr><td style="color: {series.color};text-align: left">{series.name}: </td>' +
                     '<td style="text-align: right"><b>{point.y} annotations</b></td></tr>',
                 footerFormat: '</table>',
                 valueDecimals: 2
@@ -150,7 +158,6 @@ function unitsJobDetails() {
                     point: {
                         events: {
                             click: function () {
-                                console.dir(this);
                                 getJobInfo(this.category);
 
 
@@ -181,7 +188,6 @@ function unitsJobDetails() {
         urlJobSet += 'sort[created_at]=1&project[jobs]=job_id&addToSet=jobs';
 
         $.getJSON(url, function (data) {
-            console.dir(data);
             var sentenceData = data;
             //get all the job ids
 
@@ -205,7 +211,6 @@ function unitsJobDetails() {
                 }
                 result['body'] += '</dl>';
                 $('#myModal .modal-title').html(result['title']);
-                console.dir(result['body']);
                 $('#myModal .modal-body').html(result['body']);
                 $('#myModal').modal('show');
 
@@ -218,8 +223,6 @@ function unitsJobDetails() {
 
     }
     var drawPieChart = function (platform, spam) {
-        console.dir(platform);
-        console.dir(spam);
         pieChart = new Highcharts.Chart({
             chart: {
                 renderTo: 'jobsPie_div',
@@ -228,10 +231,10 @@ function unitsJobDetails() {
                 height: 400
             },
             title: {
-                text: 'Jobs in which the units were annotated'
+                text: 'Jobs of the selected elements'
             },
             subtitle: {
-                text: 'Click to see the distribution of units per jobs'
+                text: 'Click a category to see the distribution of annotations per jobs'
             },
             yAxis: {
                 title: {
@@ -272,7 +275,6 @@ function unitsJobDetails() {
                                 }
 
 
-                                console.dir(barChart.series[0].data);
                                 /* console.dir(urlBase + this.options.match + '&');
                                  getWorkersData(urlBase + this.options.match + '&');
                                  ///pieChart.series[this.options.ser_nr].data[this.x].select(null,true);
@@ -331,21 +333,20 @@ function unitsJobDetails() {
 
 
     this.update = function (selectedUnits) {
-        console.dir(selectedUnits);
 
         currentSelection = selectedUnits;
         seriesBase = [];
         urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
         //create the series data
         for (var indexUnits in selectedUnits) {
-            urlBase += 'match[unit_id][]=' + selectedUnits[indexUnits] + '&';
+            urlBase += 'match['+ queryFields[category] + '][]=' + selectedUnits[indexUnits] + '&';
             seriesBase.push({'name': selectedUnits[indexUnits], data: [],  yAxis: 0,
                 type: 'column'});
         }
 
 
         getJobsData(urlBase);
-        platformURL = urlBase + 'group=softwareAgent_id&addToSet=job_id';
+        platformURL = urlBase + 'project[job_id]=job_id&group=softwareAgent_id&addToSet=job_id';
         $.getJSON(platformURL, function (data) {
             var platformData = [];
             var categoriesData = [];
@@ -366,7 +367,7 @@ function unitsJobDetails() {
                 for (var jobIter in data[platformIter]['content']) {
                     urlType += 'match[_id][]='+data[platformIter]['content'][jobIter] + '&';
                 }
-                urlType += '&group=type&addToSet=_id';
+                urlType += '&project[_id]=_id&group=type&addToSet=_id';
                 requests.push($.get(urlType));
 
             }
@@ -380,8 +381,6 @@ function unitsJobDetails() {
                             responseData = responseData[0];
                         }
                         for (var iterObj in responseData) {
-                            console.dir(iterObj);
-                            console.dir(responseData[iterObj])
 
                             categoriesData.push({name: responseData[iterObj]['_id'],
                                 type: responseData[iterObj]['_id'],
@@ -393,7 +392,6 @@ function unitsJobDetails() {
                     }
                 });
                 drawPieChart(platformData, categoriesData);
-                console.dir(unitsJobsInfo);
             });
 
         });
@@ -405,7 +403,6 @@ function unitsJobDetails() {
     }
 
     this.createUnitsJobDetails = function () {
-
     }
 
 }

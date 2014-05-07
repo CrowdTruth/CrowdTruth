@@ -226,6 +226,7 @@ var createUnitBarChart = function(data){
 
     $('#barChartDetails').highcharts({
         chart: {
+            zoomType: 'xy',
             type: 'column',
             width: 500,
             height: 500
