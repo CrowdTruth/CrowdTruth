@@ -198,7 +198,7 @@
 			            <td data-vbIdentifier="domain">@{{ this.domain }}</td>
 			            <td data-vbIdentifier="relation">@{{ this.content.relation.noPrefix }}</td>
 				    <td data-vbIdentifier="sent_id">
-					<a class='testModal' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
+					<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
 						@{{ this._id }}
 					</a>
 				    </td>
