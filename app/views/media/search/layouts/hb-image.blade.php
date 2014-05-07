@@ -5,7 +5,7 @@
  * Time: 7:58 PM
  */
 
-<div class="tab-pane" id="image_tab">
+<div class="tab-pane" id="painting_tab">
 	<div class='row'>
 		<div class='searchOptions col-xs-12'>
 			<div class="btn-group pull-left">
