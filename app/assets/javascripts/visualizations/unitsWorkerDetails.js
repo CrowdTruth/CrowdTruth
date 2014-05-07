@@ -1,4 +1,4 @@
-function unitsWorkerDetails(category) {
+function unitsWorkerDetails(category, openModal) {
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
     var unitsWorkersInfo = {};
     var currentSelection = [];
@@ -187,7 +187,25 @@ function unitsWorkerDetails(category) {
                     point: {
                         events: {
                             click: function () {
-                                result = getWorkerInfo(this.category);
+
+                                urlBase = "";
+                                for (var indexUnits in currentSelection) {
+                                    urlBase += 'match['+ queryFields[category] + '][]=' + currentSelection[indexUnits] + '&';
+                                }
+                                anchorModal = $('<a class="testModal"' +
+                                    'data-modal-query="agent=' + this.category + '&' + urlBase + '" data-api-target="http://10.11.12.13/api/analytics/worker?" ' +
+                                    'data-target="#modalIndividualWorker" data-toggle="tooltip" data-placement="top" title="" ' +
+                                    'data-original-title="Click to see the individual worker page">6345558 </a>');
+                                //$('body').append(anchorModal);
+                                openModal(anchorModal, "#crowdagents_tab");
+
+                                 //$('#6345558').click();
+
+//                                console.dir('#'+ this.category);
+//                                var arrayUnit = this.category.split("/");
+//                                var value = arrayUnit[arrayUnit.length - 1];
+//                                console.dir('#'+value);
+//                                $('#'+value).click();
 
 
                             }

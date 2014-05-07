@@ -39,7 +39,6 @@ class apiController extends BaseController {
 	public function postFeatures(){
 		$return = array('status'=>'ok');
 		$input = Input::get();
-		dd($input);
 		$domain = $input[1];
 		$type = $input[2];
 		
@@ -51,7 +50,7 @@ class apiController extends BaseController {
 		// LOOP THROUGH IMAGES CREATE ENTITIES WITH ACTIVITY-ID FOR NEW IMAGES
 		$url_ids = "";
 		foreach ($input[0] as $img){
-			
+
 			try {
 				
 				$parse = parse_url($img);
@@ -98,6 +97,9 @@ class apiController extends BaseController {
 				//Session::flash('flashError', $e->getMessage());
 				$return['error'] = $e->getMessage();
 				$return['status'] = 'bad';
+
+				\Log::debug($e->getMessage());
+
 				return $return;
 			
 			}
@@ -105,10 +107,12 @@ class apiController extends BaseController {
 		}
 		//return $url_ids;
 		try {
+
 			//$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . 4 . " " . "vogel";
 			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py " . $domain . " " . $type . " " . $url_ids;
 			//$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py art painting http://lh3.ggpht.com/Q1GZTdmwa8iTLgdbu5uAgzovmLbb7lsYhG-QgVcoN8A-WJtIsNUo4-VyTMd9iKHLp-XNm812WyUaSgQdHdjQjDioJQI=s0 999";
 			//return $command;
+			\Log::debug("Running $command");
 		    exec($command, $output, $error);	
 			$return['oo'] = $output; 			
 			$return['ee'] = $error;
@@ -118,6 +122,7 @@ class apiController extends BaseController {
 
 		} catch (Exception $e){
 			//throw $e; // for debugging.
+			\Log::debug($e->getMessage());
 			$return['error'] = $e->getMessage();
 			$return['status'] = 'bad';
 		} 

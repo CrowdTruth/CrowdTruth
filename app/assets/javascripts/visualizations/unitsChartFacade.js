@@ -1,6 +1,6 @@
-function unitsChartFacade(category) {
+function unitsChartFacade(category, openModal) {
 
-    this.unitsWorkerDetails = new unitsWorkerDetails(category);
+    this.unitsWorkerDetails = new unitsWorkerDetails(category, openModal);
     this.unitsDetails = new unitsDetails(category);
     this.unitsJobDetails = new unitsJobDetails(category);
     this.unitsAnnotationDetails = new unitsAnnotationDetails(category);

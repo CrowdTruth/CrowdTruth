@@ -265,7 +265,6 @@
                                 </div>
                             </div>
                         </div>
-
 						<script class='searchStatsTemplate' type="text/x-handlebars-template">
 							Showing @{{ count.from }} to @{{ count.to }} of @{{ count.total}} entries
 						</script>
@@ -719,7 +718,7 @@ function getResults(baseApiURL){
 		if($('.graphViewButton').hasClass('hidden')){
             var selectedCategory = activeTabKey;
 			$(activeTabKey + ' .checkAll').removeAttr('checked');
-			var unitsChart = new unitsChartFacade(selectedCategory);
+			var unitsChart = new unitsChartFacade(selectedCategory, openModal);
 			unitsChart.init(getTabFieldsQuery(),"");		
 		}
 
@@ -829,98 +828,103 @@ var updateFilters = function(filterOption){
 		filterOption.children('i').removeClass('fa-circle-o').addClass('fa-check-circle-o');
 	}	
 }
+var openModal = function(modalAnchor , activeTabKey){
+    if(baseApiURL == undefined)
+    {
+        var baseApiURL = modalAnchor.attr('data-api-target');
+    }
+    console.log(modalAnchor);
+    //var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
+    var modalTarget = modalAnchor.attr('data-target');
+    //alert(modalTarget);
+
+    var query = modalAnchor.attr('data-modal-query');
+    console.log(baseApiURL + query);
+    $.getJSON(baseApiURL + query, function(data) {
+        console.dir(activeTabKey);
+
+        var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+
+        var html = template(data);
+
+        $('#activeTabModal').remove();
+
+        $('body').append(html);
+
+        $('#activeTabModal').modal();
+
+        $(".tablesorter.table.table-striped").tablesorter({
+            // *** Appearance ***
+            // fix the column widths
+            widthFixed : true,
+            // include zebra and any other widgets, options:
+            // 'uitheme', 'filter', 'stickyHeaders' & 'resizable'
+            // the 'columns' widget will require custom css for the
+            // primary, secondary and tertiary columns
+            widgets    : [ 'uitheme', 'zebra' ],
+
+            // *** Functionality ***
+            // starting sort direction "asc" or "desc"
+            sortInitialOrder : "asc",
+            // extract text from the table - this is how is
+            // it done by default
+            textExtraction : {
+                0: function(node) { return $(node).text(); },
+                1: function(node) { return $(node).text(); }
+            },
+
+            // Setting this option to true will allow you to click on the
+            // table header a third time to reset the sort direction.
+            sortReset: true,
+
+            // The key used to select more than one column for multi-column
+            // sorting.
+            sortMultiSortKey : "shiftKey",
+
+            // *** Customize header ***
+            onRenderHeader  : function() {
+                // the span wrapper is added by default
+                $(this).find('span').addClass('headerSpan');
+            },
+            // jQuery selectors used to find the header cells.
+            selectorHeaders : 'thead th',
+
+            // *** css classes to use ***
+            cssAsc        : "headerSortUp",
+            cssChildRow   : "expand-child",
+            cssDesc       : "headerSortDown",
+            cssHeader     : "header",
+            tableClass    : 'tablesorter',
+
+            // *** widget css class settings ***
+            // column classes applied, and defined in the skin
+            widgetColumns : { css: ["primary", "secondary", "tertiary"] },
+            // find these jQuery UI class names by hovering over the
+            // Framework icons on this page:
+            // http://jqueryui.com/themeroller/
+            widgetUitheme : { css: [
+                "ui-icon-arrowthick-2-n-s", // Unsorted icon
+                "ui-icon-arrowthick-1-s",   // Sort up (down arrow)
+                "ui-icon-arrowthick-1-n"    // Sort down (up arrow)
+            ]
+            },
+            // pick rows colors to match ui theme
+            widgetZebra: { css: ["ui-widget-content", "ui-state-default"] },
+
+            // *** prevent text selection in header ***
+            cancelSelection : true,
+
+            // *** send messages to console ***
+            debug : false
+        });
+
+    });
+}
 
 $('body').on('click', '.testModal', function(){
-	if(baseApiURL == undefined)
-	{
-		
-		var baseApiURL = $(this).attr('data-api-target');
-	}
-	console.log(baseApiURL);
-	var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
-	var modalTarget = $(this).attr('data-target');
-	//alert(modalTarget);
+    var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
+    openModal($(this),activeTabKey);
 
-	var query = $(this).attr('data-modal-query');
-		console.log(baseApiURL + query);
-		$.getJSON(baseApiURL + query, function(data) {
-		console.log(data);
-
-		var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
-
-		var html = template(data);
-	
-		$('#activeTabModal').remove();
-		$('body').append(html);
-	
-		$('#activeTabModal').modal();
-		$(".tablesorter.table.table-striped").tablesorter({
-		    // *** Appearance ***
-		    // fix the column widths
-		    widthFixed : true,
-		    // include zebra and any other widgets, options:
-		    // 'uitheme', 'filter', 'stickyHeaders' & 'resizable'
-		    // the 'columns' widget will require custom css for the
-		    // primary, secondary and tertiary columns
-		    widgets    : [ 'uitheme', 'zebra' ],
-		    
-		    // *** Functionality ***
-		    // starting sort direction "asc" or "desc"
-		    sortInitialOrder : "asc",
-		    // extract text from the table - this is how is
-		    // it done by default
-		    textExtraction : {
-			0: function(node) { return $(node).text(); },
-			1: function(node) { return $(node).text(); }
-		    },
-   
-		    // Setting this option to true will allow you to click on the
-		    // table header a third time to reset the sort direction.
-		    sortReset: true,
-    
-		    // The key used to select more than one column for multi-column
-		    // sorting.
-		    sortMultiSortKey : "shiftKey",
-
-		    // *** Customize header ***
-		    onRenderHeader  : function() {
-			// the span wrapper is added by default
-			$(this).find('span').addClass('headerSpan');
-		    },
-		    // jQuery selectors used to find the header cells.
-		    selectorHeaders : 'thead th',
-
-		    // *** css classes to use ***
-		    cssAsc        : "headerSortUp",
-		    cssChildRow   : "expand-child",
-		    cssDesc       : "headerSortDown",
-		    cssHeader     : "header",
-		    tableClass    : 'tablesorter',
-
-		    // *** widget css class settings ***
-		    // column classes applied, and defined in the skin
-		    widgetColumns : { css: ["primary", "secondary", "tertiary"] },
-		    // find these jQuery UI class names by hovering over the
-		    // Framework icons on this page:
-		    // http://jqueryui.com/themeroller/
-		    widgetUitheme : { css: [
-			"ui-icon-arrowthick-2-n-s", // Unsorted icon
-			"ui-icon-arrowthick-1-s",   // Sort up (down arrow)
-			"ui-icon-arrowthick-1-n"    // Sort down (up arrow)
-			]
-		    },
-		    // pick rows colors to match ui theme
-		    widgetZebra: { css: ["ui-widget-content", "ui-state-default"] },
-
-		    // *** prevent text selection in header ***
-		    cancelSelection : true,
-
-		    // *** send messages to console ***
-		    debug : true
-		});
-	
-	});
-	
 });
 
 @if(Request::segment(1) == 'jobs')

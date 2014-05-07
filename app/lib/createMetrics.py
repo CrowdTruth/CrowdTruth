@@ -21,7 +21,7 @@ from Metrics.TaskMetrics.Task import *
 # template = response[0]['template'];
 # #s = Task(job, sys.argv[2])
 template = "entity/text/medical/RelDir/Relation_Direction/0"
-job_id = "entity/text/medical/job/10"
+job_id = "entity/text/medical/job/12"
 s = Task([job_id],template,0);
 metrics = s.create_metrics()
 

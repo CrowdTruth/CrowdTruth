@@ -365,6 +365,13 @@ class apiController extends BaseController
         return $spammersSet['result'][0]['spammers'];
     }
 
+    public function getUnitvector() {
+        $template = Input::get('template');
+        $aggregateOperators = $this->processAggregateInput(Input::all());
+
+
+    }
+
     public function getPiegraph()
     {
         if (!(Input::has('group'))) {
