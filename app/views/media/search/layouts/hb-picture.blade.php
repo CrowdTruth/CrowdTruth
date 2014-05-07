@@ -37,26 +37,26 @@
 	    <table class="table table-striped">
 	       	<thead data-query-key="match[documentType]" data-query-value="picture">
 		        <tr>
-		            <th data-vbIdentifier="checkbox">Select</th>
-		            <th class="sorting" data-vbIdentifier="image_id" data-query-key="orderBy[_id]">ID</th>
-		            <th class="sorting" data-vbIdentifier="image_content" data-query-key="orderBy[content.URL]">Thumbnail</th>
-		            <th class="sorting" data-vbIdentifier="image_title" data-query-key="orderBy[title]">Title</th>
-		            <th class="sorting" data-vbIdentifier="image_domain" data-query-key="orderBy[domain]">Domain</th>
-		            <th class="sorting" data-vbIdentifier="image_source" data-query-key="orderBy[source]">Source</th>
-			    	<th class="sorting" data-vbIdentifier="image_url" data-query-key="orderBy[content.url]">URL</th>
-		            <th class="sorting" data-vbIdentifier="image_width" data-query-key="orderBy[content.width]">Width</th>
-				    <th class="sorting" data-vbIdentifier="image_height" data-query-key="orderBy[content.height]">Height</th>
-				    <th class="sorting" data-vbIdentifier="image_object" data-query-key="orderBy[content.features.Object.matches]">Objects</th>
-				    <th class="sorting" data-vbIdentifier="image_scene" data-query-key="orderBy[content.features.Scene]">Scene</th>
-				    <th class="sorting" data-vbIdentifier="image_classifiers" data-query-key="orderBy[content.features.Classifier]">Classifiers</th>
-				    <th class="sorting" data-vbIdentifier="image_facesrek" data-query-key="orderBy[content.features.FacesRekognition]">FacesRekognition</th>
-				    <th class="sorting" data-vbIdentifier="image_faces" data-query-key="orderBy[content.features.Faces]">Faces</th>
-				    <th class="sorting" data-vbIdentifier="image_facesnum" data-query-key="orderBy[content.features.FacesNumber.cloudinary]"># Faces</th>
-				    <th class="sorting" data-vbIdentifier="image_colors" data-query-key="orderBy[content.features.ColorsMain]">Main colors</th>
-				    <th class="sorting" data-vbIdentifier="image_histogram" data-query-key="orderBy[content.features.ColorsHistogram]">Histogram</th>
-				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[batches.count]">Used In # of Batches</th>
-				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[jobs.count]">Used In # of Jobs</th>     
-				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;">Created At</th>
+		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>
+		            <th class="sorting" data-vbIdentifier="image_id" data-query-key="orderBy[_id]" data-toggle="tooltip" data-placement="top" title="The ID of the image">ID</th>
+		            <th class="sorting" data-vbIdentifier="image_content" data-query-key="orderBy[content.URL]" data-toggle="tooltip" data-placement="top" title="Thumbnail of the image (240x160px)">Thumbnail</th>
+		            <th class="sorting" data-vbIdentifier="image_title" data-query-key="orderBy[title]" data-toggle="tooltip" data-placement="top" title="The image filename">Title</th>
+		            <th class="sorting" data-vbIdentifier="image_domain" data-query-key="orderBy[domain]" data-toggle="tooltip" data-placement="top" title="The domain the image is uploaded under">Domain</th>
+		            <th class="sorting" data-vbIdentifier="image_source" data-query-key="orderBy[source]" data-toggle="tooltip" data-placement="top" title="The source of the image, in case of API this is the hostname">Source</th>
+			    	<th class="sorting" data-vbIdentifier="image_url" data-query-key="orderBy[content.url]" data-toggle="tooltip" data-placement="top" title="The full URL of the image, follow the URL for the original image">URL</th>
+		            <th class="sorting" data-vbIdentifier="image_width" data-query-key="orderBy[content.width]" data-toggle="tooltip" data-placement="top" title="The width of the image in px">Width</th>
+				    <th class="sorting" data-vbIdentifier="image_height" data-query-key="orderBy[content.height]" data-toggle="tooltip" data-placement="top" title="The height of the image in px">Height</th>
+				    <th class="sorting" data-vbIdentifier="image_object" data-query-key="orderBy[content.features.Object.matches]" data-toggle="tooltip" data-placement="top" title="Objects together with their confidence score that were found in the image">Objects</th>
+				    <th class="sorting" data-vbIdentifier="image_scene" data-query-key="orderBy[content.features.Scene]" data-toggle="tooltip" data-placement="top" title="The scene with a confidence score that was found in the image">Scene</th>
+				    <th class="sorting" data-vbIdentifier="image_classifiers" data-query-key="orderBy[content.features.Classifier]" data-toggle="tooltip" data-placement="top" title="Custom classifier confidence scores for this image">Classifiers</th>
+				    <th class="sorting" data-vbIdentifier="image_facesrek" data-query-key="orderBy[content.features.FacesRekognition]" data-toggle="tooltip" data-placement="top" title="Result of the FacesRekognition API">FacesRekognition</th>
+				    <th class="sorting" data-vbIdentifier="image_faces" data-query-key="orderBy[content.features.Faces]" data-toggle="tooltip" data-placement="top" title="Result of the faces API">Faces</th>
+				    <th class="sorting" data-vbIdentifier="image_facesnum" data-query-key="orderBy[content.features.FacesNumber.cloudinary]" data-toggle="tooltip" data-placement="top" title="Number of faces recognized in the image by the different APIs. For sorting and applying filters the Cloudinary score takes prominence."># Faces</th>
+				    <th class="sorting" data-vbIdentifier="image_colors" data-query-key="orderBy[content.features.ColorsMain]" data-toggle="tooltip" data-placement="top" title="Main colors recognized in the image, the size of the bar indicates its percentage. Hover over for details.">Main colors</th>
+				    <th class="sorting" data-vbIdentifier="image_histogram" data-query-key="orderBy[content.features.ColorsHistogram]" data-toggle="tooltip" data-placement="top" title="A histogram of the colors found in the image, the size of the ba indicates its percentage. Hover over for details. ">Histogram</th>
+				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[batches.count]" data-toggle="tooltip" data-placement="top" title="Number of batches in which this image is used">Used In # of Batches</th>
+				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[jobs.count]" data-toggle="tooltip" data-placement="top" title="Number of jobs in which this image is used">Used In # of Jobs</th>     
+				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="The time at which this image was uploaded to CrowdTruth">Created At</th>
 		        </tr>
 			<tr class="inputFilters">
 				<td data-vbIdentifier="checkbox">
@@ -174,7 +174,7 @@
 								    	<tbody>
 											<tr>
 								    		@{{#each this.content.features.ColorsMain }}
-												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;'>
+												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
 													&nbsp;
 												</td>
 											@{{/each}}									
@@ -188,7 +188,7 @@
 								    	<tbody>
 											<tr>
 								    		@{{#each this.content.features.ColorsHistogram }}
-												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;'>
+												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
 													&nbsp;
 												</td>
 											@{{/each}}									
