@@ -146,7 +146,7 @@ class apiController extends BaseController {
 		$entity = new Entity;
 		$entity->format = 'image';
 		$entity->domain = $data['domain'];
-		$entity->tag = $data['tag'];
+		$entity->tags = $data['tags'];
 		$entity->documentType = $data['documentType'];
 		$entity->softwareAgent_configuration = $data['softwareAgent_configuration'];
 		

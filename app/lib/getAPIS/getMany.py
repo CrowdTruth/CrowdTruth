@@ -86,7 +86,7 @@ for iter in range(3, len(sys.argv), 2):
     data['content'] = {}
     data['parents'] = [parentID]
     data['domain'] = sys.argv[1]
-    data['tag'] = 'unit'
+    data['tags'] = ['unit']
     #data['documentType'] = sys.argv[2]
     data['content']['URL'] = ImURL
     

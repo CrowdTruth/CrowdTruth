@@ -65,7 +65,7 @@ class apiController extends BaseController {
 				$image->content = $content;
 				$image->documentType = $type;
 				$image->source = $source;
-				$image->tag = 'unit';
+				$image->tags = ['unit'];
 				$image->activity_id = $activity->_id;
 				$image->softwareAgent_id = "imagegetter";
 				// Take last part of URL as image title
