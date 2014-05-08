@@ -24,14 +24,14 @@
 			<div class='row'>
 				<div class='col-xs-12 searchOptions'>
 					@if(isset($mainSearchFilters['formats_OFF']))
-						<select name="format" data-query-key="match[format][]" class="selectpicker pull-left" title='Choose format(s)' data-width="auto" multiple>
+						<select name="format" data-query-key="match[format][]" class="selectpicker pull-left" title="Choose format(s)" data-width="auto" multiple>
 							@foreach($mainSearchFilters['formats'] as $key => $value)	
 							<option value="{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
 							@endforeach
 						</select>	
 					@endif
 					@if(isset($mainSearchFilters['domains_OFF']))
-						<select name="domain" data-query-key="match[domain][]" class="selectpicker pull-left" title='Choose domain(s)' data-width="auto" multiple>
+						<select name="domain" data-query-key="match[domain][]" class="selectpicker pull-left" title="Choose domain(s)" data-width="auto" multiple>
 							@foreach($mainSearchFilters['domains'] as $key => $value)	
 							<option value="{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
 							@endforeach
@@ -40,15 +40,15 @@
 
 @if(isset($mainSearchFilters['documentTypes']))
 	@if(Request::segment(1) == 'jobs')
-		<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title='Jobs' data-width="auto" data-show-subtext="true">
+		<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Jobs" data-width="auto" data-show-subtext="true">
 			<option value="job" class="select_job" data-subtext="{{ $mainSearchFilters['documentTypes']['job']['count'] }} Items">Jobs</option>
 		</select>	
 	@elseif(Request::segment(1) == 'workers')
-		<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title='Jobs' data-width="auto" data-show-subtext="true">
+		<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Jobs" data-width="auto" data-show-subtext="true">
 			<option value="crowdagents" class="select_crowdagents" data-subtext="{{ $mainSearchFilters['documentTypes']['crowdagents']['count'] }} Items">Workers</option>
 		</select>	
 	@else
-	<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title='Choose Document-Type(s)' data-width="auto" data-show-subtext="true">
+	<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
 		<optgroup label="Media-Type">	
 			<option value="all" class="select_all" data-subtext="Items">All</option>
 			@foreach($mainSearchFilters['documentTypes'] as $key => $value)
@@ -838,6 +838,8 @@ var openModal = function(modalAnchor , activeTabKey){
     var modalTarget = modalAnchor.attr('data-target');
     //alert(modalTarget);
 
+    $('#activeTabModal').remove();
+
     var query = modalAnchor.attr('data-modal-query');
     console.log(baseApiURL + query);
     $.getJSON(baseApiURL + query, function(data) {
@@ -846,8 +848,6 @@ var openModal = function(modalAnchor , activeTabKey){
         var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
 
         var html = template(data);
-
-        $('#activeTabModal').remove();
 
         $('body').append(html);
 
