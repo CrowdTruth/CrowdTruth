@@ -870,10 +870,16 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			// Success.
 			//Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
 			//				strtoupper(implode(', ', $jc->content['platform'])) . '.');
-			Session::flash('flashSuccess', "Created job" . (count($jc->content['platform']) == 1 ? '' : 's') . " on " . 
-							strtoupper(implode(', ', $jc->content['platform'])) . (Auth::user()->role == 'demo' ? '. Because this is a demo account, you can not order it. Please take a look at our finished jobs!' : '. Click on \'actions\' on the job to order it.'));
-			return Redirect::to("jobs/listview");
+			$successmessage = "Created job" . (count($jc->content['platform']) > 1 ? 's' : '') . " on " . 
+							strtoupper(implode(', ', $jc->content['platform'])) . '. Order it by pressing the button under \'Actions\'. Demo jobs are published on the sandbox or internal channels only.';
 
+			// TODO: this only takes the first job of potentially two
+			if(!empty($jobs[0]->url))
+				$successmessage .= ". After that, you can view it <a href='{{$jobs[0]->url}}' target='blank'>here</a>.";
+
+			Session::flash('flashSuccess', $successmessage);
+			return Redirect::to("jobs/");
+//(Auth::user()->role == 'demo' ? '. Because this is a demo account, you can not order it. Please take a look at our finished jobs!' : '. Click on \'actions\' on the job to order it.')
 		} catch (Exception $e) {
 
 			// Undo creation and delete jobs
@@ -887,6 +893,8 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			//delete activity
 			if($activity) $activity->forceDelete();
 			
+			//throw $e; //for debugging
+
 			Session::flash('flashError', $e->getMessage());
 			return Redirect::to("process/submit");
 		}
@@ -901,6 +909,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	private function makeDirTreeJSON($currenttemplate, $format, $pretty = true){
 		$r = array();
 		$path = Config::get('config.templatedir') . $format . '/';
+
 		foreach(File::directories($path) as $dir){
 			$dirname = substr($dir, strlen($path));
 		   	if($pretty) $displaydir = ucfirst(str_replace('_', ' ', $dirname));

@@ -23,8 +23,11 @@ class Job extends Entity {
 
         static::saving(function( $job )
         {
-            \MongoDB\Temp::whereIn('_id', ['mainSearchFilters', 'jobCache'])->forceDelete();
+            \Log::debug('Clearing jobCache and mainSearchFilters.');
+            \MongoDB\Temp::whereIn('_id', ['mainSearchFilters', 'jobCache', $job->_id])->forceDelete();
         });
+
+
 
         static::creating(function ( $job )
         {
@@ -78,10 +81,14 @@ class Job extends Entity {
     */
     public function publish($sandbox = false){
     	try {
-	    	$platformJobId = $this->getPlatform()->publishJob($this, $sandbox);
-	    	$this->platformJobId = $platformJobId; // NB: mongo is strictly typed and CF has Int jobid's!!!
-	    	$this->status = ($sandbox ? 'unordered' : 'running');
-	    	$this->save();
+	    	$response = $this->getPlatform()->publishJob($this, $sandbox);
+	    	$this->platformJobId = (string) $response['id']; // NB: mongo is strictly typed and CF has Int jobid's!!!
+	    	
+            if(isset($response['url']))
+                $this->url = $response['url'];
+
+            $this->status = ($sandbox ? 'unordered' : 'running');
+	    	$this->update();
     	} catch (Exception $e) {
             Log::debug("Error creating job: {$e->getMessage()}");
     		$this->undoCreation($this->platformJobId, $e);
@@ -95,25 +102,25 @@ class Job extends Entity {
     	$this->status = 'running';
         if(empty($this->startedAt))
             $this->startedAt = new MongoDate;
-    	$this->save();
+    	$this->update();
     }
 
     public function pause(){
     	$this->getPlatform()->pauseJob($this->platformJobId);
     	$this->status = 'paused';
-    	$this->save();
+    	$this->update();
     }
 
     public function resume(){
     	$this->getPlatform()->resumeJob($this->platformJobId);
     	$this->status = 'running';
-    	$this->save();
+    	$this->update();
     }
 
     public function cancel(){
     	$this->getPlatform()->cancelJob($this->platformJobId);
     	$this->status = 'cancelled';
-    	$this->save();
+    	$this->update();
     }
 
     private function getPlatform(){

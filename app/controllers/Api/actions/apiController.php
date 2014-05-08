@@ -11,6 +11,7 @@ use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDB\CrowdAgent as CrowdAgent;
 use \Job;
+use \Auth;
 use \Exception;
 
 class apiController extends BaseController {
@@ -148,7 +149,10 @@ class apiController extends BaseController {
 					if(!$job)
 						throw new Exception('Job not found.');
 					
-					$this->authenticateUser();
+					if($job->user_id != Auth::user()->_id)
+						throw new Exception('You can only do this with your own job!');
+
+					//$this->authenticateUser();
 
 					switch ($action) {
 						case 'pause':

@@ -956,11 +956,9 @@ var openStaticModal = function(modalAnchor , activeTabKey){
 		        data : postData,
 		        success:function(data, textStatus, jqXHR) 
 		        {
-		            //if(data.status == 'bad'){
-		            	console.log(data);
-		            	alert(data.message);
+	            	console.log(data);
+	            	alert(data.message);
 		            	
-		           // }
 		        },
 		        error: function(jqXHR, textStatus, errorThrown) 
 		        {
@@ -968,9 +966,11 @@ var openStaticModal = function(modalAnchor , activeTabKey){
 		        }
 		    });
 		    e.preventDefault(); //STOP default action
-		    //e.unbind(); //unbind. to stop multiple form submit.
+		    e.unbind(); //unbind. to stop multiple form submit.
 		});
 }
+
+
 
 $('body').on('click', '.testModal', function(){
     var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
@@ -981,6 +981,8 @@ $('body').on('click', '.testModal', function(){
    	 	openModal($(this),activeTabKey);
 	}
 });
+
+
 
 @if(Request::segment(1) == 'jobs')
 	$('.select_job').click();
@@ -993,7 +995,52 @@ $('body').on('click', '.testModal', function(){
 	$('.documentTypesNav').find('#twrex-structured-sentence_nav a').click();
 @endif
 
+
+
 });
+
+function jobactions(job, action, index){
+	var newstatus = '';
+ 	if(action == 'pause') newstatus = 'paused';
+ 	else if(action == 'order' || action == 'resume') newstatus = 'running';
+ 	else if(action == 'cancel') newstatus = 'canceled';
+	
+	if(action=='cancel'){
+		if(!confirm('Do you really want to '+action+' job '+job+'?')){
+			return false;
+		}
+	}
+	$.ajax(
+		    {
+		        url : '/api/actions/'+job+'/'+action,
+		        type: "GET",
+		        success:function(data, textStatus, jqXHR)
+					{
+							           
+						console.log(data);
+
+						if(data.status=='ok'){
+							$('#'+action+index).hide();
+							$('#'+'status'+index).html(newstatus);
+						} else {
+							alert(data.message);
+						}
+							    
+					},
+		        error: function(jqXHR, textStatus, errorThrown) 
+		        {
+		            alert(errorThrown);     
+		        }
+		    });
+}
+
+
+
+
+
+
+
+
 
 </script>
 

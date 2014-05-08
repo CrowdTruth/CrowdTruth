@@ -44,7 +44,7 @@ abstract class FrameWork {
 	* Important: when you catch an error in creating, call $this->undoCreation
 	* @param Job $job
 	* @param boolean $sandbox (should be TRUE in our current implementation).
-	* @return platformJobId
+	* @return array with at least 'id' => $platformJobId. Optional: 'url' to the job.
 	*/
 	abstract public function publishJob($job, $sandbox);
 

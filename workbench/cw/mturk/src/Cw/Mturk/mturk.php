@@ -90,11 +90,13 @@ class Mturk extends \FrameWork {
 			if($sandbox) $status = 'unordered';
 			else $status = 'running';
 			$ids = array();
-			$platformjobids = $this->amtpublish($job, $sandbox);
+			$published = $this->amtpublish($job, $sandbox);
 			$fullplatformjobids = array();
-			foreach($platformjobids as $id)
+			foreach($published['id'] as $id)
 				array_push($fullplatformjobids, array('id' => $id, 'status' => $status));
-			return $fullplatformjobids;
+			
+			$response = array('id' => $fullplatformjobids);
+			return $response;
 		} catch (AMTException $e) {
 			if(isset($fullplatformjobids)) $this->undoCreation($fullplatformjobids);
 			elseif(isset($platformjobids)) $this->undoCreation($platformjobids);
@@ -213,7 +215,7 @@ class Mturk extends \FrameWork {
 
 			// Add the current question
 			$questionsbuilder .= $tempquestiontemplate;
-
+			$url = '';
 			// Create a hit every ($upt)
 			if($count % $upt == 0){
 				if($upt>1){
@@ -235,6 +237,13 @@ class Mturk extends \FrameWork {
 					// Add ID to returnarray
 					$platformids[] = $created['HITId'];
 					$hittypeid = $created['HITTypeId'];
+					
+					// URL
+					if(isset($created['HITGroupId'])){
+						// SANDBOX is hardcoded, because the job is always ordered on sandbox first.
+						$url = "https://workersandbox.mturk.com/mturk/preview?groupId={$created['HITGroupId']}";
+					}
+
 				}
 				unset($assRevPol['AnswerKey']);
 				$questionsbuilder = '';
@@ -242,13 +251,18 @@ class Mturk extends \FrameWork {
 			}
 		}	
 
-		if($justpreview) return $platformids;
+		if($justpreview) 
+			return $platformids;
 
 		// Notification E-Mail
 		if((!empty($c['notificationEmail'])) and (!empty($hittypeid)))
 			$this->mechanicalTurk->setHITTypeNotification($hittypeid, $c['notificationEmail'], $c['eventType']);
 
-		return $platformids;
+		$response = array('id'=>$platformids);
+		if(!empty($url))
+			$response['url'] = $url;
+
+		return $response;
 	}
 
 
