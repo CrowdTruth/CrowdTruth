@@ -488,8 +488,12 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 		$currenttemplate = Session::get('template');	
 		
-		if(empty($currenttemplate)) 
-			$currenttemplate = 'text/RelDir/relation_direction';
+		if(empty($currenttemplate)){ 
+			if($batch->format=='text')
+				$currenttemplate = 'text/RelDir/relation_direction';
+			else 
+				$currenttemplate = 'images/Rijksmuseum/flowers';
+		}
 
 		$treejson = $this->makeDirTreeJSON($currenttemplate, $batch->format);
 

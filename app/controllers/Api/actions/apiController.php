@@ -296,7 +296,52 @@ class apiController extends BaseController {
 
 	}
 
+	/**
+	* needs workerId in postdata.
+	*/
+	public function postFlag(){
+		try {
+			$return = array('status' => 'ok');
 
+			$this->authenticateUser();
+			$workerid = Input::get('workerid');
+
+			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
+			$crowdagent->flag();
+			$return['message'] = "Flagged worker $workerid successfully.";
+		} catch (Exception $e){
+			$return['message'] = $e->getMessage();
+			$return['status'] = 'bad';
+		}
+
+		return $return;
+
+	}
+
+	/**
+	* needs workerId in postdata.
+	*/
+	public function postUnflag(){
+		try {
+			$return = array('status' => 'ok');
+
+			$this->authenticateUser();
+			$workerid = Input::get('workerid');
+
+			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
+			$crowdagent->unflag();
+			$return['message'] = "Unflagged worker $workerid successfully.";
+		} catch (Exception $e){
+			$return['message'] = $e->getMessage();
+			$return['status'] = 'bad';
+		}
+
+		return $return;
+
+	}
+
+
+/*
 	public function getWorker($crowdagent, $platform, $id, $action){
 		try {
 			$return = array('status' => 'ok');
@@ -333,7 +378,7 @@ class apiController extends BaseController {
 		}
 
 		return $return;	
-	}
+	}*/
 
 }
 

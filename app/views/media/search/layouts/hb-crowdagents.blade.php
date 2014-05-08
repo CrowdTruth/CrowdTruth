@@ -248,7 +248,7 @@
 				<div class="modal fade" id="activeTabModal">
 				  <div class="modal-dialog">
 				    <div class="modal-content">
-				      <form id="messageform" class="ajaxform" name="input" action="/api/actions/flag" method="post">
+				      <form id="flagform" class="ajaxform" name="input" action="/api/actions/flag" method="flag">
 				      <div class="modal-header">
 				        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				        <h4 class="modal-title">Flag worker</h4>
