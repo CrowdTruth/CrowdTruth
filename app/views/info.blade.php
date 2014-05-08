@@ -8,7 +8,7 @@
 					<div class="row">
 						<div class="col-xs-3">
 						<ul class="nav nav-pills nav-stacked"  data-spy="scroll" data-target=".scrolldiv">
-						 <li><h4>Using CrowdTruth</h4></li>
+						 <li><h4>How to use CrowdTruth</h4></li>
 						 <li><a href="#process1">Upload media</a></li>
 						 <li><a href="#process2">Pre-process media</a></li>
 						 <li><a href="#process3">Creating a batch</a></li>
@@ -17,12 +17,14 @@
 						 <li><a href="#process7">Analyze workers</a></li>
 						 <li><a href="#process8">Analyze jobs and judgements</a></li>
 						 <li><h4>The inner workings</h4></li>
-						 <li><a href="#inner1">The datamodel and provenance</a></li>
-						 <li><a href="#inner2">Adding a crowdsourcing platform</a></li>
-						 <li><a href="#inner3">Adding a template</a></li>
-						 <li><a href="#inner4">Adding an online source</a></li>
-						 <li><a href="#inner5">Adding a domain or documentType</a></li>
-						 <li><a href="#inner6">Adding a pre-processor</a></li>
+						 <li><a href="#inner1">The datamodel</a></li>
+						 <li><a href="#inner2">Provenance</a></li>
+						 <li><a href="#inner3">Adding a crowdsourcing platform</a></li>
+						 <li><a href="#inner4">Adding a template</a></li>
+						 <li><a href="#inner5">Adding an online source</a></li>
+						 <li><a href="#inner6">Adding a domain</a></li>
+						 <li><a href="#inner7">Adding a documentType</a></li>
+						 <li><a href="#inner8">Adding a pre-processor</a></li>
 						</ul>
 					</div>
 						<div class="scrolldiv col-xs-9">
