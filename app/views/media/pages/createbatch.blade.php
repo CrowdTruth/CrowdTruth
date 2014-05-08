@@ -4,8 +4,6 @@
 				<!-- START createbatch_content --> 
 				<div class="col-xs-10 col-sm-offset-1">
 					<div class='maincolumn CW_box_style'>
-@include('layouts.flashdata')						
-@include('media.layouts.nav')
 
 						<div class="panel panel-default">
 							<div class="panel-heading">
