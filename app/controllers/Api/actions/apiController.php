@@ -12,7 +12,6 @@ use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDB\CrowdAgent as CrowdAgent;
 use \Job;
-use \Auth;
 use \Exception;
 
 class apiController extends BaseController {
