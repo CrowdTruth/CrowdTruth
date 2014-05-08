@@ -281,7 +281,9 @@ class apiController extends BaseController {
 					{
 						if(is_numeric($subvalue))
 						{
-							$subvalue = (int) $subvalue;
+							$subvalue = (double) $subvalue;
+							
+
 						}
 
 						if($operator == "like")

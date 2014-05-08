@@ -4,6 +4,7 @@ use \BaseController as BaseController;
 use \Input as Input;
 use \URL as URL;
 use \Response as Response;
+use \Auth as Auth;
 
 use \MongoDB\Repository as Repository;
 use \MongoDB\Entity as Entity;
@@ -110,7 +111,7 @@ class apiController extends BaseController {
 		try {
 
 			//$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . 4 . " " . "vogel";
-			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py " . $domain . " " . $type . " " . $url_ids;
+			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py " . $domain . " " . $type . " " . Auth::user()->email  . " " . $url_ids;
 			//$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py art painting http://lh3.ggpht.com/Q1GZTdmwa8iTLgdbu5uAgzovmLbb7lsYhG-QgVcoN8A-WJtIsNUo4-VyTMd9iKHLp-XNm812WyUaSgQdHdjQjDioJQI=s0 999";
 			//return $command;
 
