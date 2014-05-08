@@ -26,105 +26,84 @@ class apiController extends BaseController {
     	'=' , '<', '>', '<=', '>=', '<>', 'like'
     );
 
-	public function anyPost()
-	{
-		if(!$data = Input::get('data'))
-		{
-			if(!$data = \Request::getContent())
-			{
-				return false;
-			}
-		}
+	// public function anyPost()
+	// {
+	// 	if(!$data = Input::get('data'))
+	// 	{
+	// 		if(!$data = \Request::getContent())
+	// 		{
+	// 			return false;
+	// 		}
+	// 	}
 
-		// $c = Input::get('collection', 'Entity');
+	// 	// $c = Input::get('collection', 'Entity');
 
-		// $collection = $this->repository->returnCollectionObjectFor($c);
+	// 	// $collection = $this->repository->returnCollectionObjectFor($c);
 
-  //   	if(Input::has('field'))
-  //   	{
-		// 	$collection = $this->processFields($collection);
-		// }
+ //  //   	if(Input::has('field'))
+ //  //   	{
+	// 	// 	$collection = $this->processFields($collection);
+	// 	// }
 			
-		if(empty($data))
-			return false;
+	// 	if(empty($data))
+	// 		return false;
 
-		//return $data;
+	// 	//return $data;
 
-		$data = json_decode($data, true);
-		$data['softwareAgent_id'] = strtolower($data['softwareAgent_id']);
+	// 	$data = json_decode($data, true);
+	// 	$data['softwareAgent_id'] = strtolower($data['softwareAgent_id']);
 
-		try {
-			$this->createPostSoftwareAgent($data);
-		} catch (Exception $e) {
-			return serialize([$e->getMessage()]);
-		}
+	// 	try {
+	// 		$this->createPostSoftwareAgent($data);
+	// 	} catch (Exception $e) {
+	// 		return serialize([$e->getMessage()]);
+	// 	}
 
-		try {
-			$activity = new Activity;
-			$activity->softwareAgent_id = $data['softwareAgent_id'];
-			$activity->save();
-		} catch (Exception $e) {
-			// Something went wrong with creating the Activity
-			$activity->forceDelete();
-			return serialize([$e->getMessage()]);
-		}
+	// 	try {
+	// 		$activity = new Activity;
+	// 		$activity->softwareAgent_id = $data['softwareAgent_id'];
+	// 		$activity->save();
+	// 	} catch (Exception $e) {
+	// 		// Something went wrong with creating the Activity
+	// 		$activity->forceDelete();
+	// 		return serialize([$e->getMessage()]);
+	// 	}
 
-		$entity = new Entity;
-		$entity->_id = null;
-		$entity->title = $data['title'];
-		$entity->format = $data['format'];
-		$entity->domain = $data['domain'];
-		$entity->documentType = $data['documentType'];
+	// 	$entity = new Entity;
+	// 	$entity->_id = null;
+	// 	$entity->title = $data['title'];
+	// 	$entity->format = $data['format'];
+	// 	$entity->domain = $data['domain'];
+	// 	$entity->documentType = $data['documentType'];
+	// 	$entity->softwareAgent_configuration = $data['softwareAgent_configuration'];
 
-		if(isset($data['source']))
-		{
-			$entity->source = $data['source'];
-		}
+	// 	if(isset($data['source']))
+	// 	{
+	// 		$entity->source = $data['source'];
+	// 	}
 
-		if(isset($data['parents']))
-		{
-			$entity->parents = $data['parents'];
-		}
+	// 	if(isset($data['parents']))
+	// 	{
+	// 		$entity->parents = $data['parents'];
+	// 	}
 
-		$entity->content = $data['content'];
+	// 	$entity->content = $data['content'];
 
-		if(isset($data['hash']))
-		{
-			$entity->hash = $data['hash'];
-		}
-		else
-		{
-			$entity->hash = md5(serialize(array_flatten([$data['content']])));
-		}
+	// 	if(isset($data['hash']))
+	// 	{
+	// 		$entity->hash = $data['hash'];
+	// 	}
+	// 	else
+	// 	{
+	// 		$entity->hash = md5(serialize(array_flatten([$data['content']])));
+	// 	}
 		
-		$entity->activity_id = $activity->_id;
-		$entity->save();
+	// 	$entity->activity_id = $activity->_id;
 
-		return Response::json($entity);
-	}
+	// 	$entity->save();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	// 	return Response::json($entity);
+	// }
 
 
 
@@ -141,10 +120,9 @@ class apiController extends BaseController {
 			}
 		}
 			
+
 		if(empty($data))
 			return false;
-
-		//return $data;
 
 		$data = json_decode($data, true);
 		$data['softwareAgent_id'] = strtolower($data['softwareAgent_id']);
@@ -168,7 +146,9 @@ class apiController extends BaseController {
 		$entity = new Entity;
 		$entity->format = 'image';
 		$entity->domain = $data['domain'];
+		$entity->tags = $data['tags'];
 		$entity->documentType = $data['documentType'];
+		$entity->softwareAgent_configuration = $data['softwareAgent_configuration'];
 		
 
 		if(isset($data['parents']))
@@ -186,10 +166,15 @@ class apiController extends BaseController {
 		{
 			$entity->hash = md5(serialize($data['content']));
 		}
-		
 		$entity->activity_id = $activity->_id;
-		$entity->save();
-
+		
+		if(Entity::where('hash', $entity->hash)->first()){
+			//dd('asdasd');
+		}
+		else {
+			
+			$entity->save();
+		}
 		return Response::json($entity);
 		} catch (Exception $e){
 			dd($e->getMessage());

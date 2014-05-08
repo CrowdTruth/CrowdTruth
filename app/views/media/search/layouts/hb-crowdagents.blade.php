@@ -287,11 +287,11 @@
 					<div class="panel-group" id="accordion">
 					  <div class="panel panel-default">
 					    <div class="panel-heading">
+					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
 					      <h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
 						  Worker Information 
-						</a>
 					      </h4>
+					     </a>
 					    </div>
 					    <div id="collapseOne" class="panel-collapse collapse in">
 					      <div class="panel-body">
@@ -311,11 +311,11 @@
 					  </div>
 					  <div class="panel panel-default">
 					    <div class="panel-heading">
+					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
 					      <h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
 						  Worker Stats
-						</a>
 					      </h4>
+					     </a>
 					    </div>
 					    <div id="collapseTwo" class="panel-collapse collapse">
 					      <div class="panel-body">
@@ -350,11 +350,11 @@
 					  </div>
 					  <div class="panel panel-default">
 					    <div class="panel-heading">
+					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
 					      <h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
 						  Worked on Jobs
-						</a>
 					      </h4>
+					     </a>
 					    </div>
 					    <div id="collapseThree" class="panel-collapse collapse">
 					      <div class="panel-body">
@@ -418,11 +418,11 @@
 					  </div>
 					  <div class="panel panel-default">
 					    <div class="panel-heading">
+					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
 					      <h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
 						  Worked on Units
-						</a>
 					      </h4>
+					     </a>
 					    </div>
 					    <div id="collapseFour" class="panel-collapse collapse">
 					      <div class="panel-body">
