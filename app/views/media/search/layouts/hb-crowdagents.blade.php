@@ -35,6 +35,7 @@
 	    <table class="table table-striped">
 	        <thead data-query-key="collection" data-query-value="crowdagents">
 		        <tr>
+		        	<th data-vbIdentifier="actions" data-toggle="tooltip" data-placement="top" title="Block, flag or message a single worker">Actions</th>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>
 		            <th class="sorting" data-vbIdentifier="worker_id" data-query-key="orderBy[platformAgentId]" data-toggle="tooltip" data-placement="top" title="ID of the worker on their platform">Worker Id</th>
 		            <th class="sorting" data-vbIdentifier="worker_platform" data-query-key="orderBy[softwareAgent_id]" data-toggle="tooltip" data-placement="top" title="Platform (e.g. AMT, Crowdflower) the worker is from">Platform</th>
@@ -55,6 +56,8 @@
 				    <th class="sorting" data-vbIdentifier="no_sent_messages" data-query-key="orderBy[cache.sentMessagesToWorkers.count]" data-toggle="tooltip" data-placement="top" title="Messages sent to worker"># Sent Messages</th>
 		        </tr>
 			<tr class="inputFilters">
+				<td data-vbIdentifier="actions">
+				</td>
 				<td data-vbIdentifier="checkbox">
 					<input type="checkbox" class="checkAll" />
 				</td>
@@ -126,6 +129,14 @@
 				<script class='template' type="text/x-handlebars-template">
 			        @{{#each documents}}
 			        <tr class="text-center">
+			        	<td data-vbIdentifier="actions">
+							<div class="btn-group">
+								<a class="btn btn-default btn-sm testModal" data-static="@{{ this._id }}" data-target="#modalMessage"><i class="fa fa-envelope-o"></i></a>
+								<a class="btn btn-default btn-sm testModal" data-static="@{{ this._id }}" data-target="#modalFlag"><i class="fa fa-flag-o"></i></a>
+								<a class="btn btn-default btn-sm testModal" data-static="@{{ this._id }}" data-target="#modalBlock"><i class="fa fa-times-circle-o"></i></a>
+							</div>
+
+			        	</td>
 						<td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
 			            <td data-vbIdentifier="worker_id">
 					<a class='testModal' id='@{{ this.platformAgentId }}' data-modal-query="agent=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/worker?') }}" data-target="#modalIndividualWorker" data-toggle="tooltip" data-placement="top" title="Click to see the individual worker page">
@@ -166,6 +177,100 @@
 	        </tbody>
 	    </table>
 	</div>	
+
+<div class='hidden' id='modalMessage'>
+
+		<script class='template' type="text/x-handlebars-template">
+				<!-- Modal -->
+				<div class="modal fade" id="activeTabModal">
+				  <div class="modal-dialog">
+				    <div class="modal-content">
+				      <form id="messageform" class="ajaxform" name="input" action="/api/actions/message" method="post">
+				      <div class="modal-header">
+				        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				        <h4 class="modal-title">Send message</h4>
+				      </div>
+				      <div class="modal-body">
+				      	
+						<input class="form-control" type="text" rel="static-val" name="messageto" id="messageto" placeholder="To (comma separated)" required /><br>
+						<input class="form-control" type="text" name="messagesubject" id="messagesubject" placeholder="Subject" required /><br>
+						<textarea class="form-control" name="messagecontent" placeholder="Message" rows="6" required></textarea>
+						
+						
+				      </div>
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				        <input type="submit" class="btn btn-primary" />
+				      </div>
+				      </form>
+				    </div><!-- /.modal-content -->
+				  </div><!-- /.modal-dialog -->
+				</div><!-- /.modal -->
+		</script>
+
+	</div>								
+	<div class='hidden' id='modalBlock'>
+
+		<script class='template' type="text/x-handlebars-template">
+				<!-- Modal -->
+				<div class="modal fade" id="activeTabModal">
+				  <div class="modal-dialog">
+				    <div class="modal-content">
+				      <form id="messageform" class="ajaxform" name="input" action="/api/actions/block" method="post">
+				      <div class="modal-header">
+				        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				        <h4 class="modal-title">Block worker</h4>
+				      </div>
+				      <div class="modal-body">
+				      	<p>
+				      	Please write the reason for blocking worker <b><span rel="static-html"></span></b> below.
+				      	</p>
+				      	<input type="hidden" rel="static-val" name="workerid">
+					<textarea class="form-control" name="blockmessage" placeholder="Message" rows="6" required></textarea>
+						
+						
+				      </div>
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				        <input type="submit" class="btn btn-primary" />
+				      </div>
+				      </form>
+				    </div><!-- /.modal-content -->
+				  </div><!-- /.modal-dialog -->
+				</div><!-- /.modal -->
+		</script>
+
+	</div>	
+		<div class='hidden' id='modalFlag'>
+
+		<script class='template' type="text/x-handlebars-template">
+				<!-- Modal -->
+				<div class="modal fade" id="activeTabModal">
+				  <div class="modal-dialog">
+				    <div class="modal-content">
+				      <form id="messageform" class="ajaxform" name="input" action="/api/actions/flag" method="post">
+				      <div class="modal-header">
+				        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				        <h4 class="modal-title">Flag worker</h4>
+				      </div>
+				      <div class="modal-body">
+				      	<p>
+				      	Really flag worker <b><span rel="static-html"></span></b>?
+				      	</p>
+				      	<input type="hidden" rel="static-val" name="workerid">					
+				      </div>
+				      <div class="modal-footer">
+				        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				        <input type="submit" class="btn btn-primary" />
+				      </div>
+				      </form>
+				    </div><!-- /.modal-content -->
+				  </div><!-- /.modal-dialog -->
+				</div><!-- /.modal -->
+		</script>
+
+	</div>					
+
 
 	<div class='hidden' id='modalIndividualWorker'>
 

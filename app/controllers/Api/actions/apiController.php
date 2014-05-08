@@ -113,7 +113,8 @@ class apiController extends BaseController {
 			//$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py art painting http://lh3.ggpht.com/Q1GZTdmwa8iTLgdbu5uAgzovmLbb7lsYhG-QgVcoN8A-WJtIsNUo4-VyTMd9iKHLp-XNm812WyUaSgQdHdjQjDioJQI=s0 999";
 			//return $command;
 			\Log::debug("Running $command");
-		    exec($command, $output, $error);	
+		    exec($command, $output, $error);
+		    
 			$return['oo'] = $output; 			
 			$return['ee'] = $error;
 			//$return['a'] = $a;
@@ -122,7 +123,7 @@ class apiController extends BaseController {
 
 		} catch (Exception $e){
 			//throw $e; // for debugging.
-			\Log::debug($e->getMessage());
+			\Log::debug("ERROR: " . $e->getMessage());
 			$return['error'] = $e->getMessage();
 			$return['status'] = 'bad';
 		} 
@@ -196,6 +197,8 @@ class apiController extends BaseController {
 		if (\Auth::user()->role == 'demo')
 			throw new Exception("Demo accounts are not allowed to do this.");  
 		
+		// Now on every call!!!
+		throw new Exception("This feature is disabled for demo accounts. Sorry!"); 
 	}
 
 	private function returnJson($return){
@@ -204,17 +207,15 @@ class apiController extends BaseController {
 
 	/* Data in post an array of 'recipients' plus a 'message' array (with content and subject) */
 	public function postMessage(){
-		$return = array('status' => 'ok');
-		$content = Input::get('content');
-		$subject = Input::get('subject');
-		$recipients = Input::get('recipients');
 
-		// test data
-/*		$content = 'testttt';
-		$subject = 'subject of message';
-		$recipients = array('crowdagent/amt/A014570429HSF84C0QZCF');*/
-		
 		try {
+			$return = array('status' => 'ok');
+			$content = Input::get('messagecontent');
+			$subject = Input::get('messagesubject');
+			$recipients = explode(',', Input::get('messageto'));
+
+			$this->authenticateUser();
+
 			$groupedarray = array();
 
 			foreach ($recipients as $recipient) {
@@ -249,7 +250,9 @@ class apiController extends BaseController {
 	public function postBlock(){
 		try {
 			$return = array('status' => 'ok');
-			$message = Input::get('message');
+			$this->authenticateUser();
+
+			$message = Input::get('blockmessage');
 			$workerid = Input::get('workerid');
 
 			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
@@ -270,7 +273,9 @@ class apiController extends BaseController {
 	public function postUnblock(){
 		try {
 			$return = array('status' => 'ok');
-			$message = Input::get('message');
+
+			$this->authenticateUser();
+			$message = Input::get('unblockmessage');
 			$workerid = Input::get('workerid');
 
 			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
@@ -285,37 +290,45 @@ class apiController extends BaseController {
 
 	}
 
-	public function postFlag(){
-		try{
+
+	public function getWorker($crowdagent, $platform, $id, $action){
+		try {
 			$return = array('status' => 'ok');
-			$workerid = Input::get('workerid');
+			$workerid = "crowdagent/$platform/$id";
+			
+			if($crowdagent!="crowdagent")
+				throw new Exception('No crowdagent selected.');
+			
+			$workerid = "crowdagent/$platform/$id";
 			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
-			$crowdagent->flag();
-			$return['message'] = "Flagged worker $workerid.";
+
+			if(!$crowdagent)
+				throw new Exception('CrowdAgent not found.');
+
+			switch ($action) {
+
+				case 'flag':
+					$crowdagent->flag();
+					$return['message'] = "Flagged worker $workerid.";
+					break;
+				case 'unflag':
+					$crowdagent->unflag();
+					$return['message'] = "Unflagged worker $workerid.";
+					break;
+
+				default:
+					throw new Exception('Action unknown.');
+					break;
+			}
+
 		} catch (Exception $e) {
 			$return['message'] = $e->getMessage();
 			$return['status'] = 'bad';
 		}
 
-		return $return;
+		return $return;	
 	}
 
-/*	public function getGetdropdowninfos(){
-		foreach(Job::get() as $job){
-			$format[] = $job->format;
-			$domain[] = $job->domain;
-			$user[] = $job->user_id;
-			$template[] = $job->template;
-			$platform[] = $job->platform;
-			$status[] = $job->status;
-		}
-
-		return array('format'=> array_unique($format),
-					'domain'=> array_unique($format),
-					'user'=> array_unique($format),
-					'template'=> array_unique($format),
-					'status'=> array_unique($format));
-	}*/
 }
 
 ?>

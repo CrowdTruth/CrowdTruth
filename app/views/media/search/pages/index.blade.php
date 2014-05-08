@@ -70,8 +70,12 @@
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
 							@if(Request::segment(1) != 'jobs' && Request::segment(1) != 'workers')
-							<li><a href="#" class='toSelection'>Save Selection</a></li>
-							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
+								<li><a href="#" class='toSelection'>Save Selection</a></li>
+								<li><a href="#" class='toCSV'>Export results to CSV</a></li>
+							@endif
+
+							@if(Request::segment(1) == 'workers')
+								<li><a href="#">Message workers</a></li>
 							@endif
 						</ul>
 					</div>					
@@ -921,10 +925,61 @@ var openModal = function(modalAnchor , activeTabKey){
     });
 }
 
+var openStaticModal = function(modalAnchor , activeTabKey){
+
+
+    var modalTarget = modalAnchor.attr('data-target');
+    var staticData = modalAnchor.attr('data-static');
+
+        var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+
+        var html = template();
+
+        $('#activeTabModal').remove();
+
+        $('body').append(html);
+
+        $('#activeTabModal').modal();
+		//rel=static-val or static-inner
+		$('span[rel="static-html"]').html(staticData);
+		$('input[rel="static-val"]').val(staticData);
+   
+
+        $(".ajaxform").submit(function(e)
+		{
+		    var postData = $(this).serializeArray();
+		    var formURL = $(this).attr("action");
+		    $.ajax(
+		    {
+		        url : formURL,
+		        type: "POST",
+		        data : postData,
+		        success:function(data, textStatus, jqXHR) 
+		        {
+		            //if(data.status == 'bad'){
+		            	console.log(data);
+		            	alert(data.message);
+		            	
+		           // }
+		        },
+		        error: function(jqXHR, textStatus, errorThrown) 
+		        {
+		            console.log(errorThrown);     
+		        }
+		    });
+		    e.preventDefault(); //STOP default action
+		    //e.unbind(); //unbind. to stop multiple form submit.
+		});
+}
+
 $('body').on('click', '.testModal', function(){
     var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
-    openModal($(this),activeTabKey);
 
+    if($(this).is('[data-static]')){
+    	openStaticModal($(this),activeTabKey);
+    } else {
+   	 	openModal($(this),activeTabKey);
+	}
 });
 
 @if(Request::segment(1) == 'jobs')

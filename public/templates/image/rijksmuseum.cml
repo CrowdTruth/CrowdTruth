@@ -8,8 +8,8 @@
   
   <div class="row">
     <div class="span5">
-      <a id="imageLink" href="{{image_url}}" target="_blank" title="Click for larger version">
-        <cml:thumb src="{{image_url}}" method="resize"></cml:thumb>
+      <a id="imageLink" href="{{content_url}}" target="_blank" title="Click for larger version">
+        <cml:thumb src="{{content_url}}" method="resize"></cml:thumb>
         <small>Click to enlarge</small>
       </a>
      

@@ -13,19 +13,24 @@ class ProcessController extends BaseController {
 
 	public function getWorkers(){
 		$c = 0;
-		foreach (\MongoDB\CrowdAgent::where('softwareAgent_id', 'amt')->get() as $w) {
-			if(empty($w->country)){
-				$w->country = 'USA';
-				$w->save();
-				$c++;
-			}	
-
+		foreach (\MongoDB\CrowdAgent::where('softwareAgent_id', 'cf')->get() as $w) {
+			$w->platformAgentId = (string) $w->platformAgentId;
+			$w->save();
+			$c++;
 
 		}
 		echo $c;
 	}
 
+	public function getGeneraterandomjobdates(){
+		foreach (Job::get() as $job) {
+			if(empty($job->runningTimeInSeconds))
+				dd($job);
+		}	
+	}
+
 /*
+
 	public function getUpdate(){
 		foreach (Job::get() as $job) {
 			$job->results = null;
@@ -504,7 +509,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$goldfields = array();
 		$unitscount = count($batch->wasDerivedFrom);
 
-		if($jc->content['unitsPerTask'] > $unitscount){
+		if(isset($jc->content['unitsPerTask']) and  $jc->content['unitsPerTask'] > $unitscount){
 			$jc->setValue('unitsPerTask', $unitscount); 
 			Session::flash('flashNotice', 'Adapted units per task to match the batch size.');
 		}	

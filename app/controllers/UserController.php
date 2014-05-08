@@ -3,6 +3,7 @@
 class UserController extends BaseController {
 
 	protected $invitationCode = '$2y$10$3CDexLP1GQ.HMmU8YG0eHOBUJclK.HGXzt56fCQ/D2GSMlUqM8OOe';
+	protected $demoInvitationCode = '$2y$10$gHVt4pkDOMkPuE1YSSdtv.DIm6MuHIB2Xv6VYsCYx6Pkuop7weT96';
 	// Hashed because it might end up on github :-)
 
 	public function __construct() {
@@ -49,9 +50,14 @@ class UserController extends BaseController {
 	}
 
 	public function postRegister(){
-		if (!Hash::check(Input::get('invitation'), $this->invitationCode)){
+		$role = 'user';
+		// Check if demo account
+		if (Hash::check(Input::get('invitation'), $this->demoInvitationCode)) {
+			$role = 'demo';
+		// Check if normal account	
+		} elseif (!Hash::check(Input::get('invitation'), $this->invitationCode)){
 			Session::flash('flashError', 'Wrong invite code : )');
-			return Redirect::back();
+			return Redirect::back()->withInput(Input::except('password', 'confirm_password'));
 		}
 
 	    $userdata = array(
@@ -61,13 +67,14 @@ class UserController extends BaseController {
 	        'email' => strtolower(Input::get('email')),
 	        'password' => Input::get('password'),
 	        'confirm_password' => Input::get('confirm_password'),
+	        'role' => $role
 	    );
 
         $rules = array(
-        	'_id' => 'required|min:3|unique:users',        	
+        	'_id' => 'required|min:3|unique:useragents',        	
             'firstname' => 'required|min:3',
             'lastname' => 'required|min:1',
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email|unique:useragents',
             'password' => 'required|min:5',
             'confirm_password' => 'required|same:password'
         );
@@ -75,8 +82,13 @@ class UserController extends BaseController {
 	    $validation = Validator::make($userdata, $rules);
 
 	    if($validation->fails()){
-	    	Session::flash('flashError', $validation->messages()->toJson());
-	        return Redirect::back();
+
+	    	$msg = '<ul>';
+			foreach ($validation->messages()->all() as $message)
+				$msg .= "<li>$message</li>";
+
+	    	Session::flash('flashError', "$msg</ul>");
+	        return Redirect::back()->withInput(Input::except('password', 'confirm_password'));
 	    }
 
 	    unset($userdata['confirm_password']);
@@ -85,14 +97,9 @@ class UserController extends BaseController {
 
 	    try {
 		    $this->createCrowdWatsonUserAgent();
-	    } catch (Exception $e) {
-	    	return Redirect::back()->with('flashError', $e->getMessage());
-	    }
-
-	    try {
 		    $user->save();
 	    } catch (Exception $e) {
-	    	return Redirect::back()->with('flashError', $e->getMessage());
+	    	return Redirect::back()->with('flashError', $e->getMessage())->withInput(Input::except('password', 'confirm_password'));
 	    }
 
 	    Auth::login($user);
