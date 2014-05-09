@@ -63,12 +63,11 @@ class apiController extends BaseController {
 				$image->format = "image";
 				$content = $image->content; 
 				$content['url'] = $img['url'];
-
-				$image->title = $img['title'];
-				$image->height = $img['height'];
-				$image->width = $img['width'];
-				$image->description = $img['description'];
-				$image->author = $img['author'];
+				$content['title'] = $img['title'];
+				$content['height'] = $img['height'];
+				$content['width'] = $img['width'];
+				$content['description'] = $img['description'];
+				$content['author'] = $img['author'];
 
 				$image->content = $content;
 				$image->documentType = $type;
