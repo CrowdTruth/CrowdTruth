@@ -139,11 +139,11 @@
 			        <tr class="text-center">
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
 			            <td data-vbIdentifier="image_id">@{{ this._id }}   </td>
-			            <td data-vbIdentifier="image_content"><image width="240" height="160" src="@{{this.content.URL}}" />   </td>
+			            <td data-vbIdentifier="image_content"><image width="240" height="160" src="@{{this.content.url}}" />   </td>
 			            <td data-vbIdentifier="image_title">@{{ this.title }}   </td>
 			            <td data-vbIdentifier="image_domain">@{{ this.domain }}   </td>
 			            <td data-vbIdentifier="image_source">@{{ this.source }}   </td>
-			            <td data-vbIdentifier="image_url">@{{ this.content.URL }}   </td>
+			            <td data-vbIdentifier="image_url">@{{ this.content.url }}   </td>
 			            <td data-vbIdentifier="image_width">@{{ this.content.width }}   </td>
 			            <td data-vbIdentifier="image_height">@{{ this.content.height }}   </td>
 			            <td data-vbIdentifier="image_object">

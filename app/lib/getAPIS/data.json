@@ -1,206 +1,345 @@
 {
   "domain": "art", 
-  "format": "Image", 
-  "title": "Giant-Pandas_791403c.jpg", 
-  "softwareAgent_id": "featureRecognizer", 
+  "tags": [
+    "apiFeatures"
+  ], 
+  "softwareAgent_id": "fr_rekognition", 
   "content": {
-    "URL": "http://i.telegraph.co.uk/multimedia/archive/00791/Giant-Pandas_791403c.jpg", 
-    "width": 460, 
+    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
     "features": {
-      "Object": {
-        "matches": [
-          {
-            "tag": "bear", 
-            "score": 0.5355
-          }, 
-          {
-            "tag": "giant panda", 
-            "score": 0.43
-          }, 
-          {
-            "tag": "cat", 
-            "score": 0.0295
-          }, 
-          {
-            "tag": "wolf", 
-            "score": 0.02
-          }, 
-          {
-            "tag": "dog", 
-            "score": 0.0134
-          }, 
-          {
-            "tag": "pet", 
-            "score": 0.012
-          }, 
-          {
-            "tag": "path", 
-            "score": 0.0094
-          }
-        ]
-      }, 
-      "Scene": [
+      "scene": [
         {
-          "score": 0.0475, 
-          "label": "Park"
-        }, 
-        {
-          "score": 0.0367, 
+          "score": 0.9533, 
           "label": "Flower"
         }, 
         {
-          "score": 0.0302, 
-          "label": "River"
+          "score": 0.0557, 
+          "label": "Food"
         }
-      ], 
-      "Classifier": {
-        "Flowers": 46, 
-        "Birds": -1
-      }, 
-      "FacesRekognition": 0, 
+      ]
+    }
+  }, 
+  "softwareAgent_label": "rekognition: [object, scene, faces]", 
+  "parents": [
+    "entity/image/art/painting/0"
+  ], 
+  "documentType": "fr_rekognition", 
+  "softwareAgent_configuration": "scene"
+}{
+  "domain": "art", 
+  "tags": [
+    "apiFeatures"
+  ], 
+  "softwareAgent_id": "fr_rekognition", 
+  "content": {
+    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "features": {
+      "object": {
+        "": [], 
+        "matches": [
+          {
+            "tag": "rose", 
+            "score": 0.923
+          }, 
+          {
+            "tag": "flower", 
+            "score": 0.6946
+          }, 
+          {
+            "tag": "lollipop", 
+            "score": 0.3268
+          }, 
+          {
+            "tag": "candy", 
+            "score": 0.0986
+          }, 
+          {
+            "tag": "flora", 
+            "score": 0.0681
+          }, 
+          {
+            "tag": "bell pepper", 
+            "score": 0.0344
+          }, 
+          {
+            "tag": "sliced", 
+            "score": 0.0093
+          }
+        ]
+      }
+    }
+  }, 
+  "softwareAgent_label": "rekognition: [object, scene, faces]", 
+  "parents": [
+    "entity/image/art/painting/0"
+  ], 
+  "documentType": "fr_rekognition", 
+  "softwareAgent_configuration": "object"
+}{
+  "domain": "art", 
+  "tags": [
+    "apiFeatures"
+  ], 
+  "softwareAgent_id": "fr_rekognition", 
+  "content": {
+    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "features": {
+      "FacesNumber": 0, 
+      "Faces": []
+    }
+  }, 
+  "softwareAgent_label": "rekognition: [object, scene, faces]", 
+  "parents": [
+    "entity/image/art/painting/0"
+  ], 
+  "documentType": "fr_rekognition", 
+  "softwareAgent_configuration": "faces"
+}{
+  "domain": "art", 
+  "tags": [
+    "apiFeatures"
+  ], 
+  "softwareAgent_id": "fr_cloudinary", 
+  "content": {
+    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "features": {
+      "FacesNumber": 0, 
+      "Faces": []
+    }
+  }, 
+  "softwareAgent_label": "cloudinary: faces, colors", 
+  "parents": [
+    "entity/image/art/painting/0"
+  ], 
+  "documentType": "fr_cloudinary", 
+  "softwareAgent_configuration": "faces"
+}{
+  "domain": "art", 
+  "tags": [
+    "apiFeatures"
+  ], 
+  "softwareAgent_id": "fr_cloudinary", 
+  "content": {
+    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "features": {
       "ColorsMain": [
         [
-          "yellow", 
-          29.1
-        ], 
-        [
           "green", 
-          26.4
+          43.8
         ], 
         [
-          "brown", 
-          23.4
+          "red", 
+          21.3
         ], 
         [
           "black", 
-          15.4
+          8.3
+        ], 
+        [
+          "yellow", 
+          6.7
+        ], 
+        [
+          "orange", 
+          6.1
+        ], 
+        [
+          "brown", 
+          5.2
         ]
       ], 
-      "FacesNumber": {
-        "cloudinary": 0, 
-        "rekognition": 0, 
-        "skybiometry": 0
-      }, 
       "ColorsHistogram": [
         [
-          "#161913", 
-          15.4
+          "#102F10", 
+          11.4
         ], 
         [
-          "#1E231A", 
-          9.9
+          "#09180A", 
+          8.3
         ], 
         [
-          "#556836", 
-          7.5
-        ], 
-        [
-          "#545446", 
-          6.0
-        ], 
-        [
-          "#39482B", 
+          "#213223", 
           5.9
         ], 
         [
-          "#2C3027", 
-          5.1
+          "#184A15", 
+          5.3
         ], 
         [
-          "#3F4042", 
-          4.4
+          "#1E5423", 
+          4.0
         ], 
         [
-          "#35451D", 
+          "#FCB1AE", 
+          3.7
+        ], 
+        [
+          "#2F6F30", 
+          3.7
+        ], 
+        [
+          "#F55A2A", 
+          3.4
+        ], 
+        [
+          "#C9748F", 
+          3.3
+        ], 
+        [
+          "#39704E", 
+          3.3
+        ], 
+        [
+          "#2B3213", 
           3.2
         ], 
         [
-          "#453B2A", 
+          "#FBECE7", 
+          3.2
+        ], 
+        [
+          "#E02416", 
           3.1
         ], 
         [
-          "#76894F", 
+          "#FA905F", 
+          3.1
+        ], 
+        [
+          "#408D3F", 
+          3.1
+        ], 
+        [
+          "#FDCAB2", 
+          3.0
+        ], 
+        [
+          "#F59C95", 
           2.9
         ], 
         [
-          "#211F19", 
-          2.7
-        ], 
-        [
-          "#8A775A", 
-          2.6
-        ], 
-        [
-          "#F1E7D7", 
+          "#FDCFCE", 
           2.5
         ], 
         [
-          "#88673B", 
+          "#545827", 
           2.4
         ], 
         [
-          "#7B8A66", 
+          "#F26E5B", 
           2.4
         ], 
         [
-          "#252A1C", 
-          2.3
-        ], 
-        [
-          "#718639", 
+          "#77998F", 
           2.1
         ], 
         [
-          "#EBE3D6", 
+          "#2A4C16", 
+          2.1
+        ], 
+        [
+          "#542D1C", 
+          2.0
+        ], 
+        [
+          "#509157", 
           1.9
         ], 
         [
-          "#D3C8B3", 
+          "#2A512A", 
           1.9
         ], 
         [
-          "#64664D", 
-          1.9
-        ], 
-        [
-          "#C8B79E", 
-          1.8
-        ], 
-        [
-          "#A7A08E", 
+          "#A80F1A", 
           1.7
         ], 
         [
-          "#9DA656", 
-          1.7
-        ], 
-        [
-          "#B3A98F", 
+          "#FC8D71", 
           1.6
         ], 
         [
-          "#837E83", 
-          1.5
+          "#9E6157", 
+          1.3
         ], 
         [
-          "#4B5134", 
-          1.4
+          "#47374A", 
+          1.3
         ], 
         [
-          "#E2D2B9", 
+          "#546F58", 
           1.2
         ], 
         [
-          "#B9C596", 
-          1.0
+          "#99925C", 
+          1.1
         ]
-      ], 
-      "Faces": []
-    }, 
-    "height": 288
+      ]
+    }
   }, 
-  "source": "http://i.telegraph.co.uk/", 
-  "softwareAgent_label": "Recognizes different features [objects, scene, faces, ...] in the image", 
-  "documentType": "painting", 
-  "softwareAgent_configuration": 1
+  "softwareAgent_label": "cloudinary: faces, colors", 
+  "parents": [
+    "entity/image/art/painting/0"
+  ], 
+  "documentType": "fr_cloudinary", 
+  "softwareAgent_configuration": "colors"
+}{
+  "domain": "art", 
+  "tags": [
+    "apiFeatures"
+  ], 
+  "softwareAgent_id": "fr_skybiometry", 
+  "content": {
+    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "width": 1024, 
+    "features": {
+      "FacesNumber": 0
+    }, 
+    "height": 768
+  }, 
+  "softwareAgent_label": "skybiometry: faces", 
+  "parents": [
+    "entity/image/art/painting/0"
+  ], 
+  "documentType": "fr_skybiometry", 
+  "softwareAgent_configuration": "faces"
+}{
+  "domain": "art", 
+  "tags": [
+    "apiFeatures"
+  ], 
+  "softwareAgent_id": "fr_classifier", 
+  "content": {
+    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "features": {
+      "Classifier": {
+        "Flowers": 34
+      }
+    }
+  }, 
+  "softwareAgent_label": "classifier: set of classes", 
+  "parents": [
+    "entity/image/art/painting/0"
+  ], 
+  "documentType": "fr_classifier", 
+  "softwareAgent_configuration": "flowers"
+}{
+  "domain": "art", 
+  "tags": [
+    "apiFeatures"
+  ], 
+  "softwareAgent_id": "fr_classifier", 
+  "content": {
+    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "features": {
+      "Classifier": {
+        "Birds": 13
+      }
+    }
+  }, 
+  "softwareAgent_label": "classifier: set of classes", 
+  "parents": [
+    "entity/image/art/painting/0"
+  ], 
+  "documentType": "fr_classifier", 
+  "softwareAgent_configuration": "birds"
 }
