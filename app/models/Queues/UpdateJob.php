@@ -102,7 +102,16 @@ class UpdateJob {
 
 				set_time_limit(3600); // One hour.
 				exec("/usr/bin/python2.7 /var/www/crowd-watson/app/lib/generateMetrics.py '{$j->_id }' '$templateid'", $output, $return_var);
-				\Log::debug(end($output));
+				
+				dd($output);
+
+				$response = json_decode($output[0], true);
+
+
+				$j->metrics = $response->metrics;
+				$j->results = array_merge($j->results, $response->results);
+
+				//\Log::debug(end($output));
 				//$j->latestMetrics = .25;
 				
 				$this->createMetricActivity($j->_id);
