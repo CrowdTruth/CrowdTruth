@@ -239,9 +239,7 @@
 				  </div><!-- /.modal-dialog -->
 				</div><!-- /.modal -->
 		</script>
-
 	</div>						
-
 
 	<div class='hidden' id='modalIndividualWorker'>
 

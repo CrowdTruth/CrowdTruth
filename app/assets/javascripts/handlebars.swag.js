@@ -862,6 +862,89 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
     return new Handlebars.SafeString(formattedSentence);
   });
 
+Swag.addHelper('highlightTermsInVideoAbstract', function(searchQuery, content, options) {
+    var searchFieldAbstract = this.content.metadata.abstract.nl;
+    var searchFieldTitle = this.content.metadata.title.nl;
+    var searchFieldSubject = this.content.metadata.subject.nl;
+    var searchFieldDescription = this.content.metadata.description.nl;
+    var searchFieldSpatial = this.content.metadata.spatial.nl;
+ 
+     if(searchQuery.match["content.metadata.abstract.nl"]) {
+      var highlightedSearchTerm = searchQuery.match["content.metadata.abstract.nl"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+
+      searchFieldAbstract = searchFieldAbstract.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+    return new Handlebars.SafeString(searchFieldAbstract);
+  });
+
+Swag.addHelper('highlightTermsInVideoAbstract', function(searchQuery, content, options) {
+    var searchFieldAbstract = this.content.metadata.abstract.nl;
+    if(searchQuery.match["content.metadata.abstract.nl"]) {
+      var highlightedSearchTerm = searchQuery.match["content.metadata.abstract.nl"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+
+      searchFieldAbstract = searchFieldAbstract.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+    return new Handlebars.SafeString(searchFieldAbstract);
+  });
+
+Swag.addHelper('highlightTermsInVideoTitle', function(searchQuery, content, options) {
+    var searchFieldTitle = this.content.metadata.title.nl;
+ 
+     if(searchQuery.match["content.metadata.title.nl"]) {
+      var highlightedSearchTerm = searchQuery.match["content.metadata.title.nl"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+
+      searchFieldTitle = searchFieldTitle.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+    return new Handlebars.SafeString(searchFieldTitle);
+  });
+
+Swag.addHelper('highlightTermsInVideoSubject', function(searchQuery, content, options) {
+    var searchFieldSubject = this.content.metadata.subject.nl.join();
+ 
+     if(searchQuery.match["content.metadata.subject.nl"]) {
+      var highlightedSearchTerm = searchQuery.match["content.metadata.subject.nl"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+
+      searchFieldSubject = searchFieldSubject.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+    return new Handlebars.SafeString(searchFieldSubject);
+  });
+
+Swag.addHelper('highlightTermsInVideoSpatial', function(searchQuery, content, options) {
+    var searchFieldSpatial = this.content.metadata.spatial.nl.join();
+ 
+     if(searchQuery.match["content.metadata.spatial.nl"]) {
+      var highlightedSearchTerm = searchQuery.match["content.metadata.spatial.nl"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+
+      searchFieldSpatial = searchFieldSpatial.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+    return new Handlebars.SafeString(searchFieldSpatial);
+  });
+
   Swag.addHelper('gte', function(value, test, options) {
     if (!((Utils.isHandlebarsSpecific(value)) && (Utils.isHandlebarsSpecific(test)))) {
       value = Utils.result(value);

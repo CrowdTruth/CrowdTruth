@@ -35,7 +35,7 @@
 	</div>
 	<div class='ctable-responsive'>
 	    <table class="table table-striped">
-	       	<thead data-query-key="match[documentType]" data-query-value="painting">
+	       	<thead data-query-key="&collection=temp&match[documentType]" data-query-value="painting">
 		        <tr>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>
 		            <th class="sorting" data-vbIdentifier="image_id" data-query-key="orderBy[_id]" data-toggle="tooltip" data-placement="top" title="The ID of the image">ID</th>
@@ -147,37 +147,47 @@
 			            <td data-vbIdentifier="image_width">@{{ this.content.width }}   </td>
 			            <td data-vbIdentifier="image_height">@{{ this.content.height }}   </td>
 			            <td data-vbIdentifier="image_object">
-			            	@{{#eachProperty this.content.features.Object.matches}}
-			            		@{{value.tag}}: @{{value.score}} <br>			            		
-			            	@{{/eachProperty}}
-    			
-						</td>
+			              @{{#if  this.content.features.Object.matches}}
+				            	@{{#eachProperty this.content.features.Object.matches}}
+				            		@{{value.tag}}: @{{value.score}} <br>			            		
+				            	@{{/eachProperty}}
+
+       			 		   @{{/if}}
+  						</td>
 			            <td data-vbIdentifier="image_scene">
-			            	@{{#eachProperty this.content.features.Scene }}
-			            		@{{value.label}}: @{{value.score}} <br>
-			            	@{{/eachProperty}}   
+			            	@{{#if  this.content.features.Scene}}
+				            	@{{#eachProperty this.content.features.Scene }}
+				            		@{{value.label}}: @{{value.score}} <br>
+				            	@{{/eachProperty}}   
+			            	@{{/if}}
 		            	</td>
 			            <td data-vbIdentifier="image_classifiers">
-			            	@{{#eachProperty this.content.features.Classifier }}
-			            		@{{key}}: @{{value}}
-		            		@{{/eachProperty}}
+			            	@{{#if this.content.features.Classifier}}
+				            	@{{#eachProperty this.content.features.Classifier }}
+				            		@{{key}}: @{{value}}
+			            		@{{/eachProperty}}
+		            		@{{/if}}
 	            	   </td>
 			            <td data-vbIdentifier="image_facesrek">@{{ this.content.features.FacesRekognition }}   </td>
 			            <td data-vbIdentifier="image_faces">@{{ this.content.features.Faces }}   </td>
 			            <td data-vbIdentifier="image_facesnum">
-			            	@{{#eachProperty this.content.features.FacesNumber }}   
-			            		@{{key}}: @{{value}}
-			            	@{{/eachProperty}}
+			            	@{{#if this.content.features.Classifier}}
+				            	@{{#eachProperty this.content.features.FacesNumber }}   
+				            		@{{key}}: @{{value}}
+				            	@{{/eachProperty}}
+			            	@{{/if}}
 		            	</td>
 			            <td data-vbIdentifier="image_colors">
 			            	<table class="table table-striped table-condensed" style="height: 50px;">						    
 								    	<tbody>
 											<tr>
-								    		@{{#each this.content.features.ColorsMain }}
-												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
-													&nbsp;
-												</td>
-											@{{/each}}									
+								    		@{{#if thic.content.features.ColorsMain}}
+									    		@{{#each this.content.features.ColorsMain }}
+													<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
+														&nbsp;
+													</td>
+												@{{/each}}									
+											@{{/if}}
 											</tr>
 										</tbody>
 									</table>							  
@@ -187,11 +197,13 @@
 			            	 <table class="table table-striped table-condensed" style="height: 50px;">						    
 								    	<tbody>
 											<tr>
-								    		@{{#each this.content.features.ColorsHistogram }}
-												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
-													&nbsp;
-												</td>
-											@{{/each}}									
+								    		@{{#if this.content.features.ColorsHistogram}}
+									    		@{{#each this.content.features.ColorsHistogram }}
+													<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
+														&nbsp;
+													</td>
+												@{{/each}}									
+											@{{/if}}
 											</tr>
 										</tbody>
 									</table>							  

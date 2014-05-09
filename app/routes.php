@@ -44,3 +44,4 @@ Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index
 Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));
 
 Route::controller('user', 'UserController');
+

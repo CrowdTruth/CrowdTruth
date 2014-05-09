@@ -10,20 +10,20 @@
 					</button>
 					<ul class="dropdown-menu" role="menu">
 						<li><a href="#" data-vb="show" data-vbSelector="video_content"></i>Video</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="video_name"></i>Name</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="video_name"></i>Name</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="video_identifier"></i>Identifier</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="video_source"></i>Source</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_title"></i>Title</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_subject"></i>Subject</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="video_description"></i>Description</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="number_of_video_keyframes"></i># Keyframes</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="number_of_video_segments"></i># Segments</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="video_description"></i>Description</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_abstract"></i>Abstract</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_date"></i>CreationDate</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_duration"></i>Duration</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_thumbnail"></i>Thumbnail</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="video_language"></i>Language</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="video_language"></i>Language</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="video_spatial"></i>Location</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="number_of_video_keyframes"></i># Keyframes</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="number_of_video_segments"></i># Segments</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i>Used In # of Batches</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i>Used In # of Jobs</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created At</a></li>
@@ -32,8 +32,8 @@
 			</div>
 		</div>	
 	</div>
-	<div class='ctable-responsive'>
-	    <table class="table table-striped">
+	<div class='ctable-responsive cResults'>
+	    <table class="table table-striped qwe">
 	       	<thead data-query-key="match[documentType]" data-query-value="fullvideo">
 		        <tr>
 		            <th data-vbIdentifier="checkbox">Select</th>
@@ -43,14 +43,14 @@
 		            <th class="sorting" data-vbIdentifier="video_source" data-query-key="orderBy[source]">Source</th>
 			    <th class="sorting" data-vbIdentifier="video_title" data-query-key="orderBy[content.metadata.title.nl]">Title</th>
 		            <th class="sorting" data-vbIdentifier="video_subject" data-query-key="orderBy[content.metadata.subject.nl]">Subject</th>
+			    <th class="sorting" data-vbIdentifier="number_of_video_keyframes" data-query-key="orderBy[keyframes.count]"># Keyframes</th>
+			    <th class="sorting" data-vbIdentifier="number_of_video_segments" data-query-key="orderBy[segments.count]"># Segments</th>
 			    <th class="sorting" data-vbIdentifier="video_description" data-query-key="orderBy[content.metadata.description]">Description</th>
 			    <th class="sorting" data-vbIdentifier="video_abstract" data-query-key="orderBy[content.metadata.abstract]" style='min-width:300px'>Abstract</th>
 			    <th class="sorting" data-vbIdentifier="video_date" data-query-key="orderBy[content.metadata.date]">CreationDate</th>
 			    <th class="sorting" data-vbIdentifier="video_duration" data-query-key="orderBy[content.metadata.extent]">Duration</th>
 			    <th class="sorting" data-vbIdentifier="video_language" data-query-key="orderBy[content.metadata.language]">Language</th>
 			    <th class="sorting" data-vbIdentifier="video_spatial" data-query-key="orderBy[content.metadata.spatial.nl]">Location</th>
-			    <th class="sorting" data-vbIdentifier="number_of_video_keyframes" data-query-key="orderBy[keyframes.count]"># Keyframes</th>
-			    <th class="sorting" data-vbIdentifier="number_of_video_segments" data-query-key="orderBy[segments.count]"># Segments</th>
 			    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[batches.count]">Used In # of Batches</th>
 			    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[jobs.count]">Used In # of Jobs</th>     
 			    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;">Created At</th>
@@ -77,6 +77,14 @@
 				<td data-vbIdentifier="video_subject">
 					<input class="input-sm form-control" type='text' data-query-key="match[content.metadata.subject.nl]" data-query-operator="like" />
 				</td>
+				<td data-vbIdentifier="number_of_video_keyframes">
+					<input class="input-sm form-control" type='text' data-query-key="match[keyframes.count]" data-query-operator=">" style="width:49%; float:left;" placeholder="gt" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[keyframes]" data-query-operator="<" style="width:49%; float:right;" placeholder="lt" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+				</td>
+				<td data-vbIdentifier="number_of_video_segments">
+					<input class="input-sm form-control" type='text' data-query-key="match[segments.count]" data-query-operator=">" style="width:49%; float:left;" placeholder="gt" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[segments.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="lt" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+				</td>
 				<td data-vbIdentifier="video_description">
 					<input class="input-sm form-control" type='text' data-query-key="match[content.metadata.description.nl]" data-query-operator="like" />
 				</td>
@@ -97,14 +105,6 @@
 				</td>
 				<td data-vbIdentifier="video_spatial">
 					<input class="input-sm form-control" type='text' data-query-key="match[content.metadata.spatial.nl]" data-query-operator="like" />
-				</td>
-				<td data-vbIdentifier="number_of_video_keyframes">
-					<input class="input-sm form-control" type='text' data-query-key="match[keyframes.count]" data-query-operator=">" style="width:49%; float:left;" placeholder="gt" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[keyframes]" data-query-operator="<" style="width:49%; float:right;" placeholder="lt" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-				</td>
-				<td data-vbIdentifier="number_of_video_segments">
-					<input class="input-sm form-control" type='text' data-query-key="match[segments.count]" data-query-operator=">" style="width:49%; float:left;" placeholder="gt" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[segments.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="lt" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="number_of_batches">
 					<input class="input-sm form-control" type='text' data-query-key="match[batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
@@ -128,7 +128,7 @@
 			        <tr class="text-center">
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
 			            <td data-vbIdentifier="video_content">
-					<video width="240" height="160" controls preload="none" poster="@{{ this.content.metadata.medium.thumbnail }}">
+					<video width="240" height="160" controls preload="none" poster="@{{ this.content.metadata.medium.thumbnail }}"  data-toggle="tooltip" data-placement="top" title="Click to play">
 						
 	  					<source src="@{{ this.content.storage_url }}" type="video/mp4" >
 						<source src="@{{ this.content.storage_url }}" type="video/ogg" >
@@ -136,17 +136,15 @@
 						</source>
 					</video>
 				    </td>
-			            <td data-vbIdentifier="video_name" ><a href="@{{ this.content.metadata.attributionURL }}" target="_blank" data-toggle="tooltip" data-placement="top" title="Click on the link to watch the video"> @{{ this.content.videoName }}</a></td>
-			            <td data-vbIdentifier="video_identifier">@{{ this.content.identifier }}</td>
+			            <td data-vbIdentifier="video_name" ><a href="@{{ this.content.metadata.attributionURL }}" target="_blank" data-toggle="tooltip" data-placement="top" title="Watch the video on the original source page"> @{{ this.content.videoName }}</a></td>
+			            <td data-vbIdentifier="video_identifier"> 
+					<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualFullvideo" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
+						@{{ this.content.identifier }}
+					</a>
+				    </td>
 			            <td data-vbIdentifier="video_source">@{{ this.source }}</td>
-			            <td data-vbIdentifier="video_title">@{{ this.content.metadata.title.nl }}</td>
-				    <td data-vbIdentifier="video_subject">@{{ this.content.metadata.subject.nl }}</td>
-			            <td data-vbIdentifier="video_description" >@{{ this.content.metadata.description.nl }}</td>
-				    <td data-vbIdentifier="video_abstract">@{{ this.content.metadata.abstract.nl }}</td>
-				    <td data-vbIdentifier="video_date" >@{{ this.content.metadata.date }}</td>
-	      			    <td data-vbIdentifier="video_duration"> @{{ this.content.metadata.extent }}	</td>
-				    <td data-vbIdentifier="video_language">@{{ this.content.metadata.language }}</td>
-				    <td data-vbIdentifier="video_spatial" >@{{ this.content.metadata.spatial.nl }}</td>
+			            <td data-vbIdentifier="video_title">@{{ highlightTermsInVideoTitle ../searchQuery this.content.metadata.title.nl }}</td>
+				    <td data-vbIdentifier="video_subject">@{{ highlightTermsInVideoSubject ../searchQuery this.content.metadata.subject.nl }}</td>
 				    <td data-vbIdentifier="number_of_video_keyframes" id="keyframe_@{{ @index }}">
 					<a class='testModal' data-modal-query="&only[]=content.storage_url&only[]=content.timestamp&match[documentType]=keyframe&match[parents][]=@{{ this._id }}" data-api-target="{{ URL::to('api/search?noCache') }}" data-target="#modalTemplateKeyframes" data-toggle="tooltip" data-placement="top" title="Click to see the keyframes">
 						@{{ this.keyframes.count }}
@@ -157,6 +155,12 @@
 						@{{ this.segments.count }}
 					</a>
 				    </td>
+			            <td data-vbIdentifier="video_description" >@{{ this.content.metadata.description.nl }}</td>
+				    <td data-vbIdentifier="video_abstract">@{{ highlightTermsInVideoAbstract ../searchQuery this.content.metadata.abstract.nl }}</td>
+				    <td data-vbIdentifier="video_date" >@{{ this.content.metadata.date }}</td>
+	      			    <td data-vbIdentifier="video_duration"> @{{ this.content.metadata.extent }}	</td>
+				    <td data-vbIdentifier="video_language">@{{ this.content.metadata.language }}</td>
+				    <td data-vbIdentifier="video_spatial" >@{{ this.content.metadata.spatial.nl }}</td>
 				    <td data-vbIdentifier="number_of_batches">@{{ this.batches.count }}</td>
 				    <td data-vbIdentifier="number_of_jobs">@{{ this.jobs.count }}</td>
 				    <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
@@ -253,5 +257,252 @@
 				</div>
 		</script>
 
-	</div>								
+	</div>	
+	
+	<div class='hidden' id='modalIndividualFullvideo'>
+		<script class='template' type="text/x-handlebars-template">
+		<!-- Modal -->
+		<div class="modal fade bs-example-modal-lg" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelVideoUnit" aria-hidden="true">
+		 <div class="modal-dialog modal-lg">
+		  <div class="modal-content">
+		   <div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		     <h4 class="modal-title" id="myModalLabelVideoUnit">Individual Full Video Page</h4>
+		   </div>
+		   <div class="modal-body" >
+		         <div class="panel-group" id="accordion">
+			  <div class="panel panel-default">
+			    <div class="panel-heading">
+			      <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+				<h4 class="panel-title">
+				 Full Video Information 
+				</h4>
+			      </a>
+			    </div>
+			    <div id="collapseOne" class="panel-collapse collapse in">
+			      <div class="panel-body">
+				<div><strong> Type: </strong> @{{ this.infoStat.documentType }} </div>
+					   <div><strong> Format: </strong> @{{ this.infoStat.format }} </div>
+					   <div><strong> Domain: </strong> @{{ this.infoStat.domain }} </div>
+					   <div><strong> Source: </strong> @{{ this.infoStat.source }} </div>
+					   <div> <strong> Creator: </strong> @{{ this.infoStat.content.metadata.creator.nl }} </div>   
+					   <div><strong> Online URL: </strong> @{{ this.infoStat.content.metadata.online_url }} </div>
+					   <div><strong> Title: </strong> 
+					    <ul>
+						  <li> NL: @{{ this.infoStat.content.metadata.title.nl }} </li>
+						  <li> EN: @{{ this.infoStat.content.metadata.title.en }} </li>
+					    </ul>
+					   </div>
+					   <div><strong> Subject: </strong> 
+					    <ul>
+					     <li> NL: @{{ this.infoStat.content.metadata.subject.nl }} </li>
+					     <li> EN: @{{ this.infoStat.content.metadata.subject.en }} </li>
+					    </ul>
+					   </div>
+					  <div><strong> Abstract: </strong> 
+					   <ul>
+					    <li> NL: @{{ this.infoStat.content.metadata.abstract.nl }} </li>
+					    <li> EN: @{{ this.infoStat.content.metadata.abstract.en }} </li>
+					   </ul>
+					  </div>
+					  <div><strong> Date: </strong> @{{ this.infoStat.content.metadata.date }} </div>
+					  <div><strong> Duration: </strong> @{{ this.infoStat.content.metadata.extent }} </div>
+					  <div><strong> Language: </strong> @{{ this.infoStat.content.metadata.language }} </div>
+					  <div><strong> Location: </strong> @{{ this.infoStat.content.metadata.spatial }} </div>
+			      </div>
+			    </div>
+			  </div>
+			  <div class="panel panel-default">
+			    <div class="panel-heading">
+			      <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+					  <h4 class="panel-title">
+					   Full Video Stats
+					  </h4>
+					 </a>
+			    </div>
+			    <div id="collapseTwo" class="panel-collapse collapse">
+			      <div class="panel-body">
+				<div><strong> Used in @{{ this.infoStat.cache.batches.count }} Batch(es) </strong>  </div>
+					  <div><strong> Used in @{{ this.infoStat.cache.jobs.distinct }} Distinct Job Type(s) </strong></div>
+					  <div><strong data-toggle="tooltip" data-placement="top" title="#Spam Workers: @{{ this.infoStat.cache.workers.spamCount }} <br /> #NonSpam Workers: @{{ this.infoStat.cache.workers.nonSpamCount }}"> Annotated by a total of @{{ this.infoStat.cache.workers.count }} Worker(s) </strong> </div>
+					  <div><strong data-toggle="tooltip" data-placement="top" title="#Spam Annotations: @{{ this.infoStat.cache.annotations.spamCount }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonSpamCount }}"> Collected a total of @{{ this.infoStat.cache.annotations.count }} Annotation(s) </strong> </div>
+					  <hr/>
+					  <div><strong data-toggle="tooltip" data-placement="top" title="#Spam Annotations: @{{ this.infoStat.cache.annotations.spamCount }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonSpamCount }}"> Average Twrex-structured-sentence Clarity (across CrowdTruth jobs): @{{ this.infoStat.cache.avg_clarity }} </strong> </div>
+					  <div><strong> Marked as low-quality in @{{ this.infoStat.cache.filteredOutUnit.count}} Job(s): </strong></div>
+					  <table class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0" text-align="center"> 
+					  <thead> 
+					   <tr> 
+					    <th class="header">Job Id</th>
+					    <th class="header">Job Title</th>
+   					    <th class="header"  data-toggle="tooltip" data-placement="top" title="Sentence Clarity: the value is defined as the maximum sentence annotation score achieved on any annotation for that twrex-structured-sentence. High agreement over the annotations is represented by high cosine scores, indicating a clear sentence.">Twrex-structured-sentence Clarity</th>
+					   </tr>
+					  </thead>
+					  <tbody>
+					  @{{#each this.jobContent}}
+					  @{{#inArray metrics.filteredUnits.list ../infoStat._id }}
+					   <tr>
+					    <td> @{{ platformJobId }} </td>
+					    <td> @{{ jobConf.content.title }} </td>
+					    @{{#each metrics.units.withoutSpam }}
+					     <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
+					    @{{/each}}
+					   </tr>
+					  @{{/inArray}}
+					  @{{/each}}
+					  </tbody>
+					  </table>
+			      </div>
+			    </div>
+			  </div>
+			  <div class="panel panel-default">
+			    <div class="panel-heading">
+				<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+			      <h4 class="panel-title">
+				
+				  Full Video in Jobs
+				
+			      </h4>
+				</a>
+			    </div>
+			    <div id="collapseThree" class="panel-collapse collapse">
+			      <div class="panel-body">
+				<table class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0" text-align="center"> 
+						<thead> 
+						<tr> 
+						  <th class="header" rowspan="3">Job Id</th>
+						  <th class="header" rowspan="3">Filtered Out</th>
+   						  <th class="header" colspan="2">Unit Metrics (across unit)</th>
+						  <th class="header" colspan="4">Units Metrics (across all units in job)</th>
+						  <th class="header" rowspan="3" data-toggle="tooltip" data-placement="top" title="Annotation Vector: The vector sum of the worker-sentence vectors for each sentence">Annotation Vector</th>
+						</tr>
+						<tr>
+						  <th class="header" rowspan="2">Clarity</td>
+						  <th class="header" rowspan="2">#Workers</td>
+						  <th class="header" colspan="2">Mean</td>
+						  <th class="header" colspan="2">Stddev</td>
+						</tr>
+						<tr>
+						  <th class="header">Clarity</td>
+						  <th class="header">#Workers</td>
+						  <th class="header">Clarity</td>
+						  <th class="header">#Workers</td>
+						</tr>
+						</thead>
+						<tbody>
+						  @{{#each this.jobContent}} 
+						 
+						  <tr>
+						   <td data-toggle="tooltip" data-placement="top" title="Job Title: @{{ jobConf.content.title }}"> @{{ platformJobId }} </td>  					  
+		                                   @{{#inArray metrics.filteredUnits.list ../infoStat._id}}
+							<td> True </td>
+						   @{{else}}
+							<td> False </td>
+						   @{{/inArray}}
+
+						   @{{#each metrics.units.withoutSpam}}
+						   <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
+						   <td> @{{ toFixed no_annotators.avg 2}} </td>
+						   @{{/each}}
+						   <td> @{{ toFixed metrics.aggUnits.mean.max_relation_Cos.avg 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.mean.no_annotators.avg 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.stddev.max_relation_Cos.avg 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.stddev.no_annotators.avg 2}} </td>
+						   <td> 
+    							@{{#each results.withoutSpam}}
+							 @{{#each this}} 
+							   <table border="1" bordercolor="#C0C0C0">
+							    <tr> 
+							     @{{#eachProperty this}}
+  								<td> @{{#abrWords key}} @{{/abrWords}} </td>
+							     @{{/eachProperty }}
+							    </tr>
+							    <tr> 
+							     @{{#eachProperty this}}
+  								<td>@{{value}} </td>
+							     @{{/eachProperty }}
+							    </tr>
+							   </table>
+							  @{{/each}}
+    							 @{{/each}}
+						   </td>
+						  @{{/each}}
+						  	
+						 </tbody>
+						</table>
+			      </div>
+			    </div>
+			  </div>
+			 <div class="panel panel-default">
+					    <div class="panel-heading">
+					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+					      <h4 class="panel-title">
+						  Workers on Full Video
+					      </h4>
+					     </a>
+					    </div>
+					    <div id="collapseFour" class="panel-collapse collapse">
+					      <div class="panel-body">
+						<table id="myIndividualWorkerTable" class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0"> 
+						<thead> 
+						<tr> 
+						    <th class="header">Worker Id</th>
+						    <th class="header">Platform</th>
+						    <th class="header">Platform Score</th>
+						    <th class="header">Job Title</th>
+						    <th class="header" data-toggle="tooltip" data-placement="top" title="Average Worker Cosine: is the vector cosine similarity between the annotations of a worker and the aggregated annotations of the other workers in a sentence, reflecting how close the relation(s) chosen by the worker are to the opinion of the majority for that sentence.">Avg. Worker Cosine</th>
+						    <th class="header" data-toggle="tooltip" data-placement="top" title="Average Worker Agreement: worker metric based on the average worker-worker agreement between a worker and the rest of workers, weighted by the number of sentences in common.">Avg. Worker Agreement</th>
+						    <th class="header" data-toggle="tooltip" data-placement="top" title="Avg. # Annotations / Unit: indicates the average number of different relations per sentence used by a worker for annotating a set of sentences.">Avg. # Annotation/Unit</th>
+						    <th class="header" data-toggle="tooltip" data-placement="top" title="Worker Annotation Vector: the result of a single worker annotating a single unit. For each relation that the worker annotated in the unit, there is a 1 in the corresponding component, otherwise a 0.">Worker Annotation Vector</th>
+						</tr> 
+						</thead>
+						<tbody>
+						  @{{#each this.annotationContent}} 
+						   @{{#each annotationType}}
+						    <tr>
+						     <td> @{{ ../_id }} </td>  		  
+		                                     <td> @{{ ../valuesWorker.softwareAgent_id}} </td>
+						     <td> @{{ ../valuesWorker.cfWorkerTrust}} </td>
+						     <td> @{{ job_info.jobConf.content.title}} </td>
+						      @{{#each job_info.metrics.workers.withFilter}}
+						       @{{#ifvalue ../../_id value=@key}}
+						       <td> @{{ toFixed worker_cosine.avg 2}} </td>
+						       <td> @{{ toFixed avg_worker_agreement.avg 2}} </td>
+						       <td> @{{ toFixed ann_per_unit.avg 2}} </td>
+						       @{{/ifvalue}}
+						      @{{/each}}
+						       <td> 
+    							@{{#each annotation}}
+							 
+							   <table border="1" bordercolor="#C0C0C0">
+							    <tr> 
+							     @{{#eachProperty this}}
+  								<td> @{{#abrWords key}} @{{/abrWords}} </td>
+							     @{{/eachProperty }}
+							    </tr>
+							    <tr> 
+							     @{{#eachProperty this}}
+  								<td>@{{value}} </td>
+							     @{{/eachProperty }}
+							    </tr>
+							   </table>
+							
+    							 @{{/each}}
+						      </td>
+						     </tr> 
+						   @{{/each}}
+						  @{{/each}}
+						  	
+						 </tbody>
+						</table>
+					      </div>
+					    </div>
+					  </div>
+			</div>
+		   </div>
+  	          </div>
+		 </div>
+		</div>
+		</script>
+
+	</div>												
 </div>

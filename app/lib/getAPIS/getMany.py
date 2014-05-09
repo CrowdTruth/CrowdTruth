@@ -15,12 +15,17 @@ import Image, ImageFilter
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+import smtplib
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEBase import MIMEBase
+from email.MIMEText import MIMEText
+from email import Encoders
 import warnings
 warnings.filterwarnings('ignore')
 
 DELAY = 2    
 WRITE_FILE = 0
-if len(sys.argv) < 4:
+if len(sys.argv) < 5:
     print('wrong parameters', file=sys.stderr)
     exit()
 ################### 
@@ -50,7 +55,6 @@ url = 'http://crowdtruth.org/api/media/test'
 
 headers = {'content-type': 'application/json'}
 
-
 # data1 = {
 # "_id": "entity/image/art/painting/1",
 # "format": "image",
@@ -72,11 +76,15 @@ if WRITE_FILE==1:
 # output.write(json.dumps(data1, indent = 2)) 
 # r = requests.post(url, data=json.dumps(data1), headers=headers)
 # print (r)   
+LOG = ""
 
+def log (t):
+    global LOG
+    LOG += str(t) + "\n"
 
- 
+em = sys.argv[3]
 
-for iter in range(3, len(sys.argv), 2):
+for iter in range(4, len(sys.argv), 2):
     time.sleep(DELAY)
     ImURL = sys.argv[iter]
     parentID = sys.argv[iter+1]
@@ -86,10 +94,12 @@ for iter in range(3, len(sys.argv), 2):
     data['content'] = {}
     data['parents'] = [parentID]
     data['domain'] = sys.argv[1]
-    data['tags'] = ['unit']
+    data['tags'] = ['apiFeatures']
     #data['documentType'] = sys.argv[2]
+
     data['content']['URL'] = ImURL
-    
+    log(ImURL)
+    log(parentID)
 
 
     #####################   REKOGNITION   ####################################
@@ -113,11 +123,12 @@ for iter in range(3, len(sys.argv), 2):
         r = requests.post(url, data=json.dumps(data), headers=headers)
         if WRITE_FILE==1:
             output.write(json.dumps(data, indent = 2))  
-        
+        log(r)
         print (r)    
         closse(response)        
     except Exception, e:
         print('error REKOGNITION a' + str(e), file=sys.stderr)  
+        log('error REKOGNITION a' + str(e))
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
         "jobs=scene_understanding_3&urls="+ImURL + "&num_return=7"
@@ -129,12 +140,14 @@ for iter in range(3, len(sys.argv), 2):
         Features['object'] = data2["scene_understanding"]
         data['content']['features'] = Features    
         r = requests.post(url, data=json.dumps(data), headers=headers)
+        log(r)
         print (r)  
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))   
         closse(response)            
     except Exception, e:
          print('error REKOGNITION b' + str(e), file=sys.stderr)
+         log('error REKOGNITION b' + str(e))
         
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
@@ -151,11 +164,13 @@ for iter in range(3, len(sys.argv), 2):
         data['content']['features'] = Features  
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)  
+        log(r)
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))  
         closse(response)    
     except Exception, e:
          print('error REKOGNITION c' + str(e), file=sys.stderr) 
+         log('error REKOGNITION c' + str(e))
     #########################   CLOUDINARY   ############################################    
 
     try:
@@ -182,11 +197,13 @@ for iter in range(3, len(sys.argv), 2):
         data['content']['features'] = Features    
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)   
+        log(r)
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))  
         closse(response)    
     except Exception, e:
         print('error CLOUDINARY' + str(e), file=sys.stderr)  
+        log('error CLOUDINARY' + str(e))
 
     ###############################   SKYBIOMETRY   ############################################  
     Sky_key = "7e544588316542b382d286988b83d679"
@@ -221,12 +238,14 @@ for iter in range(3, len(sys.argv), 2):
         data['content']['width'] = data4['width']
         data['content']['features'] = Features    
         r = requests.post(url, data=json.dumps(data), headers=headers)
-        print (r)     
+        print (r)   
+        log(r)  
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))  
 
     except Exception, e:
         print('error SKYBIOMETRY' + str(e), file=sys.stderr)
+        log('error SKYBIOMETRY' + str(e))
 
           
     #############################   LUKASZ.FLOWERS, BIRDS        ################################# 
@@ -245,11 +264,13 @@ for iter in range(3, len(sys.argv), 2):
         Features["Classifier"]['Flowers'] = predict_adopted.predict("FLOWERS", image)
         data['content']['features'] = Features    
         r = requests.post(url, data=json.dumps(data), headers=headers)
-        print (r)      
+        print (r)     
+        log(r) 
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))             
     except Exception, e:
         print('error CLASSIFIER' + str(e), file=sys.stderr)
+        log('error CLASSIFIER FLOWERS' + str(e))
         
     Features = {}
     Features["Classifier"] = {}
@@ -260,19 +281,16 @@ for iter in range(3, len(sys.argv), 2):
         Features["Classifier"]['Birds'] = predict_adopted.predict("BIRDS", image)
         data['content']['features'] = Features    
         r = requests.post(url, data=json.dumps(data), headers=headers)
-        print (r)  
+        print (r) 
+        log(r) 
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))  
         
     except Exception, e:
-        print('error CLASSIFIER' + str(e), file=sys.stderr)   
+        print('error CLASSIFIER' + str(e), file=sys.stderr) 
+        log('error CLASSIFIER BIRDS' + str(e))
     
     #############################   SAVE [ TO FILE + STDOUT ]       #################################    
-
-      
-    # try:
-      
-        # data['content']['features'] = Features     
 
     if WRITE_FILE==1:
         output.close()
@@ -285,18 +303,40 @@ for iter in range(3, len(sys.argv), 2):
 
    
  
+
+
+
+gmail_user = "crowdwatson@gmail.com"
+with open('/var/yo.txt') as f:
+         for line in f:
+             gmail_pwd = line.strip()
+             break
+
+
+
+def mail(to, subject, text, attach):
+   msg = MIMEMultipart()
+
+   msg['From'] = gmail_user
+   msg['To'] = to
+   msg['Subject'] = subject
+
+   msg.attach(MIMEText(text))
+   mailServer = smtplib.SMTP("smtp.gmail.com", 587)
+   mailServer.ehlo()
+   mailServer.starttls()
+   mailServer.ehlo()
+   mailServer.login(gmail_user, gmail_pwd)
+   mailServer.sendmail(gmail_user, to, msg.as_string())
+   mailServer.close()
+
+mail(em,
+   "Images preprocessing",
+   "Your preprocessing is finished! \n Log: \n" + LOG,
+   "___")
  
-     
-     
-     
-     
- 
- 
- 
- 
- 
- 
- 
+print ("Finished! - email sent to", em)
+log("Finished")
  
  
  
