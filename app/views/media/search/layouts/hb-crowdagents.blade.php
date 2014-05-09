@@ -376,12 +376,13 @@
 						    <td> @{{ toFixed metrics.aggWorkers.stddev.ann_per_unit.avg 2}} </td>
 						    <td> @{{ toFixed metrics.aggWorkers.stddev.worker_cosine.avg 2}} </td>
 						    <td> @{{ toFixed metrics.aggWorkers.stddev.no_of_units.avg 0}} </td>
-						    @{{#inArray ../infoStat.cache.spammer.jobs this.platformJobId.[0] }}
+			
+						    @{{#inArrayNew ../infoStat.cache.spammer.jobs this.platformJobId }}
 							<td> Spammer </td>
 						    @{{else}}
 							<td> Non Spammer </td>
-						    @{{/inArray}}
-						  </tr>
+						    @{{/inArrayNew}}
+						   </tr>
 						  @{{/each}}
 						 </tbody>
 						</table>
