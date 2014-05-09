@@ -82,13 +82,17 @@ class Job extends Entity {
     public function publish($sandbox = false){
     	try {
 	    	$response = $this->getPlatform()->publishJob($this, $sandbox);
-	    	$this->platformJobId = (string) $response['id']; // NB: mongo is strictly typed and CF has Int jobid's!!!
+	    	
+            if(!is_array($response['id']))
+                $response['id'] = (string) $response['id'];
+
+            $this->platformJobId = $response['id']; // NB: mongo is strictly typed and CF has Int jobid's!!!
 	    	
             if(isset($response['url']))
                 $this->url = $response['url'];
 
             $this->status = ($sandbox ? 'unordered' : 'running');
-	    	$this->update();
+	    	$this->save();
     	} catch (Exception $e) {
             Log::debug("Error creating job: {$e->getMessage()}");
     		$this->undoCreation($this->platformJobId, $e);

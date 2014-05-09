@@ -25,7 +25,7 @@
 											<th>Description</th>
 											<th>Size</th>
 											<th>Format</th>
-											<th>DocumentType</th>
+											<th>Domain</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -50,7 +50,7 @@
 												{{ $batch->format }}
 											</td>
 											<td>
-												{{ $batch->documentType }}
+												{{ $batch->domain }}
 											</td>
 										</tr>
 										@endforeach
