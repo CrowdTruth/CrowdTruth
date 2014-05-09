@@ -58,11 +58,6 @@ class Entity extends Moloquent {
             {
                 $entity->user_id = "crowdwatson";
             }
-
-            if($entity->documentType == "painting" || $entity->documentType == "drawing" || $entity->documentType == "picture")
-            {
-                \MongoDB\Temp::createImageCache();
-            }
         });
 
         static::saving(function($entity)
@@ -76,6 +71,15 @@ class Entity extends Moloquent {
 
         static::saved(function($entity)
         {
+
+            if(isset($entity['tags']))
+            {
+                if(in_array("apiFeatures", $entity['tags']))
+                {
+                    \MongoDB\Temp::createImageCache();
+                }
+            }
+
             Cache::flush();
         });
 

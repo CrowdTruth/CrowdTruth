@@ -24,7 +24,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 DELAY = 2    
-WRITE_FILE = 0
+WRITE_FILE = 1
 if len(sys.argv) < 5:
     print('wrong parameters', file=sys.stderr)
     exit()
@@ -49,8 +49,8 @@ def closse(response):
         pass
 
 #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#url = 'http://localhost/api/media/test'
-url = 'http://crowdtruth.org/api/media/test'
+url = 'http://localhost/api/media/test'
+#url = 'http://crowdtruth.org/api/media/test'
 #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 headers = {'content-type': 'application/json'}

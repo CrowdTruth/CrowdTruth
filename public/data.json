@@ -5,23 +5,27 @@
   ], 
   "softwareAgent_id": "fr_rekognition", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://lh5.ggpht.com/AawYh4-xNdWGwQP94tqtp3tmSHJ89N7HPvAsswE9AGz1fLJ_TPgdRBAWKWaMV9g4_qmS25Nm6RD_5hNqYndc6gQGdA=s0", 
     "features": {
       "scene": [
         {
-          "score": 0.9533, 
-          "label": "Flower"
+          "score": 0.1888, 
+          "label": "Food"
         }, 
         {
-          "score": 0.0557, 
-          "label": "Food"
+          "score": 0.1164, 
+          "label": "Restaurant"
+        }, 
+        {
+          "score": 0.1122, 
+          "label": "Park"
         }
       ]
     }
   }, 
   "softwareAgent_label": "rekognition: [object, scene, faces]", 
   "parents": [
-    "entity/image/art/painting/0"
+    "entity/image/art/painting/2"
   ], 
   "documentType": "fr_rekognition", 
   "softwareAgent_configuration": "scene"
@@ -32,38 +36,38 @@
   ], 
   "softwareAgent_id": "fr_rekognition", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://lh5.ggpht.com/AawYh4-xNdWGwQP94tqtp3tmSHJ89N7HPvAsswE9AGz1fLJ_TPgdRBAWKWaMV9g4_qmS25Nm6RD_5hNqYndc6gQGdA=s0", 
     "features": {
       "object": {
         "": [], 
         "matches": [
           {
-            "tag": "rose", 
-            "score": 0.923
+            "tag": "landscape", 
+            "score": 0.1194
           }, 
           {
-            "tag": "flower", 
-            "score": 0.6946
-          }, 
-          {
-            "tag": "lollipop", 
-            "score": 0.3268
-          }, 
-          {
-            "tag": "candy", 
-            "score": 0.0986
-          }, 
-          {
-            "tag": "flora", 
-            "score": 0.0681
-          }, 
-          {
-            "tag": "bell pepper", 
-            "score": 0.0344
-          }, 
-          {
-            "tag": "sliced", 
+            "tag": "cocker spaniel", 
             "score": 0.0093
+          }, 
+          {
+            "tag": "scenery", 
+            "score": 0.0091
+          }, 
+          {
+            "tag": "reed", 
+            "score": 0.0084
+          }, 
+          {
+            "tag": "mammal", 
+            "score": 0.0083
+          }, 
+          {
+            "tag": "pet", 
+            "score": 0.0083
+          }, 
+          {
+            "tag": "wren", 
+            "score": 0.0083
           }
         ]
       }
@@ -71,7 +75,7 @@
   }, 
   "softwareAgent_label": "rekognition: [object, scene, faces]", 
   "parents": [
-    "entity/image/art/painting/0"
+    "entity/image/art/painting/2"
   ], 
   "documentType": "fr_rekognition", 
   "softwareAgent_configuration": "object"
@@ -82,7 +86,7 @@
   ], 
   "softwareAgent_id": "fr_rekognition", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://lh5.ggpht.com/AawYh4-xNdWGwQP94tqtp3tmSHJ89N7HPvAsswE9AGz1fLJ_TPgdRBAWKWaMV9g4_qmS25Nm6RD_5hNqYndc6gQGdA=s0", 
     "features": {
       "FacesNumber": 0, 
       "Faces": []
@@ -90,7 +94,7 @@
   }, 
   "softwareAgent_label": "rekognition: [object, scene, faces]", 
   "parents": [
-    "entity/image/art/painting/0"
+    "entity/image/art/painting/2"
   ], 
   "documentType": "fr_rekognition", 
   "softwareAgent_configuration": "faces"
@@ -101,7 +105,7 @@
   ], 
   "softwareAgent_id": "fr_cloudinary", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://lh5.ggpht.com/AawYh4-xNdWGwQP94tqtp3tmSHJ89N7HPvAsswE9AGz1fLJ_TPgdRBAWKWaMV9g4_qmS25Nm6RD_5hNqYndc6gQGdA=s0", 
     "features": {
       "FacesNumber": 0, 
       "Faces": []
@@ -109,7 +113,7 @@
   }, 
   "softwareAgent_label": "cloudinary: faces, colors", 
   "parents": [
-    "entity/image/art/painting/0"
+    "entity/image/art/painting/2"
   ], 
   "documentType": "fr_cloudinary", 
   "softwareAgent_configuration": "faces"
@@ -120,157 +124,125 @@
   ], 
   "softwareAgent_id": "fr_cloudinary", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://lh5.ggpht.com/AawYh4-xNdWGwQP94tqtp3tmSHJ89N7HPvAsswE9AGz1fLJ_TPgdRBAWKWaMV9g4_qmS25Nm6RD_5hNqYndc6gQGdA=s0", 
     "features": {
       "ColorsMain": [
         [
-          "green", 
-          43.8
-        ], 
-        [
-          "red", 
-          21.3
-        ], 
-        [
-          "black", 
-          8.3
-        ], 
-        [
           "yellow", 
-          6.7
-        ], 
-        [
-          "orange", 
-          6.1
+          35.6
         ], 
         [
           "brown", 
-          5.2
+          33.6
+        ], 
+        [
+          "black", 
+          27.3
         ]
       ], 
       "ColorsHistogram": [
         [
-          "#102F10", 
-          11.4
+          "#241C0C", 
+          13.7
         ], 
         [
-          "#09180A", 
-          8.3
+          "#17140E", 
+          13.6
         ], 
         [
-          "#213223", 
-          5.9
+          "#2F2911", 
+          8.2
         ], 
         [
-          "#184A15", 
-          5.3
+          "#1F2113", 
+          6.8
         ], 
         [
-          "#1E5423", 
-          4.0
+          "#393627", 
+          5.5
         ], 
         [
-          "#FCB1AE", 
-          3.7
+          "#56564A", 
+          5.1
         ], 
         [
-          "#2F6F30", 
-          3.7
+          "#3E4125", 
+          4.6
         ], 
         [
-          "#F55A2A", 
+          "#777F83", 
           3.4
         ], 
         [
-          "#C9748F", 
-          3.3
-        ], 
-        [
-          "#39704E", 
-          3.3
-        ], 
-        [
-          "#2B3213", 
+          "#6E6C53", 
           3.2
         ], 
         [
-          "#FBECE7", 
+          "#473612", 
           3.2
         ], 
         [
-          "#E02416", 
-          3.1
-        ], 
-        [
-          "#FA905F", 
-          3.1
-        ], 
-        [
-          "#408D3F", 
-          3.1
-        ], 
-        [
-          "#FDCAB2", 
+          "#5F6052", 
           3.0
         ], 
         [
-          "#F59C95", 
-          2.9
+          "#938851", 
+          2.6
         ], 
         [
-          "#FDCFCE", 
+          "#74766D", 
+          2.6
+        ], 
+        [
+          "#726735", 
           2.5
         ], 
         [
-          "#545827", 
-          2.4
+          "#989583", 
+          2.2
         ], 
         [
-          "#F26E5B", 
-          2.4
+          "#8C8873", 
+          2.2
         ], 
         [
-          "#77998F", 
+          "#4E4B30", 
           2.1
         ], 
         [
-          "#2A4C16", 
-          2.1
-        ], 
-        [
-          "#542D1C", 
-          2.0
-        ], 
-        [
-          "#509157", 
-          1.9
-        ], 
-        [
-          "#2A512A", 
-          1.9
-        ], 
-        [
-          "#A80F1A", 
+          "#7E8176", 
           1.7
         ], 
         [
-          "#FC8D71", 
-          1.6
+          "#514516", 
+          1.5
         ], 
         [
-          "#9E6157", 
+          "#837D6B", 
+          1.4
+        ], 
+        [
+          "#643519", 
+          1.4
+        ], 
+        [
+          "#887236", 
           1.3
         ], 
         [
-          "#47374A", 
+          "#D8D0A0", 
           1.3
         ], 
         [
-          "#546F58", 
+          "#AE9F62", 
           1.2
         ], 
         [
-          "#99925C", 
+          "#BCAC69", 
+          1.2
+        ], 
+        [
+          "#433D28", 
           1.1
         ]
       ]
@@ -278,7 +250,7 @@
   }, 
   "softwareAgent_label": "cloudinary: faces, colors", 
   "parents": [
-    "entity/image/art/painting/0"
+    "entity/image/art/painting/2"
   ], 
   "documentType": "fr_cloudinary", 
   "softwareAgent_configuration": "colors"
@@ -289,16 +261,16 @@
   ], 
   "softwareAgent_id": "fr_skybiometry", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
-    "width": 1024, 
+    "URL": "http://lh5.ggpht.com/AawYh4-xNdWGwQP94tqtp3tmSHJ89N7HPvAsswE9AGz1fLJ_TPgdRBAWKWaMV9g4_qmS25Nm6RD_5hNqYndc6gQGdA=s0", 
+    "width": 2952, 
     "features": {
       "FacesNumber": 0
     }, 
-    "height": 768
+    "height": 2406
   }, 
   "softwareAgent_label": "skybiometry: faces", 
   "parents": [
-    "entity/image/art/painting/0"
+    "entity/image/art/painting/2"
   ], 
   "documentType": "fr_skybiometry", 
   "softwareAgent_configuration": "faces"
@@ -309,16 +281,16 @@
   ], 
   "softwareAgent_id": "fr_classifier", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://lh5.ggpht.com/AawYh4-xNdWGwQP94tqtp3tmSHJ89N7HPvAsswE9AGz1fLJ_TPgdRBAWKWaMV9g4_qmS25Nm6RD_5hNqYndc6gQGdA=s0", 
     "features": {
       "Classifier": {
-        "Flowers": 34
+        "Flowers": -1
       }
     }
   }, 
   "softwareAgent_label": "classifier: set of classes", 
   "parents": [
-    "entity/image/art/painting/0"
+    "entity/image/art/painting/2"
   ], 
   "documentType": "fr_classifier", 
   "softwareAgent_configuration": "flowers"
@@ -329,16 +301,16 @@
   ], 
   "softwareAgent_id": "fr_classifier", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://lh5.ggpht.com/AawYh4-xNdWGwQP94tqtp3tmSHJ89N7HPvAsswE9AGz1fLJ_TPgdRBAWKWaMV9g4_qmS25Nm6RD_5hNqYndc6gQGdA=s0", 
     "features": {
       "Classifier": {
-        "Birds": 13
+        "Birds": -1
       }
     }
   }, 
   "softwareAgent_label": "classifier: set of classes", 
   "parents": [
-    "entity/image/art/painting/0"
+    "entity/image/art/painting/2"
   ], 
   "documentType": "fr_classifier", 
   "softwareAgent_configuration": "birds"

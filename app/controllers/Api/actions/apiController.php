@@ -51,10 +51,10 @@ class apiController extends BaseController {
 		// LOOP THROUGH IMAGES CREATE ENTITIES WITH ACTIVITY-ID FOR NEW IMAGES
 		$url_ids = "";
 		foreach ($input[0] as $img){
-
+\Log::debug(json_encode($img));
 			try {
 				
-				$parse = parse_url($img);
+				$parse = parse_url($img['url']);
 				$source = $parse['host'];
 								
 				// Save images as parent
@@ -62,7 +62,14 @@ class apiController extends BaseController {
 				$image->domain = $domain;
 				$image->format = "image";
 				$content = $image->content; 
-				$content['url'] = $img; 
+				$content['url'] = $img['url'];
+
+				$image->title = $img['title'];
+				$image->height = $img['height'];
+				$image->width = $img['width'];
+				$image->description = $img['description'];
+				$image->author = $img['author'];
+
 				$image->content = $content;
 				$image->documentType = $type;
 				$image->source = $source;
@@ -70,8 +77,8 @@ class apiController extends BaseController {
 				$image->activity_id = $activity->_id;
 				$image->softwareAgent_id = "imagegetter";
 				// Take last part of URL as image title
-				$temp = explode('/', $img);
-				$image->title = end($temp);
+				$temp = explode('/', $img['url']);
+				//$image->title = end($temp);
 
 
 				// CHECK WHETHER URL EXISTS ALREADY
@@ -81,11 +88,12 @@ class apiController extends BaseController {
 	            else {
 		            $image->hash = $hash;
 					$image->activity_id = $activity->_id;
+					\Log::debug(json_encode($image->toArray()));
 					$image->save();
 					$existingid = $image->_id;
 					
 				}
-				$url_ids .= "$img $existingid ";
+				$url_ids .= "{$img['url']} $existingid ";
 						
 			}	catch (Exception $e){
 				//delete image

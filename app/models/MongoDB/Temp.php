@@ -20,29 +20,34 @@ class Temp extends Moloquent {
 
 		$result = \MongoDB\Entity::whereIn('documentType', ['painting', 'drawing', 'picture'])->get()->toArray();
 
-		foreach($result as &$parent)
+		if(count($result) > 0)
 		{
-			$children = \MongoDB\Entity::whereIn('parents', [$parent['_id']])->get(['content.features'])->toArray();
 
-			$parent['content']['features'] = [];
-			foreach($children as $child){
-				$featureKey = key($child['content']['features']);
+			foreach($result as &$parent)
+			{
+				$children = \MongoDB\Entity::whereIn('parents', [$parent['_id']])->get(['content.features'])->toArray();
 
-				if(!isset($parent['content']['features'][$featureKey]))
-						$parent['content']['features'][$featureKey] = [];
+				$parent['content']['features'] = [];
+				foreach($children as $child){
+					$featureKey = key($child['content']['features']);
 
-				array_push($parent['content']['features'][$featureKey], $child['content']['features'][$featureKey]);
+					if(!isset($parent['content']['features'][$featureKey]))
+							$parent['content']['features'][$featureKey] = [];
+
+					array_push($parent['content']['features'][$featureKey], $child['content']['features'][$featureKey]);
+				}
 			}
-		}
 
-        try {
-            $db->batchInsert(
-                $result,
-                array('continueOnError' => true)
-            );             
-        } catch (Exception $e) {
-        // ContinueOnError will still throw an exception on duplication, even though it continues, so we just move on.
-        }
+	        try {
+	            $db->batchInsert(
+	                $result,
+	                array('continueOnError' => true)
+	            );             
+	        } catch (Exception $e) {
+	        // ContinueOnError will still throw an exception on duplication, even though it continues, so we just move on.
+	        }
+			
+		}
 
         \Session::forget('rawArray');
     }		
