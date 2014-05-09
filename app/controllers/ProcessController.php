@@ -36,6 +36,11 @@ class ProcessController extends BaseController {
 		echo $c;
 	}
 
+	public function getA(){
+		Queue::push('Queues\UpdateUnits', array("entity/text/medical/twrex-structured-sentence/1078"));
+		
+	}
+
 	public function getGeneraterandomjobdates(){
 		foreach (Job::get() as $job) {
 			if(empty($job->runningTimeInSeconds))
@@ -918,7 +923,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			//delete activity
 			if($activity) $activity->forceDelete();
 			
-			//throw $e; //for debugging
+			throw $e; //for debugging
 
 			Session::flash('flashError', $e->getMessage());
 			return Redirect::to("process/submit");

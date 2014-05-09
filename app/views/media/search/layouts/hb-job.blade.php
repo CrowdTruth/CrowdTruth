@@ -59,7 +59,7 @@
 				<td data-vbIdentifier="checkbox">
 					<input type="checkbox" class="checkAll" />
 				</td>
-				<td><span style="width:130px; display:inline-block;"><small>Mouseover for actions</small></span></td>
+				<td data-vbIdentifier="status"><span style="width:130px; display:inline-block;"><small>Mouseover for actions</small></span></td>
 				<td data-vbIdentifier="job_id">
 					<input class="input-sm form-control" type='text' data-query-key="match[platformJobId]" data-query-operator=">" />
 				</td>
@@ -130,7 +130,7 @@
 			        @{{#each documents}}
 			        <tr class="text-center">
 			        	<td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
-			            <td data-vbIdentifier="actions" class="actiontd">
+			            <td data-vbIdentifier="status" class="actiontd">
 			            	<div id="status@{{@index}}">@{{this.status}}</div>
 							<div class="btn-group actionbar">
 								<a class="btn btn-default btn-sm" href="/process/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o"></i></a>
@@ -138,7 +138,7 @@
 								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link"></i></a>
 								@{{/if}}
 								@{{#is this.status 'unordered'}}
-								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'order', @{{@index}})"  id="order@{{@index}}" data-toggle="tooltip" data-placement="top" title="Order job on the platform"><i class="fa fa-play"></i></a>
+								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'order', @{{@index}})"  id="order@{{@index}}" data-toggle="tooltip" data-placement="top" title="Order job on the platform. Warning: may take a long time for mTurk"><i class="fa fa-play"></i></a>
 								@{{/is}}
 								@{{#is this.status 'running'}}
 								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'pause', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Pause job"><i class="fa fa-pause" id="pause@{{@index}}"></i></a>
@@ -154,7 +154,11 @@
 			            
 			            <td data-vbIdentifier="job_id">
 					<a class='testModal' data-modal-query="job=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/job?') }}" data-target="#modalIndividualJob" data-toggle="tooltip" data-placement="top" title="Click to see the individual job page">
-						@{{ this.platformJobId }}
+						@{{#is this.softwareAgent_id 'amt'}}
+						<span>[...]</span>
+						@{{else}}
+							@{{ this.platformJobId }}
+						@{{/is}}
 					</a>
 				    </td>
 			            <td data-vbIdentifier="job_title">@{{ this.hasConfiguration.content.title }}</td>
