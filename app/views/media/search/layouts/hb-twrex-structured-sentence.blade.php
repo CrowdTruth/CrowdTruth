@@ -18,7 +18,7 @@
 						<li><a href="#" data-vb="hide" data-vbSelector="format"></i>Format</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="domain"></i>Domain</a></li>
 						<!-- <li><a href="#" data-vb="show" data-vbSelector="documentType"></i>Document-Type</a></li> -->
-						<li><a href="#" data-vb="show" data-vbSelector="relation"></i>Relation</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="relation"></i>Seed Relation</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="sent_id"></i>ID</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="term_1"></i>Term 1</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="term_1_processed"></i>Term 1 Processed</a></li>
@@ -33,6 +33,7 @@
 					</ul>
 				</div>
 			</div>
+
 			<div class='specificFilterContent hidden'>
 				<table class='table table-striped table-condensed specificFilterOptions'>
 					<tbody>
@@ -108,7 +109,8 @@
 						</tr>
 					</tbody>
 				</table>
-			</div>			
+			</div>	
+		
 		</div>
 	</div>
 	<div class='ctable-responsive cResults'>
@@ -119,7 +121,7 @@
 		            <th class="sorting" data-vbIdentifier="format" data-query-key="orderBy[format]" data-toggle="tooltip" data-placement="top" title="Format of the sentence">Format</th>
 		            <th class="sorting" data-vbIdentifier="domain" data-query-key="orderBy[domain]" data-toggle="tooltip" data-placement="top" title="Domain to which this sentence belongs">Domain</th>
 		            <!-- <th class="sorting" data-vbIdentifier="documentType" data-query-key="orderBy[documentType]">Document-Type</th> -->
-		            <th class="sorting" data-vbIdentifier="relation" data-query-key="orderBy[content.relation.noPrefix]" data-toggle="tooltip" data-placement="top" title="Seed Relation used to identify sentence in corpus">Relation</th>
+		            <th class="sorting" data-vbIdentifier="relation" data-query-key="orderBy[content.relation.noPrefix]" data-toggle="tooltip" data-placement="top" title="Seed Relation used to identify sentence in corpus">Seed Relation</th>
 			    <th class="sorting" data-vbIdentifier="sent_id" data-query-key="orderBy[_id]" data-toggle="tooltip" data-placement="top" title="CrowdTruth unit ID">ID</th>
 		            <th class="sorting" data-vbIdentifier="term_1" data-query-key="orderBy[content.terms.first.text]" data-toggle="tooltip" data-placement="top" title="Subject of the seed relation used to identify the sentence">Term 1</th>
 		            <th class="sorting" data-vbIdentifier="term_1_processed" data-query-key="orderBy[content.terms.first.formatted]" data-toggle="tooltip" data-placement="top" title="Term 1 with processing as it appears in Processed Sentences">Term 1 Processed</th>
@@ -198,7 +200,7 @@
 			            <td data-vbIdentifier="domain">@{{ this.domain }}</td>
 			            <td data-vbIdentifier="relation">@{{ this.content.relation.noPrefix }}</td>
 				    <td data-vbIdentifier="sent_id">
-					<a class='testModal' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page" id="@{{ this._id }}">
+					
 					<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
 						@{{ this._id }}
 					</a>

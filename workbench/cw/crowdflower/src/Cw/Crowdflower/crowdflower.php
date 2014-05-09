@@ -92,7 +92,6 @@ class Crowdflower extends \FrameWork {
 		$data = $this->jobConfToCFData($jc);	
 		$csv = $this->batchToCSV($job->batch, $job->questionTemplate);
 		$gold = $jc->answerfields;
-
 		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0)*60, 
 							"keywords" => (isset($jc->content['requesterAnnotation']) ? $jc->content['requesterAnnotation'] : ''),
 							"mail_to" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''));
@@ -202,11 +201,21 @@ class Crowdflower extends \FrameWork {
 					if($debug) {
 						print "\r\n\r\nORDERRESULT";
 						print_r($orderresult);
-						dd("\r\n\r\nEND");
 					}	
 				}
 
-				return $id;
+				if($debug)
+					dd("\r\n\r\nEND");
+
+				$response = array('id' => $id);
+
+				// Get the URL for CF_INTERNAL
+				if(isset($result['result']['secret'])){
+					$s = urlencode($result['result']['secret']);
+					$response['url'] = "https://tasks.crowdflower.com/channels/cf_internal/jobs/$id/work?secret=$s";
+				}
+
+				return $response;
 
 			// Failed to create initial job. Todo: more different errors.
 			} else {
@@ -271,8 +280,10 @@ class Crowdflower extends \FrameWork {
 		
 		foreach ($units as $unit){
 			unset($unit['content']['properties']);
+
+/*
 			if(!isset($unit['content']['sentence']['formatted']))// TODO SHOULDN'T HAPPEN!!!!
-				$unit['content']['sentence']['formatted'] = $unit['content']['sentence']['text'];
+				$unit['content']['sentence']['formatted'] = $unit['content']['sentence']['text'];*/
 
 /*			$c = array_change_key_case(array_dot($row['content']), CASE_LOWER);
 			foreach($c as $key=>$val){
@@ -312,14 +323,14 @@ class Crowdflower extends \FrameWork {
 	}
 
 	public function pauseJob($id){
-		$this->hasStateOrFail($id, 'running');
+		//$this->hasStateOrFail($id, 'running');
 		$result = $this->CFJob->pauseJob($id);
 		if(isset($result['result']['error']['message']))
 			throw new Exception("Pause: " . $result['result']['error']['message']);
 	}
 
 	public function resumeJob($id){
-		$this->hasStateOrFail($id, 'paused');
+		//$this->hasStateOrFail($id, 'paused');
 		$result = $this->CFJob->resumeJob($id);
 		if(isset($result['result']['error']['message']))
 			throw new Exception("Resume: " . $result['result']['error']['message']);

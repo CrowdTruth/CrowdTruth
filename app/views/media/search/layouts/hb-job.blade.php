@@ -9,6 +9,7 @@
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
+						<li><a href="#" data-vb="show" data-vbSelector="actions"></i>Actions</a></li>	
 						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>					
 						<li><a href="#" data-vb="show" data-vbSelector="job_id"></i>Job ID</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="job_title"></i>Job Title</a></li>
@@ -35,6 +36,7 @@
 	    <table class="table table-striped">
 	        <thead data-query-key="&collection=temp&match[documentType]" data-query-value="job">
 		        <tr>
+		        	<th data-vbIdentifier="actions" data-toggle="tooltip" data-placement="top" title="Start or duplicate a job">Actions</th>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>
 		            <th class="sorting" data-vbIdentifier="job_id" data-query-key="orderBy[hasConfiguration.content.jobId]" data-toggle="tooltip" data-placement="top" title="ID of the job from the platform that ran it">Job Id</th>
 		            <th class="sorting" data-vbIdentifier="job_title" data-query-key="orderBy[hasConfiguration.content.title]" data-toggle="tooltip" data-placement="top" title="Title of the job published on the platform">Job Title</th>
@@ -51,9 +53,10 @@
 				    <th class="sorting" data-vbIdentifier="total_job_cost" data-query-key="orderBy[projectedCost]" data-toggle="tooltip" data-placement="top" title="Amount paid so far - <br /> [# mTasks Complete Actual] * [Cost/mTask]">Cost Actual</th>
 				    <th class="sorting" data-vbIdentifier="completion" data-query-key="orderBy[completion]" data-toggle="tooltip" data-placement="top" title="Percent of job complete so far">% Complete Actual</th>
 				    <th class="sorting" data-vbIdentifier="running_time" data-query-key="orderBy[runningTimeInSeconds]" data-toggle="tooltip" data-placement="top" title="Amount of time the job has taken so far">Run Time Actual</th>
-		            <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the job was created in the framework">Created</th>			    
+		            <th class="sorting sorting_desc whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the job was created in the framework">Created</th>			    
 		        </tr>
 			<tr class="inputFilters">
+				<td></td>
 				<td data-vbIdentifier="checkbox">
 					<input type="checkbox" class="checkAll" />
 				</td>
@@ -126,6 +129,27 @@
 				<script class='template' type="text/x-handlebars-template">
 			        @{{#each documents}}
 			        <tr class="text-center">
+			            <td data-vbIdentifier="actions" class="actiontd">
+			            	<span id="status@{{@index}}">@{{this.status}}</span><br>
+							<div class="btn-group actionbar">
+								<a class="btn btn-default btn-sm" href="/process/duplicate/@{{this._id}}"><i class="fa fa-files-o"></i></a>
+								@{{#if this.url}}
+								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank"><i class="fa fa-external-link"></i></a>
+								@{{/if}}
+								@{{#is this.status 'unordered'}}
+								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'order', @{{@index}})"  id="order@{{@index}}"><i class="fa fa-play"></i></a>
+								@{{/is}}
+								@{{#is this.status 'running'}}
+								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'pause', @{{@index}})"><i class="fa fa-pause" id="pause@{{@index}}"></i></a>
+								    <a class="btn btn-default btn-sm"  id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})"><i class="fa fa-stop"></i></a>
+								@{{/is}}
+								@{{#is this.status 'paused'}}
+								    <a class="btn btn-default btn-sm"  id="resume@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'resume', @{{@index}})"><i class="fa fa-play"></i></a>
+								    <a class="btn btn-default btn-sm"  id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})"><i class="fa fa-stop"></i></a>	
+								@{{/is}}
+							</div>
+	
+			            </td>
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
 			            <td data-vbIdentifier="job_id">
 					<a class='testModal' data-modal-query="job=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/job?') }}" data-target="#modalIndividualJob" data-toggle="tooltip" data-placement="top" title="Click to see the individual job page">
@@ -153,6 +177,20 @@
 	        </tbody>
 	    </table>
 	</div>	
+	<style>
+		.actionbar { 
+		    -webkit-transition: opacity 1s ease-out;
+		    opacity: 0; 
+		    height: 0px;
+		    width: 130px; 
+		    overflow: hidden;
+		}
+
+		.actiontd:hover .actionbar {    
+			opacity: 1;
+		    height:auto;
+		}
+	</style>
 	<div class='hidden' id='modalIndividualJob'>
 		<script class='template' type="text/x-handlebars-template">
 				<!-- Modal -->

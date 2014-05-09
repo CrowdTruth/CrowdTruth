@@ -92,7 +92,7 @@ class RetrieveJobs extends Command {
 				$agent = new CrowdAgent;
 				$agent->_id= $agentId;
 				$agent->softwareAgent_id= 'cf';
-				$agent->platformAgentId = $judgment['worker_id'];
+				$agent->platformAgentId = (string) $judgment['worker_id'];
 				$agent->country = $judgment['country'];
 				$agent->region = $judgment['region'];
 				$agent->city = $judgment['city'];
@@ -214,7 +214,7 @@ class RetrieveJobs extends Command {
 	protected function getOptions()
 	{
 		return array(
-			array('judgments', null, InputOption::VALUE_OPTIONAL, 'A full serialized collection of judgments from the CF API. Will insert into DB.', null),
+			array('judgments', null, InputOption::VALUE_OPTIONAL, 'A full serialized collection of judgements from the CF API. Will insert into DB.', null),
 			array('jobid', null, InputOption::VALUE_OPTIONAL, 'CF Job ID.', null)
 		);
 	}
