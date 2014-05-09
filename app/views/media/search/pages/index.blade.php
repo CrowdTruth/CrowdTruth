@@ -179,10 +179,18 @@
 							@include('media.search.layouts.hb-fullvideo')
 						@endif						
 
-						@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
+						@if(isset($mainSearchFilters['documentTypes']['painting']))
 							@include('media.search.layouts.hb-painting')
 						@endif
 						
+						@if(isset($mainSearchFilters['documentTypes']['drawing']))
+							@include('media.search.layouts.hb-drawing')
+						@endif
+
+						@if(isset($mainSearchFilters['documentTypes']['picture']))
+							@include('media.search.layouts.hb-picture')
+						@endif
+
 						<div class='includeGraph hidden'>
                             <table>
                                 <tr>

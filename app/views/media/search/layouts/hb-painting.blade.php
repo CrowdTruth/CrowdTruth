@@ -14,19 +14,19 @@
 						<li><a href="#" data-vb="show" data-vbSelector="image_title"></i>Title</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="image_description"></i>Description</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="image_author"></i>Author</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_domain"></i>Domain</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_source"></i>Source</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_domain"></i>Domain</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_source"></i>Source</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_url"></i>URL</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_width"></i>Width</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_height"></i>Height</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_object"></i>Object</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_scene"></i>Scene</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_width"></i>Width</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_height"></i>Height</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_object"></i>Object</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_scene"></i>Scene</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_classifiers"></i>Classifiers</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_facesrek"></i>FacesRekognition</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_faces">Faces</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_facesnum"># of Faces</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_colors">Main colors</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_histogram"></i>Histogram</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_histogram"></i>Histogram</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i>Used In # of Batches</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i>Used In # of Jobs</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created At</a></li>
@@ -160,8 +160,8 @@
 			            <td data-vbIdentifier="image_domain">@{{ this.domain }}   </td>
 			            <td data-vbIdentifier="image_source">@{{ this.source }}   </td>
 			            <td data-vbIdentifier="image_url">@{{ this.content.url }}   </td>
-			            <td data-vbIdentifier="image_width">@{{ this.width }}   </td>
-			            <td data-vbIdentifier="image_height">@{{ this.height }}   </td>
+			            <td data-vbIdentifier="image_width">@{{ this.content.width }}   </td>
+			            <td data-vbIdentifier="image_height">@{{ this.content.height }}   </td>
 			            <td data-vbIdentifier="image_object">
 			              @{{#if  this.content.features.Object.matches}}
 				            	@{{#eachProperty this.content.features.Object.matches}}
@@ -184,10 +184,10 @@
 			            		@{{/eachProperty}}
 		            		@{{/if}}
 	            	   </td>
-			            <td data-vbIdentifier="image_facesrek">@{{ this.content.features.FacesRekognition }}   </td>
+			            <td data-vbIdentifier="image_facesrek">     	@{{ this.content.features.FacesRekognition }}   </td>
 			            <td data-vbIdentifier="image_faces">@{{ this.content.features.Faces }}   </td>
 			            <td data-vbIdentifier="image_facesnum">
-			            	@{{#if this.content.features.Classifier}}
+			            	@{{#if this.content.features.FacesNumber}}
 				            	@{{#eachProperty this.content.features.FacesNumber }}   
 				            		@{{key}}: @{{value}}
 				            	@{{/eachProperty}}
@@ -235,27 +235,6 @@
 	    </table>
 	</div>	    
 	
-	<div class='hidden modalTemplate'>
-		<table>
-		<script class='template' type="text/x-handlebars-template">
-				<!-- Modal -->
-				<div class="modal bs-example-modal-lg fade" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelWorker" aria-hidden="true">
-				  <div class="modal-dialog modal-lg">
-				    <div class="modal-content">
-				      <div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="myModalLabelWorker">Individual worker page</h4>
-				      </div>
-				      <div class="modal-body" >
-					@{{#each documents}}
-						@{{ this._id }}
-					@{{/each}}				
-				      </div>
-				    </div>
-				  </div>
-				</div>
-		</script>
-		</table>
-	</div>			
+
 					
 </div>
