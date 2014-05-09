@@ -27,6 +27,27 @@ Route::group(array('before' => 'auth'), function()
 
 Route::get('/', function()
 {
+
+	// $parents = \MongoDB\Entity::where('documentType', 'painting')->get()->toArray();
+
+	// $children = \MongoDB\Entity::whereIn('parents', [$parents[0]['_id']])->get(['content.features']);
+
+	// $featuresdirty = array();
+	// foreach($children as $child){
+	// 	array_push($featuresdirty, $child['content']['features']);
+	// }
+	
+	// $features = array();
+	// foreach($featuresdirty as $key=>$value){
+	// 	dd($value);
+	// 	array_push($features, $value);
+	// }
+	// return $features;
+
+	// $parents[0]['content']['features'] = $features;
+
+	// return $parents[0];
+
     return Redirect::to('home');
 });
 
@@ -44,3 +65,4 @@ Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index
 Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));
 
 Route::controller('user', 'UserController');
+
