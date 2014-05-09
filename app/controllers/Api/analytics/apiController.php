@@ -121,8 +121,8 @@ class apiController extends BaseController
         $aggregateOperators = $this->processAggregateInput(Input::all());
         $crowdAgentID = Input::get('agent');
         $result['infoStat'] = \MongoDB\CrowdAgent::where('_id', $crowdAgentID)->get()->toArray()[0];
-        $result['infoStat']['avgAgreementAcrossJobs'] = \MongoDB\CrowdAgent::avg('cache.avg_agreement');
-        $result['infoStat']['avgCosineAcrossJobs'] = \MongoDB\CrowdAgent::avg('cache.avg_cosine');
+        $result['infoStat']['avgAgreementAcrossJobs'] = \MongoDB\CrowdAgent::avg('avg_agreement');
+        $result['infoStat']['avgCosineAcrossJobs'] = \MongoDB\CrowdAgent::avg('avg_cosine');
 
 
         $selection = \MongoDB\Entity::raw(function ($collection) use ($aggregateOperators, $crowdAgentID) {
@@ -191,7 +191,7 @@ class apiController extends BaseController
 
         $jobIDs = array_unique($jobIDs);
         $jobs = \MongoDB\Entity::whereIn('_id', $jobIDs)->get(array('metrics.workers.withFilter.'.$crowdAgentID,
-                                                                     'metrics.aggWorker', 'type', 'jobConf_id', 'template', 'platformJobId', 'metrics.units', 'results'))->toArray();
+                                                                     'metrics.aggWorkers', 'type', 'jobConf_id', 'template', 'platformJobId', 'metrics.units', 'results'))->toArray();
     foreach($jobs as $index =>$value) {
         $result['jobContent'][$value['_id']] = $value;
         $jobConfID = \MongoDB\Entity::where('_id', '=', $value['_id'])->lists('jobConf_id');
@@ -217,15 +217,16 @@ class apiController extends BaseController
 	$jobConfID = \MongoDB\Entity::where('_id', $jobID)->lists('jobConf_id');
         $jobConf = \MongoDB\Entity::whereIn('_id', $jobConfID)->get()->toArray();
         $result['infoStat']['jobConf'] = $jobConf[0];
-	foreach ($result['infoStat']['metrics']['workers']['withoutFilter'] as $workerId => $value) {
-		$result['infoStat']['workers'][$workerId] = \MongoDB\CrowdAgent::where('_id', $workerId)->get()->toArray()[0];
+	if(isset($result['infoStat']['metrics'])) {
+		foreach ($result['infoStat']['metrics']['workers']['withoutFilter'] as $workerId => $value) {
+			$result['infoStat']['workers'][$workerId] = \MongoDB\CrowdAgent::where('_id', $workerId)->get()->toArray()[0];
 		
-	}
-	foreach ($result['infoStat']['results']['withSpam'] as $unitId => $value) {
-		$result['infoStat']['units'][$unitId] = \MongoDB\Entity::where('_id', $unitId)->get()->toArray()[0];
+		}
+		foreach ($result['infoStat']['results']['withSpam'] as $unitId => $value) {
+			$result['infoStat']['units'][$unitId] = \MongoDB\Entity::where('_id', $unitId)->get()->toArray()[0];
 		
-	}
-    
+		}
+    	}
         return $result;
 
     }

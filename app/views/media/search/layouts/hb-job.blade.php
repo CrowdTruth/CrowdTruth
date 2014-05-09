@@ -129,7 +129,7 @@
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
 			            <td data-vbIdentifier="job_id">
 					<a class='testModal' data-modal-query="job=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/job?') }}" data-target="#modalIndividualJob" data-toggle="tooltip" data-placement="top" title="Click to see the individual job page">
-						@{{ this.platformJobId }}
+						@{{#ifarray this.platformJobId }} @{{/ifarray}}
 					</a>
 				    </td>
 			            <td data-vbIdentifier="job_title">@{{ this.hasConfiguration.content.title }}</td>
@@ -145,7 +145,7 @@
 					    <td data-vbIdentifier="cost_per_task">@{{ this.hasConfiguration.content.reward }}</td>
 					    <td data-vbIdentifier="total_job_cost">@{{ this.projectedCost }}</td>
 					    <td data-vbIdentifier="completion">@{{ toFixed this.completion 2 }}</td>
-					    <td data-vbIdentifier="running_time">@{{ this.running_time }}</td>
+					    <td data-vbIdentifier="running_time">@{{#formatTime this.runningTimeInSeconds }}@{{/formatTime}}</td>
 			            <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>				    
 			        </tr>
 			        @{{/each}}
@@ -161,9 +161,15 @@
 				    <div class="modal-content">
 				      <div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="myModalLabelJob">Individual Worker Page</h4>
+					<h4 class="modal-title" id="myModalLabelJob">Individual Job Page</h4>
 				      </div>
 				      <div class="modal-body" >
+					<div><strong>Platform Name: </strong> @{{ this.infoStat.softwareAgent_id }} </div>
+					<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{#ifarray this.infoStat.platformJobId }} @{{/ifarray}} </div>
+					<div><strong>Creation Date: </strong> @{{ this.infoStat.startedAt }} </div>
+					<div><strong>Finish Date: </strong> @{{ this.infoStat.finishedAt }} </div>
+					<div><strong>Type: </strong> @{{ this.infoStat.type }} </div>
+					<div><strong>Title: </strong> @{{ this.infoStat.jobConf.content.title }} </div>
 					<div class="panel-group" id="accordion">
 					  <div class="panel panel-default">
 					    <div class="panel-heading clearfix">
@@ -187,13 +193,13 @@
 					    <div id="collapseOne" class="panel-collapse collapse in">
 					      <div class="panel-body">
 						<div><strong>Platform Name: </strong> @{{ this.infoStat.softwareAgent_id }} </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{ this.infoStat.platformJobId }} </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{#ifarray this.infoStat.platformJobId }} @{{/ifarray}} </div>
 						<div><strong>Running Time: </strong> @{{#formatTime this.infoStat.runningTimeInSeconds }}@{{/formatTime}} </div>
 						<div><strong>Creation Date: </strong> @{{ this.infoStat.startedAt }} </div>
 						<div><strong>Finish Date: </strong> @{{ this.infoStat.finishedAt }} </div>
 						<div><strong>Media Domain: </strong> @{{ this.infoStat.domain}} </div>
 						<div><strong>Media Format: </strong> @{{ this.infoStat.format }} </div>
-						<div><strong>Type: </strong> @{{ this.infoStat.jobConf.content.type }} </div>
+						<div><strong>Type: </strong> @{{ this.infoStat.type }} </div>
 						<div><strong>Title: </strong> @{{ this.infoStat.jobConf.content.title }} </div>
 						<div><strong>Instructions: </strong> @{{ this.infoStat.jobConf.content.instructions }} </div>
 					      </div>
@@ -212,9 +218,21 @@
 						<div><strong> @{{ this.infoStat.unitsCount }} Unit(s)  </strong></div>
 						<div><strong> @{{ this.infoStat.workersCount }} Worker(s) </strong> </div>
 						<div><strong> @{{ this.infoStat.annotationsCount }} Annotation(s) </strong>  </div>
+						@{{#if this.infoStat.metrics.filteredUnits.count }}
 						<div><strong> @{{ this.infoStat.metrics.filteredUnits.count }} Filtered Unit(s) </strong> </div>
+						@{{else}}
+						<div><strong> 0 Filtered Unit(s) </strong> </div>
+						@{{/if}}
+						@{{#if this.infoStat.metrics.spammers.count }}
 						<div><strong> @{{ this.infoStat.metrics.spammers.count }} Filtered Worker(s) as Spammer(s) </strong> </div>
+						@{{else}}
+						<div><strong> 0 Filtered Worker(s) as Spammer(s) </strong> </div>
+						@{{/if}}
+						@{{#if this.infoStat.metrics.filteredAnnotations.count }}
 						<div><strong> @{{ this.infoStat.metrics.filteredAnnotations.count }} Filtered Annotation(s) </strong> </div>
+						@{{else}}
+						<div><strong> 0 Filtered Annotation(s) </strong> </div>
+						@{{/if}}
 						<hr/>
 						<table style="width: 100%; text-align: center; align: center;" border="1" bordercolor="#C0C0C0" text-align="center">
 						 <tr align="center">
@@ -272,14 +290,14 @@
 						  <td> Worker Cosine </td>
 						 </tr>
 						 <tr>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorker.mean.ann_per_unit.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorker.mean.no_of_units.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorker.mean.avg_worker_agreement.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorker.mean.worker_cosine.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorker.stddev.ann_per_unit.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorker.stddev.no_of_units.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorker.stddev.avg_worker_agreement.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorker.stddev.worker_cosine.avg 2}} </td>						 </tr>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.ann_per_unit.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.no_of_units.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.avg_worker_agreement.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.worker_cosine.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.ann_per_unit.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.no_of_units.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.avg_worker_agreement.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.worker_cosine.avg 2}} </td>						 </tr>
 						</table>
 						</div>
 					      </div>
@@ -393,8 +411,8 @@
 						    @{{#ifvalue ../key value=@key}}
 						     <td> @{{ softwareAgent_id}} </td>  
 						     <td> @{{ cfWorkerTrust}} </td> 
-						     <td> @{{ toFixed cache.avg_agreement 2}} </td> 
-						     <td> @{{ toFixed cache.avg_cosine 2}} </td> 
+						     <td> @{{ toFixed avg_agreement 2}} </td> 
+						     <td> @{{ toFixed avg_cosine 2}} </td> 
 						   @{{/ifvalue}}
 						  @{{/each}} 
 						   <td> @{{ toFixed avg_worker_agreement.avg 2 }} </td>
