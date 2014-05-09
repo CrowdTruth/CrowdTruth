@@ -68,16 +68,17 @@ class RetrieveJobs extends Command {
 		foreach($jobs as $job){
 			$newannotations = array();
 			$newannotationscount = 0;
-			$newplatformhitid = array();
+			//$newplatformhitid = array();
 
 			foreach($job->platformJobId as $hitid){
 				set_time_limit (30);
-				if($hitid['status'] == 'deleted') // Can't recover from that. Don't update.
+/*				if($hitid['status'] == 'deleted') // Can't recover from that. Don't update.
 					$newplatformhitid[] = array('id' => $hitid['id'], 
 												'status' => 'deleted');
-				else {
+				else {*/
 
-					$hit = $turk->getHIT($hitid['id']);
+					//$hit = $turk->getHIT($hitid['id']);
+					$hit = $turk->getHIT($hitid);
 					$h = $hit->toArray();
 
 					//Do this once:
@@ -85,6 +86,9 @@ class RetrieveJobs extends Command {
 					if(empty($job->HITGroupId)) $job->HITGroupId = $h['HITGroupId'];
 					if(empty($job->HITTypeId)) 	$job->HITTypeId  = $h['HITTypeId'];
 
+					// TODO: Commented this out for unity of data. Maybe this needs to come back.
+
+					/*
 					// Convert status to our language
 					if(($h['HITStatus'] == 'Assignable' or $h['HITStatus'] == 'Unassignable')
 					and ($job->Expiration->sec > time())) // Not yet expired. TODO: Timezones
@@ -95,7 +99,8 @@ class RetrieveJobs extends Command {
 						$newstatus = 'deleted';
 
 					$newplatformhitid[] = array('id' => $hitid['id'], 
-												'status' => $newstatus);
+												'status' => $newstatus);*/
+
 					
 					// todo: IF each is disposed, newstatus = deleted.
 
@@ -202,11 +207,11 @@ class RetrieveJobs extends Command {
 							print "Saved $newannotationscount new annotations for {$h['HITId']} - total " . count($assignments) . " assignments.";
 						}
 					} // foreach assignment
-				} // if / else				
+				//} // if / else				
 			} // foreach hit
 
 			//$job->addResults($newannotations);
-			$job->platformJobId = $newplatformhitid; 
+			//$job->platformJobId = $newplatformhitid; 
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 
 			//$job->save();

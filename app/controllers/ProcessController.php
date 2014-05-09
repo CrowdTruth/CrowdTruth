@@ -37,8 +37,9 @@ class ProcessController extends BaseController {
 	}
 
 	public function getA(){
-		Queue::push('Queues\UpdateUnits', array("entity/text/medical/twrex-structured-sentence/1078"));
-		
+		//Queue::push('Queues\UpdateUnits', array("entity/text/medical/twrex-structured-sentence/1078"));
+		$ca = \MongoDB\CrowdAgent::where("_id", "crowdagent/cf/14781069")->first();
+		Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($ca)));
 	}
 
 	public function getGeneraterandomjobdates(){
@@ -886,7 +887,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				$j = new Job;
 				$j->format = $batch->format;
 				$j->domain = $batch->domain;
-				$j->type = explode('/', $template)[0];
+				$j->type = explode('/', $template)[1];
 				$j->template = $template; // TODO: remove
 				$j->batch_id = $batch->_id;
 				$j->questionTemplate_id = $questiontemplateid;
