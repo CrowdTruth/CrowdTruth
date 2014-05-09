@@ -27,20 +27,6 @@ Route::group(array('before' => 'auth'), function()
 
 Route::get('/', function()
 {
-
-	$parents = \MongoDB\Entity::where('documentType', 'painting')->get()->toArray();
-
-	$children = \MongoDB\Entity::whereIn('parents', [$parents[0]['_id']])->get(['content.features']);
-
-	$features = array();
-	foreach($children as $child){
-		array_push($features, $child['content']['features']);
-	}
-
-	$parents[0]['content']['features'] = $features;
-
-	return $parents[0];
-
     return Redirect::to('home');
 });
 
