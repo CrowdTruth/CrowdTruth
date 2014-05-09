@@ -71,7 +71,7 @@ headers = {'content-type': 'application/json'}
 
 
 
-if WRITE_FILE==1:
+if WRITE_FILE==0:
     output = open('data.json', 'wb')
 # output.write(json.dumps(data1, indent = 2)) 
 # r = requests.post(url, data=json.dumps(data1), headers=headers)
@@ -122,10 +122,10 @@ for iter in range(4, len(sys.argv), 2):
         #print (data)
         th = 0.4
         data['threshold'] = th
-        data['goodFeatures'] = []
+        data['relevantFeatures'] = []
         for fi in Features['scene']:
             if fi['score'] > th:
-                data['goodFeatures'].append(fi['label'])
+                data['relevantFeatures'].append(fi['label'])
         r = requests.post(url, data=json.dumps(data), headers=headers)
         if WRITE_FILE==1:
             output.write(json.dumps(data, indent = 2))  
@@ -147,10 +147,10 @@ for iter in range(4, len(sys.argv), 2):
         data['content']['features'] = Features    
         th = 0.5
         data['threshold'] = th
-        data['goodFeatures'] = []
+        data['relevantFeatures'] = []
         for fi in Features['object']:
             if fi['score'] > th:
-                data['goodFeatures'].append(fi['tag'])
+                data['relevantFeatures'].append(fi['tag'])
 
 
 
@@ -177,7 +177,7 @@ for iter in range(4, len(sys.argv), 2):
         if Features['FacesNumber']> 0:
             Features['AverageSex'] = np.mean([float(a["sex"]) for a in data3["face_detection"]])
         data['content']['features'] = Features  
-        data['goodFeatures'] = Features['Faces']
+        data['relevantFeatures'] = Features['Faces']
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)  
         log(r)
@@ -213,10 +213,10 @@ for iter in range(4, len(sys.argv), 2):
         data['content']['features'] = Features  
         th = 40  
         data['threshold'] = th
-        data['goodFeatures'] = []
+        data['relevantFeatures'] = []
         for fi in Features['ColorsMain']:
             if fi[1] > th:
-                data['goodFeatures'].append(fi[0])
+                data['relevantFeatures'].append(fi[0])
 
 
         r = requests.post(url, data=json.dumps(data), headers=headers)
@@ -258,7 +258,7 @@ for iter in range(4, len(sys.argv), 2):
         Features['FacesNumber'] = len(l)
         if Features['FacesNumber'] > 0:
             Features['AverageSex'] = np.mean(l)
-        data['goodFeatures'] = l
+        data['relevantFeatures'] = l
         data['content']['height'] = data4['height']
         data['content']['width'] = data4['width']
         data['content']['features'] = Features    
@@ -290,9 +290,9 @@ for iter in range(4, len(sys.argv), 2):
         data['content']['features'] = Features  
         th = 55  
         data['threshold'] = th
-        data['goodFeatures'] = []
+        data['relevantFeatures'] = []
         if Features["Classifier"]['Flowers'] > th:
-            data['goodFeatures'].append("flowers")
+            data['relevantFeatures'].append("flowers")
 
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)     
@@ -313,9 +313,9 @@ for iter in range(4, len(sys.argv), 2):
         data['content']['features'] = Features   
         th = 55  
         data['threshold'] = th
-        data['goodFeatures'] = []
+        data['relevantFeatures'] = []
         if Features["Classifier"]['Birds'] > th:
-            data['goodFeatures'].append("birds")
+            data['relevantFeatures'].append("birds")
 
 
         r = requests.post(url, data=json.dumps(data), headers=headers)
