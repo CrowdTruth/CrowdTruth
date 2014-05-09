@@ -184,6 +184,7 @@
 		    height: 0px;
 		    width: 130px; 
 		    overflow: hidden;
+		    float:left;
 		}
 
 		.actiontd:hover .actionbar {    
