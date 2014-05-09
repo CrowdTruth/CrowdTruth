@@ -1,0 +1,66 @@
+div.border
+{
+  border: 2px solid gray;
+  padding: 0px 10px 0px 10px;
+  border-radius: 15px;
+  margin-bottom:5px;
+}
+
+div.border > .text
+{
+  margin-bottom:15px; 
+}
+div.border > .ratings
+{
+  margin-bottom:10px; 
+}
+
+.border .cml_row > input[type=text]
+{
+  max-width:100%; 
+}
+
+.jobComments
+{
+  text-align:left;
+}
+.jobComments
+{
+ width: 60%;
+}
+
+.example_images
+{
+  height: 200px;
+}
+.example_images div
+{
+  height: 100%;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.example_image1
+{
+  background-image: url("http://wisserver.st.ewi.tudelft.nl/wude/images/example_image1.jpg");
+}
+.example_image2
+{
+  background-image: url("http://wisserver.st.ewi.tudelft.nl/wude/images/example_image2.jpg");
+}
+.example_image3
+{
+  background-image: url("http://wisserver.st.ewi.tudelft.nl/wude/images/example_image3.jpg");
+}
+.example_image4
+{
+  background-image: url("http://wisserver.st.ewi.tudelft.nl/wude/images/example_image4.jpg");
+}
+.example_image5
+{
+  background-image: url("http://wisserver.st.ewi.tudelft.nl/wude/images/example_image5.jpg");
+}
+
+#assignment-instructions
+{
+ text-align:justify; 
+}

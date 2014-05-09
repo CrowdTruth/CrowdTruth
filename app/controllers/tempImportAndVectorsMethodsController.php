@@ -3,13 +3,26 @@ use Sunra\PhpSimple\HtmlDomParser;
 
 class tempImportAndVectorsMethodsController extends BaseController {
 
-
-	public function getGeneraterandomjobfinishdates(){
+	public function getGeneraterandomjobdates(){
 		foreach (Job::get() as $job) {
-			$job->finishedAt = new MongoDate($job->startedAt->sec + rand(56400, 200000));
+			if($job->type == 'FactSpan')
+				$days = 0;
+			elseif ($job->type == 'RelEx') {
+				$days = 3;
+			} elseif ($job->type == 'RelDir') {
+				$days = 7;
+			} else {
+				$days = 0;
+			}
+
+			$job->startedAt = new MongoDate($job->startedAt->sec + ($days * 86400) + rand(7200, 21600)); // 2 to 6 hours
+
+			$job->finishedAt = new MongoDate($job->startedAt->sec + rand(7200, 21600));
+
 			echo date('Y-M-d h:i:s', $job->startedAt->sec) . "<br>"; 
 			echo date('Y-M-d h:i:s', $job->finishedAt->sec) . "<br>"; 
 			echo $job->finishedAt->sec - $job->startedAt->sec . "<br>";
+
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 		}	
 	}

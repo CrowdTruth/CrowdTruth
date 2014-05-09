@@ -71,7 +71,7 @@ headers = {'content-type': 'application/json'}
 
 
 
-if WRITE_FILE==1:
+if WRITE_FILE==0:
     output = open('data.json', 'wb')
 # output.write(json.dumps(data1, indent = 2)) 
 # r = requests.post(url, data=json.dumps(data1), headers=headers)
@@ -110,7 +110,7 @@ for iter in range(4, len(sys.argv), 2):
     data['softwareAgent_label'] = 'rekognition: [object, scene, faces]'
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
-        "jobs=scene_understanding_2&urls="+ImURL + "&num_return=7"
+        "jobs=scene_understanding_2&urls="+ImURL + "&num_return=5"
         response = urllib2.urlopen(Comm)    
         data1 = json.load(response)    
         # print data1["scene_understanding"]
@@ -120,6 +120,12 @@ for iter in range(4, len(sys.argv), 2):
         Features['scene'] = data1["scene_understanding"]
         data['content']['features'] = Features   
         #print (data)
+        th = 0.4
+        data['threshold'] = th
+        data['relevantFeatures'] = []
+        for fi in Features['scene']:
+            if fi['score'] > th:
+                data['relevantFeatures'].append(fi['label'])
         r = requests.post(url, data=json.dumps(data), headers=headers)
         if WRITE_FILE==1:
             output.write(json.dumps(data, indent = 2))  
@@ -131,14 +137,23 @@ for iter in range(4, len(sys.argv), 2):
         log('error REKOGNITION a' + str(e))
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
-        "jobs=scene_understanding_3&urls="+ImURL + "&num_return=7"
+        "jobs=scene_understanding_3&urls="+ImURL + "&num_return=5"
         response = urllib2.urlopen(Comm)
         data2 = json.load(response)    
         # print data2["scene_understanding"] 
         Features = {}
         data['softwareAgent_configuration'] = "object"
-        Features['object'] = data2["scene_understanding"]
+        Features['object'] = data2["scene_understanding"]["matches"]
         data['content']['features'] = Features    
+        th = 0.5
+        data['threshold'] = th
+        data['relevantFeatures'] = []
+        for fi in Features['object']:
+            if fi['score'] > th:
+                data['relevantFeatures'].append(fi['tag'])
+
+
+
         r = requests.post(url, data=json.dumps(data), headers=headers)
         log(r)
         print (r)  
@@ -162,6 +177,7 @@ for iter in range(4, len(sys.argv), 2):
         if Features['FacesNumber']> 0:
             Features['AverageSex'] = np.mean([float(a["sex"]) for a in data3["face_detection"]])
         data['content']['features'] = Features  
+        data['relevantFeatures'] = Features['Faces']
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)  
         log(r)
@@ -194,7 +210,15 @@ for iter in range(4, len(sys.argv), 2):
         data['softwareAgent_configuration'] = "colors"
         Features['ColorsHistogram'] = data4["colors"]
         Features['ColorsMain'] = data4["predominant"]["google"]
-        data['content']['features'] = Features    
+        data['content']['features'] = Features  
+        th = 40  
+        data['threshold'] = th
+        data['relevantFeatures'] = []
+        for fi in Features['ColorsMain']:
+            if fi[1] > th:
+                data['relevantFeatures'].append(fi[0])
+
+
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)   
         log(r)
@@ -234,6 +258,7 @@ for iter in range(4, len(sys.argv), 2):
         Features['FacesNumber'] = len(l)
         if Features['FacesNumber'] > 0:
             Features['AverageSex'] = np.mean(l)
+        data['relevantFeatures'] = l
         data['content']['height'] = data4['height']
         data['content']['width'] = data4['width']
         data['content']['features'] = Features    
@@ -262,7 +287,13 @@ for iter in range(4, len(sys.argv), 2):
         file = cStringIO.StringIO(urllib.urlopen(ImURL).read())
         image = Image.open(file)
         Features["Classifier"]['Flowers'] = predict_adopted.predict("FLOWERS", image)
-        data['content']['features'] = Features    
+        data['content']['features'] = Features  
+        th = 55  
+        data['threshold'] = th
+        data['relevantFeatures'] = []
+        if Features["Classifier"]['Flowers'] > th:
+            data['relevantFeatures'].append("flowers")
+
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)     
         log(r) 
@@ -279,7 +310,14 @@ for iter in range(4, len(sys.argv), 2):
         #file = cStringIO.StringIO(urllib.urlopen(ImURL).read())
        # image = Image.open(file)
         Features["Classifier"]['Birds'] = predict_adopted.predict("BIRDS", image)
-        data['content']['features'] = Features    
+        data['content']['features'] = Features   
+        th = 55  
+        data['threshold'] = th
+        data['relevantFeatures'] = []
+        if Features["Classifier"]['Birds'] > th:
+            data['relevantFeatures'].append("birds")
+
+
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r) 
         log(r) 

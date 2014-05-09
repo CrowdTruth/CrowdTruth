@@ -1,6 +1,20 @@
 <?php
 use Sunra\PhpSimple\HtmlDomParser;
 
+
+/*
+
+This class should be completely rewritten to 
+1) Keep much less in the session
+2) Have less complicated methods (see postsubmitformpart, which gets called every time the tab changes)
+3) Ideally incorporate some smart ajax calls (see also the corresponding views)
+4) [but this is bigger] The templating system has to change completely. If we don't do this soon, 
+	the visualisation and uploading system could be better (more control), possibly also editing with something like ACE. 
+
+
+
+*/
+
 class ProcessController extends BaseController {
 
 	public function getIndex() {
@@ -11,7 +25,39 @@ class ProcessController extends BaseController {
 		return View::make('process.tabs.templatebuilder');
 	}
 
+	public function getWorkers(){
+		$c = 0;
+		foreach (\MongoDB\CrowdAgent::where('softwareAgent_id', 'cf')->get() as $w) {
+			$w->platformAgentId = (string) $w->platformAgentId;
+			$w->save();
+			$c++;
+
+		}
+		echo $c;
+	}
+
+	public function getA(){
+		//Queue::push('Queues\UpdateUnits', array("entity/text/medical/twrex-structured-sentence/1078"));
+		$ca = \MongoDB\CrowdAgent::where("_id", "crowdagent/cf/14781069")->first();
+		Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($ca)));
+	}
+
+	public function getGeneraterandomjobdates(){
+		foreach (Job::get() as $job) {
+			if(empty($job->runningTimeInSeconds))
+				dd($job);
+		}	
+	}
+
+	public function getTestmetrics(){
+		$job = Job::id("entity/text/medical/job/1")->first();
+		Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+			
+	}
+
+
 /*
+
 	public function getUpdate(){
 		foreach (Job::get() as $job) {
 			$job->results = null;
@@ -469,8 +515,12 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 		$currenttemplate = Session::get('template');	
 		
-		if(empty($currenttemplate)) 
-			$currenttemplate = 'text/RelDir/relation_direction';
+		if(empty($currenttemplate)){ 
+			if($batch->format=='text')
+				$currenttemplate = 'text/RelDir/relation_direction';
+			else 
+				$currenttemplate = 'images/Rijksmuseum/flowers'; // TODO: should be cleaner
+		}
 
 		$treejson = $this->makeDirTreeJSON($currenttemplate, $batch->format);
 
@@ -490,7 +540,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$goldfields = array();
 		$unitscount = count($batch->wasDerivedFrom);
 
-		if($jc->content['unitsPerTask'] > $unitscount){
+		if(isset($jc->content['unitsPerTask']) and  $jc->content['unitsPerTask'] > $unitscount){
 			$jc->setValue('unitsPerTask', $unitscount); 
 			Session::flash('flashNotice', 'Adapted units per task to match the batch size.');
 		}	
@@ -837,7 +887,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				$j = new Job;
 				$j->format = $batch->format;
 				$j->domain = $batch->domain;
-				$j->type = explode('/', $template)[0];
+				$j->type = explode('/', $template)[1];
 				$j->template = $template; // TODO: remove
 				$j->batch_id = $batch->_id;
 				$j->questionTemplate_id = $questiontemplateid;
@@ -851,10 +901,16 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			// Success.
 			//Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
 			//				strtoupper(implode(', ', $jc->content['platform'])) . '.');
-			Session::flash('flashSuccess', "Created job" . (count($jc->content['platform']) == 1 ? '' : 's') . " on " . 
-							strtoupper(implode(', ', $jc->content['platform'])) . (Auth::user()->role == 'demo' ? '. Because this is a demo account, you can not order it. Please take a look at our finished jobs!' : '. Click on \'actions\' on the job to order it.'));
-			return Redirect::to("jobs/listview");
+			$successmessage = "Created job" . (count($jc->content['platform']) > 1 ? 's' : '') . " on " . 
+							strtoupper(implode(', ', $jc->content['platform'])) . '. Order it by pressing the button under \'Actions\'. Demo jobs are published on the sandbox or internal channels only.';
 
+			// TODO: this only takes the first job of potentially two
+			if(!empty($jobs[0]->url))
+				$successmessage .= ". After that, you can view it <a href='{{$jobs[0]->url}}' target='blank'>here</a>.";
+
+			Session::flash('flashSuccess', $successmessage);
+			return Redirect::to("jobs/");
+//(Auth::user()->role == 'demo' ? '. Because this is a demo account, you can not order it. Please take a look at our finished jobs!' : '. Click on \'actions\' on the job to order it.')
 		} catch (Exception $e) {
 
 			// Undo creation and delete jobs
@@ -868,6 +924,8 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			//delete activity
 			if($activity) $activity->forceDelete();
 			
+			throw $e; //for debugging
+
 			Session::flash('flashError', $e->getMessage());
 			return Redirect::to("process/submit");
 		}
@@ -882,6 +940,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	private function makeDirTreeJSON($currenttemplate, $format, $pretty = true){
 		$r = array();
 		$path = Config::get('config.templatedir') . $format . '/';
+
 		foreach(File::directories($path) as $dir){
 			$dirname = substr($dir, strlen($path));
 		   	if($pretty) $displaydir = ucfirst(str_replace('_', ' ', $dirname));

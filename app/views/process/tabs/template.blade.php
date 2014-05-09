@@ -37,7 +37,15 @@
 							 .jstree li > a > .jstree-icon {  display:none !important; } 
 							</style>
 							<br><br>
-							<iframe id ="question" src="/templates/{{ $currenttemplate }}.html" seamless sandbox="allow-scripts" width="890" height="600"></iframe>
+
+							<iframe id ="question" src="/templates/{{ $currenttemplate }}.html" seamless sandbox="allow-scripts" width="890" height="600" 
+							@if($format=='image')
+								style="display:none"
+							@endif
+							></iframe>
+							@if($format=='image')
+							No preview available.
+							@endif
 						</fieldset>
 						<br>
 						<br>

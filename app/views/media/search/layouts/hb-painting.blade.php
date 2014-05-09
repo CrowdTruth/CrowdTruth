@@ -9,22 +9,24 @@
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="#" data-vb="hide" data-vbSelector="image_id"></i>ID</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_id"></i>Thumbnail</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_title"></i>Name</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_domain"></i>Domain</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_source"></i>Source</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_id"></i>ID</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_content"></i>Thumbnail</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_title"></i>Title</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_description"></i>Description</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_author"></i>Author</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_domain"></i>Domain</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_source"></i>Source</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_url"></i>URL</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_width"></i>Width</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_height"></i>Height</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_object"></i>Object</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_scene"></i>Scene</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_width"></i>Width</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_height"></i>Height</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_object"></i>Object</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_scene"></i>Scene</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_classifiers"></i>Classifiers</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_facesrek"></i>FacesRekognition</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_faces">Faces</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_facesnum"># of Faces</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_colors">Main colors</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_histogram"></i>Histogram</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_facesnum"># of Faces</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_colors">Main colors</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_histogram"></i>Histogram</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i>Used In # of Batches</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i>Used In # of Jobs</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created At</a></li>
@@ -35,12 +37,14 @@
 	</div>
 	<div class='ctable-responsive'>
 	    <table class="table table-striped">
-	       	<thead data-query-key="match[documentType]" data-query-value="painting">
+	       	<thead data-query-key="&collection=temp&match[documentType]" data-query-value="painting">
 		        <tr>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>
 		            <th class="sorting" data-vbIdentifier="image_id" data-query-key="orderBy[_id]" data-toggle="tooltip" data-placement="top" title="The ID of the image">ID</th>
 		            <th class="sorting" data-vbIdentifier="image_content" data-query-key="orderBy[content.URL]" data-toggle="tooltip" data-placement="top" title="Thumbnail of the image (240x160px)">Thumbnail</th>
-		            <th class="sorting" data-vbIdentifier="image_title" data-query-key="orderBy[title]" data-toggle="tooltip" data-placement="top" title="The image filename">Title</th>
+		            <th class="sorting" data-vbIdentifier="image_title" data-query-key="orderBy[title]" data-toggle="tooltip" data-placement="top" title="The image title">Title</th>
+		            <th class="sorting" data-vbIdentifier="image_description" data-query-key="orderBy[description]" data-toggle="tooltip" data-placement="top" title="The image description">Description</th>
+		            <th class="sorting" data-vbIdentifier="image_author" data-query-key="orderBy[author]" data-toggle="tooltip" data-placement="top" title="The author of the image">Author</th>
 		            <th class="sorting" data-vbIdentifier="image_domain" data-query-key="orderBy[domain]" data-toggle="tooltip" data-placement="top" title="The domain the image is uploaded under">Domain</th>
 		            <th class="sorting" data-vbIdentifier="image_source" data-query-key="orderBy[source]" data-toggle="tooltip" data-placement="top" title="The source of the image, in case of API this is the hostname">Source</th>
 			    	<th class="sorting" data-vbIdentifier="image_url" data-query-key="orderBy[content.url]" data-toggle="tooltip" data-placement="top" title="The full URL of the image, follow the URL for the original image">URL</th>
@@ -70,6 +74,12 @@
 				</td>
 				<td data-vbIdentifier="image_title">
 					<input class="input-sm form-control" type='text' data-query-key="match[title]" data-query-operator="like" />
+				</td>
+				<td data-vbIdentifier="image_description">
+					<input class="input-sm form-control" type='text' data-query-key="match[description]" data-query-operator="like" />
+				</td>
+				<td data-vbIdentifier="image_author">
+					<input class="input-sm form-control" type='text' data-query-key="match[author]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="image_domain">
 					<input class="input-sm form-control" type='text' data-query-key="match[domain]" data-query-operator="like" />
@@ -138,46 +148,62 @@
 			        @{{#each documents}}
 			        <tr class="text-center">
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
-			            <td data-vbIdentifier="image_id">@{{ this._id }}   </td>
-			            <td data-vbIdentifier="image_content"><image width="240" height="160" src="@{{this.content.URL}}" />   </td>
+			            <td data-vbIdentifier="image_id">
+			            	<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
+			            		@{{ this._id }}   
+		            		</a>
+	            		</td>
+			            <td data-vbIdentifier="image_content"><image width="240" height="160" src="@{{this.content.url}}" />   </td>
 			            <td data-vbIdentifier="image_title">@{{ this.title }}   </td>
+			            <td data-vbIdentifier="image_description">@{{ this.description }}   </td>
+			            <td data-vbIdentifier="image_author">@{{ this.author }}   </td>
 			            <td data-vbIdentifier="image_domain">@{{ this.domain }}   </td>
 			            <td data-vbIdentifier="image_source">@{{ this.source }}   </td>
-			            <td data-vbIdentifier="image_url">@{{ this.content.URL }}   </td>
+			            <td data-vbIdentifier="image_url">@{{ this.content.url }}   </td>
 			            <td data-vbIdentifier="image_width">@{{ this.content.width }}   </td>
 			            <td data-vbIdentifier="image_height">@{{ this.content.height }}   </td>
 			            <td data-vbIdentifier="image_object">
-			            	@{{#eachProperty this.content.features.Object.matches}}
-			            		@{{value.tag}}: @{{value.score}} <br>			            		
-			            	@{{/eachProperty}}
-    			
-						</td>
+			              @{{#if  this.content.features.Object.matches}}
+				            	@{{#eachProperty this.content.features.Object.matches}}
+				            		@{{value.tag}}: @{{value.score}} <br>			            		
+				            	@{{/eachProperty}}
+
+       			 		   @{{/if}}
+  						</td>
 			            <td data-vbIdentifier="image_scene">
-			            	@{{#eachProperty this.content.features.Scene }}
-			            		@{{value.label}}: @{{value.score}} <br>
-			            	@{{/eachProperty}}   
+			            	@{{#if  this.content.features.scene}}
+				            	@{{#eachProperty this.content.features.scene }}
+				            		@{{value.label}}: @{{value.score}} <br>
+				            	@{{/eachProperty}}   
+			            	@{{/if}}
 		            	</td>
 			            <td data-vbIdentifier="image_classifiers">
-			            	@{{#eachProperty this.content.features.Classifier }}
-			            		@{{key}}: @{{value}}
-		            		@{{/eachProperty}}
+			            	@{{#if this.content.features.Classifier}}
+				            	@{{#eachProperty this.content.features.Classifier }}
+				            		@{{key}}: @{{value}}
+			            		@{{/eachProperty}}
+		            		@{{/if}}
 	            	   </td>
-			            <td data-vbIdentifier="image_facesrek">@{{ this.content.features.FacesRekognition }}   </td>
+			            <td data-vbIdentifier="image_facesrek">     	@{{ this.content.features.FacesRekognition }}   </td>
 			            <td data-vbIdentifier="image_faces">@{{ this.content.features.Faces }}   </td>
 			            <td data-vbIdentifier="image_facesnum">
-			            	@{{#eachProperty this.content.features.FacesNumber }}   
-			            		@{{key}}: @{{value}}
-			            	@{{/eachProperty}}
+			            	@{{#if this.content.features.FacesNumber}}
+				            	@{{#eachProperty this.content.features.FacesNumber }}   
+				            		@{{key}}: @{{value}}
+				            	@{{/eachProperty}}
+			            	@{{/if}}
 		            	</td>
 			            <td data-vbIdentifier="image_colors">
 			            	<table class="table table-striped table-condensed" style="height: 50px;">						    
 								    	<tbody>
 											<tr>
-								    		@{{#each this.content.features.ColorsMain }}
-												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
-													&nbsp;
-												</td>
-											@{{/each}}									
+								    		@{{#if thic.content.features.ColorsMain}}
+									    		@{{#each this.content.features.ColorsMain }}
+													<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
+														&nbsp;
+													</td>
+												@{{/each}}									
+											@{{/if}}
 											</tr>
 										</tbody>
 									</table>							  
@@ -187,11 +213,13 @@
 			            	 <table class="table table-striped table-condensed" style="height: 50px;">						    
 								    	<tbody>
 											<tr>
-								    		@{{#each this.content.features.ColorsHistogram }}
-												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
-													&nbsp;
-												</td>
-											@{{/each}}									
+								    		@{{#if this.content.features.ColorsHistogram}}
+									    		@{{#each this.content.features.ColorsHistogram }}
+													<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
+														&nbsp;
+													</td>
+												@{{/each}}									
+											@{{/if}}
 											</tr>
 										</tbody>
 									</table>							  
@@ -207,27 +235,6 @@
 	    </table>
 	</div>	    
 	
-	<div class='hidden modalTemplate'>
-		<table>
-		<script class='template' type="text/x-handlebars-template">
-				<!-- Modal -->
-				<div class="modal bs-example-modal-lg fade" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelWorker" aria-hidden="true">
-				  <div class="modal-dialog modal-lg">
-				    <div class="modal-content">
-				      <div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="myModalLabelWorker">Individual worker page</h4>
-				      </div>
-				      <div class="modal-body" >
-					@{{#each documents}}
-						@{{ this._id }}
-					@{{/each}}				
-				      </div>
-				    </div>
-				  </div>
-				</div>
-		</script>
-		</table>
-	</div>			
+
 					
 </div>

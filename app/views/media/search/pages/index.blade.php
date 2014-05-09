@@ -70,8 +70,12 @@
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
 							@if(Request::segment(1) != 'jobs' && Request::segment(1) != 'workers')
-							<li><a href="#" class='toSelection'>Save Selection</a></li>
-							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
+								<li><a href="#" class='toSelection'>Save Selection</a></li>
+								<li><a href="#" class='toCSV'>Export results to CSV</a></li>
+							@endif
+
+							@if(Request::segment(1) == 'workers')
+								<li><a href="#" onclick="javascript:alert('Mass messaging is currently disabled. Sorry!')">Message workers</a></li>
 							@endif
 						</ul>
 					</div>					
@@ -175,10 +179,18 @@
 							@include('media.search.layouts.hb-fullvideo')
 						@endif						
 
-						@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
+						@if(isset($mainSearchFilters['documentTypes']['painting']))
 							@include('media.search.layouts.hb-painting')
 						@endif
 						
+						@if(isset($mainSearchFilters['documentTypes']['drawing']))
+							@include('media.search.layouts.hb-drawing')
+						@endif
+
+						@if(isset($mainSearchFilters['documentTypes']['picture']))
+							@include('media.search.layouts.hb-picture')
+						@endif
+
 						<div class='includeGraph hidden'>
                             <table>
                                 <tr>
@@ -921,11 +933,64 @@ var openModal = function(modalAnchor , activeTabKey){
     });
 }
 
+var openStaticModal = function(modalAnchor , activeTabKey){
+
+
+    var modalTarget = modalAnchor.attr('data-target');
+    var staticData = modalAnchor.attr('data-static');
+
+        var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+
+        var html = template();
+
+        $('#activeTabModal').remove();
+
+        $('body').append(html);
+
+        $('#activeTabModal').modal();
+		//rel=static-val or static-inner
+		$('span[rel="static-html"]').html(staticData);
+		$('input[rel="static-val"]').val(staticData);
+   
+
+        $(".ajaxform").submit(function(e)
+		{
+		    var postData = $(this).serializeArray();
+		    var formURL = $(this).attr("action");
+		    $.ajax(
+		    {
+		        url : formURL,
+		        type: "POST",
+		        data : postData,
+		        success:function(data, textStatus, jqXHR) 
+		        {
+	            	console.log(data);
+	            	alert(data.message);
+		            	
+		        },
+		        error: function(jqXHR, textStatus, errorThrown) 
+		        {
+		            console.log(errorThrown);     
+		        }
+		    });
+		    e.preventDefault(); //STOP default action
+		    e.unbind(); //unbind. to stop multiple form submit.
+		});
+}
+
+
+
 $('body').on('click', '.testModal', function(){
     var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
-    openModal($(this),activeTabKey);
 
+    if($(this).is('[data-static]')){
+    	openStaticModal($(this),activeTabKey);
+    } else {
+   	 	openModal($(this),activeTabKey);
+	}
 });
+
+
 
 @if(Request::segment(1) == 'jobs')
 	$('.select_job').click();
@@ -938,7 +1003,52 @@ $('body').on('click', '.testModal', function(){
 	$('.documentTypesNav').find('#twrex-structured-sentence_nav a').click();
 @endif
 
+
+
 });
+
+function jobactions(job, action, index){
+	var newstatus = '';
+ 	if(action == 'pause') newstatus = 'paused';
+ 	else if(action == 'order' || action == 'resume') newstatus = 'running';
+ 	else if(action == 'cancel') newstatus = 'canceled';
+	
+	if(action=='cancel'){
+		if(!confirm('Do you really want to '+action+' job '+job+'?')){
+			return false;
+		}
+	}
+	$.ajax(
+		    {
+		        url : '/api/actions/'+job+'/'+action,
+		        type: "GET",
+		        success:function(data, textStatus, jqXHR)
+					{
+							           
+						console.log(data);
+
+						if(data.status=='ok'){
+							$('#'+action+index).hide();
+							$('#'+'status'+index).html(newstatus);
+						} else {
+							alert(data.message);
+						}
+							    
+					},
+		        error: function(jqXHR, textStatus, errorThrown) 
+		        {
+		            alert(errorThrown);     
+		        }
+		    });
+}
+
+
+
+
+
+
+
+
 
 </script>
 

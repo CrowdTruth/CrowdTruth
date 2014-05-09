@@ -51,10 +51,10 @@ class apiController extends BaseController {
 		// LOOP THROUGH IMAGES CREATE ENTITIES WITH ACTIVITY-ID FOR NEW IMAGES
 		$url_ids = "";
 		foreach ($input[0] as $img){
-
+\Log::debug(json_encode($img));
 			try {
 				
-				$parse = parse_url($img);
+				$parse = parse_url($img['url']);
 				$source = $parse['host'];
 								
 				// Save images as parent
@@ -62,7 +62,13 @@ class apiController extends BaseController {
 				$image->domain = $domain;
 				$image->format = "image";
 				$content = $image->content; 
-				$content['url'] = $img; 
+				$content['url'] = $img['url'];
+				$content['title'] = $img['title'];
+				$content['height'] = $img['height'];
+				$content['width'] = $img['width'];
+				$content['description'] = $img['description'];
+				$content['author'] = $img['author'];
+
 				$image->content = $content;
 				$image->documentType = $type;
 				$image->source = $source;
@@ -70,8 +76,8 @@ class apiController extends BaseController {
 				$image->activity_id = $activity->_id;
 				$image->softwareAgent_id = "imagegetter";
 				// Take last part of URL as image title
-				$temp = explode('/', $img);
-				$image->title = end($temp);
+				$temp = explode('/', $img['url']);
+				//$image->title = end($temp);
 
 
 				// CHECK WHETHER URL EXISTS ALREADY
@@ -81,11 +87,12 @@ class apiController extends BaseController {
 	            else {
 		            $image->hash = $hash;
 					$image->activity_id = $activity->_id;
+					\Log::debug(json_encode($image->toArray()));
 					$image->save();
 					$existingid = $image->_id;
 					
 				}
-				$url_ids .= "$img $existingid ";
+				$url_ids .= "{$img['url']} $existingid ";
 						
 			}	catch (Exception $e){
 				//delete image
@@ -116,7 +123,8 @@ class apiController extends BaseController {
 			//return $command;
 
 			\Log::debug("Running $command");
-		    exec($command, $output, $error);	
+		    exec($command, $output, $error);
+		    
 			$return['oo'] = $output; 			
 			$return['ee'] = $error;
 			//$return['a'] = $a;
@@ -125,7 +133,7 @@ class apiController extends BaseController {
 
 		} catch (Exception $e){
 			//throw $e; // for debugging.
-			\Log::debug($e->getMessage());
+			\Log::debug("ERROR: " . $e->getMessage());
 			$return['error'] = $e->getMessage();
 			$return['status'] = 'bad';
 		} 
@@ -148,7 +156,10 @@ class apiController extends BaseController {
 					if(!$job)
 						throw new Exception('Job not found.');
 					
-					$this->authenticateUser();
+					if($job->user_id != Auth::user()->_id)
+						throw new Exception('You can only do this with your own job!');
+
+					//$this->authenticateUser();
 
 					switch ($action) {
 						case 'pause':
@@ -199,6 +210,8 @@ class apiController extends BaseController {
 		if (\Auth::user()->role == 'demo')
 			throw new Exception("Demo accounts are not allowed to do this.");  
 		
+		// Now on every call!!!
+		throw new Exception("This feature is disabled for demo accounts. Sorry!"); 
 	}
 
 	private function returnJson($return){
@@ -207,17 +220,15 @@ class apiController extends BaseController {
 
 	/* Data in post an array of 'recipients' plus a 'message' array (with content and subject) */
 	public function postMessage(){
-		$return = array('status' => 'ok');
-		$content = Input::get('content');
-		$subject = Input::get('subject');
-		$recipients = Input::get('recipients');
 
-		// test data
-/*		$content = 'testttt';
-		$subject = 'subject of message';
-		$recipients = array('crowdagent/amt/A014570429HSF84C0QZCF');*/
-		
 		try {
+			$return = array('status' => 'ok');
+			$content = Input::get('messagecontent');
+			$subject = Input::get('messagesubject');
+			$recipients = explode(',', Input::get('messageto'));
+
+			$this->authenticateUser();
+
 			$groupedarray = array();
 
 			foreach ($recipients as $recipient) {
@@ -252,7 +263,9 @@ class apiController extends BaseController {
 	public function postBlock(){
 		try {
 			$return = array('status' => 'ok');
-			$message = Input::get('message');
+			$this->authenticateUser();
+
+			$message = Input::get('blockmessage');
 			$workerid = Input::get('workerid');
 
 			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
@@ -273,7 +286,9 @@ class apiController extends BaseController {
 	public function postUnblock(){
 		try {
 			$return = array('status' => 'ok');
-			$message = Input::get('message');
+
+			$this->authenticateUser();
+			$message = Input::get('unblockmessage');
 			$workerid = Input::get('workerid');
 
 			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
@@ -288,37 +303,90 @@ class apiController extends BaseController {
 
 	}
 
+	/**
+	* needs workerId in postdata.
+	*/
 	public function postFlag(){
-		try{
+		try {
 			$return = array('status' => 'ok');
+
+			$this->authenticateUser();
 			$workerid = Input::get('workerid');
+
 			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
 			$crowdagent->flag();
-			$return['message'] = "Flagged worker $workerid.";
-		} catch (Exception $e) {
+			$return['message'] = "Flagged worker $workerid successfully.";
+		} catch (Exception $e){
 			$return['message'] = $e->getMessage();
 			$return['status'] = 'bad';
 		}
 
 		return $return;
+
 	}
 
-/*	public function getGetdropdowninfos(){
-		foreach(Job::get() as $job){
-			$format[] = $job->format;
-			$domain[] = $job->domain;
-			$user[] = $job->user_id;
-			$template[] = $job->template;
-			$platform[] = $job->platform;
-			$status[] = $job->status;
+	/**
+	* needs workerId in postdata.
+	*/
+	public function postUnflag(){
+		try {
+			$return = array('status' => 'ok');
+
+			$this->authenticateUser();
+			$workerid = Input::get('workerid');
+
+			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
+			$crowdagent->unflag();
+			$return['message'] = "Unflagged worker $workerid successfully.";
+		} catch (Exception $e){
+			$return['message'] = $e->getMessage();
+			$return['status'] = 'bad';
 		}
 
-		return array('format'=> array_unique($format),
-					'domain'=> array_unique($format),
-					'user'=> array_unique($format),
-					'template'=> array_unique($format),
-					'status'=> array_unique($format));
+		return $return;
+
+	}
+
+
+/*
+	public function getWorker($crowdagent, $platform, $id, $action){
+		try {
+			$return = array('status' => 'ok');
+			$workerid = "crowdagent/$platform/$id";
+			
+			if($crowdagent!="crowdagent")
+				throw new Exception('No crowdagent selected.');
+			
+			$workerid = "crowdagent/$platform/$id";
+			$crowdagent = CrowdAgent::where('_id', $workerid)->first();
+
+			if(!$crowdagent)
+				throw new Exception('CrowdAgent not found.');
+
+			switch ($action) {
+
+				case 'flag':
+					$crowdagent->flag();
+					$return['message'] = "Flagged worker $workerid.";
+					break;
+				case 'unflag':
+					$crowdagent->unflag();
+					$return['message'] = "Unflagged worker $workerid.";
+					break;
+
+				default:
+					throw new Exception('Action unknown.');
+					break;
+			}
+
+		} catch (Exception $e) {
+			$return['message'] = $e->getMessage();
+			$return['status'] = 'bad';
+		}
+
+		return $return;	
 	}*/
+
 }
 
 ?>
