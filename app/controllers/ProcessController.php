@@ -518,8 +518,10 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		if(empty($currenttemplate)){ 
 			if($batch->format=='text')
 				$currenttemplate = 'text/RelDir/relation_direction';
-			else 
+			elseif($batch->format=='image') 
 				$currenttemplate = 'images/Rijksmuseum/flowers'; // TODO: should be cleaner
+			else
+				$currenttemplate = '';
 		}
 
 		$treejson = $this->makeDirTreeJSON($currenttemplate, $batch->format);

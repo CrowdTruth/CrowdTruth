@@ -1,7 +1,10 @@
 @extends('layouts.default')
 
 @section('content')
-			<!-- START /index --> 			
+			<!-- START /index --> 	
+			<style>
+				h4 {padding-top:20px;}
+			</style>		
 			<div class="col-xs-12">
 				<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')	
