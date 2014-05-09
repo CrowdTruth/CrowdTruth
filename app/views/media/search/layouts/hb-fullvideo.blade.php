@@ -9,9 +9,9 @@
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
+						<li><a href="#" data-vb="show" data-vbSelector="video_identifier"></i>Identifier</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_content"></i>Video</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_name"></i>Name</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="video_identifier"></i>Identifier</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="video_source"></i>Source</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_title"></i>Title</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="video_subject"></i>Subject</a></li>
@@ -37,9 +37,9 @@
 	       	<thead data-query-key="match[documentType]" data-query-value="fullvideo">
 		        <tr>
 		            <th data-vbIdentifier="checkbox">Select</th>
+			    <th class="sorting" data-vbIdentifier="video_identifier" data-query-key="orderBy[content.identifier]">Identifier</th>
 		            <th class="sorting" data-vbIdentifier="video_content" data-query-key="orderBy[content.identifier]">Video</th>
 		            <th class="sorting" data-vbIdentifier="video_name" data-query-key="orderBy[content.videoName]">Name</th>
-		            <th class="sorting" data-vbIdentifier="video_identifier" data-query-key="orderBy[content.identifier]">Identifier</th>
 		            <th class="sorting" data-vbIdentifier="video_source" data-query-key="orderBy[source]">Source</th>
 			    <th class="sorting" data-vbIdentifier="video_title" data-query-key="orderBy[content.metadata.title.nl]">Title</th>
 		            <th class="sorting" data-vbIdentifier="video_subject" data-query-key="orderBy[content.metadata.subject.nl]">Subject</th>
@@ -59,14 +59,14 @@
 				<td data-vbIdentifier="checkbox">
 					<input type="checkbox" class="checkAll" />
 				</td>
+				<td data-vbIdentifier="video_identifier">
+					<input class="input-sm form-control" type='text' data-query-key="match[content.identifier]" data-query-operator="like" />
+				</td>
 				<td data-vbIdentifier="video_content">
 					<input class="input-sm form-control" type='text' data-query-key="match[content.identifier]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="video_name">
 					<input class="input-sm form-control" type='text' data-query-key="match[content.videoName]" data-query-operator="like" />
-				</td>
-				<td data-vbIdentifier="video_identifier">
-					<input class="input-sm form-control" type='text' data-query-key="match[content.identifier]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="video_source">
 					<input class="input-sm form-control" type='text' data-query-key="match[source]" data-query-operator="like" />
@@ -127,6 +127,11 @@
 			        @{{#each documents}}
 			        <tr class="text-center">
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
+				    <td data-vbIdentifier="video_identifier"> 
+					<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualFullvideo" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
+						@{{ this.content.identifier }}
+					</a>
+				    </td>
 			            <td data-vbIdentifier="video_content">
 					<video width="240" height="160" controls preload="none" poster="@{{ this.content.metadata.medium.thumbnail }}"  data-toggle="tooltip" data-placement="top" title="Click to play">
 						
@@ -137,11 +142,6 @@
 					</video>
 				    </td>
 			            <td data-vbIdentifier="video_name" ><a href="@{{ this.content.metadata.attributionURL }}" target="_blank" data-toggle="tooltip" data-placement="top" title="Watch the video on the original source page"> @{{ this.content.videoName }}</a></td>
-			            <td data-vbIdentifier="video_identifier"> 
-					<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualFullvideo" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
-						@{{ this.content.identifier }}
-					</a>
-				    </td>
 			            <td data-vbIdentifier="video_source">@{{ this.source }}</td>
 			            <td data-vbIdentifier="video_title">@{{ highlightTermsInVideoTitle ../searchQuery this.content.metadata.title.nl }}</td>
 				    <td data-vbIdentifier="video_subject">@{{ highlightTermsInVideoSubject ../searchQuery this.content.metadata.subject.nl }}</td>
@@ -267,15 +267,36 @@
 		  <div class="modal-content">
 		   <div class="modal-header">
 		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-		     <h4 class="modal-title" id="myModalLabelVideoUnit">Individual Full Video Page</h4>
+		     <h4 class="modal-title" id="myModalLabelVideoUnit">Individual @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Page</h4>
 		   </div>
 		   <div class="modal-body" >
+			<div>
+			<video width="240" height="160" controls preload="none" poster="@{{ this.content.metadata.medium.thumbnail }}"  data-toggle="tooltip" data-placement="top" title="Click to play">
+				<source src="@{{ this.content.storage_url }}" type="video/mp4" >
+				<source src="@{{ this.content.storage_url }}" type="video/ogg" >
+					Your browser does not support the video tag.
+				</source>
+			</video>
+			<div style="float:right;"><strong> Title: </strong> 
+					    <ul>
+						  <li> NL: @{{ this.infoStat.content.metadata.title.nl }} </li>
+						  <li> EN: @{{ this.infoStat.content.metadata.title.en }} </li>
+					    </ul>
+					   <strong> Subject: </strong> 
+					    <ul>
+					     <li> NL: @{{ this.infoStat.content.metadata.subject.nl }} </li>
+					     <li> EN: @{{ this.infoStat.content.metadata.subject.en }} </li>
+					    </ul>
+					    <strong> Date: </strong> @{{ this.infoStat.content.metadata.date }} 
+					    <strong> Duration: </strong> @{{ this.infoStat.content.metadata.extent }} 
+					   </div>
+			</div>
 		         <div class="panel-group" id="accordion">
 			  <div class="panel panel-default">
 			    <div class="panel-heading">
 			      <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
 				<h4 class="panel-title">
-				 Full Video Information 
+				 @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Information 
 				</h4>
 			      </a>
 			    </div>
@@ -286,27 +307,13 @@
 					   <div><strong> Domain: </strong> @{{ this.infoStat.domain }} </div>
 					   <div><strong> Source: </strong> @{{ this.infoStat.source }} </div>
 					   <div> <strong> Creator: </strong> @{{ this.infoStat.content.metadata.creator.nl }} </div>   
-					   <div><strong> Online URL: </strong> @{{ this.infoStat.content.metadata.online_url }} </div>
-					   <div><strong> Title: </strong> 
-					    <ul>
-						  <li> NL: @{{ this.infoStat.content.metadata.title.nl }} </li>
-						  <li> EN: @{{ this.infoStat.content.metadata.title.en }} </li>
-					    </ul>
-					   </div>
-					   <div><strong> Subject: </strong> 
-					    <ul>
-					     <li> NL: @{{ this.infoStat.content.metadata.subject.nl }} </li>
-					     <li> EN: @{{ this.infoStat.content.metadata.subject.en }} </li>
-					    </ul>
-					   </div>
+					   <div><strong> Online URL: </strong> <a href="@{{ this.content.metadata.attributionURL }}" target="_blank" data-toggle="tooltip" data-placement="top" title="Watch the video on the original source page"> @{{ this.infoStat.content.metadata.attributionURL }} </a></div>
 					  <div><strong> Abstract: </strong> 
 					   <ul>
 					    <li> NL: @{{ this.infoStat.content.metadata.abstract.nl }} </li>
 					    <li> EN: @{{ this.infoStat.content.metadata.abstract.en }} </li>
 					   </ul>
 					  </div>
-					  <div><strong> Date: </strong> @{{ this.infoStat.content.metadata.date }} </div>
-					  <div><strong> Duration: </strong> @{{ this.infoStat.content.metadata.extent }} </div>
 					  <div><strong> Language: </strong> @{{ this.infoStat.content.metadata.language }} </div>
 					  <div><strong> Location: </strong> @{{ this.infoStat.content.metadata.spatial }} </div>
 			      </div>
@@ -316,7 +323,7 @@
 			    <div class="panel-heading">
 			      <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
 					  <h4 class="panel-title">
-					   Full Video Stats
+					   @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Stats
 					  </h4>
 					 </a>
 			    </div>
@@ -359,7 +366,7 @@
 				<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
 			      <h4 class="panel-title">
 				
-				  Full Video in Jobs
+				  @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} in Jobs
 				
 			      </h4>
 				</a>
@@ -436,7 +443,7 @@
 					    <div class="panel-heading">
 					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
 					      <h4 class="panel-title">
-						  Workers on Full Video
+						  Workers on @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}}
 					      </h4>
 					     </a>
 					    </div>

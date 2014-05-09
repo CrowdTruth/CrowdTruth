@@ -945,6 +945,36 @@ Swag.addHelper('highlightTermsInVideoSpatial', function(searchQuery, content, op
     return new Handlebars.SafeString(searchFieldSpatial);
   });
 
+Swag.addHelper('ifarray', function(object, options) {
+    if (object.constructor === Array) return object[0];
+    else return object;
+
+  });
+
+Swag.addHelper('booltostring', function(object, options) {
+  
+  return object.toString();;
+
+  });
+
+Swag.addHelper('addDocumentTypeLabel', function(documentType, options) {
+    var documentTypeLabel = documentType;
+    if (documentType == "fullvideo") {
+	documentTypeLabel = "Sound & Vision News Video";
+    }
+    if (documentType == "twrex-structured-sentence") {
+	documentTypeLabel = "Watson Medical RelEx Sentence";
+    }
+    if (documentType == "painting") {
+	documentTypeLabel = "Rijksmuseum Painting";
+    }
+    if (documentType == "drawing") {
+	documentTypeLabel = "Rijksmuseum Drawing";
+    }
+    
+    return documentTypeLabel;
+  });
+
   Swag.addHelper('gte', function(value, test, options) {
     if (!((Utils.isHandlebarsSpecific(value)) && (Utils.isHandlebarsSpecific(test)))) {
       value = Utils.result(value);

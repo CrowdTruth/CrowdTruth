@@ -9,5 +9,10 @@
 		{{ link_to('media/preprocess/twrex/preview?URI=' . $entity['_id'], "Preview: " . $entity['title']) }}
 	</li>
 	@endif
+	@if(Request::is('media/preprocess/fullvideo/preview'))
+	<li class='active'>
+		{{ link_to('media/preprocess/fullvideo/preview?URI=' . $entity['_id'], "Preview: " . $entity['title']) }}
+	</li>
+	@endif
 </ol>
 <!-- END twrex/breadcrumb   -->

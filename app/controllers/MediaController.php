@@ -46,7 +46,7 @@ class MediaController extends BaseController {
 	}	
 
 
-	public function postOnlinedata()
+	public function anyOnlinedata()
 	{	
 		if (Input::get("source_name") == "source_rijksmuseum"){
 			return Redirect::to('onlinesource/imagegetter');
@@ -56,6 +56,8 @@ class MediaController extends BaseController {
 		// if (Input::get("source_name") == "source_template"){
 		// 	return Redirect::to('onlinesource/onlinesourcetemplate')
 		// }
+
+		\Session::flash('flashSuccess', 'Your video is being downloaded');
 
 		$onlineDataHelper = new OnlineDataHelper(Input::all());
 		try {

@@ -122,7 +122,7 @@
 								<h4><i class="fa fa-upload fa-fw"></i>Online Sources</h4>
 							</div>
 							<div class="panel-body">
-								{{ Form::open(array('action' => 'MediaController@postOnlinedata')) }}
+								{{ Form::open(array('action' => 'MediaController@anyOnlinedata', 'class' => 'onlineForm')) }}
 								<div class="form-horizontal">
 									<div class="form-group">
 										<label for="source_name" class="col-sm-3 control-label">Source Name</label>
@@ -164,25 +164,68 @@
 		$(document).ready(function () {
 			$("#domain_type").chainedTo("#file_format");
 			$("#document_type").chainedTo("#domain_type");
+
+			$('button[value=onlinedata]').on('click', function() {
+				if($('select#source_name').val() == "source_beeldengeluid")
+				{
+					$('.onlineForm').submit(function(event) {
+
+						var formData = {
+							'source_name' 			: "source_beeldengeluid",
+							'numberVideos' 			: $('.onlineForm input[name=numberVideos]').val()
+						};
+
+						// process the form
+						$.ajax({
+							type 		: 'POST', // define the type of HTTP verb we want to use (POST for our form)
+							url 		: $('.onlineForm').attr('action'), // the url where we want to POST
+							data 		: formData, // our data object
+							dataType 	: 'json', // what type of data do we expect back from the server
+							encode          : true
+						})
+							// using the done promise callback
+							.done(function(data) {
+								// log data to the console so we can see
+								console.log(data); 
+
+								// here we will handle errors and validation messages
+							});
+
+							//setTimeout( function(){
+					location.href = "{{ URL::to('media/upload') }}";						
+							//}, 2000);
+
+
+
+
+						// stop the form from submitting the normal way and refreshing the page
+						event.preventDefault();
+					});
+			
+					
+				}
+			});
+	
+			$('.toggle-data').on('change', function() {
+				var toggle = $(".toggle-data option:selected").val();
+				var optionDiv = $(".is_" + toggle);
+				optionDiv.removeClass("hidden");
+
+				var button = $("#button");
+				if( $(".toggle-data option:selected").val() != ""){
+					button.removeClass("hidden");
+				} else {
+					button.addClass("hidden");
+				}
+
+				var inputvideo = $("#inputvideo");
+				if ($('.toggle-data option:selected').val() != "source_beeldengeluid") {
+					inputvideo.addClass("hidden");
+				}
+
+			});
 		});
 
-		$('.toggle-data').on('change', function() {
-			var toggle = $(".toggle-data option:selected").val();
-			var optionDiv = $(".is_" + toggle);
-			optionDiv.removeClass("hidden");
 
-			var button = $("#button");
-			if( $(".toggle-data option:selected").val() != ""){
-				button.removeClass("hidden");
-			} else {
-				button.addClass("hidden");
-			}
-
-			var inputvideo = $("#inputvideo");
-			if ($('.toggle-data option:selected').val() != "source_beeldengeluid") {
-				inputvideo.addClass("hidden");
-			}
-
-		});
 	</script>
 @stop

@@ -11,6 +11,8 @@ class FullvideoStructurer {
 
 	public function process($fullvideo) 
 	{
+		\Session::flash('flashSuccess', 'Your video is being pre-processed');
+
 		$retVal = array();
 		if ($fullvideo->keyframes["count"] == 0) {
 			$retVal["keyframes"] = $this->processKeyFrames($fullvideo);	

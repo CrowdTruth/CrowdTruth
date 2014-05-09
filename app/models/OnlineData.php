@@ -33,6 +33,7 @@ class OnlineData extends Moloquent {
 
 
 	public function listRecords($parameters, $noEntries) {
+		
 		$listOfRecords = array();
 		$curlRequest = new SVRequest;
 		$url = $this->url . "verb=ListRecords";
@@ -351,7 +352,7 @@ class OnlineData extends Moloquent {
 
 
 	public function store ($format, $domain, $documentType, $parameters, $noOfVideos) {
-		
+		//fastcgi_finish_request();
 		$listOfVideoIdentifiers = $this->listRecords($parameters, $noOfVideos);
 		
 		$status = array();
@@ -389,10 +390,9 @@ class OnlineData extends Moloquent {
 				$entity->content = $videoMetadata["content"];	
 				$parents = array();
 				$entity->parents = $parents;
+				$entity->tags = array("unit");
 				$entity->segments = $count;
 				$entity->keyframes = $count;
-				$entity->batches = $count;
-				$entity->jobs = $count;
 				$entity->hash = md5(serialize([$entity->content]));				
 				$entity->activity_id = $activity->_id;  
 				$entity->save();
