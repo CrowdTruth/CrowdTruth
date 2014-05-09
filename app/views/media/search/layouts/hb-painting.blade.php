@@ -154,17 +154,17 @@
 		            		</a>
 	            		</td>
 			            <td data-vbIdentifier="image_content"><image width="240" height="160" src="@{{this.content.url}}" />   </td>
-			            <td data-vbIdentifier="image_title">@{{ this.title }}   </td>
-			            <td data-vbIdentifier="image_description">@{{ this.description }}   </td>
-			            <td data-vbIdentifier="image_author">@{{ this.author }}   </td>
+			            <td data-vbIdentifier="image_title">@{{ this.content.title }}   </td>
+			            <td data-vbIdentifier="image_description">@{{ this.content.description }}   </td>
+			            <td data-vbIdentifier="image_author">@{{ this.content.author }}   </td>
 			            <td data-vbIdentifier="image_domain">@{{ this.domain }}   </td>
 			            <td data-vbIdentifier="image_source">@{{ this.source }}   </td>
 			            <td data-vbIdentifier="image_url">@{{ this.content.url }}   </td>
 			            <td data-vbIdentifier="image_width">@{{ this.content.width }}   </td>
 			            <td data-vbIdentifier="image_height">@{{ this.content.height }}   </td>
 			            <td data-vbIdentifier="image_object">
-			              @{{#if  this.content.features.Object.matches}}
-				            	@{{#eachProperty this.content.features.Object.matches}}
+			              @{{#if  this.content.features.object.matches}}
+				            	@{{#eachProperty this.content.features.object.matches}}
 				            		@{{value.tag}}: @{{value.score}} <br>			            		
 				            	@{{/eachProperty}}
 
@@ -184,7 +184,7 @@
 			            		@{{/eachProperty}}
 		            		@{{/if}}
 	            	   </td>
-			            <td data-vbIdentifier="image_facesrek">     	@{{ this.content.features.FacesRekognition }}   </td>
+			            <td data-vbIdentifier="image_facesrek">@{{ this.content.features.FacesRekognition }}   </td>
 			            <td data-vbIdentifier="image_faces">@{{ this.content.features.Faces }}   </td>
 			            <td data-vbIdentifier="image_facesnum">
 			            	@{{#if this.content.features.FacesNumber}}
@@ -194,20 +194,20 @@
 			            	@{{/if}}
 		            	</td>
 			            <td data-vbIdentifier="image_colors">
+								    	
 			            	<table class="table table-striped table-condensed" style="height: 50px;">						    
-								    	<tbody>
-											<tr>
-								    		@{{#if thic.content.features.ColorsMain}}
-									    		@{{#each this.content.features.ColorsMain }}
-													<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
-														&nbsp;
-													</td>
-												@{{/each}}									
-											@{{/if}}
-											</tr>
-										</tbody>
-									</table>							  
-							</div>
+						    	<tbody>
+									<tr>
+							    		@{{#if this.content.features.ColorsMain}}
+							    			@{{#each this.content.features.ColorsMain }}
+												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
+													&nbsp;
+												</td>
+											@{{/each}}									
+										@{{/if}}
+									</tr>
+								</tbody>
+							</table>							  							
 			            </td>
 			            <td data-vbIdentifier="image_histogram">
 			            	 <table class="table table-striped table-condensed" style="height: 50px;">						    
