@@ -131,13 +131,13 @@ for iter in range(4, len(sys.argv), 2):
         log('error REKOGNITION a' + str(e))
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
-        "jobs=scene_understanding_3&urls="+ImURL + "&num_return=7"
+        "jobs=scene_understanding_3&urls="+ImURL + "&num_return=5"
         response = urllib2.urlopen(Comm)
         data2 = json.load(response)    
         # print data2["scene_understanding"] 
         Features = {}
         data['softwareAgent_configuration'] = "object"
-        Features['object'] = data2["scene_understanding"]
+        Features['object'] = data2["scene_understanding"]["matches"]
         data['content']['features'] = Features    
         r = requests.post(url, data=json.dumps(data), headers=headers)
         log(r)
