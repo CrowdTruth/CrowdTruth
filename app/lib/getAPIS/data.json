@@ -5,25 +5,27 @@
   ], 
   "softwareAgent_id": "fr_rekognition", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://ideasandassociates.com/content/ideasandassociates.com/iaa/images/medium/Portrait-of-man-with-black-sunglasses-1339339624.JPG", 
     "features": {
       "scene": [
         {
-          "score": 0.9533, 
-          "label": "Flower"
+          "score": 0.083, 
+          "label": "Food"
         }, 
         {
-          "score": 0.0557, 
-          "label": "Food"
+          "score": 0.027, 
+          "label": "Park"
         }
       ]
     }
   }, 
   "softwareAgent_label": "rekognition: [object, scene, faces]", 
   "parents": [
-    "entity/image/art/painting/0"
+    "pppp"
   ], 
   "documentType": "fr_rekognition", 
+  "threshold": 0.4, 
+  "goodFeatures": [], 
   "softwareAgent_configuration": "scene"
 }{
   "domain": "art", 
@@ -32,48 +34,41 @@
   ], 
   "softwareAgent_id": "fr_rekognition", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://ideasandassociates.com/content/ideasandassociates.com/iaa/images/medium/Portrait-of-man-with-black-sunglasses-1339339624.JPG", 
     "features": {
-      "object": {
-        "": [], 
-        "matches": [
-          {
-            "tag": "rose", 
-            "score": 0.923
-          }, 
-          {
-            "tag": "flower", 
-            "score": 0.6946
-          }, 
-          {
-            "tag": "lollipop", 
-            "score": 0.3268
-          }, 
-          {
-            "tag": "candy", 
-            "score": 0.0986
-          }, 
-          {
-            "tag": "flora", 
-            "score": 0.0681
-          }, 
-          {
-            "tag": "bell pepper", 
-            "score": 0.0344
-          }, 
-          {
-            "tag": "sliced", 
-            "score": 0.0093
-          }
-        ]
-      }
+      "object": [
+        {
+          "tag": "sunglasses", 
+          "score": 0.7272
+        }, 
+        {
+          "tag": "man", 
+          "score": 0.3766
+        }, 
+        {
+          "tag": "face", 
+          "score": 0.1998
+        }, 
+        {
+          "tag": "digital watch", 
+          "score": 0.0342
+        }, 
+        {
+          "tag": "human", 
+          "score": 0.0249
+        }
+      ]
     }
   }, 
   "softwareAgent_label": "rekognition: [object, scene, faces]", 
   "parents": [
-    "entity/image/art/painting/0"
+    "pppp"
   ], 
   "documentType": "fr_rekognition", 
+  "threshold": 0.5, 
+  "goodFeatures": [
+    "sunglasses"
+  ], 
   "softwareAgent_configuration": "object"
 }{
   "domain": "art", 
@@ -82,17 +77,98 @@
   ], 
   "softwareAgent_id": "fr_rekognition", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://ideasandassociates.com/content/ideasandassociates.com/iaa/images/medium/Portrait-of-man-with-black-sunglasses-1339339624.JPG", 
     "features": {
-      "FacesNumber": 0, 
-      "Faces": []
+      "AverageSex": 0.5, 
+      "FacesNumber": 2, 
+      "Faces": [
+        {
+          "boundingbox": {
+            "tl": {
+              "y": 216.8, 
+              "x": 660
+            }, 
+            "size": {
+              "width": 96, 
+              "height": 96
+            }
+          }, 
+          "confidence": 0, 
+          "pose": {
+            "yaw": 0, 
+            "roll": 0, 
+            "pitch": 0
+          }, 
+          "sex": 0
+        }, 
+        {
+          "boundingbox": {
+            "tl": {
+              "y": 63.2, 
+              "x": 136
+            }, 
+            "size": {
+              "width": 323.2, 
+              "height": 323.2
+            }
+          }, 
+          "confidence": 1, 
+          "pose": {
+            "yaw": 15.37, 
+            "roll": -26.24, 
+            "pitch": -3.87
+          }, 
+          "sex": 1
+        }
+      ]
     }
   }, 
   "softwareAgent_label": "rekognition: [object, scene, faces]", 
   "parents": [
-    "entity/image/art/painting/0"
+    "pppp"
   ], 
   "documentType": "fr_rekognition", 
+  "threshold": 0.5, 
+  "goodFeatures": [
+    {
+      "boundingbox": {
+        "tl": {
+          "y": 216.8, 
+          "x": 660
+        }, 
+        "size": {
+          "width": 96, 
+          "height": 96
+        }
+      }, 
+      "confidence": 0, 
+      "pose": {
+        "yaw": 0, 
+        "roll": 0, 
+        "pitch": 0
+      }, 
+      "sex": 0
+    }, 
+    {
+      "boundingbox": {
+        "tl": {
+          "y": 63.2, 
+          "x": 136
+        }, 
+        "size": {
+          "width": 323.2, 
+          "height": 323.2
+        }
+      }, 
+      "confidence": 1, 
+      "pose": {
+        "yaw": 15.37, 
+        "roll": -26.24, 
+        "pitch": -3.87
+      }, 
+      "sex": 1
+    }
+  ], 
   "softwareAgent_configuration": "faces"
 }{
   "domain": "art", 
@@ -101,17 +177,98 @@
   ], 
   "softwareAgent_id": "fr_cloudinary", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://ideasandassociates.com/content/ideasandassociates.com/iaa/images/medium/Portrait-of-man-with-black-sunglasses-1339339624.JPG", 
     "features": {
-      "FacesNumber": 0, 
-      "Faces": []
+      "AverageSex": 0.5, 
+      "FacesNumber": 2, 
+      "Faces": [
+        {
+          "boundingbox": {
+            "tl": {
+              "y": 216.8, 
+              "x": 660
+            }, 
+            "size": {
+              "width": 96, 
+              "height": 96
+            }
+          }, 
+          "confidence": 0, 
+          "pose": {
+            "yaw": 0, 
+            "roll": 0, 
+            "pitch": 0
+          }, 
+          "sex": 0
+        }, 
+        {
+          "boundingbox": {
+            "tl": {
+              "y": 63.2, 
+              "x": 136
+            }, 
+            "size": {
+              "width": 323.2, 
+              "height": 323.2
+            }
+          }, 
+          "confidence": 1, 
+          "pose": {
+            "yaw": 15.37, 
+            "roll": -26.24, 
+            "pitch": -3.87
+          }, 
+          "sex": 1
+        }
+      ]
     }
   }, 
   "softwareAgent_label": "cloudinary: faces, colors", 
   "parents": [
-    "entity/image/art/painting/0"
+    "pppp"
   ], 
   "documentType": "fr_cloudinary", 
+  "threshold": 0.5, 
+  "goodFeatures": [
+    {
+      "boundingbox": {
+        "tl": {
+          "y": 216.8, 
+          "x": 660
+        }, 
+        "size": {
+          "width": 96, 
+          "height": 96
+        }
+      }, 
+      "confidence": 0, 
+      "pose": {
+        "yaw": 0, 
+        "roll": 0, 
+        "pitch": 0
+      }, 
+      "sex": 0
+    }, 
+    {
+      "boundingbox": {
+        "tl": {
+          "y": 63.2, 
+          "x": 136
+        }, 
+        "size": {
+          "width": 323.2, 
+          "height": 323.2
+        }
+      }, 
+      "confidence": 1, 
+      "pose": {
+        "yaw": 15.37, 
+        "roll": -26.24, 
+        "pitch": -3.87
+      }, 
+      "sex": 1
+    }
+  ], 
   "softwareAgent_configuration": "faces"
 }{
   "domain": "art", 
@@ -120,167 +277,165 @@
   ], 
   "softwareAgent_id": "fr_cloudinary", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://ideasandassociates.com/content/ideasandassociates.com/iaa/images/medium/Portrait-of-man-with-black-sunglasses-1339339624.JPG", 
     "features": {
       "ColorsMain": [
         [
           "green", 
-          43.8
+          34.2
         ], 
         [
-          "red", 
-          21.3
+          "blue", 
+          17.2
         ], 
         [
           "black", 
-          8.3
-        ], 
-        [
-          "yellow", 
-          6.7
-        ], 
-        [
-          "orange", 
-          6.1
+          13.8
         ], 
         [
           "brown", 
-          5.2
+          9.8
+        ], 
+        [
+          "gray", 
+          9.0
+        ], 
+        [
+          "yellow", 
+          8.7
         ]
       ], 
       "ColorsHistogram": [
         [
-          "#102F10", 
-          11.4
+          "#0B090B", 
+          13.8
         ], 
         [
-          "#09180A", 
-          8.3
+          "#4C7032", 
+          5.0
         ], 
         [
-          "#213223", 
-          5.9
+          "#32551D", 
+          4.9
         ], 
         [
-          "#184A15", 
-          5.3
+          "#8F9F59", 
+          4.8
         ], 
         [
-          "#1E5423", 
+          "#6B9339", 
+          4.7
+        ], 
+        [
+          "#E1AA9C", 
+          4.7
+        ], 
+        [
+          "#5F8F37", 
+          4.4
+        ], 
+        [
+          "#181B26", 
+          4.1
+        ], 
+        [
+          "#222C15", 
           4.0
         ], 
         [
-          "#FCB1AE", 
+          "#547149", 
+          3.8
+        ], 
+        [
+          "#5A3226", 
           3.7
         ], 
         [
-          "#2F6F30", 
-          3.7
+          "#6B9350", 
+          3.6
         ], 
         [
-          "#F55A2A", 
-          3.4
+          "#2E374A", 
+          3.5
         ], 
         [
-          "#C9748F", 
-          3.3
+          "#292F2F", 
+          2.7
         ], 
         [
-          "#39704E", 
-          3.3
+          "#1D2430", 
+          2.6
         ], 
         [
-          "#2B3213", 
-          3.2
+          "#364F2B", 
+          2.6
         ], 
         [
-          "#FBECE7", 
-          3.2
+          "#906556", 
+          2.6
         ], 
         [
-          "#E02416", 
-          3.1
+          "#3C4B64", 
+          2.6
         ], 
         [
-          "#FA905F", 
-          3.1
+          "#724837", 
+          2.3
         ], 
         [
-          "#408D3F", 
-          3.1
-        ], 
-        [
-          "#FDCAB2", 
-          3.0
-        ], 
-        [
-          "#F59C95", 
-          2.9
-        ], 
-        [
-          "#FDCFCE", 
-          2.5
-        ], 
-        [
-          "#545827", 
-          2.4
-        ], 
-        [
-          "#F26E5B", 
-          2.4
-        ], 
-        [
-          "#77998F", 
+          "#8D543D", 
           2.1
         ], 
         [
-          "#2A4C16", 
-          2.1
-        ], 
-        [
-          "#542D1C", 
+          "#506132", 
           2.0
         ], 
         [
-          "#509157", 
+          "#5D5E57", 
           1.9
         ], 
         [
-          "#2A512A", 
-          1.9
-        ], 
-        [
-          "#A80F1A", 
+          "#523C43", 
           1.7
         ], 
         [
-          "#FC8D71", 
+          "#C19170", 
+          1.7
+        ], 
+        [
+          "#F5D2D1", 
           1.6
         ], 
         [
-          "#9E6157", 
+          "#1E2D43", 
+          1.5
+        ], 
+        [
+          "#384557", 
+          1.5
+        ], 
+        [
+          "#65758A", 
+          1.4
+        ], 
+        [
+          "#748C9B", 
           1.3
         ], 
         [
-          "#47374A", 
-          1.3
-        ], 
-        [
-          "#546F58", 
+          "#6F924B", 
           1.2
-        ], 
-        [
-          "#99925C", 
-          1.1
         ]
       ]
     }
   }, 
   "softwareAgent_label": "cloudinary: faces, colors", 
   "parents": [
-    "entity/image/art/painting/0"
+    "pppp"
   ], 
   "documentType": "fr_cloudinary", 
+  "threshold": 40, 
+  "goodFeatures": [], 
   "softwareAgent_configuration": "colors"
 }{
   "domain": "art", 
@@ -289,18 +444,23 @@
   ], 
   "softwareAgent_id": "fr_skybiometry", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
-    "width": 1024, 
+    "URL": "http://ideasandassociates.com/content/ideasandassociates.com/iaa/images/medium/Portrait-of-man-with-black-sunglasses-1339339624.JPG", 
+    "width": 720, 
     "features": {
-      "FacesNumber": 0
+      "AverageSex": 0.90500000000000003, 
+      "FacesNumber": 1
     }, 
-    "height": 768
+    "height": 476
   }, 
   "softwareAgent_label": "skybiometry: faces", 
   "parents": [
-    "entity/image/art/painting/0"
+    "pppp"
   ], 
   "documentType": "fr_skybiometry", 
+  "threshold": 40, 
+  "goodFeatures": [
+    0.905
+  ], 
   "softwareAgent_configuration": "faces"
 }{
   "domain": "art", 
@@ -309,18 +469,20 @@
   ], 
   "softwareAgent_id": "fr_classifier", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://ideasandassociates.com/content/ideasandassociates.com/iaa/images/medium/Portrait-of-man-with-black-sunglasses-1339339624.JPG", 
     "features": {
       "Classifier": {
-        "Flowers": 34
+        "Flowers": 37
       }
     }
   }, 
   "softwareAgent_label": "classifier: set of classes", 
   "parents": [
-    "entity/image/art/painting/0"
+    "pppp"
   ], 
   "documentType": "fr_classifier", 
+  "threshold": 55, 
+  "goodFeatures": [], 
   "softwareAgent_configuration": "flowers"
 }{
   "domain": "art", 
@@ -329,17 +491,19 @@
   ], 
   "softwareAgent_id": "fr_classifier", 
   "content": {
-    "URL": "http://1.bp.blogspot.com/-k2Xm-14K3xs/UItvgPWblhI/AAAAAAAABK4/USTzt_n9FIY/s1600/peach-rose.jpg", 
+    "URL": "http://ideasandassociates.com/content/ideasandassociates.com/iaa/images/medium/Portrait-of-man-with-black-sunglasses-1339339624.JPG", 
     "features": {
       "Classifier": {
-        "Birds": 13
+        "Birds": 27
       }
     }
   }, 
   "softwareAgent_label": "classifier: set of classes", 
   "parents": [
-    "entity/image/art/painting/0"
+    "pppp"
   ], 
   "documentType": "fr_classifier", 
+  "threshold": 55, 
+  "goodFeatures": [], 
   "softwareAgent_configuration": "birds"
 }
