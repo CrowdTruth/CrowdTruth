@@ -1,6 +1,20 @@
 <?php
 use Sunra\PhpSimple\HtmlDomParser;
 
+
+/*
+
+This class should be completely rewritten to 
+1) Keep much less in the session
+2) Have less complicated methods (see postsubmitformpart, which gets called every time the tab changes)
+3) Ideally incorporate some smart ajax calls (see also the corresponding views)
+4) [but this is bigger] The templating system has to change completely. If we don't do this soon, 
+	the visualisation and uploading system could be better (more control), possibly also editing with something like ACE. 
+
+
+
+*/
+
 class ProcessController extends BaseController {
 
 	public function getIndex() {
@@ -22,12 +36,24 @@ class ProcessController extends BaseController {
 		echo $c;
 	}
 
+	public function getA(){
+		Queue::push('Queues\UpdateUnits', array("entity/text/medical/twrex-structured-sentence/1078"));
+		
+	}
+
 	public function getGeneraterandomjobdates(){
 		foreach (Job::get() as $job) {
 			if(empty($job->runningTimeInSeconds))
 				dd($job);
 		}	
 	}
+
+	public function getTestmetrics(){
+		$job = Job::id("entity/text/medical/job/1")->first();
+		Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+			
+	}
+
 
 /*
 
@@ -492,7 +518,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			if($batch->format=='text')
 				$currenttemplate = 'text/RelDir/relation_direction';
 			else 
-				$currenttemplate = 'images/Rijksmuseum/flowers';
+				$currenttemplate = 'images/Rijksmuseum/flowers'; // TODO: should be cleaner
 		}
 
 		$treejson = $this->makeDirTreeJSON($currenttemplate, $batch->format);
@@ -897,7 +923,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			//delete activity
 			if($activity) $activity->forceDelete();
 			
-			//throw $e; //for debugging
+			throw $e; //for debugging
 
 			Session::flash('flashError', $e->getMessage());
 			return Redirect::to("process/submit");

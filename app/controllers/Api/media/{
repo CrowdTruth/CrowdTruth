@@ -1,0 +1,20 @@
+{
+    "format" : "image",
+    "domain" : "art",
+    "tags" : [ 
+        "apiFeatures"
+    ],
+    "documentType" : "fr_rekognition",
+    "softwareAgent_id" : "faces",
+    "softwareAgent_configuration" : "faces",
+    "parents" : [ 
+        "entity/image/art/painting/6"
+    ],
+    "content" : {
+        "URL" : "http://lh4.ggpht.com/aSyhtY1rLfuYrMOVhEuvUua1WDwph30DIs4nJc6ACRpAM-avOaQHb9lmdqNsSWq1H-3rCEjBFlozD3f50b3Qf_XFLaaK=s0",
+        "features" : {
+            "FacesNumber" : 0,
+            "Faces" : []
+        }
+    }
+}

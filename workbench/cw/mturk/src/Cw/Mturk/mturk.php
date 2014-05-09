@@ -239,11 +239,12 @@ class Mturk extends \FrameWork {
 					$hittypeid = $created['HITTypeId'];
 					
 					// URL
-					if(isset($created['HITGroupId'])){
+					// TODO: AMT doesn't return the HIT group id. Do this in the COMMAND? Or perform 1 call after creating.
+/*					if(isset($created['HITGroupId'])){
 						// SANDBOX is hardcoded, because the job is always ordered on sandbox first.
 						$url = "https://workersandbox.mturk.com/mturk/preview?groupId={$created['HITGroupId']}";
 					}
-
+*/
 				}
 				unset($assRevPol['AnswerKey']);
 				$questionsbuilder = '';
