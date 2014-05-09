@@ -28,25 +28,18 @@ Route::group(array('before' => 'auth'), function()
 Route::get('/', function()
 {
 
-	// $parents = \MongoDB\Entity::where('documentType', 'painting')->get()->toArray();
+	$parents = \MongoDB\Entity::where('documentType', 'painting')->get()->toArray();
 
-	// $children = \MongoDB\Entity::whereIn('parents', [$parents[0]['_id']])->get(['content.features']);
+	$children = \MongoDB\Entity::whereIn('parents', [$parents[0]['_id']])->get(['content.features']);
 
-	// $featuresdirty = array();
-	// foreach($children as $child){
-	// 	array_push($featuresdirty, $child['content']['features']);
-	// }
-	
-	// $features = array();
-	// foreach($featuresdirty as $key=>$value){
-	// 	dd($value);
-	// 	array_push($features, $value);
-	// }
-	// return $features;
+	$features = array();
+	foreach($children as $child){
+		array_push($features, $child['content']['features']);
+	}
 
-	// $parents[0]['content']['features'] = $features;
+	$parents[0]['content']['features'] = $features;
 
-	// return $parents[0];
+	return $parents[0];
 
     return Redirect::to('home');
 });
