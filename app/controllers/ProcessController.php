@@ -29,6 +29,13 @@ class ProcessController extends BaseController {
 		}	
 	}
 
+	public function getTestmetrics(){
+		$job = Job::id("entity/text/medical/job/1")->first();
+		Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+			
+	}
+
+
 /*
 
 	public function getUpdate(){

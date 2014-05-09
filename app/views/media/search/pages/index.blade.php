@@ -75,7 +75,7 @@
 							@endif
 
 							@if(Request::segment(1) == 'workers')
-								<li><a href="#">Message workers</a></li>
+								<li><a href="#" onclick="javascript:alert('Mass messaging is currently disabled. Sorry!')">Message workers</a></li>
 							@endif
 						</ul>
 					</div>					
