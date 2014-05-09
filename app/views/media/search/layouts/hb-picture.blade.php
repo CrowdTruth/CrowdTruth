@@ -11,7 +11,7 @@
 					<ul class="dropdown-menu" role="menu">
 						<li><a href="#" data-vb="hide" data-vbSelector="image_id"></i>ID</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="image_id"></i>Thumbnail</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_title"></i>Name</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_title"></i>Title</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_domain"></i>Domain</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_source"></i>Source</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_url"></i>URL</a></li>
