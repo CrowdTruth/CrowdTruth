@@ -175,6 +175,7 @@
 							'numberVideos' 			: $('.onlineForm input[name=numberVideos]').val()
 						};
 
+						
 						// process the form
 						$.ajax({
 							type 		: 'POST', // define the type of HTTP verb we want to use (POST for our form)
@@ -191,9 +192,9 @@
 								// here we will handle errors and validation messages
 							});
 
-							//setTimeout( function(){
+							setTimeout( function(){
 					location.href = "{{ URL::to('media/upload') }}";						
-							//}, 2000);
+							}, 2000);
 
 
 
