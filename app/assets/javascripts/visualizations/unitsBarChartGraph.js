@@ -514,7 +514,7 @@ function unitsBarChartGraph(category, workerUpdateFunction, jobsUpdateFunction, 
             newChartGeneralOptions.title.text = 'Overview of Units not used in Jobs (' + data["id"].length + ' out of total ' + data["id"].length+ ')';
             newChartGeneralOptions.subtitle.text = subTitle + '<br/>'+ 'Select area to zoom. To see detailed information select individual units.From legend select/deselect features';
             newChartGeneralOptions.plotOptions.series.pointPadding = 0;
-            newChartGeneralOptions.plotOptions.series.minPointLength = 1;
+            newChartGeneralOptions.plotOptions.series.minPointLength = 2;
             newChartGeneralOptions.plotOptions.series.borderWidth = 0;
             newChartGeneralOptions.legend.y = 70;
 
