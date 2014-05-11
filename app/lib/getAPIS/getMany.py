@@ -4,7 +4,7 @@ import requests
 import random
 import urllib2, os
 import urllib, cStringIO
-#import predict_adopted
+import predict_adopted
 import numpy as np
 import sys
 import time
@@ -15,10 +15,17 @@ import Image, ImageFilter
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+import smtplib
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEBase import MIMEBase
+from email.MIMEText import MIMEText
+from email import Encoders
+import warnings
+warnings.filterwarnings('ignore')
 
 DELAY = 2    
 WRITE_FILE = 0
-if len(sys.argv) < 4:
+if len(sys.argv) < 5:
     print('wrong parameters', file=sys.stderr)
     exit()
 ################### 
@@ -40,13 +47,13 @@ def closse(response):
                 response.fp._sock.recv = None
     except: # in case it's not applicable, ignore this.
         pass
-#url = 'http://jolicrowd.net/api/media/post'
-url = 'http://127.0.0.1:8888/api/media/test'
-url = 'http://127.0.0.1/api/media/test'
-url = 'http://jolicrowd.net/api/media/test'
+
+#### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#url = 'http://localhost/api/media/test'
+url = 'http://crowdtruth.org/api/media/test'
+#### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 headers = {'content-type': 'application/json'}
-
 
 # data1 = {
 # "_id": "entity/image/art/painting/1",
@@ -64,16 +71,20 @@ headers = {'content-type': 'application/json'}
 
 
 
-if WRITE_FILE==1:
+if WRITE_FILE==0:
     output = open('data.json', 'wb')
 # output.write(json.dumps(data1, indent = 2)) 
 # r = requests.post(url, data=json.dumps(data1), headers=headers)
 # print (r)   
+LOG = ""
 
+def log (t):
+    global LOG
+    LOG += str(t) + "\n"
 
- 
+em = sys.argv[3]
 
-for iter in range(3, len(sys.argv), 2):
+for iter in range(4, len(sys.argv), 2):
     time.sleep(DELAY)
     ImURL = sys.argv[iter]
     parentID = sys.argv[iter+1]
@@ -83,19 +94,23 @@ for iter in range(3, len(sys.argv), 2):
     data['content'] = {}
     data['parents'] = [parentID]
     data['domain'] = sys.argv[1]
-    data['documentType'] = sys.argv[2]
+    data['tags'] = ['apiFeatures']
+    #data['documentType'] = sys.argv[2]
+
     data['content']['URL'] = ImURL
-    
+    log(ImURL)
+    log(parentID)
 
 
     #####################   REKOGNITION   ####################################
     Reck_key = "kVnLUSqqaPlnpzdq"
     Reck_secret = "smLk6SzFKAENwmc8"
     data['softwareAgent_id'] = 'fr_rekognition'
+    data['documentType'] = data['softwareAgent_id']
     data['softwareAgent_label'] = 'rekognition: [object, scene, faces]'
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
-        "jobs=scene_understanding_2&urls="+ImURL + "&num_return=7"
+        "jobs=scene_understanding_2&urls="+ImURL + "&num_return=5"
         response = urllib2.urlopen(Comm)    
         data1 = json.load(response)    
         # print data1["scene_understanding"]
@@ -105,31 +120,49 @@ for iter in range(3, len(sys.argv), 2):
         Features['scene'] = data1["scene_understanding"]
         data['content']['features'] = Features   
         #print (data)
+        th = 0.4
+        data['threshold'] = th
+        data['relevantFeatures'] = []
+        for fi in Features['scene']:
+            if fi['score'] > th:
+                data['relevantFeatures'].append(fi['label'])
         r = requests.post(url, data=json.dumps(data), headers=headers)
         if WRITE_FILE==1:
             output.write(json.dumps(data, indent = 2))  
-        
+        log(r)
         print (r)    
         closse(response)        
     except Exception, e:
         print('error REKOGNITION a' + str(e), file=sys.stderr)  
+        log('error REKOGNITION a' + str(e))
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
-        "jobs=scene_understanding_3&urls="+ImURL + "&num_return=7"
+        "jobs=scene_understanding_3&urls="+ImURL + "&num_return=5"
         response = urllib2.urlopen(Comm)
         data2 = json.load(response)    
         # print data2["scene_understanding"] 
         Features = {}
         data['softwareAgent_configuration'] = "object"
-        Features['object'] = data2["scene_understanding"]
+        Features['object'] = data2["scene_understanding"]["matches"]
         data['content']['features'] = Features    
+        th = 0.5
+        data['threshold'] = th
+        data['relevantFeatures'] = []
+        for fi in Features['object']:
+            if fi['score'] > th:
+                data['relevantFeatures'].append(fi['tag'])
+
+
+
         r = requests.post(url, data=json.dumps(data), headers=headers)
+        log(r)
         print (r)  
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))   
         closse(response)            
     except Exception, e:
          print('error REKOGNITION b' + str(e), file=sys.stderr)
+         log('error REKOGNITION b' + str(e))
         
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
@@ -144,13 +177,16 @@ for iter in range(3, len(sys.argv), 2):
         if Features['FacesNumber']> 0:
             Features['AverageSex'] = np.mean([float(a["sex"]) for a in data3["face_detection"]])
         data['content']['features'] = Features  
+        data['relevantFeatures'] = Features['Faces']
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)  
+        log(r)
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))  
         closse(response)    
     except Exception, e:
          print('error REKOGNITION c' + str(e), file=sys.stderr) 
+         log('error REKOGNITION c' + str(e))
     #########################   CLOUDINARY   ############################################    
 
     try:
@@ -158,6 +194,7 @@ for iter in range(3, len(sys.argv), 2):
         Features = {}
         # print (json.dumps(data4, indent=1))
         data['softwareAgent_id'] = 'fr_cloudinary'
+        data['documentType'] = data['softwareAgent_id']
         data['softwareAgent_label'] = 'cloudinary: faces, colors'
         data['softwareAgent_configuration'] = "faces"
         if "faces" in data4:
@@ -173,19 +210,30 @@ for iter in range(3, len(sys.argv), 2):
         data['softwareAgent_configuration'] = "colors"
         Features['ColorsHistogram'] = data4["colors"]
         Features['ColorsMain'] = data4["predominant"]["google"]
-        data['content']['features'] = Features    
+        data['content']['features'] = Features  
+        th = 40  
+        data['threshold'] = th
+        data['relevantFeatures'] = []
+        for fi in Features['ColorsMain']:
+            if fi[1] > th:
+                data['relevantFeatures'].append(fi[0])
+
+
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)   
+        log(r)
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))  
         closse(response)    
     except Exception, e:
         print('error CLOUDINARY' + str(e), file=sys.stderr)  
+        log('error CLOUDINARY' + str(e))
 
     ###############################   SKYBIOMETRY   ############################################  
     Sky_key = "7e544588316542b382d286988b83d679"
     Sky_secret = "3bb713ca57b94c709d55c2add9d1c882"
     data['softwareAgent_id'] = 'fr_skybiometry'
+    data['documentType'] = data['softwareAgent_id']
     data['softwareAgent_label'] = 'skybiometry: faces'
     data['softwareAgent_configuration'] = "faces"
     Features = {}
@@ -210,20 +258,24 @@ for iter in range(3, len(sys.argv), 2):
         Features['FacesNumber'] = len(l)
         if Features['FacesNumber'] > 0:
             Features['AverageSex'] = np.mean(l)
+        data['relevantFeatures'] = l
         data['content']['height'] = data4['height']
         data['content']['width'] = data4['width']
         data['content']['features'] = Features    
         r = requests.post(url, data=json.dumps(data), headers=headers)
-        print (r)     
+        print (r)   
+        log(r)  
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))  
 
     except Exception, e:
         print('error SKYBIOMETRY' + str(e), file=sys.stderr)
+        log('error SKYBIOMETRY' + str(e))
 
           
     #############################   LUKASZ.FLOWERS, BIRDS        ################################# 
     data['softwareAgent_id'] = 'fr_classifier'
+    data['documentType'] = data['softwareAgent_id']
     data['softwareAgent_label'] = 'classifier: set of classes'
     data['softwareAgent_configuration'] = "flowers"
     data['content'] = {}
@@ -235,13 +287,21 @@ for iter in range(3, len(sys.argv), 2):
         file = cStringIO.StringIO(urllib.urlopen(ImURL).read())
         image = Image.open(file)
         Features["Classifier"]['Flowers'] = predict_adopted.predict("FLOWERS", image)
-        data['content']['features'] = Features    
+        data['content']['features'] = Features  
+        th = 55  
+        data['threshold'] = th
+        data['relevantFeatures'] = []
+        if Features["Classifier"]['Flowers'] > th:
+            data['relevantFeatures'].append("flowers")
+
         r = requests.post(url, data=json.dumps(data), headers=headers)
-        print (r)      
+        print (r)     
+        log(r) 
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))             
     except Exception, e:
         print('error CLASSIFIER' + str(e), file=sys.stderr)
+        log('error CLASSIFIER FLOWERS' + str(e))
         
     Features = {}
     Features["Classifier"] = {}
@@ -250,21 +310,25 @@ for iter in range(3, len(sys.argv), 2):
         #file = cStringIO.StringIO(urllib.urlopen(ImURL).read())
        # image = Image.open(file)
         Features["Classifier"]['Birds'] = predict_adopted.predict("BIRDS", image)
-        data['content']['features'] = Features    
+        data['content']['features'] = Features   
+        th = 55  
+        data['threshold'] = th
+        data['relevantFeatures'] = []
+        if Features["Classifier"]['Birds'] > th:
+            data['relevantFeatures'].append("birds")
+
+
         r = requests.post(url, data=json.dumps(data), headers=headers)
-        print (r)  
+        print (r) 
+        log(r) 
         if WRITE_FILE==1:        
             output.write(json.dumps(data, indent = 2))  
         
     except Exception, e:
-        print('error CLASSIFIER' + str(e), file=sys.stderr)   
+        print('error CLASSIFIER' + str(e), file=sys.stderr) 
+        log('error CLASSIFIER BIRDS' + str(e))
     
     #############################   SAVE [ TO FILE + STDOUT ]       #################################    
-
-      
-    # try:
-      
-        # data['content']['features'] = Features     
 
     if WRITE_FILE==1:
         output.close()
@@ -277,18 +341,40 @@ for iter in range(3, len(sys.argv), 2):
 
    
  
+
+
+
+gmail_user = "crowdwatson@gmail.com"
+with open('/var/yo.txt') as f:
+         for line in f:
+             gmail_pwd = line.strip()
+             break
+
+
+
+def mail(to, subject, text, attach):
+   msg = MIMEMultipart()
+
+   msg['From'] = gmail_user
+   msg['To'] = to
+   msg['Subject'] = subject
+
+   msg.attach(MIMEText(text))
+   mailServer = smtplib.SMTP("smtp.gmail.com", 587)
+   mailServer.ehlo()
+   mailServer.starttls()
+   mailServer.ehlo()
+   mailServer.login(gmail_user, gmail_pwd)
+   mailServer.sendmail(gmail_user, to, msg.as_string())
+   mailServer.close()
+
+mail(em,
+   "Images preprocessing",
+   "Your preprocessing is finished! \n Log: \n" + LOG,
+   "___")
  
-     
-     
-     
-     
- 
- 
- 
- 
- 
- 
- 
+print ("Finished! - email sent to", em)
+log("Finished")
  
  
  

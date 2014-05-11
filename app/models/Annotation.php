@@ -73,7 +73,8 @@ class Annotation extends Entity {
             default:
                //return  $this->createDictionaryFactSpan(); // For Debugging!
                 Log::debug("TYPE {$this->type} UNKNOWN: {$this->_id}");
-                throw new Exception("TYPE {$this->type} UNKNOWN: {$this->_id}");
+                return null;
+                //throw new Exception("TYPE {$this->type} UNKNOWN: {$this->_id}");
                 break;
         }        
     }

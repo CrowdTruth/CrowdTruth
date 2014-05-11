@@ -92,10 +92,10 @@ class CrowdAgent extends Moloquent {
                     ];
                     foreach($distinctAnnotationTypes as $distinctJobType)
                     {
-                        $distinctJobTypeCount = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('type', $distinctJobType)->count();
+                        $distinctJobTypeCount = Job::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->type($distinctJobType)->count();
                         
-                        $distinctJobTemplateTypes = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('type', '=',  $distinctJobType)->distinct('template')->get()->toArray();
-                        $countJobTemplateTypes = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('type', '=',  $distinctJobType)->count();
+                        $distinctJobTemplateTypes = Job::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->type($distinctJobType)->distinct('template')->get()->toArray();
+                        $countJobTemplateTypes = Job::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->type($distinctJobType)->count();
                         //$cache["jobTypes"]["types"][$distinctJobType[0]] = [];
                         $cache["jobTypes"]["types"][$distinctJobType]['distinct'] = count($distinctJobTemplateTypes);
                         $cache["jobTypes"]["types"][$distinctJobType]['count'] = count($countJobTemplateTypes);
@@ -103,7 +103,7 @@ class CrowdAgent extends Moloquent {
                         foreach($distinctJobTemplateTypes as $distinctJobTemplateType)
                         {
                         
-                            $distinctJobTemplateAndCount = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('template', $distinctJobTemplateType)->count();
+                            $distinctJobTemplateAndCount = Job::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('template', $distinctJobTemplateType)->count();
                             
                             $cache["jobTypes"]["types"][$distinctJobType]["templates"][$distinctJobTemplateType[0]] = $distinctJobTemplateAndCount;
                         }

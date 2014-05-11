@@ -9,7 +9,8 @@
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>					
+						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="status"></i>Status and actions</a></li>						
 						<li><a href="#" data-vb="show" data-vbSelector="job_id"></i>Job ID</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="job_title"></i>Job Title</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="job_description"></i>Job Description</a></li>
@@ -36,6 +37,7 @@
 	        <thead data-query-key="&collection=temp&match[documentType]" data-query-value="job">
 		        <tr>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>
+		            <th data-vbIdentifier="status" data-toggle="tooltip" data-placement="top" title="Mouseover for actions">Status</th>
 		            <th class="sorting" data-vbIdentifier="job_id" data-query-key="orderBy[hasConfiguration.content.jobId]" data-toggle="tooltip" data-placement="top" title="ID of the job from the platform that ran it">Job Id</th>
 		            <th class="sorting" data-vbIdentifier="job_title" data-query-key="orderBy[hasConfiguration.content.title]" data-toggle="tooltip" data-placement="top" title="Title of the job published on the platform">Job Title</th>
 		            <th class="sorting" data-vbIdentifier="job_description" data-query-key="orderBy[hasConfiguration.content.description]" data-toggle="tooltip" data-placement="top" title="Descripton">Job Description</th>
@@ -51,12 +53,13 @@
 				    <th class="sorting" data-vbIdentifier="total_job_cost" data-query-key="orderBy[projectedCost]" data-toggle="tooltip" data-placement="top" title="Amount paid so far - <br /> [# mTasks Complete Actual] * [Cost/mTask]">Cost Actual</th>
 				    <th class="sorting" data-vbIdentifier="completion" data-query-key="orderBy[completion]" data-toggle="tooltip" data-placement="top" title="Percent of job complete so far">% Complete Actual</th>
 				    <th class="sorting" data-vbIdentifier="running_time" data-query-key="orderBy[runningTimeInSeconds]" data-toggle="tooltip" data-placement="top" title="Amount of time the job has taken so far">Run Time Actual</th>
-		            <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the job was created in the framework">Created</th>			    
+		            <th class="sorting sorting_desc whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the job was created in the framework">Created</th>			    
 		        </tr>
 			<tr class="inputFilters">
 				<td data-vbIdentifier="checkbox">
 					<input type="checkbox" class="checkAll" />
 				</td>
+				<td data-vbIdentifier="status"><span style="width:130px; display:inline-block;"><small>Mouseover for actions</small></span></td>
 				<td data-vbIdentifier="job_id">
 					<input class="input-sm form-control" type='text' data-query-key="match[platformJobId]" data-query-operator=">" />
 				</td>
@@ -126,10 +129,32 @@
 				<script class='template' type="text/x-handlebars-template">
 			        @{{#each documents}}
 			        <tr class="text-center">
-			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
+			        	<td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
+			            <td data-vbIdentifier="status" class="actiontd">
+			            	<div id="status@{{@index}}">@{{this.status}}</div>
+							<div class="btn-group actionbar">
+								<a class="btn btn-default btn-sm" href="/process/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o"></i></a>
+								@{{#if this.url}}
+								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link"></i></a>
+								@{{/if}}
+								@{{#is this.status 'unordered'}}
+								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'order', @{{@index}})"  id="order@{{@index}}" data-toggle="tooltip" data-placement="top" title="Order job on the platform. Warning: may take a long time for mTurk"><i class="fa fa-play"></i></a>
+								@{{/is}}
+								@{{#is this.status 'running'}}
+								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'pause', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Pause job"><i class="fa fa-pause" id="pause@{{@index}}"></i></a>
+								    <a class="btn btn-default btn-sm" id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop"></i></a>
+								@{{/is}}
+								@{{#is this.status 'paused'}}
+								    <a class="btn btn-default btn-sm"  id="resume@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'resume', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Resume job"><i class="fa fa-play"></i></a>
+								    <a class="btn btn-default btn-sm"  id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})"data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop"></i></a>	
+								@{{/is}}
+							</div>
+	
+			            </td>
+			            
 			            <td data-vbIdentifier="job_id">
-					<a class='testModal' data-modal-query="agent=crowdagent/cf/22031444" data-target="#modalIndividualJob" data-toggle="tooltip" data-placement="top" title="Click to see the individual job page">
-						@{{ this.platformJobId }}
+					<a class='testModal' data-modal-query="job=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/job?') }}" data-target="#modalIndividualJob" data-toggle="tooltip" data-placement="top" title="Click to see the individual job page">
+						@{{#ifarray this.platformJobId }} @{{/ifarray}}
 					</a>
 				    </td>
 			            <td data-vbIdentifier="job_title">@{{ this.hasConfiguration.content.title }}</td>
@@ -145,12 +170,308 @@
 					    <td data-vbIdentifier="cost_per_task">@{{ this.hasConfiguration.content.reward }}</td>
 					    <td data-vbIdentifier="total_job_cost">@{{ this.projectedCost }}</td>
 					    <td data-vbIdentifier="completion">@{{ toFixed this.completion 2 }}</td>
-					    <td data-vbIdentifier="running_time">@{{ this.running_time }}</td>
+					    <td data-vbIdentifier="running_time">@{{#formatTime this.runningTimeInSeconds }}@{{/formatTime}}</td>
 			            <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>				    
 			        </tr>
 			        @{{/each}}
 				</script>
 	        </tbody>
 	    </table>
-	</div>								
+	</div>	
+	<style>
+		.actionbar { 
+		    -webkit-transition: opacity 1s ease-out;
+		    opacity: 0; 
+		    height: 0px;
+		    overflow: hidden;
+		    float:left;
+		}
+
+		.actiontd:hover .actionbar {    
+			opacity: 1;
+		    height:auto;
+		    float:none;
+		}
+	</style>
+	<div class='hidden' id='modalIndividualJob'>
+		<script class='template' type="text/x-handlebars-template">
+				<!-- Modal -->
+				<div class="modal fade bs-example-modal-lg" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelJob" aria-hidden="true">
+				  <div class="modal-dialog modal-lg">
+				    <div class="modal-content">
+				      <div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabelJob">Individual Job Page</h4>
+				      </div>
+				      <div class="modal-body" >
+					<div><strong>Platform Name: </strong> @{{ this.infoStat.softwareAgent_id }} </div>
+					<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{#ifarray this.infoStat.platformJobId }} @{{/ifarray}} </div>
+					<div><strong>Creation Date: </strong> @{{ this.infoStat.startedAt }} </div>
+					<div><strong>Finish Date: </strong> @{{ this.infoStat.finishedAt }} </div>
+					<div><strong>Type: </strong> @{{ this.infoStat.type }} </div>
+					<div><strong>Title: </strong> @{{ this.infoStat.jobConf.content.title }} </div>
+					<div class="panel-group" id="accordion">
+					  <div class="panel panel-default">
+					    <div class="panel-heading clearfix">
+					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+					      <h4 class="panel-title pull-left">
+         						Job Information 
+     					      </h4>  
+					     </a>
+						<div class='pull-right' style='width:300px; max-height:20px; margin-left:10px;'>      
+						<div class="progress">
+						 <div class="progress-bar" data-toggle="tooltip" data-placement="top" title="@{{#createPercentage this.infoStat.completion}}@{{/createPercentage}}% Complete" role="progressbar" aria-valuenow="@{{ this.infoStat.completion}}" aria-valuemin="0" aria-valuemax="1" style="width: @{{#createPercentage this.infoStat.completion}}@{{/createPercentage}}%">
+						   <span data-toggle="tooltip" data-placement="top" title="@{{#createPercentage this.infoStat.completion}}@{{/createPercentage}}% Complete" class="sr-only">@{{ this.infoStat.completion}}% Complete (success)</span>
+						 </div>
+						</div>
+						</div>	
+
+					     <div class='pull-right'>
+					     	@{{ this.infoStat.status}}
+					     </div>	
+					   </div>
+					    <div id="collapseOne" class="panel-collapse collapse in">
+					      <div class="panel-body">
+						<div><strong>Platform Name: </strong> @{{ this.infoStat.softwareAgent_id }} </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{#ifarray this.infoStat.platformJobId }} @{{/ifarray}} </div>
+						<div><strong>Running Time: </strong> @{{#formatTime this.infoStat.runningTimeInSeconds }}@{{/formatTime}} </div>
+						<div><strong>Creation Date: </strong> @{{ this.infoStat.startedAt }} </div>
+						<div><strong>Finish Date: </strong> @{{ this.infoStat.finishedAt }} </div>
+						<div><strong>Media Domain: </strong> @{{ this.infoStat.domain}} </div>
+						<div><strong>Media Format: </strong> @{{ this.infoStat.format }} </div>
+						<div><strong>Type: </strong> @{{ this.infoStat.type }} </div>
+						<div><strong>Title: </strong> @{{ this.infoStat.jobConf.content.title }} </div>
+						<div><strong>Instructions: </strong> @{{ this.infoStat.jobConf.content.instructions }} </div>
+					      </div>
+					    </div>
+					  </div>
+					  <div class="panel panel-default">
+					    <div class="panel-heading">
+					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+					      <h4 class="panel-title">
+						  Job Stats
+					      </h4>
+					     </a>
+					    </div>
+					    <div id="collapseTwo" class="panel-collapse collapse">
+					      <div class="panel-body">
+						<div><strong> @{{ this.infoStat.unitsCount }} Unit(s)  </strong></div>
+						<div><strong> @{{ this.infoStat.workersCount }} Worker(s) </strong> </div>
+						<div><strong> @{{ this.infoStat.annotationsCount }} Annotation(s) </strong>  </div>
+						@{{#if this.infoStat.metrics.filteredUnits.count }}
+						<div><strong> @{{ this.infoStat.metrics.filteredUnits.count }} Filtered Unit(s) </strong> </div>
+						@{{else}}
+						<div><strong> 0 Filtered Unit(s) </strong> </div>
+						@{{/if}}
+						@{{#if this.infoStat.metrics.spammers.count }}
+						<div><strong> @{{ this.infoStat.metrics.spammers.count }} Filtered Worker(s) as Spammer(s) </strong> </div>
+						@{{else}}
+						<div><strong> 0 Filtered Worker(s) as Spammer(s) </strong> </div>
+						@{{/if}}
+						@{{#if this.infoStat.metrics.filteredAnnotations.count }}
+						<div><strong> @{{ this.infoStat.metrics.filteredAnnotations.count }} Filtered Annotation(s) </strong> </div>
+						@{{else}}
+						<div><strong> 0 Filtered Annotation(s) </strong> </div>
+						@{{/if}}
+						<hr/>
+						<table style="width: 100%; text-align: center; align: center;" border="1" bordercolor="#C0C0C0" text-align="center">
+						 <tr align="center">
+						  <td colspan="12" align="center"> <strong> Aggregated Units </strong> </td>
+						 </tr>
+						 <tr>
+						  <td text-align="center" colspan="6"> <strong> Mean </strong> </td>
+						  <td text-align="center" colspan="6"> <strong> Stddev </strong> </td>
+						 </tr>
+						  <td> # Workers </td>	
+						  <td> Max Rel Cos </td>	
+						  <td> Norm Magnitude </td>
+						  <td> Magnitude </td>
+						  <td> Norm Rel Magnitude All </td>
+						  <td> Norm Rel Magnitude </td>
+						  <td> # Workers </td>	
+						  <td> Max Rel Cos </td>	
+						  <td> Norm Magnitude </td>
+						  <td> Magnitude </td>
+						  <td> Norm Rel Magnitude All </td>
+						  <td> Norm Rel Magnitude </td>
+						 </tr>
+						 <tr>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.no_annotators.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.max_relation_Cos.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_magnitude.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.magnitude.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_relation_magnitude_all.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_relation_magnitude.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.no_annotators.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.max_relation_Cos.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_magnitude.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.magnitude.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_relation_magnitude_all.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_relation_magnitude.avg 2}} </td>
+						 </tr>
+						</table>
+						<hr/>
+						<div align="center">
+						<table border="1" bordercolor="#C0C0C0" style="align: center;" class="noSortingTable">
+						 <tr>
+						  <td colspan="8"> <strong> Aggregated Workers </strong> </td>
+						 </tr>
+						 <tr>
+						  <td colspan="4"> <strong> Mean </strong> </td>
+						  <td colspan="4"> <strong> Stddev </strong> </td>
+						 </tr>
+						  <td> # Ann / Unit </td>	
+						  <td> # of Units </td>	
+						  <td> Avg. worker agreement </td>
+						  <td> Worker Cosine </td>
+						  <td> # Ann / Unit </td>	
+						  <td> # of Units </td>	
+						  <td> Avg. worker agreement </td>
+						  <td> Worker Cosine </td>
+						 </tr>
+						 <tr>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.ann_per_unit.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.no_of_units.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.avg_worker_agreement.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.worker_cosine.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.ann_per_unit.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.no_of_units.avg 2}} </td>	
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.avg_worker_agreement.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.worker_cosine.avg 2}} </td>						 </tr>
+						</table>
+						</div>
+					      </div>
+					    </div>
+					  </div>
+					  <div class="panel panel-default">
+					    <div class="panel-heading">
+					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+					      <h4 class="panel-title">
+						  Job Units
+					      </h4>
+					     </a>
+					    </div>
+					    <div id="collapseThree" class="panel-collapse collapse">
+					      <div class="panel-body">
+						<table class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0">
+						 <thead>
+						  <tr>
+						     <th class="header" rowspan="2">Unit Format</th>
+    						     <th class="header" rowspan="2">Filtered</th>
+						     <th class="header" colspan="6">Unit Metrics</th>
+						     <th class="header" rowspan="2">Annotation Vector</th>
+						  </tr>
+						  <tr>
+						    <th> # Workers </th>	
+						    <th> Max Rel Cos </th>	
+						    <th> Norm Magnitude </th>
+						    <th> Magnitude </th>
+						    <th> Norm Rel Magnitude All </th>
+						    <th> Norm Rel Magnitude </th>
+						  </tr>
+						 </thead>
+						 <tbody>
+						  @{{#each this.infoStat.metrics.units.withoutSpam}} 
+						  @{{type @key}}
+						  <tr>
+						    <td> @{{ @key }} </td>
+						    @{{#inArray @root.infoStat.metrics.filteredUnits.list @key }}
+						    <td> True </td>
+						    @{{else}}
+						    <td> False </td>
+						    @{{/inArray}}
+						    <td> @{{ toFixed no_annotators.avg 2}} </td>	
+						    <td> @{{ toFixed max_relation_Cos.avg 2}} </td>	
+						    <td> @{{ toFixed norm_magnitude.avg 2}} </td>
+						    <td> @{{ toFixed magnitude.avg 2}} </td>
+						    <td> @{{ toFixed norm_relation_magnitude_all.avg 2}} </td>
+						    <td> @{{ toFixed norm_relation_magnitude.avg 2}} </td>
+						    <td>
+						    @{{#each @root.infoStat.results.withoutSpam}}
+						    @{{#ifvalue ../key value=@key}}
+						     @{{#each this}} 
+						      <table border="1" bordercolor="#C0C0C0">
+						       <tr> 
+						       @{{#eachProperty this}}
+  							<td> @{{#abrWords key}} @{{/abrWords}} </td>
+						       @{{/eachProperty }}
+							    </tr>
+							    <tr> 
+							     @{{#eachProperty this}}
+  								<td>@{{value}} </td>
+							     @{{/eachProperty }}
+							    </tr>
+							   </table>
+							  @{{/each}}
+						       @{{/ifvalue}}
+    							 @{{/each}}
+						    </td>
+						  </tr>
+						  @{{/each}}
+						 </tbody>
+						</table>
+						
+					      </div>
+					    </div>
+					  </div>
+					  <div class="panel panel-default">
+					    <div class="panel-heading">
+					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+					      <h4 class="panel-title">
+						  Job Workers 
+					      </h4>
+					     </a>
+					    </div>
+					    <div id="collapseFour" class="panel-collapse collapse">
+					      <div class="panel-body">
+						<table id="myIndividualWorkerTable" class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0"> 
+						<thead> 
+						<tr> 
+						    <th class="header" rowspan="2">Worker Id</th>
+						    <th class="header" rowspan="2">Platform</th>
+						    <th class="header" rowspan="2">Platform Quality</th>
+						    <th class="header" colspan="2">Worker Metrics Across all Jobs</th>
+						    <th class="header" colspan="4">Worker Metrics Across Job</th>
+						</tr> 
+						<tr>
+						    <th> Avg. Worker Agreement </th>
+						    <th> Avg. Worker Cosine </th>
+						    <th> Avg. Worker Agreement</th>	
+						    <th> Worker Cosine </th>	
+						    <th> # Ann / Unit </th>
+						    <th> # Ann Units </th>
+						  </tr>
+						</thead>
+						<tbody>
+						 @{{#each this.infoStat.metrics.workers.withFilter}} 
+						 @{{type @key}}
+						 <tr>
+						  <td> @{{ @key }} </td>
+						  @{{#each @root.infoStat.workers }}
+						    @{{#ifvalue ../key value=@key}}
+						     <td> @{{ softwareAgent_id}} </td>  
+						     <td> @{{ cfWorkerTrust}} </td> 
+						     <td> @{{ toFixed avg_agreement 2}} </td> 
+						     <td> @{{ toFixed avg_cosine 2}} </td> 
+						   @{{/ifvalue}}
+						  @{{/each}} 
+						   <td> @{{ toFixed avg_worker_agreement.avg 2 }} </td>
+						   <td> @{{ toFixed worker_cosine.avg 2 }} </td>
+						   <td> @{{ toFixed ann_per_unit.avg 2 }} </td>
+						   <td> @{{ toFixed no_of_units.avg 2 }} </td>
+						  </tr>
+						  @{{/each}}  	
+						 </tbody>
+						</table>
+					      </div>
+					    </div>
+					  </div>
+					</div>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+		</script>
+
+	</div>						
 </div>

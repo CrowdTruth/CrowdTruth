@@ -57,7 +57,7 @@ class Entity extends Moloquent {
             } else 
             {
                 $entity->user_id = "crowdwatson";
-            }           
+            }
         });
 
         static::saving(function($entity)
@@ -71,6 +71,15 @@ class Entity extends Moloquent {
 
         static::saved(function($entity)
         {
+
+            if(isset($entity['tags']))
+            {
+                if(in_array("apiFeatures", $entity['tags']))
+                {
+                    \MongoDB\Temp::createImageCache();
+                }
+            }
+
             Cache::flush();
         });
 
@@ -219,6 +228,10 @@ class Entity extends Moloquent {
         return $this->hasOne('\MongoDB\Entity', '_id', 'job_id');
     }
 
+    public function hasChildren(){
+        return $this->hasOne('\MongoDB\Entity', '_id', 'parents');
+    }
+
     public function hasUnit(){
         return $this->hasOne('\MongoDB\Entity', '_id', 'unit_id');
     }
@@ -273,5 +286,5 @@ class Entity extends Moloquent {
         }
         
         return array_merge($attributes, $this->relationsToArray());
-    }        
+    }     
 }

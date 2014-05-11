@@ -18,7 +18,7 @@
 						<li><a href="#" data-vb="hide" data-vbSelector="format"></i>Format</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="domain"></i>Domain</a></li>
 						<!-- <li><a href="#" data-vb="show" data-vbSelector="documentType"></i>Document-Type</a></li> -->
-						<li><a href="#" data-vb="show" data-vbSelector="relation"></i>Relation</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="relation"></i>Seed Relation</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="sent_id"></i>ID</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="term_1"></i>Term 1</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="term_1_processed"></i>Term 1 Processed</a></li>
@@ -33,6 +33,7 @@
 					</ul>
 				</div>
 			</div>
+
 			<div class='specificFilterContent hidden'>
 				<table class='table table-striped table-condensed specificFilterOptions'>
 					<tbody>
@@ -108,7 +109,8 @@
 						</tr>
 					</tbody>
 				</table>
-			</div>			
+			</div>	
+		
 		</div>
 	</div>
 	<div class='ctable-responsive cResults'>
@@ -119,7 +121,7 @@
 		            <th class="sorting" data-vbIdentifier="format" data-query-key="orderBy[format]" data-toggle="tooltip" data-placement="top" title="Format of the sentence">Format</th>
 		            <th class="sorting" data-vbIdentifier="domain" data-query-key="orderBy[domain]" data-toggle="tooltip" data-placement="top" title="Domain to which this sentence belongs">Domain</th>
 		            <!-- <th class="sorting" data-vbIdentifier="documentType" data-query-key="orderBy[documentType]">Document-Type</th> -->
-		            <th class="sorting" data-vbIdentifier="relation" data-query-key="orderBy[content.relation.noPrefix]" data-toggle="tooltip" data-placement="top" title="Seed Relation used to identify sentence in corpus">Relation</th>
+		            <th class="sorting" data-vbIdentifier="relation" data-query-key="orderBy[content.relation.noPrefix]" data-toggle="tooltip" data-placement="top" title="Seed Relation used to identify sentence in corpus">Seed Relation</th>
 			    <th class="sorting" data-vbIdentifier="sent_id" data-query-key="orderBy[_id]" data-toggle="tooltip" data-placement="top" title="CrowdTruth unit ID">ID</th>
 		            <th class="sorting" data-vbIdentifier="term_1" data-query-key="orderBy[content.terms.first.text]" data-toggle="tooltip" data-placement="top" title="Subject of the seed relation used to identify the sentence">Term 1</th>
 		            <th class="sorting" data-vbIdentifier="term_1_processed" data-query-key="orderBy[content.terms.first.formatted]" data-toggle="tooltip" data-placement="top" title="Term 1 with processing as it appears in Processed Sentences">Term 1 Processed</th>
@@ -198,6 +200,7 @@
 			            <td data-vbIdentifier="domain">@{{ this.domain }}</td>
 			            <td data-vbIdentifier="relation">@{{ this.content.relation.noPrefix }}</td>
 				    <td data-vbIdentifier="sent_id">
+					
 					<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
 						@{{ this._id }}
 					</a>
@@ -228,21 +231,10 @@
 				    <div class="modal-content">
 				      <div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="myModalLabelUnit">Individual Unit Page</h4>
+					<h4 class="modal-title" id="myModalLabelUnit">Individual @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Page</h4>
 				      </div>
 				      <div class="modal-body" >
-					<div class="panel-group" id="accordion">
-					  <div class="panel panel-default">
-					    <div class="panel-heading">
-					      <h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-						  Unit Information 
-						</a>
-					      </h4>
-					    </div>
-					    <div id="collapseOne" class="panel-collapse collapse in">
-					      <div class="panel-body">					
-						@{{#if this.infoStat.content.sentence.formatted }} 
+					@{{#if this.infoStat.content.sentence.formatted }} 
 							<div><strong>Sentence: </strong> @{{ this.infoStat.content.sentence.formatted}} </div>
 						@{{else}}
 							<div><strong>Sentence: </strong> @{{ this.infoStat.content.sentence.text}} </div>
@@ -258,9 +250,21 @@
 							<div><strong> Term 2: </strong> @{{ this.infoStat.content.terms.second.text }} </div>
 						@{{/if}}
 						<div><strong> Seed Relation: </strong> @{{ this.infoStat.content.relation.noPrefix }} </div>
+					<br/>
+					<div class="panel-group" id="accordion">
+					  <div class="panel panel-default">
+					    <div class="panel-heading">
+					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+					      <h4 class="panel-title">
+						 @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Information 
+					      </h4>
+					     </a>
+					    </div>
+					    <div id="collapseOne" class="panel-collapse collapse in">
+					      <div class="panel-body">					
 						<div><strong> Domain: </strong> @{{ this.infoStat.domain }} </div>
 						<div><strong> Format: </strong> @{{ this.infoStat.format }} </div>
-						<div><strong> Type: </strong> @{{ this.infoStat.documentType }} </div>
+						<div><strong> Type: </strong> @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} </div>
 						<div><strong> Properties: </strong> 
 						<ul>
 						@{{#eachProperty this.infoStat.content.properties}}
@@ -273,33 +277,55 @@
 					    </div>
 					    <div class="panel panel-default">
 					     <div class="panel-heading">
-					      <h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-						  Unit Stats
-						</a>
-					      </h4>
+					      <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+					       <h4 class="panel-title">
+						  @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Stats
+					       </h4>
+					      </a>
 					     </div>
 					     <div id="collapseTwo" class="panel-collapse collapse">
 					      <div class="panel-body">
-						<div><strong> @{{ this.infoStat.cache.batches.count }} Batches </strong>  </div>
-						<div><strong> @{{ this.infoStat.cache.jobs.distinct }} Distinct Job Type(s) </strong></div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="@{{#eachProperty this.infoStat.cache.jobs.types }}@{{ key }}: @{{ value }} <br /> @{{/eachProperty}}"> @{{ this.infoStat.cache.jobs.count }} Job(s) </strong> </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Workers: @{{ this.infoStat.cache.workers.spamCount }} <br /> #NonSpam Workers: @{{ this.infoStat.cache.workers.nonSpamCount }}"> @{{ this.infoStat.cache.workers.count }} Worker(s) in Total </strong> </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Annotations: @{{ this.infoStat.cache.annotations.spamCount }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonSpamCount }}"> @{{ this.infoStat.cache.annotations.count }} Annotation(s) in Total </strong> </div>
+						<div><strong> Used in @{{ this.infoStat.cache.batches.count }} Batch(es) </strong>  </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="@{{#eachProperty this.infoStat.cache.jobs.types }}@{{ key }} <br /> @{{/eachProperty}}"> Used in @{{ this.infoStat.cache.jobs.distinct }} Distinct Job Type(s) </strong></div>
+						<div><strong> Annotated in a total of @{{ this.infoStat.cache.jobs.count }} Job(s) </strong> </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Workers: @{{ this.infoStat.cache.workers.spam }} <br /> #NonSpam Workers: @{{ this.infoStat.cache.workers.nonSpam }} <br /> #PotentialSpam Workers: @{{ this.infoStat.cache.workers.potentialSpam }}"> Annotated by a total of @{{ this.infoStat.cache.workers.count }} Worker(s) </strong> </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Annotations: @{{ this.infoStat.cache.annotations.spam }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonSpam }}"> Collected a total of @{{ this.infoStat.cache.annotations.count }} Annotation(s) </strong> </div>
 						<hr/>
-						<div><strong data-toggle="tooltip" data-placement="top" title="Jobs: @{{ this.infoStat.cache.filteredOutUnit.list }}"> @{{ this.infoStat.cache.filteredOutUnit.count}} Time(s) Filtered Out Unit</strong></div>
-						<div><strong> Average Unit Clarity (across CrowdTruth jobs): @{{ this.infoStat.cache.avg_clarity }} </strong> </div>
+						<div><strong> Average @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Clarity (across CrowdTruth jobs): @{{ toFixed this.infoStat.avg_clarity 2}} </strong> </div>
+						<div><strong> Marked as low-quality in @{{ this.infoStat.cache.filtered.count}} Job(s): </strong></div>
+						<table class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0" text-align="center"> 
+						<thead> 
+						<tr> 
+						  <th class="header">Job Id</th>
+						  <th class="header">Job Title</th>
+   						  <th class="header"  data-toggle="tooltip" data-placement="top" title="Sentence Clarity: the value is defined as the maximum sentence annotation score achieved on any annotation for that twrex-structured-sentence. High agreement over the annotations is represented by high cosine scores, indicating a clear sentence."> @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Clarity</th>
+						</tr>
+						</thead>
+						<tbody>
+						@{{#each this.jobContent}}
+						 @{{#inArray metrics.filteredUnits.list ../infoStat._id }}
+						<tr>
+						 <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
+						 <td> @{{ jobConf.content.title }} </td>
+						 @{{#each metrics.units.withoutSpam }}
+						 <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
+						 @{{/each}}
+						</tr>
+						 @{{/inArray}}
+						@{{/each}}
+						</tbody>
+						</table>
 					      </div>
 					    </div>
        					   </div>
 					   
 					   <div class="panel panel-default">
 					     <div class="panel-heading">
-					      <h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-						  Used in Jobs
-						</a>
+					      <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+					       <h4 class="panel-title">
+						  @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} in Jobs
 					      </h4>
+					     </a>
 					    </div>
 					    <div id="collapseThree" class="panel-collapse collapse">
 					      <div class="panel-body">
@@ -310,7 +336,7 @@
 						  <th class="header" rowspan="3">Filtered Out</th>
    						  <th class="header" colspan="2">Unit Metrics (across unit)</th>
 						  <th class="header" colspan="4">Units Metrics (across all units in job)</th>
-						  <th class="header" rowspan="3">Annotation Vector</th>
+						  <th class="header" rowspan="3" data-toggle="tooltip" data-placement="top" title="Annotation Vector: The vector sum of the worker-sentence vectors for each sentence">Annotation Vector</th>
 						</tr>
 						<tr>
 						  <th class="header" rowspan="2">Clarity</td>
@@ -329,7 +355,7 @@
 						  @{{#each this.jobContent}} 
 						 
 						  <tr>
-						   <td data-toggle="tooltip" data-placement="top" title="Job Title: @{{ jobConf.content.title }}"> @{{ platformJobId }} </td>  					  
+						   <td data-toggle="tooltip" data-placement="top" title="Job Title: @{{ jobConf.content.title }}"> @{{#ifarray platformJobId }} @{{/ifarray}} </td>  					  
 		                                   @{{#inArray metrics.filteredUnits.list ../infoStat._id}}
 							<td> True </td>
 						   @{{else}}
@@ -372,24 +398,25 @@
 					  </div>
 					  <div class="panel panel-default">
 					    <div class="panel-heading">
+					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
 					      <h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
-						  Workers on Unit
-						</a>
+						  Workers on @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}}
 					      </h4>
+					     </a>
 					    </div>
 					    <div id="collapseFour" class="panel-collapse collapse">
 					      <div class="panel-body">
-						<table id="myIndividualWorkerTable" class="tablesorter table table-striped table-condensed"> 
+						<table id="myIndividualWorkerTable" class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0"> 
 						<thead> 
 						<tr> 
 						    <th class="header">Worker Id</th>
 						    <th class="header">Platform</th>
+						    <th class="header">Platform Score</th>
 						    <th class="header">Job Title</th>
-						    <th class="header">Avg. Worker Cosine</th>
-						    <th class="header">Avg. Worker Agreement</th>
-						    <th class="header">Avg. # Annotation/Unit</th>
-						    <th class="header">Worker Annotation Vector</th>
+						    <th class="header" data-toggle="tooltip" data-placement="top" title="Average Worker Cosine: is the vector cosine similarity between the annotations of a worker and the aggregated annotations of the other workers in a sentence, reflecting how close the relation(s) chosen by the worker are to the opinion of the majority for that sentence.">Avg. Worker Cosine</th>
+						    <th class="header" data-toggle="tooltip" data-placement="top" title="Average Worker Agreement: worker metric based on the average worker-worker agreement between a worker and the rest of workers, weighted by the number of sentences in common.">Avg. Worker Agreement</th>
+						    <th class="header" data-toggle="tooltip" data-placement="top" title="Avg. # Annotations / Unit: indicates the average number of different relations per sentence used by a worker for annotating a set of sentences.">Avg. # Annotation/Unit</th>
+						    <th class="header" data-toggle="tooltip" data-placement="top" title="Worker Annotation Vector: the result of a single worker annotating a single unit. For each relation that the worker annotated in the unit, there is a 1 in the corresponding component, otherwise a 0.">Worker Annotation Vector</th>
 						</tr> 
 						</thead>
 						<tbody>
@@ -398,6 +425,7 @@
 						    <tr>
 						     <td> @{{ ../_id }} </td>  		  
 		                                     <td> @{{ ../valuesWorker.softwareAgent_id}} </td>
+						     <td> @{{ ../valuesWorker.cfWorkerTrust}} </td>
 						     <td> @{{ job_info.jobConf.content.title}} </td>
 						      @{{#each job_info.metrics.workers.withFilter}}
 						       @{{#ifvalue ../../_id value=@key}}

@@ -172,6 +172,10 @@
       return Utils.err('{{sentence}} takes one argument (string).');
     }
   });
+  
+   Swag.addHelper('formatTime', function(seconds) {
+	return new Date(seconds).toString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+   });
 
   Swag.addHelper('reverse', function(str) {
     if (!Utils.isUndefined(str)) {
@@ -214,6 +218,10 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
         return elseFn();
     }
 });
+
+	Swag.addHelper('type', function(value){
+		this.key = value;
+	});
 
   Swag.addHelper('center', function(str, spaces) {
     var i, space;
@@ -506,6 +514,30 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
       } else {
         return options.inverse(this);
       }
+    } else {
+      return Utils.err('{{inArray}} takes two arguments (array, string|number).');
+    }
+  });
+
+  Swag.addHelper('inArrayNew', function(array, value, options) {
+    if (!((Utils.isUndefined(array)) && (Utils.isUndefined(value)))) {
+      array = Utils.result(array);
+      value = Utils.result(value);
+      if (value.constructor === Array) {
+	if (__indexOf.call(array, value[0]) >= 0) {
+        	return options.fn(this);
+        } else {
+        	return options.inverse(this);
+        }
+      }
+      else {
+	if (__indexOf.call(array, value) >= 0) {
+        	return options.fn(this);
+        } else {
+        	return options.inverse(this);
+        }
+
+      }     
     } else {
       return Utils.err('{{inArray}} takes two arguments (array, string|number).');
     }
@@ -852,6 +884,119 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
     }
 
     return new Handlebars.SafeString(formattedSentence);
+  });
+
+Swag.addHelper('highlightTermsInVideoAbstract', function(searchQuery, content, options) {
+    var searchFieldAbstract = this.content.metadata.abstract.nl;
+    var searchFieldTitle = this.content.metadata.title.nl;
+    var searchFieldSubject = this.content.metadata.subject.nl;
+    var searchFieldDescription = this.content.metadata.description.nl;
+    var searchFieldSpatial = this.content.metadata.spatial.nl;
+ 
+     if(searchQuery.match["content.metadata.abstract.nl"]) {
+      var highlightedSearchTerm = searchQuery.match["content.metadata.abstract.nl"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+
+      searchFieldAbstract = searchFieldAbstract.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+    return new Handlebars.SafeString(searchFieldAbstract);
+  });
+
+Swag.addHelper('highlightTermsInVideoAbstract', function(searchQuery, content, options) {
+    var searchFieldAbstract = this.content.metadata.abstract.nl;
+    if(searchQuery.match["content.metadata.abstract.nl"]) {
+      var highlightedSearchTerm = searchQuery.match["content.metadata.abstract.nl"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+
+      searchFieldAbstract = searchFieldAbstract.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+    return new Handlebars.SafeString(searchFieldAbstract);
+  });
+
+Swag.addHelper('highlightTermsInVideoTitle', function(searchQuery, content, options) {
+    var searchFieldTitle = this.content.metadata.title.nl;
+ 
+     if(searchQuery.match["content.metadata.title.nl"]) {
+      var highlightedSearchTerm = searchQuery.match["content.metadata.title.nl"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+
+      searchFieldTitle = searchFieldTitle.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+    return new Handlebars.SafeString(searchFieldTitle);
+  });
+
+Swag.addHelper('highlightTermsInVideoSubject', function(searchQuery, content, options) {
+    var searchFieldSubject = this.content.metadata.subject.nl.join();
+ 
+     if(searchQuery.match["content.metadata.subject.nl"]) {
+      var highlightedSearchTerm = searchQuery.match["content.metadata.subject.nl"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+
+      searchFieldSubject = searchFieldSubject.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+    return new Handlebars.SafeString(searchFieldSubject);
+  });
+
+Swag.addHelper('highlightTermsInVideoSpatial', function(searchQuery, content, options) {
+    var searchFieldSpatial = this.content.metadata.spatial.nl.join();
+ 
+     if(searchQuery.match["content.metadata.spatial.nl"]) {
+      var highlightedSearchTerm = searchQuery.match["content.metadata.spatial.nl"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+
+      searchFieldSpatial = searchFieldSpatial.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+    return new Handlebars.SafeString(searchFieldSpatial);
+  });
+
+Swag.addHelper('ifarray', function(object, options) {
+    if (object.constructor === Array) return object[0];
+    else return object;
+
+  });
+
+Swag.addHelper('booltostring', function(object, options) {
+  
+  return object.toString();;
+
+  });
+
+Swag.addHelper('addDocumentTypeLabel', function(documentType, options) {
+    var documentTypeLabel = documentType;
+    if (documentType == "fullvideo") {
+	documentTypeLabel = "Sound & Vision News Video";
+    }
+    if (documentType == "twrex-structured-sentence") {
+	documentTypeLabel = "Watson Medical RelEx Sentence";
+    }
+    if (documentType == "painting") {
+	documentTypeLabel = "Rijksmuseum Painting";
+    }
+    if (documentType == "drawing") {
+	documentTypeLabel = "Rijksmuseum Drawing";
+    }
+    
+    return documentTypeLabel;
   });
 
   Swag.addHelper('gte', function(value, test, options) {
