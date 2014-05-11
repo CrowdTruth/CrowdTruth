@@ -181,7 +181,7 @@
 						
 						<div class='includeGraph hidden'>
                             <table>
-                                <tr>
+                                <tr class="pieDivGraphs">
                                     <td>
                                         <div id="domain_div"></div>
                                     </td>
@@ -299,7 +299,6 @@
 {{ javascript_include_tag('visualizations/unitsBarChartGraph.js') }}
 {{ javascript_include_tag('visualizations/workersBarChartGraph.js') }}
 {{ javascript_include_tag('visualizations/jobsBarChartGraph.js') }}
-{{ javascript_include_tag('visualizations/unitChartDetails.js') }}
 <script>
 $('document').ready(function(){
 

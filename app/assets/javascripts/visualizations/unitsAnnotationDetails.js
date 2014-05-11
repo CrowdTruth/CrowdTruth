@@ -20,9 +20,14 @@ function unitsAnnotationDetails(category) {
             title: {
                 text: 'Aggregated annotations'
             },
-
+            credits: {
+                enabled: false
+            },
             xAxis: {
                 categories: categories,
+                title :{
+                    text: 'Annotation name'
+                },
                 labels: {
                     formatter: function () {
                         var arrayUnit = this.value.split("/");
@@ -161,6 +166,9 @@ function unitsAnnotationDetails(category) {
             },
             title: {
                 text: 'Annotations of the selected elements'
+            },
+            credits: {
+                enabled: false
             },
             subtitle: {
                 text: 'Click a category to see the distribution of annotations'

@@ -100,6 +100,9 @@ function unitsJobDetails(category) {
             },
 
             xAxis: {
+                title :{
+                    text: 'Job ID'
+                },
                 categories: categories,
                 labels: {
                     formatter: function () {
@@ -142,6 +145,9 @@ function unitsJobDetails(category) {
                 footerFormat: '</table>',
                 valueDecimals: 2
 
+            },
+            credits: {
+                enabled: false
             },
             plotOptions: {
                 column: {
@@ -243,6 +249,9 @@ function unitsJobDetails(category) {
             },
             dataLabels: {
                 enabled: true
+            },
+            credits: {
+                enabled: false
             },
             plotOptions: {
                 pie: {

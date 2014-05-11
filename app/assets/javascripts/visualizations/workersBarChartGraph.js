@@ -8,24 +8,38 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
     var info = {};
     var infoFields = [{project:'country', field:'country'}, {project:'platform', field:'softwareAgent_id'}, {project:'platformAgentId', field:'platformAgentId'}];
 
-    var colors = ['#528B8B', '#00688B', '#2F4F4F', '#66CCCC' ,'#00CDCD', '#607B8B' ];
+    var colors = ['#E35467', '#5467E3', '#E4D354' ,'#00CDCD', '#607B8B' ];
 
     var chartSeriesOptions = {
-        'workers': {
-            'spamWorkers': {'color': '#A80000', 'field': 'cache.spammer.count', 'name':'# jobs identified as low quality', 'type': 'column'},
-            'avgWorkers': {'color': '#A63800', 'field': '', 'name':'avg # of jobs', 'type': 'spline', 'dashStyle':'shortdot'},
-            'workers': {'color': '#BF6030', 'field': '', 'name':'# of jobs (total)', 'type': 'column'}},
+        'quality across jobs': {
+            'spamWorkers': {'color': '#A80000', 'field': 'cache.spammer.count', 'name':'# jobs identified as low quality', 'type': 'column',
+                tooltip: "Number of jobs in which the worker's annotations were identified as low quality. Click to select/deselect."},
+            'avgWorkers': {'color': '#A63800', 'field': '', 'name':'avg # of jobs', 'type': 'spline', 'dashStyle':'shortdot',
+                tooltip: "Average number of jobs in which a worker participated. Click to select/deselect."},
+            'workers': {'color': '#3D0000', 'field': '', 'name':'# jobs identified as high quality', 'type': 'column',
+                tooltip: "Number of jobs in which the worker's annotations were identified as high quality. Click to select/deselect."}},
         'annotations': {
-            'spamAnnotations': {'color': '#60D4AE', 'field': 'cache.annotations.spam', 'name':'# of low quality annotations', 'type': 'column'},
-            'annotations': {'color': '#207F60', 'field': 'cache.annotations.nonspam', 'name':'# of annotations', 'type': 'column'},
-            'avgAnnotations': {'color': '#00AA72', 'field': '', 'name':'avg # of annotations', 'type': 'spline', 'dashStyle':'shortdot'}},
-        'counts': { 'mediaFormats': {'color': '#FF9E00', 'field': 'cache.mediaFormats.count', 'name':'# annotated media formats', 'type': 'spline', 'dashStyle':'LongDash'},
-                 'mediaDomains': {'color': '#E00000', 'field': 'cache.mediaDomains.count', 'name':'# annotated media domains', 'type': 'spline','dashStyle':'LongDashDot'},
-                 'messages': {'color': '#E00000', 'field': 'cache.sentMessagesToWorkers.count', 'name':'# sent messages', 'type': 'spline','dashStyle':'LongDashDot'}},
+            'spamAnnotations': {'color': '#60D4AE', 'field': 'cache.annotations.spam', 'name':'# of low quality annotations', 'type': 'column',
+                tooltip: "Number of low quality annotations. Click to select/deselect."},
+            'annotations': {'color': '#207F60', 'field': 'cache.annotations.nonspam', 'name':'# of high quality annotations', 'type': 'column',
+                tooltip: "Number of high quality annotations. Click to select/deselect."},
+            'avgAnnotations': {'color': '#00AA72', 'field': '', 'name':'avg # of annotations', 'type': 'spline', 'dashStyle':'shortdot',
+                tooltip: "Average number of annotations. Click to select/deselect."}},
+        'counts': { 'mediaFormats': {'color': '#689CD2', 'field': 'cache.mediaFormats.count', 'name':'# annotated media formats', 'type': 'spline', 'dashStyle':'LongDash',
+            tooltip: "Number of annotated media formats of a worker. Click to select/deselect."},
+                 'mediaDomains': {'color': '#FF9E00', 'field': 'cache.mediaDomains.count', 'name':'# annotated media domains', 'type': 'spline','dashStyle':'LongDashDot',
+                     tooltip: "Number of annotated media domains of a worker. Click to select/deselect."},
+                 'mediaTypes': {'color': '#00CED1', 'field': 'cache.mediaTypes.count', 'name':'# annotated media types', 'type': 'spline','dashStyle':'LongDashDot',
+                     tooltip: "Number of annotated media types of a worker. Click to select/deselect."},
+                 'messages': {'color': '#E00000', 'field': 'messagesRecieved.count', 'name':'# received messages', 'type': 'spline','dashStyle':'LongDashDot',
+                     tooltip: "Number of messages received by a worker from the framework. Click to select/deselect."}},
         'metrics': {
-            'platformTrust': {'color': '#00FA9A', 'field': 'cfWorkerTrust', 'name':'platform worker trust', 'type': 'spline', 'dashStyle':'Solid'},
-            'workerAgreement': {'color': '#483D8B', 'field': 'cache.avg_agreement', 'name':'avg worker agreement', 'type': 'spline', 'dashStyle':'Solid'},
-            'workerCosine': {'color': '#6B8E23', 'field': 'cache.avg_cosine', 'name':'avg worker cosine', 'type': 'spline', 'dashStyle':'Solid'}}
+            'platformTrust': {'color': '#00FA9A', 'field': 'cfWorkerTrust', 'name':'platform worker trust', 'type': 'spline', 'dashStyle':'Solid',
+                tooltip: "Worker Quality score from the platform. Click to select/deselect."},
+            'workerAgreement': {'color': '#483D8B', 'field': 'avg_agreement', 'name':'avg worker agreement', 'type': 'spline', 'dashStyle':'Solid',
+                tooltip: "CrowdTruth Average Worker Agreement score. Higher scores indicate better quality workers. Click to select/deselect."},
+            'workerCosine': {'color': '#6B8E23', 'field': 'avg_cosine', 'name':'avg worker cosine', 'type': 'spline', 'dashStyle':'Solid',
+                tooltip: "CrowdTruth Average Cosine Similarity.  Higher Scores indicate better quality workers. Click to select/deselect."}}
     }
 
     var chartGeneralOptions = {
@@ -33,11 +47,30 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
             spacingBottom: 135,
             zoomType: 'x',
             renderTo: 'generalBarChart_div',
-            marginBottom: 170,
+            marginBottom: 200,
             width: (($('.maincolumn').width() - 50)),
             height: 500,
-            marginTop: 100
+            marginTop: 70,
+            events: {
+                load: function () {
+                    var chart = this,
+                        legend = chart.legend;
 
+                    for (var i = 0, len = legend.allItems.length; i < len; i++) {
+                        var item = legend.allItems[i].legendItem;
+
+                        var tooltipValue =  legend.allItems[i].userOptions.tooltipValue;
+                        item.attr("data-toggle","tooltip");
+                        item.attr("title", tooltipValue);
+
+                    }
+
+                }
+            }
+
+        },
+        credits: {
+            enabled: false
         },
         title: {
             text: 'Overview of workers'
@@ -46,9 +79,12 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
             text: 'Select workers for more information'
         },
         legend:{
-            y: 100
+            y: 120
         },
         xAxis: {
+            title :{
+                text: 'Worker ID'
+            },
             events:{
                 setExtremes :function (event) {
                     var min = 0;
@@ -61,6 +97,11 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                     }
                     // chart.yAxis[0].options.tickInterval
                     barChart.xAxis[0].options.tickInterval = Math.ceil( (max-min)/50);
+                },
+                afterSetExtremes :function(event){
+                    var interval = (event.max - event.min + 1);
+                    var title = 'Overview of Workers (' + interval.toFixed(0) + ' out of total ' + barChart.series[0].data.length + ')';
+                    barChart.setTitle({text: title});
                 }
             },
             labels: {
@@ -79,22 +120,57 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
             }
         },
         tooltip: {
+            hideDelay:10,
             useHTML : true,
             formatter: function() {
-                var s = '<div style="white-space:normal;">Worker <b>'+ this.x +'</b><br/>';
+                var arrayID = this.x.split("/");
+                var id =  arrayID[arrayID.length - 1];
+                var s = '<div style="white-space:normal;"><b>Worker </b>'+ id +'<br/>';
                 for (var index in infoFields) {
                     var field = infoFields[index]['project'];
-                    s +=  field + ' : <b>' + info[this.x][field] + '</b><br/>';
+                    s +=  '<b>' + field + ' : </b>' + info[this.x][field] + '<br/>';
                 }
 
-                s += '<table>';
 
+                var seriesOptions = {};
                 $.each(this.points, function(i, point) {
-                    s += '<tr><td style="color: ' + point.series.color + ';text-align: left">' + point.series.name +':</td>'+
-                        '<td style="text-align: right"><b>' + point.y.toFixed(2) + '</b> </td></tr>'
+                    var pointValue = point.y
+                    if (!(pointValue % 1 === 0)) {
+                        pointValue = point.y.toFixed(2);
+                    }
+                    var line = '<tr><td></td><td style="color: ' + point.series.color + ';text-align: left">   ' + point.series.name +':</td>'+
+                        '<td style="text-align: right">' + pointValue + '</td></tr>';
+                    if (point.series.yAxis.axisTitle.text in seriesOptions) {
+                        seriesOptions[point.series.yAxis.axisTitle.text]['items'].push(line);
+                        if(point.series.stackKey != "spline"){
+                            seriesOptions[point.series.yAxis.axisTitle.text]['totalValue'] += point.y;}
+                    } else {
+                        seriesOptions[point.series.yAxis.axisTitle.text] = {};
+                        seriesOptions[point.series.yAxis.axisTitle.text]['items'] = [];
+                        seriesOptions[point.series.yAxis.axisTitle.text]['items'].push(line);
+                        seriesOptions[point.series.yAxis.axisTitle.text]['totalValue'] = -1;
+                        if(point.series.stackKey != "spline"){
+                            seriesOptions[point.series.yAxis.axisTitle.text]['totalValue'] = point.y;}
+
+
+                    }
                 });
 
-                s += '</table></div>';
+                s += '<table calss="table table-condensed">';
+                for (var item in seriesOptions)
+                {
+                    var totalValue = "";
+                    if (seriesOptions[item]['totalValue'] != -1) {
+                        totalValue = '<td style="text-align: right">'+ seriesOptions[item]['totalValue'] +' </td>';
+                    }
+                    s += '<tr><td> </td><td style="text-align: left"><b>' + item +':</b></td>' + totalValue + '</tr>';
+
+                    for(var li in seriesOptions[item]['items']) {
+                        s += seriesOptions[item]['items'][li];
+                    }
+
+                }
+                s += '</table>';
 
                 return s;
             },
@@ -174,6 +250,29 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
             projectCriteria;
 
         $.getJSON(url, function(data) {
+            var subTitle = "Overview of Workers" ;
+            var selectionOptions = "";
+            for (var option in data['query']) {
+                //default query
+                if(option != 'documentType') {
+                    var columnName = $( 'th[data-query-key*="' + option + '"]').html();
+                    selectionOptions += columnName + " ";
+                    var connectionStr = " and ";
+                    for (var key in data['query'][option]) {
+                        if (key == 'like'){
+                            selectionOptions += key + ' "' + data['query'][option][key] + '"' + connectionStr;
+                        }
+                        else {
+                            selectionOptions += key + " " + data['query'][option][key] + connectionStr;
+                        }
+                    }
+
+                    selectionOptions = selectionOptions.substring(0, selectionOptions.length - connectionStr.length) +  ",";
+                }
+            }
+            if (!(selectionOptions === "")) {
+                subTitle += " having " + selectionOptions.substring(0, selectionOptions.length - 1);
+            }
 
             for (var indexData in data['id']) {
                 var id = data['id'][indexData];
@@ -201,6 +300,7 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                         color: yAxisSeriesGroup[series]['color'],
                         yAxis: chartGeneralOptions.yAxis.length,
                         type: yAxisSeriesGroup[series]['type'],
+                        tooltipValue : yAxisSeriesGroup[series]['tooltip'],
                         data: data[series],
                         visible: false
                     }
@@ -232,7 +332,6 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                         }
                     },
                     min: 0,
-                    max:max,
                     title: {
                         text: key,
                         style: {
@@ -241,7 +340,7 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                     },
                     opposite: false
                 };
-                if(key == 'workers' || key =='jobs' || key == 'annotations')
+                if(key == 'quality across jobs' || key =='job types' || key == 'annotations')
                     yAxisSettings.opposite = true;
                 //console.dir($scope.chartGeneralOptions.yAxis);
                 chartGeneralOptions.yAxis.push(yAxisSettings);
@@ -249,7 +348,9 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                 //   console.dir($scope.chartGeneralOptions.yAxis);
             }
 
+            chartGeneralOptions.subtitle.text = subTitle + '<br/>' + 'Select an area to zoom. To see detailed information select individual workers.From legend select features';
             // console.dir($scope.chartGeneralOptions);
+            chartGeneralOptions.title.text = 'Overview of Workers (' + data['id'].length + ' out of total ' + data['id'].length + ')';
             chartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/50);
             barChart = new Highcharts.Chart(chartGeneralOptions);
 
@@ -259,11 +360,11 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
     var drawBarChart = function(matchStr,sortStr) {
         var url = '/api/analytics/jobtypes';
         //add the job type series to graph
-        chartSeriesOptions['jobs']={};
+        chartSeriesOptions['job types']={};
         $.getJSON(url, function(data) {
             $.each(data, function (key,value) {
 
-                chartSeriesOptions['jobs'][data[key]] = {'color': colors[key % colors.length],
+                chartSeriesOptions['job types'][data[key]] = {'color': colors[key % colors.length],
                     'field': 'cache.jobTypes.types.' + data[key] + '.count', 'name':data[key] + ' jobs', 'type': 'column'};
             });
             computeBarChartProjectData();

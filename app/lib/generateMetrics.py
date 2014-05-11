@@ -12,4 +12,3 @@ s = Task([sys.argv[1]], sys.argv[2])
 metrics = s.create_metrics()
 
 print(metrics)
-#res = s.get_metrics(WorkerMetricsEnum.no_of_sent)

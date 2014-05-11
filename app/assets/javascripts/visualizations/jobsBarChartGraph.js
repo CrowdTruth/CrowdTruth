@@ -7,51 +7,89 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
     var info = {};
     var infoFields = [{project:'title', field:'hasConfiguration.content.title'}, {project:'platform', field:'softwareAgent_id'}, {project:'type', field:'type'}];
 
-    var colors = ['#528B8B', '#00688B', '#2F4F4F', '#66CCCC' ,'#00CDCD', '#607B8B' ];
+    var colors = ['#E35467', '#5467E3', '#E4D354' ,'#00CDCD', '#607B8B' ];
 
     var chartSeriesOptions = {
         'workers': {
-            'potentialSpamWorkers': {'color': '#FF0000', 'field': '', 'name':'# of potential low quality workers', 'type': 'column'},
-            'spamWorkers': {'color': '#A80000', 'field': 'metrics.spammers.count', 'name':'# of low quality workers', 'type': 'column'},
-            'avgWorkers': {'color': '#A63800', 'field': '', 'name':'avg # of workers', 'type': 'spline', 'dashStyle':'shortdot'},
-            'workers': {'color': '#BF6030', 'field': 'workersCount', 'name':'# of workers', 'type': 'column'}},
+            'potentialSpamWorkers': {'color': '#FF0000', 'field': '', 'name':'# of potential low quality workers', 'type': 'column',
+                tooltip: "Number of workers marked as high quality on a job, but who were marked as low quality in at least one other job. Click to select/deselect."},
+            'spamWorkers': {'color': '#A80000', 'field': 'metrics.spammers.count', 'name':'# of low quality workers', 'type': 'column',
+                tooltip: "Number of low quality workers. Click to select/deselect."},
+            'avgWorkers': {'color': '#A63800', 'field': '', 'name':'avg # of workers', 'type': 'spline', 'dashStyle':'shortdot',
+                tooltip: "Average number of workers. Click to select/deselect."},
+            'workers': {'color': '#3D0000', 'field': 'workersCount', 'name':'# of high quality workers', 'type': 'column',
+                tooltip: "Number of high quality workers. Click to select/deselect."}},
         'units': {
-            'filteredUnits': {'color': '#689CD2', 'field': 'metrics.filteredUnits.count', 'name':'# of filtered units', 'type': 'column'},
-            'units': {'color': '#26517C', 'field': 'unitsCount', 'name':'# of units', 'type': 'column'},
-            'avgUnits': {'color': '#0D58A6', 'field': '', 'name':'avg # of units', 'type': 'spline', 'dashStyle':'shortdot'}},
+            'filteredUnits': {'color': '#689CD2', 'field': 'metrics.filteredUnits.count', 'name':'# of unclear units', 'type': 'column',
+                tooltip: "Number of unclear units. Unit Clarity: the value is defined as the maximum unit annotation score achieved on any annotation for that unit. High agreement over the annotations is represented by high cosine scores, indicating a clear unit. Click to select/deselect."},
+            'units': {'color': '#26517C', 'field': 'unitsCount', 'name':'# of clear units', 'type': 'column',
+                tooltip: "Number of clear units. Unit Clarity: the value is defined as the maximum unit annotation score achieved on any annotation for that unit. High agreement over the annotations is represented by high cosine scores, indicating a clear unit. Click to select/deselect."},
+            'avgUnits': {'color': '#0D58A6', 'field': '', 'name':'avg # of units', 'type': 'spline', 'dashStyle':'shortdot',
+                tooltip: "Average number of units. Click to select/deselect."}},
         'annotations': {
-            'spamAnnotations': {'color': '#60D4AE', 'field': 'metrics.filteredUnits.count', 'name':'# of low quality annotations', 'type': 'column'},
-            'annotations': {'color': '#207F60', 'field': 'annotationsCount', 'name':'# of annotations', 'type': 'column'},
-            'avgAnnotations': {'color': '#00AA72', 'field': '', 'name':'avg # of annotations', 'type': 'spline', 'dashStyle':'shortdot'}},
-        'time': { 'time': {'color': '#FF9E00', 'field': 'runningTimeInSeconds', 'name':'job duration', 'type': 'spline', 'dashStyle':'LongDash',  'tooltip': { valueSuffix: ' secs' }}},
-        'payment': { 'payment': {'color': '#E00000', 'field': 'projectedCost', 'name':'payment', 'type': 'spline','dashStyle':'LongDashDot', 'tooltip': { valueSuffix: ' cents' }}},
+            'spamAnnotations': {'color': '#60D4AE', 'field': 'metrics.filteredAnnotations.count', 'name':'# of low quality annotations', 'type': 'column',
+            tooltip: "Number of low quality annotations. Click to select/deselect."},
+            'annotations': {'color': '#207F60', 'field': 'annotationsCount', 'name':'# of high quality annotations', 'type': 'column',
+            tooltip: "Number of high quality annotations. Click to select/deselect."},
+            'avgAnnotations': {'color': '#00AA72', 'field': '', 'name':'avg # of annotations', 'type': 'spline', 'dashStyle':'shortdot',
+                tooltip: "Average number of annotations. Click to select/deselect."}},
+        'time': { 'time': {'color': '#FF9E00', 'field': 'runningTimeInSeconds', 'name':'job duration', 'type': 'spline', 'dashStyle':'LongDash',
+            tooltip: "Amount of time the job has taken so far (in seconds). Click to select/deselect."},
+            'tooltipSufix': { valueSuffix: ' secs' }},
+        'payment': { 'payment': {'color': '#E00000', 'field': 'projectedCost', 'name':'payment', 'type': 'spline','dashStyle':'LongDashDot', 'tooltipSufix': { valueSuffix: ' cents' },
+            tooltip: "Amount paid so far - [# mTasks Complete Actual] * [Cost/mTask] (in cents). Click to select/deselect."}},
         'metrics': {
-            'cosineSimilarity': {'color': '#00CED1', 'field': 'metrics.aggUnits.mean.max_relation_Cos.avg', 'name':'avg unit clarity', 'type': 'spline', 'dashStyle':'Solid'},
-            'magnitude': {'color': '#00FA9A', 'field': 'metrics.aggUnits.mean.magnitude.avg', 'name':'avg unit magnitude', 'type': 'spline', 'dashStyle':'Solid'},
-            'workerAgreement': {'color': '#483D8B', 'field': 'metrics.aggWorker.mean.avg_worker_agreement.avg', 'name':'avg worker agreement', 'type': 'spline', 'dashStyle':'Solid'},
-            'workerCosine': {'color': '#6B8E23', 'field': 'metrics.aggWorker.mean.worker_cosine.avg', 'name':'avg worker cosine', 'type': 'spline', 'dashStyle':'Solid'}}
+            'cosineSimilarity': {'color': '#00CED1', 'field': 'metrics.aggUnits.mean.max_relation_Cos.avg', 'name':'avg unit clarity', 'type': 'spline', 'dashStyle':'Solid',
+                tooltip: "CrowdTruth Average Unit Clarity: the value is defined as the maximum unit annotation score achieved on any annotation for that unit. High agreement over the annotations is represented by high cosine scores, indicating a clear unit. Click to select/deselect."},
+            'magnitude': {'color': '#00FA9A', 'field': 'metrics.aggUnits.mean.magnitude.avg', 'name':'avg unit magnitude', 'type': 'spline', 'dashStyle':'Solid',
+                tooltip: "CrowdTruth Average Unit magnitude score. Click to select/deselect."},
+            'workerAgreement': {'color': '#483D8B', 'field': 'metrics.aggWorkers.mean.avg_worker_agreement.avg', 'name':'avg worker agreement', 'type': 'spline', 'dashStyle':'Solid',
+                tooltip: "CrowdTruth Average Worker Agreement score. Higher scores indicate better quality workers. Click to select/deselect."},
+            'workerCosine': {'color': '#6B8E23', 'field': 'metrics.aggWorkers.mean.worker_cosine.avg', 'name':'avg worker cosine', 'type': 'spline', 'dashStyle':'Solid',
+                tooltip: "CrowdTruth Average Cosine Similarity.  Higher Scores indicate better quality workers. Click to select/deselect."}}
     }
 
     var chartGeneralOptions = {
+        credits: {
+            enabled: false
+        },
         chart: {
             zoomType: 'x',
             spacingBottom: 70,
             renderTo: 'generalBarChart_div',
-            marginBottom: 80,
+            marginBottom: 100,
             width: (($('.maincolumn').width() - 50)),
-            height: 400,
-            marginTop: 100
+            height: 450,
+            marginTop: 70,
+            events: {
+                load: function () {
+                    var chart = this,
+                        legend = chart.legend;
+
+                    for (var i = 0, len = legend.allItems.length; i < len; i++) {
+                        var item = legend.allItems[i].legendItem;
+                        var tooltipValue =  legend.allItems[i].userOptions.tooltipValue;
+                        item.attr("data-toggle","tooltip");
+                        item.attr("title", tooltipValue);
+
+                    }
+
+                }
+            }
         },
         legend:{
-            y: 60
+            y: 65
         },
         title: {
             text: 'Overview of jobs'
         },
         subtitle: {
-            text: 'Select jobs for more information'
+            text: 'Select area to zoom. To see detailed information select individual jobs'
         },
         xAxis: {
+            title :{
+                text: 'Job ID'
+            },
             events:{
                 setExtremes :function (event) {
                     var min = 0;
@@ -62,8 +100,12 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                     if (event.max != undefined){
                         max = event.max;
                     }
-                    // chart.yAxis[0].options.tickInterval
                     barChart.xAxis[0].options.tickInterval = Math.ceil( (max-min)/20);
+                },
+                afterSetExtremes :function(event){
+                    var interval = (event.max - event.min + 1);
+                    var title = 'Overview of Jobs (' + interval.toFixed(0) + ' out of total ' + barChart.series[0].data.length + ')';
+                    barChart.setTitle({text: title});
                 }
             },
             labels: {
@@ -74,26 +116,62 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
             }
         },
         tooltip: {
+            hideDelay:10,
             useHTML : true,
             formatter: function() {
-                var s = '<div style="white-space:normal;">Job <b>'+ this.x +'</b><br/>';
+                var arrayID = this.x.split("/");
+                var id =  arrayID[arrayID.length - 1];
+                var s = '<div style="white-space:normal;"><b>Job </b>'+ id +'<br/>';
                 for (var index in infoFields) {
                     var field = infoFields[index]['project'];
-                    s +=  field + ' : <b>' + info[this.x][field] + '</b><br/>';
+                    s +=  '<b>' + field + ' : </b>' + info[this.x][field] + '<br/>';
                 }
 
-                s += '<table>';
 
+                var seriesOptions = {};
                 $.each(this.points, function(i, point) {
-                    s += '<tr><td style="color: ' + point.series.color + ';text-align: left">' + point.series.name +':</td>'+
-                        '<td style="text-align: right"><b>' + point.y.toFixed(2) + '</b> </td></tr>'
+                    var pointValue = point.y
+                    if (!(pointValue % 1 === 0)) {
+                        pointValue = point.y.toFixed(2);
+                    }
+                    var line = '<tr><td></td><td style="color: ' + point.series.color + ';text-align: left">   ' + point.series.name +':</td>'+
+                        '<td style="text-align: right">' + pointValue + '</td></tr>';
+                    if (point.series.yAxis.axisTitle.text in seriesOptions) {
+                        seriesOptions[point.series.yAxis.axisTitle.text]['items'].push(line);
+                        if(point.series.stackKey != "spline"){
+                            seriesOptions[point.series.yAxis.axisTitle.text]['totalValue'] += point.y;}
+                    } else {
+                        seriesOptions[point.series.yAxis.axisTitle.text] = {};
+                        seriesOptions[point.series.yAxis.axisTitle.text]['items'] = [];
+                        seriesOptions[point.series.yAxis.axisTitle.text]['items'].push(line);
+                        seriesOptions[point.series.yAxis.axisTitle.text]['totalValue'] = -1;
+                        if(point.series.stackKey != "spline"){
+                            seriesOptions[point.series.yAxis.axisTitle.text]['totalValue'] = point.y;}
+
+
+                    }
                 });
 
-                s += '</table></div>';
+                s += '<table calss="table table-condensed">';
+                for (var item in seriesOptions)
+                {
+                    var totalValue = "";
+                    if (seriesOptions[item]['totalValue'] != -1) {
+                        totalValue = '<td style="text-align: right">'+ seriesOptions[item]['totalValue'] +' </td>';
+                    }
+                    s += '<tr><td> </td><td style="text-align: left"><b>' + item +':</b></td>' + totalValue + '</tr>';
+
+                    for(var li in seriesOptions[item]['items']) {
+                        s += seriesOptions[item]['items'][li];
+                    }
+
+                }
+                s += '</table>';
 
                 return s;
             },
-            shared: true
+            shared: true,
+            hideDelay:10
         },
 
         plotOptions: {
@@ -169,6 +247,29 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
             projectCriteria;
 
         $.getJSON(url, function(data) {
+            var subTitle = "Overview of Jobs";
+            var selectionOptions = "";
+            for (var option in data['query']) {
+                //default query
+                if(option != 'documentType') {
+                    var columnName = $( 'th[data-query-key*="' + option + '"]').html();
+                    selectionOptions += columnName + " ";
+                    var connectionStr = " and ";
+                    for (var key in data['query'][option]) {
+                        if (key == 'like'){
+                            selectionOptions += key + ' "' + data['query'][option][key] + '"' + connectionStr;
+                        }
+                        else {
+                            selectionOptions += key + " " + data['query'][option][key] + connectionStr;
+                        }
+                    }
+
+                    selectionOptions = selectionOptions.substring(0, selectionOptions.length - connectionStr.length) +  ",";
+                }
+            }
+            if (!(selectionOptions === "")) {
+                subTitle += " having " + selectionOptions.substring(0, selectionOptions.length - 1);
+            }
 
             for (var indexData in data['id']) {
                 var id = data['id'][indexData];
@@ -196,6 +297,7 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                         color: yAxisSeriesGroup[series]['color'],
                         yAxis: chartGeneralOptions.yAxis.length,
                         type: yAxisSeriesGroup[series]['type'],
+                        tooltipValue : yAxisSeriesGroup[series]['tooltip'],
                         data: data[series],
                         visible: false
                     }
@@ -227,7 +329,6 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                         }
                     },
                     min: 0,
-                    max:max,
                     title: {
                         text: key,
                         style: {
@@ -244,6 +345,8 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                 //   console.dir($scope.chartGeneralOptions.yAxis);
             }
 
+            chartGeneralOptions.subtitle.text = subTitle + '<br/>' + 'Select an area to zoom. To see detailed information select individual jobs.From legend select features';
+            chartGeneralOptions.title.text = 'Overview of Jobs (' + data['id'].length + ' out of total ' + data['id'].length + ')';
             // console.dir($scope.chartGeneralOptions);
             barChart = new Highcharts.Chart(chartGeneralOptions);
 

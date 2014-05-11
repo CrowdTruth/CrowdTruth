@@ -22,6 +22,9 @@ function unitsDetails(category) {
             subtitle: {
                 text: 'Click a category to see the distribution of annotations per unit'
             },
+            credits: {
+                enabled: false
+            },
             yAxis: {
                 title: {
                     text: 'Number of workers per unit'
@@ -134,8 +137,13 @@ function unitsDetails(category) {
             title: {
                 text: 'Annotations of units'
             },
-
+            credits: {
+                enabled: false
+            },
             xAxis: {
+                title :{
+                    text: 'Unit ID'
+                },
                 categories: categories,
                 labels: {
                     formatter: function () {

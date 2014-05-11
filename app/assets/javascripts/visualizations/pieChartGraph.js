@@ -1,4 +1,4 @@
-function pieChartGraph(matchStr, groupID, chartName, divName, nrPieCharts) {
+function pieChartGraph(tooltip, matchStr, groupID, chartName, divName, nrPieCharts) {
     this.url = "/api/analytics/piegraph/?";
     this.matchStr = matchStr;
     this.groupID = groupID;
@@ -16,14 +16,28 @@ function pieChartGraph(matchStr, groupID, chartName, divName, nrPieCharts) {
             title: {
                 text: chartName
             },
+            credits: {
+                enabled: false
+            },
             tooltip: {
+                useHTML : true,
                 formatter: function() {
+                    var prefix = ""
+                    if (tooltip['prefix'] != '') {
+                        prefix = tooltip['prefix'] + ' ';
+                    }
+                    var suffix = ""
+                    if (tooltip['suffix'] != '') {
+                        suffix = ' ' + tooltip['suffix'];
+                    }
 
-                    return '<table><tr><td><b>' + this.key + ':</b></td>' +
-                        '<td style="text-align: right">' + this.percentage.toFixed(2) + '% <br/>(' + this.y + '/' + this.total + ')</td></tr>' +
-                        '</table>';
+                    return '<p><b>' + this.key + ': </b>' +
+                        this.percentage.toFixed(2) + ' % </br>(' + tooltip['label'] + ' ' +
+                        prefix + this.key + suffix + ': ' + this.y + '/' + this.total + ')' +
+                        '</p>';
                 },
-                followPointer : false
+                followPointer : false,
+                hideDelay:10
 
             },
 

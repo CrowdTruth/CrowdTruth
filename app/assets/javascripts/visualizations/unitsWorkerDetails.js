@@ -85,7 +85,9 @@ function unitsWorkerDetails(category, openModal) {
             tooltip: {
                 valueSuffix: ''
             },
-
+            credits: {
+                enabled: false
+            },
             series: [
                 {
                     name: '# of workers',
@@ -136,6 +138,9 @@ function unitsWorkerDetails(category, openModal) {
             },
 
             xAxis: {
+                title :{
+                    text: 'Worker ID'
+                },
                 categories: categories,
                 labels: {
                     formatter: function () {
@@ -165,12 +170,15 @@ function unitsWorkerDetails(category, openModal) {
                 crosshairs: true,
                 shared: true,
                 useHTML: true,
-                headerFormat: '<b>Wroker {point.key}</b></br><p>(Click for details)</p><table>',
+                headerFormat: '<b>Worker {point.key}</b></br><p>(Click for details)</p><table>',
                 pointFormat: '<tr><td style="color: {series.color};text-align: left">{series.name}: </td>' +
                     '<td style="text-align: right"><b>{point.y} annotations</b></td></tr>',
                 footerFormat: '</table>',
                 valueDecimals: 2
 
+            },
+            credits: {
+                enabled: false
             },
             plotOptions: {
                 column: {
@@ -193,7 +201,7 @@ function unitsWorkerDetails(category, openModal) {
                                     urlBase += 'match['+ queryFields[category] + '][]=' + currentSelection[indexUnits] + '&';
                                 }
                                 anchorModal = $('<a class="testModal"' +
-                                    'data-modal-query="agent=' + this.category + '&' + urlBase + '" data-api-target="http://10.11.12.13/api/analytics/worker?" ' +
+                                    'data-modal-query="agent=' + this.category + '&' + urlBase + '" data-api-target="/api/analytics/worker?" ' +
                                     'data-target="#modalIndividualWorker" data-toggle="tooltip" data-placement="top" title="" ' +
                                     'data-original-title="Click to see the individual worker page">6345558 </a>');
                                 //$('body').append(anchorModal);
