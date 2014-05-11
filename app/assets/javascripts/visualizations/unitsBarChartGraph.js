@@ -46,7 +46,7 @@ function unitsBarChartGraph(category, workerUpdateFunction, jobsUpdateFunction, 
         'batches': { 'batches': {'color': '#FF9E00', 'field': 'cache.batches.count', 'name':'# of batches', 'type': 'spline', 'dashStyle':'LongDash',
             tooltip: "Number of batches the sentence was used in. Click to select/deselect."}},
         'metrics': {
-            'avg_clarity': {'color': '#00CED1', 'field': 'avg_clarity', 'name':'avg unit clarity', 'type': 'spline', 'dashStyle':'Solid',
+            'avg_clarity': {'color': '#6B8E23', 'field': 'avg_clarity', 'name':'avg unit clarity', 'type': 'spline', 'dashStyle':'Solid',
                 tooltip: "Average Unit Clarity: the value is defined as the maximum unit annotation score achieved on any annotation for that unit. High agreement over the annotations is represented by high cosine scores, indicating a clear unit. Click to select/deselect."}}
     }
 
