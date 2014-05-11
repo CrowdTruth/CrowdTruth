@@ -122,9 +122,22 @@ class MediaController extends BaseController {
 		$units = Input::get('selection');
 		natsort($units);
 		$units = array_values($units);
+		$segments = array();
+		if (strpos($units[0], 'fullvideo') !== FALSE) {
+			foreach($units as $unit) {
+				//dd($units);
+				$segments = array_merge($segments, \MongoDB\Entity::where('documentType', 'videosegment')->whereIn('parents', [$unit])->lists('_id'));	 
+			}
+			$fields = explode("/", $segments[0]);
+			$units = array();
+			$units = $segments;
+			return View::make('media.pages.createbatch', compact('units', 'fields'));
+		}
+		else {
+			//dd($segments);
+			$fields = explode("/", $units[0]);
 
-		$fields = explode("/", $units[0]);
-
-		return View::make('media.pages.createbatch', compact('units', 'fields'));
+			return View::make('media.pages.createbatch', compact('units', 'fields'));
+		}
 	}
 }
