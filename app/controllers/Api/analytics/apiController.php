@@ -282,12 +282,12 @@ class apiController extends BaseController
 
         $results =  array();
         foreach($response['id'] as $index => $value){
-            $results[$index] = array();
-            $results[$index]['id'] = $value;
-            $results[$index]['dictionary'] = $response['dictionary'][$index];
-            $results[$index]['unit'] = $unitsDict[$response['unit_id'][$index]];
-            $results[$index]['job'] = $jobsDict[$response['job_id'][$index]];
-            $results[$index]['agent'] = $agentsDict[$response['crowdAgent_id'][$index]];
+        //    $results[$index] = array();
+        //    $results[$value]['id'] = ;
+            $results[$value]['dictionary'] = $response['dictionary'][$index];
+            $results[$value]['unit'] = $unitsDict[$response['unit_id'][$index]];
+            $results[$value]['job'] = $jobsDict[$response['job_id'][$index]];
+            $results[$value]['agent'] = $agentsDict[$response['crowdAgent_id'][$index]];
         }
 
         return $results;
