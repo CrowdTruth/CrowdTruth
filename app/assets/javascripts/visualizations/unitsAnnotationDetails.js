@@ -11,7 +11,19 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
     var pieChart = "";
     var barChart = "";
 
+    var callback = function callback($this){
+        var img = $this.renderer.image('images/check.png',$this.chartWidth-40,5,40,12);
+        img.add();
+        img.css({'cursor':'pointer'});
+        img.attr({'title':'Pop out chart'});
+        img.on('click',function(){
+            alert("fsf");
+            // prcessing after image is clicked
+        });
+
+    }
     var drawBarChart = function (series, categories) {
+
         barChart = new Highcharts.Chart({
             chart: {
                 zoomType: 'x',
@@ -44,7 +56,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 }
             },
             title: {
-                text: 'Aggregated annotations on Selected ' +  categoryName + 's: Relation frequency' + '(' + categories.length  + ' out of total ' + categories.length + ')'
+                text: 'Aggregated annotations on Selected ' +  categoryName + 's: Relation frequency ' + '(' + categories.length  + ' out of total ' + categories.length + ')'
             },
             subtitle: {
                 text: 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.'
@@ -117,7 +129,49 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 valueDecimals: 2
 
             },
+            exporting: {
+                buttons: {
+                    customButton: {
+                        x: -32,
+                        onclick: function () {
+                            alert('Clicked1');
+                        },
+                        theme: {
+                            'stroke-width': 1,
+                            stroke: 'silver',
+                            fill: '#bada55',
+                            height: 40,
+                            width: 48,
+                            symbolSize: 24,
+                            symbolX: 23,
+                            symbolY: 21,
+                            symbolStrokeWidth: 2,
+                            class: 'fa fa-circle-o fa-fw'
+
+                        },
+                        text: 'Low quality'
+
+                    },
+                    customButton2: {
+                        x: -62,
+                        onclick: function () {
+                            alert('Clicked2');
+                        },
+                        height: 40,
+                        width: 48,
+                        symbolSize: 24,
+                        symbolX: 23,
+                        symbolY: 21,
+                        symbolStrokeWidth: 2,
+                        fill: '#bada55',
+                        text: 'High quality'
+                    }
+                }
+            },
             plotOptions: {
+                series: {
+                    minPointLength : 2
+                },
                 column: {
                     stacking: 'normal',
                     states: {
@@ -128,7 +182,6 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                             borderColor:'Blue'
                         }
                     },
-
                     point: {
                         events: {
                             click: function () {
@@ -154,7 +207,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 }
             },
             series: series
-        });
+        },callback);
 
     }
 
@@ -176,6 +229,9 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
         //get the list of workers for this units
         $.getJSON(annotationsURL, function (data) {
             var colors = ['#528B8B', '#00688B', '#2F4F4F', '#66CCCC' ,'#00CDCD', '#607B8B' ];
+
+
+
             for (var iterData in data) {
 
                 var seriesData = {};
@@ -223,7 +279,22 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
             }
 
-            drawBarChart(series, categories);
+            console.dir(series);
+            console.dir(categories);
+            var additionalSeries = [];
+            if (queryFields[category] == 'job_id') {
+                var urlJobs = "/api/analytics/api/v2/?";
+                for (var indexUnits in currentSelection) {
+                    urlJobs += 'field[_id][]=' + currentSelection[indexUnits] + '&';
+                }
+                urlJobs += 'only[]=metrics.annotations';
+
+                drawBarChart(series, categories);
+            } else {
+                drawBarChart(series, categories);
+            }
+
+
         });
         //group them
     }
@@ -234,7 +305,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 renderTo: 'annotationsPie_div',
                 type: 'pie',
                 width: (2*(($('.maincolumn').width() - 50)/5)),
-                height: 400
+                height: 430
             },
             title: {
                 text: 'Annotations of the selected ' + categoryName + 's (' + currentSelection.length + ')'

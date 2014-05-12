@@ -401,6 +401,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             chartGeneralOptions.subtitle.text = subTitle + '<br/>'+ 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.';
             chartGeneralOptions.plotOptions.series.pointPadding = 0.01;
             chartGeneralOptions.plotOptions.series.borderWidth = 0.01;
+            chartGeneralOptions.plotOptions.series.minPointLength = 2;
             chartGeneralOptions.legend.y = 70;
             console.dir(chartGeneralOptions);
             unitsJobChart = new Highcharts.Chart(chartGeneralOptions);

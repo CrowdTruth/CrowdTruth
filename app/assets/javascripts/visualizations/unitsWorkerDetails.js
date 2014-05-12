@@ -15,7 +15,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 renderTo: 'workersPie_div',
                 type: 'pie',
                 width: (2*(($('.maincolumn').width() - 50)/5)),
-                height: 400
+                height: 430
             },
             title: {
                 text: 'Workers of the selected ' + categoryName + 's (' + currentSelection.length + ')'
@@ -250,6 +250,9 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 enabled: false
             },
             plotOptions: {
+                series: {
+                    minPointLength : 2
+                },
                 column: {
                     stacking: 'normal',
                     states: {
