@@ -26,7 +26,7 @@ class MediaController extends BaseController {
 		return Redirect::to('media/preprocess/' . $action);
 	}	
 
-	public function anyUpload()
+	public function postUpload()
 	{
 		$fileHelper = new FileHelper(Input::all());
 
