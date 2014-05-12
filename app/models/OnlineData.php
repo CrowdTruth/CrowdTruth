@@ -396,7 +396,7 @@ class OnlineData extends Moloquent {
 				$entity->hash = md5(serialize([$entity->content]));				
 				$entity->activity_id = $activity->_id;  
 				$entity->save();
-
+				Queue::push('Queues\UpdateUnits', [$entity->_id]);
 				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
 	
 				if (isset($status['success'])) {
