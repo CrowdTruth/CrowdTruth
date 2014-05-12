@@ -10,4 +10,3 @@
 //= require visualizations/unitsBarChartGraph.js
 //= require visualizations/workersBarChartGraph.js
 //= require visualizations/jobsBarChartGraph.js
-//= require visualizations/unitChartDetails.js

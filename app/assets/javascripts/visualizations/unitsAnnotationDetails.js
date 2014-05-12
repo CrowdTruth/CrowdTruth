@@ -12,15 +12,26 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
     var barChart = "";
 
     var callback = function callback($this){
-        var img = $this.renderer.image('images/check.png',$this.chartWidth-40,5,40,12);
+        var img = $this.renderer.image('/assets/check_mark.png',$this.chartWidth-60,15,19,14);
         img.add();
         img.css({'cursor':'pointer'});
         img.attr({'title':'Pop out chart'});
+        img.attr("data-toggle","tooltip");
+        img.attr("title", "Click to see results without low quality annotations");
         img.on('click',function(){
-            alert("fsf");
+            alert("under construction");
             // prcessing after image is clicked
         });
-
+        var img = $this.renderer.image('/assets/cross.png',$this.chartWidth-90,16,19,12);
+        img.add();
+        img.css({'cursor':'pointer'});
+        img.attr({'title':'Pop out chart'});
+        img.attr("data-toggle","tooltip");
+        img.attr("title", "Click to see results with low quality annotations");
+        img.on('click',function(){
+            alert("under construction");
+            // prcessing after image is clicked
+        });
     }
     var drawBarChart = function (series, categories) {
 
@@ -56,7 +67,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 }
             },
             title: {
-                text: 'Aggregated annotations on Selected ' +  categoryName + 's: Relation frequency ' + '(' + categories.length  + ' out of total ' + categories.length + ')'
+                text: 'Aggregated view of ' + categories[0].length + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
             },
             subtitle: {
                 text: 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.'
@@ -64,8 +75,8 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
             credits: {
                 enabled: false
             },
-            xAxis: {
-                categories: categories,
+            xAxis: [{
+                categories: categories[0],
                 title :{
                     text: 'Annotation name'
                 },
@@ -98,12 +109,50 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                     afterSetExtremes :function(event){
                         var graph = '';
                         var interval = (event.max - event.min + 1);
-                        var title = 'Aggregated annotations on Selected ' +  categoryName + 's: Relation frequency' + '(' + interval.toFixed(0) + ' out of total ' + barChart.series[0].data.length + ')';
+                        var title = "";
+                        if (interval ==  barChart.series[0].data.length) {
+                            title = 'Aggregated view of ' + interval.toFixed(0) + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
+                        } else {
+                            title = 'Aggregated view of ' + interval.toFixed(0) + '/' + barChart.series[0].data.length + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
+                        }
                         barChart.setTitle({text: title});
                     }
                 }
 
-            },
+            },{
+                    categories: categories[1],
+                    opposite:true,
+                labels:
+                {
+                    enabled: false
+                },
+                    events:{
+                        setExtremes :function (event) {
+                            var min = 0;
+                            if (event.min != undefined){
+                                min = event.min;
+                            }
+                            var max = barChart.series[0].data.length
+                            if (event.max != undefined){
+                                max = event.max;
+                            }
+                            // chart.yAxis[0].options.tickInterval
+                            barChart.xAxis[0].options.tickInterval = Math.ceil( (max-min)/20);
+                        },
+                        afterSetExtremes :function(event){
+                            var graph = '';
+                            var interval = (event.max - event.min + 1);
+                            var title = "";
+                            if (interval ==  barChart.series[0].data.length) {
+                                title = 'Aggregated view of ' + interval.toFixed(0) + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
+                            } else {
+                                title = 'Aggregated view of ' + interval.toFixed(0) + '/' + barChart.series[0].data.length + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
+                            }
+                            barChart.setTitle({text: title});
+                        }
+                    }
+
+                }],
             legend: {
                 maxHeight: 100,
                 labelFormatter: function() {
@@ -112,12 +161,19 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                     return categoryName + ' ' + value;
                 }
             },
-            yAxis: {
+            yAxis: [{
                 min: 0,
                 title: {
                     text: '# annotation per unit'
                 }
-            }
+            },
+                {
+                    min: 0,
+                    opposite: true,
+                    title: {
+                        text: 'metrics'
+                    }
+                }]
                ,
             tooltip: {
                 shared: true,
@@ -129,7 +185,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 valueDecimals: 2
 
             },
-            exporting: {
+           /* exporting: {
                 buttons: {
                     customButton: {
                         x: -32,
@@ -167,10 +223,10 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                         text: 'High quality'
                     }
                 }
-            },
+            },*/
             plotOptions: {
                 series: {
-                    minPointLength : 2
+                    minPointLength : 0
                 },
                 column: {
                     stacking: 'normal',
@@ -228,17 +284,20 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
         //get the list of workers for this units
         $.getJSON(annotationsURL, function (data) {
-            var colors = ['#528B8B', '#00688B', '#2F4F4F', '#66CCCC' ,'#00CDCD', '#607B8B' ];
+            var colors =  Highcharts.getOptions().colors;
 
-
-
+            var colorMaps = {};
+            var seriesMaps = {};
+            var microtasks = [];
             for (var iterData in data) {
 
+                microtasks = [];
                 var seriesData = {};
                 for (var iterObject in data[iterData]['dictionary']) {
                     var object = data[iterData]['dictionary'][iterObject];
                     for (var microTaskKey in object) {
                         if (!(microTaskKey in seriesData)) {
+                            microtasks.push(microTaskKey);
                             seriesData[microTaskKey] = object[microTaskKey];
                             continue;
                         }
@@ -254,47 +313,94 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 }
 
                 if (categories.length == 0) {
-                    for (var microTaskKey in seriesData) {
-                        for (var key in seriesData[microTaskKey]) {
+                    for (var microTaskKeyIter in microtasks) {
+                        for (var key in seriesData[microtasks[microTaskKeyIter]]) {
                             categories.push(key);
                         }
                         break
                     }
                 }
+                console.dir('map');
+                console.dir(seriesData);
 
                 var first = true;
-                for (var microTaskKey in seriesData) {
-                    var newSeries = {'name':  data[iterData]['_id'], data:[], type: 'column', stack:microTaskKey, color: colors[iterData%data.length]};
+                for (var microTaskKey in microtasks) {
+                    var newSeries = {'name':  data[iterData]['_id'], data:[], type: 'column', stack:microtasks[microTaskKey], color: colors[iterData%colors.length]};
+                    colorMaps[data[iterData]['_id']] = colors[iterData%colors.length];
+                    seriesMaps[data[iterData]['_id']] = series.length;
                     if(!(first == true)){
                         newSeries.linkedTo = ':previous';
                     } else {
                         first = false;
                     }
                     for(var iterCategories in categories) {
-                        newSeries.data.push(seriesData[microTaskKey][categories[iterCategories]]);
+                        newSeries.data.push(seriesData[microtasks[microTaskKey]][categories[iterCategories]]);
                     }
 
                     series.push(newSeries);
                 }
+                console.dir(iterData);
+                console.dir(series);
 
             }
-
+            console.dir("partial series");
             console.dir(series);
-            console.dir(categories);
+            console.dir(colorMaps);
+            console.dir(seriesMaps);
+
             var additionalSeries = [];
             if (queryFields[category] == 'job_id') {
-                var urlJobs = "/api/analytics/api/v2/?";
+
+                var urlJobs = "/api/v1/?";
                 for (var indexUnits in currentSelection) {
                     urlJobs += 'field[_id][]=' + currentSelection[indexUnits] + '&';
                 }
+                urlJobs += 'field[softwareAgent_id][]=' + activeSelectedPlatform ;
+                if (activeSelectedType != ""){
+                    urlJobs += '&field[type][]=' + activeSelectedType + '&';
+                }
                 urlJobs += 'only[]=metrics.annotations';
 
-                drawBarChart(series, categories);
+                $.getJSON(urlJobs, function (data) {
+
+                    for (var iter in data){
+                        //iterate job
+                        var jobData = data[iter];
+                        console.dir(data[iter]);
+                        var ambiguity = {'name': "ambiguity", data:[], type: 'spline', color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.3).get(), linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
+                        var clarity = {'name': "clarity", data:[], type: 'spline',color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.1).get(),  linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
+                        for (var iterCateg in categories) {
+                            console.dir(microtasks);
+                            for (var iterMicroTask in microtasks){
+                                console.dir(categories);
+                                var value = data[iter]['metrics']['annotations']['withoutSpam'][microtasks[iterMicroTask]]['annot_ambiguity'][categories[iterCateg]];
+                                ambiguity['data'].push(value);
+                                var value = data[iter]['metrics']['annotations']['withoutSpam'][microtasks[iterMicroTask]]['annot_clarity'][categories[iterCateg]];
+                                clarity['data'].push(value);
+                            }
+
+                        }
+                        console.dir(ambiguity);
+                        console.dir(clarity);
+                        series.push(ambiguity);
+                        series.push(clarity);
+                    }
+                    var categoriesJobs = [];
+                    for (iter in categories) {
+                        for(iterMicroTask in microtasks) {
+                            categoriesJobs.push(categories[iter]);
+                        }
+                    }
+                    console.dir(categories);
+                    console.dir(categoriesJobs);
+
+                    drawBarChart(series, [categories, categoriesJobs]);
+                });
+
             } else {
-                drawBarChart(series, categories);
+
             }
-
-
+            //drawBarChart(series, [categories,categories]);
         });
         //group them
     }
@@ -308,7 +414,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 height: 430
             },
             title: {
-                text: 'Annotations of the selected ' + categoryName + 's (' + currentSelection.length + ')'
+                text: 'Type of Annotations of the ' + currentSelection.length + ' selected '+ ' ' + categoryName + '(s)'
             },
             credits: {
                 enabled: false
@@ -466,7 +572,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                     }
                 });
                 drawPieChart(platformData, categoriesData);
-                getBarChartData(platform , type);
+
             });
 
         });

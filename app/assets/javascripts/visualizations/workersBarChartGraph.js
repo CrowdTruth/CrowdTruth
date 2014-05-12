@@ -100,7 +100,12 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                 },
                 afterSetExtremes :function(event){
                     var interval = (event.max - event.min + 1);
-                    var title = 'Overview of Workers (' + interval.toFixed(0) + ' out of total ' + barChart.series[0].data.length + ')';
+                    var title = "";
+                    if (interval == barChart.series[0].data.length) {
+                        title = 'Overview of ' + interval.toFixed(0) + ' Workers ';
+                    } else {
+                        title = 'Overview of ' + interval.toFixed(0) + '/' + barChart.series[0].data.length + ' Workers';
+                    }
                     barChart.setTitle({text: title});
                 }
             },
@@ -354,7 +359,7 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
 
             chartGeneralOptions.subtitle.text = subTitle + '<br/>' + 'Select an area to zoom. To see detailed information select individual workers.From legend select features';
             // console.dir($scope.chartGeneralOptions);
-            chartGeneralOptions.title.text = 'Overview of Workers (' + data['id'].length + ' out of total ' + data['id'].length + ')';
+            chartGeneralOptions.title.text = 'Overview of ' +  data['id'].length  + ' Workers';
             chartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/50);
             chartGeneralOptions.plotOptions.series.minPointLength = 2;
             barChart = new Highcharts.Chart(chartGeneralOptions);

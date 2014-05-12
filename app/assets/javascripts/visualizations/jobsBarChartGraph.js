@@ -104,7 +104,12 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                 },
                 afterSetExtremes :function(event){
                     var interval = (event.max - event.min + 1);
-                    var title = 'Overview of Jobs (' + interval.toFixed(0) + ' out of total ' + barChart.series[0].data.length + ')';
+                    var title = "";
+                    if (interval == barChart.series[0].data.length) {
+                        title = 'Overview of ' + interval.toFixed(0) + ' Jobs ';
+                    } else {
+                        title = 'Overview of ' + interval.toFixed(0) + '/' + barChart.series[0].data.length + ' Jobs';
+                    }
                     barChart.setTitle({text: title});
                 }
             },
@@ -352,7 +357,7 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
             }
 
             chartGeneralOptions.subtitle.text = subTitle + '<br/>' + 'Select an area to zoom. To see detailed information select individual jobs.From legend select features';
-            chartGeneralOptions.title.text = 'Overview of Jobs (' + data['id'].length + ' out of total ' + data['id'].length + ')';
+            chartGeneralOptions.title.text = 'Overview of ' + data['id'].length + ' Jobs';
             chartGeneralOptions.plotOptions.series.minPointLength = 2;
             // console.dir($scope.chartGeneralOptions);
             barChart = new Highcharts.Chart(chartGeneralOptions);

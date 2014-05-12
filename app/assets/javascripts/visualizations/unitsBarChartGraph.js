@@ -116,10 +116,18 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     var interval = (event.max - event.min + 1);
                     var title = ""
                     if(this.chart.renderTo.id == 'generalBarChart_div' ) {
-                        title = 'Overview of Units used in Jobs ' + '(' + interval.toFixed(0) + ' out of total ' + unitsJobChart.series[0].data.length + ')';
+                        if (interval == unitsJobChart.series[0].data.length) {
+                            title = 'Overview of ' + unitsJobChart.series[0].data.length + ' Units used in Jobs';
+                        } else {
+                            title = 'Overview of ' + interval.toFixed(0) + '/' + unitsJobChart.series[0].data.length + ' Units used in Jobs';
+                        }
                         unitsJobChart.setTitle({text: title});
                     } else {
-                        title = 'Overview of Units not used in Jobs ' + '(' + interval.toFixed(0) + ' out of total ' + unitsWordCountChart.series[0].data.length + ')';
+                        if (interval == unitsWordCountChart.series[0].data.length) {
+                            title = 'Overview of ' + unitsWordCountChart.series[0].data.length + ' Units used in Jobs';
+                        } else {
+                            title = 'Overview of ' + interval.toFixed(0) + '/' + unitsWordCountChart.series[0].data.length + ' Units used in Jobs';
+                        }
                         unitsWordCountChart.setTitle({text: title});
                     }
                 }
@@ -397,7 +405,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             console.dir(chartGeneralOptions);
             chartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/20);
             chartGeneralOptions.chart.renderTo = 'generalBarChart_div';
-            chartGeneralOptions.title.text = 'Overview of Units used in Jobs (' + data["id"].length + ' out of total ' + data["id"].length+ ')';
+            chartGeneralOptions.title.text = 'Overview of Units ' + data["id"].length +  ' used in Jobs';
             chartGeneralOptions.subtitle.text = subTitle + '<br/>'+ 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.';
             chartGeneralOptions.plotOptions.series.pointPadding = 0.01;
             chartGeneralOptions.plotOptions.series.borderWidth = 0.01;
@@ -515,7 +523,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             newChartGeneralOptions.yAxis.push(yAxisSettings);
             newChartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/20);
             newChartGeneralOptions.chart.renderTo = 'specificBarChart_div';
-            newChartGeneralOptions.title.text = 'Overview of Units not used in Jobs (' + data["id"].length + ' out of total ' + data["id"].length+ ')';
+            newChartGeneralOptions.title.text = 'Overview of ' + data["id"].length + ' Units not used in Jobs';
             newChartGeneralOptions.subtitle.text = subTitle + '<br/>'+ 'Select area to zoom. To see detailed information select individual units.From legend select/deselect features';
             newChartGeneralOptions.plotOptions.series.pointPadding = 0;
             newChartGeneralOptions.plotOptions.series.minPointLength = 2;

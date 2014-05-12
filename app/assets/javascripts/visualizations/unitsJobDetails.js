@@ -120,7 +120,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                 }
             },
             title: {
-                text: 'Annotations in Jobs on Selected ' +   categoryName + 's' + '(' + categories.length + ' out of total ' + categories.length + ')'
+                text: 'Annotations of ' + categories.length +' Job(s) of ' + currentSelection.length + ' Selected ' +  categoryName + '(s)'
             },
             subtitle: {
                 text: 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.'
@@ -159,7 +159,11 @@ function unitsJobDetails(category , categoryName, openModal) {
                     afterSetExtremes :function(event){
                         var graph = '';
                         var interval = (event.max - event.min + 1);
-                        var title = 'Annotations in Jobs on Selected ' +   categoryName + 's' + '(' + interval.toFixed(0) + ' out of total ' + barChart.series[0].data.length + ')';
+                        if (interval == barChart.series[0].data.length) {
+                            title = 'Annotations of ' + interval.toFixed(0) +' Job(s) of ' + currentSelection.length + ' Selected ' +  categoryName + '(s)'
+                        } else {
+                            title = 'Annotations of ' + interval.toFixed(0) + '/' + barChart.series[0].data.length +' Job(s) of ' + currentSelection.length + ' Selected ' +  categoryName + '(s)'
+                        }
                         barChart.setTitle({text: title});
                     }
                 }
@@ -251,7 +255,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                 height: 400
             },
             title: {
-                text: 'Jobs of the selected ' + categoryName + 's (' + currentSelection.length + ')'
+                text: 'Number of Jobs of the ' + currentSelection.length + ' selected ' + categoryName + '(s)'
             },
             subtitle: {
                 text: 'Click a category to see the distribution of annotations per jobs'

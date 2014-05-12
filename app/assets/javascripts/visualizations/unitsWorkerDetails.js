@@ -18,7 +18,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 height: 430
             },
             title: {
-                text: 'Workers of the selected ' + categoryName + 's (' + currentSelection.length + ')'
+                text: 'Quality of Workers of the ' + currentSelection.length +  ' selected ' + categoryName + '(s)'
             },
             subtitle: {
                 text: 'Click a category to see the distribution of annotations per worker'
@@ -176,7 +176,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 }
             },
             title: {
-                text: 'Annotations of Workers on Selected ' +   categoryName + 's' +'(' + categories.length + ' out of total ' + categories.length + ')'
+                text: 'Annotations of ' + categories.length + ' Worker(s) on ' + currentSelection.length + ' Selected ' +   categoryName + '(s)'
             },
             subtitle: {
                 text: 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.'
@@ -215,7 +215,11 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                     afterSetExtremes :function(event){
                         var graph = '';
                         var interval = (event.max - event.min + 1);
-                        var title = 'Annotations of Workers on Selected ' +   categoryName + 's' + '(' + interval.toFixed(0) + ' out of total ' + barChart.series[0].data.length + ')';
+                        if (interval == barChart.series[0].data.length) {
+                            title = 'Annotations of ' + interval.toFixed(0) + ' Worker(s) of ' + currentSelection.length + ' Selected ' +   categoryName + '(s)'
+                        } else {
+                            title = 'Annotations of ' + interval.toFixed(0) + '/' +  barChart.series[0].data.length + ' Worker(s) of ' + currentSelection.length + ' Selected ' +   categoryName + '(s)'
+                        }
                         barChart.setTitle({text: title});
                     }
                 }
