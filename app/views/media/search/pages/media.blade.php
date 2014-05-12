@@ -51,10 +51,10 @@
 						<option value="100">100 Records per page</option>
 					</select>					
 					<div class='switchViews pull-right' style="margin-right:5px;">
-						<button type="button" class="btn btn-default listViewButton hidden" style="margin-left:5px;">
+						<button type="button" class="btn btn-info listViewButton hidden" style="margin-left:5px;">
 							Switch to List View
 						</button>						
-						<button type="button" class="btn btn-default graphViewButton" style="margin-left:5px;">
+						<button type="button" class="btn btn-info graphViewButton" style="margin-left:5px;">
 							Switch to Graph View
 						</button>						
 					</div>
