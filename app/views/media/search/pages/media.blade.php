@@ -241,6 +241,11 @@ var delay = (function(){
 })();
 
 $('.searchOptions').on('change', ".selectpicker", function(){
+	if(!$('.listViewButton').hasClass('hidden'))
+	{
+		$('.listViewButton').click();
+	}
+
 	if($(this).attr('name') == "documentType")
 	{
 		if($(this).val() != null)
