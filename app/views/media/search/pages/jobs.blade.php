@@ -866,7 +866,7 @@ $('body').on('click', '.testModal', function(){
 
 $('.select_job').click();
 $('.documentTypesNav').find('#job_nav a').click();
-
+$('.graphViewButton').click();
 
 });
 

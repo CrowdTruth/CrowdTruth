@@ -80,10 +80,6 @@
 					<div class="tab-content documentTypesTabs">
 						@include('media.search.layouts.hb-all')
 
-						@if(isset($mainSearchFilters['media']['documentTypes']))
-							@include('media.search.layouts.twrex')
-						@endif
-
 						@if(isset($mainSearchFilters['media']['documentTypes']['twrex-structured-sentence']))
 							@include('media.search.layouts.hb-twrex-structured-sentence')
 						@endif
@@ -241,6 +237,11 @@ var delay = (function(){
 })();
 
 $('.searchOptions').on('change', ".selectpicker", function(){
+	if(!$('.listViewButton').hasClass('hidden'))
+	{
+		$('.listViewButton').click();
+	}
+
 	if($(this).attr('name') == "documentType")
 	{
 		if($(this).val() != null)
@@ -878,6 +879,7 @@ $('body').on('click', '.testModal', function(){
 
 $('.select_twrex-structured-sentence').click();
 $('.documentTypesNav').find('#twrex-structured-sentence_nav a').click();
+$('.graphViewButton').click();
 
 });
 

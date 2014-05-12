@@ -868,6 +868,7 @@ $('body').on('click', '.testModal', function(){
 
 $('.select_crowdagents').click();
 $('.documentTypesNav').find('#crowdagents_nav a').click();
+$('.graphViewButton').click();
 
 });
 
