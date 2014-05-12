@@ -879,6 +879,7 @@ $('body').on('click', '.testModal', function(){
 
 $('.select_twrex-structured-sentence').click();
 $('.documentTypesNav').find('#twrex-structured-sentence_nav a').click();
+$('.graphViewButton').click();
 
 });
 
