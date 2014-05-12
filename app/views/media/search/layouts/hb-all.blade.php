@@ -22,7 +22,7 @@
 	</div>
 	<div class='ctable-responsive'>		
 	    <table class="table table-striped">
-	        <thead data-query-key="only[]=format&only[]=domain&only[]=documentType&only[]=created_at&only[]" data-query-value="user_id">
+	        <thead data-query-key="match[tags][]=unit&only[]=format&only[]=domain&only[]=documentType&only[]=created_at&only[]" data-query-value="user_id">
 		        <tr>
 		            <th data-vbIdentifier="checkbox">Select</th>
 		            <th class="sorting" data-query-key="orderBy[_id]">ID</th>
