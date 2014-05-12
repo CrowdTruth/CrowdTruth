@@ -80,10 +80,6 @@
 					<div class="tab-content documentTypesTabs">
 						@include('media.search.layouts.hb-all')
 
-						@if(isset($mainSearchFilters['media']['documentTypes']))
-							@include('media.search.layouts.twrex')
-						@endif
-
 						@if(isset($mainSearchFilters['media']['documentTypes']['twrex-structured-sentence']))
 							@include('media.search.layouts.hb-twrex-structured-sentence')
 						@endif
