@@ -34,8 +34,8 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
             'avgAnnotations': {'color': '#00AA72', 'field': '', 'name':'avg # of annotations', 'type': 'spline', 'dashStyle':'shortdot',
                 tooltip: "Average number of annotations. Click to select/deselect."}},
         'time': { 'time': {'color': '#FF9E00', 'field': 'runningTimeInSeconds', 'name':'job duration', 'type': 'spline', 'dashStyle':'LongDash',
-            tooltip: "Amount of time the job has taken so far (in seconds). Click to select/deselect."},
-            'tooltipSufix': { valueSuffix: ' secs' }},
+            tooltip: "Amount of time the job has taken so far (in seconds). Click to select/deselect.",
+            'tooltipSufix': { valueSuffix: ' secs' }}},
         'payment': { 'payment': {'color': '#E00000', 'field': 'projectedCost', 'name':'payment', 'type': 'spline','dashStyle':'LongDashDot', 'tooltipSufix': { valueSuffix: ' cents' },
             tooltip: "Amount paid so far - [# mTasks Complete Actual] * [Cost/mTask] (in cents). Click to select/deselect."}},
         'metrics': {
@@ -201,9 +201,15 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                             } else {
                                 selectedUnits.push(this.category)
                             }
-                            workerUpdateFunction.update(selectedUnits);
-                            jobsUpdateFunction.update(selectedUnits);
-                            annotationsUpdateFunction.update(selectedUnits);
+                            var selectedInfo = {};
+                            for (var index in selectedUnits) {
+                                selectedInfo[selectedUnits[index]] = {};
+                                selectedInfo[selectedUnits[index]]['title'] = info[selectedUnits[index]]['title'];
+                                selectedInfo[selectedUnits[index]]['type'] = info[selectedUnits[index]]['type'];
+                            }
+                            workerUpdateFunction.update(selectedUnits, selectedInfo);
+                            jobsUpdateFunction.update(selectedUnits, selectedInfo);
+                            annotationsUpdateFunction.update(selectedUnits, selectedInfo);
 
                         }
                     }

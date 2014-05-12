@@ -1,7 +1,8 @@
-function unitsWorkerDetails(category, openModal) {
+function unitsWorkerDetails(category, categoryName, openModal) {
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
     var unitsWorkersInfo = {};
     var currentSelection = [];
+    var currentSelectionInfo = {};
     var queryFields = {'#twrex-structured-sentence_tab': 'unit_id', '#fullvideo_tab': 'unit_id', '#job_tab': 'job_id'};
     var spammers = [];
     var seriesBase = [];
@@ -17,7 +18,7 @@ function unitsWorkerDetails(category, openModal) {
                 height: 400
             },
             title: {
-                text: 'Workers of the selected elements'
+                text: 'Workers of the selected ' + categoryName + 's (' + currentSelection.length + ')'
             },
             subtitle: {
                 text: 'Click a category to see the distribution of annotations per worker'
@@ -41,26 +42,32 @@ function unitsWorkerDetails(category, openModal) {
                         events: {
                             click: function () {
                                 searchSet = unitsWorkersInfo[this.options.platform]['all'];
+
                                 if ('spam' in this.options) {
-                                    if(this.options.spam == true) {
+                                    if(this.options.spam == 0) {
                                         searchSet = unitsWorkersInfo[this.options.platform]['spam'];
                                     } else {
-                                        searchSet = unitsWorkersInfo[this.options.platform]['nonSpam'];
+                                        if(this.options.spam == 1) {
+                                            searchSet = unitsWorkersInfo[this.options.platform]['potential'];
+                                        } else {
+                                            searchSet = unitsWorkersInfo[this.options.platform]['nonSpam'];
+                                        }
                                     }
                                 }
+                                console.dir(this);
+                                console.dir(searchSet);
 
                                 for (var iterData = 0; iterData < barChart.series[0].data.length; iterData++) {
                                     seriesCategory = barChart.series[0].data[iterData].category;
-                                    if($.inArray(seriesCategory, searchSet) > -1) {
+                                    if($.inArray(seriesCategory, searchSet) > -1 && !this.selected ) {
                                         for (var iterSeries = 0; iterSeries < barChart.series.length; iterSeries++) {
-                                            barChart.series[iterSeries].data[iterData].select(null,true);
+                                            barChart.series[iterSeries].data[iterData].select(true,true);
                                         }
 
                                     } else {
                                         for (var iterSeries = 0; iterSeries < barChart.series.length; iterSeries++) {
                                             barChart.series[iterSeries].data[iterData].select(false,true);
                                         }
-
                                     }
                                 }
 
@@ -83,7 +90,19 @@ function unitsWorkerDetails(category, openModal) {
                 }
             },
             tooltip: {
-                valueSuffix: ''
+                useHTML : true,
+                formatter: function() {
+                    var seriesValue = this.key;
+                    console.dir(this);
+                    if (this.key == 'potentially low quality') {
+                        seriesValue += '(workers identified in both low/high quality categories for the current selection)'
+                    }
+                    return '<p><b>' + seriesValue + ' </b></br>' + this.series.name + ' : ' +
+                        this.percentage.toFixed(2) + ' % ('  + this.y + '/' + this.total + ')' +
+                        '</p>';
+                },
+                followPointer : false,
+                hideDelay:10
             },
             credits: {
                 enabled: false
@@ -131,15 +150,40 @@ function unitsWorkerDetails(category, openModal) {
                 renderTo: 'workersBar_div',
                 type: 'column',
                 width: (3*(($('.maincolumn').width() - 50)/5)),
-                height: 400
+                height: 400,
+                events: {
+                    load: function () {
+                        var chart = this,
+                            legend = chart.legend;
+                        console.dir(currentSelectionInfo);
+                        for (var i = 0, len = legend.allItems.length; i < len; i++) {
+                            var item = legend.allItems[i].legendItem;
+                            var tooltipValue = "";
+                            if (typeof currentSelectionInfo[legend.allItems[i].name] === 'string') {
+                                var tooltipValue = currentSelectionInfo[legend.allItems[i].name];
+                            } else {
+                                for( var indexInfoKey in currentSelectionInfo[legend.allItems[i].name]) {
+                                    tooltipValue +=  currentSelectionInfo[legend.allItems[i].name][indexInfoKey] + ' (' + indexInfoKey + ')' + '<br/>';
+                                }
+                            }
+
+                            item.attr("data-toggle","tooltip");
+                            item.attr("title", tooltipValue);
+
+                        }
+
+                    }
+                }
             },
             title: {
-                text: 'Annotations of workers'
+                text: 'Annotations of Workers on Selected ' +   categoryName + 's' +'(' + categories.length + ' out of total ' + categories.length + ')'
             },
-
+            subtitle: {
+                text: 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.'
+            },
             xAxis: {
                 title :{
-                    text: 'Worker ID'
+                    text: 'Worker ID (Red color : Workers identified at least ones on the platform as low quality)'
                 },
                 categories: categories,
                 labels: {
@@ -154,11 +198,36 @@ function unitsWorkerDetails(category, openModal) {
                     },
                     rotation: -45,
                     align: 'right'
+                },
+                events:{
+                    setExtremes :function (event) {
+                        var min = 0;
+                        if (event.min != undefined){
+                            min = event.min;
+                        }
+                        var max = barChart.series[0].data.length
+                        if (event.max != undefined){
+                            max = event.max;
+                        }
+                        // chart.yAxis[0].options.tickInterval
+                        barChart.xAxis[0].options.tickInterval = Math.ceil( (max-min)/20);
+                    },
+                    afterSetExtremes :function(event){
+                        var graph = '';
+                        var interval = (event.max - event.min + 1);
+                        var title = 'Annotations of Workers on Selected ' +   categoryName + 's' + '(' + interval.toFixed(0) + ' out of total ' + barChart.series[0].data.length + ')';
+                        barChart.setTitle({text: title});
+                    }
                 }
 
             },
             legend: {
-                maxHeight: 100
+                maxHeight: 100,
+                labelFormatter: function() {
+                    var arrayName = this.name.split("/");
+                    var value = arrayName[arrayName.length - 1];
+                    return categoryName + ' ' + value;
+                }
             },
             yAxis: {
                 min: 0,
@@ -226,78 +295,6 @@ function unitsWorkerDetails(category, openModal) {
 
     }
 
-    var getWorkerInfo = function(crowdAgentID){
-        var result = {'title':'','body':''};
-        result['title'] = '<h4><b>CF worker: </b>' + crowdAgentID + ' - Annotation information</h4><h5><p>(internal worker quality:(TODO), platform worker quality:(TODO))</p></h5>';
-        //get all the annotated sentences
-        var url = urlBase;
-        var urlJobSet = '/api/analytics/aggregate/?&match[documentType]=annotation&';
-
-        for (var iterSelection in currentSelection) {
-            url += 'match[unit_id][]='+currentSelection[iterSelection] + '&';
-            urlJobSet += 'match[unit_id][]='+currentSelection[iterSelection] + '&';
-        }
-        url += 'match[crowdAgent_id]=' + crowdAgentID + '&';
-        urlJobSet += 'match[crowdAgent_id]=' + crowdAgentID + '&';
-
-        url += 'group=unit_id&push[jobs]=job_id&push[annotations]=content&push[spam]=spam';
-        urlJobSet += 'sort[created_at]=1&project[jobs]=job_id&addToSet=jobs';
-        $.getJSON(url, function (data) {
-            var sentenceData = data;
-            //get all the job ids
-
-            $.getJSON(urlJobSet, function (data) {
-                //get info about individual jobs
-                var urlJobInfo = "/api/analytics/piegraph/?match[documentType][]=job&";
-                var jobsDic = {};
-                for( var iterJob in data['content']){
-                    urlJobInfo += 'match[_id][]=' + data['content'][iterJob] + '&';
-                }
-                urlJobInfo += '&group=_id&push[type]=type&' +
-                    'push[avgCosineScore]=metrics.aggWorker.mean.worker_cosine&' +
-                    'push[avgAgreementScore]=metrics.aggWorker.mean.avg_worker_agreement&'+
-                    'push[workerAgreementScore]=metrics.workers.withFilter.' + crowdAgentID + '.avg_worker_agreement&'+
-                    'push[workerCosineScore]=metrics.workers.withFilter.' + crowdAgentID + '.worker_cosine';
-
-                $.getJSON(urlJobInfo, function (data) {
-                    for (var iterjobInfo in data) {
-                        jobsDic[data[iterjobInfo]['_id']] = data[iterjobInfo];
-                    }
-
-                    result['body'] = '<dl class="dl-horizontal">';
-                    for( var iterSent in sentenceData) {
-                        result['body'] += '<ul><h4>'
-                        result['body'] += 'Sentence: '+sentenceData[iterSent]['_id'] +'</h4>';
-                        for (var iterAnn in sentenceData[iterSent]['annotations']) {
-                            jobID = sentenceData[iterSent]['jobs'][iterAnn];
-                            result['body'] += '<li>JobID: ' + jobID + '<dl class="dl-horizontal">';
-                            result['body'] += '<dt>Job type: </dt><dd>' + jobsDic[jobID]['type'] + '</dd>';
-                            result['body'] += '<dt>Avg job worker agreement:</dt><dd>' + jobsDic[jobID]['avgAgreementScore'][0] + '</dd>';
-                            result['body'] += '<dt>Worker agreement score:</dt><dd>' + jobsDic[jobID]['workerAgreementScore'][0] + '</dd>';
-                            result['body'] += '<dt>Avg job cosine value:</dt><dd>' + jobsDic[jobID]['avgCosineScore'][0] + '</dd>';
-                            result['body'] += '<dt>Worker cosine score:</dt><dd>' + jobsDic[jobID]['workerCosineScore'][0] + '</dd>';
-                            result['body'] += '<dt>Worker annotation:</dt><dd>' + sentenceData[iterSent]['annotations'][iterAnn]['direction']
-
-                                + '</dd>';
-                            result['body'] += '<dt>Marked as spam:</dt><dd>' + sentenceData[iterSent]['spam'][iterAnn] + '</dd>';
-
-                            result['body'] += '</dl></li>';
-                        }
-                        result['body'] += '</ul>'
-                    }
-                    result['body'] += '</dl>';
-                    $('#myModal .modal-title').html(result['title']);
-                    $('#myModal .modal-body').html(result['body']);
-                    $('#myModal').modal('show');
-
-                });
-            });
-
-        });
-
-        //get worker information
-
-    }
 
     var getWorkersData = function (url) {
         //make a check and see which units have workers?
@@ -328,8 +325,9 @@ function unitsWorkerDetails(category, openModal) {
         });
     }
 
-    this.update = function (selectedUnits) {
+    this.update = function (selectedUnits, selectedInfo) {
         currentSelection = selectedUnits;
+        currentSelectionInfo = selectedInfo
         seriesBase = [];
         urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
         //create the series data
@@ -388,14 +386,14 @@ function unitsWorkerDetails(category, openModal) {
 
                             if (responseData[iterObj]['_id'] === true) {
                                 spamData.push({name: 'low quality',
-                                    spam: true,
+                                    spam: 0, //spammers
                                     y: content.length,
                                     color: Highcharts.Color(colors[index]).brighten(-0.05).get(),
                                     platform: data[index]['_id']});
                                 unitsWorkersInfo[data[index]['_id']]['spam'] = content;
                             } else {
                                 spamData.push({name: 'high quality',
-                                    spam: false,
+                                    spam: 3,//no spam
                                     y: content.length,
                                     color: colors[index],
                                     platform: data[index]['_id']});
@@ -403,8 +401,8 @@ function unitsWorkerDetails(category, openModal) {
                             }
                         }
                         if(commonWorkers.length > 0) {
-                            spamData.push({name: 'potential spam',
-                                spam: true,
+                            spamData.push({name: 'potentially low quality',
+                                spam: 1,//possible spam
                                 y: commonWorkers.length,
                                 color: Highcharts.Color(colors[index]).brighten(-0.09).get(),
                                 platform: data[index]['_id']});

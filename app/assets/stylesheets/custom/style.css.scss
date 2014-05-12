@@ -569,6 +569,9 @@ border-top:1px solid #e0e0e0;
     margin-bottom:0px;
   }
 }
+.pieDivLarge .highcharts-tooltip span {
+  width:200px!important;
+}
 
 .tooltip {
     z-index: 2000 !important;

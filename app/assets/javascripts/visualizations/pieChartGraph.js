@@ -3,15 +3,42 @@ function pieChartGraph(tooltip, matchStr, groupID, chartName, divName, nrPieChar
     this.matchStr = matchStr;
     this.groupID = groupID;
     this.chartName = chartName;
+    var pieChart = "";
+    var renderTo = divName + "_div";
 
     var drawPieChart = function(chartData){
-
-
-        $('#' + divName + "_div").highcharts({
+            console.dir(renderTo);
+            pieChart =  new Highcharts.Chart({
             chart: {
+                renderTo: renderTo,
                 type: 'pie',
                 width: (($('.maincolumn').width() - 50) / nrPieCharts),
-                height: 200
+                height: 200,
+                events: {
+                    load: function () {
+                        var chart = this,
+                            legend = chart.legend;
+
+                        for (var i = 0, len = legend.allItems.length; i < len; i++) {
+                            var item = legend.allItems[i].legendItem;
+                            var prefix = "";
+                            if (tooltip['prefix'] != '') {
+                                prefix = tooltip['prefix'] + ' ';
+                            }
+                            var suffix = "";
+                            if (tooltip['suffix'] != '') {
+                                suffix = ' ' + tooltip['suffix'];
+                            }
+                            var tooltipValue = 'Number of ' + tooltip['label'] + ' ' +
+                                prefix + legend.allItems[i].name + suffix + '.Click to select/deselect.';
+
+                            item.attr("data-toggle","tooltip");
+                            item.attr("title", tooltipValue);
+
+                        }
+
+                    }
+                }
             },
             title: {
                 text: chartName
@@ -70,6 +97,13 @@ function pieChartGraph(tooltip, matchStr, groupID, chartName, divName, nrPieChar
                 chartData.push([data[indexData]['_id'], data[indexData]['count']]);
             }
             drawPieChart(chartData);
+           /* $('#' + renderTo + ' .highcharts-legend text, .highcharts-legend span').each(function(index, element) {
+                $(element).hover(function() {
+                    pieChart.tooltip.refresh(pieChart.series[0].data[index]);
+                },function() {
+                    pieChart.tooltip.hide();
+                })
+            });*/
         });
     }
 

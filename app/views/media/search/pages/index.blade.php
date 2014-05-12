@@ -226,7 +226,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="workersPie_div"></div>
                                     </td>
                                     <td>
@@ -236,7 +236,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="jobsPie_div"></div>
                                     </td>
                                     <td>
@@ -246,7 +246,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="unitsPie_div"></div>
                                     </td>
                                     <td>
@@ -256,7 +256,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="annotationsPie_div"></div>
                                     </td>
                                     <td>

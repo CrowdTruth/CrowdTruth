@@ -222,9 +222,6 @@
     	</table>
     </div>
 
-<a class='testModal' id='smth' data-modal-query="match[documentType][]=annotation&match[crowdAgent_id][]=crowdagent/cf/21832469&match[crowdAgent_id][]=crowdagent/cf/19107746&match[crowdAgent_id][]=crowdagent/cf/19619472&match[crowdAgent_id][]=crowdagent/cf/19887374&match[crowdAgent_id][]=crowdagent/cf/9333400&match[crowdAgent_id][]=crowdagent/cf/19817298&match[crowdAgent_id][]=crowdagent/cf/22080912&match[crowdAgent_id][]=crowdagent/amt/A1O1DTYWRD9NIZ&match[crowdAgent_id][]=crowdagent/amt/A1EDP2JFUPZOEQ&match[softwareAgent_id][]=cf&match[type][]=FactSpan" data-api-target="{{ URL::to('api/analytics/annotation?') }}" data-target="#modalAnnotations" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
-						smth
-					</a>
 
 	<div class='hidden' id='modalIndividualUnit'>
 

@@ -1,10 +1,14 @@
 function unitsChartFacade(category, openModal) {
+    var categoryNameMap  = {'#twrex-structured-sentence_tab':'RelEx-structured sentence',
+        '#fullvideo_tab':'Video',
+        '#job_tab': 'job',
+        '#crowdagents_tab':'worker'
+    };
 
-
-    this.unitsWorkerDetails = new unitsWorkerDetails(category, openModal);
-    this.unitsDetails = new unitsDetails(category);
-    this.unitsJobDetails = new unitsJobDetails(category);
-    this.unitsAnnotationDetails = new unitsAnnotationDetails(category);
+    this.unitsWorkerDetails = new unitsWorkerDetails(category, categoryNameMap[category], openModal);
+    this.unitsDetails = new unitsDetails(category, categoryNameMap[category], openModal);
+    this.unitsJobDetails = new unitsJobDetails(category, categoryNameMap[category], openModal);
+    this.unitsAnnotationDetails = new unitsAnnotationDetails(category, categoryNameMap[category], openModal);
     this.pieChartIds = [{name:'domain', tooltip:{'prefix' : 'in', 'suffix':'domain'} },
         {name:'format', tooltip:{'prefix' : 'in', 'suffix':'format' }},
         {field:'user_id', name:'created by', divName:"user", tooltip:{'prefix' : 'created by', 'suffix':'' }}];
@@ -14,7 +18,7 @@ function unitsChartFacade(category, openModal) {
     if (category == '#twrex-structured-sentence_tab') {
         this.pieChartIds.push({field:'jobs',name:'jobs',divName:"optional1", tooltip:{'prefix' : '', 'suffix':''}});
         this.pieChartIds.push({field:'content.relation.noPrefix',name:'relation', divName:"optional2", tooltip:{'prefix' : 'with', 'suffix':'relation'}});
-        this.barChartGraph = new unitsBarChartGraph(category, this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
+        this.barChartGraph = new unitsBarChartGraph(category, categoryNameMap[category], this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
     } else if ((category == '#fullvideo_tab') || (category == '#fullvideo_tab')){
         this.pieChartIds.push({field:'jobs',name:'jobs',divName:"optional1", tooltip:{'prefix' : '', 'suffix':''}});
         this.pieChartIds.push({field:'source',name:'source', divName:"optional2", tooltip:{'prefix' : 'from', 'suffix':'source'}});

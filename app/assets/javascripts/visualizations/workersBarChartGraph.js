@@ -204,9 +204,13 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                             } else {
                                 selectedUnits.push(this.category)
                             }
-                            workerUpdateFunction.update(selectedUnits);
-                            jobsUpdateFunction.update(selectedUnits);
-                            annotationsUpdateFunction.update(selectedUnits);
+                            var selectedInfo = {};
+                            for (var index in selectedUnits) {
+                                selectedInfo[selectedUnits[index]] = info[selectedUnits[index]]['platform'];
+                            }
+                            workerUpdateFunction.update(selectedUnits, selectedInfo);
+                            jobsUpdateFunction.update(selectedUnits, selectedInfo);
+                            annotationsUpdateFunction.update(selectedUnits, selectedInfo);
 
                         }
                     }

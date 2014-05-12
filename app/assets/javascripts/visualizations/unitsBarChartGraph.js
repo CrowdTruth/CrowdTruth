@@ -1,5 +1,5 @@
 
-function unitsBarChartGraph(category, workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction) {
+function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction) {
     var unitsJobChart = "";
     var unitsWordCountChart = "";
     var selectedUnits = [];
@@ -9,15 +9,14 @@ function unitsBarChartGraph(category, workerUpdateFunction, jobsUpdateFunction, 
     var specificFields = {
         '#twrex-structured-sentence_tab':{ data : "words", info:['domain','format', 'relation', 'sentence' ],
             tooltip:"Number of words in the sentence. Click to select/deselect",
-        labelsInfo:['domain','format', 'seed relation', 'sentence' ],
-        name:'RelEx-structured sentences',
+        labelsInfo:['domain','format', 'seed relation', 'sentence' ], sendInfo: 'sentence',
+
         query : '&project[words]=content.properties.sentenceWordCount' +'&project[domain]=domain' +'&project[format]=format'+
         '&project[sentence]=content.sentence.formatted&project[relation]=content.relation.noPrefix' +
         '&project[id]=_id&push[id]=id&push[domain]=domain&push[format]=format&push[words]=words&push[sentence]=sentence&push[relation]=relation'},
        '#fullvideo_tab':{ data : "keyframes", info:['domain','format', 'title', 'keyframes' ,'description'],
-           tooltip:"Number of key frames in video. Click to select/deselect",
+           tooltip:"Number of key frames in video. Click to select/deselect", sendInfo: 'title',
            labelsInfo:['domain','format', 'title', 'description'],
-        name:'Video',
         query : '&project[keyframes]=keyframes.count' +'&project[domain]=domain' +'&project[format]=format'+
         '&project[title]=content.metadata.title&project[description]=content.metadata.description' +
         '&project[id]=_id&push[id]=id&push[title]=title&push[domain]=domain&push[format]=format&' +
@@ -138,7 +137,7 @@ function unitsBarChartGraph(category, workerUpdateFunction, jobsUpdateFunction, 
             formatter: function() {
                 var arrayID = this.x.split("/");
                 var id =  arrayID[arrayID.length - 1];
-                var s = '<div style="white-space:normal;"><b>' + specificFields[category]['name'] + ' </b>'+ id +'<br/>';
+                var s = '<div style="white-space:normal;"><b>' + categoryName + ' </b>'+ id +'<br/>';
                 for ( var indexField in specificFields[category]['info']) {
                     if(indexField == (specificFields[category]['info'].length - 1)) break;
 
@@ -246,9 +245,13 @@ function unitsBarChartGraph(category, workerUpdateFunction, jobsUpdateFunction, 
                             } else {
                                 selectedUnits.push(this.category)
                             }
-                            workerUpdateFunction.update(selectedUnits);
-                            jobsUpdateFunction.update(selectedUnits);
-                            annotationsUpdateFunction.update(selectedUnits);
+                            var selectedInfo = {};
+                            for (var index in selectedUnits) {
+                                selectedInfo[selectedUnits[index]] = specificInfo[selectedUnits[index]][specificFields[category]['sendInfo']];
+                            }
+                            workerUpdateFunction.update(selectedUnits, selectedInfo);
+                            jobsUpdateFunction.update(selectedUnits, selectedInfo);
+                            annotationsUpdateFunction.update(selectedUnits , selectedInfo);
 
                         }
                     }
@@ -295,7 +298,7 @@ function unitsBarChartGraph(category, workerUpdateFunction, jobsUpdateFunction, 
                     projectCriteria;
 
         $.getJSON(url, function(data) {
-            var subTitle = "Overview of " + specificFields[category]['name'];
+            var subTitle = "Overview of " + categoryName;
             var selectionOptions = "";
             for (var option in data['query']) {
                 //default query
@@ -435,7 +438,7 @@ function unitsBarChartGraph(category, workerUpdateFunction, jobsUpdateFunction, 
             specificFields[category]['query'];
 
         $.getJSON(url, function(data) {
-            var subTitle = "Overview of " + specificFields[category]['name'];
+            var subTitle = "Overview of " + categoryName;
             var selectionOptions = "";
             console.dir(data);
             for (var option in data['query']) {
