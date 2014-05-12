@@ -94,7 +94,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                 renderTo: 'jobsBar_div',
                 type: 'column',
                 width: (3*(($('.maincolumn').width() - 50)/5)),
-                height: 400,
+                height: 430,
                 events: {
                     load: function () {
                         var chart = this,
@@ -201,6 +201,9 @@ function unitsJobDetails(category , categoryName, openModal) {
                 enabled: false
             },
             plotOptions: {
+                series: {
+                    minPointLength : 2
+                },
                 column: {
                     stacking: 'normal',
                     states: {

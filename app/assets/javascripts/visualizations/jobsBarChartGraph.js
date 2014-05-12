@@ -353,6 +353,7 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
 
             chartGeneralOptions.subtitle.text = subTitle + '<br/>' + 'Select an area to zoom. To see detailed information select individual jobs.From legend select features';
             chartGeneralOptions.title.text = 'Overview of Jobs (' + data['id'].length + ' out of total ' + data['id'].length + ')';
+            chartGeneralOptions.plotOptions.series.minPointLength = 2;
             // console.dir($scope.chartGeneralOptions);
             barChart = new Highcharts.Chart(chartGeneralOptions);
 

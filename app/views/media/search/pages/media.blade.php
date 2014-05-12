@@ -23,39 +23,25 @@
 		<div class='tab'>
 			<div class='row'>
 				<div class='col-xs-12 searchOptions'>
-					@if(isset($mainSearchFilters['formatsq']))
-						<select name="format" data-query-key="match[format][]" class="selectpicker pull-left" title='Choose format(s)' data-width="auto" multiple>
-							@foreach($mainSearchFilters['formats'] as $key => $value)	
-							<option value="{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
-							@endforeach
-						</select>	
-					@endif
-					@if(isset($mainSearchFilters['domainsq']))
-						<select name="domain" data-query-key="match[domain][]" class="selectpicker pull-left" title='Choose domain(s)' data-width="auto" multiple>
-							@foreach($mainSearchFilters['domains'] as $key => $value)	
-							<option value="{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
-							@endforeach
-						</select>	
-					@endif
-					@if(isset($mainSearchFilters['documentTypes']))
-						<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title='Choose Document-Type(s)' data-width="auto" data-show-subtext="true">
-							<optgroup label="Media-Type">
-								@foreach($mainSearchFilters['documentTypes'] as $key => $value)	
+				@if(isset($mainSearchFilters['media']['documentTypes']))
+					<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+						<optgroup label="Media-Type">	
+							@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
 								<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
-								@endforeach
-							</optgroup>
-						</select>	
-					@endif
-					<div class='tabOptions pull-left'>
+							@endforeach
+						</optgroup>
+					</select>
+				@endif
 
+					<div class='tabOptions pull-left'>
 					</div>
+
 					<div class="btn-group pull-left" style="margin-left:5px";>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						Actions <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
-							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
 						</ul>
 					</div>					
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
@@ -65,10 +51,10 @@
 						<option value="100">100 Records per page</option>
 					</select>					
 					<div class='switchViews pull-right' style="margin-right:5px;">
-						<button type="button" class="btn btn-default listViewButton hidden" style="margin-left:5px;">
+						<button type="button" class="btn btn-info listViewButton hidden" style="margin-left:5px;">
 							Switch to List View
 						</button>						
-						<button type="button" class="btn btn-default graphViewButton" style="margin-left:5px;">
+						<button type="button" class="btn btn-info graphViewButton" style="margin-left:5px;">
 							Switch to Graph View
 						</button>						
 					</div>
@@ -81,89 +67,28 @@
 				</div>
 				<div class='col-xs-12 searchResults'>				
 					<ul class="nav nav-tabs documentTypesNav hidden">
-						<li id="all_nav">
-							<a href="#all_tab" data-toggle="tab">
-								All
-							</a>
-						</li>						
-						@foreach($mainSearchFilters['documentTypes'] as $key => $value)
-						<li id="{{$key}}_nav">
-							<a href="#{{$key}}_tab" data-toggle="tab">
-								{{$key}}
-							</a>
-						</li>
-						@endforeach
+						@if(isset($mainSearchFilters['media']['documentTypes']))	
+							@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
+							<li id="{{$key}}_nav">
+								<a href="#{{$key}}_tab" data-toggle="tab">
+									{{$key}}
+								</a>
+							</li>
+							@endforeach
+						@endif
 					</ul>    								
 					<div class="tab-content documentTypesTabs">
-						<div class="tab-pane active" id="all_tab">
-						    <table class="table table-striped">
-						        <thead>
-							        <tr>
-							            <th>Checkbox</th>
-							            <th class="sorting" data-query-key="orderBy[_id]">ID</th>
-							            <th class="sorting" data-query-key="orderBy[format]">Format</th>
-							            <th class="sorting" data-query-key="orderBy[domain]">Domain</th>
-							            <th class="sorting" data-query-key="orderBy[documentType]">Document-Type</th>
-							            <th class="sorting" data-query-key="orderBy[title]">Title</th>
-							        </tr>
-									<tr class="inputFilters">
-										<td>
-											<input type="checkbox" class="checkAll" />
-										</td>
-										<td>
-											<input class="input-sm form-control" type='text' data-query-key="match[_id]" data-query-operator="like" />
-										</td>
-										<td>
-											<input class="input-sm form-control" type='text' data-query-key="match[format]" data-query-operator="like" />
-										</td>
-										<td>
-											<input class="input-sm form-control" type='text' data-query-key="match[domain]" data-query-operator="like" />
-										</td>
-										<td>
-											<input class="input-sm form-control" type='text' data-query-key="match[documentType]" data-query-operator="like" />
-										</td>
-										<td>
-											<input class="input-sm form-control" type='text' data-query-key="match[title]" data-query-operator="like" />
-										</td>										
-									</tr>											        
-						        </thead>
-						        <tbody class='results'>											
-									<script class='template' type="text/x-handlebars-template">
-								        @{{#each documents}}
-								        <tr>
-								            <td>Checkbox</td>
-								            <td>@{{ this._id }}</td>
-								            <td>@{{ this.format }}</td>
-								            <td>@{{ this.domain }}</td>
-								            <td>@{{ this.documentType }}</td>
-								            <td>@{{ this.title }}</td>							            
-								        </tr>
-								        @{{/each}}
-									</script>
-						        </tbody>
-						    </table>											
-						</div>
-						@if(isset($mainSearchFilters['documentTypes']['job']))
-							@include('media.search.layouts.hb-job')
-						@endif
+						@include('media.search.layouts.hb-all')
 
-						@if(isset($mainSearchFilters['documentTypes']['crowdagents']))
-							@include('media.search.layouts.hb-crowdagents')
-						@endif
-
-						@if(isset($mainSearchFilters['documentTypes']['twrex']))
-							@include('media.search.layouts.twrex')
-						@endif
-
-						@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
+						@if(isset($mainSearchFilters['media']['documentTypes']['twrex-structured-sentence']))
 							@include('media.search.layouts.hb-twrex-structured-sentence')
 						@endif
 
-						@if(isset($mainSearchFilters['documentTypes']['fullvideo']))
+						@if(isset($mainSearchFilters['media']['documentTypes']['fullvideo']))
 							@include('media.search.layouts.hb-fullvideo')
 						@endif						
 
-						@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
+						@if(isset($mainSearchFilters['media']['documentTypes']['painting']))
 							@include('media.search.layouts.hb-painting')
 						@endif
 						
@@ -180,27 +105,25 @@
                                         <div id="user_div"></div>
                                     </td>
                                     <td>
-                                        <div id="relation_div"></div>
+                                        <div id="optional1_div"></div>
                                     </td>
                                     <td>
-                                        <div id="jobs_div"></div>
+                                        <div id="optional2_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="optional3_div"></div>
                                     </td>
                                 </tr>
                             </table>
+                            @if ((isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']) or isset($mainSearchFilters['documentTypes']['fullvideo'])))
+                                @include('media.search.layouts.specificBarChart')
+                            @endif
                             <table>
                                 <tr >
                                     <td>
-                                       <div id="unitsWordCountChart_div" ></div>
+                                    <div id="generalBarChart_div" ></div>
                                     </td>
                                 </tr>
-                            </table>
-                            <table>
-                                <tr >
-                                    <td>
-                                    <div id="unitsJobChart_div" ></div>
-                                    </td>
-                                </tr>
-                            </table>
                             </table>
                             <table>
                                 <tr>
@@ -225,14 +148,24 @@
                             <table>
                                 <tr>
                                     <td>
+                                        <div id="unitsPie_div"></div>
+                                    </td>
+                                    <td>
+                                        <div id="unitsBar_div"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr>
+                                    <td>
                                         <div id="annotationsPie_div"></div>
                                     </td>
                                     <td>
                                         <div id="annotationsBar_div"></div>
                                     </td>
                                 </tr>
-                            </table>
-                            <div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            </table>    
+							<div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -245,7 +178,6 @@
                                 </div>
                             </div>
                         </div>
-
 						<script class='searchStatsTemplate' type="text/x-handlebars-template">
 							Showing @{{ count.from }} to @{{ count.to }} of @{{ count.total}} entries
 						</script>
@@ -259,24 +191,9 @@
 @stop
 
 @section('end_javascript')
-{{ javascript_include_tag('handlebarsjs-2.0.js') }}
-{{ javascript_include_tag('handlebars.swag.js') }}
-{{ javascript_include_tag('bootstrap-select.js') }}
-{{ javascript_include_tag('bootstrap-datepicker.js') }}
+{{ javascript_include_tag('generalsearch_manifest') }}
+{{ javascript_include_tag('visualization_manifest') }}
 
-<script src='http://cdnjs.cloudflare.com/ajax/libs/floatthead/1.2.7/jquery.floatThead.min.js'></script>
-
-{{ javascript_include_tag('visualizations/d3.min.js')}}
-{{ javascript_include_tag('visualizations/jquery.mediaTable.js') }}
-{{ javascript_include_tag('highcharts.js') }}
-{{ javascript_include_tag('modules/exporting.js') }}
-{{ javascript_include_tag('visualizations/unitsChartFacade.js') }}
-{{ javascript_include_tag('visualizations/unitsWorkerDetails.js') }}
-{{ javascript_include_tag('visualizations/unitsAnnotationDetails.js') }}
-{{ javascript_include_tag('visualizations/unitsJobDetails.js') }}
-{{ javascript_include_tag('visualizations/pieChartGraph.js') }}
-{{ javascript_include_tag('visualizations/barChartGraph.js') }}
-{{ javascript_include_tag('visualizations/unitChartDetails.js') }}
 <script>
 $('document').ready(function(){
 
@@ -320,6 +237,11 @@ var delay = (function(){
 })();
 
 $('.searchOptions').on('change', ".selectpicker", function(){
+	if(!$('.listViewButton').hasClass('hidden'))
+	{
+		$('.listViewButton').click();
+	}
+
 	if($(this).attr('name') == "documentType")
 	{
 		if($(this).val() != null)
@@ -328,7 +250,6 @@ $('.searchOptions').on('change', ".selectpicker", function(){
 			{
 				$('.documentTypesNav').find('#' + $(this).val()[0] + '_nav a').click();
 			} else {
-
 				$('.documentTypesNav').find('#' + $(this).val() + '_nav a').click();
 			}
 			getResults();
@@ -468,8 +389,8 @@ $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 	var activeTabKey = getActiveTabKey();
 
-	if($(this).attr('href') == "#all_tab")
-		return false;
+	// if($(this).attr('href') == "#all_tab")
+	// 	return false;
 
 	$(activeTabKey + ' .tabOptions > *').appendTo('.searchOptions .tabOptions');
 
@@ -498,7 +419,7 @@ $('body').on('click', '.specificFilterOptions button', function(){
 	getResults();
 });
 
-$('body').on('click', '.createBatchButton', function(){
+$('body').on('click', '.toSelection', function(){
 	var activeTabKey = getActiveTabKey();
 
 	if(typeof selectedRows[activeTabKey] == 'undefined' || selectedRows[activeTabKey].length < 1){
@@ -554,7 +475,7 @@ $('.listViewButton').click(function() {
 $('.graphViewButton').click(function() {
 	$(this).addClass('hidden');
 	$('.listViewButton').removeClass('hidden');
-	$('.includeGraph').removeClass('hidden');
+	$('.includeGraph, .specificGraphs').removeClass('hidden');
 	
 	$(getActiveTabKey() + ' tbody.results').hide();
 	getResults();
@@ -694,8 +615,9 @@ function getResults(baseApiURL){
 		// console.log('starting search');
 		
 		if($('.graphViewButton').hasClass('hidden')){
+            var selectedCategory = activeTabKey;
 			$(activeTabKey + ' .checkAll').removeAttr('checked');
-			var unitsChart = new unitsChartFacade();
+			var unitsChart = new unitsChartFacade(selectedCategory, openModal);
 			unitsChart.init(getTabFieldsQuery(),"");		
 		}
 
@@ -805,38 +727,196 @@ var updateFilters = function(filterOption){
 		filterOption.children('i').removeClass('fa-circle-o').addClass('fa-check-circle-o');
 	}	
 }
+var openModal = function(modalAnchor , activeTabKey){
+    if(baseApiURL == undefined)
+    {
+        var baseApiURL = modalAnchor.attr('data-api-target');
+    }
+    console.log(modalAnchor);
+    //var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
+    var modalTarget = modalAnchor.attr('data-target');
+    //alert(modalTarget);
+
+    $('#activeTabModal').remove();
+
+    var query = modalAnchor.attr('data-modal-query');
+    console.log(baseApiURL + query);
+    $.getJSON(baseApiURL + query, function(data) {
+        console.dir(activeTabKey);
+
+        var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+
+        var html = template(data);
+
+        $('body').append(html);
+
+        $('#activeTabModal').modal();
+
+        $(".tablesorter.table.table-striped").tablesorter({
+            // *** Appearance ***
+            // fix the column widths
+            widthFixed : true,
+            // include zebra and any other widgets, options:
+            // 'uitheme', 'filter', 'stickyHeaders' & 'resizable'
+            // the 'columns' widget will require custom css for the
+            // primary, secondary and tertiary columns
+            widgets    : [ 'uitheme', 'zebra' ],
+
+            // *** Functionality ***
+            // starting sort direction "asc" or "desc"
+            sortInitialOrder : "asc",
+            // extract text from the table - this is how is
+            // it done by default
+            textExtraction : {
+                0: function(node) { return $(node).text(); },
+                1: function(node) { return $(node).text(); }
+            },
+
+            // Setting this option to true will allow you to click on the
+            // table header a third time to reset the sort direction.
+            sortReset: true,
+
+            // The key used to select more than one column for multi-column
+            // sorting.
+            sortMultiSortKey : "shiftKey",
+
+            // *** Customize header ***
+            onRenderHeader  : function() {
+                // the span wrapper is added by default
+                $(this).find('span').addClass('headerSpan');
+            },
+            // jQuery selectors used to find the header cells.
+            selectorHeaders : 'thead th',
+
+            // *** css classes to use ***
+            cssAsc        : "headerSortUp",
+            cssChildRow   : "expand-child",
+            cssDesc       : "headerSortDown",
+            cssHeader     : "header",
+            tableClass    : 'tablesorter',
+
+            // *** widget css class settings ***
+            // column classes applied, and defined in the skin
+            widgetColumns : { css: ["primary", "secondary", "tertiary"] },
+            // find these jQuery UI class names by hovering over the
+            // Framework icons on this page:
+            // http://jqueryui.com/themeroller/
+            widgetUitheme : { css: [
+                "ui-icon-arrowthick-2-n-s", // Unsorted icon
+                "ui-icon-arrowthick-1-s",   // Sort up (down arrow)
+                "ui-icon-arrowthick-1-n"    // Sort down (up arrow)
+            ]
+            },
+            // pick rows colors to match ui theme
+            widgetZebra: { css: ["ui-widget-content", "ui-state-default"] },
+
+            // *** prevent text selection in header ***
+            cancelSelection : true,
+
+            // *** send messages to console ***
+            debug : false
+        });
+
+    });
+}
+
+var openStaticModal = function(modalAnchor , activeTabKey){
+
+
+    var modalTarget = modalAnchor.attr('data-target');
+    var staticData = modalAnchor.attr('data-static');
+
+        var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+
+        var html = template();
+
+        $('#activeTabModal').remove();
+
+        $('body').append(html);
+
+        $('#activeTabModal').modal();
+		//rel=static-val or static-inner
+		$('span[rel="static-html"]').html(staticData);
+		$('input[rel="static-val"]').val(staticData);
+   
+
+        $(".ajaxform").submit(function(e)
+		{
+		    var postData = $(this).serializeArray();
+		    var formURL = $(this).attr("action");
+		    $.ajax(
+		    {
+		        url : formURL,
+		        type: "POST",
+		        data : postData,
+		        success:function(data, textStatus, jqXHR) 
+		        {
+	            	console.log(data);
+	            	alert(data.message);
+		            	
+		        },
+		        error: function(jqXHR, textStatus, errorThrown) 
+		        {
+		            console.log(errorThrown);     
+		        }
+		    });
+		    e.preventDefault(); //STOP default action
+		    e.unbind(); //unbind. to stop multiple form submit.
+		});
+}
+
+
 
 $('body').on('click', '.testModal', function(){
-	if(baseApiURL == undefined)
-	{
-		
-		var baseApiURL = $(this).attr('data-api-target');
+    var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
+
+    if($(this).is('[data-static]')){
+    	openStaticModal($(this),activeTabKey);
+    } else {
+   	 	openModal($(this),activeTabKey);
 	}
-
-	var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
-	var modalTarget = $(this).attr('data-target');
-	//alert(modalTarget);
-
-	var query = $(this).attr('data-modal-query');
-
-	$.getJSON(baseApiURL + query, function(data) {
-	console.log(data);
-
-	var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
-
-	var html = template(data);
-	
-	$('#activeTabModal').remove();
-	$('body').append(html);
-	
-	$('#activeTabModal').modal();
-
-	});
 });
 
 $('.select_twrex-structured-sentence').click();
+$('.documentTypesNav').find('#twrex-structured-sentence_nav a').click();
+$('.graphViewButton').click();
 
 });
+
+function jobactions(job, action, index){
+	var newstatus = '';
+ 	if(action == 'pause') newstatus = 'paused';
+ 	else if(action == 'order' || action == 'resume') newstatus = 'running';
+ 	else if(action == 'cancel') newstatus = 'canceled';
+	
+	if(action=='cancel'){
+		if(!confirm('Do you really want to '+action+' job '+job+'?')){
+			return false;
+		}
+	}
+	$.ajax(
+		    {
+		        url : '/api/actions/'+job+'/'+action,
+		        type: "GET",
+		        success:function(data, textStatus, jqXHR)
+					{
+							           
+						console.log(data);
+
+						if(data.status=='ok'){
+							$('#'+action+index).hide();
+							$('#'+'status'+index).html(newstatus);
+						} else {
+							alert(data.message);
+						}
+							    
+					},
+		        error: function(jqXHR, textStatus, errorThrown) 
+		        {
+		            alert(errorThrown);     
+		        }
+		    });
+}
 
 </script>
 

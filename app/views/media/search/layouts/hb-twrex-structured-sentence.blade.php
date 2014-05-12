@@ -222,7 +222,6 @@
     	</table>
     </div>
 
-
 	<div class='hidden' id='modalIndividualUnit'>
 
 		<script class='template' type="text/x-handlebars-template">
@@ -232,7 +231,7 @@
 				    <div class="modal-content">
 				      <div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="myModalLabelUnit">Individual @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Page</h4>
+					<h4 class="modal-title" id="myModalLabelUnit">Individual Twrex-structured-sentence Page</h4>
 				      </div>
 				      <div class="modal-body" >
 					@{{#if this.infoStat.content.sentence.formatted }} 
@@ -257,7 +256,7 @@
 					    <div class="panel-heading">
 					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
 					      <h4 class="panel-title">
-						 @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Information 
+						 Twrex-structured-sentence Information 
 					      </h4>
 					     </a>
 					    </div>
@@ -265,7 +264,7 @@
 					      <div class="panel-body">					
 						<div><strong> Domain: </strong> @{{ this.infoStat.domain }} </div>
 						<div><strong> Format: </strong> @{{ this.infoStat.format }} </div>
-						<div><strong> Type: </strong> @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} </div>
+						<div><strong> Type: </strong> @{{ this.infoStat.documentType }} </div>
 						<div><strong> Properties: </strong> 
 						<ul>
 						@{{#eachProperty this.infoStat.content.properties}}
@@ -280,33 +279,33 @@
 					     <div class="panel-heading">
 					      <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
 					       <h4 class="panel-title">
-						  @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Stats
+						  Twrex-structured-sentence Stats
 					       </h4>
 					      </a>
 					     </div>
 					     <div id="collapseTwo" class="panel-collapse collapse">
 					      <div class="panel-body">
 						<div><strong> Used in @{{ this.infoStat.cache.batches.count }} Batch(es) </strong>  </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="@{{#eachProperty this.infoStat.cache.jobs.types }}@{{ key }} <br /> @{{/eachProperty}}"> Used in @{{ this.infoStat.cache.jobs.distinct }} Distinct Job Type(s) </strong></div>
-						<div><strong> Annotated in a total of @{{ this.infoStat.cache.jobs.count }} Job(s) </strong> </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Workers: @{{ this.infoStat.cache.workers.spam }} <br /> #NonSpam Workers: @{{ this.infoStat.cache.workers.nonSpam }} <br /> #PotentialSpam Workers: @{{ this.infoStat.cache.workers.potentialSpam }}"> Annotated by a total of @{{ this.infoStat.cache.workers.count }} Worker(s) </strong> </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Annotations: @{{ this.infoStat.cache.annotations.spam }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonSpam }}"> Collected a total of @{{ this.infoStat.cache.annotations.count }} Annotation(s) </strong> </div>
+						<div><strong> Used in @{{ this.infoStat.cache.jobs.distinct }} Distinct Job Type(s) </strong></div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="@{{#eachProperty this.infoStat.cache.jobs.types }}@{{ key }}: @{{ value }} <br /> @{{/eachProperty}}"> Annotated in a total of @{{ this.infoStat.cache.jobs.count }} Job(s) </strong> </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Workers: @{{ this.infoStat.cache.workers.spamCount }} <br /> #NonSpam Workers: @{{ this.infoStat.cache.workers.nonSpamCount }}"> Annotated by a total of @{{ this.infoStat.cache.workers.count }} Worker(s) </strong> </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Annotations: @{{ this.infoStat.cache.annotations.spamCount }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonSpamCount }}"> Collected a total of @{{ this.infoStat.cache.annotations.count }} Annotation(s) </strong> </div>
 						<hr/>
-						<div><strong> Average @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Clarity (across CrowdTruth jobs): @{{ toFixed this.infoStat.avg_clarity 2}} </strong> </div>
-						<div><strong> Marked as low-quality in @{{ this.infoStat.cache.filtered.count}} Job(s): </strong></div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Annotations: @{{ this.infoStat.cache.annotations.spamCount }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonSpamCount }}"> Average Twrex-structured-sentence Clarity (across CrowdTruth jobs): @{{ this.infoStat.cache.avg_clarity }} </strong> </div>
+						<div><strong> Marked as low-quality in @{{ this.infoStat.cache.filteredOutUnit.count}} Job(s): </strong></div>
 						<table class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0" text-align="center"> 
 						<thead> 
 						<tr> 
 						  <th class="header">Job Id</th>
 						  <th class="header">Job Title</th>
-   						  <th class="header"  data-toggle="tooltip" data-placement="top" title="Sentence Clarity: the value is defined as the maximum sentence annotation score achieved on any annotation for that twrex-structured-sentence. High agreement over the annotations is represented by high cosine scores, indicating a clear sentence."> @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Clarity</th>
+   						  <th class="header"  data-toggle="tooltip" data-placement="top" title="Sentence Clarity: the value is defined as the maximum sentence annotation score achieved on any annotation for that twrex-structured-sentence. High agreement over the annotations is represented by high cosine scores, indicating a clear sentence.">Twrex-structured-sentence Clarity</th>
 						</tr>
 						</thead>
 						<tbody>
 						@{{#each this.jobContent}}
 						 @{{#inArray metrics.filteredUnits.list ../infoStat._id }}
 						<tr>
-						 <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
+						 <td> @{{ platformJobId }} </td>
 						 <td> @{{ jobConf.content.title }} </td>
 						 @{{#each metrics.units.withoutSpam }}
 						 <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
@@ -324,7 +323,7 @@
 					     <div class="panel-heading">
 					      <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
 					       <h4 class="panel-title">
-						  @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} in Jobs
+						  Twrex-structured-sentence in Jobs
 					      </h4>
 					     </a>
 					    </div>
@@ -356,7 +355,7 @@
 						  @{{#each this.jobContent}} 
 						 
 						  <tr>
-						   <td data-toggle="tooltip" data-placement="top" title="Job Title: @{{ jobConf.content.title }}"> @{{#ifarray platformJobId }} @{{/ifarray}} </td>  					  
+						   <td data-toggle="tooltip" data-placement="top" title="Job Title: @{{ jobConf.content.title }}"> @{{ platformJobId }} </td>  					  
 		                                   @{{#inArray metrics.filteredUnits.list ../infoStat._id}}
 							<td> True </td>
 						   @{{else}}
@@ -401,7 +400,7 @@
 					    <div class="panel-heading">
 					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
 					      <h4 class="panel-title">
-						  Workers on @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}}
+						  Workers on Twrex-structured-sentence
 					      </h4>
 					     </a>
 					    </div>
@@ -472,123 +471,6 @@
 				    </div>
 				  </div>
 				</div>
-		</script>
-
-	</div>
-
-	<div class='hidden' id='modalAnnotations'>
-
-		<script class='template' type="text/x-handlebars-template">
-			<!-- Modal -->
-			<div class="modal fade bs-example-modal-lg" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelAnnotations" aria-hidden="true">
-				<div class="modal-dialog modal-lg">
-					<div class="modal-content">
-				      		<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-							<h4 class="modal-title" id="myModalLabelAnnotations"> Annotations Page</h4>
-				      		</div>
-				      		<div class="modal-body" >
-						 <table id="myIndividualWorkerTable" class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0"> 
-						  <thead> 
-						   <tr> 
-						    <th class="header">Annotation Id</th>
-						    <th class="header">Annotation Vector</th>
-						    <th class="header">Unit Id</th>
-						    <th class="header">Unit Clarity</th>
-						    <th class="header">Job Title</th>
-						    <th class="header">Annotation Clarity</th>
-						    <th class="header">Annotation Ambiguity</th>
-						    <th class="header">Worker Id</th>
-						    <th class="header">Worker Platform</th>
-						    <th class="header">Worker Avg. Agreement</th>
-						    <th class="header">Worker Avg. Cosine</th>
-						    <th class="header">Worker Status</th>
-						   </tr> 
-						  </thead>
-						  <tbody>
-						 @{{#each this}} 
-						  <tr>
-						   <td> @{{ @key }} </td>
-						   <td> 
-    							@{{#each dictionary}}
-							  <table border="1" bordercolor="#C0C0C0">
-							    <tr> 
-							     @{{#eachProperty this}}
-  								<td> @{{#abrWords key}} @{{/abrWords}} </td>
-							     @{{/eachProperty }}
-							    </tr>
-							    <tr> 
-							     @{{#eachProperty this}}
-  								<td>@{{value}} </td>
-							     @{{/eachProperty }}
-							    </tr>
-							   </table>
-							
-    							 @{{/each}}
-						   </td>
-						   <td> @{{ unit._id }} </td>
-						   <td> @{{ toFixed unit.avg_clarity 2}} </td>
-						   <td> @{{ job.hasConfiguration.content.title }} </td>
-						   <td> 
-    							@{{#each job.metrics.annotations.withoutSpam}}
-							  <table border="1" bordercolor="#C0C0C0">
-							    
-							     @{{#each this}}
-								<tr> 
-							        @{{#ifvalue @key value="annot_clarity"}}
-								@{{#eachProperty this}}
-  								 <td> @{{#abrWords key}} @{{/abrWords}} </td>
-							        @{{/eachProperty }}
-								</tr>
-								<tr>
-								@{{#eachProperty this}}
-  								 <td> @{{toFixed value 2}} </td>
-							        @{{/eachProperty }}
-								@{{/ifvalue}}
-								</tr>
-							     @{{/each }}
-							    </tr>
-							   </table>
-							
-    							 @{{/each}}
-						   </td>
-						   <td> 
-    							@{{#each job.metrics.annotations.withoutSpam}}
-							  <table border="1" bordercolor="#C0C0C0">
-							    
-							     @{{#each this}}
-								<tr> 
-							        @{{#ifvalue @key value="annot_ambiguity"}}
-								@{{#eachProperty this}}
-  								 <td> @{{#abrWords key}} @{{/abrWords}} </td>
-							        @{{/eachProperty }}
-								</tr>
-								<tr>
-								@{{#eachProperty this}}
-  								 <td> @{{toFixed value 2}} </td>
-							        @{{/eachProperty }}
-								@{{/ifvalue}}
-								</tr>
-							     @{{/each }}
-							    </tr>
-							   </table>
-							
-    							 @{{/each}}
-						   </td>
-						   <td> @{{ agent._id }} </td>
-						   <td> @{{ agent.softwareAgent_id }} </td>
-						   <td> @{{ toFixed agent.avg_agreement 2}} </td>
-						   <td> @{{ toFixed agent.avg_cosine 2}} </td>
-						   <td> @{{#booltostring agent.flagged }} @{{/booltostring}} </td>
-						  </tr> 
-						 @{{/each}}
-						  	
-						 </tbody>
-						</table>
-					  	</div>
-					</div>
-				</div>
-			</div>
 		</script>
 
 	</div>					

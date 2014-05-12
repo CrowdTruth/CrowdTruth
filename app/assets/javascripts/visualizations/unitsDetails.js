@@ -35,6 +35,7 @@ function unitsDetails(category, categoryName, openModal) {
                 enabled: true
             },
             plotOptions: {
+
                 pie: {
 
                     shadow: false,
@@ -142,7 +143,7 @@ function unitsDetails(category, categoryName, openModal) {
                 renderTo: 'unitsBar_div',
                 type: 'column',
                 width: (3*(($('.maincolumn').width() - 50)/5)),
-                height: 400,
+                height: 430,
                 events: {
                     load: function () {
                         var chart = this,
@@ -241,6 +242,9 @@ function unitsDetails(category, categoryName, openModal) {
 
             },
             plotOptions: {
+                series: {
+                    minPointLength : 2
+                },
                 column: {
                     stacking: 'normal',
                     states: {

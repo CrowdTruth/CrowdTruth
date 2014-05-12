@@ -356,6 +356,7 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
             // console.dir($scope.chartGeneralOptions);
             chartGeneralOptions.title.text = 'Overview of Workers (' + data['id'].length + ' out of total ' + data['id'].length + ')';
             chartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/50);
+            chartGeneralOptions.plotOptions.series.minPointLength = 2;
             barChart = new Highcharts.Chart(chartGeneralOptions);
 
         });
