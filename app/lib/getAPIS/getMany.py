@@ -24,7 +24,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 DELAY = 2    
-WRITE_FILE = 0
+WRITE_FILE = 0   
 if len(sys.argv) < 5:
     print('wrong parameters', file=sys.stderr)
     exit()

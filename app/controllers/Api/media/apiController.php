@@ -167,6 +167,10 @@ class apiController extends BaseController {
 		}
 
 		$entity->content = $data['content'];
+		if(isset($data['threshold']))
+			$entity->threshold = $data['threshold'];
+		if(isset($data['relevantFeatures']))
+			$entity->recognizedFeatures = $data['relevantFeatures'];
 
 		if(isset($data['hash']))
 		{
