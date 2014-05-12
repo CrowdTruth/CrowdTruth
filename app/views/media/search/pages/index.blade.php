@@ -193,7 +193,7 @@
 
 						<div class='includeGraph hidden'>
                             <table>
-                                <tr>
+                                <tr class="pieDivGraphs">
                                     <td>
                                         <div id="domain_div"></div>
                                     </td>
@@ -226,7 +226,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="workersPie_div"></div>
                                     </td>
                                     <td>
@@ -236,7 +236,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="jobsPie_div"></div>
                                     </td>
                                     <td>
@@ -246,7 +246,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="unitsPie_div"></div>
                                     </td>
                                     <td>
@@ -256,7 +256,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="annotationsPie_div"></div>
                                     </td>
                                     <td>
@@ -311,7 +311,6 @@
 {{ javascript_include_tag('visualizations/unitsBarChartGraph.js') }}
 {{ javascript_include_tag('visualizations/workersBarChartGraph.js') }}
 {{ javascript_include_tag('visualizations/jobsBarChartGraph.js') }}
-{{ javascript_include_tag('visualizations/unitChartDetails.js') }}
 <script>
 $('document').ready(function(){
 

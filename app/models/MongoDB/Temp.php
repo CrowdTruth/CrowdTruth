@@ -32,9 +32,31 @@ class Temp extends Moloquent {
 					$featureKey = key($child['content']['features']);
 
 					if(!isset($parent['content']['features'][$featureKey]))
-							$parent['content']['features'][$featureKey] = [];
+					{
+						$parent['content']['features'][$featureKey] = [];
 
-					array_push($parent['content']['features'][$featureKey], $child['content']['features'][$featureKey]);
+						if(is_array($child['content']['features'][$featureKey]))
+						{
+							foreach($child['content']['features'][$featureKey] as $k => $v)
+							{
+								$parent['content']['features'][$featureKey][$k] = $v;
+							}							
+						} 
+
+					}
+					else {
+						if(is_array($child['content']['features'][$featureKey]))
+						{
+							foreach($child['content']['features'][$featureKey] as $k => $v)
+							{
+								$parent['content']['features'][$featureKey][$k] = $v;
+							}
+						} 
+						else 
+						{
+							$parent['content']['features'][$featureKey] = $child['content']['features'][$featureKey];
+						}
+					}
 				}
 			}
 

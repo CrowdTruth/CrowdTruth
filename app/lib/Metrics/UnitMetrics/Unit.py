@@ -14,6 +14,7 @@ class Unit:
         self.sentence_id = sentence_id
         self.filtered = filtered
         self.unit_vector = {}
+        self.cosine_vector = {}
         self.unit_metrics = {}
         #if the spammers ids are already provided, or no filtering is needed
         if isinstance(jobs_dict, dict) or filtered is False:
@@ -115,7 +116,8 @@ class Unit:
                     metric_value[annotation] = VectorMetrics(self.unit_vector[annotation]).get_norm_relation_magnitude_by_all()
             elif UnitMetricsEnum.max_relation_Cos == metric_key:
                 for annotation in self.unit_vector:
-                    metric_value[annotation] = max(VectorMetrics(self.unit_vector[annotation]).get_cosine_vector().values())
+                    self.cosine_vector[annotation] = VectorMetrics(self.unit_vector[annotation]).get_cosine_vector()
+                    metric_value[annotation] = max(self.cosine_vector[annotation].values())
             elif UnitMetricsEnum.no_annotators == metric_key:
                 metric_value = self.get_no_annotators()
 
@@ -125,10 +127,13 @@ class Unit:
         return results
 
     def get_cosine_vector(self):
-        if not self.unit_vector:
-            self.get_unit_vector()
+        if self.cosine_vector:
+            return self.cosine_vector
 
-        return VectorMetrics(self.unit_vector).get_cosine_vector()
+        for annotation in self.unit_vector:
+            self.cosine_vector[annotation] = VectorMetrics(self.unit_vector[annotation]).get_cosine_vector()
+
+        return self.cosine_vector
 
     def get_no_annotators(self):
         no_annotators = 0

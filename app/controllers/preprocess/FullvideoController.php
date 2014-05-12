@@ -101,7 +101,7 @@ class FullvideoController extends BaseController {
 				}
 				
 				$videoPreprocessing = $this->fullvideoStructurer->process($entity);
-
+				
 				$status_processing = $this->fullvideoStructurer->store($entity, $videoPreprocessing);
 				if (isset($status_processing["keyframes"])) {
 					if (!isset($status_processing["keyframes"]['error'])) {
@@ -117,9 +117,12 @@ class FullvideoController extends BaseController {
 					}
 					echo "<pre>";
 				}
-				dd($status_processing);
-				
-				return Redirect::back();
+				if(isset($status_processing["keyframes"]['success']) && isset($status_processing["segments"]['success'])) {
+					return Redirect::back()->with('flashSuccess', 'Your video has been pre-processed in keyframes and video segments');
+				}
+				else {
+					return Redirect::back()->with('flashError', 'An error occurred while the video was being pre-processed in keyframes and video segments');
+				}
 			}
 		} 
 		else 
