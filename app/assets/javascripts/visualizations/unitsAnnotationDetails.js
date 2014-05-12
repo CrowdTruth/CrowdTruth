@@ -398,7 +398,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 });
 
             } else {
-
+                drawBarChart(series, [categories,categories]);
             }
             //drawBarChart(series, [categories,categories]);
         });
