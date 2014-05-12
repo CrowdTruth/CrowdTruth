@@ -55,7 +55,7 @@ class apiController extends BaseController {
 			try {
 				
 				$parse = parse_url($img['url']);
-				$source = $parse['host'];
+				//$source = $parse['host'];
 								
 				// Save images as parent
 				$image = new Entity;
@@ -71,7 +71,7 @@ class apiController extends BaseController {
 
 				$image->content = $content;
 				$image->documentType = $type;
-				$image->source = $source;
+				$image->source = "Rijksmuseum";
 				$image->tags = ['unit'];
 				$image->activity_id = $activity->_id;
 				$image->softwareAgent_id = "imagegetter";
