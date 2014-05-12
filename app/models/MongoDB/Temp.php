@@ -45,7 +45,7 @@ class Temp extends Moloquent {
 
             foreach($result as &$parent)
             {
-                $children = \MongoDB\Entity::whereIn('parents', [$parent['_id']])->get(['content.features'])->toArray();
+                $children = \MongoDB\Entity::whereIn('parents', [$parent['_id']])->get(['recognizedFeatures', 'content.features'])->toArray();
 
                 $parent['content']['features'] = [];
                 $parent['totalRelevantFeatures'] = 0;
