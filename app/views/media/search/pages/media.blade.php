@@ -78,20 +78,18 @@
 						@endif
 					</ul>    								
 					<div class="tab-content documentTypesTabs">
-						@include('media.search.layouts.hb-all')
 
-						@if(isset($mainSearchFilters['media']['documentTypes']['twrex-structured-sentence']))
-							@include('media.search.layouts.hb-twrex-structured-sentence')
-						@endif
 
-						@if(isset($mainSearchFilters['media']['documentTypes']['fullvideo']))
-							@include('media.search.layouts.hb-fullvideo')
-						@endif						
-
-						@if(isset($mainSearchFilters['media']['documentTypes']['painting']))
-							@include('media.search.layouts.hb-painting')
-						@endif
+						@foreach($mainSearchFilters['media']['documentTypes'] as $k => $v)
+							@if(\View::exists('media.search.layouts.hb-' . $k))
+								@include('media.search.layouts.hb-' . $k)
+							@endif
+						@endforeach
 						
+						@include('media.search.layouts.hb-modalindividualworker')
+						@include('media.search.layouts.hb-modalannotations')
+						@include('media.search.layouts.hb-modalindividualjob')
+
 						<div class='includeGraph hidden'>
                             <table>
                                 <tr>
@@ -744,7 +742,7 @@ var openModal = function(modalAnchor , activeTabKey){
     $.getJSON(baseApiURL + query, function(data) {
         console.dir(activeTabKey);
 
-        var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+        var template = Handlebars.compile($(modalTarget + ' .template').html());
 
         var html = template(data);
 
