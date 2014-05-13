@@ -14,7 +14,6 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('media/preprocess/CSVresultController', 'preprocess\CSVresultController');
 	Route::controller('media', 'MediaController');
 
-	Route::controller('selection', 'SelectionController');
 	Route::controller('process', 'ProcessController');
 	Route::controller('jobs', 'JobsController');
 	Route::controller('workers', 'WorkersController');
