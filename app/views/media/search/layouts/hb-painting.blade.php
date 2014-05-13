@@ -22,8 +22,6 @@
 						<li><a href="#" data-vb="hide" data-vbSelector="image_object"></i>Object</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_scene"></i>Scene</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_classifiers"></i>Classifiers</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_facesrek"></i>FacesRekognition</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_faces">Faces</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_facesnum"># of Faces</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_colors">Main colors</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_histogram"></i>Histogram</a></li>
@@ -53,8 +51,6 @@
 				    <th class="sorting" data-vbIdentifier="image_object" data-query-key="orderBy[content.features.Object.matches]" data-toggle="tooltip" data-placement="top" title="Objects together with their confidence score that were found in the image">Objects</th>
 				    <th class="sorting" data-vbIdentifier="image_scene" data-query-key="orderBy[content.features.Scene]" data-toggle="tooltip" data-placement="top" title="The scene with a confidence score that was found in the image">Scene</th>
 				    <th class="sorting" data-vbIdentifier="image_classifiers" data-query-key="orderBy[content.features.Classifier]" data-toggle="tooltip" data-placement="top" title="Custom classifier confidence scores for this image">Classifiers</th>
-				    <th class="sorting" data-vbIdentifier="image_facesrek" data-query-key="orderBy[content.features.FacesRekognition]" data-toggle="tooltip" data-placement="top" title="Result of the FacesRekognition API">FacesRekognition</th>
-				    <th class="sorting" data-vbIdentifier="image_faces" data-query-key="orderBy[content.features.Faces]" data-toggle="tooltip" data-placement="top" title="Result of the faces API">Faces</th>
 				    <th class="sorting" data-vbIdentifier="image_facesnum" data-query-key="orderBy[content.features.FacesNumber.cloudinary]" data-toggle="tooltip" data-placement="top" title="Number of faces recognized in the image by the different APIs. For sorting and applying filters the Cloudinary score takes prominence."># Faces</th>
 				    <th class="sorting" data-vbIdentifier="image_colors" data-query-key="orderBy[content.features.ColorsMain]" data-toggle="tooltip" data-placement="top" title="Main colors recognized in the image, the size of the bar indicates its percentage. Hover over for details.">Main colors</th>
 				    <th class="sorting" data-vbIdentifier="image_histogram" data-query-key="orderBy[content.features.ColorsHistogram]" data-toggle="tooltip" data-placement="top" title="A histogram of the colors found in the image, the size of the ba indicates its percentage. Hover over for details. ">Histogram</th>
@@ -109,14 +105,6 @@
 				<td data-vbIdentifier="image_classifiers">
 					<input class="input-sm form-control" type='text' data-query-key="match[content.features.Classifier]" data-query-operator="like" />
 				</td>
-				<td data-vbIdentifier="image_facesrek">
-					<input class="input-sm form-control" type='text' data-query-key="match[content.features.FacesRekognition]" data-query-operator=">" style="width:49%; float:left;" placeholder="gt" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[content.features.FacesRekognition]" data-query-operator="<" style="width:49%; float:right;" placeholder="lt" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-				</td>
-				<td data-vbIdentifier="image_faces">
-					<input class="input-sm form-control" type='text' data-query-key="match[content.features.Faces]" data-query-operator=">" style="width:49%; float:left;" placeholder="&gt;" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[content.features.Faces]" data-query-operator="<" style="width:49%; float:right;" placeholder="&lt;" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-				</td>
 				<td data-vbIdentifier="image_facesnum">
 					<input class="input-sm form-control" type='text' data-query-key="match[content.features.FacesNumber]" data-query-operator=">" style="width:49%; float:left;" placeholder="&gt;" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 					<input class="input-sm form-control" type='text' data-query-key="match[content.features.FacesNumber]" data-query-operator="<" style="width:49%; float:right;" placeholder="&lt;" data-toggle="tooltip" data-placement="bottom" title="Less than" />
@@ -163,8 +151,9 @@
 			            <td data-vbIdentifier="image_width">@{{ this.content.width }}   </td>
 			            <td data-vbIdentifier="image_height">@{{ this.content.height }}   </td>
 			            <td data-vbIdentifier="image_object">
-			              @{{#if  this.content.features.object.matches}}
-				            	@{{#eachProperty this.content.features.object.matches}}
+			            	
+			              @{{#if  this.content.features.object}}
+				            	@{{#eachProperty this.content.features.object}}
 				            		@{{value.tag}}: @{{value.score}} <br>			            		
 				            	@{{/eachProperty}}
 
@@ -184,46 +173,36 @@
 			            		@{{/eachProperty}}
 		            		@{{/if}}
 	            	   </td>
-			            <td data-vbIdentifier="image_facesrek">@{{ this.content.features.FacesRekognition }}   </td>
-			            <td data-vbIdentifier="image_faces">@{{ this.content.features.Faces }}   </td>
-			            <td data-vbIdentifier="image_facesnum">
-			            	@{{#if this.content.features.FacesNumber}}
-				            	@{{#eachProperty this.content.features.FacesNumber }}   
-				            		@{{key}}: @{{value}}
-				            	@{{/eachProperty}}
-			            	@{{/if}}
-		            	</td>
-			            <td data-vbIdentifier="image_colors">
-								    	
-			            	<table class="table table-striped table-condensed" style="height: 50px;">						    
-						    	<tbody>
-									<tr>
-							    		@{{#if this.content.features.ColorsMain}}
-							    			@{{#each this.content.features.ColorsMain }}
-												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
-													&nbsp;
-												</td>
-											@{{/each}}									
-										@{{/if}}
-									</tr>
-								</tbody>
-							</table>							  							
-			            </td>
-			            <td data-vbIdentifier="image_histogram">
-			            	 <table class="table table-striped table-condensed" style="height: 50px;">						    
-								    	<tbody>
-											<tr>
-								    		@{{#if this.content.features.ColorsHistogram}}
-									    		@{{#each this.content.features.ColorsHistogram }}
+			            <td data-vbIdentifier="image_facesnum">@{{ this.content.features.FacesNumber}}    	</td>
+			            <td data-vbIdentifier="image_colors">								    	
+				    		@{{#if this.content.features.ColorsMain}}
+				            	<table class="table table-striped table-condensed" style="height: 50px;">						    
+							    	<tbody>
+										<tr>
+								    			@{{#each this.content.features.ColorsMain }}
 													<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
 														&nbsp;
 													</td>
 												@{{/each}}									
-											@{{/if}}
-											</tr>
-										</tbody>
-									</table>							  
-							</div>
+										</tr>
+									</tbody>
+								</table>							  							
+							@{{/if}}
+			            </td>
+			            <td data-vbIdentifier="image_histogram">
+				    		@{{#if this.content.features.ColorsHistogram}}
+				            	 <table class="table table-striped table-condensed" style="height: 50px;">						    
+							    	<tbody>
+										<tr>
+								    		@{{#each this.content.features.ColorsHistogram }}
+												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
+													&nbsp;
+												</td>
+											@{{/each}}									
+										</tr>
+									</tbody>
+								</table>							  
+							@{{/if}}
 			            </td>
 					    <td data-vbIdentifier="number_of_batches">@{{ this.batches.count }}</td>
 					    <td data-vbIdentifier="number_of_jobs">@{{ this.jobs.count }}</td>
