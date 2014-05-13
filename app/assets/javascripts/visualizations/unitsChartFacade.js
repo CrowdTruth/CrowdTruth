@@ -3,7 +3,9 @@ function unitsChartFacade(category, openModal) {
         '#fullvideo_tab':'Video',
         '#job_tab': 'job',
         '#crowdagents_tab':'worker',
-        '#all_tab':'unit'
+        '#all_tab':'unit',
+        '#drawing_tab': 'drawing',
+        '#painting_tab': 'painting'
     };
     console.dir(category);
     this.unitsWorkerDetails = new unitsWorkerDetails(category, categoryNameMap[category], openModal);
@@ -20,7 +22,8 @@ function unitsChartFacade(category, openModal) {
         this.pieChartIds.push({field:'jobs',name:'jobs',divName:"optional1", tooltip:{'prefix' : '', 'suffix':''}});
         this.pieChartIds.push({field:'content.relation.noPrefix',name:'relation', divName:"optional2", tooltip:{'prefix' : 'with', 'suffix':'relation'}});
         this.barChartGraph = new unitsBarChartGraph(category, categoryNameMap[category], this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
-    } else if ((category == '#fullvideo_tab')){
+    } else if ((category == '#fullvideo_tab')||(category == '#painting_tab') || (category == '#drawing_tab')){
+        if (category == '#painting_tab') category = '#drawing_tab';
         this.pieChartIds.push({field:'jobs',name:'jobs',divName:"optional1", tooltip:{'prefix' : '', 'suffix':''}});
         this.pieChartIds.push({field:'source',name:'source', divName:"optional2", tooltip:{'prefix' : 'from', 'suffix':'source'}});
         this.barChartGraph = new unitsBarChartGraph(category, categoryNameMap[category], this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
