@@ -13,7 +13,8 @@
 						<li><a href="#" data-vb="show" data-vbSelector="status"></i>Status and actions</a></li>						
 						<li><a href="#" data-vb="show" data-vbSelector="job_id"></i>Job ID</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="job_title"></i>Job Title</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="job_description"></i>Job Description</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="job_type"></i>Job Type</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="job_description"></i>Job Description</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="job_size"></i># Units</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="units_per_task"></i>units/mTask</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="req_ann_per_unit"></i>Workers/mTask Requested</a></li>
@@ -40,6 +41,7 @@
 		            <th data-vbIdentifier="status" data-toggle="tooltip" data-placement="top" title="Mouseover for actions">Status</th>
 		            <th class="sorting" data-vbIdentifier="job_id" data-query-key="orderBy[hasConfiguration.content.jobId]" data-toggle="tooltip" data-placement="top" title="ID of the job from the platform that ran it">Job Id</th>
 		            <th class="sorting" data-vbIdentifier="job_title" data-query-key="orderBy[hasConfiguration.content.title]" data-toggle="tooltip" data-placement="top" title="Title of the job published on the platform">Job Title</th>
+		            <th class="sorting" data-vbIdentifier="job_type" data-query-key="orderBy[type]" data-toggle="tooltip" data-placement="top" title="Task type for the Job">Job Type</th>
 		            <th class="sorting" data-vbIdentifier="job_description" data-query-key="orderBy[hasConfiguration.content.description]" data-toggle="tooltip" data-placement="top" title="Descripton">Job Description</th>
 		            <th class="sorting" data-vbIdentifier="job_size" data-query-key="orderBy[unitsCount]" data-toggle="tooltip" data-placement="top" title="The number of units in the job - <br /> set by the job definition"># Units</th>
 		            <th class="sorting" data-vbIdentifier="units_per_task" data-query-key="orderBy[hasConfiguration.content.unitsPerTask]" data-toggle="tooltip" data-placement="top" title="Number of media units (e.g. sentences, images) to be presented in each micro-task - <br /> set by the job definition">units/mTask</th>
@@ -65,6 +67,9 @@
 				</td>
 				<td data-vbIdentifier="job_title">
 					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.title]" data-query-operator="like" />
+				</td>
+				<td data-vbIdentifier="job_type">
+					<input class="input-sm form-control" type='text' data-query-key="match[type]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="job_description">
 					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.description]" data-query-operator="like" />
@@ -158,6 +163,7 @@
 					</a>
 				    </td>
 			            <td data-vbIdentifier="job_title">@{{ this.hasConfiguration.content.title }}</td>
+			            <td data-vbIdentifier="job_type">@{{ this.type }}</td>
 			            <td data-vbIdentifier="job_description">@{{ this.hasConfiguration.content.description }}</td>
 			            <td data-vbIdentifier="job_size">@{{ this.unitsCount }}</td>
 			            <td data-vbIdentifier="units_per_task">@{{ this.hasConfiguration.content.unitsPerTask }}</td>
