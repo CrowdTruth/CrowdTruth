@@ -412,7 +412,11 @@ class apiController extends BaseController
     public function getAggregate()
     {
         $input = Input::all();
-        $selection = \MongoDB\Entity::raw(function ($collection) use ($input) {
+        $c = Input::get('collection', 'Entity');
+
+        $collection = $this->repository->returnCollectionObjectFor($c);
+
+        $selection = $collection->raw(function ($collection) use ($input) {
 
             $aggregateOperators = $this->processAggregateInput($input);
             //a constField field to create the lists
@@ -566,8 +570,11 @@ class apiController extends BaseController
 
     public function getUnitgraph()
     {
+        $c = Input::get('collection', 'Entity');
 
-        $selection = \MongoDB\Entity::raw(function ($collection) {
+        $collection = $this->repository->returnCollectionObjectFor($c);
+
+        $selection = $collection->raw(function ($collection) {
 
             $aggregateOperators = $this->processAggregateInput(Input::all());
 

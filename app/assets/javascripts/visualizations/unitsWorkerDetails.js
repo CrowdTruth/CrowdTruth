@@ -1,9 +1,12 @@
 function unitsWorkerDetails(category, categoryName, openModal) {
+    var queryField = 'unit_id';
+    if (category == '#job_tab'){
+        queryField = 'job_id'
+    }
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
     var unitsWorkersInfo = {};
     var currentSelection = [];
     var currentSelectionInfo = {};
-    var queryFields = {'#twrex-structured-sentence_tab': 'unit_id', '#fullvideo_tab': 'unit_id', '#job_tab': 'job_id'};
     var spammers = [];
     var seriesBase = [];
     var pieChart = "";
@@ -274,7 +277,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
 
                                 urlBase = "";
                                 for (var indexUnits in currentSelection) {
-                                    urlBase += 'match['+ queryFields[category] + '][]=' + currentSelection[indexUnits] + '&';
+                                    urlBase += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
                                 }
                                 anchorModal = $('<a class="testModal"' +
                                     'data-modal-query="agent=' + this.category + '&' + urlBase + '" data-api-target="/api/analytics/worker?" ' +
@@ -308,8 +311,8 @@ function unitsWorkerDetails(category, categoryName, openModal) {
 
         var categories = [];
         var series = seriesBase;
-        workersURL = url + 'project[' + queryFields[category] + ']=' + queryFields[category] +
-            '&group=crowdAgent_id&push[' + queryFields[category] + ']=' + queryFields[category];
+        workersURL = url + 'project[' + queryField + ']=' + queryField +
+            '&group=crowdAgent_id&push[' + queryField + ']=' + queryField;
         for (var iterSeries in series) {
             series[iterSeries]['data'] = [];
         }
@@ -320,8 +323,8 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 for (var iterSeries in series) {
                     var unit_id = series[iterSeries]['name'];
                     var value = 0;
-                    for (var iterUnits in data[iterData][queryFields[category]]) {
-                        if (data[iterData][queryFields[category]][iterUnits] == unit_id) {
+                    for (var iterUnits in data[iterData][queryField]) {
+                        if (data[iterData][queryField][iterUnits] == unit_id) {
                             value++;
                         }
                     }
@@ -339,7 +342,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
         urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
         //create the series data
         for (var indexUnits in selectedUnits) {
-            urlBase += 'match['+ queryFields[category] + '][]=' + selectedUnits[indexUnits] + '&';
+            urlBase += 'match['+ queryField + '][]=' + selectedUnits[indexUnits] + '&';
             seriesBase.push({'name': selectedUnits[indexUnits], data: []});
         }
 

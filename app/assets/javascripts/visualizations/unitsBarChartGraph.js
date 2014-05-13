@@ -9,20 +9,31 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
 
 
     var specificFields = {
-        '#twrex-structured-sentence_tab':{ data : "words", info:['domain','format', 'relation', 'sentence' ],
+        '#twrex-structured-sentence_tab':{ data : "words", info:['domain', 'format', 'relation', 'sentence' ],
             tooltip:"Number of words in the sentence. Click to select/deselect",
-        labelsInfo:['domain','format', 'seed relation', 'sentence' ], sendInfo: 'sentence',
-        query : '&project[words]=content.properties.sentenceWordCount' +'&project[domain]=domain' +'&project[format]=format'+
-        '&project[sentence]=content.sentence.formatted&project[relation]=content.relation.noPrefix' +
-        '&project[id]=_id&push[id]=id&push[domain]=domain&push[format]=format&push[words]=words&push[sentence]=sentence&push[relation]=relation&'},
+            labelsInfo:['domain','format', 'seed relation', 'sentence' ], sendInfo: 'sentence',
+            query : '&project[words]=content.properties.sentenceWordCount' +'&project[domain]=domain' +'&project[format]=format'+
+            '&project[sentence]=content.sentence.formatted&project[relation]=content.relation.noPrefix' +
+            '&project[id]=_id&push[id]=id&push[domain]=domain&push[format]=format&push[words]=words&push[sentence]=sentence&push[relation]=relation&'},
 
        '#fullvideo_tab':{ data : "keyframes", info:['domain','format', 'title', 'keyframes' ,'description'],
            tooltip:"Number of key frames in video. Click to select/deselect", sendInfo: 'title',
-           labelsInfo:['domain','format', 'title', 'description'],
-       query : '&project[keyframes]=keyframes.count' +'&project[domain]=domain' +'&project[format]=format'+
-        '&project[title]=content.metadata.title&project[description]=content.metadata.description' +
-        '&project[id]=_id&push[id]=id&push[title]=title&push[domain]=domain&push[format]=format&' +
-            'push[description]=description&push[keyframes]=keyframes&'},
+           labelsInfo:['domain','format', 'title', 'key frames', 'description'],
+           query : '&project[keyframes]=keyframes.count' +'&project[domain]=domain' +'&project[format]=format'+
+            '&project[title]=content.metadata.title&project[description]=content.metadata.description' +
+            '&project[id]=_id&push[title]=title&push[domain]=domain&push[format]=format&' +
+                'push[description]=description&push[keyframes]=keyframes&'},
+
+       '#drawing_tab':{ data : "features", info:['domain', 'format', 'title', 'features', 'author', 'description', 'url'],
+            tooltip:"Number of relevant features in the image. Click to select/deselect",
+            sendInfo: 'title',
+            labelsInfo:['domain', 'format', 'title', 'relevant features', 'author', 'description', 'url'],
+            query : '&project[features]=totalRelevantFeatures' +'&project[domain]=domain' +'&project[format]=format'+
+                '&project[title]=content.title&project[description]=content.description' +
+                '&project[author]=content.author&project[url]=content.url'+
+                '&project[id]=_id&push[features]=features&push[id]=id&push[author]=author&push[url]=url' +
+                '&push[title]=title&push[domain]=domain&push[format]=format&' +
+                'push[description]=description&'},
 
        '#all_tab':{ data : "keyframes", info:['domain','format', 'documentType'],
                tooltip:"Click to select/deselect", sendInfo: 'documentType',
@@ -213,8 +224,13 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
 
                 var lastIndex = specificFields[category]['info'].length - 1;
                 var field = specificFields[category]['info'][lastIndex];
+
                 if (typeof specificInfo[this.x][field] === 'string') {
-                    s +=  '<b>'+ specificFields[category]['labelsInfo'][lastIndex]  + ' : </b>' + specificInfo[this.x][field] + '<br/>';
+                    if((specificFields[category]['labelsInfo'][lastIndex]  == 'url') && (category == '#drawing_tab')) {
+                        s +=  '<img width="240" height="160" src="' + specificInfo[this.x][field] + '">'
+                    } else {
+                        s +=  '<b>'+ specificFields[category]['labelsInfo'][lastIndex]  + ' : </b>' + specificInfo[this.x][field] + '<br/>';
+                    }
                 } else {
                     for(var indexInfo in specificInfo[this.x][field]) {
                         s +=  '<b>' + field + ' (' + indexInfo + ') : </b>' + specificInfo[this.x][field][indexInfo] + '<br/>';
@@ -343,11 +359,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             chartGeneralOptions.yAxis = [];
             chartGeneralOptions.series = [];
 
-            console.dir('data and specific fields');
-            console.dir(data);
-            console.dir(specificFields[category]);
-
-            for (var indexData in data['id']) {
+             for (var indexData in data['id']) {
                 var id = data['id'][indexData];
                 specificInfo[id] = {};
                 for ( var indexField in specificFields[category]['info']) {
@@ -411,7 +423,6 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     yAxisSettings.opposite = true;
                 chartGeneralOptions.yAxis.push(yAxisSettings);
             }
-            console.dir(chartGeneralOptions);
             chartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/20);
             chartGeneralOptions.chart.renderTo = 'generalBarChart_div';
             chartGeneralOptions.title.text = 'Overview of Units ' + data["id"].length +  ' used in Jobs';
@@ -420,7 +431,6 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             chartGeneralOptions.plotOptions.series.borderWidth = 0.01;
             chartGeneralOptions.plotOptions.series.minPointLength = 2;
             chartGeneralOptions.legend.y = 70;
-            console.dir(chartGeneralOptions);
             unitsJobChart = new Highcharts.Chart(chartGeneralOptions);
         });
     }
@@ -451,14 +461,13 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
         //get the word count data
         var url = '/api/analytics/aggregate/?' +
             newMatchCriteria +
-            '&match[cache.jobs.count][<]=1' +
+           // '&match[cache.jobs.count][<]=1' +
             sortCriteria +
             specificFields[category]['query'];
 
         $.getJSON(url, function(data) {
             var subTitle = "Overview of " + categoryName;
             var selectionOptions = "";
-            console.dir(data);
             for (var option in data['query']) {
                 //default query
                 if(option != 'documentType') {
@@ -481,8 +490,6 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                 subTitle += " having " + selectionOptions.substring(0, selectionOptions.length - 1);
             }
 
-            if(data.length == 0)
-                return;
 
             for (var indexData in data['id']) {
                 var id = data['id'][indexData];
@@ -538,7 +545,6 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             newChartGeneralOptions.plotOptions.series.minPointLength = 2;
             newChartGeneralOptions.plotOptions.series.borderWidth = 0;
             newChartGeneralOptions.legend.y = 70;
-
             unitsWordCountChart = new Highcharts.Chart(newChartGeneralOptions);
         });
     }
@@ -547,7 +553,6 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
         matchCriteria = 'match[documentType][]=twrex-structured-sentence';
         drawBarChart(matchStr,"");
         if (category != '#all_tab') {
-
             drawSpecificBarChart(matchStr,"");
         } else {
             $('#specificBarChart_div').highcharts().destroy();
