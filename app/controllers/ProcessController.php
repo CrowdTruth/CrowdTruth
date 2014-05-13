@@ -36,12 +36,25 @@ class ProcessController extends BaseController {
 		echo $c;
 	}
 
+	public function getA(){
+		//Queue::push('Queues\UpdateUnits', array("entity/text/medical/twrex-structured-sentence/1078"));
+		$ca = \MongoDB\CrowdAgent::where("_id", "crowdagent/cf/14781069")->first();
+		Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($ca)));
+	}
+
 	public function getGeneraterandomjobdates(){
 		foreach (Job::get() as $job) {
 			if(empty($job->runningTimeInSeconds))
 				dd($job);
 		}	
 	}
+
+	public function getTestmetrics(){
+		$job = Job::id("entity/text/medical/job/1")->first();
+		Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+			
+	}
+
 
 /*
 
@@ -505,6 +518,8 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		if(empty($currenttemplate)){ 
 			if($batch->format=='text')
 				$currenttemplate = 'text/RelDir/relation_direction';
+			else if($batch->format=="video") 
+				$currenttemplate = 'video/SoundAndVision/videosegments';
 			else 
 				$currenttemplate = 'images/Rijksmuseum/flowers'; // TODO: should be cleaner
 		}
@@ -874,7 +889,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				$j = new Job;
 				$j->format = $batch->format;
 				$j->domain = $batch->domain;
-				$j->type = explode('/', $template)[0];
+				$j->type = explode('/', $template)[1];
 				$j->template = $template; // TODO: remove
 				$j->batch_id = $batch->_id;
 				$j->questionTemplate_id = $questiontemplateid;
@@ -911,7 +926,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			//delete activity
 			if($activity) $activity->forceDelete();
 			
-			//throw $e; //for debugging
+			throw $e; //for debugging
 
 			Session::flash('flashError', $e->getMessage());
 			return Redirect::to("process/submit");

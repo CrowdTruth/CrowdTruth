@@ -121,10 +121,14 @@ class apiController extends BaseController {
 		}
 			
 
+
+
 		if(empty($data))
 			return false;
 
 		$data = json_decode($data, true);
+
+
 		$data['softwareAgent_id'] = strtolower($data['softwareAgent_id']);
 
 		try {
@@ -143,6 +147,12 @@ class apiController extends BaseController {
 			return serialize([$e->getMessage()]);
 		}
 
+
+
+
+
+
+
 		$entity = new Entity;
 		$entity->format = 'image';
 		$entity->domain = $data['domain'];
@@ -157,6 +167,10 @@ class apiController extends BaseController {
 		}
 
 		$entity->content = $data['content'];
+		if(isset($data['threshold']))
+			$entity->threshold = $data['threshold'];
+		if(isset($data['relevantFeatures']))
+			$entity->recognizedFeatures = $data['relevantFeatures'];
 
 		if(isset($data['hash']))
 		{

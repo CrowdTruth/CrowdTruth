@@ -42,7 +42,13 @@
 							@if($format=='image')
 								style="display:none"
 							@endif
+							@if($format=='video')
+								style="display:none"
+							@endif
 							></iframe>
+							@if($format=='image')
+							No preview available.
+							@endif
 							@if($format=='image')
 							No preview available.
 							@endif

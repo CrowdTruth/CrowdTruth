@@ -75,7 +75,7 @@
 							@endif
 
 							@if(Request::segment(1) == 'workers')
-								<li><a href="#">Message workers</a></li>
+								<li><a href="#" onclick="javascript:alert('Mass messaging is currently disabled. Sorry!')">Message workers</a></li>
 							@endif
 						</ul>
 					</div>					
@@ -179,13 +179,21 @@
 							@include('media.search.layouts.hb-fullvideo')
 						@endif						
 
-						@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
+						@if(isset($mainSearchFilters['documentTypes']['painting']))
 							@include('media.search.layouts.hb-painting')
 						@endif
 						
+						@if(isset($mainSearchFilters['documentTypes']['drawing']))
+							@include('media.search.layouts.hb-drawing')
+						@endif
+
+						@if(isset($mainSearchFilters['documentTypes']['picture']))
+							@include('media.search.layouts.hb-picture')
+						@endif
+
 						<div class='includeGraph hidden'>
                             <table>
-                                <tr>
+                                <tr class="pieDivGraphs">
                                     <td>
                                         <div id="domain_div"></div>
                                     </td>
@@ -218,7 +226,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="workersPie_div"></div>
                                     </td>
                                     <td>
@@ -228,7 +236,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="jobsPie_div"></div>
                                     </td>
                                     <td>
@@ -238,7 +246,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="unitsPie_div"></div>
                                     </td>
                                     <td>
@@ -248,7 +256,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="annotationsPie_div"></div>
                                     </td>
                                     <td>
@@ -303,7 +311,6 @@
 {{ javascript_include_tag('visualizations/unitsBarChartGraph.js') }}
 {{ javascript_include_tag('visualizations/workersBarChartGraph.js') }}
 {{ javascript_include_tag('visualizations/jobsBarChartGraph.js') }}
-{{ javascript_include_tag('visualizations/unitChartDetails.js') }}
 <script>
 $('document').ready(function(){
 

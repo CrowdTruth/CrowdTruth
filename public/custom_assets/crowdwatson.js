@@ -561,7 +561,14 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
 			$scope.pictures = [];
 			angular.forEach(data, function(key, value){
 				image = {};
-				image.url = key;
+				//image.url = key;
+				image.url = key.URL;
+				image.title= key.title;
+				image.author = key.author;
+				image.description = key.description; 
+				image.width = key.width; 
+				image.height = key.height; 
+
 				$scope.pictures.push(image);
 			})
 			if($scope.pictures.length == 0){
@@ -592,7 +599,7 @@ app.controller("imgCtrl", function($scope, $http, filterFilter){
  	$scope.$watch('pictures | filter:{checked:true}', function(n,o){
  		if(n != undefined){
  			$scope.selection = n.map(function (image){
- 				return image.url;
+ 				return image;
  			});
  		}
  	}, true);

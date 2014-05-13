@@ -30,7 +30,7 @@ class UpdateUnits {
 
             $batch['count'] = count(\MongoDB\Entity::where('documentType', 'batch')->where('parents', 'all', array($unit->_id))->get()->toArray());
             
-            $annotation = array('count'=>0, 'spamCount'=>0, 'nonSpamCount'=>0);
+            $annotation = array('count'=>0, 'spam'=>0, 'nonSpam'=>0);
             $workerlist = $workersspam = $workersnonspam = $joblist = array();
 
             foreach(Annotation::where('unit_id', $unit->_id)->get() as $a){
@@ -38,33 +38,52 @@ class UpdateUnits {
             	$workerlist[] = $a->crowdAgent_id;
 
             	if($a->spam) {
-            		$annotation['spamCount']++;
+            		$annotation['spam']++;
             		$workersspam[] = $a->crowdAgent_id;
             	} else {
-            		$annotation['nonSpamCount']++;
+            		$annotation['nonSpam']++;
             		$workersnonspam[] = $a->crowdAgent_id;
             	}	
 
             }
 
-			$annotation['count'] = ($annotation['spamCount'] + $annotation['nonSpamCount']);
+			$annotation['count'] = ($annotation['spam'] + $annotation['nonSpam']);
 
 			$workers['count'] = count(array_unique($workerlist));
-            $workers['spamCount'] = count(array_unique($workersspam));
-            $workers['nonSpamCount'] = count(array_unique($workersnonspam));
+            $workers['spam'] = count(array_unique($workersspam));
+            $workers['nonSpam'] = count(array_unique($workersnonspam));
+            $workers['potentialSpam'] = count(array_intersect($workersspam, $workersnonspam));
 
-             $jobs['count'] = count(array_unique($joblist));
+            // Jobs
+            $jobs['count'] = count(array_unique($joblist));
 
             foreach (array_keys($jobIdsPerType) as $type){
-                $jobs["types"][$type] = count(array_intersect(array_unique($joblist), $jobIdsPerType[$type]));
+                $jobs['types'] = array();
+                $count = count(array_intersect(array_unique($joblist), $jobIdsPerType[$type]));
+                if($count != 0) 
+                    $jobs["types"][$type] = $count;
             }
+            
+            $jobs['distinct'] = count($jobs['types']);
+
+
+            //filtered
+            $filteredField = array();
+            $filteredField['job_ids'] = array_flatten(Job::where('metrics.filteredUnits.list','all', array($unit['_id']))->get(['_id'])->toArray());
+            $filteredField['count'] = count($filteredField['job_ids']);
 
             $unit->cache = ["jobs" => $jobs,
                 			"workers" => $workers,
                 			"annotations" => $annotation,
+                            "filtered" => $filteredField,
                 			"batches" => $batch];
 
             $unit->update();
+	    $avg_clarity = \MongoDB\Entity::where('metrics.units.withoutSpam.'.$unit->_id, 'exists', 'true')->avg('metrics.units.withoutSpam.'.$unit->id.'.max_relation_Cos.avg');
+	    if (!isset($avg_clarity)) $avg_clarity = 0;
+        	$unit->avg_clarity = $avg_clarity;
+        	$unit->update();
+
             \Log::debug("Updated unit {$unit->_id}.");
         }
 

@@ -253,10 +253,12 @@ class Crowdflower extends \FrameWork {
 		}
 
 		// Webhook doesn't work on localhost and the uri should be set. 
-		if((App::environment() != 'local') and (!(strpos(\Request::url(), 'localhost')>0)) and (Config::get('crowdflower::webhookuri') != '')){
-			
+		if((!(strpos(\Request::url(), 'localhost')>0)) and (Config::get('crowdflower::webhookuri') != '')){
 			$data['webhook_uri'] = Config::get('crowdflower::webhookuri');
 			$data['send_judgments_webhook'] = 'true';
+			\Log::debug("Webhook: {$data['webhook_uri']}");
+		} else {
+			\Log::debug("Warning: no webhook set.");
 		}
 		return $data;
 	}

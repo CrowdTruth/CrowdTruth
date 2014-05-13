@@ -239,11 +239,12 @@ class Mturk extends \FrameWork {
 					$hittypeid = $created['HITTypeId'];
 					
 					// URL
-					if(isset($created['HITGroupId'])){
+					// TODO: AMT doesn't return the HIT group id. Do this in the COMMAND? Or perform 1 call after creating.
+/*					if(isset($created['HITGroupId'])){
 						// SANDBOX is hardcoded, because the job is always ordered on sandbox first.
 						$url = "https://workersandbox.mturk.com/mturk/preview?groupId={$created['HITGroupId']}";
 					}
-
+*/
 				}
 				unset($assRevPol['AnswerKey']);
 				$questionsbuilder = '';
@@ -341,10 +342,10 @@ class Mturk extends \FrameWork {
     	try {
 			$platformjobids = $this->amtpublish($job, false);
 			// TODO: (possibly): delete existing results?
-			$fullplatformjobids = array();
-			foreach($platformjobids as $id)
-				array_push($fullplatformjobids, array('id' => $id, 'status' => 'running'));
-			$job->platformJobId = $fullplatformjobids;
+			/*$fullplatformjobids = array();
+			/*foreach($platformjobids as $id)
+				array_push($fullplatformjobids, array('id' => $id, 'status' => 'running'));*/
+			$job->platformJobId = $platformjobids;
 			$job->save();
 		} catch (AMTException $e) {
 			if(isset($fullplatformjobids)) $this->undoCreation($fullplatformjobids);
@@ -366,7 +367,7 @@ class Mturk extends \FrameWork {
 			throw new Exception('Platform Job ID\'s not found. Is this an imported job?');
 
 		foreach($id as $hitid)
-		 	$this->mechanicalTurk->forceExpireHIT($hitid['id']);
+		 	$this->mechanicalTurk->forceExpireHIT($hitid);
         
 	}
 

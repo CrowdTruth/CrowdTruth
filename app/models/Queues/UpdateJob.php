@@ -82,7 +82,8 @@ class UpdateJob {
 		// If a page is done and there's a proper dictionary...
 
 		try {
-			if(count($j->results['withSpam'])>1) and ($j->annotationsCount % $j->jobConfiguration->content['unitsPerTask'] == 0)){
+			//if(count($j->results['withSpam'])>1) and ($j->annotationsCount % $j->jobConfiguration->content['unitsPerTask'] == 0)){
+			if(false){
 				// do the metrics, we're in a queue anyway.
 				\Log::debug("Starting metrics for Job {$j->_id}.");
 
@@ -101,16 +102,20 @@ class UpdateJob {
 					throw new Exception("Template of type {$j->type} not found in database.");*/
 
 				set_time_limit(3600); // One hour.
-				exec("/usr/bin/python2.7 /var/www/crowd-watson/app/lib/generateMetrics.py '{$j->_id }' '$templateid'", $output, $return_var);
+				$apppath = app_path();
+				$command = "/usr/bin/python2.7 $apppath/lib/fakeMetrics.py '{$j->_id }' '$templateid'";
+				\Log::debug("Command: $command");
+				exec($command, $output, $return_var);
+				\Log::debug("Metrics done.");
 				
-				dd($output);
+				//dd($output);
 
 				$response = json_decode($output[0], true);
-
-
-				$j->metrics = $response->metrics;
-				$j->results = array_merge($j->results, $response->results);
-
+				dd($response);
+				$j->metrics = $response['metrics'];
+				//$j->results = array_merge($j->results, $response['results']);
+				
+				dd($j);
 				//\Log::debug(end($output));
 				//$j->latestMetrics = .25;
 				
@@ -118,6 +123,7 @@ class UpdateJob {
 			}
 		} catch (Exception $e) {
 			\Log::debug("Error in running metrics: {$e->getMessage()}");
+			echo $e->getMessage();
 		}
 		//
 

@@ -46,10 +46,24 @@ try:
         response = urllib2.urlopen(Comm)    
         data0 = json.load(response)  
         #print ('a')
+        
         for a in data0["artObjects"]:
             if len(URLLIST)>= N:
                 break
-            URLLIST.append(a["webImage"]["url"])
+            ob = {}  
+            ob["URL"]=a["webImage"]["url"]
+            ob["author"] = "?"
+            if "principalOrFirstMaker" in a:
+                ob["author"] = a["principalOrFirstMaker"]
+            ob["title"] = "?"
+            if "title" in a:
+                ob["title"] = a["title"]
+            ob["description"] = "?"
+            if "longTitle" in a:
+                ob["description"] = a["longTitle"]
+            ob["width"] = a["webImage"]["width"]
+            ob["height"] = a["webImage"]["height"]
+            URLLIST.append(ob)
         page+=1
         try: # where handle is the object you get from urllib2's urlopen
             response.fp._sock.recv = None

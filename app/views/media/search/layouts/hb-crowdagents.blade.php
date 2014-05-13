@@ -9,6 +9,7 @@
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
+						<li><a href="#" data-vb="show" data-vbSelector="actions"></i>Actions</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="worker_id"></i>Worker ID</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="worker_platform"></i>Platform</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="worker_location"></i>Country</a></li>
@@ -35,8 +36,8 @@
 	    <table class="table table-striped">
 	        <thead data-query-key="collection" data-query-value="crowdagents">
 		        <tr>
-		        	<th data-vbIdentifier="actions" data-toggle="tooltip" data-placement="top" title="Block, flag or message a single worker">Actions</th>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>
+		            <th data-vbIdentifier="actions" data-toggle="tooltip" data-placement="top" title="Block or message a single worker">Actions</th>
 		            <th class="sorting" data-vbIdentifier="worker_id" data-query-key="orderBy[platformAgentId]" data-toggle="tooltip" data-placement="top" title="ID of the worker on their platform">Worker Id</th>
 		            <th class="sorting" data-vbIdentifier="worker_platform" data-query-key="orderBy[softwareAgent_id]" data-toggle="tooltip" data-placement="top" title="Platform (e.g. AMT, Crowdflower) the worker is from">Platform</th>
 		            <th class="sorting" data-vbIdentifier="worker_location" data-query-key="orderBy[country]" data-toggle="tooltip" data-placement="top" title="Country the worker is from">Country</th>
@@ -56,10 +57,10 @@
 				    <th class="sorting" data-vbIdentifier="no_sent_messages" data-query-key="orderBy[cache.sentMessagesToWorkers.count]" data-toggle="tooltip" data-placement="top" title="Messages sent to worker"># Sent Messages</th>
 		        </tr>
 			<tr class="inputFilters">
-				<td data-vbIdentifier="actions">
-				</td>
 				<td data-vbIdentifier="checkbox">
 					<input type="checkbox" class="checkAll" />
+				</td>
+				<td data-vbIdentifier="actions">
 				</td>
 				<td data-vbIdentifier="worker_id">
 					<input class="input-sm form-control" type='text' data-query-key="match[platformAgentId]" data-query-operator="like" />
@@ -129,15 +130,14 @@
 				<script class='template' type="text/x-handlebars-template">
 			        @{{#each documents}}
 			        <tr class="text-center">
+			        	<td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
 			        	<td data-vbIdentifier="actions">
 							<div class="btn-group">
-								<a class="btn btn-default btn-sm testModal" data-static="@{{ this._id }}" data-target="#modalMessage"><i class="fa fa-envelope-o"></i></a>
-								<a class="btn btn-default btn-sm testModal" data-static="@{{ this._id }}" data-target="#modalFlag"><i class="fa fa-flag-o"></i></a>
-								<a class="btn btn-default btn-sm testModal" data-static="@{{ this._id }}" data-target="#modalBlock"><i class="fa fa-times-circle-o"></i></a>
+								<a class="btn btn-default btn-sm testModal" data-static="@{{ this._id }}" data-target="#modalMessage"><i class="fa fa-envelope-o" data-toggle="tooltip" data-placement="top" title="Send message"></i></a>
+								<a class="btn btn-default btn-sm testModal" data-static="@{{ this._id }}" data-target="#modalBlock"><i class="fa fa-flag-o" data-toggle="tooltip" data-placement="top" title="Block worker"></i></a>
 							</div>
 
 			        	</td>
-						<td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
 			            <td data-vbIdentifier="worker_id">
 					<a class='testModal' id='@{{ this.platformAgentId }}' data-modal-query="agent=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/worker?') }}" data-target="#modalIndividualWorker" data-toggle="tooltip" data-placement="top" title="Click to see the individual worker page">
 						@{{ this.platformAgentId }}
@@ -239,38 +239,7 @@
 				  </div><!-- /.modal-dialog -->
 				</div><!-- /.modal -->
 		</script>
-
-	</div>	
-		<div class='hidden' id='modalFlag'>
-
-		<script class='template' type="text/x-handlebars-template">
-				<!-- Modal -->
-				<div class="modal fade" id="activeTabModal">
-				  <div class="modal-dialog">
-				    <div class="modal-content">
-				      <form id="flagform" class="ajaxform" name="input" action="/api/actions/flag" method="flag">
-				      <div class="modal-header">
-				        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				        <h4 class="modal-title">Flag worker</h4>
-				      </div>
-				      <div class="modal-body">
-				      	<p>
-				      	Really flag worker <b><span rel="static-html"></span></b>?
-				      	</p>
-				      	<input type="hidden" rel="static-val" name="workerid">					
-				      </div>
-				      <div class="modal-footer">
-				        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				        <input type="submit" class="btn btn-primary" />
-				      </div>
-				      </form>
-				    </div><!-- /.modal-content -->
-				  </div><!-- /.modal-dialog -->
-				</div><!-- /.modal -->
-		</script>
-
-	</div>					
-
+	</div>						
 
 	<div class='hidden' id='modalIndividualWorker'>
 
@@ -284,6 +253,10 @@
 					<h4 class="modal-title" id="myModalLabelWorker">Individual Worker Page</h4>
 				      </div>
 				      <div class="modal-body" >
+					<div><strong>Platform Name: </strong> @{{ this.infoStat.softwareAgent_id }} </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Crowdagent ID: </strong> @{{ this.infoStat.platformAgentId }} </div>
+						<div><strong>Active Since: </strong> @{{ this.infoStat.created_at }} </div>
+						<div><strong>Last Seen: </strong> @{{ this.infoStat.updated_at }} </div>
 					<div class="panel-group" id="accordion">
 					  <div class="panel panel-default">
 					    <div class="panel-heading">
@@ -305,7 +278,7 @@
 						<div><strong>Location: </strong> USA </div>
 						@{{/if}}
 						<div><strong data-toggle="tooltip" data-placement="top" title="Job Id(s) as Spammer: @{{ this.infoStat.cache.spammer.jobs }}">Current Status: </strong> marked as spammer in <strong>@{{ this.infoStat.cache.spammer.count }}</strong> job(s) </div>
-						<div><strong>Flagged: </strong> @{{ this.infoStat.cache.flagged }} </div>
+						<div><strong>Flagged: </strong> @{{#booltostring this.infoStat.flagged }} @{{/booltostring}}</div>
 					      </div>
 					    </div>
 					  </div>
@@ -325,7 +298,7 @@
 						<div><strong data-toggle="tooltip" data-placement="top" title="@{{#each this.infoStat.cache.jobTypes.types }}@{{ @key }}<br />@{{/each}}"> @{{ this.infoStat.cache.jobTypes.distinct }} Distinct Job Type(s) </strong> </div>
 						<div><strong> @{{ this.infoStat.cache.jobTypes.count }} Job(s) as Contributor</strong> </div>
 						<div><strong data-toggle="tooltip" data-placement="top" title="# Spam Annotations: @{{ this.infoStat.cache.annotations.spam }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonspam }}"> @{{ this.infoStat.cache.annotations.count }} Annotation(s) in Total </strong> </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="Messages: @{{ this.infoStat.cache.sentMessagesToWorkers.messages }}"> @{{ this.infoStat.cache.sentMessagesToWorkers.count}} Message(s) Sent to This Worker </strong></div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="Messages: @{{ this.infoStat.messagesRecieved.messages }}"> @{{ this.infoStat.messagesRecieved.count}} Message(s) Sent to This Worker </strong></div>
 						<hr/>
 						<table style="width: 100%" border="1" bordercolor="#C0C0C0" text-align="center">
 						 <tr text-align="center">
@@ -335,12 +308,12 @@
 						 </tr>
 						 <tr>
 						  <td> <strong> AVG. Worker Agreement</strong></td> 
-						  <td> <strong> @{{ toFixed this.infoStat.cache.avg_agreement 2 }} </strong></td>
+						  <td> <strong> @{{ toFixed this.infoStat.avg_agreement 2 }} </strong></td>
 						  <td> <strong> @{{ toFixed this.infoStat.avgAgreementAcrossJobs 2 }} </strong> </td>
 						 </tr>
 					    	 <tr>
 						  <td> <strong> AVG. Worker Cosine </strong> </td> 
-						  <td> <strong> @{{ toFixed this.infoStat.cache.avg_cosine 2 }} </td>
+						  <td> <strong> @{{ toFixed this.infoStat.avg_cosine 2 }} </td>
 						  <td> <strong> @{{ toFixed this.infoStat.avgCosineAcrossJobs 2 }} </strong> </td>
 						 </tr>
 						</table>
@@ -388,27 +361,28 @@
 						 <tbody>
 						  @{{#each this.jobContent}} 
 						  <tr>
-						    <td> @{{ platformJobId }} </td>
+						    <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
 							@{{#each metrics.workers.withFilter}}
 							<td> @{{ toFixed avg_worker_agreement.avg 2 }} </td>
 							<td> @{{ toFixed ann_per_unit.avg 2 }} </td>
 						    	<td> @{{ toFixed worker_cosine.avg 2 }} </td>
 						    	<td> @{{ toFixed no_of_units.avg 0 }} </td>
 							@{{/each}}
-						    <td> @{{ toFixed metrics.aggWorker.mean.avg_worker_agreement.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorker.mean.ann_per_unit.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorker.mean.worker_cosine.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorker.mean.no_of_units.avg 0}} </td>
-						    <td> @{{ toFixed metrics.aggWorker.stddev.avg_worker_agreement.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorker.stddev.ann_per_unit.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorker.stddev.worker_cosine.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorker.stddev.no_of_units.avg 0}} </td>
-						    @{{#inArray ../infoStat.cache.spammer.jobs this.platformJobId }}
+						    <td> @{{ toFixed metrics.aggWorkers.mean.avg_worker_agreement.avg 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.mean.ann_per_unit.avg 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.mean.worker_cosine.avg 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.mean.no_of_units.avg 0}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.avg_worker_agreement.avg 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.ann_per_unit.avg 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.worker_cosine.avg 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.no_of_units.avg 0}} </td>
+			
+						    @{{#inArrayNew ../infoStat.cache.spammer.jobs this.platformJobId }}
 							<td> Spammer </td>
 						    @{{else}}
 							<td> Non Spammer </td>
-						    @{{/inArray}}
-						  </tr>
+						    @{{/inArrayNew}}
+						   </tr>
 						  @{{/each}}
 						 </tbody>
 						</table>
