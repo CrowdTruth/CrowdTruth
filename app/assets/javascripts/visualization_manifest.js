@@ -1,0 +1,12 @@
+//= require highcharts.js
+//= require modules/exporting.js
+//= require no-data-to-display.js
+//= require visualizations/unitsChartFacade.js
+//= require visualizations/unitsWorkerDetails.js
+//= require visualizations/unitsAnnotationDetails.js
+//= require visualizations/unitsJobDetails.js
+//= require visualizations/unitsDetails.js
+//= require visualizations/pieChartGraph.js
+//= require visualizations/unitsBarChartGraph.js
+//= require visualizations/workersBarChartGraph.js
+//= require visualizations/jobsBarChartGraph.js

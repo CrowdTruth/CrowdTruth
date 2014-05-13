@@ -46,7 +46,7 @@ class MediaController extends BaseController {
 	}	
 
 
-	public function anyOnlinedata()
+	public function postOnlinedata()
 	{	
 		if (Input::get("source_name") == "source_rijksmuseum"){
 			return Redirect::to('onlinesource/imagegetter');
@@ -56,8 +56,6 @@ class MediaController extends BaseController {
 		// if (Input::get("source_name") == "source_template"){
 		// 	return Redirect::to('onlinesource/onlinesourcetemplate')
 		// }
-
-		\Session::flash('flashSuccess', 'Your video is being downloaded');
 
 		$onlineDataHelper = new OnlineDataHelper(Input::all());
 		try {
@@ -105,10 +103,12 @@ class MediaController extends BaseController {
 
 	public function getSearch()
 	{
-		$facetedSearch = App::make('FacetedSearch');
-		$mainSearchFilters = $facetedSearch->getMainSearchFilters();
+		// $facetedSearch = App::make('FacetedSearch');
+		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
 
-		return View::make('media.search.pages.index', compact('mainSearchFilters'));
+		// dd($mainSearchFilters);
+
+		return View::make('media.search.pages.media', compact('mainSearchFilters'));
 	}
 
 	public function anyBatch(){

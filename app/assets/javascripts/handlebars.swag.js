@@ -519,6 +519,30 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
     }
   });
 
+  Swag.addHelper('inArrayNew', function(array, value, options) {
+    if (!((Utils.isUndefined(array)) && (Utils.isUndefined(value)))) {
+      array = Utils.result(array);
+      value = Utils.result(value);
+      if (value.constructor === Array) {
+	if (__indexOf.call(array, value[0]) >= 0) {
+        	return options.fn(this);
+        } else {
+        	return options.inverse(this);
+        }
+      }
+      else {
+	if (__indexOf.call(array, value) >= 0) {
+        	return options.fn(this);
+        } else {
+        	return options.inverse(this);
+        }
+
+      }     
+    } else {
+      return Utils.err('{{inArray}} takes two arguments (array, string|number).');
+    }
+  });
+
   Swag.addHelper('eachIndex', function(array, options) {
     var index, result, value, _i, _len;
     if (!Utils.isUndefined(array)) {

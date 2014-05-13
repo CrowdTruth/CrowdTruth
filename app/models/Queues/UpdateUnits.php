@@ -79,6 +79,11 @@ class UpdateUnits {
                 			"batches" => $batch];
 
             $unit->update();
+	    $avg_clarity = \MongoDB\Entity::where('metrics.units.withoutSpam.'.$unit->_id, 'exists', 'true')->avg('metrics.units.withoutSpam.'.$unit->id.'.max_relation_Cos.avg');
+	    if (!isset($avg_clarity)) $avg_clarity = 0;
+        	$unit->avg_clarity = $avg_clarity;
+        	$unit->update();
+
             \Log::debug("Updated unit {$unit->_id}.");
         }
 

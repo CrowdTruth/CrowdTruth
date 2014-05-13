@@ -271,10 +271,10 @@
 		   </div>
 		   <div class="modal-body" >
 			<div>
-			<video width="240" height="160" controls preload="none" poster="@{{ this.content.metadata.medium.thumbnail }}"  data-toggle="tooltip" data-placement="top" title="Click to play">
-				<source src="@{{ this.content.storage_url }}" type="video/mp4" >
-				<source src="@{{ this.content.storage_url }}" type="video/ogg" >
-					Your browser does not support the video tag.
+			<video width="240" height="160" controls preload="none" poster="@{{ this.infoStat.content.metadata.medium.thumbnail }}"  data-toggle="tooltip" data-placement="top" title="Click to play">
+				<source src="@{{ this.infoStat.content.storage_url }}" type="video/mp4" >
+				<source src="@{{ this.infoStat.content.storage_url }}" type="video/ogg" >
+				Your browser does not support the video tag.
 				</source>
 			</video>
 			<div style="float:right;"><strong> Title: </strong> 
@@ -330,50 +330,50 @@
 			    <div id="collapseTwo" class="panel-collapse collapse">
 			      <div class="panel-body">
 				<div><strong> Used in @{{ this.infoStat.cache.batches.count }} Batch(es) </strong>  </div>
-					  <div><strong> Used in @{{ this.infoStat.cache.jobs.distinct }} Distinct Job Type(s) </strong></div>
-					  <div><strong data-toggle="tooltip" data-placement="top" title="#Spam Workers: @{{ this.infoStat.cache.workers.spamCount }} <br /> #NonSpam Workers: @{{ this.infoStat.cache.workers.nonSpamCount }}"> Annotated by a total of @{{ this.infoStat.cache.workers.count }} Worker(s) </strong> </div>
-					  <div><strong data-toggle="tooltip" data-placement="top" title="#Spam Annotations: @{{ this.infoStat.cache.annotations.spamCount }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonSpamCount }}"> Collected a total of @{{ this.infoStat.cache.annotations.count }} Annotation(s) </strong> </div>
-					  <hr/>
-					  <div><strong data-toggle="tooltip" data-placement="top" title="#Spam Annotations: @{{ this.infoStat.cache.annotations.spamCount }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonSpamCount }}"> Average Twrex-structured-sentence Clarity (across CrowdTruth jobs): @{{ this.infoStat.cache.avg_clarity }} </strong> </div>
-					  <div><strong> Marked as low-quality in @{{ this.infoStat.cache.filteredOutUnit.count}} Job(s): </strong></div>
+				<div><strong data-toggle="tooltip" data-placement="top" title="@{{#eachProperty this.infoStat.cache.jobs.types }}@{{ key }} <br /> @{{/eachProperty}}"> Used in @{{ this.infoStat.cache.jobs.distinct }} Distinct Job Type(s) </strong></div>
+				<div><strong> Annotated in a total of @{{ this.infoStat.cache.jobs.count }} Job(s) </strong> </div>
+				<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Workers: @{{ this.infoStat.cache.workers.spam }} <br /> #NonSpam Workers: @{{ this.infoStat.cache.workers.nonSpam }} <br /> #PotentialSpam Workers: @{{ this.infoStat.cache.workers.potentialSpam }}"> Annotated by a total of @{{ this.infoStat.cache.workers.count }} Worker(s) </strong> </div>
+				<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Annotations: @{{ this.infoStat.cache.annotations.spam }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonSpam }}"> Collected a total of @{{ this.infoStat.cache.annotations.count }} Annotation(s) </strong> </div>
+				<hr/>
+				<div><strong> Average @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Clarity (across CrowdTruth jobs): @{{ toFixed this.infoStat.avg_clarity 2}} </strong> </div>
+					  <div><strong> Marked as low-quality in @{{ this.infoStat.cache.filtered.count}} Job(s): </strong></div>
 					  <table class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0" text-align="center"> 
-					  <thead> 
-					   <tr> 
-					    <th class="header">Job Id</th>
-					    <th class="header">Job Title</th>
-   					    <th class="header"  data-toggle="tooltip" data-placement="top" title="Sentence Clarity: the value is defined as the maximum sentence annotation score achieved on any annotation for that twrex-structured-sentence. High agreement over the annotations is represented by high cosine scores, indicating a clear sentence.">Twrex-structured-sentence Clarity</th>
-					   </tr>
-					  </thead>
-					  <tbody>
-					  @{{#each this.jobContent}}
-					  @{{#inArray metrics.filteredUnits.list ../infoStat._id }}
-					   <tr>
-					    <td> @{{ platformJobId }} </td>
-					    <td> @{{ jobConf.content.title }} </td>
-					    @{{#each metrics.units.withoutSpam }}
-					     <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
-					    @{{/each}}
-					   </tr>
-					  @{{/inArray}}
-					  @{{/each}}
-					  </tbody>
-					  </table>
-			      </div>
-			    </div>
-			  </div>
-			  <div class="panel panel-default">
-			    <div class="panel-heading">
-				<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-			      <h4 class="panel-title">
-				
-				  @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} in Jobs
-				
-			      </h4>
-				</a>
-			    </div>
-			    <div id="collapseThree" class="panel-collapse collapse">
-			      <div class="panel-body">
-				<table class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0" text-align="center"> 
+						<thead> 
+						<tr> 
+						  <th class="header">Job Id</th>
+						  <th class="header">Job Title</th>
+   						  <th class="header"  data-toggle="tooltip" data-placement="top" title="Sentence Clarity: the value is defined as the maximum sentence annotation score achieved on any annotation for that twrex-structured-sentence. High agreement over the annotations is represented by high cosine scores, indicating a clear sentence."> @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Clarity</th>
+						</tr>
+						</thead>
+						<tbody>
+						@{{#each this.jobContent}}
+						 @{{#inArray metrics.filteredUnits.list ../infoStat._id }}
+						<tr>
+						 <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
+						 <td> @{{ jobConf.content.title }} </td>
+						 @{{#each metrics.units.withoutSpam }}
+						 <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
+						 @{{/each}}
+						</tr>
+						 @{{/inArray}}
+						@{{/each}}
+						</tbody>
+						</table>
+					      </div>
+					    </div>
+       					   </div>
+					   
+					   <div class="panel panel-default">
+					     <div class="panel-heading">
+					      <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+					       <h4 class="panel-title">
+						  @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} in Jobs
+					      </h4>
+					     </a>
+					    </div>
+					    <div id="collapseThree" class="panel-collapse collapse">
+					      <div class="panel-body">
+						<table class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0" text-align="center"> 
 						<thead> 
 						<tr> 
 						  <th class="header" rowspan="3">Job Id</th>
@@ -399,7 +399,7 @@
 						  @{{#each this.jobContent}} 
 						 
 						  <tr>
-						   <td data-toggle="tooltip" data-placement="top" title="Job Title: @{{ jobConf.content.title }}"> @{{ platformJobId }} </td>  					  
+						   <td data-toggle="tooltip" data-placement="top" title="Job Title: @{{ jobConf.content.title }}"> @{{#ifarray platformJobId }} @{{/ifarray}} </td>  					  
 		                                   @{{#inArray metrics.filteredUnits.list ../infoStat._id}}
 							<td> True </td>
 						   @{{else}}
@@ -436,10 +436,11 @@
 						  	
 						 </tbody>
 						</table>
-			      </div>
-			    </div>
-			  </div>
-			 <div class="panel panel-default">
+						
+					      </div>
+					    </div>
+					  </div>
+					  <div class="panel panel-default">
 					    <div class="panel-heading">
 					     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
 					      <h4 class="panel-title">

@@ -1,0 +1,24 @@
+<div class="row-fluid">
+  <div class="span6">
+    <video width="400" height="280" controls="controls">
+      <source src="{{content_storage_url}}" type="video/mp4"/>
+      <object data="{{content_storage_url}}" width="400" height="280">
+        <embed width="400" height="280" src="{{content_storage_url}}"/>
+      </object>
+    </video>
+    <cml:textarea label="Please add the events here" name="addedevents" regex="{seed}" flags="im" class="addedevents" no_escape="true" validates="required" instructions="You are required to press the key --ENTER-- after each event typed in."></cml:textarea>
+    <cml:hidden name="times" value="" />
+    <cml:hidden name="confirmed" value="" />
+  </div> 
+  <div class="span6" id="conf">
+    <p><b> Please confirm the annotated events: </b></p>
+    <table id="results"> 
+      <tbody>
+      </tbody>
+    </table>
+<!--  <cml:text label="Number or confirmed events" name="confirmedevents" class="confirmedevents" validates="required" instructions="Please make sure you confirm/delete the typed in annotations before submitting the result."/>
+  <cml:hidden name="confirmations" value=""/> -->
+    <cml:text label="Selected events" name="events" class="events" validates="required"/>
+  </div> 
+</div>
+

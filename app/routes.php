@@ -27,8 +27,6 @@ Route::group(array('before' => 'auth'), function()
 
 Route::get('/', function()
 {
-
-
     return Redirect::to('home');
 });
 

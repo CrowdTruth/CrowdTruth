@@ -231,7 +231,70 @@ class apiController extends BaseController
 
     }
 
-   public function getUnit()
+    public function getAnnotation()
+    {
+        //http://crowdtruth.org/api/analytics/piegraph/?match[documentType][]=annotation&match[crowdAgent_id][]=crowdagent/cf/21832469&
+        //match[crowdAgent_id][]=crowdagent/cf/19107746&match[crowdAgent_id][]=crowdagent/cf/19619472&match[crowdAgent_id][]=crowdagent/cf/19887374&
+        //match[crowdAgent_id][]=crowdagent/cf/9333400&match[crowdAgent_id][]=crowdagent/cf/19817298&match[crowdAgent_id][]=crowdagent/cf/22080912&
+        //match[crowdAgent_id][]=crowdagent/amt/A1O1DTYWRD9NIZ&match[crowdAgent_id][]=crowdagent/amt/A1EDP2JFUPZOEQ&match[softwareAgent_id][]=cf&match[type][]=FactSpan
+        //&project[dictionary]=dictionary&project[unit_id]=unit_id&project[job_id]=job_id&project[id]=_id&project[crowdAgent_id]=crowdAgent_id&group=id
+        //&push[dictionary]=dictionary&push[unit_id]=unit_id&push[job_id]=job_id&push[crowdAgent_id]=crowdAgent_id
+        $result = array();
+        $aggregateOperators = $this->processAggregateInput(Input::all());
+
+        $projectList = array('id' => '_id','dictionary' => 'dictionary', 'job_id'=>'job_id', 'unit_id'=>'unit_id', 'crowdAgent_id' => 'crowdAgent_id');
+
+        $selection = \MongoDB\Entity::raw(function ($collection) use ($aggregateOperators, $projectList) {
+            foreach ($projectList as $k => $v) {
+                $aggregateOperators['$project'][$k] = array('$ifNull' => array('$' . $v, 0));
+                $aggregateOperators['$group'][$k] = array('$push' => ('$'.$k));
+            }
+            $aggregateOperators['$project']['constField'] = array('$const' => 0);
+            $aggregateOperators['$group']['count'] = array('$sum' => 1);
+            $aggregateOperators['$group']['_id'] = '$constField';
+
+            return $collection->aggregate(array
+            (array('$match' => $aggregateOperators['$match']),
+                array('$project' => $aggregateOperators['$project']),
+                array('$group' => $aggregateOperators['$group'])));
+        });
+        $response = $selection['result'][0];
+
+        $units = \MongoDB\Entity::whereIn('_id', $response['unit_id'])->get(array('avg_clarity', 'content.sentence'))->toArray();
+        $unitsDict = array();
+        foreach($units as $index =>$value) {
+            $unitsDict[$value['_id']] = $value;
+        }
+
+        $c = Input::get('collection', 'temp');
+        $collection = $this->repository->returnCollectionObjectFor($c);
+        $jobs = $collection->whereIn('_id', $response['job_id'])->get(array('metrics.annotations', 'hasConfiguration.content.title', 'hasConfiguration.content.type'))->toArray();
+        $jobsDict = array();
+        foreach($jobs as $index =>$value) {
+            $jobsDict[$value['_id']] = $value;
+        }
+
+        $agents = \MongoDB\CrowdAgent::whereIn('_id', $response['crowdAgent_id'])->get(array('softwareAgent_id', 'avg_agreement', 'avg_cosine', 'flagged'))->toArray();
+        $agentsDict = array();
+        foreach($agents as $index =>$value) {
+            $agentsDict[$value['_id']] = $value;
+        }
+
+        $results =  array();
+        foreach($response['id'] as $index => $value){
+        //    $results[$index] = array();
+        //    $results[$value]['id'] = ;
+            $results[$value]['dictionary'] = $response['dictionary'][$index];
+            $results[$value]['unit'] = $unitsDict[$response['unit_id'][$index]];
+            $results[$value]['job'] = $jobsDict[$response['job_id'][$index]];
+            $results[$value]['agent'] = $agentsDict[$response['crowdAgent_id'][$index]];
+        }
+
+        return $results;
+    }
+
+
+    public function getUnit()
     {
         $result = array();
         $aggregateOperators = $this->processAggregateInput(Input::all());
@@ -363,9 +426,17 @@ class apiController extends BaseController
                 array('$project' => $aggregateOperators['$project']),
                 array('$group' => $aggregateOperators['$group'])));
         });
+        if (count($selection['result']) == 0) {
+            foreach (Input::get('project') as $field => $value) {
+                $results[$field] = array();
+            }
+            $results['query'] = Input::get('match');
+            return $results;
+        }
         //dd($selection);
-        $results = $selection['result'];
-        return $results[0];
+        $results = $selection['result'][0];
+        $results['query'] = Input::get('match');
+        return $results;
     }
 
     public function getSpammers()
@@ -410,7 +481,7 @@ class apiController extends BaseController
 
             //:{ 'jobs': {$cond: [{ $gt: [{$ifNull: [ '$cache.jobs.count', 0 ] }, 0]}, 'inJobs', 'notInJobs']}}}
             $aggregateOperators['$project']['jobs'] = array('$cond' =>
-                array( array('$gt'=>array( array('$ifNull' => array ('$cache.jobs.count', 0)),0)), 'inJobs', 'notInJobs'));
+                array( array('$gt'=>array( array('$ifNull' => array ('$cache.jobs.count', 0)),0)), 'used in Jobs', 'not used in Jobs'));
             $aggregateOperators['$group']['_id'] = "$" . $groupValue;
             $aggregateOperators['$group']['count'] = array('$sum' => 1);
 
@@ -489,11 +560,9 @@ class apiController extends BaseController
         $results['avgAnnotations'] = array_fill(0, $sizeIDs, $results['avgAnnotations']);
         $results['avgWorkers'] = array_fill(0, $sizeIDs, $results['avgJobs']);
 
-
+        $results['query'] = Input::get('match');
         return $results;
     }
-
-
 
     public function getUnitgraph()
     {
@@ -515,7 +584,7 @@ class apiController extends BaseController
             }
             $aggregateOperators['$project']['workersCount'] = array('$ifNull' => array('$' . 'cache.workers.count', 0));
             $aggregateOperators['$project']['annotationsCount'] = array('$ifNull' => array('$' . 'cache.annotations.count', 0));
-            $aggregateOperators['$project']['jobsCount'] = array('$ifNull' => array('$' . 'cache.jobs.count', 0));
+            $aggregateOperators['$project']['jobsCount'] = array('$ifNull' => array('$' . 'cache.jobTypes.count', 0));
             $aggregateOperators['$group']['id'] = array('$push' => ('$_id'));
 
             //group by id to create the lists and compute average of workers, units, annotatations
@@ -544,6 +613,7 @@ class apiController extends BaseController
             $results['avgWorkers'] = array();
             $results['avgAnnotations'] = array();
             $results['avgJobs'] = array();
+            $results['query'] = Input::get('match');
             return $results;
         }
         $results = $selection['result'][0];
@@ -555,7 +625,7 @@ class apiController extends BaseController
         $results['avgAnnotations'] = array_fill(0, $sizeIDs, $results['avgAnnotations']);
         $results['avgJobs'] = array_fill(0, $sizeIDs, $results['avgJobs']);
 
-
+        $results['query'] = Input::get('match');
         return $results;
     }
 
@@ -638,7 +708,7 @@ class apiController extends BaseController
         $results['avgAnnotations'] = array_fill(0, $sizeIDs, $results['avgAnnotations']);
         $results['avgUnits'] = array_fill(0, $sizeIDs, $results['avgUnits']);
         $results['potentialSpamWorkers'] = $potentialSpammersCount;
-
+        $results['query'] = Input::get('match');
         return $results;
     }
 
