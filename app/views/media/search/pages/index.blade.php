@@ -15,48 +15,48 @@
 @stop
 
 @section('content')
-<!-- START search_content --> 
+<!-- START search_content -->
 <div class="col-xs-12">
 	<div class='maincolumn CW_box_style'>
-@include('layouts.flashdata')			
+@include('layouts.flashdata')
 
 		<div class='tab'>
 			<div class='row'>
 				<div class='col-xs-12 searchOptions'>
 					@if(isset($mainSearchFilters['formats_OFF']))
 						<select name="format" data-query-key="match[format][]" class="selectpicker pull-left" title="Choose format(s)" data-width="auto" multiple>
-							@foreach($mainSearchFilters['formats'] as $key => $value)	
+							@foreach($mainSearchFilters['formats'] as $key => $value)
 							<option value="{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
 							@endforeach
-						</select>	
+						</select>
 					@endif
 					@if(isset($mainSearchFilters['domains_OFF']))
 						<select name="domain" data-query-key="match[domain][]" class="selectpicker pull-left" title="Choose domain(s)" data-width="auto" multiple>
-							@foreach($mainSearchFilters['domains'] as $key => $value)	
+							@foreach($mainSearchFilters['domains'] as $key => $value)
 							<option value="{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
 							@endforeach
-						</select>	
+						</select>
 					@endif
 
 @if(isset($mainSearchFilters['documentTypes']))
 	@if(Request::segment(1) == 'jobs')
 		<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Jobs" data-width="auto" data-show-subtext="true">
 			<option value="job" class="select_job" data-subtext="{{ $mainSearchFilters['documentTypes']['job']['count'] }} Items">Jobs</option>
-		</select>	
+		</select>
 	@elseif(Request::segment(1) == 'workers')
 		<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Jobs" data-width="auto" data-show-subtext="true">
 			<option value="crowdagents" class="select_crowdagents" data-subtext="{{ $mainSearchFilters['documentTypes']['crowdagents']['count'] }} Items">Workers</option>
-		</select>	
+		</select>
 	@else
 	<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-		<optgroup label="Media-Type">	
+		<optgroup label="Media-Type">
 			<option value="all" class="select_all" data-subtext="Items">All</option>
 			@foreach($mainSearchFilters['documentTypes'] as $key => $value)
 				<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
 			@endforeach
 		</optgroup>
 	</select>
-	@endif					
+	@endif
 @endif
 					<div class='tabOptions pull-left'>
 					</div>
@@ -78,20 +78,20 @@
 								<li><a href="#" onclick="javascript:alert('Mass messaging is currently disabled. Sorry!')">Message workers</a></li>
 							@endif
 						</ul>
-					</div>					
+					</div>
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
 						<option value="10">10 Records per page</option>
 						<option value="25">25 Records per page</option>
 						<option value="50">50 Records per page</option>
 						<option value="100">100 Records per page</option>
-					</select>					
+					</select>
 					<div class='switchViews pull-right' style="margin-right:5px;">
 						<button type="button" class="btn btn-default listViewButton hidden" style="margin-left:5px;">
 							Switch to List View
-						</button>						
+						</button>
 						<button type="button" class="btn btn-default graphViewButton" style="margin-left:5px;">
 							Switch to Graph View
-						</button>						
+						</button>
 					</div>
 				</div>
 				<div class='col-xs-12'>
@@ -100,13 +100,13 @@
 					<div class='cw_pagination pull-right'>
 					</div>
 				</div>
-				<div class='col-xs-12 searchResults'>				
+				<div class='col-xs-12 searchResults'>
 					<ul class="nav nav-tabs documentTypesNav hidden">
 						<li id="all_nav">
 							<a href="#all_tab" data-toggle="tab">
 								All
 							</a>
-						</li>						
+						</li>
 						@foreach($mainSearchFilters['documentTypes'] as $key => $value)
 						<li id="{{$key}}_nav">
 							<a href="#{{$key}}_tab" data-toggle="tab">
@@ -114,7 +114,7 @@
 							</a>
 						</li>
 						@endforeach
-					</ul>    								
+					</ul>
 					<div class="tab-content documentTypesTabs">
 						<div class="tab-pane active" id="all_tab">
 						    <table class="table table-striped">
@@ -141,10 +141,10 @@
 										</td>
 										<td>
 											<input class="input-sm form-control" type='text' data-query-key="match[documentType]" data-query-operator="like" />
-										</td>									
-									</tr>											        
+										</td>
+									</tr>
 						        </thead>
-						        <tbody class='results'>											
+						        <tbody class='results'>
 									<script class='template' type="text/x-handlebars-template">
 								        @{{#each documents}}
 								        <tr>
@@ -152,12 +152,12 @@
 								            <td>@{{ this._id }}</td>
 								            <td>@{{ this.format }}</td>
 								            <td>@{{ this.domain }}</td>
-								            <td>@{{ this.documentType }}</td>				            
+								            <td>@{{ this.documentType }}</td>
 								        </tr>
 								        @{{/each}}
 									</script>
 						        </tbody>
-						    </table>											
+						    </table>
 						</div>
 						@if(isset($mainSearchFilters['documentTypes']['job']))
 							@include('media.search.layouts.hb-job')
@@ -177,12 +177,12 @@
 
 						@if(isset($mainSearchFilters['documentTypes']['fullvideo']))
 							@include('media.search.layouts.hb-fullvideo')
-						@endif						
+						@endif
 
 						@if(isset($mainSearchFilters['documentTypes']['painting']))
 							@include('media.search.layouts.hb-painting')
 						@endif
-						
+
 						@if(isset($mainSearchFilters['documentTypes']['drawing']))
 							@include('media.search.layouts.hb-drawing')
 						@endif
@@ -214,9 +214,13 @@
                                     </td>
                                 </tr>
                             </table>
-                            @if ((isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']) or isset($mainSearchFilters['documentTypes']['fullvideo'])))
-                                @include('media.search.layouts.specificBarChart')
-                            @endif
+                            <table>
+                                <tr >
+                                    <td>
+                                        <div id="specificBarChart_div" ></div>
+                                    </td>
+                                </tr>
+                            </table>
                             <table>
                                 <tr >
                                     <td>
@@ -263,7 +267,7 @@
                                         <div id="annotationsBar_div"></div>
                                     </td>
                                 </tr>
-                            </table>    
+                            </table>
 							<div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
@@ -286,7 +290,7 @@
 		</div>
 	</div>
 </div>
-<!-- STOP search_content --> 				
+<!-- STOP search_content -->
 @stop
 
 @section('end_javascript')
@@ -342,7 +346,7 @@ var getSearchLimitValue = function(){
 }
 
 var updateReponsiveTableHeight = function() {
-	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 185 + "px");	
+	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 185 + "px");
 }
 
 var delay = (function(){
@@ -365,8 +369,8 @@ $('.searchOptions').on('change', ".selectpicker", function(){
 				$('.documentTypesNav').find('#' + $(this).val() + '_nav a').click();
 			}
 			getResults();
-			return;				
-		}	
+			return;
+		}
 	}
 
 	if($(this).attr('name') == "search_limit"){
@@ -390,7 +394,7 @@ var initializeSpecificFilter = function() {
 	     template: '<div class="popover tssPopover"><div class="arrow"></div><div class="popover-content"></div></div>'
 	}).on("mouseenter", function () {
 	        var _this = this;
-	        $(this).popover("show"); 
+	        $(this).popover("show");
 	        $(".popover").on("mouseleave", function () {
 	            $(_this).popover('hide');
 	        });
@@ -401,7 +405,7 @@ var initializeSpecificFilter = function() {
 	            $(_this).popover("hide");
 	        }
 	    }, 100);
-	}); 	
+	});
 }
 
 var getGeneralFilterQueries = function() {
@@ -430,7 +434,7 @@ $('.searchOptions .tabOptions').on('click', "[data-vbSelector]", function(){
 	}
 	else
 	{
-		$(this).attr('data-vb', 'show');					
+		$(this).attr('data-vb', 'show');
 		$(this).find('.fa').remove();
 		$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
 	}
@@ -443,7 +447,7 @@ $('body').on('keyup', '.inputFilters input', function(){
 
 	delay(function(){
 		var activeTabKey = getActiveTabKey();
-		selectedRows[activeTabKey] = [];		
+		selectedRows[activeTabKey] = [];
 		inputFilter.attr('data-query-value', inputFilter.val());
 
 		if(inputFilter.val() == "")
@@ -477,8 +481,8 @@ $('body').on('click', 'input[name=rowchk]', function(event){
     if($(this).prop("checked")){
     	if (typeof selectedRows[activeTabKey] == 'undefined') {
     		selectedRows[activeTabKey] = [];
-    	}		            	
-		
+    	}
+
 		selectedRows[activeTabKey].push(val);
     }
     else
@@ -510,7 +514,7 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 		// $('.specificFilters').empty().append($('.tab-pane.active .specificFilterOptions'));
 		// $('.cw_specificFilters').removeClass('hidden');
 		if(templates[activeTabKey] == undefined)
-		{		
+		{
 			getResults();
 		}
 	}
@@ -580,7 +584,7 @@ $('.listViewButton').click(function() {
 	$(this).addClass('hidden');
 	$('.graphViewButton').removeClass('hidden');
 	$('.includeGraph').addClass('hidden');
-	
+
 	$(getActiveTabKey() + ' tbody.results').show();
 });
 
@@ -588,7 +592,7 @@ $('.graphViewButton').click(function() {
 	$(this).addClass('hidden');
 	$('.listViewButton').removeClass('hidden');
 	$('.includeGraph, .specificGraphs').removeClass('hidden');
-	
+
 	$(getActiveTabKey() + ' tbody.results').hide();
 	getResults();
 });
@@ -615,7 +619,7 @@ $('.input-daterange input').on('changeDate', function(e) {
 	console.log('test' + date);
 
 	if(date == "") {
-		$(this).removeAttr('data-query-value');					
+		$(this).removeAttr('data-query-value');
 	} else {
 		$(this).attr('data-query-value', date);
 	}
@@ -708,10 +712,10 @@ function getResults(baseApiURL){
 		// 	title : "default",
 		// 	content : function(){ return $(this).find('.hidden').html() },
  	// 		container: 'body',
-  //           template: '<div class="popover popover-medium"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'			
+  //           template: '<div class="popover popover-medium"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'
 		// });
 
-		if(templates[activeTabKey + 'date'] == undefined) 
+		if(templates[activeTabKey + 'date'] == undefined)
 		{
 			templates[activeTabKey + 'date'] = activeTabKey + 'date';
 		} else {
@@ -719,22 +723,22 @@ function getResults(baseApiURL){
 		}
 
 		initializeVisibleColumns();
-		visibleColumns();		
+		visibleColumns();
 
 
 
 		// console.dir(selectedRows[activeTabKey]);
 		// console.log('starting search');
-		
+
 		if($('.graphViewButton').hasClass('hidden')){
             var selectedCategory = activeTabKey;
 			$(activeTabKey + ' .checkAll').removeAttr('checked');
 			var unitsChart = new unitsChartFacade(selectedCategory, openModal);
-			unitsChart.init(getTabFieldsQuery(),"");		
+			unitsChart.init(getTabFieldsQuery(),"");
 		}
 
 
-			
+
         $("input[name=rowchk]").each(function(){
         	var val = $(this).attr('value');
 
@@ -810,7 +814,7 @@ var visibleColumns = function(){
 		{
 			vbSelector.addClass('hidden');
 		}
-	});	
+	});
 
 	// initializeFixedThead();
 }
@@ -824,7 +828,7 @@ var initializeFixedThead = function(){
 				return $table.closest('.ctable-responsive');
 			},
 			useAbsolutePositioning: false
-		});			
+		});
 	} else {
 		fixedThead.trigger('reflow');
 	}
@@ -837,7 +841,7 @@ var updateFilters = function(filterOption){
 	} else {
 		filterOption.closest('li').addClass('active');
 		filterOption.children('i').removeClass('fa-circle-o').addClass('fa-check-circle-o');
-	}	
+	}
 }
 var openModal = function(modalAnchor , activeTabKey){
     if(baseApiURL == undefined)
@@ -950,7 +954,7 @@ var openStaticModal = function(modalAnchor , activeTabKey){
 		//rel=static-val or static-inner
 		$('span[rel="static-html"]').html(staticData);
 		$('input[rel="static-val"]').val(staticData);
-   
+
 
         $(".ajaxform").submit(function(e)
 		{
@@ -961,15 +965,15 @@ var openStaticModal = function(modalAnchor , activeTabKey){
 		        url : formURL,
 		        type: "POST",
 		        data : postData,
-		        success:function(data, textStatus, jqXHR) 
+		        success:function(data, textStatus, jqXHR)
 		        {
 	            	console.log(data);
 	            	alert(data.message);
-		            	
+
 		        },
-		        error: function(jqXHR, textStatus, errorThrown) 
+		        error: function(jqXHR, textStatus, errorThrown)
 		        {
-		            console.log(errorThrown);     
+		            console.log(errorThrown);
 		        }
 		    });
 		    e.preventDefault(); //STOP default action
@@ -1011,7 +1015,7 @@ function jobactions(job, action, index){
  	if(action == 'pause') newstatus = 'paused';
  	else if(action == 'order' || action == 'resume') newstatus = 'running';
  	else if(action == 'cancel') newstatus = 'canceled';
-	
+
 	if(action=='cancel'){
 		if(!confirm('Do you really want to '+action+' job '+job+'?')){
 			return false;
@@ -1023,7 +1027,7 @@ function jobactions(job, action, index){
 		        type: "GET",
 		        success:function(data, textStatus, jqXHR)
 					{
-							           
+
 						console.log(data);
 
 						if(data.status=='ok'){
@@ -1032,11 +1036,11 @@ function jobactions(job, action, index){
 						} else {
 							alert(data.message);
 						}
-							    
+
 					},
-		        error: function(jqXHR, textStatus, errorThrown) 
+		        error: function(jqXHR, textStatus, errorThrown)
 		        {
-		            alert(errorThrown);     
+		            alert(errorThrown);
 		        }
 		    });
 }

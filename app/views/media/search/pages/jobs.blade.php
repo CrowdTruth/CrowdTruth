@@ -106,9 +106,6 @@
                                     </td>
                                 </tr>
                             </table>
-                            @if ((isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']) or isset($mainSearchFilters['documentTypes']['fullvideo'])))
-                                @include('media.search.layouts.specificBarChart')
-                            @endif
                             <table>
                                 <tr >
                                     <td>

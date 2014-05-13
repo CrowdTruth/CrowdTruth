@@ -94,7 +94,8 @@ function pieChartGraph(tooltip, matchStr, groupID, chartName, divName, nrPieChar
             chartData = [];
 
             for (var indexData in data){
-                chartData.push([data[indexData]['_id'], data[indexData]['count']]);
+                var name = data[indexData]['_id'] + '';
+                chartData.push([name , data[indexData]['count']]);
             }
             drawPieChart(chartData);
            /* $('#' + renderTo + ' .highcharts-legend text, .highcharts-legend span').each(function(index, element) {

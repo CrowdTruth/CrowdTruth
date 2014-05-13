@@ -6,22 +6,32 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
     var projectCriteria = "";
     var matchCriteria = "";
     var specificInfo = {};
+
+
     var specificFields = {
         '#twrex-structured-sentence_tab':{ data : "words", info:['domain','format', 'relation', 'sentence' ],
             tooltip:"Number of words in the sentence. Click to select/deselect",
         labelsInfo:['domain','format', 'seed relation', 'sentence' ], sendInfo: 'sentence',
-
         query : '&project[words]=content.properties.sentenceWordCount' +'&project[domain]=domain' +'&project[format]=format'+
         '&project[sentence]=content.sentence.formatted&project[relation]=content.relation.noPrefix' +
-        '&project[id]=_id&push[id]=id&push[domain]=domain&push[format]=format&push[words]=words&push[sentence]=sentence&push[relation]=relation'},
+        '&project[id]=_id&push[id]=id&push[domain]=domain&push[format]=format&push[words]=words&push[sentence]=sentence&push[relation]=relation&'},
+
        '#fullvideo_tab':{ data : "keyframes", info:['domain','format', 'title', 'keyframes' ,'description'],
            tooltip:"Number of key frames in video. Click to select/deselect", sendInfo: 'title',
            labelsInfo:['domain','format', 'title', 'description'],
-        query : '&project[keyframes]=keyframes.count' +'&project[domain]=domain' +'&project[format]=format'+
+       query : '&project[keyframes]=keyframes.count' +'&project[domain]=domain' +'&project[format]=format'+
         '&project[title]=content.metadata.title&project[description]=content.metadata.description' +
         '&project[id]=_id&push[id]=id&push[title]=title&push[domain]=domain&push[format]=format&' +
-            'push[description]=description&push[keyframes]=keyframes'}
+            'push[description]=description&push[keyframes]=keyframes&'},
+
+       '#all_tab':{ data : "keyframes", info:['domain','format', 'documentType'],
+               tooltip:"Click to select/deselect", sendInfo: 'documentType',
+               labelsInfo:['domain','format', 'document type'],
+               query : '&project[domain]=domain' +'&project[format]=format'+'&project[documentType]=documentType&' +
+                   'project[id]=_id&push[id]=id&push[domain]=domain&push[format]=format&push[documentType]=documentType&'}
+
     }
+
 
     var colors = ['#E35467', '#5467E3', '#E4D354' ,'#00CDCD', '#607B8B' ];
 
@@ -298,11 +308,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
         var url = '/api/analytics/unitgraph/?' + '&match[cache.jobs.count][>]=0' +
                     newMatchCriteria +
                     sortCriteria +
-            '&project[sentence]=content.sentence.formatted&project[relation]=content.relation.noPrefix' +
-            '&push[words]=words&push[sentence]=sentence&push[relation]=relation' +
-            '&project[title]=content.metadata.title&project[description]=content.metadata.description&' +
-            '&project[domain]=domain' + '&project[format]=format' +
-            '&push[title]=title&push[description]=description&push[format]=format&push[domain]=domain' +
+                    specificFields[category]['query'] +
                     projectCriteria;
 
         $.getJSON(url, function(data) {
@@ -337,6 +343,9 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             chartGeneralOptions.yAxis = [];
             chartGeneralOptions.series = [];
 
+            console.dir('data and specific fields');
+            console.dir(data);
+            console.dir(specificFields[category]);
 
             for (var indexData in data['id']) {
                 var id = data['id'][indexData];
@@ -537,7 +546,13 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
     this.createBarChart = function(matchStr){
         matchCriteria = 'match[documentType][]=twrex-structured-sentence';
         drawBarChart(matchStr,"");
-        drawSpecificBarChart(matchStr,"");
+        if (category != '#all_tab') {
+
+            drawSpecificBarChart(matchStr,"");
+        } else {
+            $('#specificBarChart_div').highcharts().destroy();
+        }
+
 
     }
 
