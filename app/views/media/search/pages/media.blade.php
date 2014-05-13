@@ -42,6 +42,8 @@
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
+							<li><a href="#" class='toSelection'>Save Selection</a></li>
+							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
 						</ul>
 					</div>
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
@@ -78,19 +80,16 @@
 						@endif
 					</ul>
 					<div class="tab-content documentTypesTabs">
-						@include('media.search.layouts.hb-all')
 
-						@if(isset($mainSearchFilters['media']['documentTypes']['twrex-structured-sentence']))
-							@include('media.search.layouts.hb-twrex-structured-sentence')
-						@endif
-
-						@if(isset($mainSearchFilters['media']['documentTypes']['fullvideo']))
-							@include('media.search.layouts.hb-fullvideo')
-						@endif
-
-						@if(isset($mainSearchFilters['media']['documentTypes']['painting']))
-							@include('media.search.layouts.hb-painting')
-						@endif
+						@foreach($mainSearchFilters['media']['documentTypes'] as $k => $v)
+							@if(\View::exists('media.search.layouts.hb-' . $k))
+								@include('media.search.layouts.hb-' . $k)
+							@endif
+						@endforeach
+						
+						@include('media.search.layouts.hb-modalindividualworker')
+						@include('media.search.layouts.hb-modalannotations')
+						@include('media.search.layouts.hb-modalindividualjob')
 
 						<div class='includeGraph hidden'>
                             <table>
@@ -748,7 +747,7 @@ var openModal = function(modalAnchor , activeTabKey){
     $.getJSON(baseApiURL + query, function(data) {
         console.dir(activeTabKey);
 
-        var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+        var template = Handlebars.compile($(modalTarget + ' .template').html());
 
         var html = template(data);
 

@@ -83,6 +83,11 @@
 							@include('media.search.layouts.hb-job')
 						@endif
 
+						@include('media.search.layouts.hb-modalindividualworker')
+						@include('media.search.layouts.hb-modalannotations')
+						@include('media.search.layouts.hb-modalindividualunit')
+
+
 						<div class='includeGraph hidden'>
                             <table>
                                 <tr>
@@ -709,6 +714,7 @@ var updateFilters = function(filterOption){
 		filterOption.children('i').removeClass('fa-circle-o').addClass('fa-check-circle-o');
 	}	
 }
+
 var openModal = function(modalAnchor , activeTabKey){
     if(baseApiURL == undefined)
     {
@@ -725,8 +731,8 @@ var openModal = function(modalAnchor , activeTabKey){
     console.log(baseApiURL + query);
     $.getJSON(baseApiURL + query, function(data) {
         console.dir(activeTabKey);
-
-        var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+        
+        var template = Handlebars.compile($(modalTarget + ' .template').html());
 
         var html = template(data);
 
