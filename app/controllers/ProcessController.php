@@ -909,7 +909,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 			// TODO: this only takes the first job of potentially two
 			if(!empty($jobs[0]->url))
-				$successmessage .= ". After that, you can view it <a href='{{$jobs[0]->url}}' target='blank'>here</a>.";
+				$successmessage .= ". After that, you can view it <a href='{$jobs[0]->url}' target='blank'>here</a>.";
 
 			Session::flash('flashSuccess', $successmessage);
 			return Redirect::to("jobs/");

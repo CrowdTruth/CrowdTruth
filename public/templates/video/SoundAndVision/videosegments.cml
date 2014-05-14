@@ -1,9 +1,9 @@
 <div class="row-fluid">
   <div class="span6">
     <video width="400" height="280" controls="controls">
-      <source src="{{storage_url}}" type="video/mp4"/>
-      <object data="{{storage_url}}" width="400" height="280">
-        <embed width="400" height="280" src="{{storage_url}}"/>
+      <source src="http://crowdtruth.org/{{storage_url}}" type="video/mp4"/>
+      <object data="http://crowdtruth.org/{{storage_url}}" width="400" height="280">
+        <embed width="400" height="280" src="http://crowdtruth.org{{storage_url}}"/>
       </object>
     </video>
     <cml:textarea label="Please add the events here" name="addedevents" regex="{seed}" flags="im" class="addedevents" no_escape="true" validates="required" instructions="You are required to press the key --ENTER-- after each event typed in."></cml:textarea>
