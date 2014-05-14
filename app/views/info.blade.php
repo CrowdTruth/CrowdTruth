@@ -30,8 +30,8 @@ img {padding:10px;}
 						 <li><a href="#inner1">1. The datamodel</a></li>
 						 <li><a href="#inner2">2. Provenance</a></li>
 						 <li><a href="#inner3">3. API</a></li>
-						 <li><a href="#inner4">4. CF SDK</a></li>
-						 <li><a href="#inner5">5. AMT SDK</a></li>
+						 <li><a href="#inner4">5. AMT SDK</a></li>
+						 <li><a href="#inner5">4. CF SDK</a></li>
 						 <li><a href="#inner6">6. View Code</a></li>
 						 <li><a href="#inner7">7. Extending CrowdTruth</a></li>
 						 <li><a href="#inner7a">&nbsp;&nbsp;A. Adding a crowdsourcing platform</a></li>
@@ -84,11 +84,14 @@ img {padding:10px;}
 								<p>After you have ordered a job on one of the platforms, the CrowdTruth framework polls this server every 20 minutes during the daytime and hourly overnight. It automatically performs metrics on the data it receives from the server. This means that when you see information on your job or on the workers in either the jobs or workers tab, this already passed through the metrics provided by the CrowdTruth framework.</p>
 							<h4 id="process8">Analyze job results and data</h4>
 								<p>After ordering jobs and the automatic retrieval of them, you can find your jobs and data under the Jobs-tab. The table, similar as the table for Media, can show all the properties of the jobs, no matter the status (running/finished/cancelled/etc). Depending on the status you can perform actions on them in the status column. Simply mouse-over the status of the job to see what the possible actions are. You can for instance, duplicate the job. This will take you to the job creation wizard and will pre-select the right batch for you. It will also load the same job configuration for you, which makes the workflow incredibly easy. You can for instance run the same batch with a different template or with a different reward with just a few mouse-clicks. Concerning the table, lastly, it is equally easy to apply filters on the jobs or sort the jobs differently as it is with Media. When you choose to open all columns you can filter on all the properties of the job. To see what each property is, you can hover over the table header for more information.</p>
+								<img src="images/individualjob.png" class="col-xs-12"></img>
 								<p>The Jobs-tab offers two more detailed sources of information and analytics. First, you can click on the Job-id to get information on the particular job. This pop-up has four tabs, showing general job information, descriptive statistics on the job level, descriptive statistics on the unit level and descriptive statistics on the worker-level, all in relation to the job. Secondly, for a visualization of the analytics, you can click the 'Graph view'-button. This will show relevant visualizations on the selection of jobs. Thus, similarly as in the table view, you can apply filters to these pie- and barcharts. First, in the table, apply your filters and consequently choose to have a graph-view.</p>
+								<img src="images/jobgraphs.png" class="col-xs-12"></img>
 							<h4 id="process9">Analyze workers and contributions</h4>
-								<p></p>
+								<p>In many ways similar to the jobs page, the worker page can display a wealth of information. Please take your time to explore this page, mouseover and click on the charts and legends to see what the possibilities are. First choose which columns you want to show at the top, apply any filters you like and select a number of individual workers to compare them in detail. Notice that workers of different platforms can be compared just as easily. To get a deeper understanding of the differences, you can click on individual annotations and even open a page with the details of the annotated units. The possibilities are almost endless, and we encourage you to go explore on your own :)</p>
+								<img src="images/workerpage.png" class="col-xs-12"></img>
 							<h4 id="process10">Export data from CrowdTruth</h4>
-								<p></p>
+								<p>On the Media tab, apply your filters and press Actions->Export to CSV to export the selected units. On every graph view page, you can export individual charts by pressing the icon in the top right corner.</p><p><img src="images/exportmedia.png"></img><img src="images/exportchart.png"></img></p>
 							<h3 id="header2">Inside CrowdTruth</h3>
 								<p>This section describes the modules of the framework, and how you can add new modules to the system.</p>
 							<h4 id="inner1">1. The datamodel</h4>
@@ -105,12 +108,13 @@ img {padding:10px;}
 								<p>An agent takes a role in an activity such that the agent can be assigned some degree of responsibility for the activity taking place. An agent can be a person, a piece of software, an inanimate object, an organization, or other entities that may be ascribed responsibility. When an agent has some responsibility for an activity, PROV says the agent was associated with the activity, where several agents may be associated with an activity and vice-versa).</p>
 							<h4 id="inner3">3. API</h4>
 								<p></p>
-							<h4 id="inner4">4. CF SDK</h4>
-								<p></p>
-							<h4 id="inner5">5. AMT SDK</h4>
+							<h4 id="inner4">5. AMT SDK</h4>
 								<p>Mechanical Turk provides a REST API with XML response for handling jobs, annotations and workers. We created a thin wrapper that behaves like a high-level intermediary between any PHP project and mTurk. The methods and classes mimic the API itself as closely as possible. The wrapper handles the request, conversion and any errors that the API comes up with to alleviate the process of communicating with the API. To ensure reusability, no features specific to our implementation are included in the wrapper, and we incorporated most of the functionality mTurk has to offer. The wrapper is embedded in the Mechanical Turk package within our framework in a directory called lib. When creating a job, the package calls the createJob method with a HIT object as parameter, and the created ID's are returned. Similarly, we call the getAssignments method with a HIT id to get all the annotations to this HIT. </p>
+							<h4 id="inner5">4. CF SDK</h4>
+								<p>The CrowdFlower SDK works in a comparable way to the AMT SDK. CrowdFlower, however, works with JSON responses and we use Curl requests to communicate to their API. Every request that we want to send to CrowdFlower is handled by the SDK.</p>
+
 							<h4 id="inner6">6. View code</h4>
-								<p>The CrowdTruth framework is open-source and available in this <a href="https://github.com/khamkham/crowd-watson">repository</a>. Feel free to fork it, in order to extend or alter it. In case you improve our framework, we would enjoy and appreciate including it in the original CrowdTruth framework.</p>
+								<p>The CrowdTruth framework is open-source and available in this <a href="https://github.com/laroyo/CrowdTruth"target="_blank">repository</a>. Feel free to fork it, in order to extend or alter it. In case you improve our framework, we would enjoy and appreciate including it in the original CrowdTruth framework.</p>
 							<h4 id="inner7">7. Extending CrowdTruth</h4>
 								<p>This section will describe several components of the framework that can be extended.</p>
 								<h5 id="inner7a">A. Add a new platform</h5>
