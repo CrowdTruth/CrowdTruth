@@ -85,6 +85,10 @@
 						@if(isset($mainSearchFilters['workers']))
 							@include('media.search.layouts.hb-crowdagents')
 						@endif
+
+						@include('media.search.layouts.hb-modalindividualjob')
+						@include('media.search.layouts.hb-modalannotations')
+						@include('media.search.layouts.hb-modalindividualunit')						
 						
 						<div class='includeGraph hidden'>
                             <table>
@@ -109,9 +113,6 @@
                                     </td>
                                 </tr>
                             </table>
-                            @if ((isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']) or isset($mainSearchFilters['documentTypes']['fullvideo'])))
-                                @include('media.search.layouts.specificBarChart')
-                            @endif
                             <table>
                                 <tr >
                                     <td>
@@ -716,6 +717,7 @@ var updateFilters = function(filterOption){
 		filterOption.children('i').removeClass('fa-circle-o').addClass('fa-check-circle-o');
 	}	
 }
+
 var openModal = function(modalAnchor , activeTabKey){
     if(baseApiURL == undefined)
     {
@@ -732,8 +734,8 @@ var openModal = function(modalAnchor , activeTabKey){
     console.log(baseApiURL + query);
     $.getJSON(baseApiURL + query, function(data) {
         console.dir(activeTabKey);
-
-        var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+        
+        var template = Handlebars.compile($(modalTarget + ' .template').html());
 
         var html = template(data);
 

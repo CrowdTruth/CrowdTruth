@@ -2,9 +2,10 @@ function unitsChartFacade(category, openModal) {
     var categoryNameMap  = {'#twrex-structured-sentence_tab':'RelEx-structured sentence',
         '#fullvideo_tab':'Video',
         '#job_tab': 'job',
-        '#crowdagents_tab':'worker'
+        '#crowdagents_tab':'worker',
+        '#all_tab':'unit'
     };
-
+    console.dir(category);
     this.unitsWorkerDetails = new unitsWorkerDetails(category, categoryNameMap[category], openModal);
     this.unitsDetails = new unitsDetails(category, categoryNameMap[category], openModal);
     this.unitsJobDetails = new unitsJobDetails(category, categoryNameMap[category], openModal);
@@ -19,10 +20,10 @@ function unitsChartFacade(category, openModal) {
         this.pieChartIds.push({field:'jobs',name:'jobs',divName:"optional1", tooltip:{'prefix' : '', 'suffix':''}});
         this.pieChartIds.push({field:'content.relation.noPrefix',name:'relation', divName:"optional2", tooltip:{'prefix' : 'with', 'suffix':'relation'}});
         this.barChartGraph = new unitsBarChartGraph(category, categoryNameMap[category], this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
-    } else if ((category == '#fullvideo_tab') || (category == '#fullvideo_tab')){
+    } else if ((category == '#fullvideo_tab')){
         this.pieChartIds.push({field:'jobs',name:'jobs',divName:"optional1", tooltip:{'prefix' : '', 'suffix':''}});
         this.pieChartIds.push({field:'source',name:'source', divName:"optional2", tooltip:{'prefix' : 'from', 'suffix':'source'}});
-        this.barChartGraph = new unitsBarChartGraph(category, this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
+        this.barChartGraph = new unitsBarChartGraph(category, categoryNameMap[category], this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
     } else if (category == '#job_tab') {
         this.labelCategory = "jobs"
         this.pieChartIds.push({field:'status',name:'status',divName:"optional1", tooltip:{'prefix' : '', 'suffix':''}});
@@ -32,10 +33,14 @@ function unitsChartFacade(category, openModal) {
     } else if (category == '#crowdagents_tab'){
         this.labelCategory = "workers"
         this.pieChartIds = []
-        this.pieChartIds.push({field:'cache.flagged',name:'flagged',divName:"user", tooltip:{'prefix' : '', 'suffix':''}});
+        this.pieChartIds.push({field:'flagged',name:'flagged',divName:"user", tooltip:{'prefix' : '', 'suffix':''}});
         this.pieChartIds.push({field:'softwareAgent_id',name:'platform',divName:"optional1", tooltip:{'prefix' : 'on', 'suffix':'platform'}});
         this.pieChartIds.push({field:'country',name:'country', divName:"optional2", tooltip:{'prefix' : 'from', 'suffix':''}});
         this.barChartGraph = new workersBarChartGraph(this.unitsDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
+    } else if (category == '#all_tab') {
+        this.pieChartIds.push({field:'jobs',name:'jobs',divName:"optional1", tooltip:{'prefix' : '', 'suffix':''}});
+        this.pieChartIds.push({field:'documentType',name:'document type',divName:"optional2", tooltip:{'prefix' : 'with', 'suffix':'document type'}});
+        this.barChartGraph = new unitsBarChartGraph(category, categoryNameMap[category], this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails);
     }
 
     this.pieCharts = [];

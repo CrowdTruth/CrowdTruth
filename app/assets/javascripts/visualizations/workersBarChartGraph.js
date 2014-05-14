@@ -375,7 +375,7 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
             $.each(data, function (key,value) {
 
                 chartSeriesOptions['job types'][data[key]] = {'color': colors[key % colors.length],
-                    'field': 'cache.jobTypes.types.' + data[key] + '.count', 'name':data[key] + ' jobs', 'type': 'column'};
+                    'field':  'cache.jobTypes.types.' + data[key] + '.count', 'name':'# of ' + data[key] + ' jobs', 'type': 'column'};
             });
             computeBarChartProjectData();
             getBarChartData(matchStr, sortStr);
