@@ -134,7 +134,7 @@ class Crowdflower extends \FrameWork {
 				}	
 
 				$csvresult = $this->CFJob->uploadInputFile($id, $csv);
-				unlink($csv); // DELETE temporary CSV.
+				if(!$debug) unlink($csv); // DELETE temporary CSV.
 
 				if($debug) {
 					print "\r\n\r\nCSVRESULT";
