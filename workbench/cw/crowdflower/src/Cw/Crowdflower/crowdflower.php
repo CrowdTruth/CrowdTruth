@@ -126,7 +126,7 @@ class Crowdflower extends \FrameWork {
 				//  - Tags / keywords
 				//  - Worker levels (defaults to '1')
 				//  - Expiration?
-				$debug = true;//false;
+				$debug = false;
 
 				if($debug) {
 					print "\r\n\r\nRESULT";
