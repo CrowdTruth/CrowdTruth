@@ -1,6 +1,11 @@
 function unitsAnnotationDetails(category, categoryName, openModal) {
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
-    var queryFields = {'#twrex-structured-sentence_tab': 'unit_id', '#fullvideo_tab': 'unit_id', '#job_tab': 'job_id', '#crowdagents_tab': 'crowdAgent_id'};
+    var queryField = 'unit_id';
+    if (category == '#job_tab'){
+        queryField = 'job_id'
+    } else if (category == '#crowdagents_tab'){
+        queryField = 'crowdAgent_id'
+    }
     var currentSelection = [];
     var currentSelectionInfo = {};
     var unitsAnnotationInfo = {};
@@ -244,7 +249,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                                 urlBase = "";
 
                                 for (var indexUnits in currentSelection) {
-                                    urlBase += 'match['+ queryFields[category] + '][]=' + currentSelection[indexUnits] + '&';
+                                    urlBase += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
                                 }
                                 urlBase += 'match[softwareAgent_id][]=' + activeSelectedPlatform ;
                                 if (activeSelectedType != ""){
@@ -280,7 +285,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
             annotationsURL += '&match[type][]=' + type;
         }
 
-        annotationsURL += '&project[dictionary]=dictionary&group=' + queryFields[category] + '&push[dictionary]=dictionary';
+        annotationsURL += '&project[dictionary]=dictionary&group=' + queryField + '&push[dictionary]=dictionary';
 
         //get the list of workers for this units
         $.getJSON(annotationsURL, function (data) {
@@ -349,7 +354,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
             console.dir(seriesMaps);
 
             var additionalSeries = [];
-            if (queryFields[category] == 'job_id') {
+            if (queryField == 'job_id') {
 
                 var urlJobs = "/api/v1/?";
                 for (var indexUnits in currentSelection) {
@@ -520,7 +525,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
         urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
         //create the series data
         for (var indexUnits in selectedUnits) {
-            urlBase += 'match[' + queryFields[category] + '][]=' + selectedUnits[indexUnits] + '&';
+            urlBase += 'match[' + queryField + '][]=' + selectedUnits[indexUnits] + '&';
             seriesBase.push({'name': selectedUnits[indexUnits], data: [],  yAxis: 0,
                 type: 'column'});
         }

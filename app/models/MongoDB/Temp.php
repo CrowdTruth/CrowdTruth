@@ -104,7 +104,7 @@ class Temp extends Moloquent {
         \Session::forget('rawArray');
     }
 
-	public static function getDistinctFieldAndCount($field, $tags = null)
+	public static function getDistinctFieldLabelAndCount($field, $tags = null)
 	{
         if($tags == null)
         {
@@ -119,6 +119,12 @@ class Temp extends Moloquent {
 
     	foreach($distinctFieldValues as $distinctFieldValue)
     	{
+            $distinctFieldValuesAndCount[$distinctFieldValue]['label'] = $distinctFieldValue;
+
+            if(isset(\MongoDB\Entity::getKeyLabelMapping()[strtolower($distinctFieldValue)])) {
+                $distinctFieldValuesAndCount[$distinctFieldValue]['label'] = \MongoDB\Entity::getKeyLabelMapping()[$distinctFieldValue];
+            }
+
     		$distinctFieldValuesAndCount[$distinctFieldValue]['count'] = Entity::where($field, $distinctFieldValue)->count();
     	}
 
@@ -129,8 +135,10 @@ class Temp extends Moloquent {
     {
         // $mainSearchFilters['media']['formats'] = $this->getDistinctFieldAndCount('format', ['unit']);
         // $mainSearchFilters['media']['domains'] = $this->getDistinctFieldAndCount('domain', ['unit']);
-        $mainSearchFilters['media']['documentTypes'] = static::getDistinctFieldAndCount('documentType', ['unit']);
-        $mainSearchFilters['media']['documentTypes']['all'] = ["count" => \MongoDB\Entity::whereIn('tags', ['unit'])->count()];
+        $mainSearchFilters['media']['documentTypes'] = static::getDistinctFieldLabelAndCount('documentType', ['unit']);
+        $mainSearchFilters['media']['documentTypes']['all'] = ["count" => \MongoDB\Entity::whereIn('tags', ['unit'])->count(),
+                                                                "label" => "All units"
+                                                                ];
         
         unset($mainSearchFilters['media']['documentTypes']['twrex']);
 
