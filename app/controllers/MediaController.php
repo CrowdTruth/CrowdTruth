@@ -103,10 +103,12 @@ class MediaController extends BaseController {
 
 	public function getSearch()
 	{
-		$facetedSearch = App::make('FacetedSearch');
-		$mainSearchFilters = $facetedSearch->getMainSearchFilters();
+		// $facetedSearch = App::make('FacetedSearch');
+		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
 
-		return View::make('media.search.pages.index', compact('mainSearchFilters'));
+		// dd($mainSearchFilters);
+
+		return View::make('media.search.pages.media', compact('mainSearchFilters'));
 	}
 
 	public function anyBatch(){

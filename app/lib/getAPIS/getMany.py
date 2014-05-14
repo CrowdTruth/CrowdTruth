@@ -24,7 +24,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 DELAY = 2    
-WRITE_FILE = 0
+WRITE_FILE = 0   
 if len(sys.argv) < 5:
     print('wrong parameters', file=sys.stderr)
     exit()
@@ -71,7 +71,7 @@ headers = {'content-type': 'application/json'}
 
 
 
-if WRITE_FILE==0:
+if WRITE_FILE==1:
     output = open('data.json', 'wb')
 # output.write(json.dumps(data1, indent = 2)) 
 # r = requests.post(url, data=json.dumps(data1), headers=headers)

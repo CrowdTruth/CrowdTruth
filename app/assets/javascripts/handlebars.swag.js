@@ -519,6 +519,30 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
     }
   });
 
+  Swag.addHelper('inArrayNew', function(array, value, options) {
+    if (!((Utils.isUndefined(array)) && (Utils.isUndefined(value)))) {
+      array = Utils.result(array);
+      value = Utils.result(value);
+      if (value.constructor === Array) {
+	if (__indexOf.call(array, value[0]) >= 0) {
+        	return options.fn(this);
+        } else {
+        	return options.inverse(this);
+        }
+      }
+      else {
+	if (__indexOf.call(array, value) >= 0) {
+        	return options.fn(this);
+        } else {
+        	return options.inverse(this);
+        }
+
+      }     
+    } else {
+      return Utils.err('{{inArray}} takes two arguments (array, string|number).');
+    }
+  });
+
   Swag.addHelper('eachIndex', function(array, options) {
     var index, result, value, _i, _len;
     if (!Utils.isUndefined(array)) {
@@ -943,6 +967,36 @@ Swag.addHelper('highlightTermsInVideoSpatial', function(searchQuery, content, op
       });
     }
     return new Handlebars.SafeString(searchFieldSpatial);
+  });
+
+Swag.addHelper('ifarray', function(object, options) {
+    if (object.constructor === Array) return object[0];
+    else return object;
+
+  });
+
+Swag.addHelper('booltostring', function(object, options) {
+  
+  return object.toString();;
+
+  });
+
+Swag.addHelper('addDocumentTypeLabel', function(documentType, options) {
+    var documentTypeLabel = documentType;
+    if (documentType == "fullvideo") {
+	documentTypeLabel = "Sound & Vision News Video";
+    }
+    if (documentType == "twrex-structured-sentence") {
+	documentTypeLabel = "Watson Medical RelEx Sentence";
+    }
+    if (documentType == "painting") {
+	documentTypeLabel = "Rijksmuseum Painting";
+    }
+    if (documentType == "drawing") {
+	documentTypeLabel = "Rijksmuseum Drawing";
+    }
+    
+    return documentTypeLabel;
   });
 
   Swag.addHelper('gte', function(value, test, options) {

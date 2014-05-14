@@ -1,3 +1,4 @@
+import urllib2
 import urllib
 import ConfigParser
 import json
@@ -8,17 +9,18 @@ from ..UnitMetrics.UnitMetricsEnum import *
 from ..UnitMetrics.UnitFiltersEnum import *
 from ..Filters import *
 from ..WorkerMetrics.Worker import *
+from ..AnnotationMetrics.Annotation import *
+from ..AnnotationMetrics.AnnotationMetricsEnum import *
 
 class Task:
-    def update_metrics(self, jobID, annotation_id):
+    def update_metrics(self, jobID):
         #update all the metrics - if null create
         #TODOf
         pass
 
-    def __init__(self, jobs, template_id, annotation_id):
+    def __init__(self, jobs, template_id):
         # update to include multiple type of jobs..
         self.template_id = template_id
-        self.annotation_id = annotation_id
         self.default_thresholds = self.__get_default_thresholds()
         if isinstance(jobs, dict):
             self.jobs_dict = jobs
@@ -26,7 +28,7 @@ class Task:
             self.jobs_dict = {}
             for job_id in jobs:
                 api_param = urllib.urlencode({'field[_id]': job_id, 'limit':10000})
-                api_call = urllib.urlopen(config.server + "?" + api_param)
+                api_call = urllib2.urlopen(config.server + "?" + api_param)
                 response = json.JSONDecoder().decode(api_call.read())
                 self.jobs_dict[job_id] = response[0]['results']['withSpam'].keys()
 
@@ -78,7 +80,7 @@ class Task:
     def __get_default_thresholds(self):
         api_param = urllib.urlencode({'field[_id]': self.template_id,'limit':10000,
                               'only[]': 'content.defaultThresholds'})
-        api_call = urllib.urlopen(config.server + "?" + api_param)
+        api_call = urllib2.urlopen(config.server + "?" + api_param)
         response = json.JSONDecoder().decode(api_call.read())
         return response[0]['content']['defaultThresholds']
 
@@ -88,7 +90,7 @@ class Task:
             api_param = urllib.urlencode({'field[job_id]': job_id,'limit':10000,
                               'field[documentType]': 'annotation',
                               'only[]': 'crowdAgent_id'})
-            api_call = urllib.urlopen(config.server + "?" + api_param)
+            api_call = urllib2.urlopen(config.server + "?" + api_param)
             response = json.JSONDecoder().decode(api_call.read())
             print len(response)
             for annotation in response:
@@ -98,7 +100,6 @@ class Task:
                         workers_clusters[crowd_agent][job_id] = filtered
                 else:
                     workers_clusters[crowd_agent] = {job_id:filtered}
-        print workers_clusters
         workers = []
         for worker_id in workers_clusters:
             #if the worker performance will be ever compared, it should be computed on the same filtered set of
@@ -168,9 +169,24 @@ class Task:
             unit_result = unit.get_metrics(UnitMetricsEnum.__members__.values())
             all_units_metrics[unit_id] = unit_result
 
-        metrics['units'] = {}
-        metrics['units']['withSpam'] = all_units_metrics
+        metrics['pivotTables'] = {}
+        metrics['pivotTables']['units'] = {}
+        metrics['pivotTables']['units']['withSpam'] = {}
+        for unit in all_units:
+            metrics['pivotTables']['units']['withSpam'][unit.sentence_id] = unit.get_cosine_vector()
 
+        print 1
+        metrics['pivotTables']['annotations'] = {}
+        metrics['pivotTables']['annotations']['withSpam'] = {}
+        ann_keys = all_units[0].get_unit_vector().keys()
+        annotation_metrics = {}
+        for ann_key in ann_keys:
+            annotation = Annotation(all_units, ann_key)
+            annotation_metrics[ann_key] = annotation.get_metrics(AnnotationMetricsEnum.__members__.values())
+            metrics['pivotTables']['annotations']['withSpam'][ann_key] = annotation.get_rel_similarity_dict()
+
+        metrics['annotations'] = {}
+        metrics['annotations']['withSpam'] = annotation_metrics
 
         #(union_filtered_sent)
         #TODO - if sentence provided select just workers which annotated those sentences
@@ -188,9 +204,11 @@ class Task:
         thresholds = self.__get_sentence_filter_threshold()
 
 
+
+
         #print(mean_metrics)
         #print(stddev_measure)
-
+        print 2
         #filter based on both sentences or one
         unit_filter = Filters(mean_metrics,stddev_measure,thresholds)
         filtered_sentences = {}
@@ -201,7 +219,17 @@ class Task:
                     filtered_list.append(unit.sentence_id)
             filtered_sentences[filter_type] = filtered_list
 
+        metrics['units'] = {}
+        for unit in all_units_metrics:
+            for metric in all_units_metrics[unit]:
+                avg = 0
+                count  = 0
+                for ann in all_units_metrics[unit][metric]:
+                    count += 1
+                    avg += all_units_metrics[unit][metric][ann]
+                all_units_metrics[unit][metric]['avg'] = avg/(1.0 * count)
 
+        metrics['units']['withSpam'] = all_units_metrics
         #print("filtered sentences:")
 
         union_filtered_sent = []
@@ -224,10 +252,10 @@ class Task:
                 worker_result = all_workers_metrics[worker.crowd_agent_id]
             all_workerFilter_metrics[worker.crowd_agent_id] = worker_result
 
+        print 3
 
 
 
-        print("all_workerFilter_metrics")
         worker_mean_metrics = self.__compute_mean_measure(all_workerFilter_metrics)
         worker_stddev_measure = self.__compute_stddev_measure(all_workerFilter_metrics, worker_mean_metrics)
 
@@ -274,7 +302,6 @@ class Task:
 
         metrics['aggWorker']['mean'] = worker_mean_metrics
 
-        print("aggWorker")
         for metric in worker_stddev_measure:
             avg = 0
             count = 0;
@@ -283,6 +310,7 @@ class Task:
                 avg += worker_stddev_measure[metric][ann]
             worker_stddev_measure[metric]['avg'] = avg/(1.0 * count)
 
+        print 3
         metrics['aggWorker']['stddev'] = worker_stddev_measure
 
         # if self.template_id == 'entity/text/medical/FactSpan/Factor_Span/0':
@@ -306,7 +334,7 @@ class Task:
                                               'field[crowdAgent_id]': spammer,
                                               'field[documentType]': 'annotation',
                                               'only[]': '_id'})
-                api_call = urllib.urlopen(config.server + "?" + api_param)
+                api_call = urllib2.urlopen(config.server + "?" + api_param)
                 response = json.JSONDecoder().decode(api_call.read())
                 for res in response:
                     filtered_annotations.append(res['_id']);
@@ -314,9 +342,9 @@ class Task:
         metrics['filteredAnnotations'] = {}
         metrics['filteredAnnotations']['count'] = len(filtered_annotations)
         metrics['filteredAnnotations']['list'] = filtered_annotations
-        print("filteredAnnotations")
         #create a new job dic with newly computed spammers
         all_units_metrics_ws = {}
+        all_units_ws = []
         all_units_vec_ws = {}
         #compute average and compare
         for unit_id in unit_cluster:
@@ -327,11 +355,16 @@ class Task:
             unit_cluster[unit_id] = job_dict
             unit = Unit(unit_id, unit_cluster[unit_id], True)
             all_units_vec_ws[unit_id] = unit.get_unit_vector()
+            all_units_ws.append(unit)
          #!save here the without spam result for units
             unit_result = unit.get_metrics(UnitMetricsEnum.__members__.values())
             all_units_metrics_ws[unit_id] = unit_result
 
+        metrics['pivotTables']['units']['withoutSpam'] = {}
+        for unit in all_units_ws:
+            metrics['pivotTables']['units']['withoutSpam'][unit.sentence_id] = unit.get_cosine_vector()
 
+        print 4
 
         mean_metrics_ws = self.__compute_mean_measure(all_units_metrics_ws)
         stddev_measure_ws = self.__compute_stddev_measure(all_units_metrics_ws, mean_metrics)
@@ -382,8 +415,18 @@ class Task:
                     count += 1
                 all_workers_metrics[worker][metric]['avg'] = avg/(1.0 * count)
 
-
+        print 5
         metrics['workers']['withoutFilter'] = all_workers_metrics
+
+        metrics['pivotTables']['annotations']['withoutSpam'] = {}
+        ann_keys = all_units_ws[0].get_unit_vector().keys()
+        annotation_metrics_ws = {}
+        for ann_key in ann_keys:
+            annotation = Annotation(all_units_ws, ann_key)
+            annotation_metrics_ws[ann_key] = annotation.get_metrics(AnnotationMetricsEnum.__members__.values())
+            metrics['pivotTables']['annotations']['withoutSpam'][ann_key] = annotation.get_rel_similarity_dict()
+
+        metrics['annotations']['withoutSpam'] = annotation_metrics_ws
 
         results = {}
         results['metrics'] = metrics
