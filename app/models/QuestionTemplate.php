@@ -93,7 +93,7 @@ class QuestionTemplate extends Entity {
         foreach($uco as $key=>$val)
             $uc[str_replace('.', '_', $key)] = $val;
 
-        if(!isset($this->content['replaceValues'])) return $unitcontent;
+        if(!isset($this->content['replaceValues'])) return $uc;
         $r = $this->content['replaceValues'];
         foreach($r as $field=>$wasbecomes){
             if(isset($uc[$field]))
