@@ -32,7 +32,7 @@ Route::get('/', function()
 Route::get('home', 'PagesController@index');
 Route::get('info', 'PagesController@info');
 Route::get('papers', 'PagesController@papers');
-
+Route::get('team', 'PagesController@team');
 Route::controller('api/v1', '\Api\v1\apiController');
 Route::controller('api/media', '\Api\media\apiController');
 Route::controller('api/search', '\Api\search\apiController');
