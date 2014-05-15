@@ -38,11 +38,12 @@ class Temp extends Moloquent {
         $db = \DB::getMongoDB();
         $db = $db->temp;
 
+        \Queue::push('Queues\UpdateUnits', \MongoDB\Entity::whereIn('documentType', ['painting', 'drawing', 'picture'])->lists('_id'));
+
 		$result = \MongoDB\Entity::whereIn('documentType', ['painting', 'drawing', 'picture'])->get()->toArray();
 
 		if(count($result) > 0)
 		{
-
             foreach($result as &$parent)
             {
                 dd($parent);

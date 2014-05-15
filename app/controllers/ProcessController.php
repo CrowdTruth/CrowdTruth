@@ -591,9 +591,11 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				
 			}
 		}
-		if(count($possibleplatforms)==0)
+		if(count($possibleplatforms)==0){
 			Session::flash('flashError', 'No usable templates found. Please upload a template with one of these extensions: ' . implode(', ', $extensions) . '.');
-
+			
+		}
+		
 		return View::make('process.tabs.platform')->with('jobconf', $jc->content)->with('possible', $possibleplatforms);
 	}
 
@@ -649,6 +651,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
+			//throw $e; // for debugging: see where it originates
 		}
 
 		$toomany = '';
