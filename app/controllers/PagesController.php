@@ -22,7 +22,8 @@ class PagesController extends BaseController {
 	}
 
 
-	public function team(){
+	public function team()
+	{
 		return View::make('team');
 	}
 
