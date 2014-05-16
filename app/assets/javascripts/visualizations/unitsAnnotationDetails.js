@@ -200,10 +200,14 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                         var name = point.series.name;
                         var arrayName = id.split('/');
                         var shortName = arrayName[arrayName.length - 1];
-                        if (point.series.name == id){
-                            name =  '# of ann';
-                        } else {
-                            name = name;//.substr(shortName.length,name.length);
+
+                        if (point.series.name == id) {
+                            name = '# of ann ';
+                        }
+                        if(point.series.options.manyAnnVectors){
+                            var stackKey = point.series.stackKey;
+                            var columnName = 'column';
+                            name += '(' + stackKey.substr(columnName.length,stackKey.length) + ')';
                         }
 
                         var line = '<tr><td></td><td style="color: ' + point.series.color + ';text-align: left">   ' + name +':</td>'+
@@ -351,8 +355,11 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 }
 
                 var first = true;
+                var manyAnnVectors = microtasks.length > 1 ;
+
                 for (var microTaskKey in microtasks) {
-                    var newSeries = {'name':  data[iterData]['_id'], categoryID:data[iterData]['_id'], data:[], type: 'column', stack:microtasks[microTaskKey], color: colors[iterData%colors.length]};
+
+                    var newSeries = {'name':  data[iterData]['_id'], categoryID:data[iterData]['_id'], 'manyAnnVectors':manyAnnVectors, data:[], type: 'column', stack:microtasks[microTaskKey], color: colors[iterData%colors.length]};
                     colorMaps[data[iterData]['_id']] = colors[iterData%colors.length];
                     seriesMaps[data[iterData]['_id']] = series.length;
                     if(!(first == true)){

@@ -113,11 +113,6 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                 formatter: function () {
                     var arrayUnit = this.value.split("/");
                     var value = arrayUnit[arrayUnit.length - 1];
-                   /* if ($.inArray(this.value, spammers) > -1) {
-                        return '<span style="fill: red;">' + value + '</span>';
-                    } else {
-                        return value;
-                    }*/
                     return value;
                 },
                 rotation: -45,
@@ -156,8 +151,6 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                         seriesOptions[point.series.yAxis.axisTitle.text]['totalValue'] = -1;
                         if(point.series.stackKey != "spline"){
                             seriesOptions[point.series.yAxis.axisTitle.text]['totalValue'] = point.y;}
-
-
                     }
                 });
 
