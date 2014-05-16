@@ -1,5 +1,5 @@
 
-function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction) {
+function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction, getSelection, updateSelection) {
     var unitsJobChart = "";
     var unitsWordCountChart = "";
     var selectedUnits = [];
@@ -92,6 +92,38 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                         item.attr("title", tooltipValue);
 
                     }
+                    var selectedUnits = getSelection();
+                    var currentSelectedUnits = [];
+                    for (var idUnitIter in selectedUnits){
+                        var categoryName = selectedUnits[idUnitIter];
+                        for (var iterData = 0; iterData < chart.series[0].data.length; iterData++) {
+                            
+                            if (categoryName == chart.series[0].data[iterData]['category']) {
+                                currentSelectedUnits.push(category);
+                                for (var iterSeries = 0; iterSeries < chart.series.length; iterSeries++) {
+                                                               
+                                   chart.series[iterSeries].data[iterData].select(null,true)
+                                                                   
+                               } 
+                            }
+                            
+                        }   
+                    }
+                    if(!(chart.renderTo.id == 'generalBarChart_div' )) {
+                        return;
+                    } 
+                    
+                    var selectedInfo = {};
+                    for (var index in selectedUnits) {
+                        selectedInfo[selectedUnits[index]] = {};
+                        selectedInfo[selectedUnits[index]]['tooltipLegend'] = specificInfo[selectedUnits[index]][specificFields[category]['sendInfo']];
+                        selectedInfo[selectedUnits[index]]['tooltipChart'] = {};
+                        selectedInfo[selectedUnits[index]]['tooltipChart']['unit avg clarity'] = specificInfo[selectedUnits[index]]['avg_clarity'];
+                    }
+                    workerUpdateFunction.update(currentSelectedUnits, selectedInfo);
+                    jobsUpdateFunction.update(currentSelectedUnits, selectedInfo);
+                    annotationsUpdateFunction.update(currentSelectedUnits , selectedInfo);
+
 
                 }
             }
@@ -271,13 +303,14 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                                 selectedGraph.series[iterSeries].data[this.x].select(null,true)
                             }
 
-
-
                             if($.inArray(this.category, selectedUnits) > -1) {
                                 selectedUnits.splice( $.inArray(this.category, selectedUnits), 1 );
                             } else {
                                 selectedUnits.push(this.category)
                             }
+
+                            updateSelection(this.category);
+
                             var selectedInfo = {};
                             for (var index in selectedUnits) {
                                 selectedInfo[selectedUnits[index]] = {};
