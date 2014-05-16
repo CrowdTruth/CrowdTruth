@@ -7,7 +7,6 @@ function pieChartGraph(tooltip, matchStr, groupID, chartName, divName, nrPieChar
     var renderTo = divName + "_div";
 
     var drawPieChart = function(chartData){
-            console.dir(renderTo);
             pieChart =  new Highcharts.Chart({
             chart: {
                 renderTo: renderTo,

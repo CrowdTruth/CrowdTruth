@@ -51,15 +51,14 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                     load: function () {
                         var chart = this,
                             legend = chart.legend;
-                        console.dir(currentSelectionInfo);
                         for (var i = 0, len = legend.allItems.length; i < len; i++) {
                             var item = legend.allItems[i].legendItem;
                             var tooltipValue = "";
-                            if (typeof currentSelectionInfo[legend.allItems[i].name] === 'string') {
-                                var tooltipValue = currentSelectionInfo[legend.allItems[i].name];
+                            if (typeof currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'] === 'string') {
+                                var tooltipValue = currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'];
                             } else {
-                                for( var indexInfoKey in currentSelectionInfo[legend.allItems[i].name]) {
-                                    tooltipValue +=  currentSelectionInfo[legend.allItems[i].name][indexInfoKey] + '(' + indexInfoKey + ')' + '<br/>';
+                                for( var indexInfoKey in currentSelectionInfo[legend.allItems[i].name]['tooltipLegend']) {
+                                    tooltipValue +=  currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'][indexInfoKey] + '(' + indexInfoKey + ')' + '<br/>';
                                 }
                             }
 
@@ -169,7 +168,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
             yAxis: [{
                 min: 0,
                 title: {
-                    text: '# annotation per unit'
+                    text: '# micro tasks per unit'
                 }
             },
                 {
@@ -181,59 +180,84 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 }]
                ,
             tooltip: {
-                shared: true,
-                useHTML: true,
-                headerFormat: '<b>Annotation {point.key}</b></br><p>(Click for details)</p><table>',
-                pointFormat: '<tr><td style="color: {series.color};text-align: left">{series.name}: </td>' +
-                    '<td style="text-align: right"><b>{point.y} annotations</b></td></tr>',
-                footerFormat: '</table>',
-                valueDecimals: 2
 
-            },
-           /* exporting: {
-                buttons: {
-                    customButton: {
-                        x: -32,
-                        onclick: function () {
-                            alert('Clicked1');
-                        },
-                        theme: {
-                            'stroke-width': 1,
-                            stroke: 'silver',
-                            fill: '#bada55',
-                            height: 40,
-                            width: 48,
-                            symbolSize: 24,
-                            symbolX: 23,
-                            symbolY: 21,
-                            symbolStrokeWidth: 2,
-                            class: 'fa fa-circle-o fa-fw'
+                hideDelay:10,
+                useHTML : true,
+                formatter: function() {
+                    var arrayID = this.x.split("/");
+                    var id =  arrayID[arrayID.length - 1];
+                    var s = '<div style="white-space:normal;"><b>Annotation </b>'+ id +'<br/>';
 
-                        },
-                        text: 'Low quality'
 
-                    },
-                    customButton2: {
-                        x: -62,
-                        onclick: function () {
-                            alert('Clicked2');
-                        },
-                        height: 40,
-                        width: 48,
-                        symbolSize: 24,
-                        symbolX: 23,
-                        symbolY: 21,
-                        symbolStrokeWidth: 2,
-                        fill: '#bada55',
-                        text: 'High quality'
+                    var seriesOptions = {};
+                    $.each(this.points, function(i, point) {
+                        var pointValue = point.y
+                        if (!(pointValue % 1 === 0)) {
+                            pointValue = point.y.toFixed(2);
+                        }
+                        var id = point.series.options.categoryID;
+
+                        var name = point.series.name;
+                        var arrayName = id.split('/');
+                        var shortName = arrayName[arrayName.length - 1];
+                        if (point.series.name == id){
+                            name =  '# of ann';
+                        } else {
+                            name = name;//.substr(shortName.length,name.length);
+                        }
+
+                        var line = '<tr><td></td><td style="color: ' + point.series.color + ';text-align: left">   ' + name +':</td>'+
+                            '<td style="text-align: right">' + pointValue + '</td></tr>';
+                        if(!(id in seriesOptions)){
+                            seriesOptions[id] = [];
+                        }
+                        seriesOptions[id].push(line);
+                    });
+
+                    s += '<table calss="table table-condensed">';
+                    for (var item in seriesOptions)
+                    {
+                        var arrayName = item.split('/');
+                        var id = arrayName[arrayName.length - 1];
+                        s += '<tr><td> </td><td style="text-align: left"><b>' + categoryName + ' ' +  id + ':</b></td></tr>';
+                        if('tooltipChart' in currentSelectionInfo[item]){
+                            for (var tooltipInfo in currentSelectionInfo[item]['tooltipChart']){
+                                pointValue = currentSelectionInfo[item]['tooltipChart'][tooltipInfo];
+                                if (!(pointValue % 1 === 0)) {
+                                    pointValue = pointValue.toFixed(2);
+                                }
+                                s += '<tr><td></td><td style="text-align: left">   ' + tooltipInfo +':</td>'+
+                                    '<td style="text-align: right">' + pointValue + '</td></tr>';
+                            }
+                        }
+
+                        for(var li in seriesOptions[item]) {
+                            s += seriesOptions[item][li];
+                        }
+
                     }
-                }
-            },*/
+                    s += '</table>';
+
+                    return s;
+                },
+                shared: true,
+                crosshairs: true
+            },
             plotOptions: {
                 series: {
-                    minPointLength : 0
-                },
-                column: {
+                    minPointLength : 0,
+                    events: {
+                        legendItemClick: function(event) {
+                            var categoryID = this['options']['categoryID'];
+                            for (var iterData = 0; iterData < barChart.series.length; iterData++) {
+                                if (barChart.series[iterData]['options']['categoryID'] == categoryID & barChart.series[iterData].type == 'spline') {
+                                    barChart.series[iterData].visible ? barChart.series[iterData].hide() : barChart.series[iterData].show();
+                                }
+                            }
+
+                        }
+                    },
+
                     stacking: 'normal',
                     states: {
 
@@ -325,12 +349,10 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                         break
                     }
                 }
-                console.dir('map');
-                console.dir(seriesData);
 
                 var first = true;
                 for (var microTaskKey in microtasks) {
-                    var newSeries = {'name':  data[iterData]['_id'], data:[], type: 'column', stack:microtasks[microTaskKey], color: colors[iterData%colors.length]};
+                    var newSeries = {'name':  data[iterData]['_id'], categoryID:data[iterData]['_id'], data:[], type: 'column', stack:microtasks[microTaskKey], color: colors[iterData%colors.length]};
                     colorMaps[data[iterData]['_id']] = colors[iterData%colors.length];
                     seriesMaps[data[iterData]['_id']] = series.length;
                     if(!(first == true)){
@@ -344,14 +366,8 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
                     series.push(newSeries);
                 }
-                console.dir(iterData);
-                console.dir(series);
 
             }
-            console.dir("partial series");
-            console.dir(series);
-            console.dir(colorMaps);
-            console.dir(seriesMaps);
 
             var additionalSeries = [];
             if (queryField == 'job_id') {
@@ -371,13 +387,11 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                     for (var iter in data){
                         //iterate job
                         var jobData = data[iter];
-                        console.dir(data[iter]);
-                        var ambiguity = {'name': "ambiguity", data:[], type: 'spline', color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.3).get(), linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
-                        var clarity = {'name': "clarity", data:[], type: 'spline',color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.1).get(),  linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
+                        var ambiguity = {'name': "ambiguity", data:[], categoryID:data[iter]['_id'], type: 'spline', color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.3).get(), linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
+                        var clarity = {'name': "clarity", data:[], categoryID:data[iter]['_id'], type: 'spline',color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.1).get(),  linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
                         for (var iterCateg in categories) {
-                            console.dir(microtasks);
                             for (var iterMicroTask in microtasks){
-                                console.dir(categories);
+                                if (!('metrics' in data[iterData])) {continue;}
                                 var value = data[iter]['metrics']['annotations']['withoutSpam'][microtasks[iterMicroTask]]['annot_ambiguity'][categories[iterCateg]];
                                 ambiguity['data'].push(value);
                                 var value = data[iter]['metrics']['annotations']['withoutSpam'][microtasks[iterMicroTask]]['annot_clarity'][categories[iterCateg]];
@@ -385,8 +399,6 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                             }
 
                         }
-                        console.dir(ambiguity);
-                        console.dir(clarity);
                         series.push(ambiguity);
                         series.push(clarity);
                     }
@@ -396,9 +408,6 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                             categoriesJobs.push(categories[iter]);
                         }
                     }
-                    console.dir(categories);
-                    console.dir(categoriesJobs);
-
                     drawBarChart(series, [categories, categoriesJobs]);
                 });
 
@@ -452,19 +461,6 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                                 }
                                 getBarChartData(platform, type);
 
-
-                                /* console.dir(urlBase + this.options.match + '&');
-                                 getWorkersData(urlBase + this.options.match + '&');
-                                 ///pieChart.series[this.options.ser_nr].data[this.x].select(null,true);
-                                 console.dir(pieChart.getSelectedPoints());*/
-                                /*var elem = mapping[this.name];
-                                 url = '/api/analytics/piegraph/?match[documentType][]=annotation' +
-                                 '&match[unit_id][]='+elem['id']+
-                                 '&match[spam]='+elem['spam']+
-                                 '&group=crowdAgent_id';
-                                 $.getJSON(url, function(data) {
-                                 createUnitBarChart(data);
-                                 });*/
                             }
                         }
                     }
@@ -581,11 +577,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
             });
 
         });
-        //get the list of jobs of the units grouped by platform units
 
-        //get the set of job ids
-        //get the types of the set of jobs
-        //draw the
     }
 
     this.createUnitsAnnotationDetails = function () {

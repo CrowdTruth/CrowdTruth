@@ -7,7 +7,6 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
     var matchCriteria = "";
     var specificInfo = {};
 
-
     var specificFields = {
         '#twrex-structured-sentence_tab':{ data : "words", info:['domain', 'format', 'relation', 'sentence' ],
             tooltip:"Number of words in the sentence. Click to select/deselect",
@@ -21,7 +20,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
            labelsInfo:['domain','format', 'title', 'key frames', 'description'],
            query : '&project[keyframes]=keyframes.count' +'&project[domain]=domain' +'&project[format]=format'+
             '&project[title]=content.metadata.title&project[description]=content.metadata.description' +
-            '&project[id]=_id&push[title]=title&push[domain]=domain&push[format]=format&' +
+            '&project[id]=_id&push[id]=id&push[title]=title&push[domain]=domain&push[format]=format&' +
                 'push[description]=description&push[keyframes]=keyframes&'},
 
        '#drawing_tab':{ data : "features", info:['domain', 'format', 'title', 'features', 'author', 'description', 'url'],
@@ -281,7 +280,10 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                             }
                             var selectedInfo = {};
                             for (var index in selectedUnits) {
-                                selectedInfo[selectedUnits[index]] = specificInfo[selectedUnits[index]][specificFields[category]['sendInfo']];
+                                selectedInfo[selectedUnits[index]] = {};
+                                selectedInfo[selectedUnits[index]]['tooltipLegend'] = specificInfo[selectedUnits[index]][specificFields[category]['sendInfo']];
+                                selectedInfo[selectedUnits[index]]['tooltipChart'] = {};
+                                selectedInfo[selectedUnits[index]]['tooltipChart']['unit avg clarity'] = specificInfo[selectedUnits[index]]['avg_clarity'];
                             }
                             workerUpdateFunction.update(selectedUnits, selectedInfo);
                             jobsUpdateFunction.update(selectedUnits, selectedInfo);
@@ -366,7 +368,9 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     var field = specificFields[category]['info'][indexField];
                     specificInfo[id][field] = data[field][indexData];
                 }
+                specificInfo[id]['avg_clarity']= data['avg_clarity'][indexData];
             }
+
 
             for (var key in chartSeriesOptions) {
                 var yAxisSeriesGroup = chartSeriesOptions[key];
@@ -461,7 +465,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
         //get the word count data
         var url = '/api/analytics/aggregate/?' +
             newMatchCriteria +
-           // '&match[cache.jobs.count][<]=1' +
+            '&match[cache.jobs.count][<]=1' +
             sortCriteria +
             specificFields[category]['query'];
 

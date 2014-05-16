@@ -78,11 +78,8 @@ function unitsChartFacade(category, openModal) {
 
     this.init = function(matchStr, sortStr){
         this.barChartGraph.createBarChart(matchStr, sortStr);
-        //console.dir(this.pieCharts);
 
         for (var pieChartIndex in this.pieCharts){
-           // console.dir(this.pieCharts[pieChartIndex]);
-            //console.dir(matchStr);
             this.pieCharts[pieChartIndex].createPieChart(matchStr);
 
         }

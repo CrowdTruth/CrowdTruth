@@ -211,7 +211,12 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                             }
                             var selectedInfo = {};
                             for (var index in selectedUnits) {
-                                selectedInfo[selectedUnits[index]] = info[selectedUnits[index]]['platform'];
+                                selectedInfo[selectedUnits[index]] = {};
+                                selectedInfo[selectedUnits[index]]['tooltipLegend'] = info[selectedUnits[index]]['platform'];
+                                selectedInfo[selectedUnits[index]]['tooltipChart'] = {};
+                                selectedInfo[selectedUnits[index]]['tooltipChart']['platform trust'] = info[selectedUnits[index]]['platformTrust'];
+                                selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker agreement'] = info[selectedUnits[index]]['workerAgreement'];
+                                selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker cosine'] = info[selectedUnits[index]]['workerCosine'];
                             }
                             workerUpdateFunction.update(selectedUnits, selectedInfo);
                             jobsUpdateFunction.update(selectedUnits, selectedInfo);
@@ -241,7 +246,6 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
         for (var index in infoFields) {
             projectCriteria += "&project[" + infoFields[index]['project'] + "]=" + infoFields[index]['field'];
         }
-        //console.log($scope.projectCriteria);
 
     }
 
@@ -290,6 +294,10 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                     var field = infoFields[index]['project'];
                     info[id][field] = data[field][indexData];
                 }
+                info[id]['platformTrust'] = data['platformTrust'][indexData];
+                info[id]['workerAgreement'] = data['workerAgreement'][indexData];
+                info[id]['workerCosine'] = data['workerCosine'][indexData];
+
             }
 
             chartGeneralOptions['xAxis']['categories'] = data["id"];
@@ -351,14 +359,10 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                 };
                 if(key == 'quality across jobs' || key =='job types' || key == 'annotations')
                     yAxisSettings.opposite = true;
-                //console.dir($scope.chartGeneralOptions.yAxis);
                 chartGeneralOptions.yAxis.push(yAxisSettings);
-                //   console.dir(key);
-                //   console.dir($scope.chartGeneralOptions.yAxis);
             }
 
             chartGeneralOptions.subtitle.text = subTitle + '<br/>' + 'Select an area to zoom. To see detailed information select individual workers.From legend select features';
-            // console.dir($scope.chartGeneralOptions);
             chartGeneralOptions.title.text = 'Overview of ' +  data['id'].length  + ' Workers';
             chartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/50);
             chartGeneralOptions.plotOptions.series.minPointLength = 2;

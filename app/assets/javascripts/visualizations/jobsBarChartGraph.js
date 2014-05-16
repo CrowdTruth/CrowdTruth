@@ -207,10 +207,12 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                                 selectedUnits.push(this.category)
                             }
                             var selectedInfo = {};
+
                             for (var index in selectedUnits) {
                                 selectedInfo[selectedUnits[index]] = {};
-                                selectedInfo[selectedUnits[index]]['title'] = info[selectedUnits[index]]['title'];
-                                selectedInfo[selectedUnits[index]]['type'] = info[selectedUnits[index]]['type'];
+                                selectedInfo[selectedUnits[index]]['tooltipLegend'] = {};
+                                selectedInfo[selectedUnits[index]]['tooltipLegend']['title'] = info[selectedUnits[index]]['title'];
+                                selectedInfo[selectedUnits[index]]['tooltipLegend']['type'] = info[selectedUnits[index]]['type'];
                             }
                             workerUpdateFunction.update(selectedUnits, selectedInfo);
                             jobsUpdateFunction.update(selectedUnits, selectedInfo);

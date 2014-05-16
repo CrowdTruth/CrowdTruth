@@ -5,14 +5,39 @@ function unitsDetails(category, categoryName, openModal) {
     }
 
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
-    var unitsWorkersInfo = {};
+    var pieChartOptions = {};
+    var unitInfo = {};
+    var infoFields = [ {field:'domain', name:'domain'}, {field:'format', name:'format'} ,{field:'avg_clarity', name:'avg clarity'}]
     var currentSelection = [];
     var currentSelectionInfo = {};
-    var queryFields = {'#crowdagents_tab': 'crowdAgent_id', '#job_tab': 'job_id'};
+
     var spammers = [];
     var seriesBase = [];
     var pieChart = "";
     var barChart = "";
+
+    var callback = function callback($this){
+        var img = $this.renderer.image('/assets/check_mark.png',$this.chartWidth-60,15,19,14);
+        img.add();
+        img.css({'cursor':'pointer'});
+        img.attr({'title':'Pop out chart'});
+        img.attr("data-toggle","tooltip");
+        img.attr("title", "Click to see results without low quality annotations");
+        img.on('click',function(){
+            alert("under construction");
+            // prcessing after image is clicked
+        });
+        var img = $this.renderer.image('/assets/cross.png',$this.chartWidth-90,16,19,12);
+        img.add();
+        img.css({'cursor':'pointer'});
+        img.attr({'title':'Pop out chart'});
+        img.attr("data-toggle","tooltip");
+        img.attr("title", "Click to see results with low quality annotations");
+        img.on('click',function(){
+            alert("under construction");
+            // prcessing after image is clicked
+        });
+    }
 
     var drawPieChart = function (platform, spam) {
         pieChart = new Highcharts.Chart({
@@ -50,12 +75,12 @@ function unitsDetails(category, categoryName, openModal) {
                     point: {
                         events: {
                             click: function () {
-                                searchSet = unitsWorkersInfo[this.options.platform]['all'];
+                                searchSet = pieChartOptions[this.options.platform]['all'];
                                 if ('spam' in this.options) {
                                     if(this.options.spam == true) {
-                                        searchSet = unitsWorkersInfo[this.options.platform]['spam'];
+                                        searchSet = pieChartOptions[this.options.platform]['spam'];
                                     } else {
-                                        searchSet = unitsWorkersInfo[this.options.platform]['nonSpam'];
+                                        searchSet = pieChartOptions[this.options.platform]['nonSpam'];
                                     }
                                 }
 
@@ -74,18 +99,6 @@ function unitsDetails(category, categoryName, openModal) {
                                 }
 
 
-                                /* console.dir(urlBase + this.options.match + '&');
-                                 getWorkersData(urlBase + this.options.match + '&');
-                                 ///pieChart.series[this.options.ser_nr].data[this.x].select(null,true);
-                                 console.dir(pieChart.getSelectedPoints());*/
-                                /*var elem = mapping[this.name];
-                                 url = '/api/analytics/piegraph/?match[documentType][]=annotation' +
-                                 '&match[unit_id][]='+elem['id']+
-                                 '&match[spam]='+elem['spam']+
-                                 '&group=crowdAgent_id';
-                                 $.getJSON(url, function(data) {
-                                 createUnitBarChart(data);
-                                 });*/
                             }
                         }
                     }
@@ -95,7 +108,6 @@ function unitsDetails(category, categoryName, openModal) {
                 useHTML : true,
                 formatter: function() {
                     var seriesValue = this.key;
-                    console.dir(this);
 
                     return '<p><b>' + seriesValue + ' </b></br>' + this.series.name + ' : ' +
                         this.percentage.toFixed(2) + ' % ('  + this.y + '/' + this.total + ')' +
@@ -153,15 +165,14 @@ function unitsDetails(category, categoryName, openModal) {
                     load: function () {
                         var chart = this,
                             legend = chart.legend;
-                        console.dir(currentSelectionInfo);
                         for (var i = 0, len = legend.allItems.length; i < len; i++) {
                             var item = legend.allItems[i].legendItem;
                             var tooltipValue = "";
-                            if (typeof currentSelectionInfo[legend.allItems[i].name] === 'string') {
-                                var tooltipValue = currentSelectionInfo[legend.allItems[i].name];
+                            if (typeof currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'] === 'string') {
+                                var tooltipValue = currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'];
                             } else {
-                                for( var indexInfoKey in currentSelectionInfo[legend.allItems[i].name]) {
-                                    tooltipValue +=  currentSelectionInfo[legend.allItems[i].name][indexInfoKey] + '(' + indexInfoKey + ')' + '<br/>';
+                                for( var indexInfoKey in currentSelectionInfo[legend.allItems[i].name]['tooltipLegend']) {
+                                    tooltipValue +=  currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'][indexInfoKey] + '(' + indexInfoKey + ')' + '<br/>';
                                 }
                             }
 
@@ -230,25 +241,95 @@ function unitsDetails(category, categoryName, openModal) {
                 labelFormatter: function() {
                     var arrayName = this.name.split("/");
                     var value = arrayName[arrayName.length - 1];
-                    return categoryName + ' ' + value;
+                    if(arrayName.length > 1) {
+                        return  categoryName + ' ' + value  + ' # of ann ';
+                    } else {
+                        return categoryName + ' ' + value;
+                    }
                 }
             },
-            yAxis: {
+            yAxis: [{
                 min: 0,
                 title: {
-                    text: '# annotation per unit'
+                    text: '# micro tasks per unit'
                 }
-            },
+            }, {
+                min: 0,
+                opposite: true,
+                title: {
+                    text: 'metrics'
+                }
+            }],
             tooltip: {
-                crosshairs: true,
-                shared: true,
-                useHTML: true,
-                headerFormat: '<b>Unit {point.key}</b></br><p>(Click for details)</p><table>',
-                pointFormat: '<tr><td style="color: {series.color};text-align: left">{series.name}: </td>' +
-                    '<td style="text-align: right"><b>{point.y} annotations</b></td></tr>',
-                footerFormat: '</table>',
-                valueDecimals: 2
+                hideDelay:10,
+                useHTML : true,
+                formatter: function() {
+                    var arrayID = this.x.split("/");
+                    var id =  arrayID[arrayID.length - 1];
+                    var s = '<div style="white-space:normal;"><b>Unit </b>'+ id +'<br/>';
+                    for (var index in infoFields) {
+                        var field = infoFields[index]['field'];
+                        var pointValue =  unitInfo[this.x][field];
+                        if (!(typeof pointValue === 'string') && !(pointValue % 1 === 0)){
+                            pointValue = pointValue.toFixed(2);
+                        }
+                        s +=  '<b>' + infoFields[index]['name'] + ' : </b>' + pointValue + '<br/>';
+                    }
 
+
+                    var seriesOptions = {};
+                    $.each(this.points, function(i, point) {
+                        var pointValue = point.y
+                        if (!(pointValue % 1 === 0)) {
+                            pointValue = point.y.toFixed(2);
+                        }
+                        var id = point.series.options.categoryID;
+
+                        var name = point.series.name;
+                        var arrayName = id.split('/');
+                        var shortName = arrayName[arrayName.length - 1];
+                        if (point.series.name == id){
+                            name =  '# of ann';
+                        } else {
+                            name = name.substr(shortName.length,name.length);
+                        }
+
+                        var line = '<tr><td></td><td style="color: ' + point.series.color + ';text-align: left">   ' + name +':</td>'+
+                            '<td style="text-align: right">' + pointValue + '</td></tr>';
+                        if(!(id in seriesOptions)){
+                            seriesOptions[id] = [];
+                        }
+                        seriesOptions[id].push(line);
+                    });
+
+                    s += '<table calss="table table-condensed">';
+                    for (var item in seriesOptions)
+                    {
+                        var arrayName = item.split('/');
+                        var id = arrayName[arrayName.length - 1];
+                        s += '<tr><td> </td><td style="text-align: left"><b>' + categoryName + ' ' +  id + ':</b></td></tr>';
+                        if('tooltipChart' in currentSelectionInfo[item]){
+                            for (var tooltipInfo in currentSelectionInfo[item]['tooltipChart']){
+                                pointValue = currentSelectionInfo[item]['tooltipChart'][tooltipInfo];
+                                if (!(pointValue % 1 === 0)) {
+                                    pointValue = pointValue.toFixed(2);
+                                }
+                                s += '<tr><td></td><td style="text-align: left">   ' + tooltipInfo +':</td>'+
+                                    '<td style="text-align: right">' + pointValue + '</td></tr>';
+                            }
+                        }
+
+                        for(var li in seriesOptions[item]) {
+                            s += seriesOptions[item][li];
+                        }
+
+                    }
+                    s += '</table>';
+
+                    return s;
+                },
+                shared: true,
+                crosshairs: true
             },
             plotOptions: {
                 series: {
@@ -287,7 +368,7 @@ function unitsDetails(category, categoryName, openModal) {
                 }
             },
             series: series
-        });
+        },callback);
 
     }
 
@@ -295,7 +376,10 @@ function unitsDetails(category, categoryName, openModal) {
         //make a check and see which units have workers?
 
         var categories = [];
+        var colorMaps = {};
+        var seriesMaps = {};
         var series = seriesBase;
+        var colors =  Highcharts.getOptions().colors;
         workersURL = url + 'project[' + queryField + ']=' + queryField +
             '&group=unit_id&push[' + queryField + ']=' + queryField;
         for (var iterSeries in series) {
@@ -316,8 +400,81 @@ function unitsDetails(category, categoryName, openModal) {
                     series[iterSeries]['data'].push(value);
                 }
             }
-            drawBarChart(series, categories);
-        });
+
+
+            for (var iterSeries in series) {
+                series[iterSeries]['color'] = Highcharts.Color(colors[iterSeries%(colors.length)]).get();
+                series[iterSeries]['type'] = 'column';
+                series[iterSeries]['categoryID'] = series[iterSeries]['name'];
+                colorMaps[series[iterSeries]['name']] = colors[iterSeries%(colors.length)];
+
+                seriesMaps[series[iterSeries]['name']] = iterSeries;
+            }
+            //get worker's info
+            var urlUnitInfo = '/api/analytics/metrics/?&'
+            for (var indexUnits in currentSelection) {
+                urlUnitInfo += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
+            }
+            urlUnitInfo += 'match[documentType][]=annotation&project[unit_id]=unit_id&push[unit_id]=unit_id' +
+                '&metrics[]=avg_clarity&metrics[]=domain&metrics[]=format';
+            $.getJSON(urlUnitInfo, function (data) {
+
+                for(var iterData in data) {
+                    unitInfo[data[iterData]['_id']] = data[iterData];
+                }
+
+                if (queryField == 'job_id') {
+                    //get the metrics for jobs
+                    var urlJobsInfo =  '/api/v1/?field[documentType]=job&only[]=metrics.units.withoutSpam&';
+
+                    for (var indexUnits in currentSelection) {
+                        urlJobsInfo += 'field[_id][]=' + currentSelection[indexUnits] + '&';
+                    }
+
+                    $.getJSON(urlJobsInfo, function (data) {
+                        for (var iterData in data) {
+                            if (!('metrics' in data[iterData])) {continue;}
+                            var metrics = data[iterData]['metrics']['units']['withoutSpam'];
+                            var job_id =  data[iterData]['_id'];
+                            var arrayID = job_id.split("/");
+                            var value = arrayID[arrayID.length - 1];
+                            var avg_clarity = {'name': value + " avg clarity", data:[], categoryID:job_id, type: 'spline', color:Highcharts.Color( colorMaps[job_id]).brighten(0.3).get(), yAxis:1,'dashStyle':'shortdot'};
+                            //linkedTo: seriesMaps[job_id], yAxis:1};
+                            var avg_magnitude = {'name': value + " avg magnitude", data:[], categoryID:job_id, type: 'spline', color:Highcharts.Color( colorMaps[job_id]).brighten(0.1).get(), yAxis:1,'dashStyle':'LongDash'};
+                            // linkedTo: seriesMaps[job_id], yAxis:1};
+                            for (var agentIDIter in categories){
+                                var agentID = categories[agentIDIter];
+                                if ( agentID in metrics) {
+                                    avg_clarity['data'].push(metrics[agentID]['max_relation_Cos']['avg']);
+                                    avg_magnitude['data'].push(metrics[agentID]['magnitude']['avg']);
+                                } else{
+                                    avg_clarity['data'].push(0);
+                                    avg_magnitude['data'].push(0);
+                                }
+
+                            }
+                            var position = 0;
+                            for(var iterSeries in series){
+                                if(series[iterSeries].name == job_id && series[iterSeries].type == 'column'){
+                                    position = iterSeries;
+                                    break;
+                                }
+                            }
+                            currentSelectionInfo[value + " avg clarity"] = {}
+                            currentSelectionInfo[value + " avg magnitude"] = {}
+                            currentSelectionInfo[value + " avg clarity"]['tooltipLegend'] = "CrowdTruth Average Unit Clarity: the value is defined as the maximum unit annotation score achieved on any annotation for that unit. High agreement over the annotations is represented by high cosine scores, indicating a clear unit. Click to select/deselect."
+                            currentSelectionInfo[value + " avg magnitude"]['tooltipLegend'] = "CrowdTruth Average Unit magnitude score. Click to select/deselect."
+                            series.splice(position, 0, avg_clarity, avg_magnitude);
+                        }
+                        drawBarChart(series, categories);
+                    });
+
+                } else {
+                    drawBarChart(series, categories);
+                }
+
+            });});
+
     }
 
     this.update = function (selectedUnits, selectedInfo) {
@@ -347,8 +504,8 @@ function unitsDetails(category, categoryName, openModal) {
                 platformData.push({name: platformID, y: data[platformIter]['content'].length,
                     color: Highcharts.Color(colors[platformIter]).brighten(0.07).get(),
                     platform: platformID});
-                unitsWorkersInfo[platformID] ={};
-                unitsWorkersInfo[platformID]['all'] = data[platformIter]['content'];
+                pieChartOptions[platformID] ={};
+                pieChartOptions[platformID]['all'] = data[platformIter]['content'];
                 //get the spam, nonspam count
           //      requests.push($.get(urlBase + 'match[softwareAgent_id][]=' + data[platformIter]['_id'] + '&project[crowdAgent_id]=crowdAgent_id&group=spam&addToSet=crowdAgent_id'));
 

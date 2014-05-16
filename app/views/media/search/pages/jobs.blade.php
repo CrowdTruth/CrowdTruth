@@ -90,7 +90,7 @@
 
 						<div class='includeGraph hidden'>
                             <table>
-                                <tr>
+                                <tr class="pieDivGraphs">
                                     <td>
                                         <div id="domain_div"></div>
                                     </td>
@@ -120,7 +120,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="workersPie_div"></div>
                                     </td>
                                     <td>
@@ -130,7 +130,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="jobsPie_div"></div>
                                     </td>
                                     <td>
@@ -140,7 +140,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="unitsPie_div"></div>
                                     </td>
                                     <td>
@@ -150,15 +150,15 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="annotationsPie_div"></div>
                                     </td>
                                     <td>
                                         <div id="annotationsBar_div"></div>
                                     </td>
                                 </tr>
-                            </table>    
-							<div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            </table>
+                            <div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
