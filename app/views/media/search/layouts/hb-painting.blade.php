@@ -39,19 +39,18 @@
 		        <tr>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>
 		            <th class="sorting" data-vbIdentifier="image_id" data-query-key="orderBy[_id]" data-toggle="tooltip" data-placement="top" title="The ID of the image">ID</th>
-		            <th class="sorting" data-vbIdentifier="image_content" data-query-key="orderBy[content.URL]" data-toggle="tooltip" data-placement="top" title="Thumbnail of the image (240x160px)">Thumbnail</th>
-		            <th class="sorting" data-vbIdentifier="image_title" data-query-key="orderBy[title]" data-toggle="tooltip" data-placement="top" title="The image title">Title</th>
-		            <th class="sorting" data-vbIdentifier="image_description" data-query-key="orderBy[description]" data-toggle="tooltip" data-placement="top" title="The image description">Description</th>
-		            <th class="sorting" data-vbIdentifier="image_author" data-query-key="orderBy[author]" data-toggle="tooltip" data-placement="top" title="The author of the image">Author</th>
+		            <th class="sorting" data-vbIdentifier="image_content" data-query-key="orderBy[content.url]" data-toggle="tooltip" data-placement="top" title="Thumbnail of the image (240x160px)">Thumbnail</th>
+		            <th class="sorting" data-vbIdentifier="image_title" data-query-key="orderBy[content.title]" data-toggle="tooltip" data-placement="top" title="The image title">Title</th>
+		            <th class="sorting" data-vbIdentifier="image_description" data-query-key="orderBy[content.description]" data-toggle="tooltip" data-placement="top" title="The image description">Description</th>
+		            <th class="sorting" data-vbIdentifier="image_author" data-query-key="orderBy[content.author]" data-toggle="tooltip" data-placement="top" title="The author of the image">Author</th>
 		            <th class="sorting" data-vbIdentifier="image_domain" data-query-key="orderBy[domain]" data-toggle="tooltip" data-placement="top" title="The domain the image is uploaded under">Domain</th>
 		            <th class="sorting" data-vbIdentifier="image_source" data-query-key="orderBy[source]" data-toggle="tooltip" data-placement="top" title="The source of the image, in case of API this is the hostname">Source</th>
-			    	<th class="sorting" data-vbIdentifier="image_url" data-query-key="orderBy[content.url]" data-toggle="tooltip" data-placement="top" title="The full URL of the image, follow the URL for the original image">URL</th>
-		            <th class="sorting" data-vbIdentifier="image_width" data-query-key="orderBy[content.width]" data-toggle="tooltip" data-placement="top" title="The width of the image in px">Width</th>
+			    	<th class="sorting" data-vbIdentifier="image_width" data-query-key="orderBy[content.width]" data-toggle="tooltip" data-placement="top" title="The width of the image in px">Width</th>
 				    <th class="sorting" data-vbIdentifier="image_height" data-query-key="orderBy[content.height]" data-toggle="tooltip" data-placement="top" title="The height of the image in px">Height</th>
-				    <th class="sorting" data-vbIdentifier="image_object" data-query-key="orderBy[content.features.Object.matches]" data-toggle="tooltip" data-placement="top" title="Objects together with their confidence score that were found in the image">Objects</th>
-				    <th class="sorting" data-vbIdentifier="image_scene" data-query-key="orderBy[content.features.Scene]" data-toggle="tooltip" data-placement="top" title="The scene with a confidence score that was found in the image">Scene</th>
+				    <th class="sorting" data-vbIdentifier="image_object" data-query-key="orderBy[content.features.object]" data-toggle="tooltip" data-placement="top" title="Objects together with their confidence score that were found in the image">Objects</th>
+				    <th class="sorting" data-vbIdentifier="image_scene" data-query-key="orderBy[content.features.scene]" data-toggle="tooltip" data-placement="top" title="The scene with a confidence score that was found in the image">Scene</th>
 				    <th class="sorting" data-vbIdentifier="image_classifiers" data-query-key="orderBy[content.features.Classifier]" data-toggle="tooltip" data-placement="top" title="Custom classifier confidence scores for this image">Classifiers</th>
-				    <th class="sorting" data-vbIdentifier="image_facesnum" data-query-key="orderBy[content.features.FacesNumber.cloudinary]" data-toggle="tooltip" data-placement="top" title="Number of faces recognized in the image by the different APIs. For sorting and applying filters the Cloudinary score takes prominence."># Faces</th>
+				    <th class="sorting" data-vbIdentifier="image_facesnum" data-query-key="orderBy[content.features.FacesNumber]" data-toggle="tooltip" data-placement="top" title="Number of faces recognized in the image by the different APIs. For sorting and applying filters the Cloudinary score takes prominence."># Faces</th>
 				    <th class="sorting" data-vbIdentifier="image_colors" data-query-key="orderBy[content.features.ColorsMain]" data-toggle="tooltip" data-placement="top" title="Main colors recognized in the image, the size of the bar indicates its percentage. Hover over for details.">Main colors</th>
 				    <th class="sorting" data-vbIdentifier="image_histogram" data-query-key="orderBy[content.features.ColorsHistogram]" data-toggle="tooltip" data-placement="top" title="A histogram of the colors found in the image, the size of the ba indicates its percentage. Hover over for details. ">Histogram</th>
 				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[batches.count]" data-toggle="tooltip" data-placement="top" title="Number of batches in which this image is used">Used In # of Batches</th>
@@ -66,25 +65,22 @@
 					<input class="input-sm form-control" type='text' data-query-key="match[_id]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="image_content">
-					<input class="input-sm form-control" type='text' data-query-key="match[content.URL]" data-query-operator="like" />
+					<input class="input-sm form-control" type='text' data-query-key="match[content.url]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="image_title">
-					<input class="input-sm form-control" type='text' data-query-key="match[title]" data-query-operator="like" />
+					<input class="input-sm form-control" type='text' data-query-key="match[content.title]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="image_description">
-					<input class="input-sm form-control" type='text' data-query-key="match[description]" data-query-operator="like" />
+					<input class="input-sm form-control" type='text' data-query-key="match[content.description]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="image_author">
-					<input class="input-sm form-control" type='text' data-query-key="match[author]" data-query-operator="like" />
+					<input class="input-sm form-control" type='text' data-query-key="match[content.author]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="image_domain">
 					<input class="input-sm form-control" type='text' data-query-key="match[domain]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="image_source">
 					<input class="input-sm form-control" type='text' data-query-key="match[source]" data-query-operator="like" />
-				</td>
-				<td data-vbIdentifier="image_url">
-					<input class="input-sm form-control" type='text' data-query-key="match[content.URL]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="image_width">
 					<input class="input-sm form-control" type='text' data-query-key="match[content.width]" data-query-operator=">" style="width:49%; float:left;" placeholder="&gt;" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
@@ -95,12 +91,12 @@
 					<input class="input-sm form-control" type='text' data-query-key="match[content.height]" data-query-operator="<" style="width:49%; float:right;" placeholder="&lt;" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="image_object">
-					<input class="input-sm form-control" type='text' data-query-key="match[content.features.Object.matches.tag]" data-query-operator="like" style="width:59%; float:left;" />
-					<input class="input-sm form-control" type='text' data-query-key="match[content.features.Object.matches.score]" data-query-operator=">" style="width:39%; float:right;" placeholder="&gt;" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[content.features.object.tag]" data-query-operator="like" style="width:59%; float:left;" />
+					<input class="input-sm form-control" type='text' data-query-key="match[content.features.object.score]" data-query-operator=">" style="width:39%; float:right;" placeholder="&gt;" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 				</td>
 				<td data-vbIdentifier="image_scene">
-					<input class="input-sm form-control" type='text' data-query-key="match[content.features.Scene.label]" data-query-operator="like" style="width:59%; float:left;"/>
-					<input class="input-sm form-control" type='text' data-query-key="match[content.features.Scene.score]" data-query-operator=">" style="width:39%; float:right;" placeholder="&gt;" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[content.features.scene.label]" data-query-operator="like" style="width:59%; float:left;"/>
+					<input class="input-sm form-control" type='text' data-query-key="match[content.features.scene.score]" data-query-operator=">" style="width:39%; float:right;" placeholder="&gt;" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 				</td>
 				<td data-vbIdentifier="image_classifiers">
 					<input class="input-sm form-control" type='text' data-query-key="match[content.features.Classifier]" data-query-operator="like" />
@@ -110,10 +106,10 @@
 					<input class="input-sm form-control" type='text' data-query-key="match[content.features.FacesNumber]" data-query-operator="<" style="width:49%; float:right;" placeholder="&lt;" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="image_colors">
-					<input class="input-sm form-control" type='text' data-query-key="match[content.features.ColorsMain]" data-query-operator="like" />
+					<!-- <input class="input-sm form-control" type='text' data-query-key="match[content.features.ColorsMain]" data-query-operator="like" /> -->
 				</td>
 				<td data-vbIdentifier="image_histogram">
-					<input class="input-sm form-control" type='text' data-query-key="match[content.features.ColorsHistogram]" data-query-operator="like" />
+					<!-- <input class="input-sm form-control" type='text' data-query-key="match[content.features.ColorsHistogram]" data-query-operator="like" /> -->
 				</td>
 				<td data-vbIdentifier="number_of_batches">
 					<input class="input-sm form-control" type='text' data-query-key="match[batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
@@ -141,13 +137,12 @@
 			            		@{{ this._id }}   
 		            		</a>
 	            		</td>
-			            <td data-vbIdentifier="image_content"><image width="240" height="160" src="@{{this.content.url}}" />   </td>
+			            <td data-vbIdentifier="image_content"><a href="@{{this.content.url}}"><image width="240" height="160" src="@{{this.content.url}}" /></a></td>
 			            <td data-vbIdentifier="image_title">@{{ this.content.title }}   </td>
 			            <td data-vbIdentifier="image_description">@{{ this.content.description }}   </td>
 			            <td data-vbIdentifier="image_author">@{{ this.content.author }}   </td>
 			            <td data-vbIdentifier="image_domain">@{{ this.domain }}   </td>
 			            <td data-vbIdentifier="image_source">@{{ this.source }}   </td>
-			            <td data-vbIdentifier="image_url">@{{ this.content.url }}   </td>
 			            <td data-vbIdentifier="image_width">@{{ this.content.width }}   </td>
 			            <td data-vbIdentifier="image_height">@{{ this.content.height }}   </td>
 			            <td data-vbIdentifier="image_object">

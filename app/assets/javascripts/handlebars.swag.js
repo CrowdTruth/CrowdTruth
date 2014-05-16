@@ -843,6 +843,12 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
   return value * 100;
   });
 
+
+  Swag.addHelper('explodeLastSlash', function(value, options) {
+    var arrayID = value.split("/");
+    return arrayID[arrayID.length - 1];
+  });
+
   Swag.addHelper('highlightTerms', function(searchQuery, content, options) {
     var formattedSentence = content.sentence.formatted;
     var t1 = content.terms.first.formatted;

@@ -46,7 +46,7 @@
 								style="display:none"
 							@endif
 							></iframe>
-							@if($format=='image')
+							@if($format!='text')
 							No preview available.
 							@endif
 							@if($format=='image')

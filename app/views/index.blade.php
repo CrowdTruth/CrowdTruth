@@ -53,6 +53,15 @@
 					    </div>
 					</a>
 					  </li>
+					<li class="media" style='padding:10px;'>
+						<i class="fa fa-fw fa-puzzle-piece pull-left" style='font-size:40px;'></i>				  	
+					    <a href="/team" class="noastyle">
+					    <div class="media-body">
+					      <h4 class="media-heading">The CrowdTruth team</h4>
+					      Description of team members and their roles and affiliation
+					    </div>
+					</a>
+					  </li>					  
 					</ul>	
 				</div>
 

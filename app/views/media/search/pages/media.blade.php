@@ -27,7 +27,7 @@
 					<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
 						<optgroup label="Media-Type">
 							@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
-								<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ ucfirst($key) }}</option>
+								<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
 							@endforeach
 						</optgroup>
 					</select>

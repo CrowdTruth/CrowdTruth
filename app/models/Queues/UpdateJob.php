@@ -83,7 +83,7 @@ class UpdateJob {
 
 		try {
 			//if(count($j->results['withSpam'])>1) and ($j->annotationsCount % $j->jobConfiguration->content['unitsPerTask'] == 0)){
-			if(false){
+			if(empty($j->metrics) and $j->completion==1){
 				// do the metrics, we're in a queue anyway.
 				\Log::debug("Starting metrics for Job {$j->_id}.");
 
@@ -103,7 +103,7 @@ class UpdateJob {
 
 				set_time_limit(3600); // One hour.
 				$apppath = app_path();
-				$command = "/usr/bin/python2.7 $apppath/lib/fakeMetrics.py '{$j->_id }' '$templateid'";
+				$command = "/usr/bin/python2.7 $apppath/lib/generateMetrics.py '{$j->_id }' '$templateid'";
 				\Log::debug("Command: $command");
 				exec($command, $output, $return_var);
 				\Log::debug("Metrics done.");
@@ -111,15 +111,26 @@ class UpdateJob {
 				//dd($output);
 
 				$response = json_decode($output[0], true);
-				dd($response);
-				$j->metrics = $response['metrics'];
-				//$j->results = array_merge($j->results, $response['results']);
 				
-				dd($j);
+				if(!$response or !isset($response['metrics']))
+					throw new Exception("Incorrect response from generateMetrics.py.");
+
+				$j->metrics = $response['metrics'];
+				$r = $j->results;
+				$r['withoutSpam'] = $response['results']['withoutSpam'];
+				$j->results = $r;
+				
 				//\Log::debug(end($output));
 				//$j->latestMetrics = .25;
 				
 				$this->createMetricActivity($j->_id);
+				$j->save();
+
+				// TODO
+				// Update annotations
+				// Update workers
+				// Update units
+				//
 			}
 		} catch (Exception $e) {
 			\Log::debug("Error in running metrics: {$e->getMessage()}");

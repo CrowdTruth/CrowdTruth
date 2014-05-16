@@ -2,7 +2,7 @@
 return array(
 	'templatedir' => base_path() . '/public/templates/',
 	'csvdir' => base_path() . '/public/csv/',
-	'platforms' => array('amt', 'cf')
+	'platforms' => array('cf', 'amt')	
 	);
 
 

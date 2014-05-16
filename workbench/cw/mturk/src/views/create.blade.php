@@ -52,7 +52,7 @@
 									$c = false; $o = 'EqualTo'; $t = '';
 									if($val=='Locale' || $val == 'Adult') $o = 'EqualTo';
 									if($val=='Adult') $t = '1';
-									if($jobconf['qualificationRequirement']){
+									if(isset($jobconf['qualificationRequirement'])){
 											foreach($jobconf['qualificationRequirement'] as $q){
 												if($q['QualificationTypeId'] == $key){
 													$c = true;

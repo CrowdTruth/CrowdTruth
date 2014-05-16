@@ -518,6 +518,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		if(empty($currenttemplate)){ 
 			if($batch->format=='text')
 				$currenttemplate = 'text/RelDir/relation_direction';
+
 			else if($batch->format=="video") 
 				$currenttemplate = 'video/SoundAndVision/videosegments';
 			else 
@@ -590,9 +591,11 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				
 			}
 		}
-		if(count($possibleplatforms)==0)
+		if(count($possibleplatforms)==0){
 			Session::flash('flashError', 'No usable templates found. Please upload a template with one of these extensions: ' . implode(', ', $extensions) . '.');
-
+			
+		}
+		
 		return View::make('process.tabs.platform')->with('jobconf', $jc->content)->with('possible', $possibleplatforms);
 	}
 
@@ -648,6 +651,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		} catch (Exception $e) {
 			$questions = array('couldn\'t generate previews.');
 			Session::flash('flashNotice', $e->getMessage());
+			//throw $e; // for debugging: see where it originates
 		}
 
 		$toomany = '';
@@ -908,7 +912,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 			// TODO: this only takes the first job of potentially two
 			if(!empty($jobs[0]->url))
-				$successmessage .= ". After that, you can view it <a href='{{$jobs[0]->url}}' target='blank'>here</a>.";
+				$successmessage .= ". After that, you can view it <a href='{$jobs[0]->url}' target='blank'>here</a>.";
 
 			Session::flash('flashSuccess', $successmessage);
 			return Redirect::to("jobs/");
