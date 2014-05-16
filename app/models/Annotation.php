@@ -180,7 +180,39 @@ class Annotation extends Entity {
             }  
 
 
+        // AMT FactSpan contraction (removed input check)
 
+        elseif (isset($ans['firstFactor']) and isset($ans['submit']) {
+        	try {
+		    	$term = strtolower($this->unit->content['terms']['first']['text']);
+		        $b = $this->unit->content['terms']['first']['startIndex'];
+		        $question1 = "";
+		        if (strcmp($ans['firstFactor'], $ans['factor1']) == 0) $question1 = "yes";
+		        else $question1 = "no";
+		        $vector1 = $this->createSingleFactVect($question1, $ans['firstFactor'], $term, $b, $ans['saveSelectionIds1'], $ans['factor1']);
+		        
+            } catch (Exception $e) {
+                Log::debug("{$e->getMessage()}");
+                //echo "\r\n<span style='color:red'>!!! {$e->getMessage()}</span><br>\r\n";
+                $vector1 = $this->createFactVect(true);
+            }
+		        
+		    try {  
+		    	$term = strtolower($this->unit->content['terms']['second']['text']);
+		        $b = $this->unit->content['terms']['second']['startIndex'];
+		        $question1 = "";
+		        if (strcmp($ans['secondFactor'], $ans['factor2']) == 0) $question1 = "yes";
+		        else $question1 = "no";
+		        $vector2 = $this->createSingleFactVect($question2, $ans['secondFactor'], $term, $b, $ans['saveSelectionIds2'], $ans['factor2']);
+		        
+            } catch (Exception $e) {
+                Log::debug("{$e->getMessage()}");
+                //echo "\r\n<span style='color:red'>!!! {$e->getMessage()}</span><br>\r\n";
+                $vector2 = $this->createFactVect(true);
+            }  
+        }
+        
+        
         // CF
         } elseif(isset($ans['confirmfirstfactor']) or isset($ans['factor1'])) {
            // $sentence = str_replace('-', ' ', strtolower($this->unit->content['sentence']['text']));

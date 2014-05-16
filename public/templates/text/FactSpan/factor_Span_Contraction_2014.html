@@ -121,8 +121,18 @@ function getInitialSpan(sentence, termsInFactor, noWords, b) {
   index.push(b);
   
   for (i = 0; i < 3; i++) {
-    var pos = parseInt(index[i]) - 2;
-    while (pos > 0 &&
+    var pos = parseInt(index[i]) - 1;
+    
+    // eliminate whitespace
+    while (pos >= 0 &&
+           (sentence.charAt(pos) == ' ' ||
+           sentence.charAt(pos) == '-' ||
+           sentence.charAt(pos) == '/' ||
+           sentence.charAt(pos) == '|')) {
+      pos--;
+    }
+    
+    while (pos >= 0 &&
            sentence.charAt(pos) != ' ' &&
            sentence.charAt(pos) != '-' &&
            sentence.charAt(pos) != '/' &&
@@ -133,6 +143,7 @@ function getInitialSpan(sentence, termsInFactor, noWords, b) {
     if (pos >= 0) index.push(pos);
   }
   index = index.sort(sortNumber);
+  // alert(index);
   
   if (noWords > 1) {
     for (i = 1; i < noWords; i ++) {
@@ -151,8 +162,11 @@ function getInitialSpan(sentence, termsInFactor, noWords, b) {
            sentence.charAt(pos) != '|') {
       pos++;
     }
+    
+    // eliminate whitespace
     while (pos < sentence.length &&
            isAlphaNum(sentence.charAt(pos)) == false) pos++;
+    
     if (pos < sentence.length) index.push(pos);
   }
   
@@ -283,7 +297,7 @@ function getInitialSpan(sentence, termsInFactor, noWords, b) {
         $(".word_split1").append(" ");
         for (i = 0; i < words2.length - 1; i ++) {
           $(".word_split1").append($("<span class=\"word\">").text(words2[i]));
-          $(".word_split1").append($("<span class=\"word\">").text("-"));
+          $(".word_split1").append("-");
         }
         $(".word_split1").append($("<span class=\"word\">").text(words2[words2.length-1]));
       }
@@ -292,7 +306,7 @@ function getInitialSpan(sentence, termsInFactor, noWords, b) {
         $(".word_split1").append(" ");
         for (i = 0; i < words2.length - 1; i ++) {
           $(".word_split1").append($("<span class=\"word\">").text(words2[i]));
-          $(".word_split1").append($("<span class=\"word\">").text("/"));
+          $(".word_split1").append("/");
         }
         $(".word_split1").append($("<span class=\"word\">").text(words2[words2.length-1]));
       }
@@ -353,7 +367,7 @@ function getInitialSpan(sentence, termsInFactor, noWords, b) {
         $(".word_split2").append(" ");
         for (i = 0; i < words2.length - 1; i ++) {
           $(".word_split2").append($("<span class=\"word\">").text(words2[i]));
-          $(".word_split2").append($("<span class=\"word\">").text("-"));
+          $(".word_split2").append("-");
         }
         $(".word_split2").append($("<span class=\"word\">").text(words2[words2.length-1]));
       }
@@ -362,7 +376,7 @@ function getInitialSpan(sentence, termsInFactor, noWords, b) {
         $(".word_split2").append(" ");
         for (i = 0; i < words2.length - 1; i ++) {
           $(".word_split2").append($("<span class=\"word\">").text(words2[i]));
-          $(".word_split2").append($("<span class=\"word\">").text("/"));
+          $(".word_split2").append("/");
         }
         $(".word_split2").append($("<span class=\"word\">").text(words2[words2.length-1]));
       }
@@ -549,5 +563,6 @@ function getInitialSpan(sentence, termsInFactor, noWords, b) {
     }
     return retValue;
   }
+
 
 </script>
