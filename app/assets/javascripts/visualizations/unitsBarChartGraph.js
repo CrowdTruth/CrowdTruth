@@ -99,7 +99,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                         for (var iterData = 0; iterData < chart.series[0].data.length; iterData++) {
                             
                             if (categoryName == chart.series[0].data[iterData]['category']) {
-                                currentSelectedUnits.push(category);
+                                currentSelectedUnits.push(categoryName);
                                 for (var iterSeries = 0; iterSeries < chart.series.length; iterSeries++) {
                                                                
                                    chart.series[iterSeries].data[iterData].select(null,true)
@@ -109,21 +109,18 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                             
                         }   
                     }
-                    if(!(chart.renderTo.id == 'generalBarChart_div' )) {
-                        return;
+                    if(chart.renderTo.id == 'generalBarChart_div' ) {
+                        var selectedInfo = {};
+                        for (var index in currentSelectedUnits) {
+                            selectedInfo[currentSelectedUnits[index]] = {};
+                            selectedInfo[currentSelectedUnits[index]]['tooltipLegend'] = specificInfo[currentSelectedUnits[index]][specificFields[category]['sendInfo']];
+                            selectedInfo[currentSelectedUnits[index]]['tooltipChart'] = {};
+                            selectedInfo[currentSelectedUnits[index]]['tooltipChart']['unit avg clarity'] = specificInfo[currentSelectedUnits[index]]['avg_clarity'];
+                        }
+                        workerUpdateFunction.update(currentSelectedUnits, selectedInfo);
+                        jobsUpdateFunction.update(currentSelectedUnits, selectedInfo);
+                        annotationsUpdateFunction.update(currentSelectedUnits , selectedInfo);
                     } 
-                    
-                    var selectedInfo = {};
-                    for (var index in selectedUnits) {
-                        selectedInfo[selectedUnits[index]] = {};
-                        selectedInfo[selectedUnits[index]]['tooltipLegend'] = specificInfo[selectedUnits[index]][specificFields[category]['sendInfo']];
-                        selectedInfo[selectedUnits[index]]['tooltipChart'] = {};
-                        selectedInfo[selectedUnits[index]]['tooltipChart']['unit avg clarity'] = specificInfo[selectedUnits[index]]['avg_clarity'];
-                    }
-                    workerUpdateFunction.update(currentSelectedUnits, selectedInfo);
-                    jobsUpdateFunction.update(currentSelectedUnits, selectedInfo);
-                    annotationsUpdateFunction.update(currentSelectedUnits , selectedInfo);
-
 
                 }
             }

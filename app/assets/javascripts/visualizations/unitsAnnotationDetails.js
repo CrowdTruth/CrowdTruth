@@ -260,7 +260,9 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                             }
 
                         }
-                    },
+                    }
+                },
+                column: {
 
                     stacking: 'normal',
                     states: {
@@ -394,8 +396,10 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                     for (var iter in data){
                         //iterate job
                         var jobData = data[iter];
-                        var ambiguity = {'name': "ambiguity", data:[], categoryID:data[iter]['_id'], type: 'spline', color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.3).get(), linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
-                        var clarity = {'name': "clarity", data:[], categoryID:data[iter]['_id'], type: 'spline',color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.1).get(),  linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
+                        var ambiguity = {'name': "ambiguity", data:[], categoryID:data[iter]['_id'], type: 'spline', 'dashStyle':'shortdot',
+                            color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.3).get(), linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
+                        var clarity = {'name': "clarity", data:[], categoryID:data[iter]['_id'], type: 'spline','dashStyle':'LongDash',
+                            color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.1).get(),  linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
                         for (var iterCateg in categories) {
                             for (var iterMicroTask in microtasks){
                                 if (!('metrics' in data[iterData])) {continue;}
@@ -522,6 +526,19 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
 
     this.update = function (selectedUnits, selectedInfo) {
+        if(selectedUnits.length == 0){
+
+            if ( $('#annotationsPie_div').highcharts() != undefined ) {
+
+                $('#annotationsPie_div').highcharts().destroy();
+            }
+            if ( $('#annotationsPie_div').highcharts() != undefined ) {
+
+                $('#annotationsPie_div').highcharts().destroy();
+            }
+
+            return;
+        }
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];

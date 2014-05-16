@@ -187,6 +187,9 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                     }
                 }
             },
+            credits: {
+                enabled: false
+            },
             title: {
                 text: 'Annotations of ' + categories.length + ' Worker(s) on ' + currentSelection.length + ' Selected ' +   categoryName + '(s)'
             },
@@ -340,7 +343,10 @@ function unitsWorkerDetails(category, categoryName, openModal) {
             },
             plotOptions: {
                 series: {
-                    minPointLength : 2,
+                    minPointLength : 2
+                },
+
+                column: {
 
                     stacking: 'normal',
                     states: {
@@ -493,6 +499,14 @@ function unitsWorkerDetails(category, categoryName, openModal) {
     }
 
     this.update = function (selectedUnits, selectedInfo) {
+        if(selectedUnits.length == 0){
+            if ( $('#workersBar_div').highcharts() != undefined ) {
+                $('#workersBar_div').highcharts().destroy();
+                $('#workersPie_div').highcharts().destroy();
+            }
+
+            return;
+        }
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];

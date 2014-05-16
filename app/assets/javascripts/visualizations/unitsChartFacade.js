@@ -7,7 +7,6 @@ function unitsChartFacade(category, openModal, getSelection, updateSelection) {
         '#drawing_tab': 'drawing',
         '#painting_tab': 'painting'
     };
-    console.dir(category);
     this.unitsWorkerDetails = new unitsWorkerDetails(category, categoryNameMap[category], openModal);
     this.unitsDetails = new unitsDetails(category, categoryNameMap[category], openModal);
     this.unitsJobDetails = new unitsJobDetails(category, categoryNameMap[category], openModal);

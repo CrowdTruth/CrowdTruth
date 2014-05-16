@@ -345,26 +345,11 @@ $('body').on('click', '.checkAll', function(){
 	}
 });
 
-$('body').on('click', 'input[name=rowchk]', function(event){
-	var val = $(this).attr('value');
-	var activeTabKey = getActiveTabKey();
+    $('body').on('click', 'input[name=rowchk]', function(event){
+        var val = $(this).attr('value');
 
-    if($(this).prop("checked")){
-    	if (typeof selectedRows[activeTabKey] == 'undefined') {
-    		selectedRows[activeTabKey] = [];
-    	}		            	
-		
-		selectedRows[activeTabKey].push(val);
-    }
-    else
-    {
-		selectedRows[activeTabKey] = $.grep(selectedRows[activeTabKey], function(value) {
-		  return value != val;
-		});
-    }
-
-    console.dir(selectedRows[activeTabKey]);
-});
+        updateSelection(val);
+    });
 
 $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
 	// $('.specificFilters .specificFilterOptions').prependTo($('.tab-pane.active'));
@@ -487,7 +472,6 @@ $('.input-daterange').datepicker({
 $('.input-daterange input').on('changeDate', function(e) {
 	// alert($(this).val());
 	var date = $(this).val();
-	console.log('test' + date);
 
 	if(date == "") {
 		$(this).removeAttr('data-query-value');					
@@ -497,6 +481,46 @@ $('.input-daterange input').on('changeDate', function(e) {
 
 	getResults();
 });
+
+    var updateSelection = function(id) {
+        var activeTabKey = getActiveTabKey();
+
+        if (typeof selectedRows[activeTabKey] == 'undefined') {
+            selectedRows[activeTabKey] = [];
+        }
+
+        if(id !== undefined)
+        {
+            if(jQuery.inArray(id, selectedRows[activeTabKey]) != -1) {
+                selectedRows[activeTabKey] = $.grep(selectedRows[activeTabKey], function(value) {
+                    return value != id;
+                });
+            } else {
+                selectedRows[activeTabKey].push(id);
+            }
+        }
+
+        $("input[name=rowchk]").each(function(){
+            var val = $(this).attr('value');
+
+            if(jQuery.inArray(val, selectedRows[activeTabKey]) != -1) {
+                $(this).prop("checked", true);
+            } else {
+                $(this).prop("checked", false);
+            }
+        });
+
+    }
+
+    var getSelection = function() {
+        var activeTabKey = getActiveTabKey();
+
+        if (typeof selectedRows[activeTabKey] != 'undefined') {
+            return selectedRows[activeTabKey];
+        }
+
+        return [];
+    }
 
 function getTabFieldsQuery(){
 	var activeTabKey = getActiveTabKey();
@@ -549,7 +573,6 @@ function getResults(baseApiURL){
 		return false;
 	}
 
-	console.log(tabFieldsQuery);
 
 	$('.searchStats').text('Processing...');
 
@@ -600,25 +623,15 @@ function getResults(baseApiURL){
 
 		// console.dir(selectedRows[activeTabKey]);
 		// console.log('starting search');
-		
-		if($('.graphViewButton').hasClass('hidden')){
+
+        if($('.graphViewButton').hasClass('hidden')){
             var selectedCategory = activeTabKey;
-			$(activeTabKey + ' .checkAll').removeAttr('checked');
-			var unitsChart = new unitsChartFacade(selectedCategory, openModal);
-			unitsChart.init(getTabFieldsQuery(),"");		
-		}
+            $(activeTabKey + ' .checkAll').removeAttr('checked');
+            var unitsChart = new unitsChartFacade(selectedCategory, openModal, getSelection, updateSelection);
+            unitsChart.init(getTabFieldsQuery(),"");
+        }
 
-
-			
-        $("input[name=rowchk]").each(function(){
-        	var val = $(this).attr('value');
-
-	        if(jQuery.inArray(val, selectedRows[activeTabKey]) != -1) {
-				if(!$(this).is(':checked')) {
-					$(this).prop("checked", true);
-				}
-	        }
-        });
+        updateSelection();
 	});
 
 	updateReponsiveTableHeight();
@@ -720,7 +733,6 @@ var openModal = function(modalAnchor , activeTabKey){
     {
         var baseApiURL = modalAnchor.attr('data-api-target');
     }
-    console.log(modalAnchor);
     //var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
     var modalTarget = modalAnchor.attr('data-target');
     //alert(modalTarget);
@@ -728,10 +740,8 @@ var openModal = function(modalAnchor , activeTabKey){
     $('#activeTabModal').remove();
 
     var query = modalAnchor.attr('data-modal-query');
-    console.log(baseApiURL + query);
     $.getJSON(baseApiURL + query, function(data) {
-        console.dir(activeTabKey);
-        
+
         var template = Handlebars.compile($(modalTarget + ' .template').html());
 
         var html = template(data);
@@ -891,7 +901,6 @@ function jobactions(job, action, index){
 		        success:function(data, textStatus, jqXHR)
 					{
 							           
-						console.log(data);
 
 						if(data.status=='ok'){
 							$('#'+action+index).hide();

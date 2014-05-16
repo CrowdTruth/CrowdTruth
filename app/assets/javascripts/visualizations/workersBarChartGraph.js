@@ -1,5 +1,5 @@
 
-function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction) {
+function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction, getSelection, updateSelection) {
     var barChart = "";
     var unitsWordCountChart = "";
     var selectedUnits = [];
@@ -64,6 +64,36 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                         item.attr("title", tooltipValue);
 
                     }
+
+                    var selectedUnits = getSelection();
+
+                    for (var idUnitIter in selectedUnits){
+                        var categoryName = selectedUnits[idUnitIter];
+                        for (var iterData = 0; iterData < chart.series[0].data.length; iterData++) {
+
+                            if (categoryName == chart.series[0].data[iterData]['category']) {
+                                for (var iterSeries = 0; iterSeries < chart.series.length; iterSeries++) {
+
+                                    chart.series[iterSeries].data[iterData].select(null,true)
+
+                                }
+                            }
+
+                        }
+                    }
+
+                    var selectedInfo = {};
+                    for (var index in selectedUnits) {
+                        selectedInfo[selectedUnits[index]] = {};
+                        selectedInfo[selectedUnits[index]]['tooltipLegend'] = info[selectedUnits[index]]['platform'];
+                        selectedInfo[selectedUnits[index]]['tooltipChart'] = {};
+                        selectedInfo[selectedUnits[index]]['tooltipChart']['platform trust'] = info[selectedUnits[index]]['platformTrust'];
+                        selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker agreement'] = info[selectedUnits[index]]['workerAgreement'];
+                        selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker cosine'] = info[selectedUnits[index]]['workerCosine'];
+                    }
+                    workerUpdateFunction.update(selectedUnits, selectedInfo);
+                    jobsUpdateFunction.update(selectedUnits, selectedInfo);
+                    annotationsUpdateFunction.update(selectedUnits, selectedInfo);
 
                 }
             }
@@ -202,6 +232,8 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                             } else {
                                 selectedUnits.push(this.category)
                             }
+                            updateSelection(this.category);
+
                             var selectedInfo = {};
                             for (var index in selectedUnits) {
                                 selectedInfo[selectedUnits[index]] = {};

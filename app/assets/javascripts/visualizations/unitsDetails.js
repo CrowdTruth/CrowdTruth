@@ -478,6 +478,13 @@ function unitsDetails(category, categoryName, openModal) {
     }
 
     this.update = function (selectedUnits, selectedInfo) {
+        if(selectedUnits.length == 0){
+            if ( $('#unitsBar_div').highcharts() != undefined ) {
+                $('#unitsBar_div').highcharts().destroy();
+                $('#unitsPie_div').highcharts().destroy();
+            }
+            return;
+        }
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];

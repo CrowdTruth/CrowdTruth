@@ -349,9 +349,8 @@ function unitsJobDetails(category , categoryName, openModal) {
             },
             plotOptions: {
                 series: {
-                    minPointLength : 2
-                },
-                series: {
+                    minPointLength : 2,
+
                     events: {
                         legendItemClick: function(event) {
                                 var categoryID = this['options']['categoryID'];
@@ -510,6 +509,13 @@ function unitsJobDetails(category , categoryName, openModal) {
 
 
     this.update = function (selectedUnits, selectedInfo) {
+        if(selectedUnits.length == 0){
+            if ( $('#jobsBar_div').highcharts() != undefined ) {
+                $('#jobsBar_div').highcharts().destroy();
+                $('#jobsPie_div').highcharts().destroy();
+            }
+            return;
+        }
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
