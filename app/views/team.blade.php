@@ -18,7 +18,7 @@
 											<b>PI's</b>
 											<br>
 											<h4>Lora Aroyo</h4>
-											<h5>VU University, Amsterdam</h5>
+											<h5>VU University Amsterdam</h5>
 										
 											<br>
 											<h4>Chris Welty</h4>
