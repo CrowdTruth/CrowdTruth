@@ -168,7 +168,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
             yAxis: [{
                 min: 0,
                 title: {
-                    text: '# micro tasks per unit'
+                    text: '# annotations'
                 }
             },
                 {
@@ -192,7 +192,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                     var seriesOptions = {};
                     $.each(this.points, function(i, point) {
                         var pointValue = point.y
-                        if (!(pointValue % 1 === 0)) {
+                        if (pointValue != undefined &&!(typeof pointValue === 'string') && !(pointValue % 1 === 0)){
                             pointValue = point.y.toFixed(2);
                         }
                         var id = point.series.options.categoryID;
@@ -227,7 +227,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                         if('tooltipChart' in currentSelectionInfo[item]){
                             for (var tooltipInfo in currentSelectionInfo[item]['tooltipChart']){
                                 pointValue = currentSelectionInfo[item]['tooltipChart'][tooltipInfo];
-                                if (!(pointValue % 1 === 0)) {
+                                if (pointValue != undefined &&!(typeof pointValue === 'string') && !(pointValue % 1 === 0)){
                                     pointValue = pointValue.toFixed(2);
                                 }
                                 s += '<tr><td></td><td style="text-align: left">   ' + tooltipInfo +':</td>'+

@@ -53,7 +53,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
             },
             yAxis: {
                 title: {
-                    text: 'Number of workers per unit'
+                    text: 'Number of workers per ' + categoryName
                 }
             },
             dataLabels: {
@@ -247,7 +247,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                     var arrayName = this.name.split("/");
                     var value = arrayName[arrayName.length - 1];
                     if(arrayName.length > 1) {
-                        return  categoryName + ' ' + value  + ' # of ann ';
+                        return  categoryName + ' ' + value  + ' # of mTasks ';
                     } else {
                         return categoryName + ' ' + value;
                     }
@@ -257,7 +257,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
             yAxis: [{
                 min: 0,
                 title: {
-                    text: '# micro tasks per unit'
+                    text: '# micro tasks per worker'
                 }
             }, {
                 min: 0,
@@ -287,7 +287,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                     var seriesOptions = {};
                     $.each(this.points, function(i, point) {
                         var pointValue = point.y
-                        if (!(pointValue % 1 === 0)) {
+                        if (pointValue != undefined &&!(typeof pointValue === 'string') && !(pointValue % 1 === 0)){
                             pointValue = point.y.toFixed(2);
                         }
                         var id = point.series.options.categoryID;
@@ -296,7 +296,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                         var arrayName = id.split('/');
                         var shortName = arrayName[arrayName.length - 1];
                         if (point.series.name == id){
-                            name =  '# of ann';
+                            name =  '# of mTasks';
                         } else {
                             name = name.substr(shortName.length,name.length);
                         }
@@ -318,7 +318,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                         if('tooltipChart' in currentSelectionInfo[item]){
                             for (var tooltipInfo in currentSelectionInfo[item]['tooltipChart']){
                                 pointValue = currentSelectionInfo[item]['tooltipChart'][tooltipInfo];
-                                if (!(pointValue % 1 === 0)) {
+                                if (pointValue != undefined &&!(typeof pointValue === 'string') && !(pointValue % 1 === 0)){
                                     pointValue = pointValue.toFixed(2);
                                 }
                                 s += '<tr><td></td><td style="text-align: left">   ' + tooltipInfo +':</td>'+
