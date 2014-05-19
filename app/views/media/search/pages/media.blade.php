@@ -93,7 +93,7 @@
 
 						<div class='includeGraph hidden'>
                             <table>
-                                <tr>
+                                <tr class="pieDivGraphs">
                                     <td>
                                         <div id="domain_div"></div>
                                     </td>
@@ -130,7 +130,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="workersPie_div"></div>
                                     </td>
                                     <td>
@@ -140,7 +140,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="jobsPie_div"></div>
                                     </td>
                                     <td>
@@ -150,7 +150,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="unitsPie_div"></div>
                                     </td>
                                     <td>
@@ -160,7 +160,7 @@
                             </table>
                             <table>
                                 <tr>
-                                    <td>
+                                    <td class="pieDivGraphs pieDivLarge">
                                         <div id="annotationsPie_div"></div>
                                     </td>
                                     <td>
@@ -168,7 +168,7 @@
                                     </td>
                                 </tr>
                             </table>
-							<div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -363,23 +363,8 @@ $('body').on('click', '.checkAll', function(){
 
 $('body').on('click', 'input[name=rowchk]', function(event){
 	var val = $(this).attr('value');
-	var activeTabKey = getActiveTabKey();
 
-    if($(this).prop("checked")){
-    	if (typeof selectedRows[activeTabKey] == 'undefined') {
-    		selectedRows[activeTabKey] = [];
-    	}
-
-		selectedRows[activeTabKey].push(val);
-    }
-    else
-    {
-		selectedRows[activeTabKey] = $.grep(selectedRows[activeTabKey], function(value) {
-		  return value != val;
-		});
-    }
-
-    console.dir(selectedRows[activeTabKey]);
+	updateSelection(val);
 });
 
 $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
@@ -514,6 +499,47 @@ $('.input-daterange input').on('changeDate', function(e) {
 	getResults();
 });
 
+var updateSelection = function(id) {
+	var activeTabKey = getActiveTabKey();
+
+	if (typeof selectedRows[activeTabKey] == 'undefined') {
+		selectedRows[activeTabKey] = [];
+	}
+
+	if(id !== undefined)
+	{
+	    if(jQuery.inArray(id, selectedRows[activeTabKey]) != -1) {
+			selectedRows[activeTabKey] = $.grep(selectedRows[activeTabKey], function(value) {
+			  return value != id;
+			});			
+	    } else {
+			selectedRows[activeTabKey].push(id);
+	    }
+	}
+
+    $("input[name=rowchk]").each(function(){
+    	var val = $(this).attr('value');
+
+        if(jQuery.inArray(val, selectedRows[activeTabKey]) != -1) {
+			$(this).prop("checked", true);
+        } else {
+        	$(this).prop("checked", false);
+        }
+    });
+
+    console.dir(selectedRows[activeTabKey]);
+}
+
+var getSelection = function() {
+	var activeTabKey = getActiveTabKey();
+
+	if (typeof selectedRows[activeTabKey] != 'undefined') {
+		return selectedRows[activeTabKey];
+	}
+
+	return [];
+}
+
 function getTabFieldsQuery(){
 	var activeTabKey = getActiveTabKey();
 	var tabFieldsQuery = '';
@@ -620,21 +646,12 @@ function getResults(baseApiURL){
 		if($('.graphViewButton').hasClass('hidden')){
             var selectedCategory = activeTabKey;
 			$(activeTabKey + ' .checkAll').removeAttr('checked');
-			var unitsChart = new unitsChartFacade(selectedCategory, openModal);
+			var unitsChart = new unitsChartFacade(selectedCategory, openModal, getSelection, updateSelection);
 			unitsChart.init(getTabFieldsQuery(),"");
 		}
 
+		updateSelection();
 
-
-        $("input[name=rowchk]").each(function(){
-        	var val = $(this).attr('value');
-
-	        if(jQuery.inArray(val, selectedRows[activeTabKey]) != -1) {
-				if(!$(this).is(':checked')) {
-					$(this).prop("checked", true);
-				}
-	        }
-        });
 	});
 
 	updateReponsiveTableHeight();

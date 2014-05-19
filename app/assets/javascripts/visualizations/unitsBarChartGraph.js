@@ -1,12 +1,11 @@
 
-function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction) {
+function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction, getSelection, updateSelection) {
     var unitsJobChart = "";
     var unitsWordCountChart = "";
     var selectedUnits = [];
     var projectCriteria = "";
     var matchCriteria = "";
     var specificInfo = {};
-
 
     var specificFields = {
         '#twrex-structured-sentence_tab':{ data : "words", info:['domain', 'format', 'relation', 'sentence' ],
@@ -21,7 +20,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
            labelsInfo:['domain','format', 'title', 'key frames', 'description'],
            query : '&project[keyframes]=keyframes.count' +'&project[domain]=domain' +'&project[format]=format'+
             '&project[title]=content.metadata.title&project[description]=content.metadata.description' +
-            '&project[id]=_id&push[title]=title&push[domain]=domain&push[format]=format&' +
+            '&project[id]=_id&push[id]=id&push[title]=title&push[domain]=domain&push[format]=format&' +
                 'push[description]=description&push[keyframes]=keyframes&'},
 
        '#drawing_tab':{ data : "features", info:['domain', 'format', 'title', 'features', 'author', 'description', 'url'],
@@ -93,6 +92,35 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                         item.attr("title", tooltipValue);
 
                     }
+                    var selectedUnits = getSelection();
+                    var currentSelectedUnits = [];
+                    for (var idUnitIter in selectedUnits){
+                        var categoryName = selectedUnits[idUnitIter];
+                        for (var iterData = 0; iterData < chart.series[0].data.length; iterData++) {
+                            
+                            if (categoryName == chart.series[0].data[iterData]['category']) {
+                                currentSelectedUnits.push(categoryName);
+                                for (var iterSeries = 0; iterSeries < chart.series.length; iterSeries++) {
+                                                               
+                                   chart.series[iterSeries].data[iterData].select(null,true)
+                                                                   
+                               } 
+                            }
+                            
+                        }   
+                    }
+                    if(chart.renderTo.id == 'generalBarChart_div' ) {
+                        var selectedInfo = {};
+                        for (var index in currentSelectedUnits) {
+                            selectedInfo[currentSelectedUnits[index]] = {};
+                            selectedInfo[currentSelectedUnits[index]]['tooltipLegend'] = specificInfo[currentSelectedUnits[index]][specificFields[category]['sendInfo']];
+                            selectedInfo[currentSelectedUnits[index]]['tooltipChart'] = {};
+                            selectedInfo[currentSelectedUnits[index]]['tooltipChart']['unit avg clarity'] = specificInfo[currentSelectedUnits[index]]['avg_clarity'];
+                        }
+                        workerUpdateFunction.update(currentSelectedUnits, selectedInfo);
+                        jobsUpdateFunction.update(currentSelectedUnits, selectedInfo);
+                        annotationsUpdateFunction.update(currentSelectedUnits , selectedInfo);
+                    } 
 
                 }
             }
@@ -272,16 +300,20 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                                 selectedGraph.series[iterSeries].data[this.x].select(null,true)
                             }
 
-
-
                             if($.inArray(this.category, selectedUnits) > -1) {
                                 selectedUnits.splice( $.inArray(this.category, selectedUnits), 1 );
                             } else {
                                 selectedUnits.push(this.category)
                             }
+
+                            updateSelection(this.category);
+
                             var selectedInfo = {};
                             for (var index in selectedUnits) {
-                                selectedInfo[selectedUnits[index]] = specificInfo[selectedUnits[index]][specificFields[category]['sendInfo']];
+                                selectedInfo[selectedUnits[index]] = {};
+                                selectedInfo[selectedUnits[index]]['tooltipLegend'] = specificInfo[selectedUnits[index]][specificFields[category]['sendInfo']];
+                                selectedInfo[selectedUnits[index]]['tooltipChart'] = {};
+                                selectedInfo[selectedUnits[index]]['tooltipChart']['unit avg clarity'] = specificInfo[selectedUnits[index]]['avg_clarity'];
                             }
                             workerUpdateFunction.update(selectedUnits, selectedInfo);
                             jobsUpdateFunction.update(selectedUnits, selectedInfo);
@@ -366,7 +398,9 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     var field = specificFields[category]['info'][indexField];
                     specificInfo[id][field] = data[field][indexData];
                 }
+                specificInfo[id]['avg_clarity']= data['avg_clarity'][indexData];
             }
+
 
             for (var key in chartSeriesOptions) {
                 var yAxisSeriesGroup = chartSeriesOptions[key];
@@ -461,7 +495,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
         //get the word count data
         var url = '/api/analytics/aggregate/?' +
             newMatchCriteria +
-           // '&match[cache.jobs.count][<]=1' +
+            '&match[cache.jobs.count][<]=1' +
             sortCriteria +
             specificFields[category]['query'];
 

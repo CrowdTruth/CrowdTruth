@@ -1,20 +1,54 @@
 function unitsJobDetails(category , categoryName, openModal) {
     var queryField = 'unit_id';
+    var infoFields = [ {field:'type', name:'type'}, {field:'softwareAgent_id', name:'platform'} ];
+    var querySettings = {};
     if (category == '#crowdagents_tab'){
-        queryField = 'crowdAgent_id'
+        queryField = 'crowdAgent_id';
+        infoFields.push({field:'avg_worker_agreement', name:'avg worker agreement'});
+        infoFields.push({field:'worker_cosine', name:'avg worker cosine'});
+        querySettings = {'metricCateg':'workers',metricFilter:'withFilter', aggName:'aggWorkers', metricFields:['avg_worker_agreement','worker_cosine'],
+        metricName:['worker agreement','worker cosine']}
+    } else {
+        infoFields.push({field:'max_relation_Cos', name:'avg unit clarity'});
+        infoFields.push({field:'magnitude', name:'magnitude'});
+        querySettings = {'metricCateg':'units',metricFilter:'withSpam', aggName:"aggUnits", metricFields:['max_relation_Cos','magnitude'],
+        metricName:['unit clarity','unit magnitude']}
     }
 
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
     var currentSelection = [];
     var currentSelectionInfo = {};
-    var unitsJobsInfo = {};
+    var pieChartOptions = {};
+    var unitInfo = {};
+
     var spammers = [];
     var seriesBase = [];
     var pieChart = "";
     var barChart = "";
+    var callback = function callback($this){
+        var img = $this.renderer.image('/assets/check_mark.png',$this.chartWidth-60,15,19,14);
+        img.add();
+        img.css({'cursor':'pointer'});
+        img.attr({'title':'Pop out chart'});
+        img.attr("data-toggle","tooltip");
+        img.attr("title", "Click to see results without low quality annotations");
+        img.on('click',function(){
+            alert("under construction");
+            // prcessing after image is clicked
+        });
+        var img = $this.renderer.image('/assets/cross.png',$this.chartWidth-90,16,19,12);
+        img.add();
+        img.css({'cursor':'pointer'});
+        img.attr({'title':'Pop out chart'});
+        img.attr("data-toggle","tooltip");
+        img.attr("title", "Click to see results with low quality annotations");
+        img.on('click',function(){
+            alert("under construction");
+            // prcessing after image is clicked
+        });
+    }
 
     var compare = function (a, b) {
-
         a_array = a._id.split("/");
         b_array = b._id.split("/");
         a_id = a_array[a_array.length - 1];
@@ -24,8 +58,10 @@ function unitsJobDetails(category , categoryName, openModal) {
 
     var getJobsData = function (url) {
         //make a check and see which units have workers?
-
         var categories = [];
+        var colorMaps = {};
+        var seriesMaps = {};
+        var colors =  Highcharts.getOptions().colors;
         var series = seriesBase;
         jobsURL = url + 'project[' + queryField + ']=' + queryField +
             '&group=job_id&push[' + queryField + ']=' + queryField;
@@ -38,7 +74,7 @@ function unitsJobDetails(category , categoryName, openModal) {
             data.sort(compare);
             var urlJobMatchStr = "";
             for (var iterData in data) {
-                urlJobMatchStr += "&match[_id][]=" + data[iterData]['_id'];
+                //urlJobMatchStr += "&match[_id][]=" + data[iterData]['_id'];
                 categories.push(data[iterData]['_id']);
                 for (var iterSeries in series) {
                     var unit_id = series[iterSeries]['name'];
@@ -49,48 +85,90 @@ function unitsJobDetails(category , categoryName, openModal) {
                         }
                     }
                     series[iterSeries]['data'].push(value);
-
                 }
             }
-            var requests = [];
-            var seriesName = 'clarity_';
-            if (queryField == 'crowdAgent_id') {
-                seriesName = 'agreement_';
+
+            var newSeries = {};
+            var urlJobsInfo =  '/api/v1/?field[documentType]=job&';
+            for (var iterCateg in categories) {
+                urlJobsInfo += 'field[_id][]=' + categories[iterCateg] + '&';
             }
+
             for (var iterSeries in series) {
-                categories.push(seriesName + series[iterSeries]['name']);
+                var color = Highcharts.Color(colors[iterSeries%(colors.length)]).get();
+                series[iterSeries]['color'] = color;
+                series[iterSeries]['type'] = 'column';
+                var categoryID =  series[iterSeries]['name'];
+                series[iterSeries]['categoryID'] = categoryID;
+                newSeries[categoryID] = {};
 
-                var specificQuery = '&project[metric]=metrics.units.withoutSpam.' + series[iterSeries]['name'] + '.max_relation_Cos.avg';
-                if (queryField == 'crowdAgent_id') {
-                    specificQuery = '&project[metric]=metrics.workers.withFilter.' + series[iterSeries]['name'] + '.avg_worker_agreement.avg';
+                for (var iterMetric in querySettings['metricFields']){
+                    urlJobsInfo += '&only[]=metrics.' + querySettings['metricCateg'] + '.' +
+                                    querySettings['metricFilter'] + '.' + categoryID + '.' + querySettings['metricFields'][iterMetric] + '.avg';
+                    var dashStyle ='shortdot';
+                    if (iterMetric % 2 == 0) { dashStyle = 'LongDash'; }
+                    newSeries[categoryID][querySettings['metricFields'][iterMetric]] =
+                                                                      {'name': querySettings['metricName'][iterMetric] ,
+                                                                        data:[],
+                                                                        categoryID: categoryID,
+                                                                        type: 'spline', color:Highcharts.Color(color).brighten(0.3).get(),
+                                                                        'dashStyle':dashStyle, linkedTo: iterSeries, yAxis:1};
                 }
-
-                var urlJobData = '/api/analytics/aggregate/?match[documentType]=job&sort[created_at]=1' + urlJobMatchStr +
-                    specificQuery +
-                    '&project[id]=_id' +
-                    '&push[id]=id&push[metric]=metric';
-                requests.push($.get(urlJobData));
             }
-            var defer = $.when.apply($, requests);
-            defer.done(function () {
 
-                if (arguments[1] == 'success'){
-                    series.push({'name': seriesName + series[0]['name'], data: arguments[0]['metric'],  yAxis: 1,
-                        type: 'spline'});
-                } else {
-                    $.each(arguments, function (index, responseData) {
-                        series.push({'name': seriesName + series[index]['name'], data: responseData[0]['metric'],  yAxis: 1,
-                            type: 'spline'});
-                    });
+            //get worker's info
+            var urlUnitInfo = '/api/analytics/metrics/?&'
+            for (var indexUnits in currentSelection) {
+                urlUnitInfo += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
+            }
+            urlUnitInfo += 'match[documentType][]=annotation&project[job_id]=job_id&push[job_id]=job_id' +
+                '&metrics[]=type&metrics[]=softwareAgent_id&'
+            for (var indexMetric in querySettings['metricFields']) {
+                urlUnitInfo += 'metrics[]=metrics.' + querySettings['aggName'] + '.mean.' + querySettings['metricFields'][indexMetric] + '.avg&';
+            }
+
+            $.getJSON(urlUnitInfo, function (data) {
+                for(var iterData in data) {
+                    unitInfo[data[iterData]['_id']] = data[iterData];
+                    for (var indexMetric in querySettings['metricFields']) {
+                        var metricName = querySettings['metricFields'][indexMetric];
+                        unitInfo[data[iterData]['_id']][metricName] = data[iterData]['metrics'][querySettings['aggName']]['mean'][metricName]['avg'];
+                    }
                 }
-                drawBarChart(series, categories);
+
+                $.getJSON(urlJobsInfo, function (data) {
+
+                    data.sort(compare);
+                    for (var iterData in data) {
+                        var metrics = data[iterData]['metrics'][querySettings['metricCateg']][querySettings['metricFilter']];
+                        for (var iterSeries in series) {
+                            var id = series[iterSeries]['name'];
+                            if (id in metrics){
+                                for (var indexMetric in querySettings['metricFields']) {
+                                    var metricName = querySettings['metricFields'][indexMetric];
+                                    newSeries[id][metricName]['data'].push(metrics[id][metricName]['avg']);
+                                }
+                            } else {
+                                for (var indexMetric in querySettings['metricFields']) {
+                                    newSeries[id][querySettings['metricFields'][indexMetric]]['data'].push(0);
+                                }
+                            }
+                        }
+                    }
+                    for( var iterIds in newSeries){
+                        for (var indexMetric in querySettings['metricFields']) {
+                            var metricName = querySettings['metricFields'][indexMetric];
+                            series.push(newSeries[iterIds][metricName]);
+                        }
+                    }
+                    drawBarChart(series, categories);
+                });
             });
         });
     }
 
     var drawBarChart = function (series, categories) {
         //get the metrics for the units
-
 
         barChart = new Highcharts.Chart({
             chart: {
@@ -103,17 +181,17 @@ function unitsJobDetails(category , categoryName, openModal) {
                     load: function () {
                         var chart = this,
                             legend = chart.legend;
-                        console.dir(currentSelectionInfo);
                         for (var i = 0, len = legend.allItems.length; i < len; i++) {
                             var item = legend.allItems[i].legendItem;
                             var tooltipValue = "";
-                            if (typeof currentSelectionInfo[legend.allItems[i].name] === 'string') {
-                                var tooltipValue = currentSelectionInfo[legend.allItems[i].name];
+
+                           /* if (typeof currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'] === 'string') {
+                                var tooltipValue = currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'];
                             } else {
-                                for( var indexInfoKey in currentSelectionInfo[legend.allItems[i].name]) {
-                                    tooltipValue +=  currentSelectionInfo[legend.allItems[i].name][indexInfoKey] + '(' + indexInfoKey + ')' + '<br/>';
+                                for( var indexInfoKey in currentSelectionInfo[legend.allItems[i].name]['tooltipLegend']) {
+                                    tooltipValue +=  currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'][indexInfoKey] + '(' + indexInfoKey + ')' + '<br/>';
                                 }
-                            }
+                            }*/
 
                             item.attr("data-toggle","tooltip");
                             item.attr("title", tooltipValue);
@@ -184,7 +262,7 @@ function unitsJobDetails(category , categoryName, openModal) {
             yAxis: [{
                 min: 0,
                 title: {
-                    text: '# annotation per unit'
+                    text: '# micro tasks per job'
                 }
             },
                 {
@@ -195,22 +273,95 @@ function unitsJobDetails(category , categoryName, openModal) {
                     opposite:true
                 }],
             tooltip: {
-                crosshairs: true,
-                shared: true,
-                useHTML: true,
-                headerFormat: '<b>Job {point.key}</b></br><p>(Click for details)</p><table>',
-                pointFormat: '<tr><td style="color: {series.color};text-align: left">{series.name}: </td>' +
-                    '<td style="text-align: right"><b>{point.y} annotations</b></td></tr>',
-                footerFormat: '</table>',
-                valueDecimals: 2
 
+                hideDelay:10,
+                useHTML : true,
+                formatter: function() {
+                    var arrayID = this.x.split("/");
+                    var id =  arrayID[arrayID.length - 1];
+                    var s = '<div style="white-space:normal;"><b>Job </b>'+ id +'<br/>';
+                    for (var index in infoFields) {
+                        var field = infoFields[index]['field'];
+                        var pointValue =  unitInfo[this.x][field];
+                        if (pointValue != undefined &&!(typeof pointValue === 'string') && !(pointValue % 1 === 0)){
+                            pointValue = pointValue.toFixed(2);
+                        }
+                        s +=  '<b>' + infoFields[index]['name'] + ' : </b>' + pointValue + '<br/>';
+                    }
+
+
+                    var seriesOptions = {};
+                    $.each(this.points, function(i, point) {
+                        var pointValue = point.y
+                        if (pointValue != undefined &&!(typeof pointValue === 'string') && !(pointValue % 1 === 0)){
+                            pointValue = point.y.toFixed(2);
+                        }
+                        var id = point.series.options.categoryID;
+
+                        var name = point.series.name;
+                        var arrayName = id.split('/');
+                        var shortName = arrayName[arrayName.length - 1];
+                        if (point.series.name == id){
+                            name =  '# of mTasks';
+                        } else {
+                            name = name;//.substr(shortName.length,name.length);
+                        }
+
+                        var line = '<tr><td></td><td style="color: ' + point.series.color + ';text-align: left">   ' + name +':</td>'+
+                            '<td style="text-align: right">' + pointValue + '</td></tr>';
+                        if(!(id in seriesOptions)){
+                            seriesOptions[id] = [];
+                        }
+                        seriesOptions[id].push(line);
+                    });
+
+                    s += '<table calss="table table-condensed">';
+                    for (var item in seriesOptions)
+                    {
+                        var arrayName = item.split('/');
+                        var id = arrayName[arrayName.length - 1];
+                        s += '<tr><td> </td><td style="text-align: left"><b>' + categoryName + ' ' +  id + ':</b></td></tr>';
+                        if('tooltipChart' in currentSelectionInfo[item]){
+                            for (var tooltipInfo in currentSelectionInfo[item]['tooltipChart']){
+                                pointValue = currentSelectionInfo[item]['tooltipChart'][tooltipInfo];
+                                if (pointValue != undefined &&!(typeof pointValue === 'string') && !(pointValue % 1 === 0)){
+                                    pointValue = pointValue.toFixed(2);
+                                }
+                                s += '<tr><td></td><td style="text-align: left">   ' + tooltipInfo +':</td>'+
+                                    '<td style="text-align: right">' + pointValue + '</td></tr>';
+                            }
+                        }
+
+                        for(var li in seriesOptions[item]) {
+                            s += seriesOptions[item][li];
+                        }
+
+                    }
+                    s += '</table>';
+
+                    return s;
+                },
+                shared: true,
+                crosshairs: true
             },
             credits: {
                 enabled: false
             },
             plotOptions: {
                 series: {
-                    minPointLength : 2
+                    minPointLength : 2,
+
+                    events: {
+                        legendItemClick: function(event) {
+                                var categoryID = this['options']['categoryID'];
+                                for (var iterData = 0; iterData < barChart.series.length; iterData++) {
+                                    if (barChart.series[iterData]['options']['categoryID'] == categoryID & barChart.series[iterData].type == 'spline') {
+                                        barChart.series[iterData].visible ? barChart.series[iterData].hide() : barChart.series[iterData].show();
+                                    }
+                                }
+
+                        }
+                    }
                 },
                 column: {
                     stacking: 'normal',
@@ -246,7 +397,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                 }
             },
             series: series
-        });
+        },callback);
 
     }
 
@@ -285,9 +436,9 @@ function unitsJobDetails(category , categoryName, openModal) {
                     point: {
                         events: {
                             click: function () {
-                                searchSet = unitsJobsInfo[this.options.platform]['all'];
+                                searchSet = pieChartOptions[this.options.platform]['all'];
                                 if ('type' in this.options) {
-                                    searchSet = unitsJobsInfo[this.options.platform][this.options.type];
+                                    searchSet = pieChartOptions[this.options.platform][this.options.type];
                                 }
 
                                 for (var iterData = 0; iterData < barChart.series[0].data.length; iterData++) {
@@ -304,19 +455,6 @@ function unitsJobDetails(category , categoryName, openModal) {
                                     }
                                 }
 
-
-                                /* console.dir(urlBase + this.options.match + '&');
-                                 getWorkersData(urlBase + this.options.match + '&');
-                                 ///pieChart.series[this.options.ser_nr].data[this.x].select(null,true);
-                                 console.dir(pieChart.getSelectedPoints());*/
-                                /*var elem = mapping[this.name];
-                                 url = '/api/analytics/piegraph/?match[documentType][]=annotation' +
-                                 '&match[unit_id][]='+elem['id']+
-                                 '&match[spam]='+elem['spam']+
-                                 '&group=crowdAgent_id';
-                                 $.getJSON(url, function(data) {
-                                 createUnitBarChart(data);
-                                 });*/
                             }
                         }
                     }
@@ -371,6 +509,13 @@ function unitsJobDetails(category , categoryName, openModal) {
 
 
     this.update = function (selectedUnits, selectedInfo) {
+        if(selectedUnits.length == 0){
+            if ( $('#jobsBar_div').highcharts() != undefined ) {
+                $('#jobsBar_div').highcharts().destroy();
+                $('#jobsPie_div').highcharts().destroy();
+            }
+            return;
+        }
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
@@ -381,7 +526,6 @@ function unitsJobDetails(category , categoryName, openModal) {
             seriesBase.push({'name': selectedUnits[indexUnits], data: [],  yAxis: 0,
                 type: 'column'});
         }
-
 
         getJobsData(urlBase);
         platformURL = urlBase + 'project[job_id]=job_id&group=softwareAgent_id&addToSet=job_id';
@@ -398,8 +542,8 @@ function unitsJobDetails(category , categoryName, openModal) {
                 platformData.push({name: platformID, y: data[platformIter]['content'].length,
                     color: Highcharts.Color(colors[platformIter]).brighten(0.07).get(),
                     platform: platformID});
-                unitsJobsInfo[platformID] = {};
-                unitsJobsInfo[platformID]['all'] = data[platformIter]['content'];
+                pieChartOptions[platformID] = {};
+                pieChartOptions[platformID]['all'] = data[platformIter]['content'];
                 //get the jobs by category
                 var urlType = "/api/analytics/piegraph/?match[documentType][]=job&";
                 for (var jobIter in data[platformIter]['content']) {
@@ -425,7 +569,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                                 y: responseData[iterObj].content.length,
                                 color: Highcharts.Color(colors[index]).brighten(-0.01*iterObj).get(),
                                 platform: data[index]['_id']});
-                            unitsJobsInfo[data[index]['_id']][responseData[iterObj]['_id']] = responseData[iterObj].content;
+                            pieChartOptions[data[index]['_id']][responseData[iterObj]['_id']] = responseData[iterObj].content;
                         }
                     }
                 });

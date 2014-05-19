@@ -1,5 +1,5 @@
 
-function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction) {
+function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction, getSelection, updateSelection) {
     var barChart = "";
     var selectedUnits = [];
     var projectCriteria = "";
@@ -73,6 +73,34 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                         item.attr("title", tooltipValue);
 
                     }
+                    var selectedUnits = getSelection();
+
+                    for (var idUnitIter in selectedUnits){
+                        var categoryName = selectedUnits[idUnitIter];
+                        for (var iterData = 0; iterData < chart.series[0].data.length; iterData++) {
+
+                            if (categoryName == chart.series[0].data[iterData]['category']) {
+                                for (var iterSeries = 0; iterSeries < chart.series.length; iterSeries++) {
+
+                                    chart.series[iterSeries].data[iterData].select(null,true)
+
+                                }
+                            }
+
+                        }
+                    }
+
+                    var selectedInfo = {};
+                    for (var index in selectedUnits) {
+                        selectedInfo[selectedUnits[index]] = {};
+                        selectedInfo[selectedUnits[index]]['tooltipLegend'] = {};
+                        selectedInfo[selectedUnits[index]]['tooltipLegend']['title'] = info[selectedUnits[index]]['title'];
+                        selectedInfo[selectedUnits[index]]['tooltipLegend']['type'] = info[selectedUnits[index]]['type'];
+                    }
+                    workerUpdateFunction.update(selectedUnits, selectedInfo);
+                    jobsUpdateFunction.update(selectedUnits, selectedInfo);
+                    annotationsUpdateFunction.update(selectedUnits, selectedInfo);
+
 
                 }
             }
@@ -206,11 +234,14 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                             } else {
                                 selectedUnits.push(this.category)
                             }
+                            updateSelection(this.category);
+
                             var selectedInfo = {};
                             for (var index in selectedUnits) {
                                 selectedInfo[selectedUnits[index]] = {};
-                                selectedInfo[selectedUnits[index]]['title'] = info[selectedUnits[index]]['title'];
-                                selectedInfo[selectedUnits[index]]['type'] = info[selectedUnits[index]]['type'];
+                                selectedInfo[selectedUnits[index]]['tooltipLegend'] = {};
+                                selectedInfo[selectedUnits[index]]['tooltipLegend']['title'] = info[selectedUnits[index]]['title'];
+                                selectedInfo[selectedUnits[index]]['tooltipLegend']['type'] = info[selectedUnits[index]]['type'];
                             }
                             workerUpdateFunction.update(selectedUnits, selectedInfo);
                             jobsUpdateFunction.update(selectedUnits, selectedInfo);
