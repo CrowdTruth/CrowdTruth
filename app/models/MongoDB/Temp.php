@@ -46,7 +46,6 @@ class Temp extends Moloquent {
 		{
             foreach($result as &$parent)
             {
-                dd($parent);
                 $children = \MongoDB\Entity::whereIn('parents', [$parent['_id']])->get(['recognizedFeatures', 'content.features'])->toArray();
 
                 $parent['content']['features'] = [];
@@ -177,17 +176,19 @@ class Temp extends Moloquent {
 
         $result = \MongoDB\Entity::where('documentType', 'job')->with('hasConfiguration')->get()->toArray();
 
-        try {
-            \MongoDB\Temp::where('documentType', 'job')->forceDelete();
+        if(count($result) > 0)
+        {
+            try {
+                \MongoDB\Temp::where('documentType', 'job')->forceDelete();
 
-            $db->batchInsert(
-                $result,
-                array('continueOnError' => true)
-            );             
-        } catch (Exception $e) {
-        // ContinueOnError will still throw an exception on duplication, even though it continues, so we just move on.
+                $db->batchInsert(
+                    $result,
+                    array('continueOnError' => true)
+                );             
+            } catch (Exception $e) {
+            // ContinueOnError will still throw an exception on duplication, even though it continues, so we just move on.
+            }
         }
-
 
         \Session::forget('rawArray');
     }

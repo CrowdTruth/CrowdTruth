@@ -664,6 +664,7 @@ class TwrexStructurer {
 				"title" => strtolower($title),
 				"domain" => $parentEntity['domain'],
 				"format" => $parentEntity['format'],
+				"tags" => ['unit'],
 				"documentType" => "twrex-structured-sentence",
 				"parents" => [$parentEntity['_id']],
 				"content" => $twrexStructuredSentence,
@@ -688,6 +689,7 @@ class TwrexStructurer {
 		if(count($allEntities) > 1)
 		{
 			\DB::collection('entities')->insert($allEntities);
+			\MongoDB\Temp::truncate();
 		}
 
 		//	$allEntities = array_slice($allEntities, 0, 100);
