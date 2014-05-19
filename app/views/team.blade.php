@@ -8,7 +8,7 @@
 						<h2><i class="fa fa-angle-left" style="float:left; color:#999; display:inline-block; cursor:pointer" onclick="javascript:window.history.back()"></i>The CrowdTruth team</h2>
 					</div>
 					<div class="row">
-						<div class="col-xs-10 col-xs-offset-1"  style="padding-bottom:40px; padding-top:20px">
+						<div class="col-xs-10 col-xs-offset-1"  style="padding-bottom:40px; padding-top:20px; text-align:center;">
 						
 										
 										
