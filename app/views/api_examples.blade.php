@@ -11,11 +11,11 @@
 						<div class="col-xs-10 col-xs-offset-1"  style="padding-bottom:40px; padding-top:20px">
 
 <ul class="list-group">
-  <li class="list-group-item"><a href='http://crowdtruth.org/api/v1?field[documentType]=twrex-structured-sentence&limit=1'>IBM medical relation extraction sentence</a></li>
-  <li class="list-group-item"><a href='http://crowdtruth.org/api/v1?field[documentType]=twrex-structured-sentence&limit=1&wasAttributedTo'>IBM medical relation extraction sentence - wasAttributedTo</li>
-  <li class="list-group-item"><a href='http://crowdtruth.org/api/v1?field[documentType]=twrex-structured-sentence&limit=1&wasDerivedFrom'>IBM medical relation extraction sentence - wasDerivedFrom</li>  
-  <li class="list-group-item"><a href='http://crowdtruth.org/api/v1?field[documentType]=twrex-structured-sentence&limit=1&wasGeneratedBy&wasAssociatedWith'>IBM medical relation extraction sentence - wasGeneratedBy and wasAssociatedWith</li>
-  <li class="list-group-item"><a href='http://crowdtruth.org/api/v1?field[documentType]=batch&limit=1'>Batch of IBM medical relation extraction sentences</li>
+  <li class="list-group-item"><a href='http://crowdtruth.org/api/v1?field[documentType]=twrex-structured-sentence&limit=1&pretty'>IBM medical relation extraction sentence</a></li>
+  <li class="list-group-item"><a href='http://crowdtruth.org/api/v1?field[documentType]=twrex-structured-sentence&limit=1&wasAttributedTo&pretty'>IBM medical relation extraction sentence - wasAttributedTo</li>
+  <li class="list-group-item"><a href='http://crowdtruth.org/api/v1?field[documentType]=twrex-structured-sentence&limit=1&wasDerivedFrom&pretty'>IBM medical relation extraction sentence - wasDerivedFrom</li>  
+  <li class="list-group-item"><a href='http://crowdtruth.org/api/v1?field[documentType]=twrex-structured-sentence&limit=1&wasGeneratedBy&wasAssociatedWith&pretty'>IBM medical relation extraction sentence - wasGeneratedBy and wasAssociatedWith</li>
+  <li class="list-group-item"><a href='http://crowdtruth.org/api/v1?field[documentType]=batch&limit=1&pretty'>Batch of IBM medical relation extraction sentences</li>
 </ul>							
 
 						</div>						
