@@ -9,142 +9,105 @@
 					</div>
 					<div class="row">
 						<div class="col-xs-10 col-xs-offset-1"  style="padding-bottom:40px; padding-top:20px">
-							<table style="width:100%;">
-								<tbody>
-									<tr>	
-										<td>
-											<br><br><b>PI's</b>
-										</td>
-										<td>
-										</td>
-									</tr>
-									<tr>
-										<td style="width: 50%;">
+						
+										
+										
+										
+									
+									
+											<b>PI's</b>
+											<br>
 											<h4>Lora Aroyo</h4>
 											<h5>VU University, Amsterdam</h5>
-										</td>
-										<td style="width: 50%;">
+										
+											<br>
 											<h4>Chris Welty</h4>
 											<h5>IBM Research</h5>
-											<h6></h6>
-										</td>
-									</tr>
-
-
-									<tr>	
-										<td>
+											
+											<br>
+									
 											<h4>Robert-Jan Sips</h4>
 											<h5>CAS Benelux, IBM Netherlands</h5>
-										</td>
-										<td>
-										</td>
-									</tr>
-
-									<tr>	
-										<td>
-											<br><br><b>Research Assistants</b>
-										</td>
-										<td>
-										</td>
-									</tr>
-									<tr>		
-										<td>
+										
+											<br><b>Research Assistants</b>
+										
+											<br>
 											<h4>Oana Inel</h4>
 											<h5>CAS Benelux, IBM Netherlands</h5>
 											<h5>VU University Amsterdam</h5>
-										</td>
-										<td>
+										
+											<br>
 											<h4>Lukasz Romaszko</h4>
 											<h5>CAS Benelux, IBM Netherlands</h5>
 											<h5>VU University Amsterdam</h5>
-										</td>
-									</tr>
-									<tr>	
-										<td>
-											<br><br><b>PhD. Students</b>
-										</td>
-									</tr>
-									<tr>	
-										<td>
+										
+											<br><b>PhD. Students</b>
+											<br>
 											<h4>Anca Dumitrache</h4>
 											<h5>CAS Benelux, IBM Netherlands</h5>
 											<h5>VU University Amsterdam</h5>
-										</td>	
-									</tr>	
-									<tr>	
-										<td>
-											<br><br><b>MSc. Students</b>
-										</td>
-									</tr>
-									<tr>	
-										<td>
+										
+											<br><b>MSc. Students</b>
+										
+											<br>
 											<h4>Benjamin Timmermans</h4>
 											<h5>CAS Benelux, IBM Netherlands</h5>
 											<h5>VU University Amsterdam</h5>
-										</td>	
-										<td>
+											
+											<br>
 											<h4>Harri&euml;tte Smook</h4>
 											<h5>CAS Benelux, IBM Netherlands</h5>
 											<h5>VU University Amsterdam</h5>
-										</td>			
-									</tr>
-									<tr>	
-										<td>
+													
+									
+										
+											<br>
 											<h4>Khalid Khamkham</h4>
 											<h5>CAS Benelux, IBM Netherlands</h5>
 											<h5>VU University Amsterdam</h5>
-										</td>
-										<td>
+										
+											<br>
 											<h4>Rens van Honschooten</h4>
 											<h5>CAS Benelux, IBM Netherlands</h5>
 											<h5>VU University Amsterdam</h5>
-										</td>
-									</tr>
-									<tr>	
-										<td>
+										
+									
+										
+											<br>
 											<h4>Tatiana Cristea</h4>
 											<h5>CAS Benelux, IBM Netherlands</h5>
 											<h5>VU University Amsterdam</h5>
-										</td>
-									</tr>
-									<tr>	
-										<td>
-											<br><br><b>Engineers</b>
-										</td>
-									</tr>
-									<tr>
-										<td>
+							
+											<br><b>Engineers</b>
+										
+											<br>
 											<h4>Arne Rutjes</h4>
 											<h5>IBM Services Center Benelux</h5>
-										</td>
-										<td>
+										
+											<br>
 											<h4>Jelle van der Ploeg</h4>
 											<h5>IBM Services Center Benelux</h5>
-										</td>
-									</tr>
-									<tr>
-										<td>
+										
+									
+									
+											<br>
 											<h4>Manfred Overmeen</h4>
 											<h5>CAS Benelux, IBM Netherlands</h5>
-										</td>
-										<td>
-										</td>
-									</tr>
-									<tr>	
-										<td>
-											<br><br><b>Former team members</b>
-										</td>
-									</tr>
-									<tr>
-										<td>
+										
+			
+											<br><b>Former team members</b>
+										
+									
+									
+											<br>
 											<h4>Hui Lin</h4>
 											<h5>BSc. Student</h5>
-										</td>
-										<td>
+										
+											<br>
 											<h4>Guillermo Soberon</h4>
 											<h5>MSc. Student</h5>
-										</td>
-									</tr>
+										
+									
 								</tbody>								
 							</table>
 
