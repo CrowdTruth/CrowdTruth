@@ -23,6 +23,7 @@
 							<ul class="dropdown-menu">
 								<li>{{ link_to('info', "Documentation") }}</li>
 								<li>{{ link_to('papers', "Papers") }}</li>
+								<li>{{ link_to('team', "Team") }}</li>
 								<li class="divider"></li>
 								<li><a href="https://www.vu.nl/en/index.asp" target="_blank">VU</a></li>
 								<li><a href="https://www.ibm.com" target="_blank">IBM</a></li>
