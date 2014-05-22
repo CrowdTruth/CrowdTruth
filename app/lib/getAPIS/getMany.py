@@ -115,6 +115,7 @@ for iter in range(4, len(sys.argv), 2):
         data1 = json.load(response)    
         
         data['softwareAgent_configuration'] = "scene"
+        data['documentType'] = data['softwareAgent_id'] + "-" + data['softwareAgent_configuration']
         Features = {}
         Features['scene'] = []
         for that in data1["scene_understanding"]:
@@ -144,6 +145,7 @@ for iter in range(4, len(sys.argv), 2):
         # print data2["scene_understanding"] 
         Features = {}
         data['softwareAgent_configuration'] = "object"
+        data['documentType'] = data['softwareAgent_id'] + "-" + data['softwareAgent_configuration']
         Features['object'] = []
         for that in data2["scene_understanding"]["matches"]:
             Features['object'].append({"label": that['tag'], "score" : that['score']})
@@ -175,6 +177,7 @@ for iter in range(4, len(sys.argv), 2):
         data3 = json.load(response)    
         # print (data3 )
         data['softwareAgent_configuration'] = "faces"
+        data['documentType'] = data['softwareAgent_id'] + "-" + data['softwareAgent_configuration']
         Features = []
         Features.append({   'label' : 'facesNumber', 'score' :  len(data3["face_detection"])    })
         Features.append({    'label' : 'facesDetails' , 'score' : data3["face_detection"]      })
@@ -193,7 +196,7 @@ for iter in range(4, len(sys.argv), 2):
          print('error REKOGNITION c' + str(e), file=sys.stderr) 
          log('error REKOGNITION c' + str(e))
     #########################   CLOUDINARY   ############################################    
-    exit()
+    
     try:
         data4 = cloudinary.uploader.upload(ImURL, faces = True, colors=True)
         Features = {}
@@ -201,26 +204,31 @@ for iter in range(4, len(sys.argv), 2):
         data['softwareAgent_id'] = 'fr_cloudinary'
         data['documentType'] = data['softwareAgent_id']
         data['softwareAgent_label'] = 'cloudinary: faces, colors'
-        data['softwareAgent_configuration'] = "faces"
-        if "faces" in data4:
-            Features['Faces'] = data4["faces"]
-            Features['FacesNumber']  = len(data4["faces"])
-        else:
-            Features['Faces'] = 0
-            Features['FacesNumber'] = 0
-        r = requests.post(url, data=json.dumps(data), headers=headers)
-        if WRITE_FILE==1:
-            output.write(json.dumps(data, indent = 2))  
+        # data['softwareAgent_configuration'] = "faces"
+        # if "faces" in data4:
+        #     Features['Faces'] = data4["faces"]
+        #     Features['FacesNumber']  = len(data4["faces"])
+        # else:
+        #     Features['Faces'] = 0
+        #     Features['FacesNumber'] = 0
+        # r = requests.post(url, data=json.dumps(data), headers=headers)
+        # if WRITE_FILE==1:
+        #     output.write(json.dumps(data, indent = 2))  
         Features = {}
         data['softwareAgent_configuration'] = "colors"
-        Features['ColorsHistogram'] = data4["colors"]
-        Features['ColorsMain'] = data4["predominant"]["google"]
+        data['documentType'] = data['softwareAgent_id'] + "-" + data['softwareAgent_configuration']
+        Features['ColorsHistogram'] = []
+        Features['ColorsMain'] = []
+        for fi in data4["predominant"]["google"]:
+            Features['ColorsMain'].append({'label': fi[0], 'score' : fi[1]})
+        for fi in data4["colors"]:
+            Features['ColorsHistogram'].append({'label': fi[0], 'score' : fi[1]})
         data['content']['features'] = Features  
-        th = 40  
+        th = 0.40  
         data['threshold'] = th
         data['relevantFeatures'] = []
-        for fi in Features['ColorsMain']:
-            if fi[1] > th:
+        for fi in data4["predominant"]["google"]:
+            if fi[1] > 100*th:
                 data['relevantFeatures'].append(fi[0])
 
 
@@ -233,7 +241,7 @@ for iter in range(4, len(sys.argv), 2):
     except Exception, e:
         print('error CLOUDINARY' + str(e), file=sys.stderr)  
         log('error CLOUDINARY' + str(e))
-
+    
     ###############################   SKYBIOMETRY   ############################################  
     Sky_key = "7e544588316542b382d286988b83d679"
     Sky_secret = "3bb713ca57b94c709d55c2add9d1c882"
@@ -241,7 +249,9 @@ for iter in range(4, len(sys.argv), 2):
     data['documentType'] = data['softwareAgent_id']
     data['softwareAgent_label'] = 'skybiometry: faces'
     data['softwareAgent_configuration'] = "faces"
+    data['documentType'] = data['softwareAgent_id'] + "-" + data['softwareAgent_configuration']
     Features = {}
+    Features['faces'] = []
     try:
         Comm = "http://api.skybiometry.com/fc/faces/detect.json?api_key="+Sky_key + "&api_secret="+Sky_secret+"&urls=" +ImURL + "&attributes=all"
         response = urllib2.urlopen(Comm)
@@ -260,12 +270,12 @@ for iter in range(4, len(sys.argv), 2):
                         else:
                             val = 0.5 - val / 2
                         l.append(val)
-        Features['FacesNumber'] = len(l)
-        if Features['FacesNumber'] > 0:
-            Features['AverageSex'] = np.mean(l)
+        Features['faces'].append ({  'label'  :  'facesNumber', 'score'  :  len(l) })
+        if len(l) > 0:
+            Features['faces'].append({ 'label' : 'averageSex', 'score' : np.mean(l) })
         data['relevantFeatures'] = l
-        data['content']['height'] = data4['height']
-        data['content']['width'] = data4['width']
+        #data['content']['height'] = data4['height']
+        #data['content']['width'] = data4['width']
         data['content']['features'] = Features    
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)   
@@ -275,28 +285,28 @@ for iter in range(4, len(sys.argv), 2):
 
     except Exception, e:
         print('error SKYBIOMETRY' + str(e), file=sys.stderr)
-        log('error SKYBIOMETRY' + str(e))
-
-          
+        log('error SKYBIOMETRY' + str(e))   
     #############################   LUKASZ.FLOWERS, BIRDS        ################################# 
     data['softwareAgent_id'] = 'fr_classifier'
     data['documentType'] = data['softwareAgent_id']
     data['softwareAgent_label'] = 'classifier: set of classes'
     data['softwareAgent_configuration'] = "flowers"
+    data['documentType'] = data['softwareAgent_id'] + "-" + data['softwareAgent_configuration']
     data['content'] = {}
     data['parents'] = [parentID]
     data['content']['URL'] = ImURL
     Features = {}
-    Features["Classifier"] = {}
+    Features["classifier"] = []
     try:
         file = cStringIO.StringIO(urllib.urlopen(ImURL).read())
         image = Image.open(file)
-        Features["Classifier"]['Flowers'] = predict_adopted.predict("FLOWERS", image) / 100.0
+        val =  predict_adopted.predict("FLOWERS", image) / 100.0 
+        Features["classifier"].append({'label' : 'flowers', 'score' : val })
         data['content']['features'] = Features  
         th = 0.55  
         data['threshold'] = th
         data['relevantFeatures'] = []
-        if Features["Classifier"]['Flowers'] > th:
+        if val > th:
             data['relevantFeatures'].append("flowers")
 
         r = requests.post(url, data=json.dumps(data), headers=headers)
@@ -309,17 +319,20 @@ for iter in range(4, len(sys.argv), 2):
         log('error CLASSIFIER FLOWERS' + str(e))
         
     Features = {}
-    Features["Classifier"] = {}
+    Features["classifier"] = []
     try:
+        
         data['softwareAgent_configuration'] = "birds"
         #file = cStringIO.StringIO(urllib.urlopen(ImURL).read())
        # image = Image.open(file)
-        Features["Classifier"]['Birds'] = predict_adopted.predict("BIRDS", image) / 100.0
+        val = predict_adopted.predict("BIRDS", image) / 100.0 
+        Features["classifier"].append({ 'label' : 'birds', 'score' : val})
+        data['documentType'] = data['softwareAgent_id'] + "-" + data['softwareAgent_configuration']
         data['content']['features'] = Features   
         th = 0.55  
         data['threshold'] = th
         data['relevantFeatures'] = []
-        if Features["Classifier"]['Birds'] > th:
+        if val > th:
             data['relevantFeatures'].append("birds")
 
 
