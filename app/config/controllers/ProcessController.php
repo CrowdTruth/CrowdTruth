@@ -13,7 +13,7 @@ class ProcessController extends BaseController {
 
 
 	public function getBatch() {
-/*		$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->first();
+/*		$unit = MongoDB\Entity::where('documentType', 'relex-structured-sentence')->first();
 		$qt = QuestionTemplate::where('documentType', 'questiontemplate')->first();
 		dd($qt->getAnnotationVector($unit, array('b. pertussis causes whooping cough')));
 

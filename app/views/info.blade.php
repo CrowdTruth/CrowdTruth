@@ -152,7 +152,7 @@ img {padding:10px;}
 									<p><a href="#inner1">The Provenance model</a> requires us to save an Agent and an Activity for every Entity we save. The Job already has an activity, but the annotations need a new one. The agent is the CrowdAgent and the softwareAgentId is the shorthand name of your platform. There are many more ‘rules’ and they are important, so please study <a href="#inner1">the data model</a> carefully.</p>
 									<p>When you get the data:</p>
 									<ul>
-										<li>Initiate a new Annotation object and give it the necessary properties. After this, do: <br><code>Queue::push('Queues\SaveAnnotation', array('annotation' => serialize($annotation)));</code></li>
+										<li>Initiate a new Annotation object and give it the necessary properties. After this, do: <br><code>Queue::push('Queues\SaveWorkerUnit', array('workerUnit' => serialize($workerUnit)));</code></li>
 										<li>Create or update the CrowdAgent and do:<br><code>Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));</code></li>
 										<li>Finally, update the Job (this is necessary to update the vectors and completion count)<br><code>Queue::push('Queues\UpdateJob', array('job' => serialize($job)));</code></li>
 									</ul>
@@ -173,17 +173,17 @@ img {padding:10px;}
 									<p>Right now, we’re in the first stage. In this document, we’ll describe how to create templates for the two platforms that are included in the standard version of our framework; CrowdFlower and Amazon Mechanical Turk.</p>
 									<h6>Current implementation</h6>
 									<strong>CrowdFlower</strong>
-									<p>This platform uses it’s own format, called CML. Please refer to the CrowdFlower documentation or their online questionbuilder to see what this is like. Parameters that have to be replaced by, for instance, terms in a twrex-structured-sentence (one of the text formats we use for IBM’s Watson), have to be in this format: &#123;{terms_first_text}}, where the underscore implies a deeper level in the array that’s in the sentence’s ‘content’ field. For other formats, the references work the same. CSS and JavaScript have to be uploaded under the same name and will be automatically included.</p>
+									<p>This platform uses it’s own format, called CML. Please refer to the CrowdFlower documentation or their online questionbuilder to see what this is like. Parameters that have to be replaced by, for instance, terms in a relex-structured-sentence (one of the text formats we use for IBM’s Watson), have to be in this format: &#123;{terms_first_text}}, where the underscore implies a deeper level in the array that’s in the sentence’s ‘content’ field. For other formats, the references work the same. CSS and JavaScript have to be uploaded under the same name and will be automatically included.</p>
 									<strong>Amazon Mechanical Turk</strong>
 									<p>Mechanical Turk uses HTML for it’s questions. Some special rules do apply however. For an HTML template to work correctly with our framework, only the HTML inside the form should be included. So you can leave the &lt;head>, &lt;body> and &lt;form> tags behind and just start with the &lt;input> fields. CSS and JavaScript have to be included in &lt;style> and &lt;script> tags. References to external CSS and JS are allowed, but only if the asset is hosted on a server that supports SSL (https://). The format of the parameters is the same as with CrowdFlower (see above). Every &lt;input> name has to be: {uid}_fieldname. To have multiple questions on a single page is also supported, please check out our RelDir template for this. Since this will be handled by the framework automatically in the future, we won’t go into this here.</p>
 									<strong>Vectors</strong>
-									<p>Right now, creating custom rules for how annotation vectors are generated has to be done in the source code (in the Annotation class).</p>
+									<p>Right now, creating custom rules for how annotation vectors are generated has to be done in the source code (in the WorkerUnit class).</p>
 									<h6>Future implementation</h6>
 									<strong>Template</strong>
 									<p>To get an idea of how to create JSON templates in the next version of the framework, please refer to the discussion document at (link). When we implement this, detailed instructions will be available. We aim to make this process as straightforward as possible.</p>
 									<strong>Vectors</strong>
 									<p>Vectors will normally be generated based on any multiple choice elements in the template. All the possible options are included in the vector. For a single annotation, the value of the field will be 1 if the worker selected it, and 0 when he didn’t. The aggregated values form the vector of a unit. This may look like this (Relation Direction):</p>
-									<pre>"entity/text/medical/twrex-structured-sentence/2425" : {<br>&nbsp "Choice1" : 0,<br>&nbsp "Choice2" : 7,<br>&nbsp "Choice3" : 5<br>}</pre>
+									<pre>"entity/text/medical/relex-structured-sentence/2425" : {<br>&nbsp "Choice1" : 0,<br>&nbsp "Choice2" : 7,<br>&nbsp "Choice3" : 5<br>}</pre>
 									<p>For some tasks, you’d want to have special rules that don’t correspond one on one to the QuestionTemplate. An example of this is our Factor Span task, which generates vectors like these:</p>
 									<pre>"term1" : {<br>&nbsp "[WORD_-3]" : 0,<br>&nbsp "[WORD_-2]" : 1, <br>&nbsp "[WORD_-1]" : 3,<br>&nbsp "[WORD_+1]" : 0, <br>&nbsp "[WORD_+2]" : 0, <br>&nbsp "[WORD_+3]" : 0, <br>&nbsp "[WORD_OTHER]" : 0, <br>&nbsp "[NIL]" : 3, <br>&nbsp "[CHECK_FAILED]" : 2 <br>} </pre>
 									<p>based on which words the user selected in a sentence (we ask them if a specific term is complete). We are still discussing ways to make it possible for the user to create custom vector rules like this one.</p>

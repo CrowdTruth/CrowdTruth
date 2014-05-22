@@ -1,5 +1,5 @@
 function unitsChartFacade(category, openModal, getSelection, updateSelection) {
-    var categoryNameMap  = {'#twrex-structured-sentence_tab':'RelEx-structured sentence',
+    var categoryNameMap  = {'#relex-structured-sentence_tab':'RelEx-structured sentence',
         '#fullvideo_tab':'Video',
         '#job_tab': 'job',
         '#crowdagents_tab':'worker',
@@ -17,7 +17,7 @@ function unitsChartFacade(category, openModal, getSelection, updateSelection) {
     this.barChartGraph = ""
     this.labelCategory = "units"
 
-    if (category == '#twrex-structured-sentence_tab') {
+    if (category == '#relex-structured-sentence_tab') {
         this.pieChartIds.push({field:'jobs',name:'jobs',divName:"optional1", tooltip:{'prefix' : '', 'suffix':''}});
         this.pieChartIds.push({field:'content.relation.noPrefix',name:'relation', divName:"optional2", tooltip:{'prefix' : 'with', 'suffix':'relation'}});
         this.barChartGraph = new unitsBarChartGraph(category, categoryNameMap[category], this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails, getSelection, updateSelection);

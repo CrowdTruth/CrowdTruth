@@ -8,7 +8,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
     var specificInfo = {};
 
     var specificFields = {
-        '#twrex-structured-sentence_tab':{ data : "words", info:['domain', 'format', 'relation', 'sentence' ],
+        '#relex-structured-sentence_tab':{ data : "words", info:['domain', 'format', 'relation', 'sentence' ],
             tooltip:"Number of words in the sentence. Click to select/deselect",
             labelsInfo:['domain','format', 'seed relation', 'sentence' ], sendInfo: 'sentence',
             query : '&project[words]=content.properties.sentenceWordCount' +'&project[domain]=domain' +'&project[format]=format'+
@@ -584,7 +584,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
     }
 
     this.createBarChart = function(matchStr){
-        matchCriteria = 'match[documentType][]=twrex-structured-sentence';
+        matchCriteria = 'match[documentType][]=relex-structured-sentence';
         drawBarChart(matchStr,"");
         if (category != '#all_tab') {
             drawSpecificBarChart(matchStr,"");

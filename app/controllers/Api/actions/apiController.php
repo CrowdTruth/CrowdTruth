@@ -23,7 +23,7 @@ class apiController extends BaseController {
 		$return = array('status'=>'ok');
 		try {
 			
-			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . $numImg . " " . $keyphrase;
+			$command = "/usr/bin/python2.7 " . base_path() . "/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . $numImg . " " . $keyphrase;
 			exec($command,$output,$error);
 						
 			return Response::json($output[0]);
@@ -118,7 +118,7 @@ class apiController extends BaseController {
 		try {
 
 			//$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getRijks.py " . $domain . " " . $type . " " . 4 . " " . "vogel";
-			$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py " . $domain . " " . $type . " " . Auth::user()->email  . " " . $url_ids;
+			$command = "/usr/bin/python2.7 " . base_path() . "/app/lib/getAPIS/getMany.py " . $domain . " " . $type . " " . Auth::user()->email  . " " . $url_ids;
 			//$command = "/usr/bin/python2.7 /var/www/crowd-watson/app/lib/getAPIS/getMany.py art painting http://lh3.ggpht.com/Q1GZTdmwa8iTLgdbu5uAgzovmLbb7lsYhG-QgVcoN8A-WJtIsNUo4-VyTMd9iKHLp-XNm812WyUaSgQdHdjQjDioJQI=s0 999";
 			//return $command;
 

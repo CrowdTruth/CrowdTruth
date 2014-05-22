@@ -1,10 +1,10 @@
 [
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/93",
+        "_id": "entity/text/medical/relex-structured-sentence/93",
         "title": "w21-cause-0.1.txt.sample_index_93",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/0",
         "ancestors": [
             "entity/text/medical/twrex/0"
@@ -41,18 +41,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/0",
+        "activity_id": "activity/text/medical/relex-structured-sentence/0",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "edd622f0bc8e69c030e9e6aba8d04911",
         "updated_at": "2014-02-10 21:37:21",
         "created_at": "2014-02-10 21:37:21"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/132",
+        "_id": "entity/text/medical/relex-structured-sentence/132",
         "title": "w21-cause-0.1.txt.sample_index_132",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/0",
         "ancestors": [
             "entity/text/medical/twrex/0"
@@ -89,18 +89,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/0",
+        "activity_id": "activity/text/medical/relex-structured-sentence/0",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "cc1e7a3165d8391bb5d47b7df97c68a9",
         "updated_at": "2014-02-10 21:37:22",
         "created_at": "2014-02-10 21:37:22"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/194",
+        "_id": "entity/text/medical/relex-structured-sentence/194",
         "title": "w21-cause-0.1.txt.sample_index_194",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/0",
         "ancestors": [
             "entity/text/medical/twrex/0"
@@ -137,18 +137,18 @@
                 "overlappingTerms": 1
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/0",
+        "activity_id": "activity/text/medical/relex-structured-sentence/0",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "8c4c87cb33b7800e5c1318e6b7afebbc",
         "updated_at": "2014-02-10 21:37:23",
         "created_at": "2014-02-10 21:37:23"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/204",
+        "_id": "entity/text/medical/relex-structured-sentence/204",
         "title": "w21-contra-0.1.txt.sample_index_4",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/1",
         "ancestors": [
             "entity/text/medical/twrex/1"
@@ -185,18 +185,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/200",
+        "activity_id": "activity/text/medical/relex-structured-sentence/200",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "5fadf219f3ef91f71c646011726952ac",
         "updated_at": "2014-02-10 21:37:28",
         "created_at": "2014-02-10 21:37:28"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/226",
+        "_id": "entity/text/medical/relex-structured-sentence/226",
         "title": "w21-contra-0.1.txt.sample_index_26",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/1",
         "ancestors": [
             "entity/text/medical/twrex/1"
@@ -233,18 +233,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/200",
+        "activity_id": "activity/text/medical/relex-structured-sentence/200",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "ce28e19896a1c95497e28ce83d0c05b0",
         "updated_at": "2014-02-10 21:37:29",
         "created_at": "2014-02-10 21:37:29"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/230",
+        "_id": "entity/text/medical/relex-structured-sentence/230",
         "title": "w21-contra-0.1.txt.sample_index_30",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/1",
         "ancestors": [
             "entity/text/medical/twrex/1"
@@ -281,18 +281,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/200",
+        "activity_id": "activity/text/medical/relex-structured-sentence/200",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "c7668d92a956a810ffd230fd8a7ccaa5",
         "updated_at": "2014-02-10 21:37:29",
         "created_at": "2014-02-10 21:37:29"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/247",
+        "_id": "entity/text/medical/relex-structured-sentence/247",
         "title": "w21-contra-0.1.txt.sample_index_47",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/1",
         "ancestors": [
             "entity/text/medical/twrex/1"
@@ -329,18 +329,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/200",
+        "activity_id": "activity/text/medical/relex-structured-sentence/200",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "12ffce8f04ae0fc115904145794b2638",
         "updated_at": "2014-02-10 21:37:29",
         "created_at": "2014-02-10 21:37:29"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/275",
+        "_id": "entity/text/medical/relex-structured-sentence/275",
         "title": "w21-contra-0.1.txt.sample_index_75",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/1",
         "ancestors": [
             "entity/text/medical/twrex/1"
@@ -377,18 +377,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/200",
+        "activity_id": "activity/text/medical/relex-structured-sentence/200",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "47bfe88b35ca0cc172eb6d2688e5c1d4",
         "updated_at": "2014-02-10 21:37:30",
         "created_at": "2014-02-10 21:37:30"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/287",
+        "_id": "entity/text/medical/relex-structured-sentence/287",
         "title": "w21-contra-0.1.txt.sample_index_87",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/1",
         "ancestors": [
             "entity/text/medical/twrex/1"
@@ -425,18 +425,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/200",
+        "activity_id": "activity/text/medical/relex-structured-sentence/200",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "65be0a45edf74efb83094f5fa8c2142a",
         "updated_at": "2014-02-10 21:37:31",
         "created_at": "2014-02-10 21:37:31"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/291",
+        "_id": "entity/text/medical/relex-structured-sentence/291",
         "title": "w21-contra-0.1.txt.sample_index_91",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/1",
         "ancestors": [
             "entity/text/medical/twrex/1"
@@ -473,18 +473,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/200",
+        "activity_id": "activity/text/medical/relex-structured-sentence/200",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "4939c8b9b428b03e5d418a3b4f267d2f",
         "updated_at": "2014-02-10 21:37:31",
         "created_at": "2014-02-10 21:37:31"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/326",
+        "_id": "entity/text/medical/relex-structured-sentence/326",
         "title": "w21-contra-0.1.txt.sample_index_127",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/1",
         "ancestors": [
             "entity/text/medical/twrex/1"
@@ -521,18 +521,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/200",
+        "activity_id": "activity/text/medical/relex-structured-sentence/200",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "e65456115de947f16e845f31160ae45c",
         "updated_at": "2014-02-10 21:37:32",
         "created_at": "2014-02-10 21:37:32"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/365",
+        "_id": "entity/text/medical/relex-structured-sentence/365",
         "title": "w21-contra-0.1.txt.sample_index_166",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/1",
         "ancestors": [
             "entity/text/medical/twrex/1"
@@ -569,18 +569,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/200",
+        "activity_id": "activity/text/medical/relex-structured-sentence/200",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "36aa5fac85a23919daa710624cde3d14",
         "updated_at": "2014-02-10 21:37:34",
         "created_at": "2014-02-10 21:37:34"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/368",
+        "_id": "entity/text/medical/relex-structured-sentence/368",
         "title": "w21-contra-0.1.txt.sample_index_169",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/1",
         "ancestors": [
             "entity/text/medical/twrex/1"
@@ -617,18 +617,18 @@
                 "overlappingTerms": 1
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/200",
+        "activity_id": "activity/text/medical/relex-structured-sentence/200",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "dc1cc8254f09462d3a8659985c807509",
         "updated_at": "2014-02-10 21:37:34",
         "created_at": "2014-02-10 21:37:34"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/394",
+        "_id": "entity/text/medical/relex-structured-sentence/394",
         "title": "w21-contra-0.1.txt.sample_index_195",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/1",
         "ancestors": [
             "entity/text/medical/twrex/1"
@@ -665,18 +665,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/200",
+        "activity_id": "activity/text/medical/relex-structured-sentence/200",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "670a50c9d595e174ff081499d117a7a5",
         "updated_at": "2014-02-10 21:37:35",
         "created_at": "2014-02-10 21:37:35"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/446",
+        "_id": "entity/text/medical/relex-structured-sentence/446",
         "title": "w21-diagnose-0.1.sample_index_47",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/2",
         "ancestors": [
             "entity/text/medical/twrex/2"
@@ -713,18 +713,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/399",
+        "activity_id": "activity/text/medical/relex-structured-sentence/399",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "20d9b3a1c0f041e015613d13f5459f09",
         "updated_at": "2014-02-10 21:37:41",
         "created_at": "2014-02-10 21:37:41"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/656",
+        "_id": "entity/text/medical/relex-structured-sentence/656",
         "title": "w21-location-0.1.txt.sample_index_57",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/3",
         "ancestors": [
             "entity/text/medical/twrex/3"
@@ -761,18 +761,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/599",
+        "activity_id": "activity/text/medical/relex-structured-sentence/599",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "e51a8264118f000d4fc0e3a131455a9a",
         "updated_at": "2014-02-10 21:38:02",
         "created_at": "2014-02-10 21:38:02"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/701",
+        "_id": "entity/text/medical/relex-structured-sentence/701",
         "title": "w21-location-0.1.txt.sample_index_102",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/3",
         "ancestors": [
             "entity/text/medical/twrex/3"
@@ -809,18 +809,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/599",
+        "activity_id": "activity/text/medical/relex-structured-sentence/599",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "ac1bebb40d90ed4c85a6873da3b1097f",
         "updated_at": "2014-02-10 21:38:06",
         "created_at": "2014-02-10 21:38:06"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/708",
+        "_id": "entity/text/medical/relex-structured-sentence/708",
         "title": "w21-location-0.1.txt.sample_index_109",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/3",
         "ancestors": [
             "entity/text/medical/twrex/3"
@@ -857,18 +857,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/599",
+        "activity_id": "activity/text/medical/relex-structured-sentence/599",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "493b87d95ec1a6290d3caf80eaa1fe06",
         "updated_at": "2014-02-10 21:38:07",
         "created_at": "2014-02-10 21:38:07"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/750",
+        "_id": "entity/text/medical/relex-structured-sentence/750",
         "title": "w21-location-0.1.txt.sample_index_151",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/3",
         "ancestors": [
             "entity/text/medical/twrex/3"
@@ -905,18 +905,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/599",
+        "activity_id": "activity/text/medical/relex-structured-sentence/599",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "83fbafc100c9c4849630b6d45bcf7036",
         "updated_at": "2014-02-10 21:38:10",
         "created_at": "2014-02-10 21:38:10"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/765",
+        "_id": "entity/text/medical/relex-structured-sentence/765",
         "title": "w21-location-0.1.txt.sample_index_166",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/3",
         "ancestors": [
             "entity/text/medical/twrex/3"
@@ -953,18 +953,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/599",
+        "activity_id": "activity/text/medical/relex-structured-sentence/599",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "d7d878e6638bc5eb28d9748f41d1350b",
         "updated_at": "2014-02-10 21:38:12",
         "created_at": "2014-02-10 21:38:12"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/794",
+        "_id": "entity/text/medical/relex-structured-sentence/794",
         "title": "w21-location-0.1.txt.sample_index_195",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/3",
         "ancestors": [
             "entity/text/medical/twrex/3"
@@ -1001,18 +1001,18 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/599",
+        "activity_id": "activity/text/medical/relex-structured-sentence/599",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "13f9847358f2805b223d029207e05395",
         "updated_at": "2014-02-10 21:38:14",
         "created_at": "2014-02-10 21:38:14"
     },
     {
-        "_id": "entity/text/medical/twrex-structured-sentence/911",
+        "_id": "entity/text/medical/relex-structured-sentence/911",
         "title": "w21-prevent-0.1.txt.sample_index_112",
         "domain": "medical",
         "format": "text",
-        "documentType": "twrex-structured-sentence",
+        "documentType": "relex-structured-sentence",
         "parent_id": "entity/text/medical/twrex/4",
         "ancestors": [
             "entity/text/medical/twrex/4"
@@ -1049,7 +1049,7 @@
                 "overlappingTerms": 0
             }
         },
-        "activity_id": "activity/text/medical/twrex-structured-sentence/799",
+        "activity_id": "activity/text/medical/relex-structured-sentence/799",
         "user_id": "52f3871c9546349c058b4569",
         "hash": "f18192f52066054955f09cfa51f86fda",
         "updated_at": "2014-02-10 21:39:04",

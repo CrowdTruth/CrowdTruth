@@ -45,12 +45,10 @@ class csvresultController extends BaseController {
 			if($URI = Input::get('URI'))
 			{
 				if($entity = $this->repository->find($URI)) {
-					if($entity->documentType != "csvresult")
+					if($entity->documentType == "csvresult")
 					{
-						continue;
-					}
-
-					return $document = $this->csvresultMapper->processInputData($entity, true);
+    					return $document = $this->csvresultMapper->processInputData($entity, true);
+                    }
 				}
 			} 
 		}
@@ -59,28 +57,25 @@ class csvresultController extends BaseController {
 			if($URI = Input::get('URI'))
 			{
 				if($entity = $this->repository->find($URI)) {
-					if($entity->documentType != "csvresult")
+					if($entity->documentType == "csvresult")
 					{
-						continue;
-					}
-
-					$batch = $this->csvresultMapper->processInputData($entity);
-
-					return Redirect::to('files/batch?selection=' . urlencode(json_encode($batch)));
+                        $batch = $this->csvresultMapper->processInputData($entity);
+                        return Redirect::to('files/batch?selection=' . urlencode(json_encode($batch)));
+                    }
 				}
 			} 
 		}
 	}
 
-	public function getAnnotationdata($action = null)
+	public function getWorkerUnitdata($action = null)
 	{
 		if(is_null($action))
 		{
-			$entities = \MongoDB\Entity::where('documentType', 'csvresult')->where('title', 'like', '%annotation%')->get();
+			$entities = \MongoDB\Entity::where('documentType', 'csvresult')->where('title', 'like', '%workerUnit%')->get();
 
 			if(count($entities) > 0)
 			{
-				return View::make('preprocess.csvresult.pages.annotationdata', compact('entities'));
+				return View::make('preprocess.csvresult.pages.workerUnitdata', compact('entities'));
 			}
 
 			return Redirect::to('files/upload')->with('flashNotice', 'You have not uploaded any "csvresult" documents yet');
@@ -90,12 +85,12 @@ class csvresultController extends BaseController {
 			if($URI = Input::get('URI'))
 			{
 				if($entity = $this->repository->find($URI)) {
-					if($entity->documentType != "csvresult")
+					if($entity->documentType == "csvresult")
 					{
-						continue;
+                        return $document = $this->csvresultMapper->processWorkerUnitData($entity, true);
 					}
 
-					return $document = $this->csvresultMapper->processAnnotationData($entity, true);
+
 				}
 			} 
 		}
@@ -104,12 +99,12 @@ class csvresultController extends BaseController {
 			if($URI = Input::get('URI'))
 			{
 				if($entity = $this->repository->find($URI)) {
-					if($entity->documentType != "csvresult")
+					if($entity->documentType == "csvresult")
 					{
-						continue;
+                        return $document = $this->csvresultMapper->processWorkerUnitData($entity);
 					}
 
-					return $document = $this->csvresultMapper->processAnnotationData($entity);
+
 				}
 			} 
 		}

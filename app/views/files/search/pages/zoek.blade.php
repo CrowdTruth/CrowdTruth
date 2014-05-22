@@ -176,11 +176,11 @@
 											@include('files.search.layouts.twrex')
 										@endif
 
-										@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
-											@include('files.search.layouts.hb-twrex-structured-sentence')
+										@if(isset($mainSearchFilters['documentTypes']['relex-structured-sentence']))
+											@include('files.search.layouts.hb-relex-structured-sentence')
 										@endif
 
-										@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
+										@if(isset($mainSearchFilters['documentTypes']['relex-structured-sentence']))
 											@include('files.search.layouts.hb-painting')
 										@endif
 									</div>

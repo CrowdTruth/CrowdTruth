@@ -47,7 +47,7 @@ class AMTCSVresultMapper {
 		foreach ($data as $line_index => $row)
 		{
 			$count++;
-			$entity = Entity::where('documentType', 'twrex-structured-sentence');
+			$entity = Entity::where('documentType', 'relex-structured-sentence');
 
 			if(isset($row['relation-type']))
 			{
@@ -148,7 +148,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 
 		foreach ($workerUnitCSVArray as $line_index => $row)
 		{
-			$entity = Entity::where('documentType', 'twrex-structured-sentence');
+			$entity = Entity::where('documentType', 'relex-structured-sentence');
 
 			if(isset($row['sent_id']))
 			{
@@ -1237,7 +1237,7 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			return $status;
 		}
 
-		$twrexStructurer = App::make('\preprocess\TwrexStructurer');
+		$relexStructurer = App::make('\preprocess\RelexStructurer');
 
 		$test = array();
 
@@ -1254,7 +1254,7 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			$parentEntity['content']['terms']['second']['startIndex'] = (int) $mappedWorkerUnitsWithUnitVal['b2'];
 			$parentEntity['content']['terms']['second']['endIndex'] = (int) $mappedWorkerUnitsWithUnitVal['e2'];
 			$parentEntity['content']['sentence']['formatted'] = $mappedWorkerUnitsWithUnitVal['sentence'];
-			$parentEntity['content']['properties']['overlappingTerms'] = $twrexStructurer->overlappingTerms($parentEntity['content']);
+			$parentEntity['content']['properties']['overlappingTerms'] = $relexStructurer->overlappingTerms($parentEntity['content']);
 			$title = $parentEntity['title'] . "_FS_" . $mappedWorkerUnitsWithUnitKey;
 
 			try {
@@ -1264,7 +1264,7 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 				$entity->title = strtolower($title);
 				$entity->domain = $parentEntity['domain'];
 				$entity->format = $parentEntity['format'];
-				$entity->documentType = "twrex-structured-sentence";
+				$entity->documentType = "relex-structured-sentence";
 				$entity->parents = array($parentEntity['_id']);
 				$entity->content = $parentEntity['content'];
 				unset($parentEntity['properties']);
@@ -1274,7 +1274,7 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 
 				array_push($test, $entity->toArray());
 
-				$status['success'][$title] = $title . " was successfully processed into a twrex-structured-sentence. (URI: {$entity->_id} {$entity->hash})";
+				$status['success'][$title] = $title . " was successfully processed into a relex-structured-sentence. (URI: {$entity->_id} {$entity->hash})";
 			} catch (Exception $e) {
 				// Something went wrong with creating the Entity
 				$entity->forceDelete();

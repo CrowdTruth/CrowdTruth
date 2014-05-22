@@ -1,4 +1,4 @@
-<div class="tab-pane" id="twrex-structured-sentence_tab">
+<div class="tab-pane" id="relex-structured-sentence_tab">
 	<table class='table table-striped table-condensed datatable_options'>
 		<tbody>
 			<tr>
@@ -76,7 +76,7 @@
 	<div class='table-responsive'>
 		<table class='table table-striped datatable_content'>
 			<thead>
-				<tr data-query-key="field[documentType]" data-query-value="twrex-structured-sentence">
+				<tr data-query-key="field[documentType]" data-query-value="relex-structured-sentence">
 					<th data-column="content.relation.noPrefix">Relation</th>
 					<th data-column="content.terms.first.text">Term 1</th>					
 					<th data-column="content.terms.first.startIndex" data-bvisible="false">Term 1 StartIndex</th>

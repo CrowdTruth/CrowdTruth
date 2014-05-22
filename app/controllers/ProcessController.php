@@ -37,7 +37,7 @@ class ProcessController extends BaseController {
 	}
 
 	public function getA(){
-		//Queue::push('Queues\UpdateUnits', array("entity/text/medical/twrex-structured-sentence/1078"));
+		//Queue::push('Queues\UpdateUnits', array("entity/text/medical/relex-structured-sentence/1078"));
 		$ca = \MongoDB\CrowdAgent::where("_id", "crowdagent/cf/14781069")->first();
 		Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($ca)));
 	}
@@ -110,8 +110,8 @@ class ProcessController extends BaseController {
 			$term2 = $c['term2'];
 
 			$found = false;
-			//foreach (MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->get() as $unit) {
-			$unit = MongoDB\Entity::where('documentType', 'twrex-structured-sentence')
+			//foreach (MongoDB\Entity::where('documentType', 'relex-structured-sentence')->get() as $unit) {
+			$unit = MongoDB\Entity::where('documentType', 'relex-structured-sentence')
 			->where('content.sentence.text', $sentence)
 			->where('content.terms.first.text', $term1)
 			->where('content.terms.second.text', $term2)->first(); 
@@ -219,7 +219,7 @@ class ProcessController extends BaseController {
 		}
 		//$ca->updateStats2();
 /*
-		//$unitids = array('entity/text/medical/twrex-structured-sentence/1736');
+		//$unitids = array('entity/text/medical/relex-structured-sentence/1736');
 		Queue::push('Queues\UpdateUnits', $unitids);
 		//dd($unitids);
 		echo count($unitids);*/
@@ -266,7 +266,7 @@ public function getVector(){
 		$term2 = $c['term2'];
 
 		$found = false;
-		foreach (MongoDB\Entity::where('documentType', 'twrex-structured-sentence')->get() as $unit) {
+		foreach (MongoDB\Entity::where('documentType', 'relex-structured-sentence')->get() as $unit) {
 			if($unit['content']['sentence']['formatted'] == $sentence and
 				$unit['content']['terms']['first']['formatted'] == $term1 and
 				$unit['content']['terms']['second']['formatted'] == $term2){

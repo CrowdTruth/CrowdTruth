@@ -1,0 +1,27 @@
+{
+    "title": "Select pairs of WORD PHRASES that together form a medical RELATION.",
+    "description": "In the SENTENCE, verify whether the HIGHLIGHTED WORD(s) form complete medical TERMS.",
+	"instructions": "In the SENTENCE below verify whether the HIGHLIGHTED WORD(s) form complete medical TERMS.",
+    "keywords": "medical relations, medical text, word phrase extraction",
+    "reward": "0.03",
+    "workerUnitsPerUnit": "10",
+    "hitLifetimeInMinutes": "10080",
+    "expirationInMinutes": "2",
+    "unitsPerTask": 1,
+    "autoApprovalDelayInMinutes": "2880",
+    "qualificationRequirement": [
+        {
+            "QualificationTypeId": "000000000000000000L0",
+            "Comparator": "GreaterThan",
+            "IntegerValue": "85"
+        },
+        {
+            "QualificationTypeId": "00000000000000000040",
+            "Comparator": "GreaterThan",
+            "IntegerValue": "1000"
+        }
+    ],
+	"platform":["amt"],
+    "workerUnitsPerWorker": 8,
+    "requesterWorkerUnit": ""
+}

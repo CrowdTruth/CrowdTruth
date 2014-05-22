@@ -88,7 +88,7 @@
 						@endforeach
 						
 						@include('media.search.layouts.hb-modalindividualworker')
-						@include('media.search.layouts.hb-modalannotations')
+						@include('media.search.layouts.hb-modalworkerUnits')
 						@include('media.search.layouts.hb-modalindividualjob')
 
 						<div class='includeGraph hidden'>
@@ -897,8 +897,8 @@ $('body').on('click', '.testModal', function(){
 	}
 });
 
-$('.select_twrex-structured-sentence').click();
-$('.documentTypesNav').find('#twrex-structured-sentence_nav a').click();
+$('.select_relex-structured-sentence').click();
+$('.documentTypesNav').find('#relex-structured-sentence_nav a').click();
 $('.graphViewButton').click();
 
 });

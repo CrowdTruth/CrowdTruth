@@ -29,8 +29,8 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 
 	public function getChangereldiramt(){
-		//foreach (Annotation::type('RelDir') as $ann) {
-		foreach(Annotation::type('RelDir')->where('softwareAgent_id', 'amt')->get() as $ann){
+		//foreach (WorkerUnit::type('RelDir') as $ann) {
+		foreach(WorkerUnit::type('RelDir')->where('softwareAgent_id', 'amt')->get() as $ann){
 			$c = $ann->content;
 
 			print_r($c);
@@ -137,13 +137,13 @@ class tempImportAndVectorsMethodsController extends BaseController {
 			$id = $row['HITId'];
 			$type = $row['Task'];
 			
-			$existing = \Annotation::where('hitId', $id)->first();
+			$existing = \WorkerUnit::where('hitId', $id)->first();
 			if(isset($existing))
 				continue;
 
 			$hit = $turk->getHIT($id);
 			$h = $hit->toArray();
-			$jobId = (isset($h['RequesterAnnotation']) ? $h['RequesterAnnotation'] : 'unknown');//$job->_id;
+			$jobId = (isset($h['RequesterWorkerUnit']) ? $h['RequesterWorkerUnit'] : 'unknown');//$job->_id;
 /*
 			//Do this once:
 			if(empty($job->Expiration)) $job->Expiration = new MongoDate(strtotime($h['Expiration']));
@@ -172,20 +172,20 @@ class tempImportAndVectorsMethodsController extends BaseController {
 			foreach ($assignments as $ass){
 				$assignment = $ass->toArray();
 
-				$annotation = Annotation::where('job_id', $jobId)
-								->where('platformAnnotationId', $assignment['AssignmentId'])
+				$workerUnit = WorkerUnit::where('job_id', $jobId)
+								->where('platformWorkerUnitId', $assignment['AssignmentId'])
 								->first();
 				
-				//print_r($annotations); die();
-				if($annotation) { 
-					$annoldstatus = $annotation['status'];
+				//print_r($workerUnits); die();
+				if($workerUnit) {
+					$annoldstatus = $workerUnit['status'];
 					$annnewstatus = $assignment['AssignmentStatus'];
 
 					if($annoldstatus != $annnewstatus){
-						$annotation->status = $annnewstatus;
-						$annotation->update();
+						$workerUnit->status = $annnewstatus;
+						$workerUnit->update();
 						print "Status '$annoldstatus' changed to '$annnewstatus'.";
-						Log::debug("Status of Annotation {$annotation->_id} changed from $annoldstatus to $annnewstatus");
+						Log::debug("Status of WorkerUnit {$workerUnit->_id} changed from $annoldstatus to $annnewstatus");
 					}
 				} else { // ASSIGNMENT entity not in DB: create activity, entity and refer to or create agent.
 
@@ -212,34 +212,34 @@ class tempImportAndVectorsMethodsController extends BaseController {
 					
 					// Create entity FOR EACH UNIT
 					foreach($groupedbyid as $uid=>$qidansarray){	*/
-						$annotation = new Annotation;
-						$annotation->activity_id = $activity->_id;
-						$annotation->type = $type;
-						$annotation->crowdAgent_id = $agentId;
-						$annotation->softwareAgent_id = 'amt';
-						$annotation->job_id = $jobId;
-						$annotation->unit_id = '';
-						$annotation->hitId = $id;
-						$annotation->question = $h['Question'];
-						$annotation->platformAnnotationId = $assignment['AssignmentId'];
-						$annotation->acceptTime = new MongoDate(strtotime($assignment['AcceptTime']));
-						$annotation->submitTime = new MongoDate(strtotime($assignment['SubmitTime']));
+						$workerUnit = new WorkerUnit;
+						$workerUnit->activity_id = $activity->_id;
+						$workerUnit->type = $type;
+						$workerUnit->crowdAgent_id = $agentId;
+						$workerUnit->softwareAgent_id = 'amt';
+						$workerUnit->job_id = $jobId;
+						$workerUnit->unit_id = '';
+						$workerUnit->hitId = $id;
+						$workerUnit->question = $h['Question'];
+						$workerUnit->platformWorkerUnitId = $assignment['AssignmentId'];
+						$workerUnit->acceptTime = new MongoDate(strtotime($assignment['AcceptTime']));
+						$workerUnit->submitTime = new MongoDate(strtotime($assignment['SubmitTime']));
 						//
 						// Todo: Optionally compute time spent doing the assignment here.
 						//
 						if(!empty($assignment['AutoApprovalTime']))
-							$annotation->autoApprovalTime = new MongoDate(strtotime($assignment['AutoApprovalTime']));
+							$workerUnit->autoApprovalTime = new MongoDate(strtotime($assignment['AutoApprovalTime']));
 						if(!empty($assignment['ApprovalTime']))
-							$annotation->autoApprovalTime = new MongoDate(strtotime($assignment['ApprovalTime']));
+							$workerUnit->autoApprovalTime = new MongoDate(strtotime($assignment['ApprovalTime']));
 						if(!empty($assignment['RejectionTime']))
-							$annotation->autoApprovalTime = new MongoDate(strtotime($assignment['RejectionTime']));
+							$workerUnit->autoApprovalTime = new MongoDate(strtotime($assignment['RejectionTime']));
 
-						$annotation->content = $assignment['Answer'];
-						$annotation->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
-						$annotation->user_id = 'CrowdWatson';
-						$annotation->save();
+						$workerUnit->content = $assignment['Answer'];
+						$workerUnit->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
+						$workerUnit->user_id = 'CrowdWatson';
+						$workerUnit->save();
 
-						$newannotations[] = $annotation;
+						$newworkerUnits[] = $workerUnit;
 
 					//}
 
@@ -258,7 +258,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 	public function getUnitsreldir(){
 		$count = 0;
-		foreach(\Annotation::where('type', 'RelDir')->get() as $ann){
+		foreach(\WorkerUnit::where('type', 'RelDir')->get() as $ann){
 			set_time_limit(30);
 			if(!isset($ann->content)){
 				echo "{$ann->_id} no content\r\n";
@@ -317,7 +317,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 	public function getUnitsfactspan(){
 		$count = 0;
-		foreach(\Annotation::where('type', 'FactSpan')->get() as $ann){
+		foreach(\WorkerUnit::where('type', 'FactSpan')->get() as $ann){
 			
 			set_time_limit(300);
 
@@ -374,7 +374,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 	public function getUnitsrelex(){
 		$count = 0;
-		foreach(\Annotation::where('type', 'RelEx')->get() as $ann){
+		foreach(\WorkerUnit::where('type', 'RelEx')->get() as $ann){
 			set_time_limit(30);
 			if(!isset($ann->content)){
 				echo "{$ann->_id} no content\r\n";
@@ -470,8 +470,8 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		$result = array();
 		foreach($job->batch->wasDerivedFrom as $unit){
 			$a1t1 = $seed; $a1t2 = $seed;
-			$annotations = Annotation::where('unit_id', $unit['_id'])->get();
-			foreach($annotations as $ann){
+			$workerUnits = WorkerUnit::where('unit_id', $unit['_id'])->get();
+			foreach($workerUnits as $ann){
 				if(!isset($ann->annotationVector))
 					continue;
 				// TODO: smarter? At least more different types.
@@ -502,13 +502,13 @@ class tempImportAndVectorsMethodsController extends BaseController {
 	public function getVectorsfactspan(){
 
 		//
-		// TODO: Some sentences [probably in 265 annotations] are different: Each time a factor is near "/" and "-", you actually need to the remove the spaces.
-		// We still have the Question URL in the annotation so we could use that to doublecheck.
+		// TODO: Some sentences [probably in 265 workerUnits] are different: Each time a factor is near "/" and "-", you actually need to the remove the spaces.
+		// We still have the Question URL in the workerUnit so we could use that to doublecheck.
 		// Also: check the business rules, should there be more validation?
 		//
 
 		$count =0;
-		foreach(\Annotation::where('type', 'FactSpan')->get() as $ann){
+		foreach(\WorkerUnit::where('type', 'FactSpan')->get() as $ann){
 			if(isset($ann->annotationVector))
 				continue;
 
@@ -557,8 +557,10 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 			// Q1
 			if($ans["Q1"] == 'YES'){
-				if((rtrim($ans["expltext1"]) != $term1) or (!$this->isOkYesQuestion($ans['expltext2yesquestion'], $term1, $sentence)))) // [maybe check indices as well?]
+				if((rtrim($ans["expltext1"]) != $term1) or (!$this->isOkYesQuestion($ans['expltext2yesquestion'], $term1, $sentence))) // [maybe check indices as well?]
+                {
 					$vector1 = $this->createFactVect(true); // FAILED
+                }
 				else {
 					$vector1 = $this->createFactVect(false, 0, 0); // YES it's the same.
 				}	
@@ -786,7 +788,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 					continue;
 				
 				$ann->type = $job->type;
-				$ann->annotationVector = $ann->createAnnotationVector();
+				$ann->annotationVector = $ann->createWorkerUnitVector();
 				$ann->save();
 
 				if(is_null($ann->annotationVector))
@@ -807,7 +809,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		foreach ($jobs as $job) {
 			foreach($job->workerUnits as $ann){
 				//$ann->type = $job->type;
-				$ann->annotationVector = $ann->createAnnotationVector();
+				$ann->annotationVector = $ann->createWorkerUnitVector();
 				$ann->save();
 			}
 

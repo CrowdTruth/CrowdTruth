@@ -992,7 +992,7 @@ Swag.addHelper('addDocumentTypeLabel', function(documentType, options) {
     if (documentType == "fullvideo") {
 	documentTypeLabel = "Sound & Vision News Video";
     }
-    if (documentType == "twrex-structured-sentence") {
+    if (documentType == "relex-structured-sentence") {
 	documentTypeLabel = "Watson Medical RelEx Sentence";
     }
     if (documentType == "painting") {

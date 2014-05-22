@@ -42,8 +42,8 @@ class FullvideoStructurer {
 		
 		$videoPath = public_path() . $fullvideo->content["storage_url"];
 		$keyframesPath = public_path() . "/videostorage/keyframes/";
-		$ffmpegPath = "/var/www/crowd-watson/app/ffmpeg";
-		$ffprobePath = "/var/www/crowd-watson/app/ffprobe";
+		$ffmpegPath = base_path() . "/app/ffmpeg";
+		$ffprobePath = base_path() . "/app/ffprobe";
 		
 		$videoName = explode("/", $videoPath);
 		$thumbnailName = substr($videoName[sizeof($videoName) - 1], 0, -4) . "_keyframe_%02d.jpg";

@@ -8,7 +8,7 @@ use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDate;
 use Exception, Auth;
 
-class TwrexStructurer {
+class RelexStructurer {
 
 	protected $activity, $softwareAgent;
 	protected $status = [
@@ -660,12 +660,12 @@ class TwrexStructurer {
             } 			
 
 			$entity = [
-				"_id" => 'entity/text/medical/twrex-structured-sentence/' . $inc,
+				"_id" => 'entity/text/medical/relex-structured-sentence/' . $inc,
 				"title" => strtolower($title),
 				"domain" => $parentEntity['domain'],
 				"format" => $parentEntity['format'],
 				"tags" => ['unit'],
-				"documentType" => "twrex-structured-sentence",
+				"documentType" => "relex-structured-sentence",
 				"parents" => [$parentEntity['_id']],
 				"content" => $twrexStructuredSentence,
 				"hash" => $hash,
@@ -734,7 +734,7 @@ class TwrexStructurer {
 	public function createActivity()
 	{
 		try {
-			$this->activity->softwareAgent_id = "twrexstructurer";
+			$this->activity->softwareAgent_id = "relexstructurer";
 			$this->activity->save();
 		} catch (Exception $e) {
 			// Something went wrong with creating the Activity
@@ -745,20 +745,20 @@ class TwrexStructurer {
 
 	public function createSoftwareAgent(){
 		try {
-			if(!\MongoDB\SoftwareAgent::find('twrexstructurer'))
+			if(!\MongoDB\SoftwareAgent::find('relexstructurer'))
 			{
-				$this->softwareAgent->_id = "twrexstructurer";
+				$this->softwareAgent->_id = "relexstructurer";
 				$this->softwareAgent->label = "This component (pre)processes chang documents into structured twrex documents";
 				$this->softwareAgent->save();
 			}
 		} catch (Exception $e) {
-			$this->status['error']['twrexstructurer'] = $e->getMessage();
+			$this->status['error']['relexstructurer'] = $e->getMessage();
 		}
 	}	
 
 	public function getLastDocumentInc()
 	{
-        $lastMongoURIUsed = Entity::where('format', 'text')->where('domain', 'medical')->where("documentType", 'twrex-structured-sentence')->get(array("_id"));
+        $lastMongoURIUsed = Entity::where('format', 'text')->where('domain', 'medical')->where("documentType", 'relex-structured-sentence')->get(array("_id"));
     
         if(count($lastMongoURIUsed) > 0) {
             $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
@@ -791,7 +791,7 @@ class TwrexStructurer {
 
 	// 	try {
 	// 		$activity = new Activity;
-	// 		$activity->softwareAgent_id = "twrexstructurer";
+	// 		$activity->softwareAgent_id = "relexstructurer";
 	// 		$activity->save();
 
 	// 	} catch (Exception $e) {
@@ -810,7 +810,7 @@ class TwrexStructurer {
 	// 			$entity->title = strtolower($title);
 	// 			$entity->domain = $parentEntity->domain;
 	// 			$entity->format = $parentEntity->format;
-	// 			$entity->documentType = "twrex-structured-sentence";
+	// 			$entity->documentType = "relex-structured-sentence";
 	// 			$entity->parents = array($parentEntity->_id);
 	// 			$entity->content = $twrexStructuredSentenceKeyVal;
 
@@ -819,7 +819,7 @@ class TwrexStructurer {
 	// 			$entity->activity_id = $activity->_id;
 	// 			$entity->save();
 
-	// 			$status['success'][$title] = $title . " was successfully processed into a twrex-structured-sentence. (URI: {$entity->_id})";
+	// 			$status['success'][$title] = $title . " was successfully processed into a relex-structured-sentence. (URI: {$entity->_id})";
 	// 		} catch (Exception $e) {
 	// 			// Something went wrong with creating the Entity
 	// 			$entity->forceDelete();

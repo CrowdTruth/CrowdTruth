@@ -90,7 +90,7 @@
 	</div>
 	<div ng-repeat="selectedDocumentType in selectedDocumentTypes" class="tab-pane" id="@{{selectedDocumentType}}" ng-switch on="selectedDocumentType">
 
-		<div class='table-responsive' ng-switch-when="twrex-structured-sentence">
+		<div class='table-responsive' ng-switch-when="relex-structured-sentence">
 			<table class='table table-striped'>
 				<thead>
 					<tr>

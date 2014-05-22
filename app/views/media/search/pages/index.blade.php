@@ -171,8 +171,8 @@
 							@include('media.search.layouts.twrex')
 						@endif
 
-						@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
-							@include('media.search.layouts.hb-twrex-structured-sentence')
+						@if(isset($mainSearchFilters['documentTypes']['relex-structured-sentence']))
+							@include('media.search.layouts.hb-relex-structured-sentence')
 						@endif
 
 						@if(isset($mainSearchFilters['documentTypes']['fullvideo']))
@@ -1002,8 +1002,8 @@ $('body').on('click', '.testModal', function(){
 	$('.select_crowdagents').click();
 	$('.documentTypesNav').find('#crowdagents_nav a').click();
 @else
-	$('.select_twrex-structured-sentence').click();
-	$('.documentTypesNav').find('#twrex-structured-sentence_nav a').click();
+	$('.select_relex-structured-sentence').click();
+	$('.documentTypesNav').find('#relex-structured-sentence_nav a').click();
 @endif
 
 

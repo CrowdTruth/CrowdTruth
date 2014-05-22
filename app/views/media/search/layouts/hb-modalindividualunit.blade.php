@@ -65,7 +65,7 @@
 						<div><strong data-toggle="tooltip" data-placement="top" title="@{{#eachProperty this.infoStat.cache.jobs.types }}@{{ key }} <br /> @{{/eachProperty}}"> Used in @{{ this.infoStat.cache.jobs.distinct }} Distinct Job Type(s) </strong></div>
 						<div><strong> Annotated in a total of @{{ this.infoStat.cache.jobs.count }} Job(s) </strong> </div>
 						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Workers: @{{ this.infoStat.cache.workers.spam }} <br /> #NonSpam Workers: @{{ this.infoStat.cache.workers.nonSpam }} <br /> #PotentialSpam Workers: @{{ this.infoStat.cache.workers.potentialSpam }}"> Annotated by a total of @{{ this.infoStat.cache.workers.count }} Worker(s) </strong> </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Annotations: @{{ this.infoStat.cache.annotations.spam }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.annotations.nonSpam }}"> Collected a total of @{{ this.infoStat.cache.annotations.count }} Annotation(s) </strong> </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="#Spam WorkerUnits: @{{ this.infoStat.cache.workerUnits.spam }} </br> # NonSpam WorkerUnits: @{{ this.infoStat.cache.workerUnits.nonSpam }}"> Collected a total of @{{ this.infoStat.cache.workerUnits.count }} Annotation(s) </strong> </div>
 						<hr/>
 						<div><strong> Average @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Clarity (across CrowdTruth jobs): @{{ toFixed this.infoStat.avg_clarity 2}} </strong> </div>
 						<div><strong> Marked as low-quality in @{{ this.infoStat.cache.filtered.count}} Job(s): </strong></div>
@@ -74,7 +74,7 @@
 						<tr> 
 						  <th class="header">Job Id</th>
 						  <th class="header">Job Title</th>
-   						  <th class="header"  data-toggle="tooltip" data-placement="top" title="Sentence Clarity: the value is defined as the maximum sentence annotation score achieved on any annotation for that twrex-structured-sentence. High agreement over the annotations is represented by high cosine scores, indicating a clear sentence."> @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Clarity</th>
+   						  <th class="header"  data-toggle="tooltip" data-placement="top" title="Sentence Clarity: the value is defined as the maximum sentence annotation score achieved on any annotation for that relex-structured-sentence. High agreement over the annotations is represented by high cosine scores, indicating a clear sentence."> @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Clarity</th>
 						</tr>
 						</thead>
 						<tbody>
@@ -196,8 +196,8 @@
 						</tr> 
 						</thead>
 						<tbody>
-						  @{{#each this.annotationContent}} 
-						   @{{#each annotationType}}
+						  @{{#each this.workerUnitContent}}
+						   @{{#each workerUnitType}}
 						    <tr>
 						     <td> @{{ ../_id }} </td>  		  
 		                                     <td> @{{ ../valuesWorker.softwareAgent_id}} </td>
@@ -211,7 +211,7 @@
 						       @{{/ifvalue}}
 						      @{{/each}}
 						       <td> 
-    							@{{#each annotation}}
+    							@{{#each workerUnit}}
 							 
 							   <table border="1" bordercolor="#C0C0C0">
 							    <tr> 

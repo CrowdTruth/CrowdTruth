@@ -359,7 +359,7 @@ function unitsDetails(category, categoryName, openModal) {
                                     'data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="" ' +
                                     'data-original-title="Click to see the individual worker page">6345558 </a>');
                                 //$('body').append(anchorModal);
-                                openModal(anchorModal, '#twrex-structured-sentence_tab');
+                                openModal(anchorModal, '#relex-structured-sentence_tab');
 
 
                             }

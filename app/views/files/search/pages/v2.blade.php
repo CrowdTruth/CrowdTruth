@@ -133,8 +133,8 @@
 											@include('files.search.layouts.twrex')
 										@endif
 
-										@if(isset($mainSearchFilters['documentTypes']['twrex-structured-sentence']))
-											@include('files.search.layouts.twrex-structured-sentence')
+										@if(isset($mainSearchFilters['documentTypes']['relex-structured-sentence']))
+											@include('files.search.layouts.relex-structured-sentence')
 										@endif
 
 									</div>

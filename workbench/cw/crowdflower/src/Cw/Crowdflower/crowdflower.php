@@ -97,7 +97,7 @@ class Crowdflower extends \FrameWork {
 							"mail_to" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''));
     	
     	if($jc->content['workerUnitsPerWorker'] < $jc->content['unitsPerTask'])
-    		throw new CFExceptions('Annotations per worker should be larger than units per task.');
+    		throw new CFExceptions('WorkerUnits per worker should be larger than units per task.');
     	
     	try {
 

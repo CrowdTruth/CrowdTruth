@@ -1,13 +1,13 @@
-	<div class='hidden' id='modalAnnotations'>
+	<div class='hidden' id='modalWorkerUnits'>
 
 		<script class='template' type="text/x-handlebars-template">
 			<!-- Modal -->
-			<div class="modal fade bs-example-modal-lg" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelAnnotations" aria-hidden="true">
+			<div class="modal fade bs-example-modal-lg" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelWorkerUnits" aria-hidden="true">
 				<div class="modal-dialog modal-lg">
 					<div class="modal-content">
 				      		<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-							<h4 class="modal-title" id="myModalLabelAnnotations"> Annotations Page</h4>
+							<h4 class="modal-title" id="myModalLabelWorkerUnits"> Annotations Page</h4>
 				      		</div>
 				      		<div class="modal-body" >
 						 <table id="myIndividualWorkerTable" class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0"> 
@@ -32,7 +32,7 @@
 						  <tr>
 						   <td> @{{ @key }} </td>
 						   <td> 
-    							@{{#each dictionary}}
+    							@{{#each annotationVector}}
 							  <table border="1" bordercolor="#C0C0C0">
 							    <tr> 
 							     @{{#eachProperty this}}

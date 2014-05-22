@@ -12,7 +12,7 @@ class JobsController extends BaseController {
 
 	//Change JobConfiguration into JobConfiguration
 	public function getListview() {
-		$jobConfigurations = JobConfiguration::orderBy('annotationsPerUnit','asc')->paginate(15);
+		$jobConfigurations = JobConfiguration::orderBy('workerUnitsPerUnit','asc')->paginate(15);
 		return View::make('jobs.listview')->with('jobConfigurations', $jobConfigurations);
 	}
 

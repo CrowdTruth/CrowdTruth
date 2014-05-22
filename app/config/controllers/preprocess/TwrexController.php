@@ -3,18 +3,18 @@
 namespace preprocess;
 
 use \MongoDB\Repository as Repository;
-use \preprocess\TwrexStructurer as TwrexStructurer;
+use \preprocess\RelexStructurer as RelexStructurer;
 use BaseController, Cart, View, App, Input, Redirect, Session;
 
 class TwrexController extends BaseController {
 
 	protected $repository;
-	protected $twrexStructurer;
+	protected $relexStructurer;
 
-	public function __construct(Repository $repository, TwrexStructurer $twrexStructurer)
+	public function __construct(Repository $repository, RelexStructurer $relexStructurer)
 	{
 		$this->repository = $repository;
-		$this->twrexStructurer = $twrexStructurer;
+		$this->relexStructurer = $relexStructurer;
 	}
 
 	public function getIndex()
@@ -68,7 +68,7 @@ class TwrexController extends BaseController {
 					continue;
 				}
 
-				$document = $this->twrexStructurer->process($entity);
+				$document = $this->relexStructurer->process($entity);
 				// print_r($document);
 				// exit;
 				return View::make('preprocess.twrex.pages.view', array('entity' => $entity, 'lines' => $document));
@@ -90,8 +90,8 @@ class TwrexController extends BaseController {
 					continue;
 				}
 
-				$document = $this->twrexStructurer->process($entity);
-				$status_processing = $this->twrexStructurer->store($entity, $document);
+				$document = $this->relexStructurer->process($entity);
+				$status_processing = $this->relexStructurer->store($entity, $document);
 				echo "<pre>";
 				dd($status_processing);
 				return Redirect::back();

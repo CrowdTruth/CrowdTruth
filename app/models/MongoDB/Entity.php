@@ -13,7 +13,7 @@ class Entity extends Moloquent {
 
     public static function getKeyLabelMapping() {
         return [
-            "twrex-structured-sentence" => "Relex-structured sentence",
+            "relex-structured-sentence" => "Relex-structured sentence",
             "keyframes" => "Key-frames",
             "totalrelevantfeatures" => "Relevant Features",
             "fullvideo" => "Full Video",
@@ -276,7 +276,7 @@ class Entity extends Moloquent {
     }
     
     public function getJobCountAttribute(){
-        if($this->documentType == "twrex-structured-sentence"){
+        if($this->documentType == "relex-structured-sentence"){
             return $workerUnits = count(array_flatten(Entity::where('unit_id', $this->_id)->distinct('job_id')->get()->toArray()));
         }
     }

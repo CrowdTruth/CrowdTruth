@@ -1,4 +1,4 @@
-<div class="tab-pane" id="twrex-structured-sentence_tab">
+<div class="tab-pane" id="relex-structured-sentence_tab">
 	<div class='row'>
 		<div class='tabOptions hidden'>
 			<div class="btn-group" style="margin-left:5px;">
@@ -115,7 +115,7 @@
 	</div>
 	<div class='ctable-responsive cResults'>
 	    <table class="table table-striped qwe">
-	        <thead data-query-key="match[documentType]" data-query-value="twrex-structured-sentence">
+	        <thead data-query-key="match[documentType]" data-query-value="relex-structured-sentence">
 		        <tr>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>
 		            <th class="sorting" data-vbIdentifier="format" data-query-key="orderBy[format]" data-toggle="tooltip" data-placement="top" title="Format of the sentence">Format</th>
@@ -223,6 +223,6 @@
     </div>
 
 @include('media.search.layouts.hb-modalindividualunit')
-@include('media.search.layouts.hb-modalannotations')
+@include('media.search.layouts.hb-modalworkerUnits')
 				
 </div>

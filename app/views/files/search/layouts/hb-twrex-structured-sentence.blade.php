@@ -1,4 +1,4 @@
-<div class="tab-pane" id="twrex-structured-sentence_tab">
+<div class="tab-pane" id="relex-structured-sentence_tab">
 	<div class='row'>
 		<div class='searchOptions col-xs-12'>
 			<select name="search_limit" class="selectpicker pull-left">
@@ -106,7 +106,7 @@
 		</tbody>
 	</table>	
     <table class="table table-striped">
-        <thead data-query-key="field[documentType]" data-query-value="twrex-structured-sentence">
+        <thead data-query-key="field[documentType]" data-query-value="relex-structured-sentence">
 	        <tr>
 	            <th data-vbIdentifier="checkbox">Checkbox</th>
 	            <th class="sorting" data-vbIdentifier="relation" data-query-key="orderBy[content.relation.noPrefix]">Relation</th>
