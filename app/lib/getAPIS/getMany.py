@@ -49,8 +49,8 @@ def closse(response):
         pass
 
 #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#url = 'http://localhost/api/media/test'
-url = 'http://crowdtruth.org/api/media/test'
+url = 'http://localhost/api/media/test'
+#url = 'http://crowdtruth.org/api/media/test'
 #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 headers = {'content-type': 'application/json'}
@@ -113,19 +113,19 @@ for iter in range(4, len(sys.argv), 2):
         "jobs=scene_understanding_2&urls="+ImURL + "&num_return=5"
         response = urllib2.urlopen(Comm)    
         data1 = json.load(response)    
-        # print data1["scene_understanding"]
         
         data['softwareAgent_configuration'] = "scene"
         Features = {}
-        Features['scene'] = data1["scene_understanding"]
+        Features['scene'] = []
+        for that in data1["scene_understanding"]:
+            Features['scene'].append({"label": that['label'], "score" : that['score']})
         data['content']['features'] = Features   
-        #print (data)
         th = 0.4
         data['threshold'] = th
         data['relevantFeatures'] = []
-        for fi in Features['scene']:
-            if fi['score'] > th:
-                data['relevantFeatures'].append(fi['label'])
+        for what in Features['scene']:
+            if what['score'] > th:
+                data['relevantFeatures'].append(what['label'])
         r = requests.post(url, data=json.dumps(data), headers=headers)
         if WRITE_FILE==1:
             output.write(json.dumps(data, indent = 2))  
@@ -135,6 +135,7 @@ for iter in range(4, len(sys.argv), 2):
     except Exception, e:
         print('error REKOGNITION a' + str(e), file=sys.stderr)  
         log('error REKOGNITION a' + str(e))
+    
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
         "jobs=scene_understanding_3&urls="+ImURL + "&num_return=5"
@@ -143,14 +144,17 @@ for iter in range(4, len(sys.argv), 2):
         # print data2["scene_understanding"] 
         Features = {}
         data['softwareAgent_configuration'] = "object"
-        Features['object'] = data2["scene_understanding"]["matches"]
+        Features['object'] = []
+        for that in data2["scene_understanding"]["matches"]:
+            Features['object'].append({"label": that['tag'], "score" : that['score']})
+
         data['content']['features'] = Features    
         th = 0.5
         data['threshold'] = th
         data['relevantFeatures'] = []
-        for fi in Features['object']:
-            if fi['score'] > th:
-                data['relevantFeatures'].append(fi['tag'])
+        for what in Features['object']:
+            if what['score'] > th:
+                data['relevantFeatures'].append(what['label'])
 
 
 
@@ -163,21 +167,22 @@ for iter in range(4, len(sys.argv), 2):
     except Exception, e:
          print('error REKOGNITION b' + str(e), file=sys.stderr)
          log('error REKOGNITION b' + str(e))
-        
+    
     try:
         Comm = "https://rekognition.com/func/api/?api_key="+Reck_key+"&api_secret="+Reck_secret+"&" + \
-        "jobs=face_gender_aggressive&urls="+ImURL
+        "jobs=face_gender_aggressive&urls=" + ImURL
         response = urllib2.urlopen(Comm)
         data3 = json.load(response)    
         # print (data3 )
         data['softwareAgent_configuration'] = "faces"
-        Features = {}
-        Features['FacesNumber'] = len(data3["face_detection"])
-        Features['Faces'] = data3["face_detection"]
-        if Features['FacesNumber']> 0:
-            Features['AverageSex'] = np.mean([float(a["sex"]) for a in data3["face_detection"]])
-        data['content']['features'] = Features  
-        data['relevantFeatures'] = Features['Faces']
+        Features = []
+        Features.append({   'label' : 'facesNumber', 'score' :  len(data3["face_detection"])    })
+        Features.append({    'label' : 'facesDetails' , 'score' : data3["face_detection"]      })
+        if len(data3["face_detection"]) > 0:
+            Features.append({     'label' : 'averageSex', 'score' : np.mean([float(a["sex"]) for a in data3["face_detection"]])   })
+        data['content']['features'] = {}
+        data['content']['features']['faces'] = Features  
+        data['relevantFeatures'] = data3["face_detection"]
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)  
         log(r)
@@ -188,7 +193,7 @@ for iter in range(4, len(sys.argv), 2):
          print('error REKOGNITION c' + str(e), file=sys.stderr) 
          log('error REKOGNITION c' + str(e))
     #########################   CLOUDINARY   ############################################    
-
+    exit()
     try:
         data4 = cloudinary.uploader.upload(ImURL, faces = True, colors=True)
         Features = {}
@@ -286,9 +291,9 @@ for iter in range(4, len(sys.argv), 2):
     try:
         file = cStringIO.StringIO(urllib.urlopen(ImURL).read())
         image = Image.open(file)
-        Features["Classifier"]['Flowers'] = predict_adopted.predict("FLOWERS", image)
+        Features["Classifier"]['Flowers'] = predict_adopted.predict("FLOWERS", image) / 100.0
         data['content']['features'] = Features  
-        th = 55  
+        th = 0.55  
         data['threshold'] = th
         data['relevantFeatures'] = []
         if Features["Classifier"]['Flowers'] > th:
@@ -309,9 +314,9 @@ for iter in range(4, len(sys.argv), 2):
         data['softwareAgent_configuration'] = "birds"
         #file = cStringIO.StringIO(urllib.urlopen(ImURL).read())
        # image = Image.open(file)
-        Features["Classifier"]['Birds'] = predict_adopted.predict("BIRDS", image)
+        Features["Classifier"]['Birds'] = predict_adopted.predict("BIRDS", image) / 100.0
         data['content']['features'] = Features   
-        th = 55  
+        th = 0.55  
         data['threshold'] = th
         data['relevantFeatures'] = []
         if Features["Classifier"]['Birds'] > th:
@@ -368,10 +373,11 @@ def mail(to, subject, text, attach):
    mailServer.sendmail(gmail_user, to, msg.as_string())
    mailServer.close()
 
-mail(em,
-   "Images preprocessing",
-   "Your preprocessing is finished! \n Log: \n" + LOG,
-   "___")
+if len(em) > 4:
+    mail(em,
+       "Images preprocessing",
+       "Your preprocessing is finished! \n Log: \n" + LOG,
+       "___")
  
 print ("Finished! - email sent to", em)
 log("Finished")
