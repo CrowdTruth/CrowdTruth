@@ -127,17 +127,17 @@ class apiController extends BaseController
 
         $selection = \MongoDB\Entity::raw(function ($collection) use ($aggregateOperators, $crowdAgentID) {
             $aggregateOperators['$match']['crowdAgent_id'] = $crowdAgentID;
-            $aggregateOperators['$match']['documentType'] = 'annotation';
+            $aggregateOperators['$match']['documentType'] = 'workerUnit';
             $aggregateOperators['$project']['job_id'] = array('$ifNull' => array('$' . 'job_id', 0));
             $aggregateOperators['$project']['unit_id'] = array('$ifNull' => array('$' . 'unit_id', 0));
             $aggregateOperators['$project']['type'] = array('$ifNull' => array('$' . 'type', 0));
-            $aggregateOperators['$project']['annotation'] = array('$ifNull' => array('$' . 'dictionary', 0));
+            $aggregateOperators['$project']['workerUnit'] = array('$ifNull' => array('$' . 'annotationVector', 0));
 
             $aggregateOperators['$group']['_id'] = '$unit_id';
             $aggregateOperators['$group']['count'] = array('$sum' => 1);
             $aggregateOperators['$group']['job_id'] = array('$push' => ('$job_id'));
             $aggregateOperators['$group']['type'] = array('$push' => ('$type'));
-            $aggregateOperators['$group']['annotation'] = array('$push' => ('$annotation'));
+            $aggregateOperators['$group']['workerUnit'] = array('$push' => ('$workerUnit'));
 
             return $collection->aggregate(array
             (array('$match' => $aggregateOperators['$match']),
@@ -149,31 +149,31 @@ class apiController extends BaseController
         $jobIDs = array();
 
         foreach ($response as $unit => $value) {
-            $result['annotationContent'][$value['_id']] = $value;
+            $result['workerUnitContent'][$value['_id']] = $value;
             array_push($unitIDs, $value['_id']);
-            $annotationType = array();
+            $workerUnitType = array();
             foreach ($value['job_id'] as $index => $type) {
                 array_push($jobIDs, $value['job_id'][$index]);
-                if (!array_key_exists($type, $annotationType)) {
-                    $annotationType[$type] = $value['annotation'][$index];
+                if (!array_key_exists($type, $workerUnitType)) {
+                    $workerUnitType[$type] = $value['workerUnit'][$index];
                 } else {
-                    $annInfo = $value['annotation'][$index];
+                    $annInfo = $value['workerUnit'][$index];
                     foreach ($annInfo as $k => $v) {
                         if (is_numeric($v)) {
-                            $annotationType[$type][$k] += $v;
+                            $workerUnitType[$type][$k] += $v;
                         } else {
                             foreach ($v as $embeddedK => $embeddedV) {
-                                $annotationType[$type][$k][$embeddedK] += $embeddedV;
+                                $workerUnitType[$type][$k][$embeddedK] += $embeddedV;
                             }
                         }
                     }
                 }
             }
-     //       $result['annotationContent'][$value['_id']]['annotationType'] = $annotationType;
-        $result['annotationContent'][$value['_id']]['annotationType'] = array();
-            foreach ($annotationType as $job => $annotation) {
-                $annotationInfo = array('job_id' => $job, 'annotation' => $annotation);
-                $result['annotationContent'][$value['_id']]['annotationType'][$job] = $annotationInfo;
+     //       $result['workerUnitContent'][$value['_id']]['workerUnitType'] = $workerUnitType;
+        $result['workerUnitContent'][$value['_id']]['workerUnitType'] = array();
+            foreach ($workerUnitType as $job => $workerUnit) {
+                $workerUnitInfo = array('job_id' => $job, 'workerUnit' => $workerUnit);
+                $result['workerUnitContent'][$value['_id']]['workerUnitType'][$job] = $workerUnitInfo;
             }
         }
 
@@ -186,7 +186,7 @@ class apiController extends BaseController
                                                                     'content.terms.first.formatted',
                                                                     'content.terms.second.formatted'))->toArray();
         foreach($units as $index =>$value) {
-            $result['annotationContent'][$value['_id']]['unitContent'] = $value;
+            $result['workerUnitContent'][$value['_id']]['unitContent'] = $value;
         }
 
         $jobIDs = array_unique($jobIDs);
@@ -199,10 +199,10 @@ class apiController extends BaseController
         $result['jobContent'][$value['_id']]['jobConf'] = $jobTitle[0];
     }
     
-    foreach($result['annotationContent'] as $id => $annInfo ) {
-            foreach ($result['annotationContent'][$id]['annotationType'] as $index => $value) {
+    foreach($result['workerUnitContent'] as $id => $annInfo ) {
+            foreach ($result['workerUnitContent'][$id]['workerUnitType'] as $index => $value) {
                 $job_id = $value['job_id'];
-                $result['annotationContent'][$id]['annotationType'][$index]['job_info'] =  $result['jobContent'][$job_id];
+                $result['workerUnitContent'][$id]['workerUnitType'][$index]['job_info'] =  $result['jobContent'][$job_id];
             }
         }
         return $result;
@@ -231,18 +231,18 @@ class apiController extends BaseController
 
     }
 
-    public function getAnnotation()
+    public function getWorkerunit()
     {
-        //http://crowdtruth.org/api/analytics/piegraph/?match[documentType][]=annotation&match[crowdAgent_id][]=crowdagent/cf/21832469&
+        //http://crowdtruth.org/api/analytics/piegraph/?match[documentType][]=workerUnit&match[crowdAgent_id][]=crowdagent/cf/21832469&
         //match[crowdAgent_id][]=crowdagent/cf/19107746&match[crowdAgent_id][]=crowdagent/cf/19619472&match[crowdAgent_id][]=crowdagent/cf/19887374&
         //match[crowdAgent_id][]=crowdagent/cf/9333400&match[crowdAgent_id][]=crowdagent/cf/19817298&match[crowdAgent_id][]=crowdagent/cf/22080912&
         //match[crowdAgent_id][]=crowdagent/amt/A1O1DTYWRD9NIZ&match[crowdAgent_id][]=crowdagent/amt/A1EDP2JFUPZOEQ&match[softwareAgent_id][]=cf&match[type][]=FactSpan
-        //&project[dictionary]=dictionary&project[unit_id]=unit_id&project[job_id]=job_id&project[id]=_id&project[crowdAgent_id]=crowdAgent_id&group=id
-        //&push[dictionary]=dictionary&push[unit_id]=unit_id&push[job_id]=job_id&push[crowdAgent_id]=crowdAgent_id
+        //&project[annotationVector]=annotationVector&project[unit_id]=unit_id&project[job_id]=job_id&project[id]=_id&project[crowdAgent_id]=crowdAgent_id&group=id
+        //&push[annotationVector]=annotationVector&push[unit_id]=unit_id&push[job_id]=job_id&push[crowdAgent_id]=crowdAgent_id
         $result = array();
         $aggregateOperators = $this->processAggregateInput(Input::all());
 
-        $projectList = array('id' => '_id','dictionary' => 'dictionary', 'job_id'=>'job_id', 'unit_id'=>'unit_id', 'crowdAgent_id' => 'crowdAgent_id');
+        $projectList = array('id' => '_id','annotationVector' => 'annotationVector', 'job_id'=>'job_id', 'unit_id'=>'unit_id', 'crowdAgent_id' => 'crowdAgent_id');
 
         $selection = \MongoDB\Entity::raw(function ($collection) use ($aggregateOperators, $projectList) {
             foreach ($projectList as $k => $v) {
@@ -284,7 +284,7 @@ class apiController extends BaseController
         foreach($response['id'] as $index => $value){
         //    $results[$index] = array();
         //    $results[$value]['id'] = ;
-            $results[$value]['dictionary'] = $response['dictionary'][$index];
+            $results[$value]['annotationVector'] = $response['annotationVector'][$index];
             $results[$value]['unit'] = $unitsDict[$response['unit_id'][$index]];
             $results[$value]['job'] = $jobsDict[$response['job_id'][$index]];
             $results[$value]['agent'] = $agentsDict[$response['crowdAgent_id'][$index]];
@@ -303,17 +303,17 @@ class apiController extends BaseController
 
         $selection = \MongoDB\Entity::raw(function ($collection) use ($aggregateOperators, $unitID) {
             $aggregateOperators['$match']['unit_id'] = $unitID;
-            $aggregateOperators['$match']['documentType'] = 'annotation';
+            $aggregateOperators['$match']['documentType'] = 'workerUnit';
             $aggregateOperators['$project']['job_id'] = array('$ifNull' => array('$' . 'job_id', 0));
             $aggregateOperators['$project']['crowdAgent_id'] = array('$ifNull' => array('$' . 'crowdAgent_id', 0));
             $aggregateOperators['$project']['type'] = array('$ifNull' => array('$' . 'type', 0));
-            $aggregateOperators['$project']['annotation'] = array('$ifNull' => array('$' . 'dictionary', 0));
+            $aggregateOperators['$project']['workerUnit'] = array('$ifNull' => array('$' . 'annotationVector', 0));
 
             $aggregateOperators['$group']['_id'] = '$crowdAgent_id';
             $aggregateOperators['$group']['count'] = array('$sum' => 1);
             $aggregateOperators['$group']['job_id'] = array('$push' => ('$job_id'));
             $aggregateOperators['$group']['type'] = array('$push' => ('$type'));
-            $aggregateOperators['$group']['annotation'] = array('$push' => ('$annotation'));
+            $aggregateOperators['$group']['workerUnit'] = array('$push' => ('$workerUnit'));
 
             return $collection->aggregate(array
             (array('$match' => $aggregateOperators['$match']),
@@ -323,34 +323,34 @@ class apiController extends BaseController
         $response = $selection['result'];
         $crowdAgentIDs = array();
         $jobIDs = array();
-    $result['annotationContent'] = array();
+    $result['workerUnitContent'] = array();
     $result['jobContent'] = array();
     $result['agentContent'] = array();
         foreach ($response as $agent => $value) {
-            $result['annotationContent'][$value['_id']] = $value;
+            $result['workerUnitContent'][$value['_id']] = $value;
             array_push($crowdAgentIDs, $value['_id']);
-            $annotationType = array();
+            $workerUnitType = array();
             foreach ($value['job_id'] as $index => $type) {
                 array_push($jobIDs, $value['job_id'][$index]);
-                if (!array_key_exists($type, $annotationType)) {
-                    $annotationType[$type] = $value['annotation'][$index];
+                if (!array_key_exists($type, $workerUnitType)) {
+                    $workerUnitType[$type] = $value['workerUnit'][$index];
                 } else {
-                    $annInfo = $value['annotation'][$index];
+                    $annInfo = $value['workerUnit'][$index];
                     foreach ($annInfo as $k => $v) {
                         if (is_numeric($v)) {
-                            $annotationType[$type][$k] += $v;
+                            $workerUnitType[$type][$k] += $v;
                         } else {
                             foreach ($v as $embeddedK => $embeddedV) {
-                                $annotationType[$type][$k][$embeddedK] += $embeddedV;
+                                $workerUnitType[$type][$k][$embeddedK] += $embeddedV;
                             }
                         }
                     }
                 }
             }
-            $result['annotationContent'][$value['_id']]['annotationType'] = array();
-            foreach ($annotationType as $job => $annotation) {
-                $annotationInfo = array('job_id' => $job, 'annotation' => $annotation);
-                $result['annotationContent'][$value['_id']]['annotationType'][$job] = $annotationInfo;
+            $result['workerUnitContent'][$value['_id']]['workerUnitType'] = array();
+            foreach ($workerUnitType as $job => $workerUnit) {
+                $workerUnitInfo = array('job_id' => $job, 'workerUnit' => $workerUnit);
+                $result['workerUnitContent'][$value['_id']]['workerUnitType'][$job] = $workerUnitInfo;
             }
 
         }
@@ -360,7 +360,7 @@ class apiController extends BaseController
             'cfWorkerTrust',
             'softwareAgent_id'))->toArray();
         foreach($agents as $index =>$value) {
-        $result['annotationContent'][$value['_id']]["valuesWorker"] = $value;
+        $result['workerUnitContent'][$value['_id']]["valuesWorker"] = $value;
     //        $result['agentContent'][$value['_id']] = $value;
         }
 
@@ -381,10 +381,10 @@ class apiController extends BaseController
         $result['jobContent'][$value['_id']]['jobConf'] = $jobTitle[0];
         }
         
-        foreach($result['annotationContent'] as $id => $annInfo ) {
-            foreach ($result['annotationContent'][$id]['annotationType'] as $index => $value) {
+        foreach($result['workerUnitContent'] as $id => $annInfo ) {
+            foreach ($result['workerUnitContent'][$id]['workerUnitType'] as $index => $value) {
                 $job_id = $value['job_id'];
-                $result['annotationContent'][$id]['annotationType'][$index]['job_info'] =  $result['jobContent'][$job_id];
+                $result['workerUnitContent'][$id]['workerUnitType'][$index]['job_info'] =  $result['jobContent'][$job_id];
             }
         }
         return $result;
@@ -559,13 +559,13 @@ class apiController extends BaseController
             }
             $aggregateOperators['$project']['workers'] = array('$ifNull' => array(array('$subtract' => array('$cache.jobTypes.count', '$cache.spammer.count')), 0));
             $aggregateOperators['$project']['jobsCount'] = array('$ifNull' => array('$' . 'cache.jobTypes.count', 0));
-            $aggregateOperators['$project']['annotationsCount'] = array('$ifNull' => array('$' . 'cache.annotations.count', 0));
+            $aggregateOperators['$project']['workerUnitsCount'] = array('$ifNull' => array('$' . 'cache.workerUnits.count', 0));
             $aggregateOperators['$group']['id'] = array('$push' => ('$_id'));
             $aggregateOperators['$group']['workers'] = array('$push' => ('$workers'));
 
             //group by id to create the lists and compute average of workers, units, annotatations
             $aggregateOperators['$group']['_id'] = '$constField';
-            $aggregateOperators['$group']['avgAnnotations'] = array('$avg' => '$annotationsCount');
+            $aggregateOperators['$group']['avgWorkerUnits'] = array('$avg' => '$workerUnitsCount');
             $aggregateOperators['$group']['avgJobs'] = array('$avg' => '$jobsCount');
 
 
@@ -583,10 +583,10 @@ class apiController extends BaseController
                 $results[$field] = array();
             }
             $results['jobsCount'] = array();
-            $results['annotationsCount'] = array();
+            $results['workerUnitsCount'] = array();
             $results['id'] = array();
             $results['workers'] = array();
-            $results['avgAnnotations'] = array();
+            $results['avgWorkerUnits'] = array();
             $results['avgJobs'] = array();
             return $results;
         }
@@ -595,7 +595,7 @@ class apiController extends BaseController
         //get the workers found as spammers in other jobs
         $ids = $selection['result'][0]['id'];
         $sizeIDs = count($ids);
-        $results['avgAnnotations'] = array_fill(0, $sizeIDs, $results['avgAnnotations']);
+        $results['avgWorkerUnits'] = array_fill(0, $sizeIDs, $results['avgWorkerUnits']);
         $results['avgWorkers'] = array_fill(0, $sizeIDs, $results['avgJobs']);
 
         $results['query'] = Input::get('match');
@@ -624,14 +624,14 @@ class apiController extends BaseController
                 $aggregateOperators['$group'][$field] = array('$push' => ('$' . $field));
             }
             $aggregateOperators['$project']['workersCount'] = array('$ifNull' => array('$' . 'cache.workers.count', 0));
-            $aggregateOperators['$project']['annotationsCount'] = array('$ifNull' => array('$' . 'cache.annotations.count', 0));
+            $aggregateOperators['$project']['workerUnitsCount'] = array('$ifNull' => array('$' . 'cache.workerUnits.count', 0));
             $aggregateOperators['$project']['jobsCount'] = array('$ifNull' => array('$' . 'cache.jobTypes.count', 0));
             $aggregateOperators['$group']['id'] = array('$push' => ('$_id'));
 
             //group by id to create the lists and compute average of workers, units, annotatations
             $aggregateOperators['$group']['_id'] = '$constField';
             $aggregateOperators['$group']['avgWorkers'] = array('$avg' => '$workersCount');
-            $aggregateOperators['$group']['avgAnnotations'] = array('$avg' => '$annotationsCount');
+            $aggregateOperators['$group']['avgWorkerUnits'] = array('$avg' => '$workerUnitsCount');
             $aggregateOperators['$group']['avgJobs'] = array('$avg' => '$jobsCount');
 
 
@@ -648,11 +648,11 @@ class apiController extends BaseController
             }
             $results['id'] = array();
             $results['workersCount'] = array();
-            $results['annotationsCount'] = array();
+            $results['workerUnitsCount'] = array();
             $results['jobsCount'] = array();
             $results['id'] = array();
             $results['avgWorkers'] = array();
-            $results['avgAnnotations'] = array();
+            $results['avgWorkerUnits'] = array();
             $results['avgJobs'] = array();
             $results['query'] = Input::get('match');
             return $results;
@@ -663,7 +663,7 @@ class apiController extends BaseController
         $ids = $selection['result'][0]['id'];
         $sizeIDs = count($ids);
         $results['avgWorkers'] = array_fill(0, $sizeIDs, $results['avgWorkers']);
-        $results['avgAnnotations'] = array_fill(0, $sizeIDs, $results['avgAnnotations']);
+        $results['avgWorkerUnits'] = array_fill(0, $sizeIDs, $results['avgWorkerUnits']);
         $results['avgJobs'] = array_fill(0, $sizeIDs, $results['avgJobs']);
 
         $results['query'] = Input::get('match');
@@ -697,7 +697,7 @@ class apiController extends BaseController
             //group by id to create the lists and compute average of workers, units, annotatations
             $aggregateOperators['$group']['_id'] = '$constField';
             $aggregateOperators['$group']['avgWorkers'] = array('$avg' => '$workers');
-            $aggregateOperators['$group']['avgAnnotations'] = array('$avg' => '$annotations');
+            $aggregateOperators['$group']['avgWorkerUnits'] = array('$avg' => '$workerUnits');
             $aggregateOperators['$group']['avgUnits'] = array('$avg' => '$units');
 
 
@@ -724,7 +724,7 @@ class apiController extends BaseController
         //use a for to insure the same order is preserved in the arrays
         for ($iter = 0; $iter < $sizeIDs; $iter++) {
             //get the workers of the job
-            $workersOfJob = \MongoDB\Entity::where('documentType', 'annotation')->where('job_id', $ids[$iter])->lists('crowdAgent_id');
+            $workersOfJob = \MongoDB\Entity::where('documentType', 'workerUnit')->where('job_id', $ids[$iter])->lists('crowdAgent_id');
             $workersOfJob = array_unique($workersOfJob);
 
             //check if there are spammers
@@ -746,7 +746,7 @@ class apiController extends BaseController
         }
 
         $results['avgWorkers'] = array_fill(0, $sizeIDs, $results['avgWorkers']);
-        $results['avgAnnotations'] = array_fill(0, $sizeIDs, $results['avgAnnotations']);
+        $results['avgWorkerUnits'] = array_fill(0, $sizeIDs, $results['avgWorkerUnits']);
         $results['avgUnits'] = array_fill(0, $sizeIDs, $results['avgUnits']);
         $results['potentialSpamWorkers'] = $potentialSpammersCount;
         $results['query'] = Input::get('match');

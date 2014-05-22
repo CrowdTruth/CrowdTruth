@@ -5,7 +5,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Cw\Crowdflower\Cfapi\CFExceptions;
 use \MongoDB\Entity;
-use \Annotation;
+use \WorkerUnit;
 use \MongoDB\CrowdAgent;
 use \MongoDB\Activity;
 use \MongoDB\Agent;
@@ -29,7 +29,7 @@ class RetrieveJobs extends Command {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Retrieve annotations from CrowdFlower and update job status.';
+	protected $description = 'Retrieve workerUnits from CrowdFlower and update job status.';
 
 	/**
 	 * Create a new command instance.
@@ -54,7 +54,7 @@ class RetrieveJobs extends Command {
 		try {
 			if($this->option('jobid')){
 				die('not yet implemented');
-				// We could check for each annotation and add it if somehow it didn't get added earlier.
+				// We could check for each workerUnit and add it if somehow it didn't get added earlier.
 				// For this, we should add ifexists checks in the storeJudgment method.
 				$cfjobid = $this->option('jobid');
 				$cf = new Cw\Crowdflower\Cfapi\Job(Config::get('crowdflower::apikey'));
@@ -105,7 +105,7 @@ class RetrieveJobs extends Command {
 			$job = $this->getJob($cfjobid);
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 
-			//Log::debug("Saved new annotations to {$job->_id} to DB.");	
+			//Log::debug("Saved new workerUnits to {$job->_id} to DB.");
 		} catch (CFExceptions $e){
 			Log::warning($e->getMessage());
 			throw $e;
@@ -150,28 +150,28 @@ class RetrieveJobs extends Command {
 	{
 
 		// If exists return false. 
-		if(Annotation::where('softwareAgent_id', 'cf')
-			->where('platformAnnotationId', $judgment['id'])
+		if(WorkerUnit::where('softwareAgent_id', 'cf')
+			->where('platformWorkerUnitId', $judgment['id'])
 			->first())
 			return false;	
 
 		try {
-			$annotation = new Annotation;
-			$annotation->job_id = $ourjobid;
-			//$annotation->platformJobId = $judgment['job_id'];
-			$annotation->activity_id = $activityId;
-			$annotation->crowdAgent_id = $agentId;
-			$annotation->softwareAgent_id = 'cf';
-			$annotation->unit_id = $judgment['unit_data']['uid']; // uid field in the csv we created in $batch->toCFCSV().
-			$annotation->platformAnnotationId = $judgment['id'];
-			$annotation->cfChannel = $judgment['external_type'];
-			$annotation->acceptTime = new MongoDate(strtotime($judgment['started_at']));
-			$annotation->submitTime = new MongoDate(strtotime($judgment['created_at']));
-			$annotation->cfTrust = $judgment['trust'];
-			$annotation->content = $judgment['data'];
-			Queue::push('Queues\SaveAnnotation', array('annotation' => serialize($annotation)));
+			$workerUnit = new WorkerUnit;
+			$workerUnit->job_id = $ourjobid;
+			//$workerUnit->platformJobId = $judgment['job_id'];
+			$workerUnit->activity_id = $activityId;
+			$workerUnit->crowdAgent_id = $agentId;
+			$workerUnit->softwareAgent_id = 'cf';
+			$workerUnit->unit_id = $judgment['unit_data']['uid']; // uid field in the csv we created in $batch->toCFCSV().
+			$workerUnit->platformWorkerUnitId = $judgment['id'];
+			$workerUnit->cfChannel = $judgment['external_type'];
+			$workerUnit->acceptTime = new MongoDate(strtotime($judgment['started_at']));
+			$workerUnit->submitTime = new MongoDate(strtotime($judgment['created_at']));
+			$workerUnit->cfTrust = $judgment['trust'];
+			$workerUnit->content = $judgment['data'];
+			Queue::push('Queues\SaveWorkerUnit', array('workerUnit' => serialize($workerUnit)));
 	
-			return $annotation;
+			return $workerUnit;
 			// TODO: golden
 
 			/*  Possibly also:
@@ -187,8 +187,8 @@ class RetrieveJobs extends Command {
 			*/
 
 		} catch (Exception $e) {
-			Log::warning("E:{$e->getMessage()} while saving annotation with CF id {$judgment['id']} to DB.");	
-			if($annotation) $annotation->forceDelete();
+			Log::warning("E:{$e->getMessage()} while saving workerUnit with CF id {$judgment['id']} to DB.");
+			if($workerUnit) $workerUnit->forceDelete();
 			// TODO: more?
 		}
 	}

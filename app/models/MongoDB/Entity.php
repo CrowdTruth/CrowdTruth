@@ -243,7 +243,7 @@ class Entity extends Moloquent {
         return $this->hasOne('\MongoDB\Entity', '_id', 'unit_id');
     }
 
-    public function annotations(){
+    public function workerUnits(){
         return $this->hasMany('\MongoDB\Entity', 'unit_id', '_id');
     }
 
@@ -277,7 +277,7 @@ class Entity extends Moloquent {
     
     public function getJobCountAttribute(){
         if($this->documentType == "twrex-structured-sentence"){
-            return $annotations = count(array_flatten(Entity::where('unit_id', $this->_id)->distinct('job_id')->get()->toArray()));
+            return $workerUnits = count(array_flatten(Entity::where('unit_id', $this->_id)->distinct('job_id')->get()->toArray()));
         }
     }
 

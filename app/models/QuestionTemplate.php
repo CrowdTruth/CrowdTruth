@@ -104,16 +104,16 @@ class QuestionTemplate extends Entity {
         return $uc;
     }
 
-    public function getDictionary($unit, $answer){
+    public function getAnnotationVector($unit, $answer){
         $question = $this->getQuestionWithUnit($unit);
-        $dictionary = array();
+        $annotationVector = array();
         foreach($answer as $akey=>$aval)
             foreach($question as $component=>$field)
                 if (isset($field['options']))
                     foreach($field['options'] as $okey=>$oval)
-                       $dictionary[$okey] = ($aval == $okey ? 1 : 0);
+                       $annotationVector[$okey] = ($aval == $okey ? 1 : 0);
             
-        return $dictionary;
+        return $annotationVector;
     }
 }
 

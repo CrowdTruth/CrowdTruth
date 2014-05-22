@@ -11,26 +11,26 @@ class UpdateJob {
 		
 		$j = unserialize($data['job']);
 
-		// Create the dictionary
+		// Create the annotationVector
 		$workers = array();
-		$annotations = $j->annotations;
+		$workerUnits = $j->workerUnits;
         $result = array();
 		$count = 0;
-        foreach($annotations as $annotation){ 
+        foreach($workerUnits as $workerUnit){
         	
-        	if(empty($annotation->dictionary))
-        		continue; // Skip if no dictionary.
+        	if(empty($workerUnit->annotationVector))
+        		continue; // Skip if no annotationVector.
 
-        	$workers[] = $annotation->crowdAgent_id;
+        	$workers[] = $workerUnit->crowdAgent_id;
 
-			$uid = $annotation->unit_id; // to prevent mongoException: zero length key not allowed. Could also 'continue;'
+			$uid = $workerUnit->unit_id; // to prevent mongoException: zero length key not allowed. Could also 'continue;'
 			if(empty($uid)) $uid = 'unknown';
 			else $count++;
 
 			if(!isset($result[$uid]))
-				$result[$uid] = $annotation->dictionary;
+				$result[$uid] = $workerUnit->annotationVector;
 			else {
-				foreach($annotation->dictionary as $key=>$val){ 
+				foreach($workerUnit->annotationVector as $key=>$val){
 					if(is_array($val)){ // term1 -> [k] -> 1
 						foreach($val as $k=>$v){
 							//if(isset($result[$uid][$key][$k]))
@@ -55,11 +55,11 @@ class UpdateJob {
 		}
 
 		$j->workersCount = count(array_unique($workers));
-        $j->annotationsCount = $count;
+        $j->workerUnitsCount = $count;
 
-		$jpu = intval($j->jobConfiguration->content['annotationsPerUnit']);		
+		$jpu = intval($j->jobConfiguration->content['workerUnitsPerUnit']);
 		$uc = intval($j->unitsCount);
-		if($uc > 0 and $jpu > 0) $j->completion = $j->annotationsCount / ($uc * $jpu);	
+		if($uc > 0 and $jpu > 0) $j->completion = $j->workerUnitsCount / ($uc * $jpu);
 		else $j->completion = 0.00;
 		
 		if($j->completion>1)
@@ -79,10 +79,10 @@ class UpdateJob {
 		// METRICS
 		//if(($j->completion > .25) and ($j->latestMetrics < .25)){
 
-		// If a page is done and there's a proper dictionary...
+		// If a page is done and there's a proper annotationVector...
 
 		try {
-			//if(count($j->results['withSpam'])>1) and ($j->annotationsCount % $j->jobConfiguration->content['unitsPerTask'] == 0)){
+			//if(count($j->results['withSpam'])>1) and ($j->workerUnitsCount % $j->jobConfiguration->content['unitsPerTask'] == 0)){
 			if(empty($j->metrics) and $j->completion==1){
 				// do the metrics, we're in a queue anyway.
 				\Log::debug("Starting metrics for Job {$j->_id}.");
@@ -127,7 +127,7 @@ class UpdateJob {
 				$j->save();
 
 				// TODO
-				// Update annotations
+				// Update workerUnits
 				// Update workers
 				// Update units
 				//

@@ -472,13 +472,13 @@ class tempImportAndVectorsMethodsController extends BaseController {
 			$a1t1 = $seed; $a1t2 = $seed;
 			$annotations = Annotation::where('unit_id', $unit['_id'])->get();
 			foreach($annotations as $ann){
-				if(!isset($ann->dictionary))
+				if(!isset($ann->annotationVector))
 					continue;
 				// TODO: smarter? At least more different types.
 
 				// Term 1
 				$sums = array();
-				$a2 = $ann->dictionary['term1'];
+				$a2 = $ann->annotationVector['term1'];
 				foreach (array_keys($a1t1 + $a2) as $key) {
 				    $sums[$key] = (isset($a1t1[$key]) ? $a1t1[$key] : 0) + (isset($a2[$key]) ? $a2[$key] : 0);
 				}
@@ -486,7 +486,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 				// Term 2
 				$sums = array();
-				$a2 = $ann->dictionary['term2'];
+				$a2 = $ann->annotationVector['term2'];
 				foreach (array_keys($a1t2 + $a2) as $key) {
 				    $sums[$key] = (isset($a1t1[$key]) ? $a1t1[$key] : 0) + (isset($a2[$key]) ? $a2[$key] : 0);
 				}
@@ -509,7 +509,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 		$count =0;
 		foreach(\Annotation::where('type', 'FactSpan')->get() as $ann){
-			if(isset($ann->dictionary))
+			if(isset($ann->annotationVector))
 				continue;
 
 			if(isset($ann->unit->content['sentence']['formatted']))
@@ -589,7 +589,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 				}
 			}	
 
-			$ann->dictionary = array('term1' => $vector1, 'term2' => $vector2);
+			$ann->annotationVector = array('term1' => $vector1, 'term2' => $vector2);
 			$ann->save();
 
 		}
@@ -643,7 +643,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 	}
 
 	public function getVectorsrelex(){
-		foreach(\Annotation::where('type', 'RelEx')->get() as $ann){
+		foreach(\WorkerUnit::where('type', 'RelEx')->get() as $ann){
 
 			if(!isset($ann->content))
 				dd($ann);
@@ -685,13 +685,13 @@ class tempImportAndVectorsMethodsController extends BaseController {
 				print_r($dic);
 				echo "</h1>"; 
 			}
-/*			$ann->dictionary = $dic;
+/*			$ann->annotationVector = $dic;
 			$ann->update();*/
 		}
 	}	
 
 	public function getVectorsreldir(){ //FactSpan
-		foreach(\Annotation::where('type', 'RelDir')->get() as $ann){
+		foreach(\WorkerUnit::where('type', 'RelDir')->get() as $ann){
 
 			if(!isset($ann->content))
 				dd($ann);
@@ -706,7 +706,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
                 "{{terms_second_text}} {{relation_noPrefix}} {{terms_first_text}}" => ($ans == 'Choice2' ? 1 : 0),
                 "no_relation" => ($ans == 'Choice3' ? 1 : 0));
 
-			$ann->dictionary = $dic;
+			$ann->annotationVector = $dic;
 			$ann->update();
 		}
 
@@ -721,7 +721,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		$jobs = Job::type('RelDir')->get();
 		$count = 0;
 		foreach ($jobs as $job) {
-			foreach($job->annotations as $ann){
+			foreach($job->workerUnits as $ann){
 				$count++;
 				$u = $ann->unit['content'];
 
@@ -742,7 +742,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 				echo "$realans - $ans\r\n";
 
-				$ann->dictionary = array(
+				$ann->annotationVector = array(
 		            'Choice1' => (($ans == 'Choice1') ? 1 : 0),
 		            'Choice2' => (($ans == 'Choice2') ? 1 : 0),
 		            'Choice3' => (($ans == 'Choice3') ? 1 : 0)
@@ -764,7 +764,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		
 		foreach(Job::get() as $job){
 			$list = array();
-			foreach (Annotation::type($job->type)->get() as $ann) {
+			foreach (WorkerUnit::type($job->type)->get() as $ann) {
 				
 				if(!empty($ann->unit_id))
 					$list[] = $ann->unit_id;
@@ -781,15 +781,15 @@ class tempImportAndVectorsMethodsController extends BaseController {
 	public function getUpdatecfdictionaries(){
 		
 		foreach(Job::where('softwareAgent_id', 'cf')->get() as $job){
-			foreach ($job->annotations as $ann) {
-				if(!empty($ann->dictionary))
+			foreach ($job->workerUnits as $ann) {
+				if(!empty($ann->annotationVector))
 					continue;
 				
 				$ann->type = $job->type;
-				$ann->dictionary = $ann->createDictionary();
+				$ann->annotationVector = $ann->createAnnotationVector();
 				$ann->save();
 
-				if(is_null($ann->dictionary))
+				if(is_null($ann->annotationVector))
 					echo ">>>>>{$ann->unit_id}";
 				else
 					echo "_____{$ann->unit_id}";
@@ -805,9 +805,9 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 		$jobs = Job::get();
 		foreach ($jobs as $job) {
-			foreach($job->annotations as $ann){
+			foreach($job->workerUnits as $ann){
 				//$ann->type = $job->type;
-				$ann->dictionary = $ann->createDictionary();
+				$ann->annotationVector = $ann->createAnnotationVector();
 				$ann->save();
 			}
 

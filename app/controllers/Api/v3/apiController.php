@@ -51,12 +51,12 @@ class apiController extends BaseController {
 		if(Input::has('id')){
 			$id = Input::get('id');
 			
-			// Check if is annotation, when annotation append units, if not append annotations (assumption that it is a unit so far valid)
-			$annotationType = strpos($id, 'annotation');
+			// Check if is workerUnit, when workerUnit append units, if not append workerUnits (assumption that it is a unit so far valid)
+			$workerUnitType = strpos($id, 'workerUnit');
 
-			if($annotationType === false){
+			if($workerUnitType === false){
 
-				$result = \MongoDB\Entity::with('hasAnnotations')->where('_id', $id)->get();
+				$result = \MongoDB\Entity::with('hasWorkerUnits')->where('_id', $id)->get();
 
 			} else {
 

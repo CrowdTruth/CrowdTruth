@@ -66,14 +66,14 @@ class ProcessController extends BaseController {
 		}
 	}*/
 
-	public function getDictionary($entity, $format, $domain, $docType, $incr){
+	public function getAnnotationVector($entity, $format, $domain, $docType, $incr){
 
 		$id = "$entity/$format/$domain/$docType/$incr";
 
-		foreach(Annotation::where('unit_id', $id)->where('softwareAgent_id', 'cf')->get() as $ann){
-			//$ann = Annotation::id('entity/text/medical/annotation/5265')->first();
+		foreach(WorkerUnit::where('unit_id', $id)->where('softwareAgent_id', 'cf')->get() as $ann){
+			//$ann = WorkerUnit::id('entity/text/medical/WorkerUnit/5265')->first();
 			echo "\r\n{$ann->_id}\r\n";
-			print_r($ann->createDictionary());
+			print_r($ann->createAnnotationVector());
 			echo "\r\n\r\n---------------------------------\r\n\r\n";
 		}
 	}
@@ -229,8 +229,8 @@ class ProcessController extends BaseController {
 	public function getUpdatecfdictionaries(){
 		
 		foreach(Job::where('softwareAgent_id', 'cf')->type('FactSpan')->get() as $job){
-			foreach ($job->annotations as $ann) {
-				$ann->dictionary = $ann->createDictionary();
+			foreach ($job->workerUnits as $ann) {
+				$ann->annotationVector = $ann->createAnnotationVector();
 				$ann->save();
 			}
 
@@ -361,7 +361,7 @@ private function computeSimilarity($vector, $num, $uid, $softwareAgent_id = 'amt
 	$temp['maxRelCos'] = max($temp);
 	$temp['termno'] = $num;
 	$temp['unit_id'] = $uid;
-	$temp['numAnnots']= Annotation::where('unit_id', $uid)->where('softwareAgent_id', $softwareAgent_id)->count();
+	$temp['numAnnots']= WorkerUnit::where('unit_id', $uid)->where('softwareAgent_id', $softwareAgent_id)->count();
 	return $temp;
 }
  public function similarity(array $vec1, array $vec2) {
@@ -400,8 +400,8 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		echo "-Term1:{$unit->content['terms']['first']['formatted']}<br>\n";
 		echo "-Term2:{$unit->content['terms']['second']['formatted']}<br>\n";
 		echo "<hr>\r\n";
-		foreach(Annotation::where('unit_id', $unit->_id)->where('softwareAgent_id', 'amt')->get() as $ann){
-			$dic = $ann->createDictionary();
+		foreach(WorkerUnit::where('unit_id', $unit->_id)->where('softwareAgent_id', 'amt')->get() as $ann){
+			$dic = $ann->createAnnotationVector();
 
 			echo "<table>";
 			foreach ($ann->content as $key => $value) {
@@ -436,16 +436,16 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				try{
 				$batch = $job->batch;
 				$reward = $job->jobConfiguration->content['reward'];
-				$annotationsPerUnit = intval($job->jobConfiguration->content['annotationsPerUnit']);
+				$workerUnitsPerUnit = intval($job->jobConfiguration->content['workerUnitsPerUnit']);
 				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);
 				$unitsCount = count($batch->wasDerivedFrom);
 	            if(!$unitsPerTask)
 	                $unitsPerTask = 1;
 				    
-				$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
+				$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$workerUnitsPerUnit), 2);
 
 				$count = 0;
-				foreach ($job->annotations as $ann) {
+				foreach ($job->workerUnits as $ann) {
 					$count++;
 				}
 				$job->realCost = $count*$reward;
@@ -469,8 +469,8 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 	public function getRegenerateamtfactspan(){
 		foreach (Job::type('FactSpan')->where('softwareAgent_id', 'amt')->get() as $job) {
-			foreach ($job->annotations as $ann) {
-				$ann->dictionary=$ann->createDictionary();
+			foreach ($job->workerUnits as $ann) {
+				$ann->annotationVector=$ann->createAnnotationVector();
 				$ann->save();
 				echo "saved";
 			}
@@ -482,12 +482,12 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	public function getRegenerateamtrelex(){
 		$count = $failed = 0;
 		foreach (Job::type('RelEx')->where('softwareAgent_id', 'amt')->get() as $job) {
-			foreach ($job->annotations as $ann) {
+			foreach ($job->workerUnits as $ann) {
 				//dd($ann);
-				$ann->dictionary=$ann->createDictionary();
+				$ann->annotationVector=$ann->createAnnotationVector();
 				$ann->save();
 				echo "saved";
-				if(is_null($ann->dictionary)) $failed++;
+				if(is_null($ann->annotationVector)) $failed++;
 				else $count++;
 			}
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));

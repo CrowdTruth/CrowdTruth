@@ -41,19 +41,19 @@ class Job extends Entity {
 
 			if(!isset($job->projectedCost)){
 				$reward = $job->jobConfiguration->content['reward'];
-				$annotationsPerUnit = intval($job->jobConfiguration->content['annotationsPerUnit']);
+				$workerUnitsPerUnit = intval($job->jobConfiguration->content['workerUnitsPerUnit']);
 				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);
 				$unitsCount = count($job->batch->wasDerivedFrom);
                 if(!$unitsPerTask)
                     $projectedCost = 0;
                 else
-				    $projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$annotationsPerUnit), 2);
+				    $projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$workerUnitsPerUnit), 2);
 
-                $job->expectedAnnotationsCount=$unitsCount*$job->jobConfiguration->content['annotationsPerUnit'];
+                $job->expectedWorkerUnitsCount=$unitsCount*$job->jobConfiguration->content['workerUnitsPerUnit'];
                 $job->projectedCost = $projectedCost;
 				$job->unitsCount = $unitsCount;
                 $job->latestMetrics = 0;
-				$job->annotationsCount = 0;
+				$job->workerUnitsCount = 0;
 				$job->completion = 0.00; // 0.00-1.00
 				
 			}
@@ -199,8 +199,8 @@ class Job extends Entity {
         return $this->hasOne('Batch', '_id', 'batch_id');
     }
 
-    public function annotations(){
-        return $this->hasMany('Annotation', 'job_id', '_id');
+    public function workerUnits(){
+        return $this->hasMany('WorkerUnit', 'job_id', '_id');
     }
 
 

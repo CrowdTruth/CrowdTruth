@@ -1,11 +1,11 @@
 <?php
 use MongoDB\Entity;
 
-class Annotation extends Entity {
+class WorkerUnit extends Entity {
 
 	protected $attributes = array(  'format' => 'text', 
                                     'domain' => 'medical', 
-                                    'documentType' => 'annotation',
+                                    'documentType' => 'workerUnit',
                                     'spam' => false);
 	
     /**
@@ -14,7 +14,7 @@ class Annotation extends Entity {
     public function newQuery($excludeDeleted = true)
     {
         $query = parent::newQuery($excludeDeleted = true);
-        $query->where('documentType', 'annotation');
+        $query->where('documentType', 'workerUnit');
         return $query;
     }
 
@@ -22,33 +22,33 @@ class Annotation extends Entity {
     {
         parent::boot();
 
-        static::creating(function ( $annotation )
+        static::creating(function ( $workerUnit )
         {
             
             // Inherit type, domain and format
-            if(empty($annotation->type) or empty($annotation->domain) or empty($annotation->format)){
-                $j = Job::where('_id', $annotation->job_id)->first();
-                $annotation->type = $j->type;
-                $annotation->domain = $j->domain;
-                $annotation->format = $j->format;
+            if(empty($workerUnit->type) or empty($workerUnit->domain) or empty($workerUnit->format)){
+                $j = Job::where('_id', $workerUnit->job_id)->first();
+                $workerUnit->type = $j->type;
+                $workerUnit->domain = $j->domain;
+                $workerUnit->format = $j->format;
             }  
 
-            $annotation->dictionary = $annotation->createDictionary();
+            $workerUnit->annotationVector = $workerUnit->createAnnotationVector();
 
             // Activity if not exists
-            if(empty($annotation->activity_id)){
+            if(empty($workerUnit->activity_id)){
                 try {
                     $activity = new Activity;
-                    $activity->label = "Annotation is saved.";
-                    $activity->softwareAgent_id = $annotation->softwareAgent_id;
+                    $activity->label = "WorkerUnit is saved.";
+                    $activity->softwareAgent_id = $workerUnit->softwareAgent_id;
                     $activity->save();
-                    $annotation->activity_id = $activity->_id;
-                    Log::debug("Saving annotation {$annotation->_id} with activity {$annotation->activity_id}.");
+                    $workerUnit->activity_id = $activity->_id;
+                    Log::debug("Saving workerUnit {$workerUnit->_id} with activity {$workerUnit->activity_id}.");
                 } catch (Exception $e) {
 
                     if($activity) $activity->forceDelete();
-                    //if($annotation) $annotation->forceDelete();
-                    throw new Exception('Error saving activity for annotation.');
+                    //if($workerUnit) $workerUnit->forceDelete();
+                    throw new Exception('Error saving activity for workerUnit.');
                 }
             }
 
@@ -58,20 +58,20 @@ class Annotation extends Entity {
 
      //todo make private. 
      // TODO exceptionhandling, smart checks.
-    public function createDictionary(){
+    public function createAnnotationVector(){
         switch ($this->type) {
             case 'FactSpan':
-                return  $this->createDictionaryFactSpan();
+                return  $this->createAnnotationVectorFactSpan();
                 break;
             case 'RelDir':
-                return $this->createDictionaryRelDir();
+                return $this->createAnnotationVectorRelDir();
                 break;
             case 'RelEx':
-                return $this->createDictionaryRelEx();
+                return $this->createAnnotationVectorRelEx();
                 break;
             
             default:
-               //return  $this->createDictionaryFactSpan(); // For Debugging!
+               //return  $this->createAnnotationVectorFactSpan(); // For Debugging!
                 Log::debug("TYPE {$this->type} UNKNOWN: {$this->_id}");
                 return null;
                 //throw new Exception("TYPE {$this->type} UNKNOWN: {$this->_id}");
@@ -79,7 +79,7 @@ class Annotation extends Entity {
         }        
     }
     //todo should be private
-    public function createDictionaryFactSpan(){
+    public function createAnnotationVectorFactSpan(){
         $debug = false;
 
 
@@ -372,7 +372,7 @@ class Annotation extends Entity {
     }
 
     // TODO: unify templates
-    private function createDictionaryRelDir(){
+    private function createAnnotationVectorRelDir(){
         if(isset($this->content['direction']))
             $ans = $this->content['direction'];
         else
@@ -401,10 +401,10 @@ class Annotation extends Entity {
 
 
      /**
-     * Creates a Dictionary ( possible multiple choice answers with 1 or 0 ) and saves it in the Annotation.
+     * Creates a AnnotationVector ( possible multiple choice answers with 1 or 0 ) and saves it in the workerUnit.
      * This might be reused when we start using the JSON QuestionTemplates.
      */
- /*   private function createDictionaryDEPRECATED(){
+ /*   private function createAnnotationVectorDEPRECATED(){
        
         $q = $this->job->questionTemplate->content['question'];
         $r = $this->job->questionTemplate->content['replaceValues'];
@@ -437,19 +437,19 @@ class Annotation extends Entity {
         	$temp[] = $singleans;
         }
         
-        // Create dictionary.
-        $dictionary = array();
+        // Create annotationVector.
+        $annotationVector = array();
         foreach($q as $field)                           // 0 => options => a causes b
             foreach($field as $key=>$val)               // options => a causes b
                 if($key == 'options') 
                    foreach (array_keys($val) as $possibleans)
                         foreach($temp as $givenans)
-                            $dictionary[strtolower($possibleans)] = (strtolower($givenans) == strtolower($possibleans) ? 1 : 0);
+                            $annotationVector[strtolower($possibleans)] = (strtolower($givenans) == strtolower($possibleans) ? 1 : 0);
 
-        $this->dictionary = $dictionary;
+        $this->annotationVector = $annotationVector;
     }*/
 
-    public function createDictionaryRelEx(){
+    public function createAnnotationVectorRelEx(){
         try {
             // AMT
             if(isset($this->content['Q1text'])){
@@ -507,11 +507,11 @@ class Annotation extends Entity {
 
 /*            foreach($ans as $a){
                 if(!in_array($a, array_keys($dic)))
-                   throw new Exception("Answer $a not in dictionary.");  
+                   throw new Exception("Answer $a not in annotationVector.");
             }
 
             if(!in_array(1, $dic)){
-                throw new Exception('Dictionary EMPTY');
+                throw new Exception('AnnotationVector EMPTY');
             }*/
 
             return array('extraction'=>$dic);

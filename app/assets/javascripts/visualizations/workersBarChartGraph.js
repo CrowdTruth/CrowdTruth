@@ -18,13 +18,13 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                 tooltip: "Average number of jobs in which a worker participated. Click to select/deselect."},
             'workers': {'color': '#3D0000', 'field': '', 'name':'# jobs identified as high quality', 'type': 'column',
                 tooltip: "Number of jobs in which the worker's annotations were identified as high quality. Click to select/deselect."}},
-        'annotations': {
-            'spamAnnotations': {'color': '#60D4AE', 'field': 'cache.annotations.spam', 'name':'# of low quality annotations', 'type': 'column',
-                tooltip: "Number of low quality annotations. Click to select/deselect."},
-            'annotations': {'color': '#207F60', 'field': 'cache.annotations.nonspam', 'name':'# of high quality annotations', 'type': 'column',
-                tooltip: "Number of high quality annotations. Click to select/deselect."},
-            'avgAnnotations': {'color': '#00AA72', 'field': '', 'name':'avg # of annotations', 'type': 'spline', 'dashStyle':'shortdot',
-                tooltip: "Average number of annotations. Click to select/deselect."}},
+        'judgements': {
+            'spamJudgements': {'color': '#60D4AE', 'field': 'cache.workerUnits.spam', 'name':'# of low quality judgements', 'type': 'column',
+                tooltip: "Number of low quality judgements. Click to select/deselect."},
+            'judgements': {'color': '#207F60', 'field': 'cache.workerUnits.nonspam', 'name':'# of high quality judgements', 'type': 'column',
+                tooltip: "Number of high quality judgements. Click to select/deselect."},
+            'avgWorkerUnits': {'color': '#00AA72', 'field': '', 'name':'avg # of judgements', 'type': 'spline', 'dashStyle':'shortdot',
+                tooltip: "Average number of judgements. Click to select/deselect."}},
         'counts': { 'mediaFormats': {'color': '#689CD2', 'field': 'cache.mediaFormats.count', 'name':'# annotated media formats', 'type': 'spline', 'dashStyle':'LongDash',
             tooltip: "Number of annotated media formats of a worker. Click to select/deselect."},
                  'mediaDomains': {'color': '#FF9E00', 'field': 'cache.mediaDomains.count', 'name':'# annotated media domains', 'type': 'spline','dashStyle':'LongDashDot',
@@ -382,7 +382,7 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                     },
                     opposite: false
                 };
-                if(key == 'quality across jobs' || key =='job types' || key == 'annotations')
+                if(key == 'quality across jobs' || key =='job types' || key == 'judgements')
                     yAxisSettings.opposite = true;
                 chartGeneralOptions.yAxis.push(yAxisSettings);
             }

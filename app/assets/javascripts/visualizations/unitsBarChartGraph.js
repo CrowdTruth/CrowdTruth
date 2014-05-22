@@ -55,13 +55,13 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                 tooltip:  "Number of high quality workers who annotated a unit. Click to select/deselect."},
             'avgWorkers': {'color': '#A63800', 'field': '', 'name':'avg # of workers', 'type': 'spline', 'dashStyle':'shortdot',
                 tooltip: "Average number workers who annotated a unit. Click to select/deselect."}},
-        'annotations': {
-            'spamAnnotations': {'color': '#60D4AE', 'field': 'cache.annotations.spam', 'name':'# of low quality annotations', 'type': 'column',
-                tooltip: "Number of low quality annotations for a unit. Click to select/deselect."},
-            'annotations': {'color': '#207F60', 'field': 'cache.annotations.nonSpam', 'name':'# of high quality annotations', 'type': 'column',
-                tooltip: "Number of high quality annotations for a unit. Click to select/deselect."},
-            'avgAnnotations': {'color': '#00AA72', 'field': '', 'name':'avg # of annotations', 'type': 'spline', 'dashStyle':'shortdot',
-                tooltip: "Average number annotations for a unit. Click to select/deselect."}},
+        'judgements': {
+            'spamJudgements': {'color': '#60D4AE', 'field': 'cache.workerUnits.spam', 'name':'# of low quality judgements', 'type': 'column',
+                tooltip: "Number of low quality judgements for a unit. Click to select/deselect."},
+            'judgements': {'color': '#207F60', 'field': 'cache.workerUnits.nonSpam', 'name':'# of high quality judgements', 'type': 'column',
+                tooltip: "Number of high quality judgements for a unit. Click to select/deselect."},
+            'avgWorkerUnits': {'color': '#00AA72', 'field': '', 'name':'avg # of judgements', 'type': 'spline', 'dashStyle':'shortdot',
+                tooltip: "Average number judgements for a unit. Click to select/deselect."}},
         'batches': { 'batches': {'color': '#FF9E00', 'field': 'cache.batches.count', 'name':'# of batches', 'type': 'spline', 'dashStyle':'LongDash',
             tooltip: "Number of batches the sentence was used in. Click to select/deselect."}},
         'metrics': {
@@ -453,7 +453,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     },
                     opposite: false
                 };
-                if(key == 'workers' || key =='job types' || key == 'annotations')
+                if(key == 'workers' || key =='job types' || key == 'judgements')
                     yAxisSettings.opposite = true;
                 chartGeneralOptions.yAxis.push(yAxisSettings);
             }

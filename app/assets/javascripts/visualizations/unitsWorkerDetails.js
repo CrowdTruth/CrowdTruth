@@ -3,7 +3,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
     if (category == '#job_tab'){
         queryField = 'job_id'
     }
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
+    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
     var pieChartOptions = {};
     var workerInfo = {};
     var infoFields = [ {field:'softwareAgent_id', name:'platform'}, {field:'flagged', name:'flagged'} ,{field:'cfWorkerTrust', name:'platform worker trust'},
@@ -49,7 +49,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 text: 'Quality of Workers of the ' + currentSelection.length +  ' selected ' + categoryName + '(s)'
             },
             subtitle: {
-                text: 'Click a category to see the distribution of annotations per worker'
+                text: 'Click a category to see the distribution of Worker units per worker'
             },
             yAxis: {
                 title: {
@@ -191,7 +191,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 enabled: false
             },
             title: {
-                text: 'Annotations of ' + categories.length + ' Worker(s) on ' + currentSelection.length + ' Selected ' +   categoryName + '(s)'
+                text: 'Worker units of ' + categories.length + ' Worker(s) on ' + currentSelection.length + ' Selected ' +   categoryName + '(s)'
             },
             subtitle: {
                 text: 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.'
@@ -232,9 +232,9 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                         var graph = '';
                         var interval = (event.max - event.min + 1);
                         if (interval == barChart.series[0].data.length) {
-                            title = 'Annotations of ' + interval.toFixed(0) + ' Worker(s) of ' + currentSelection.length + ' Selected ' +   categoryName + '(s)'
+                            title = 'Worker units of ' + interval.toFixed(0) + ' Worker(s) of ' + currentSelection.length + ' Selected ' +   categoryName + '(s)'
                         } else {
-                            title = 'Annotations of ' + interval.toFixed(0) + '/' +  barChart.series[0].data.length + ' Worker(s) of ' + currentSelection.length + ' Selected ' +   categoryName + '(s)'
+                            title = 'Worker units of ' + interval.toFixed(0) + '/' +  barChart.series[0].data.length + ' Worker(s) of ' + currentSelection.length + ' Selected ' +   categoryName + '(s)'
                         }
                         barChart.setTitle({text: title});
                     }
@@ -247,7 +247,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                     var arrayName = this.name.split("/");
                     var value = arrayName[arrayName.length - 1];
                     if(arrayName.length > 1) {
-                        return  categoryName + ' ' + value  + ' # of mTasks ';
+                        return  categoryName + ' ' + value  + ' # of judgements ';
                     } else {
                         return categoryName + ' ' + value;
                     }
@@ -257,7 +257,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
             yAxis: [{
                 min: 0,
                 title: {
-                    text: '# micro tasks per worker'
+                    text: '# judgements per worker'
                 }
             }, {
                 min: 0,
@@ -296,7 +296,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                         var arrayName = id.split('/');
                         var shortName = arrayName[arrayName.length - 1];
                         if (point.series.name == id){
-                            name =  '# of mTasks';
+                            name =  '# of judgements';
                         } else {
                             name = name.substr(shortName.length,name.length);
                         }
@@ -431,7 +431,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
             for (var indexUnits in currentSelection) {
                 urlWorkerInfo += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
             }
-            urlWorkerInfo += 'match[documentType][]=annotation&project[crowdAgent_id]=crowdAgent_id&push[crowdAgent_id]=crowdAgent_id' +
+            urlWorkerInfo += 'match[documentType][]=workerUnit&project[crowdAgent_id]=crowdAgent_id&push[crowdAgent_id]=crowdAgent_id' +
                 '&metrics[]=avg_agreement&metrics[]=avg_cosine'+
                 '&metrics[]=flagged&metrics[]=cfWorkerTrust&metrics[]=softwareAgent_id';
             $.getJSON(urlWorkerInfo, function (data) {
@@ -510,7 +510,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
+        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match['+ queryField + '][]=' + selectedUnits[indexUnits] + '&';

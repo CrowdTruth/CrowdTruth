@@ -27,9 +27,9 @@ class CrowdAgent extends Moloquent {
             {   
 
                 $domains = $formats = $types = $jobids = array();
-                $spam = $nonspam = $totalNoOfAnnotations = 0;
-                foreach($this->annotations as $a){
-                    $totalNoOfAnnotations++;
+                $spam = $nonspam = $totalNoOfWorkerUnits = 0;
+                foreach($this->workerUnits as $a){
+                    $totalNoOfWorkerUnits++;
 
                     if($a->spam) $spam++;
                     else $nonspam++;
@@ -42,14 +42,14 @@ class CrowdAgent extends Moloquent {
        
                 }
 
-               // $this->annotationStats = array('count'=>$total['count'], 'spam'=>$spam, 'nonspam'=>$nonspam);
-                $distinctAnnotationTypes = array_unique($types); // These actually are the Annotation types
+               // $this->WorkerUnitStats = array('count'=>$total['count'], 'spam'=>$spam, 'nonspam'=>$nonspam);
+                $distinctWorkerUnitTypes = array_unique($types); // These actually are the WorkerUnit types
                 $distinctMediaFormats = array_unique($formats);
                 $distinctMediaDomains = array_unique($domains);
                 $workerParticipatedIn = count(array_unique($unitids));
 
-                $cache["annotations"] = [
-                        "count" => $totalNoOfAnnotations,
+                $cache["workerUnits"] = [
+                        "count" => $totalNoOfWorkerUnits,
                         "spam" => $spam,
                         "nonspam" => $nonspam];
 
@@ -60,7 +60,7 @@ class CrowdAgent extends Moloquent {
 
                 $cache["mediaTypes"] = [
                     //  "distinct" => count($distinctMediaTypes),
-                        "count" => count($distinctAnnotationTypes), //,
+                        "count" => count($distinctWorkerUnitTypes), //,
                         "types" => []
                     ];
 
@@ -83,14 +83,14 @@ class CrowdAgent extends Moloquent {
                 
 
 
-                if(count($distinctAnnotationTypes) > 0)
+                if(count($distinctWorkerUnitTypes) > 0)
                 {
                     $cache["jobTypes"] = [
-                        "distinct" => count($distinctAnnotationTypes),
+                        "distinct" => count($distinctWorkerUnitTypes),
                         "count" => count(array_unique($jobids)),
                         "types" => []
                     ];
-                    foreach($distinctAnnotationTypes as $distinctJobType)
+                    foreach($distinctWorkerUnitTypes as $distinctJobType)
                     {
                         $distinctJobTypeCount = Job::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->type($distinctJobType)->count();
                         
@@ -161,10 +161,10 @@ class CrowdAgent extends Moloquent {
     	$countthese = array('type', 'domain', 'format');
     	$stats = array();
 
-    	// Annotations
-    	$total = array('count' => count($this->annotations));
+    	// WorkerUnits
+    	$total = array('count' => count($this->workerUnits));
         $spam = $nonspam = 0;
-    	foreach($this->annotations as $a){
+    	foreach($this->workerUnits as $a){
     		foreach($countthese as $x){
     			if(isset($total[$x][$a->$x])) $total[$x][$a->$x]++;
     			else $total[$x][$a->$x] = 1;
@@ -177,7 +177,7 @@ class CrowdAgent extends Moloquent {
     		$unitids[] = $a->unit_id;
     	}
 
-    	$this->annotationStats = array('count'=>$total['count'], 'spam'=>$spam, 'nonspam'=>$nonspam);
+    	$this->workerUnitStats = array('count'=>$total['count'], 'spam'=>$spam, 'nonspam'=>$nonspam);
 
         if(isset($jobids)){
         	// Jobs
@@ -213,12 +213,12 @@ class CrowdAgent extends Moloquent {
 */
 
 	// TODO: Can be removed.
-	public function hasGeneratedAnnotations(){
+	public function hasGeneratedWorkerUnits(){
 		return $this->hasMany('\MongoDB\Entity', 'crowdAgent_id', '_id');
 	}
 
-	public function annotations(){
-		return $this->hasMany('Annotation', 'crowdAgent_id', '_id');
+	public function workerUnits(){
+		return $this->hasMany('WorkerUnit', 'crowdAgent_id', '_id');
 	}
 
 

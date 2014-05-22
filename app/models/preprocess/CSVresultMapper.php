@@ -139,14 +139,14 @@ echo ' - ' . $row['b1'] . '. ';*/
 		return $batch;
 	}
 
-	public function processRel($csvresult, $annotationCSVArray, $preview)
+	public function processRel($csvresult, $workerUnitCSVArray, $preview)
 	{
-		$mappedAnnotationsWithUnits = array();
+		$mappedWorkerUnitsWithUnits = array();
 		$batchOfUnits = array();
 
 		$notMatched = array();
 
-		foreach ($annotationCSVArray as $line_index => $row)
+		foreach ($workerUnitCSVArray as $line_index => $row)
 		{
 			$entity = Entity::where('documentType', 'twrex-structured-sentence');
 
@@ -158,14 +158,14 @@ echo ' - ' . $row['b1'] . '. ';*/
 			if($result = $entity->first())
 			{
 			    $row['unit'] = $result->toArray();
-			    array_push($mappedAnnotationsWithUnits, $row);
+			    array_push($mappedWorkerUnitsWithUnits, $row);
 			    array_push($batchOfUnits, $result->toArray()['_id']);	
 			} else {
 
 				if($result = Entity::where('content.sentence.formatted', '=', $row['sentence'])->first())
 				{
 					$row['unit'] = $result->toArray();
-					array_push($mappedAnnotationsWithUnits, $row);
+					array_push($mappedWorkerUnitsWithUnits, $row);
 					array_push($batchOfUnits, $result->toArray()['_id']);	
 				}
 				else
@@ -182,34 +182,34 @@ echo ' - ' . $row['b1'] . '. ';*/
 		$batchOfUnits = array_values($batchOfUnits);
 
 		if($preview) {
-			return $mappedAnnotationsWithUnits;
+			return $mappedWorkerUnitsWithUnits;
 		}
 
 		if(strpos($csvresult->title, 'relexcorrected') !== false && strpos($csvresult->title, 'f389000') !== false)
 		{
-			$status = $this->relexc_f389000($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+			$status = $this->relexc_f389000($csvresult, $batchOfUnits, $mappedWorkerUnitsWithUnits);
 		}
 		elseif(strpos($csvresult->title, 'relexcorrected') !== false && strpos($csvresult->title, 'f389001') !== false)
 		{
-			$status = $this->relexc_f389001($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+			$status = $this->relexc_f389001($csvresult, $batchOfUnits, $mappedWorkerUnitsWithUnits);
 		}
 		elseif(strpos($csvresult->title, 'reldirc') !== false && strpos($csvresult->title, 'f391072') !== false)
 		{
-			$status = $this->reldirc_f391072($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+			$status = $this->reldirc_f391072($csvresult, $batchOfUnits, $mappedWorkerUnitsWithUnits);
 		}
 		elseif(strpos($csvresult->title, 'reldirc') !== false && strpos($csvresult->title, 'f391073') !== false)
 		{
-			$status = $this->reldirc_f391073($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+			$status = $this->reldirc_f391073($csvresult, $batchOfUnits, $mappedWorkerUnitsWithUnits);
 		}
 		elseif(strpos($csvresult->title, 'reldirc') !== false && strpos($csvresult->title, 'f391076') !== false)
 		{
-			$status = $this->reldirc_f391076($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+			$status = $this->reldirc_f391076($csvresult, $batchOfUnits, $mappedWorkerUnitsWithUnits);
 		}
 
 		return $status;
 	}
 
-	public function processAnnotationData($csvresult, $preview = false)
+	public function processWorkerUnitData($csvresult, $preview = false)
 	{
 		set_time_limit(6000);
 		$csvLines = explode("\n", $csvresult['content']);
@@ -241,18 +241,18 @@ echo ' - ' . $row['b1'] . '. ';*/
 
 		// dd($csv->fetchAll());
 
-		$annotationCSVArray = $csv->fetchAssoc($headers);
+		$workerUnitCSVArray = $csv->fetchAssoc($headers);
 
-		unset($annotationCSVArray[0]);
+		unset($workerUnitCSVArray[0]);
 
 		if(strpos($csvresult->title, 'relexcorrected') !== false || strpos($csvresult->title, 'reldir') !== false)
 		{
-			$result = $this->processRel($csvresult, $annotationCSVArray, $preview);
+			$result = $this->processRel($csvresult, $workerUnitCSVArray, $preview);
 
 			return $result;
 		}
 
-		// dd($annotationCSVArray);
+		// dd($workerUnitCSVArray);
 
 		$inputCSVFiles = \MongoDB\Entity::where('documentType', 'csvresult')->where('title', 'like', '%input%')->get();
 
@@ -273,32 +273,32 @@ echo ' - ' . $row['b1'] . '. ';*/
 			}
 		}
 
-		$mappedAnnotationsWithUnits = array();
+		$mappedWorkerUnitsWithUnits = array();
 		$batchOfUnits = array();
 
-		foreach($annotationCSVArray as $annotationRow)
+		foreach($workerUnitCSVArray as $workerUnitRow)
 		{
 			foreach($aggregatedProcessedInputCSVFiles as $mappedInputRow)
 			{
-				if(strpos($csvresult->title, 'annotation_output_cf_factorspan_merged_relex') !== false)
+				if(strpos($csvresult->title, 'workerUnit_output_cf_factorspan_merged_relex') !== false)
 				{
-					if(stripos($annotationRow['Sent_id'], '-'))
+					if(stripos($workerUnitRow['Sent_id'], '-'))
 					{
-						$annotationRowIndex = explode('-', $annotationRow['Sent_id'])[0];
+						$workerUnitRowIndex = explode('-', $workerUnitRow['Sent_id'])[0];
 					}
 				}
 				else
 				{
-					$annotationRowIndex = $annotationRow['index'];					
+					$workerUnitRowIndex = $workerUnitRow['index'];
 				}
 
-				if($annotationRowIndex == $mappedInputRow['index'])
+				if($workerUnitRowIndex == $mappedInputRow['index'])
 				{
-					$mappedAnnotationWithUnit = $annotationRow;
-					$mappedAnnotationWithUnit['unit'] = $mappedInputRow['unit'];
+					$mappedWorkerUnitWithUnit = $workerUnitRow;
+					$mappedWorkerUnitWithUnit['unit'] = $mappedInputRow['unit'];
 
 					array_push($batchOfUnits, $mappedInputRow['unit']['_id']);
-					array_push($mappedAnnotationsWithUnits, $mappedAnnotationWithUnit);
+					array_push($mappedWorkerUnitsWithUnits, $mappedWorkerUnitWithUnit);
 				}
 			}
 		}
@@ -310,42 +310,42 @@ echo ' - ' . $row['b1'] . '. ';*/
 
 		if($preview == true)
 		{
-			return $mappedAnnotationsWithUnits;
+			return $mappedWorkerUnitsWithUnits;
 		}
 
 		if(stripos($csvresult->title, "factorspan") && stripos($csvresult->title, "380140"))
 		{
-			$status = $this->factorspan_308140($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+			$status = $this->factorspan_308140($csvresult, $batchOfUnits, $mappedWorkerUnitsWithUnits);
 		}
 		elseif(stripos($csvresult->title, "factorspan") && stripos($csvresult->title, "380640"))
 		{
-			$status = $this->factorspan_380640($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+			$status = $this->factorspan_380640($csvresult, $batchOfUnits, $mappedWorkerUnitsWithUnits);
 		}
 		elseif(stripos($csvresult->title, "factorspan") && stripos($csvresult->title, "382004"))
 		{
-			$status = $this->factorspan_382004($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+			$status = $this->factorspan_382004($csvresult, $batchOfUnits, $mappedWorkerUnitsWithUnits);
 		}
 		elseif(strpos($csvresult->title, 'annotation_output_cf_factorspan_merged_relex') !== false)
 		{
-			$status = $this->annotation_output_cf_factorspan_merged_relex($mappedAnnotationsWithUnits);
+			$status = $this->workerUnit_output_cf_factorspan_merged_relex($mappedWorkerUnitsWithUnits);
 		}
 		elseif(stripos($csvresult->title, "relexu") && stripos($csvresult->title, "f387177"))
 		{
-			$status = $this->relexu_f387177($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+			$status = $this->relexu_f387177($csvresult, $batchOfUnits, $mappedWorkerUnitsWithUnits);
 		}
 		elseif(stripos($csvresult->title, "relexu") && stripos($csvresult->title, "f387719"))
 		{
-			$status = $this->relexu_f387719($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+			$status = $this->relexu_f387719($csvresult, $batchOfUnits, $mappedWorkerUnitsWithUnits);
 		}
 		elseif(stripos($csvresult->title, "relexu") && stripos($csvresult->title, "f388572"))
 		{
-			$status = $this->relexu_f388572($csvresult, $batchOfUnits, $mappedAnnotationsWithUnits);
+			$status = $this->relexu_f388572($csvresult, $batchOfUnits, $mappedWorkerUnitsWithUnits);
 		}
 
 		return $status;
 	}
 
-	public function factorspan_308140($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	public function factorspan_308140($csvresult, $batchUnits, $mappedWorkerUnitsWithUnits)
 	{
 		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
 		{
@@ -384,7 +384,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 		        "autoApprovalDelayInMinutes" =>  "N/A",
 		        "expirationInMinutes" =>  3,
 		        "reward" =>  0.02,
-		        "annotationsPerUnit" => 10,
+		        "workerUnitsPerUnit" => 10,
 		        "unitsPerTask" =>  count($batchUnits),
 	//	        "unitsPerTask" =>  34,
 		        "title" =>  "Is the PHRASE complete? (medical sentences)",
@@ -420,11 +420,11 @@ echo ' - ' . $row['b1'] . '. ';*/
 			return $status;
 		}
 
-		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id);
+		$status['crowdAgentsAndWorkerUnits'] = $this->createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job->_id);
 		return $status;
 	}
 
-	public function factorspan_380640($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	public function factorspan_380640($csvresult, $batchUnits, $mappedWorkerUnitsWithUnits)
 	{
 		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
 		{
@@ -463,7 +463,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 		        "autoApprovalDelayInMinutes" =>  "N/A",
 		        "expirationInMinutes" =>  3,
 		        "reward" =>  0.02,
-		        "annotationsPerUnit" => 10,
+		        "workerUnitsPerUnit" => 10,
 		        "unitsPerTask" =>  count($batchUnits),
 	//	        "unitsPerTask" =>  34,
 		        "title" =>  "Is the PHRASE complete? (medical sentences)",
@@ -499,11 +499,11 @@ echo ' - ' . $row['b1'] . '. ';*/
 			return $status;
 		}
 
-		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id);
+		$status['crowdAgentsAndWorkerUnits'] = $this->createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job->_id);
 		return $status;
 	}
 
-	public function factorspan_382004($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	public function factorspan_382004($csvresult, $batchUnits, $mappedWorkerUnitsWithUnits)
 	{
 		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
 		{
@@ -542,7 +542,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 		        "autoApprovalDelayInMinutes" =>  "N/A",
 		        "expirationInMinutes" =>  3,
 		        "reward" =>  0.02,
-		        "annotationsPerUnit" => 10,
+		        "workerUnitsPerUnit" => 10,
 		        "unitsPerTask" =>  count($batchUnits),
 	//	        "unitsPerTask" =>  34,
 		        "title" =>  "Is the PHRASE complete? (medical sentences)",
@@ -578,11 +578,11 @@ echo ' - ' . $row['b1'] . '. ';*/
 			return $status;
 		}
 
-		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id);
+		$status['crowdAgentsAndWorkerUnits'] = $this->createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job->_id);
 		return $status;
 	}
 
-	public function relexu_f387177($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	public function relexu_f387177($csvresult, $batchUnits, $mappedWorkerUnitsWithUnits)
 	{
 		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
 		{
@@ -621,7 +621,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 		        "autoApprovalDelayInMinutes" =>  "N/A",
 		        "expirationInMinutes" =>  3,
 		        "reward" =>  0.02,
-		        "annotationsPerUnit" => 15,
+		        "workerUnitsPerUnit" => 15,
 		        "unitsPerTask" =>  count($batchUnits),
 	//	        "unitsPerTask" =>  34,
 		        "title" =>  "Choose the valid RELATION(s) between the TERMS in the SENTENCE",
@@ -657,11 +657,11 @@ echo ' - ' . $row['b1'] . '. ';*/
 			return $status;
 		}
 
-		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelEx");
+		$status['crowdAgentsAndWorkerUnits'] = $this->createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job->_id, "RelEx");
 		return $status;
 	}
 
-	public function relexu_f387719($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	public function relexu_f387719($csvresult, $batchUnits, $mappedWorkerUnitsWithUnits)
 	{
 		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
 		{
@@ -700,7 +700,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 		        "autoApprovalDelayInMinutes" =>  "N/A",
 		        "expirationInMinutes" =>  3,
 		        "reward" =>  0.02,
-		        "annotationsPerUnit" => 15,
+		        "workerUnitsPerUnit" => 15,
 		        "unitsPerTask" =>  count($batchUnits),
 	//	        "unitsPerTask" =>  34,
 		        "title" =>  "Choose the valid RELATION(s) between the TERMS in the SENTENCE",
@@ -736,11 +736,11 @@ echo ' - ' . $row['b1'] . '. ';*/
 			return $status;
 		}
 
-		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelEx");
+		$status['crowdAgentsAndWorkerUnits'] = $this->createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job->_id, "RelEx");
 		return $status;
 	}
 
-	public function relexu_f388572($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	public function relexu_f388572($csvresult, $batchUnits, $mappedWorkerUnitsWithUnits)
 	{
 		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
 		{
@@ -779,7 +779,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 		        "autoApprovalDelayInMinutes" =>  "N/A",
 		        "expirationInMinutes" =>  3,
 		        "reward" =>  0.02,
-		        "annotationsPerUnit" => 15,
+		        "workerUnitsPerUnit" => 15,
 		        "unitsPerTask" =>  count($batchUnits),
 	//	        "unitsPerTask" =>  34,
 		        "title" =>  "Choose the valid RELATION(s) between the TERMS in the SENTENCE",
@@ -815,11 +815,11 @@ echo ' - ' . $row['b1'] . '. ';*/
 			return $status;
 		}
 
-		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelEx");
+		$status['crowdAgentsAndWorkerUnits'] = $this->createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job->_id, "RelEx");
 		return $status;
 	}
 
-	public function relexc_f389000($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	public function relexc_f389000($csvresult, $batchUnits, $mappedWorkerUnitsWithUnits)
 	{
 		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
 		{
@@ -858,7 +858,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 		        "autoApprovalDelayInMinutes" =>  "N/A",
 		        "expirationInMinutes" =>  3,
 		        "reward" =>  0.02,
-		        "annotationsPerUnit" => 15,
+		        "workerUnitsPerUnit" => 15,
 		        "unitsPerTask" =>  count($batchUnits),
 	//	        "unitsPerTask" =>  34,
 		        "title" =>  "Choose the valid RELATION(s) between the TERMS in the SENTENCE",
@@ -894,11 +894,11 @@ echo ' - ' . $row['b1'] . '. ';*/
 			return $status;
 		}
 
-		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelEx");
+		$status['crowdAgentsAndWorkerUnits'] = $this->createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job->_id, "RelEx");
 		return $status;
 	}
 
-	public function relexc_f389001($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	public function relexc_f389001($csvresult, $batchUnits, $mappedWorkerUnitsWithUnits)
 	{
 		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
 		{
@@ -937,7 +937,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 		        "autoApprovalDelayInMinutes" =>  "N/A",
 		        "expirationInMinutes" =>  3,
 		        "reward" =>  0.02,
-		        "annotationsPerUnit" => 15,
+		        "workerUnitsPerUnit" => 15,
 		        "unitsPerTask" =>  count($batchUnits),
 	//	        "unitsPerTask" =>  34,
 		        "title" =>  "Choose the valid RELATION(s) between the TERMS in the SENTENCE",
@@ -973,11 +973,11 @@ echo ' - ' . $row['b1'] . '. ';*/
 			return $status;
 		}
 
-		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelEx");
+		$status['crowdAgentsAndWorkerUnits'] = $this->createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job->_id, "RelEx");
 		return $status;
 	}		
 
-	public function reldirc_f391072($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	public function reldirc_f391072($csvresult, $batchUnits, $mappedWorkerUnitsWithUnits)
 	{
 		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
 		{
@@ -1016,7 +1016,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 		        "autoApprovalDelayInMinutes" =>  "N/A",
 		        "expirationInMinutes" =>  1,
 		        "reward" =>  0.01,
-		        "annotationsPerUnit" => 12,
+		        "workerUnitsPerUnit" => 12,
 		        "unitsPerTask" =>  count($batchUnits),
 	//	        "unitsPerTask" =>  34,
 		        "title" =>  "What is the right order of two related WORD PHRASES?",
@@ -1054,11 +1054,11 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			return $status;
 		}
 
-		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelDir");
+		$status['crowdAgentsAndWorkerUnits'] = $this->createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job->_id, "RelDir");
 		return $status;
 	}		
 
-	public function reldirc_f391073($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	public function reldirc_f391073($csvresult, $batchUnits, $mappedWorkerUnitsWithUnits)
 	{
 		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
 		{
@@ -1097,7 +1097,7 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 		        "autoApprovalDelayInMinutes" =>  "N/A",
 		        "expirationInMinutes" =>  1,
 		        "reward" =>  0.01,
-		        "annotationsPerUnit" => 12,
+		        "workerUnitsPerUnit" => 12,
 		        "unitsPerTask" =>  count($batchUnits),
 	//	        "unitsPerTask" =>  34,
 		        "title" =>  "What is the right order of two related WORD PHRASES?",
@@ -1135,11 +1135,11 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			return $status;
 		}
 
-		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelDir");
+		$status['crowdAgentsAndWorkerUnits'] = $this->createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job->_id, "RelDir");
 		return $status;
 	}		
 
-	public function reldirc_f391076($csvresult, $batchUnits, $mappedAnnotationsWithUnits)
+	public function reldirc_f391076($csvresult, $batchUnits, $mappedWorkerUnitsWithUnits)
 	{
 		if(!$batch = Entity::where('hash', md5(serialize($batchUnits)))->first())
 		{
@@ -1178,7 +1178,7 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 		        "autoApprovalDelayInMinutes" =>  "N/A",
 		        "expirationInMinutes" =>  1,
 		        "reward" =>  0.01,
-		        "annotationsPerUnit" => 12,
+		        "workerUnitsPerUnit" => 12,
 		        "unitsPerTask" =>  count($batchUnits),
 	//	        "unitsPerTask" =>  34,
 		        "title" =>  "What is the right order of two related WORD PHRASES?",
@@ -1216,11 +1216,11 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			return $status;
 		}
 
-		$status['crowdAgentsAndAnnotations'] = $this->createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job->_id, "RelDir");
+		$status['crowdAgentsAndWorkerUnits'] = $this->createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job->_id, "RelDir");
 		return $status;
 	}		
 
-	public function annotation_output_cf_factorspan_merged_relex($mappedAnnotationsWithUnits)
+	public function workerUnit_output_cf_factorspan_merged_relex($mappedWorkerUnitsWithUnits)
 	{
 		$tempEntityID = null;
 		$status = array();
@@ -1241,26 +1241,26 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 
 		$test = array();
 
-		foreach($mappedAnnotationsWithUnits as $mappedAnnotationsWithUnitKey => $mappedAnnotationsWithUnitVal)
+		foreach($mappedWorkerUnitsWithUnits as $mappedWorkerUnitsWithUnitKey => $mappedWorkerUnitsWithUnitVal)
 		{
-			$parentEntity = $mappedAnnotationsWithUnitVal['unit'];
+			$parentEntity = $mappedWorkerUnitsWithUnitVal['unit'];
 
-			$parentEntity['content']['terms']['first']['text'] = strtolower(str_replace(["[", "]"], ["", ""], $mappedAnnotationsWithUnitVal['term1']));
-			$parentEntity['content']['terms']['second']['text'] = strtolower(str_replace(["[", "]"], ["", ""], $mappedAnnotationsWithUnitVal['term2']));
-			$parentEntity['content']['terms']['first']['formatted'] = $mappedAnnotationsWithUnitVal['term1'];
-			$parentEntity['content']['terms']['first']['startIndex'] = (int) $mappedAnnotationsWithUnitVal['b1'];
-			$parentEntity['content']['terms']['first']['endIndex'] = (int) $mappedAnnotationsWithUnitVal['e1'];
-			$parentEntity['content']['terms']['second']['formatted'] = $mappedAnnotationsWithUnitVal['term2'];
-			$parentEntity['content']['terms']['second']['startIndex'] = (int) $mappedAnnotationsWithUnitVal['b2'];
-			$parentEntity['content']['terms']['second']['endIndex'] = (int) $mappedAnnotationsWithUnitVal['e2'];
-			$parentEntity['content']['sentence']['formatted'] = $mappedAnnotationsWithUnitVal['sentence'];
+			$parentEntity['content']['terms']['first']['text'] = strtolower(str_replace(["[", "]"], ["", ""], $mappedWorkerUnitsWithUnitVal['term1']));
+			$parentEntity['content']['terms']['second']['text'] = strtolower(str_replace(["[", "]"], ["", ""], $mappedWorkerUnitsWithUnitVal['term2']));
+			$parentEntity['content']['terms']['first']['formatted'] = $mappedWorkerUnitsWithUnitVal['term1'];
+			$parentEntity['content']['terms']['first']['startIndex'] = (int) $mappedWorkerUnitsWithUnitVal['b1'];
+			$parentEntity['content']['terms']['first']['endIndex'] = (int) $mappedWorkerUnitsWithUnitVal['e1'];
+			$parentEntity['content']['terms']['second']['formatted'] = $mappedWorkerUnitsWithUnitVal['term2'];
+			$parentEntity['content']['terms']['second']['startIndex'] = (int) $mappedWorkerUnitsWithUnitVal['b2'];
+			$parentEntity['content']['terms']['second']['endIndex'] = (int) $mappedWorkerUnitsWithUnitVal['e2'];
+			$parentEntity['content']['sentence']['formatted'] = $mappedWorkerUnitsWithUnitVal['sentence'];
 			$parentEntity['content']['properties']['overlappingTerms'] = $twrexStructurer->overlappingTerms($parentEntity['content']);
-			$title = $parentEntity['title'] . "_FS_" . $mappedAnnotationsWithUnitKey;
+			$title = $parentEntity['title'] . "_FS_" . $mappedWorkerUnitsWithUnitKey;
 
 			try {
 				$entity = new Entity;
 				$entity->_id = $tempEntityID;
-				$entity->sent_id = $mappedAnnotationsWithUnitVal['Sent_id'];
+				$entity->sent_id = $mappedWorkerUnitsWithUnitVal['Sent_id'];
 				$entity->title = strtolower($title);
 				$entity->domain = $parentEntity['domain'];
 				$entity->format = $parentEntity['format'];
@@ -1289,7 +1289,7 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 		return $status;
 	}
 
-	public function createAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job_id, $taskType = "FactSpan")
+	public function createWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job_id, $taskType = "FactSpan")
 	{
 		$status = array();
 		$index = 0;
@@ -1304,7 +1304,7 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 		}		
 
 
-        // $lastMongoURIUsed = Entity::where('format', 'text')->where('domain', 'medical')->where("documentType", 'annotation')->get(array("_id"));
+        // $lastMongoURIUsed = Entity::where('format', 'text')->where('domain', 'medical')->where("documentType", 'workerUnit')->get(array("_id"));
     
         // if(count($lastMongoURIUsed) > 0) {
         //     $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
@@ -1323,11 +1323,11 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 
         $allEntities = array();
 
-		foreach($mappedAnnotationsWithUnits as $mappedAnnotationsWithUnit)
+		foreach($mappedWorkerUnitsWithUnits as $mappedWorkerUnitsWithUnit)
 		{
 			$index++;
 
-			$crowdagent = CrowdAgent::where('platformAgentId', $mappedAnnotationsWithUnit['_worker_id'])
+			$crowdagent = CrowdAgent::where('platformAgentId', $mappedWorkerUnitsWithUnit['_worker_id'])
 								->where('softwareAgent_id', 'cf')
 								->first();
 
@@ -1335,13 +1335,13 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			{
 				try {
 					$crowdagent = new CrowdAgent;
-					$crowdagent->_id= "crowdagent/cf/" . $mappedAnnotationsWithUnit['_worker_id'];
+					$crowdagent->_id= "crowdagent/cf/" . $mappedWorkerUnitsWithUnit['_worker_id'];
 					$crowdagent->softwareAgent_id= 'cf';
-					$crowdagent->platformAgentId = (int) $mappedAnnotationsWithUnit['_worker_id'];
-					$crowdagent->country = $mappedAnnotationsWithUnit['_country'];
-					$crowdagent->region = $mappedAnnotationsWithUnit['_region'];
-					$crowdagent->city = $mappedAnnotationsWithUnit['_city'];			
-					$crowdagent->cfWorkerTrust = (float) $mappedAnnotationsWithUnit['_trust'];	
+					$crowdagent->platformAgentId = (int) $mappedWorkerUnitsWithUnit['_worker_id'];
+					$crowdagent->country = $mappedWorkerUnitsWithUnit['_country'];
+					$crowdagent->region = $mappedWorkerUnitsWithUnit['_region'];
+					$crowdagent->city = $mappedWorkerUnitsWithUnit['_city'];
+					$crowdagent->cfWorkerTrust = (float) $mappedWorkerUnitsWithUnit['_trust'];
 					$crowdagent->save();	
 				} catch(Exception $e) {
 					$status['error'][$index]['crowdagent'] = $e->getMessage();
@@ -1350,51 +1350,51 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			}		
 
 			if(!Entity::where('softwareAgent_id', 'cf')
-				->where('platformAnnotationId', $mappedAnnotationsWithUnit['_id'])
+				->where('platformWorkerUnitId', $mappedWorkerUnitsWithUnit['_id'])
 				->first())
 			{
 				$entity = new Entity;
 				$entity->format = "text";
 				$entity->domain = "medical";
-				$entity->documentType = "annotation";
+				$entity->documentType = "workerUnit";
 				$entity->job_id = $job_id;
 				$entity->activity_id = $activity->_id;
 				$entity->crowdAgent_id = $crowdagent->_id;
 				$entity->softwareAgent_id = "cf";
-				$entity->unit_id = $mappedAnnotationsWithUnit['unit']['_id'];
-				$entity->platformAnnotationId = (int) $mappedAnnotationsWithUnit['_id'];
-				$entity->cfChannel = $mappedAnnotationsWithUnit['_channel'];
-				$entity->acceptTime = new MongoDate(strtotime($mappedAnnotationsWithUnit['_started_at']));
-				$entity->submitTime = new MongoDate(strtotime($mappedAnnotationsWithUnit['_created_at']));
-				$entity->cfTrust = (float) $mappedAnnotationsWithUnit['_trust'];
+				$entity->unit_id = $mappedWorkerUnitsWithUnit['unit']['_id'];
+				$entity->platformWorkerUnitId = (int) $mappedWorkerUnitsWithUnit['_id'];
+				$entity->cfChannel = $mappedWorkerUnitsWithUnit['_channel'];
+				$entity->acceptTime = new MongoDate(strtotime($mappedWorkerUnitsWithUnit['_started_at']));
+				$entity->submitTime = new MongoDate(strtotime($mappedWorkerUnitsWithUnit['_created_at']));
+				$entity->cfTrust = (float) $mappedWorkerUnitsWithUnit['_trust'];
 
 				if($taskType == "FactSpan")
 				{
 					$entity->content = [
-						"confirmfirstfactor" => $mappedAnnotationsWithUnit['confirmfirstfactor'],
-						"confirmsecondfactor" => $mappedAnnotationsWithUnit['confirmsecondfactor'],
-						"firstfactor" => $mappedAnnotationsWithUnit['firstfactor'],
-						"secondfactor" => $mappedAnnotationsWithUnit['secondfactor'],
-						"saveselectionids1" => $mappedAnnotationsWithUnit['saveselectionids1'],
-						"saveselectionids2" => $mappedAnnotationsWithUnit['saveselectionids2'],
-						"confirmids1" => $mappedAnnotationsWithUnit['confirmids1'],
-						"confirmids2" => $mappedAnnotationsWithUnit['confirmids2'],
-						"sentencefirstfactor" => $mappedAnnotationsWithUnit['sentencefirstfactor'],
-						"sentencesecondfactor" => $mappedAnnotationsWithUnit['sentencesecondfactor'],
+						"confirmfirstfactor" => $mappedWorkerUnitsWithUnit['confirmfirstfactor'],
+						"confirmsecondfactor" => $mappedWorkerUnitsWithUnit['confirmsecondfactor'],
+						"firstfactor" => $mappedWorkerUnitsWithUnit['firstfactor'],
+						"secondfactor" => $mappedWorkerUnitsWithUnit['secondfactor'],
+						"saveselectionids1" => $mappedWorkerUnitsWithUnit['saveselectionids1'],
+						"saveselectionids2" => $mappedWorkerUnitsWithUnit['saveselectionids2'],
+						"confirmids1" => $mappedWorkerUnitsWithUnit['confirmids1'],
+						"confirmids2" => $mappedWorkerUnitsWithUnit['confirmids2'],
+						"sentencefirstfactor" => $mappedWorkerUnitsWithUnit['sentencefirstfactor'],
+						"sentencesecondfactor" => $mappedWorkerUnitsWithUnit['sentencesecondfactor'],
 					];
 				}
 				elseif($taskType == "RelEx")
 				{
 					$entity->content = [
-						"step_1_select_the_valid_relations" => $mappedAnnotationsWithUnit['step_1_select_the_valid_relations'],
-						"step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1" => $mappedAnnotationsWithUnit['step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1'],
-						"step_2b_if_you_selected_none_in_step_1_explain_why" => $mappedAnnotationsWithUnit['step_2b_if_you_selected_none_in_step_1_explain_why']
+						"step_1_select_the_valid_relations" => $mappedWorkerUnitsWithUnit['step_1_select_the_valid_relations'],
+						"step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1" => $mappedWorkerUnitsWithUnit['step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1'],
+						"step_2b_if_you_selected_none_in_step_1_explain_why" => $mappedWorkerUnitsWithUnit['step_2b_if_you_selected_none_in_step_1_explain_why']
 					];
 				}
 				elseif($taskType == "RelDir")
 				{
 					$entity->content = [
-						"direction" => $mappedAnnotationsWithUnit['direction']
+						"direction" => $mappedWorkerUnitsWithUnit['direction']
 					];
 				}
 
@@ -1411,7 +1411,7 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 		return $status;
 	}
 
-	public function OldcreateAnnotationsAndCrowdAgents($mappedAnnotationsWithUnits, $job_id, $taskType = "FactSpan")
+	public function OldcreateWorkerUnitsAndCrowdAgents($mappedWorkerUnitsWithUnits, $job_id, $taskType = "FactSpan")
 	{
 		$status = array();
 		$index = 0;
@@ -1425,11 +1425,11 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			$status['error'][$index]['activity'] = $e->getMessage();
 		}		
 
-		foreach($mappedAnnotationsWithUnits as $mappedAnnotationsWithUnit)
+		foreach($mappedWorkerUnitsWithUnits as $mappedWorkerUnitsWithUnit)
 		{
 			$index++;
 
-			$crowdagent = CrowdAgent::where('platformAgentId', $mappedAnnotationsWithUnit['_worker_id'])
+			$crowdagent = CrowdAgent::where('platformAgentId', $mappedWorkerUnitsWithUnit['_worker_id'])
 								->where('softwareAgent_id', 'cf')
 								->first();
 
@@ -1437,13 +1437,13 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			{
 				try {
 					$crowdagent = new CrowdAgent;
-					$crowdagent->_id= "crowdagent/cf/" . $mappedAnnotationsWithUnit['_worker_id'];
+					$crowdagent->_id= "crowdagent/cf/" . $mappedWorkerUnitsWithUnit['_worker_id'];
 					$crowdagent->softwareAgent_id= 'cf';
-					$crowdagent->platformAgentId = (int) $mappedAnnotationsWithUnit['_worker_id'];
-					$crowdagent->country = $mappedAnnotationsWithUnit['_country'];
-					$crowdagent->region = $mappedAnnotationsWithUnit['_region'];
-					$crowdagent->city = $mappedAnnotationsWithUnit['_city'];			
-					$crowdagent->cfWorkerTrust = (float) $mappedAnnotationsWithUnit['_trust'];	
+					$crowdagent->platformAgentId = (int) $mappedWorkerUnitsWithUnit['_worker_id'];
+					$crowdagent->country = $mappedWorkerUnitsWithUnit['_country'];
+					$crowdagent->region = $mappedWorkerUnitsWithUnit['_region'];
+					$crowdagent->city = $mappedWorkerUnitsWithUnit['_city'];
+					$crowdagent->cfWorkerTrust = (float) $mappedWorkerUnitsWithUnit['_trust'];
 					$crowdagent->save();	
 				} catch(Exception $e) {
 					$status['error'][$index]['crowdagent'] = $e->getMessage();
@@ -1452,51 +1452,51 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			}		
 
 			if(!Entity::where('softwareAgent_id', 'cf')
-				->where('platformAnnotationId', $mappedAnnotationsWithUnit['_id'])
+				->where('platformWorkerUnitId', $mappedWorkerUnitsWithUnit['_id'])
 				->first())
 			{
 				$entity = new Entity;
 				$entity->format = "text";
 				$entity->domain = "medical";
-				$entity->documentType = "annotation";
+				$entity->documentType = "workerUnit";
 				$entity->job_id = $job_id;
 				$entity->activity_id = $activity->_id;
 				$entity->crowdAgent_id = $crowdagent->_id;
 				$entity->softwareAgent_id = "cf";
-				$entity->unit_id = $mappedAnnotationsWithUnit['unit']['_id'];
-				$entity->platformAnnotationId = (int) $mappedAnnotationsWithUnit['_id'];
-				$entity->cfChannel = $mappedAnnotationsWithUnit['_channel'];
-				$entity->acceptTime = new MongoDate(strtotime($mappedAnnotationsWithUnit['_started_at']));
-				$entity->submitTime = new MongoDate(strtotime($mappedAnnotationsWithUnit['_created_at']));
-				$entity->cfTrust = (float) $mappedAnnotationsWithUnit['_trust'];
+				$entity->unit_id = $mappedWorkerUnitsWithUnit['unit']['_id'];
+				$entity->platformWorkerUnitId = (int) $mappedWorkerUnitsWithUnit['_id'];
+				$entity->cfChannel = $mappedWorkerUnitsWithUnit['_channel'];
+				$entity->acceptTime = new MongoDate(strtotime($mappedWorkerUnitsWithUnit['_started_at']));
+				$entity->submitTime = new MongoDate(strtotime($mappedWorkerUnitsWithUnit['_created_at']));
+				$entity->cfTrust = (float) $mappedWorkerUnitsWithUnit['_trust'];
 
 				if($taskType == "FactSpan")
 				{
 					$entity->content = [
-						"confirmfirstfactor" => $mappedAnnotationsWithUnit['confirmfirstfactor'],
-						"confirmsecondfactor" => $mappedAnnotationsWithUnit['confirmsecondfactor'],
-						"firstfactor" => $mappedAnnotationsWithUnit['firstfactor'],
-						"secondfactor" => $mappedAnnotationsWithUnit['secondfactor'],
-						"saveselectionids1" => $mappedAnnotationsWithUnit['saveselectionids1'],
-						"saveselectionids2" => $mappedAnnotationsWithUnit['saveselectionids2'],
-						"confirmids1" => $mappedAnnotationsWithUnit['confirmids1'],
-						"confirmids2" => $mappedAnnotationsWithUnit['confirmids2'],
-						"sentencefirstfactor" => $mappedAnnotationsWithUnit['sentencefirstfactor'],
-						"sentencesecondfactor" => $mappedAnnotationsWithUnit['sentencesecondfactor'],
+						"confirmfirstfactor" => $mappedWorkerUnitsWithUnit['confirmfirstfactor'],
+						"confirmsecondfactor" => $mappedWorkerUnitsWithUnit['confirmsecondfactor'],
+						"firstfactor" => $mappedWorkerUnitsWithUnit['firstfactor'],
+						"secondfactor" => $mappedWorkerUnitsWithUnit['secondfactor'],
+						"saveselectionids1" => $mappedWorkerUnitsWithUnit['saveselectionids1'],
+						"saveselectionids2" => $mappedWorkerUnitsWithUnit['saveselectionids2'],
+						"confirmids1" => $mappedWorkerUnitsWithUnit['confirmids1'],
+						"confirmids2" => $mappedWorkerUnitsWithUnit['confirmids2'],
+						"sentencefirstfactor" => $mappedWorkerUnitsWithUnit['sentencefirstfactor'],
+						"sentencesecondfactor" => $mappedWorkerUnitsWithUnit['sentencesecondfactor'],
 					];
 				}
 				elseif($taskType == "RelEx")
 				{
 					$entity->content = [
-						"step_1_select_the_valid_relations" => $mappedAnnotationsWithUnit['step_1_select_the_valid_relations'],
-						"step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1" => $mappedAnnotationsWithUnit['step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1'],
-						"step_2b_if_you_selected_none_in_step_1_explain_why" => $mappedAnnotationsWithUnit['step_2b_if_you_selected_none_in_step_1_explain_why']
+						"step_1_select_the_valid_relations" => $mappedWorkerUnitsWithUnit['step_1_select_the_valid_relations'],
+						"step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1" => $mappedWorkerUnitsWithUnit['step_2a_copy__paste_only_the_words_from_the_sentence_that_express_the_relation_you_selected_in_step1'],
+						"step_2b_if_you_selected_none_in_step_1_explain_why" => $mappedWorkerUnitsWithUnit['step_2b_if_you_selected_none_in_step_1_explain_why']
 					];
 				}
 				elseif($taskType == "RelDir")
 				{
 					$entity->content = [
-						"direction" => $mappedAnnotationsWithUnit['direction']
+						"direction" => $mappedWorkerUnitsWithUnit['direction']
 					];
 				}
 

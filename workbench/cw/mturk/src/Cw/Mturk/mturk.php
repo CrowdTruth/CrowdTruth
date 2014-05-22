@@ -272,13 +272,13 @@ class Mturk extends \FrameWork {
 		if (isset($jc['title'])) 			 		 	$hit->setTitle						  	($jc['title']); 
 		if (isset($jc['description'])) 		 			$hit->setDescription					($jc['description']); 
 		if (isset($jc['keywords'])) 					$hit->setKeywords				  		($jc['keywords']);
-		if (isset($jc['annotationsPerUnit'])) 		 	$hit->setMaxAssignments		  			($jc['annotationsPerUnit']);
+		if (isset($jc['workerUnitsPerUnit'])) 		 	$hit->setMaxAssignments		  			($jc['workerUnitsPerUnit']);
 		if (isset($jc['expirationInMinutes']))		 	$hit->setAssignmentDurationInSeconds 	($jc['expirationInMinutes']*60);
 		if (isset($jc['hitLifetimeInMinutes'])) 		$hit->setLifetimeInSeconds		  		($jc['hitLifetimeInMinutes']*60);
 		if (isset($jc['reward'])) 					 	$hit->setReward					  		(array('Amount' => $jc['reward'], 'CurrencyCode' => 'USD'));
 		if (isset($jc['autoApprovalDelayInMinutes'])) 	$hit->setAutoApprovalDelayInSeconds  	($jc['autoApprovalDelayInMinutes']*60); 
 		if (isset($jc['qualificationRequirement']))	$hit->setQualificationRequirement		($jc['qualificationRequirement']);
-		if (isset($jc['requesterAnnotation']))		 	$hit->setRequesterAnnotation			($jc['requesterAnnotation']);
+		if (isset($jc['requesterWorkerUnit']))		 	$hit->setRequesterWorkerUnit			($jc['requesterWorkerUnit']);
 		
 		if (isset($jc['assignmentReviewPolicy']) and
 			isset($jc['assignmentReviewPolicy']['Parameters']) and
@@ -325,7 +325,7 @@ class Mturk extends \FrameWork {
 			'description' 	=> $hit->getDescription(),
 			'keywords'		=> $hit->getKeywords(),
 			'reward'		=> $hit->getReward()['Amount'],
-			'annotationsPerUnit'=> $hit->getMaxAssignments(),
+			'workerUnitsPerUnit'=> $hit->getMaxAssignments(),
 			'expirationInMinutes'	=> intval($hit->getAssignmentDurationInSeconds())/60,
 			'hitLifetimeInMinutes' => intval($hit->getLifetimeInSeconds())/60,
 			'unitsPerTask' => 1, 

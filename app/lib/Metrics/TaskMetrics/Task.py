@@ -88,7 +88,7 @@ class Task:
         workers_clusters = {}
         for job_id in self.jobs_dict:
             api_param = urllib.urlencode({'field[job_id]': job_id,'limit':10000,
-                              'field[documentType]': 'annotation',
+                              'field[documentType]': 'workerUnit',
                               'only[]': 'crowdAgent_id'})
             api_call = urllib2.urlopen(config.server + "?" + api_param)
             response = json.JSONDecoder().decode(api_call.read())
@@ -332,7 +332,7 @@ class Task:
             for spammer in spammers:
                 api_param = urllib.urlencode({'field[job_id]': job_id,'limit':10000,
                                               'field[crowdAgent_id]': spammer,
-                                              'field[documentType]': 'annotation',
+                                              'field[documentType]': 'workerUnit',
                                               'only[]': '_id'})
                 api_call = urllib2.urlopen(config.server + "?" + api_param)
                 response = json.JSONDecoder().decode(api_call.read())

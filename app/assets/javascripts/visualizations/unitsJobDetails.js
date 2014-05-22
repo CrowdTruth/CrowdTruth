@@ -15,7 +15,7 @@ function unitsJobDetails(category , categoryName, openModal) {
         metricName:['unit clarity','unit magnitude']}
     }
 
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
+    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
     var currentSelection = [];
     var currentSelectionInfo = {};
     var pieChartOptions = {};
@@ -121,7 +121,7 @@ function unitsJobDetails(category , categoryName, openModal) {
             for (var indexUnits in currentSelection) {
                 urlUnitInfo += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
             }
-            urlUnitInfo += 'match[documentType][]=annotation&project[job_id]=job_id&push[job_id]=job_id' +
+            urlUnitInfo += 'match[documentType][]=workerUnit&project[job_id]=job_id&push[job_id]=job_id' +
                 '&metrics[]=type&metrics[]=softwareAgent_id&'
             for (var indexMetric in querySettings['metricFields']) {
                 urlUnitInfo += 'metrics[]=metrics.' + querySettings['aggName'] + '.mean.' + querySettings['metricFields'][indexMetric] + '.avg&';
@@ -202,7 +202,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                 }
             },
             title: {
-                text: 'Annotations of ' + categories.length +' Job(s) of ' + currentSelection.length + ' Selected ' +  categoryName + '(s)'
+                text: 'Worker unit s of ' + categories.length +' Job(s) of ' + currentSelection.length + ' Selected ' +  categoryName + '(s)'
             },
             subtitle: {
                 text: 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.'
@@ -242,9 +242,9 @@ function unitsJobDetails(category , categoryName, openModal) {
                         var graph = '';
                         var interval = (event.max - event.min + 1);
                         if (interval == barChart.series[0].data.length) {
-                            title = 'Annotations of ' + interval.toFixed(0) +' Job(s) of ' + currentSelection.length + ' Selected ' +  categoryName + '(s)'
+                            title = 'Worker unit s of ' + interval.toFixed(0) +' Job(s) of ' + currentSelection.length + ' Selected ' +  categoryName + '(s)'
                         } else {
-                            title = 'Annotations of ' + interval.toFixed(0) + '/' + barChart.series[0].data.length +' Job(s) of ' + currentSelection.length + ' Selected ' +  categoryName + '(s)'
+                            title = 'Worker unit s of ' + interval.toFixed(0) + '/' + barChart.series[0].data.length +' Job(s) of ' + currentSelection.length + ' Selected ' +  categoryName + '(s)'
                         }
                         barChart.setTitle({text: title});
                     }
@@ -262,7 +262,7 @@ function unitsJobDetails(category , categoryName, openModal) {
             yAxis: [{
                 min: 0,
                 title: {
-                    text: '# micro tasks per job'
+                    text: '# judgements per job'
                 }
             },
                 {
@@ -302,7 +302,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                         var arrayName = id.split('/');
                         var shortName = arrayName[arrayName.length - 1];
                         if (point.series.name == id){
-                            name =  '# of mTasks';
+                            name =  '# of judgements';
                         } else {
                             name = name;//.substr(shortName.length,name.length);
                         }
@@ -413,7 +413,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                 text: 'Number of Jobs of the ' + currentSelection.length + ' selected ' + categoryName + '(s)'
             },
             subtitle: {
-                text: 'Click a category to see the distribution of annotations per jobs'
+                text: 'Click a category to see the distribution of Worker units per jobs'
             },
             yAxis: {
                 title: {
@@ -519,7 +519,7 @@ function unitsJobDetails(category , categoryName, openModal) {
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
+        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match['+ queryField + '][]=' + selectedUnits[indexUnits] + '&';

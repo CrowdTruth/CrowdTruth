@@ -26,13 +26,13 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                 tooltip: "Number of clear units. Unit Clarity: the value is defined as the maximum unit annotation score achieved on any annotation for that unit. High agreement over the annotations is represented by high cosine scores, indicating a clear unit. Click to select/deselect."},
             'avgUnits': {'color': '#0D58A6', 'field': '', 'name':'avg # of units', 'type': 'spline', 'dashStyle':'shortdot',
                 tooltip: "Average number of units. Click to select/deselect."}},
-        'annotations': {
-            'spamAnnotations': {'color': '#60D4AE', 'field': 'metrics.filteredAnnotations.count', 'name':'# of low quality annotations', 'type': 'column',
-            tooltip: "Number of low quality annotations. Click to select/deselect."},
-            'annotations': {'color': '#207F60', 'field': 'annotationsCount', 'name':'# of high quality annotations', 'type': 'column',
-            tooltip: "Number of high quality annotations. Click to select/deselect."},
-            'avgAnnotations': {'color': '#00AA72', 'field': '', 'name':'avg # of annotations', 'type': 'spline', 'dashStyle':'shortdot',
-                tooltip: "Average number of annotations. Click to select/deselect."}},
+        'judgements': {
+            'spamJudgements': {'color': '#60D4AE', 'field': 'metrics.filteredWorkerUnits.count', 'name':'# of low quality judgements', 'type': 'column',
+            tooltip: "Number of low quality judgements. Click to select/deselect."},
+            'judgements': {'color': '#207F60', 'field': 'workerUnitsCount', 'name':'# of high quality judgements', 'type': 'column',
+            tooltip: "Number of high quality judgements. Click to select/deselect."},
+            'avgWorkerUnits': {'color': '#00AA72', 'field': '', 'name':'avg # of judgements', 'type': 'spline', 'dashStyle':'shortdot',
+                tooltip: "Average number of judgements. Click to select/deselect."}},
         'time': { 'time': {'color': '#FF9E00', 'field': 'runningTimeInSeconds', 'name':'job duration', 'type': 'spline', 'dashStyle':'LongDash',
             tooltip: "Amount of time the job has taken so far (in seconds). Click to select/deselect.",
             'tooltipSufix': { valueSuffix: ' secs' }}},
@@ -379,7 +379,7 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                     },
                     opposite: false
                 };
-                if(key == 'workers' || key =='units' || key == 'annotations')
+                if(key == 'workers' || key =='units' || key == 'judgements')
                     yAxisSettings.opposite = true;
                 //console.dir($scope.chartGeneralOptions.yAxis);
                 chartGeneralOptions.yAxis.push(yAxisSettings);

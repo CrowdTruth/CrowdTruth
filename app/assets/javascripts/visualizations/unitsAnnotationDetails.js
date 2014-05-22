@@ -1,5 +1,5 @@
 function unitsAnnotationDetails(category, categoryName, openModal) {
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
+    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
     var queryField = 'unit_id';
     if (category == '#job_tab'){
         queryField = 'job_id'
@@ -287,8 +287,8 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                                 }
 
                                 anchorModal = $('<a class="testModal"' +
-                                    'data-modal-query="' +  urlBase + '" data-api-target="/api/analytics/annotation?" ' +
-                                    'data-target="#modalAnnotations" data-toggle="tooltip" data-placement="top" title="" ' +
+                                    'data-modal-query="' +  urlBase + '" data-api-target="/api/analytics/workerunit?" ' +
+                                    'data-target="#modalWorkerUnit" data-toggle="tooltip" data-placement="top" title="" ' +
                                     'data-original-title="Click to see the individual worker page">6345558 </a>');
                                 //$('body').append(anchorModal);
                                 openModal(anchorModal, '#twrex-structured-sentence_tab');
@@ -315,7 +315,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
             annotationsURL += '&match[type][]=' + type;
         }
 
-        annotationsURL += '&project[dictionary]=dictionary&group=' + queryField + '&push[dictionary]=dictionary';
+        annotationsURL += '&project[annotationVector]=annotationVector&group=' + queryField + '&push[annotationVector]=annotationVector';
 
         //get the list of workers for this units
         $.getJSON(annotationsURL, function (data) {
@@ -328,8 +328,8 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
                 microtasks = [];
                 var seriesData = {};
-                for (var iterObject in data[iterData]['dictionary']) {
-                    var object = data[iterData]['dictionary'][iterObject];
+                for (var iterObject in data[iterData]['annotationVector']) {
+                    var object = data[iterData]['annotationVector'][iterObject];
                     for (var microTaskKey in object) {
                         if (!(microTaskKey in seriesData)) {
                             microtasks.push(microTaskKey);
@@ -542,7 +542,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=annotation&";
+        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match[' + queryField + '][]=' + selectedUnits[indexUnits] + '&';
