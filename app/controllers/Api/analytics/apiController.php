@@ -321,6 +321,7 @@ class apiController extends BaseController
                 array('$group' => $aggregateOperators['$group'])));
         });
         $response = $selection['result'];
+
         $crowdAgentIDs = array();
         $jobIDs = array();
     $result['workerUnitContent'] = array();

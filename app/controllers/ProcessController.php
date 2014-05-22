@@ -513,9 +513,9 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			return Redirect::to("process/batch");
 		} 
 
-		$currenttemplate = Session::get('template');	
-		
-		if(empty($currenttemplate)){ 
+		$currenttemplate = Session::get('template');
+
+        if(empty($currenttemplate)){
 			if($batch->format=='text')
 				$currenttemplate = 'text/RelDir/relation_direction';
 
@@ -946,8 +946,9 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	private function makeDirTreeJSON($currenttemplate, $format, $pretty = true){
 		$r = array();
 		$path = Config::get('config.templatedir') . $format . '/';
-
 		foreach(File::directories($path) as $dir){
+
+            unset($filename);
 			$dirname = substr($dir, strlen($path));
 		   	if($pretty) $displaydir = ucfirst(str_replace('_', ' ', $dirname));
 		   	else $displaydir = $dirname;
@@ -966,16 +967,15 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				if (isset($filename) and !(in_array($filename, $donefilenames))) {
 		   			if($pretty) $displayname = ucfirst(str_replace('_', ' ', $filename));
 		   			else $displayname = $filename;
-		   			if("$format/$dirname/$filename" == $currenttemplate)
-		   				$r[] = array('id' => $filename, 'parent' => "$format/$dirname", 'text' => $displayname, 'state' => array('selected' => 'true'));
-		   			else
-		   				$r[] = array('id' => $filename, 'parent' => "$format/$dirname", 'text' => $displayname);
+		   			if("$format/$dirname/$filename" == $currenttemplate) {
+		   				$r[] = array('id' => $filename, 'parent' => "$format/$dirname", 'text' => $displayname, 'state' => array('selected' => 'true')); }
+		   			else {
+		   				$r[] = array('id' => $filename, 'parent' => "$format/$dirname", 'text' => $displayname); }
 		   			
 		   			$donefilenames[] = $filename;
 		   		}	
 			}
 		}
-
 //		dd(json_encode($r));
 		return json_encode($r);
 	}

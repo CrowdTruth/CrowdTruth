@@ -288,7 +288,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
                                 anchorModal = $('<a class="testModal"' +
                                     'data-modal-query="' +  urlBase + '" data-api-target="/api/analytics/workerunit?" ' +
-                                    'data-target="#modalWorkerUnit" data-toggle="tooltip" data-placement="top" title="" ' +
+                                    'data-target="#modalWorkerUnits" data-toggle="tooltip" data-placement="top" title="" ' +
                                     'data-original-title="Click to see the individual worker page">6345558 </a>');
                                 //$('body').append(anchorModal);
                                 openModal(anchorModal, '#relex-structured-sentence_tab');

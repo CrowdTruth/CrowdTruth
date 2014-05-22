@@ -15,10 +15,10 @@
 @stop
 
 @section('content')
-<!-- START search_content --> 
+<!-- START search_content -->
 <div class="col-xs-12">
 	<div class='maincolumn CW_box_style'>
-@include('layouts.flashdata')			
+@include('layouts.flashdata')
 
 		<div class='tab'>
 			<div class='row'>
@@ -42,20 +42,20 @@
 								<li><a href="#" onclick="javascript:alert('Mass messaging is currently disabled. Sorry!')">Message workers</a></li>
 							@endif
 						</ul>
-					</div>					
+					</div>
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
 						<option value="10">10 Records per page</option>
 						<option value="25">25 Records per page</option>
 						<option value="50">50 Records per page</option>
 						<option value="100">100 Records per page</option>
-					</select>					
+					</select>
 					<div class='switchViews pull-right' style="margin-right:5px;">
 						<button type="button" class="btn btn-info listViewButton hidden" style="margin-left:5px;">
 							Switch to List View
-						</button>						
+						</button>
 						<button type="button" class="btn btn-info graphViewButton" style="margin-left:5px;">
 							Switch to Graph View
-						</button>						
+						</button>
 					</div>
 				</div>
 				<div class='col-xs-12'>
@@ -64,7 +64,7 @@
 					<div class='cw_pagination pull-right'>
 					</div>
 				</div>
-				<div class='col-xs-12 searchResults'>				
+				<div class='col-xs-12 searchResults'>
 					<ul class="nav nav-tabs documentTypesNav hidden">
 						<li id="all_nav">
 							<a href="#all_tab" data-toggle="tab">
@@ -78,7 +78,7 @@
 								</a>
 							</li>
 						@endif
-					</ul>    								
+					</ul>
 					<div class="tab-content documentTypesTabs">
 						@include('media.search.layouts.hb-all')
 
@@ -88,8 +88,8 @@
 
 						@include('media.search.layouts.hb-modalindividualjob')
 						@include('media.search.layouts.hb-modalworkerUnits')
-						@include('media.search.layouts.hb-modalindividualunit')						
-						
+						@include('media.search.layouts.hb-modalindividualunit')
+
 						<div class='includeGraph hidden'>
                             <table>
                                 <tr class="pieDivGraphs">
@@ -182,7 +182,7 @@
 		</div>
 	</div>
 </div>
-<!-- STOP search_content --> 				
+<!-- STOP search_content -->
 @stop
 
 @section('end_javascript')
@@ -220,7 +220,7 @@ var getSearchLimitValue = function(){
 }
 
 var updateReponsiveTableHeight = function() {
-	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 185 + "px");	
+	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 185 + "px");
 }
 
 var delay = (function(){
@@ -243,8 +243,8 @@ $('.searchOptions').on('change', ".selectpicker", function(){
 				$('.documentTypesNav').find('#' + $(this).val() + '_nav a').click();
 			}
 			getResults();
-			return;				
-		}	
+			return;
+		}
 	}
 
 	if($(this).attr('name') == "search_limit"){
@@ -268,7 +268,7 @@ var initializeSpecificFilter = function() {
 	     template: '<div class="popover tssPopover"><div class="arrow"></div><div class="popover-content"></div></div>'
 	}).on("mouseenter", function () {
 	        var _this = this;
-	        $(this).popover("show"); 
+	        $(this).popover("show");
 	        $(".popover").on("mouseleave", function () {
 	            $(_this).popover('hide');
 	        });
@@ -279,7 +279,7 @@ var initializeSpecificFilter = function() {
 	            $(_this).popover("hide");
 	        }
 	    }, 100);
-	}); 	
+	});
 }
 
 var getGeneralFilterQueries = function() {
@@ -308,7 +308,7 @@ $('.searchOptions .tabOptions').on('click', "[data-vbSelector]", function(){
 	}
 	else
 	{
-		$(this).attr('data-vb', 'show');					
+		$(this).attr('data-vb', 'show');
 		$(this).find('.fa').remove();
 		$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
 	}
@@ -321,7 +321,7 @@ $('body').on('keyup', '.inputFilters input', function(){
 
 	delay(function(){
 		var activeTabKey = getActiveTabKey();
-		selectedRows[activeTabKey] = [];		
+		selectedRows[activeTabKey] = [];
 		inputFilter.attr('data-query-value', inputFilter.val());
 
 		if(inputFilter.val() == "")
@@ -373,7 +373,7 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 		// $('.specificFilters').empty().append($('.tab-pane.active .specificFilterOptions'));
 		// $('.cw_specificFilters').removeClass('hidden');
 		if(templates[activeTabKey] == undefined)
-		{		
+		{
 			getResults();
 		}
 	}
@@ -443,7 +443,7 @@ $('.listViewButton').click(function() {
 	$(this).addClass('hidden');
 	$('.graphViewButton').removeClass('hidden');
 	$('.includeGraph').addClass('hidden');
-	
+
 	$(getActiveTabKey() + ' tbody.results').show();
 });
 
@@ -451,7 +451,7 @@ $('.graphViewButton').click(function() {
 	$(this).addClass('hidden');
 	$('.listViewButton').removeClass('hidden');
 	$('.includeGraph, .specificGraphs').removeClass('hidden');
-	
+
 	$(getActiveTabKey() + ' tbody.results').hide();
 	getResults();
 });
@@ -478,7 +478,7 @@ $('.input-daterange input').on('changeDate', function(e) {
 	console.log('test' + date);
 
 	if(date == "") {
-		$(this).removeAttr('data-query-value');					
+		$(this).removeAttr('data-query-value');
 	} else {
 		$(this).attr('data-query-value', date);
 	}
@@ -613,10 +613,10 @@ function getResults(baseApiURL){
 		// 	title : "default",
 		// 	content : function(){ return $(this).find('.hidden').html() },
  	// 		container: 'body',
-  //           template: '<div class="popover popover-medium"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'			
+  //           template: '<div class="popover popover-medium"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'
 		// });
 
-		if(templates[activeTabKey + 'date'] == undefined) 
+		if(templates[activeTabKey + 'date'] == undefined)
 		{
 			templates[activeTabKey + 'date'] = activeTabKey + 'date';
 		} else {
@@ -624,7 +624,7 @@ function getResults(baseApiURL){
 		}
 
 		initializeVisibleColumns();
-		visibleColumns();		
+		visibleColumns();
 
 
 
@@ -705,7 +705,7 @@ var visibleColumns = function(){
 		{
 			vbSelector.addClass('hidden');
 		}
-	});	
+	});
 
 	// initializeFixedThead();
 }
@@ -719,7 +719,7 @@ var initializeFixedThead = function(){
 				return $table.closest('.ctable-responsive');
 			},
 			useAbsolutePositioning: false
-		});			
+		});
 	} else {
 		fixedThead.trigger('reflow');
 	}
@@ -732,7 +732,7 @@ var updateFilters = function(filterOption){
 	} else {
 		filterOption.closest('li').addClass('active');
 		filterOption.children('i').removeClass('fa-circle-o').addClass('fa-check-circle-o');
-	}	
+	}
 }
 
 var openModal = function(modalAnchor , activeTabKey){
@@ -751,7 +751,7 @@ var openModal = function(modalAnchor , activeTabKey){
     console.log(baseApiURL + query);
     $.getJSON(baseApiURL + query, function(data) {
         console.dir(activeTabKey);
-        
+
         var template = Handlebars.compile($(modalTarget + ' .template').html());
 
         var html = template(data);
@@ -846,7 +846,7 @@ var openStaticModal = function(modalAnchor , activeTabKey){
 		//rel=static-val or static-inner
 		$('span[rel="static-html"]').html(staticData);
 		$('input[rel="static-val"]').val(staticData);
-   
+
 
         $(".ajaxform").submit(function(e)
 		{
@@ -857,15 +857,15 @@ var openStaticModal = function(modalAnchor , activeTabKey){
 		        url : formURL,
 		        type: "POST",
 		        data : postData,
-		        success:function(data, textStatus, jqXHR) 
+		        success:function(data, textStatus, jqXHR)
 		        {
 	            	console.log(data);
 	            	alert(data.message);
-		            	
+
 		        },
-		        error: function(jqXHR, textStatus, errorThrown) 
+		        error: function(jqXHR, textStatus, errorThrown)
 		        {
-		            console.log(errorThrown);     
+		            console.log(errorThrown);
 		        }
 		    });
 		    e.preventDefault(); //STOP default action
@@ -896,7 +896,7 @@ function jobactions(job, action, index){
  	if(action == 'pause') newstatus = 'paused';
  	else if(action == 'order' || action == 'resume') newstatus = 'running';
  	else if(action == 'cancel') newstatus = 'canceled';
-	
+
 	if(action=='cancel'){
 		if(!confirm('Do you really want to '+action+' job '+job+'?')){
 			return false;
@@ -908,7 +908,7 @@ function jobactions(job, action, index){
 		        type: "GET",
 		        success:function(data, textStatus, jqXHR)
 					{
-							           
+
 						console.log(data);
 
 						if(data.status=='ok'){
@@ -917,11 +917,11 @@ function jobactions(job, action, index){
 						} else {
 							alert(data.message);
 						}
-							    
+
 					},
-		        error: function(jqXHR, textStatus, errorThrown) 
+		        error: function(jqXHR, textStatus, errorThrown)
 		        {
-		            alert(errorThrown);     
+		            alert(errorThrown);
 		        }
 		    });
 }
