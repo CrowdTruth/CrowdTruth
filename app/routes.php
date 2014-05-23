@@ -8,7 +8,7 @@
 Route::group(array('before' => 'auth'), function()
 {
 	Route::controller('media/preprocess/fullvideo', 'preprocess\FullvideoController');
-	Route::controller('media/preprocess/twrex', 'preprocess\TwrexController');
+	Route::controller('media/preprocess/relex', 'preprocess\RelexController');
 	Route::controller('media/preprocess/CSVresultController', 'preprocess\CSVresultController');
 	Route::controller('media', 'MediaController');
 

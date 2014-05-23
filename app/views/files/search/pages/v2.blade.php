@@ -129,8 +129,8 @@
 											@include('files.search.layouts.jobconf')
 										@endif
 
-										@if(isset($mainSearchFilters['documentTypes']['twrex']))
-											@include('files.search.layouts.twrex')
+										@if(isset($mainSearchFilters['documentTypes']['relex']))
+											@include('files.search.layouts.relex')
 										@endif
 
 										@if(isset($mainSearchFilters['documentTypes']['relex-structured-sentence']))

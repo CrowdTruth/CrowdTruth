@@ -46,7 +46,7 @@
 										<div class='table-responsive col-sm-9'>
 											<table class='table table-striped datatable_content'>
 												<thead>
-													<tr data-field-query="field[documentType][]=twrex">
+													<tr data-field-query="field[documentType][]=relex">
 														<th>Included</th>	
 														<th>ID</th>	
 													</tr>

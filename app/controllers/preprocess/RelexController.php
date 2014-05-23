@@ -6,8 +6,8 @@ use \MongoDB\Repository as Repository;
 use \preprocess\RelexStructurer as RelexStructurer;
 use BaseController, Cart, View, App, Input, Redirect, Session;
 
-class TwrexController extends BaseController {
-
+class RelexController extends BaseController {
+//RelexController
 	protected $repository;
 	protected $relexStructurer;
 
@@ -19,24 +19,24 @@ class TwrexController extends BaseController {
 
 	public function getIndex()
 	{
-		return Redirect::to('media/preprocess/jobs/actions');
+		return Redirect::to('media/preprocess/relex/actions');
 	}
 
 	public function getInfo()
 	{
-		return View::make('media.preprocess.jobs.pages.info');
+		return View::make('media.preprocess.relex.pages.info');
 	}
 
 	public function getActions()
 	{
-		$entities = \MongoDB\Entity::where('documentType', 'jobs')->get();
+		$entities = \MongoDB\Entity::where('documentType', 'relex')->get();
 
 		if(count($entities) > 0)
 		{
-			return View::make('media.preprocess.jobs.pages.actions', compact('entities'));
+			return View::make('media.preprocess.relex.pages.actions', compact('entities'));
 		}
 
-		return Redirect::to('media/upload')->with('flashNotice', 'You have not uploaded any "twrex" documents yet');
+		return Redirect::to('media/upload')->with('flashNotice', 'You have not uploaded any "relex" documents yet');
 	}
 
 	public function getPreview()
@@ -44,7 +44,7 @@ class TwrexController extends BaseController {
 		if($URI = Input::get('URI'))
 		{
 			if($entity = $this->repository->find($URI)) {
-				if($entity->documentType != "twrex")
+				if($entity->documentType != "relex")
 				{
 					continue;
 				}
@@ -52,7 +52,7 @@ class TwrexController extends BaseController {
 				$document = $this->relexStructurer->process($entity, true);
 				// print_r($document);
 				// exit;
-				return View::make('media.preprocess.twrex.pages.view', array('entity' => $entity, 'lines' => $document));
+				return View::make('media.preprocess.relex.pages.view', array('entity' => $entity, 'lines' => $document));
 			}
 		} 
 		else 
@@ -66,7 +66,7 @@ class TwrexController extends BaseController {
 		if($URI = Input::get('URI'))
 		{
 			if($entity = $this->repository->find($URI)) {
-				if($entity->documentType != "twrex")
+				if($entity->documentType != "relex")
 				{
 					continue;
 				}

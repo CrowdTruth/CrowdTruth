@@ -1,8 +1,8 @@
-@extends('preprocess.fullvideo.layouts.default')
+@extends('preprocess.relex.layouts.default')
 
 @section('colWidth', 'col-xs-12')
-@section('fullvideoContent')
-				<!-- START preprocess/fullvideo/actions --> 
+@section('relexContent')
+				<!-- START preprocess/relex/actions -->
 
 							<div class='table-responsive'>
 								<table class='table table-striped'>
@@ -20,7 +20,7 @@
 									<tr>
 										<td style="width:40%">
 											<div class='btn-group'>
-												<a class='btn btn-default btn-sm col-xs-9' href='{{ URL::to('files/view?URI=' . $entity['_id']) }}'>
+												<a class='btn btn-default btn-sm col-xs-9' href='{{ URL::to('media/view?URI=' . $entity['_id']) }}'>
 													<i class='fa fa-file-text fa-fw'></i>
 													<span>{{ $entity['title'] }}</span>
 												</a>
@@ -28,7 +28,7 @@
 													<span class='fa fa-caret-down fa-fw'></span>
 												</a>
 												<ul class='dropdown-menu pull-right'>
-													<li><a href='{{ URL::to('files/view?URI=' . $entity['_id']) }}'><i class='fa fa-file-text-o fa-fw'></i>View</a></li>
+													<li><a href='{{ URL::to('media/view?URI=' . $entity['_id']) }}'><i class='fa fa-file-text-o fa-fw'></i>View</a></li>
 													<!-- <li><a class='update_selection' href='{{ URL::to('selection/remove?selectionID=' . $entity['rowid']) }}'><i class='fa fa-trash-o fa-fw'></i>Remove from selection</a></li> -->
 												</ul>
 												</div>
@@ -36,8 +36,8 @@
 										<td>{{ $entity->created_at }}</td>
 										<td>{{ link_to('#', $entity->wasAttributedToUserAgent->firstname . ' ' . $entity->wasAttributedToUserAgent->lastname) }}</td>										
 										<td>
-<a class='btn btn-success' href='{{ URL::to('preprocess/fullvideo/preview?URI=' . $entity['_id']) }}'><i class="fa fa-search fa-fw"></i>Preview</a>
-<a class='btn btn-success' href='{{ URL::to('preprocess/fullvideo/process?URI=' . $entity['_id']) }}'><i class="fa fa-gear fa-fw"></i>Process</a>
+<a class='btn btn-success' href='{{ URL::to('media/preprocess/relex/preview?URI=' . $entity['_id']) }}'><i class="fa fa-search fa-fw"></i>Preview</a>
+<a class='btn btn-success' href='{{ URL::to('media/preprocess/relex/process?URI=' . $entity['_id']) }}'><i class="fa fa-gear fa-fw"></i>Process</a>
 										</td>
 									</tr>
 								@endforeach
@@ -47,11 +47,11 @@
 										<td>&nbsp;</td>
 										<td>
 <a class='btn' href='#' style='visibility:hidden;'><i class="fa fa-plus-circle fa-fw"></i>Preview</a>
-<a class='btn btn-success' href='{{ URL::to('preprocess/relex/process?URI=' . $entity['_id']) }}'><i class="fa fa-gears fa-fw"></i>Process All</a>
+<a class='btn btn-success' href='{{ URL::to('media/preprocess/relex/process?URI=' . $entity['_id']) }}'><i class="fa fa-gears fa-fw"></i>Process All</a>
 										</td>
 									</tr>
 									</tbody>
 								</table>
 							</div>
-				<!-- STOP preprocess/fullvideo/actions --> 				
+				<!-- STOP preprocess/relex/actions -->
 @stop

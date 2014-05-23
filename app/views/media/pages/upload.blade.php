@@ -79,7 +79,7 @@
 										<div class="col-sm-5">
 											<select name="document_type" class="form-control" id="document_type">
 												<option value="">--</option>
-												<option value="document_type_twrex" class="domain_type_medical">TWrex</option>
+												<option value="document_type_relex" class="domain_type_medical">RElex</option>
 												<option value="document_type_csvresult" class="domain_type_medical">CSVResult</option>
 												<option value="document_type_article" class="domain_type_medical domain_type_news">Article</option>
 												<option value="document_type_book" class="domain_type_other">Book</option>

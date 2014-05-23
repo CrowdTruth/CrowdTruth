@@ -167,8 +167,8 @@
 							@include('media.search.layouts.hb-crowdagents')
 						@endif
 
-						@if(isset($mainSearchFilters['documentTypes']['twrex']))
-							@include('media.search.layouts.twrex')
+						@if(isset($mainSearchFilters['documentTypes']['relex']))
+							@include('media.search.layouts.relex')
 						@endif
 
 						@if(isset($mainSearchFilters['documentTypes']['relex-structured-sentence']))

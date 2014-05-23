@@ -53,7 +53,7 @@
 								<div class="btn-group" id='relationOutsideTerms'>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationOutsideTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationOutsideTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
-								  <button type="button" class="btn btn-sm btn-info active twrexNone">Not Applied</button>
+								  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
 								</div>
 							</td>
 						</tr>
@@ -63,7 +63,7 @@
 								<div class="btn-group" id='relationBetweenTerms'>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationBetweenTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationBetweenTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
-								  <button type="button" class="btn btn-sm btn-info active twrexNone">Not Applied</button>
+								  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
 								</div>
 							</td>
 						</tr>
@@ -73,7 +73,7 @@
 								<div class="btn-group" id='semicolonBetweenTerms'>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.semicolonBetweenTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.semicolonBetweenTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
-								  <button type="button" class="btn btn-sm btn-info active twrexNone">Not Applied</button>
+								  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
 								</div>
 							</td>
 						</tr>
@@ -83,7 +83,7 @@
 								<div class="btn-group" id='commaSeparatedTerms'>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.commaSeparatedTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.commaSeparatedTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
-								  <button type="button" class="btn btn-sm btn-info active twrexNone">Not Applied</button>
+								  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
 								</div>
 							</td>
 						</tr>
@@ -93,7 +93,7 @@
 								<div class="btn-group" id='parenthesisAroundTerms'>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.parenthesisAroundTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.parenthesisAroundTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
-								  <button type="button" class="btn btn-sm btn-info active twrexNone">Not Applied</button>
+								  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
 								</div>
 							</td>
 						</tr>
@@ -103,7 +103,7 @@
 								<div class="btn-group" id='overlappingTerms'>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.overlappingTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
 								  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.overlappingTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
-								  <button type="button" class="btn btn-sm btn-info active twrexNone">Not Applied</button>
+								  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
 								</div>
 							</td>
 						</tr>

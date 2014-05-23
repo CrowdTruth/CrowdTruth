@@ -141,7 +141,7 @@ class Temp extends Moloquent {
                                                                 "label" => "All units"
                                                                 ];
         
-        unset($mainSearchFilters['media']['documentTypes']['twrex']);
+        unset($mainSearchFilters['media']['documentTypes']['relex']);
 
         $mainSearchFilters['job']['count'] = Entity::where('documentType', 'job')->count();
         $mainSearchFilters['workers']['count'] = \MongoDB\CrowdAgent::all()->count();

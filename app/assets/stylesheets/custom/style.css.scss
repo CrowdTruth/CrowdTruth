@@ -110,7 +110,7 @@ body {
 	vertical-align: middle !important;
 }
 
-.selectionPopover, .twrexFiltersPopover {
+.selectionPopover, .relexFiltersPopover {
 	max-width:none;
 	padding:5;
 	margin:0;
@@ -187,26 +187,26 @@ tr.tablesorter-filter-row input.disabled {
     display: none;
 }
 
-.twrexContent {
+.relexContent {
 	th,
 	td:not(.sentence) {
 		min-width:40px;
 		text-align:center;
 	}
 
-	.twrexFilters {
+	.relexFilters {
 		display:none;
 		max-width:0px !important;
 	}
 }
 
-.twrexFiltersControls {
+.relexFiltersControls {
 	td {
 		vertical-align: middle;
 	}
 }
 
-.twrexSubmit {
+.relexSubmit {
 	display:none;
 }
 

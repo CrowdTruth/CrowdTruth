@@ -175,7 +175,7 @@ class FullvideoStructurer {
 				$entity->source = $parentEntity->source;
 				$entity->content = $keyframeExtraction[$i];
 
-				//unset($twrexStructuredSentenceKeyVal['properties']);
+				//unset($relexStructuredSentenceKeyVal['properties']);
 				$entity->hash = md5(serialize($keyframeExtraction[$i]));
 				$entity->activity_id = $activity->_id;
 				$entity->save();
@@ -234,7 +234,7 @@ class FullvideoStructurer {
 				$entity->source = $parentEntity->source;
 				$entity->content = $videoSegmenting[$i];
 
-				//unset($twrexStructuredSentenceKeyVal['properties']);
+				//unset($relexStructuredSentenceKeyVal['properties']);
 				$entity->hash = md5(serialize($videoSegmenting[$i]));
 				$entity->activity_id = $activity->_id;
 				$entity->save();

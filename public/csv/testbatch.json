@@ -5,13 +5,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/0",
+        "parent_id": "entity/text/medical/relex/0",
         "ancestors": [
-            "entity/text/medical/twrex/0"
+            "entity/text/medical/relex/0"
         ],
         "content": {
             "relation": {
-                "original": "twrex-cause",
+                "original": "relex-cause",
                 "noPrefix": "cause"
             },
             "terms": {
@@ -53,13 +53,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/0",
+        "parent_id": "entity/text/medical/relex/0",
         "ancestors": [
-            "entity/text/medical/twrex/0"
+            "entity/text/medical/relex/0"
         ],
         "content": {
             "relation": {
-                "original": "twrex-cause",
+                "original": "relex-cause",
                 "noPrefix": "cause"
             },
             "terms": {
@@ -101,13 +101,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/0",
+        "parent_id": "entity/text/medical/relex/0",
         "ancestors": [
-            "entity/text/medical/twrex/0"
+            "entity/text/medical/relex/0"
         ],
         "content": {
             "relation": {
-                "original": "twrex-cause",
+                "original": "relex-cause",
                 "noPrefix": "cause"
             },
             "terms": {
@@ -149,13 +149,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/1",
+        "parent_id": "entity/text/medical/relex/1",
         "ancestors": [
-            "entity/text/medical/twrex/1"
+            "entity/text/medical/relex/1"
         ],
         "content": {
             "relation": {
-                "original": "twrex-contraindicated",
+                "original": "relex-contraindicated",
                 "noPrefix": "contraindicated"
             },
             "terms": {
@@ -197,13 +197,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/1",
+        "parent_id": "entity/text/medical/relex/1",
         "ancestors": [
-            "entity/text/medical/twrex/1"
+            "entity/text/medical/relex/1"
         ],
         "content": {
             "relation": {
-                "original": "twrex-contraindicated",
+                "original": "relex-contraindicated",
                 "noPrefix": "contraindicated"
             },
             "terms": {
@@ -245,13 +245,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/1",
+        "parent_id": "entity/text/medical/relex/1",
         "ancestors": [
-            "entity/text/medical/twrex/1"
+            "entity/text/medical/relex/1"
         ],
         "content": {
             "relation": {
-                "original": "twrex-contraindicated",
+                "original": "relex-contraindicated",
                 "noPrefix": "contraindicated"
             },
             "terms": {
@@ -293,13 +293,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/1",
+        "parent_id": "entity/text/medical/relex/1",
         "ancestors": [
-            "entity/text/medical/twrex/1"
+            "entity/text/medical/relex/1"
         ],
         "content": {
             "relation": {
-                "original": "twrex-contraindicated",
+                "original": "relex-contraindicated",
                 "noPrefix": "contraindicated"
             },
             "terms": {
@@ -341,13 +341,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/1",
+        "parent_id": "entity/text/medical/relex/1",
         "ancestors": [
-            "entity/text/medical/twrex/1"
+            "entity/text/medical/relex/1"
         ],
         "content": {
             "relation": {
-                "original": "twrex-contraindicated",
+                "original": "relex-contraindicated",
                 "noPrefix": "contraindicated"
             },
             "terms": {
@@ -389,13 +389,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/1",
+        "parent_id": "entity/text/medical/relex/1",
         "ancestors": [
-            "entity/text/medical/twrex/1"
+            "entity/text/medical/relex/1"
         ],
         "content": {
             "relation": {
-                "original": "twrex-contraindicated",
+                "original": "relex-contraindicated",
                 "noPrefix": "contraindicated"
             },
             "terms": {
@@ -437,13 +437,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/1",
+        "parent_id": "entity/text/medical/relex/1",
         "ancestors": [
-            "entity/text/medical/twrex/1"
+            "entity/text/medical/relex/1"
         ],
         "content": {
             "relation": {
-                "original": "twrex-contraindicated",
+                "original": "relex-contraindicated",
                 "noPrefix": "contraindicated"
             },
             "terms": {
@@ -485,13 +485,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/1",
+        "parent_id": "entity/text/medical/relex/1",
         "ancestors": [
-            "entity/text/medical/twrex/1"
+            "entity/text/medical/relex/1"
         ],
         "content": {
             "relation": {
-                "original": "twrex-contraindicated",
+                "original": "relex-contraindicated",
                 "noPrefix": "contraindicated"
             },
             "terms": {
@@ -533,13 +533,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/1",
+        "parent_id": "entity/text/medical/relex/1",
         "ancestors": [
-            "entity/text/medical/twrex/1"
+            "entity/text/medical/relex/1"
         ],
         "content": {
             "relation": {
-                "original": "twrex-contraindicated",
+                "original": "relex-contraindicated",
                 "noPrefix": "contraindicated"
             },
             "terms": {
@@ -581,13 +581,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/1",
+        "parent_id": "entity/text/medical/relex/1",
         "ancestors": [
-            "entity/text/medical/twrex/1"
+            "entity/text/medical/relex/1"
         ],
         "content": {
             "relation": {
-                "original": "twrex-contraindicated",
+                "original": "relex-contraindicated",
                 "noPrefix": "contraindicated"
             },
             "terms": {
@@ -629,13 +629,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/1",
+        "parent_id": "entity/text/medical/relex/1",
         "ancestors": [
-            "entity/text/medical/twrex/1"
+            "entity/text/medical/relex/1"
         ],
         "content": {
             "relation": {
-                "original": "twrex-contraindicated",
+                "original": "relex-contraindicated",
                 "noPrefix": "contraindicated"
             },
             "terms": {
@@ -677,13 +677,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/2",
+        "parent_id": "entity/text/medical/relex/2",
         "ancestors": [
-            "entity/text/medical/twrex/2"
+            "entity/text/medical/relex/2"
         ],
         "content": {
             "relation": {
-                "original": "twrex-diagnose",
+                "original": "relex-diagnose",
                 "noPrefix": "diagnose"
             },
             "terms": {
@@ -725,13 +725,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/3",
+        "parent_id": "entity/text/medical/relex/3",
         "ancestors": [
-            "entity/text/medical/twrex/3"
+            "entity/text/medical/relex/3"
         ],
         "content": {
             "relation": {
-                "original": "twrex-location",
+                "original": "relex-location",
                 "noPrefix": "location"
             },
             "terms": {
@@ -773,13 +773,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/3",
+        "parent_id": "entity/text/medical/relex/3",
         "ancestors": [
-            "entity/text/medical/twrex/3"
+            "entity/text/medical/relex/3"
         ],
         "content": {
             "relation": {
-                "original": "twrex-location",
+                "original": "relex-location",
                 "noPrefix": "location"
             },
             "terms": {
@@ -821,13 +821,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/3",
+        "parent_id": "entity/text/medical/relex/3",
         "ancestors": [
-            "entity/text/medical/twrex/3"
+            "entity/text/medical/relex/3"
         ],
         "content": {
             "relation": {
-                "original": "twrex-location",
+                "original": "relex-location",
                 "noPrefix": "location"
             },
             "terms": {
@@ -869,13 +869,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/3",
+        "parent_id": "entity/text/medical/relex/3",
         "ancestors": [
-            "entity/text/medical/twrex/3"
+            "entity/text/medical/relex/3"
         ],
         "content": {
             "relation": {
-                "original": "twrex-location",
+                "original": "relex-location",
                 "noPrefix": "location"
             },
             "terms": {
@@ -917,13 +917,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/3",
+        "parent_id": "entity/text/medical/relex/3",
         "ancestors": [
-            "entity/text/medical/twrex/3"
+            "entity/text/medical/relex/3"
         ],
         "content": {
             "relation": {
-                "original": "twrex-location",
+                "original": "relex-location",
                 "noPrefix": "location"
             },
             "terms": {
@@ -965,13 +965,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/3",
+        "parent_id": "entity/text/medical/relex/3",
         "ancestors": [
-            "entity/text/medical/twrex/3"
+            "entity/text/medical/relex/3"
         ],
         "content": {
             "relation": {
-                "original": "twrex-location",
+                "original": "relex-location",
                 "noPrefix": "location"
             },
             "terms": {
@@ -1013,13 +1013,13 @@
         "domain": "medical",
         "format": "text",
         "documentType": "relex-structured-sentence",
-        "parent_id": "entity/text/medical/twrex/4",
+        "parent_id": "entity/text/medical/relex/4",
         "ancestors": [
-            "entity/text/medical/twrex/4"
+            "entity/text/medical/relex/4"
         ],
         "content": {
             "relation": {
-                "original": "twrex-prevent",
+                "original": "relex-prevent",
                 "noPrefix": "prevent"
             },
             "terms": {

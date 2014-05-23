@@ -1,9 +1,9 @@
-@extends('preprocess.twrex.layouts.default')
+@extends('preprocess.relex.layouts.default')
 
 @section('colWidth', 'col-xs-12')
-@section('twrexContent')
+@section('relexContent')
 
-@include('files.view.text.layouts.twrex_content')
+@include('files.view.text.layouts.relex_content')
 
 @stop
 

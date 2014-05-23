@@ -21,7 +21,7 @@ class MediaController extends BaseController {
         return View::make('media.pages.upload');
 	}
 
-	public function getPreprocess($action = "twrex")
+	public function getPreprocess($action = "relex")
 	{
 		return Redirect::to('media/preprocess/' . $action);
 	}	

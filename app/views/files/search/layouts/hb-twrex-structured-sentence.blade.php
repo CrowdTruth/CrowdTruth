@@ -49,7 +49,7 @@
 					<div class="btn-group" id='relationOutsideTerms'>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.relationOutsideTerms]" data-query-value="1">With</button>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.relationOutsideTerms]" data-query-value="0">Without</button>
-					  <button type="button" class="btn btn-sm btn-success active twrexNone">Not Applied</button>
+					  <button type="button" class="btn btn-sm btn-success active relexNone">Not Applied</button>
 					</div>
 				</td>
 			</tr>
@@ -59,7 +59,7 @@
 					<div class="btn-group" id='relationBetweenTerms'>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.relationBetweenTerms]" data-query-value="1">With</button>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.relationBetweenTerms]" data-query-value="0">Without</button>
-					  <button type="button" class="btn btn-sm btn-success active twrexNone">Not Applied</button>
+					  <button type="button" class="btn btn-sm btn-success active relexNone">Not Applied</button>
 					</div>
 				</td>
 			</tr>
@@ -69,7 +69,7 @@
 					<div class="btn-group" id='semicolonBetweenTerms'>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.semicolonBetweenTerms]" data-query-value="1">With</button>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.semicolonBetweenTerms]" data-query-value="0">Without</button>
-					  <button type="button" class="btn btn-sm btn-success active twrexNone">Not Applied</button>
+					  <button type="button" class="btn btn-sm btn-success active relexNone">Not Applied</button>
 					</div>
 				</td>
 			</tr>
@@ -79,7 +79,7 @@
 					<div class="btn-group" id='commaSeparatedTerms'>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.commaSeparatedTerms]" data-query-value="1">With</button>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.commaSeparatedTerms]" data-query-value="0">Without</button>
-					  <button type="button" class="btn btn-sm btn-success active twrexNone">Not Applied</button>
+					  <button type="button" class="btn btn-sm btn-success active relexNone">Not Applied</button>
 					</div>
 				</td>
 			</tr>
@@ -89,7 +89,7 @@
 					<div class="btn-group" id='parenthesisAroundTerms'>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.parenthesisAroundTerms]" data-query-value="1">With</button>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.parenthesisAroundTerms]" data-query-value="0">Without</button>
-					  <button type="button" class="btn btn-sm btn-success active twrexNone">Not Applied</button>
+					  <button type="button" class="btn btn-sm btn-success active relexNone">Not Applied</button>
 					</div>
 				</td>
 			</tr>
@@ -99,7 +99,7 @@
 					<div class="btn-group" id='overlappingTerms'>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.overlappingTerms]" data-query-value="1">With</button>
 					  <button type="button" class="btn btn-sm btn-info" data-query-key="field[content.properties.overlappingTerms]" data-query-value="0">Without</button>
-					  <button type="button" class="btn btn-sm btn-success active twrexNone">Not Applied</button>
+					  <button type="button" class="btn btn-sm btn-success active relexNone">Not Applied</button>
 					</div>
 				</td>
 			</tr>
