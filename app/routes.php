@@ -8,10 +8,11 @@
 Route::group(array('before' => 'auth'), function()
 {
 	Route::controller('media/preprocess/fullvideo', 'preprocess\FullvideoController');
-	Route::controller('media/preprocess/relex', 'preprocess\RelexController');
+	Route::controller('media/preprocess/twrex', 'preprocess\TwrexController');
 	Route::controller('media/preprocess/CSVresultController', 'preprocess\CSVresultController');
 	Route::controller('media', 'MediaController');
 
+	Route::controller('process', 'ProcessController');
 	Route::controller('jobs', 'JobsController');
 	Route::controller('workers', 'WorkersController');
     Route::controller('analyze','AnalyticsController');
@@ -21,6 +22,40 @@ Route::group(array('before' => 'auth'), function()
 
 Route::get('/', function()
 {
+
+    return Redirect::to('home');
+});
+
+Route::get('/urlsurls', function()
+{
+	echo '-------- paintings -------' . PHP_EOL;
+	$results = \MongoDB\Entity::whereIn('documentType', ['painting'])->get(['content.url']);
+	$results2 = \MongoDB\Entity::whereIn('documentType', ['drawing'])->get(['content.url']);
+
+	foreach($results as $result)
+	{	
+
+		echo $result['content']['url'] . PHP_EOL;
+		echo $result['_id'] . PHP_EOL;
+	}
+	echo PHP_EOL . PHP_EOL;
+	echo '-------- drawings-------' . PHP_EOL;
+	foreach($results2 as $result)
+	{
+		echo $result['content']['url'] . PHP_EOL;
+	    echo $result['_id'] . PHP_EOL;
+	}
+    echo PHP_EOL . PHP_EOL . "[";
+	$results = \MongoDB\Entity::whereIn('documentType', ['painting','drawing'])->get();
+	foreach($results as $result)
+	{	
+		echo $result . ",". PHP_EOL;
+
+	}
+    echo "]";
+
+	exit;
+
     return Redirect::to('home');
 });
 

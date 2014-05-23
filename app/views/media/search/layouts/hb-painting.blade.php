@@ -9,22 +9,22 @@
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="#" data-vb="show" data-vbSelector="image_id"></i>ID</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_id"></i>ID</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="image_content"></i>Thumbnail</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="image_title"></i>Title</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_description"></i>Description</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_description"></i>Description</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="image_author"></i>Author</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_domain"></i>Domain</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_domain"></i>Domain</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="image_source"></i>Source</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="image_url"></i>URL</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_width"></i>Width</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="image_height"></i>Height</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_object"></i>Object</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_scene"></i>Scene</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_classifiers"></i>Classifiers</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_facesnum"># of Faces</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_colors">Main colors</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="image_histogram"></i>Histogram</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_width"></i>Width</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="image_height"></i>Height</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_object"></i>Object</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_scene"></i>Scene</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_classifiers"></i>Classifiers</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_facesnum"># of Faces</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_colors">Main colors</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="image_histogram"></i>Histogram</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i>Used In # of Batches</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i>Used In # of Jobs</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created At</a></li>
@@ -149,7 +149,7 @@
 			            	
 			              @{{#if  this.content.features.object}}
 				            	@{{#eachProperty this.content.features.object}}
-				            		@{{value.tag}}: @{{value.score}} <br>			            		
+				            		@{{value.label}}: @{{value.score}} <br>			            		
 				            	@{{/eachProperty}}
 
        			 		   @{{/if}}
@@ -162,20 +162,36 @@
 			            	@{{/if}}
 		            	</td>
 			            <td data-vbIdentifier="image_classifiers">
-			            	@{{#if this.content.features.Classifier}}
-				            	@{{#eachProperty this.content.features.Classifier }}
-				            		@{{key}}: @{{value}}
+			            	@{{#if this.content.features.classifier}}
+				            	@{{#eachProperty this.content.features.classifier }}
+				            		@{{value.label}}: @{{value.score}}
 			            		@{{/eachProperty}}
 		            		@{{/if}}
 	            	   </td>
-			            <td data-vbIdentifier="image_facesnum">@{{ this.content.features.FacesNumber}}    	</td>
+			           
+
+ 						
+						
+						<td data-vbIdentifier="image_facesnum">
+			            	@{{#if this.content.features.faces}}
+				            	@{{#eachProperty this.content.features.faces }}
+
+
+				            		@{{#is value.label "facesNumber"}}
+				            			@{{value.label}}: @{{value.score}}
+				            		@{{/is}}
+			            		@{{/eachProperty}}
+		            		@{{/if}}
+	            	   </td>
+
+
 			            <td data-vbIdentifier="image_colors">								    	
 				    		@{{#if this.content.features.ColorsMain}}
 				            	<table class="table table-striped table-condensed" style="height: 50px;">						    
 							    	<tbody>
 										<tr>
 								    			@{{#each this.content.features.ColorsMain }}
-													<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
+													<td style='background:@{{ this.label }}; width:@{{ this.score }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{this.label}}, @{{this.score}}% ">
 														&nbsp;
 													</td>
 												@{{/each}}									
@@ -190,7 +206,7 @@
 							    	<tbody>
 										<tr>
 								    		@{{#each this.content.features.ColorsHistogram }}
-												<td style='background:@{{ first this }}; width:@{{ last this }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{first this}}, @{{last this}}% ">
+												<td style='background:@{{ this.label }}; width:@{{ this.score }}%; padding: 0 0 0 0;' data-toggle="tooltip" data-placement="top" title=" @{{this.label}}, @{{this.score}}% ">
 													&nbsp;
 												</td>
 											@{{/each}}									
