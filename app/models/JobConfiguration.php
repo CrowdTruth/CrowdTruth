@@ -110,7 +110,7 @@ class JobConfiguration extends Entity {
 		    	$rules = array_merge($rules, $platform->getJobConfValidationRules());
 		    }	
    	 	} else {
-   	 		$this->errors->add('platform', 'Please provide at least one <a href="/process/platform">platform</a>.');
+   	 		$this->errors->add('platform', 'Please provide at least one <a href="/job/platform">platform</a>.');
    	 		$isok = false;
    	 	}
 

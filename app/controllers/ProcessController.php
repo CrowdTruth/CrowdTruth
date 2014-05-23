@@ -15,11 +15,14 @@ This class should be completely rewritten to
 
 */
 
-class ProcessController extends BaseController {
+class JobsController extends BaseController {
 
-	public function getIndex() {
-        return Redirect::to('process/batch');
-	}
+    public function getIndex()
+    {
+        $mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
+
+        return View::make('media.search.pages.jobs', compact('mainSearchFilters'));
+    }
 
 	public function getTemplatebuilder(){
 		return View::make('process.tabs.templatebuilder');
@@ -502,7 +505,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 
 		else $selectedbatchid = $batch->_id;
-		return View::make('process.tabs.batch')->with('batches', $batches)->with('selectedbatchid', $selectedbatchid);
+		return View::make('job.tabs.batch')->with('batches', $batches)->with('selectedbatchid', $selectedbatchid);
 	}
 
 	public function getTemplate() {
@@ -510,7 +513,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch){
 			Session::flash('flashNotice', 'Please select a batch first.');
-			return Redirect::to("process/batch");
+			return Redirect::to("job/batch");
 		} 
 
 		$currenttemplate = Session::get('template');
@@ -527,7 +530,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 		$treejson = $this->makeDirTreeJSON($currenttemplate, $batch->format);
 
-		return View::make('process.tabs.template')
+		return View::make('job.tabs.template')
 			->with('treejson', $treejson)
 			->with('currenttemplate', $currenttemplate)
 			->with('format', $batch->format);
@@ -562,7 +565,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			elseif(count($diff) > 1)
 				Session::flash('flashNotice', 'Fields \'' . implode('\', \'', $diff) . '\' are in the answerkey but not in the HTML template.');
 */
-		return View::make('process.tabs.details')
+		return View::make('job.tabs.details')
 			->with('jobconf', $jc->content)
 			->with('goldfields', $goldfields)
 			->with('unitscount', $unitscount);
@@ -596,7 +599,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			
 		}
 		
-		return View::make('process.tabs.platform')->with('jobconf', $jc->content)->with('possible', $possibleplatforms);
+		return View::make('job.tabs.platform')->with('jobconf', $jc->content)->with('possible', $possibleplatforms);
 	}
 
 	public function postUploadTemplate(){
@@ -626,7 +629,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			Session::flash('flashError', $e->getMessage());
 		}
 
-		return Redirect::to('process/template');
+		return Redirect::to('job/template');
 	}
 
 	public function getSubmit() {
@@ -667,7 +670,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			Session::flash('flashError', "$msg$toomany</ul>");
 		} 
 
-		return View::make('process.tabs.submit')
+		return View::make('job.tabs.submit')
 			->with('treejson', $treejson)
 			->with('questions',  $questions)
 			->with('table', $jc->toHTML())
@@ -682,7 +685,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		Session::forget('template');
 		Session::forget('questiontemplateid');
 		Session::forget('batch');
-		return Redirect::to("process/batch");
+		return Redirect::to("job/batch");
 	}
 
 	public function getDuplicate($entity, $format, $domain, $docType, $incr){
@@ -702,7 +705,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			Session::put('batch', serialize($job->batch));
 			Session::put('template', $job->template);
 			// Job->parents = array($job->_id);
-			return Redirect::to("process/batch");
+			return Redirect::to("job/batch");
 		} else {
 			Session::flash('flashError',"Job $id not found.");
 			return Redirect::back();
@@ -725,7 +728,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			Session::flash('flashError', $e->getMessage());
 		}
 
-		return Redirect::to("process/submit");
+		return Redirect::to("job/submit");
 	}
 
 
@@ -748,7 +751,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			$batch = unserialize(Session::get('batch'));
 			if(empty($batch)){
 				Session::flash('flashNotice', 'Please select a batch first.');
-				return Redirect::to("process/batch");
+				return Redirect::to("job/batch");
 			}	
 		}
 
@@ -791,7 +794,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				// No JobConfiguration and no template selected, not good.
 				if($next != 'template')
 					Session::flash('flashNotice', 'Please select a template first.');
-				return Redirect::to("process/template");
+				return Redirect::to("job/template");
 			} else {
 				// There already is a JobConfiguration object. Merge it with Input!
 				$jcc = array_merge($jcc, Input::get());	
@@ -804,7 +807,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 							$next = $jcc['platform'][0];
 						} else {
 							Session::flash('flashNotice', 'Please select a platform first');
-							return Redirect::to("process/platform");
+							return Redirect::to("job/platform");
 						}
 					}
 				}
@@ -841,10 +844,10 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		Session::put('template', $template);
 
 		try {
-			return Redirect::to("process/$next");
+			return Redirect::to("job/$next");
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage()); // Todo: is this a good way? -> logging out due to timeout
-			return Redirect::to("process");
+			return Redirect::to("job");
 		}
 	}
 
@@ -863,7 +866,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			foreach ($jc->getErrors()->all() as $message)
 				$msg .= "<li>$message</li>";
 			Session::flash('flashError', "<ul>$msg</ul>");
-			return Redirect::to("process/submit");
+			return Redirect::to("job/submit");
 		}
 
 		try{
@@ -933,7 +936,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			throw $e; //for debugging
 
 			Session::flash('flashError', $e->getMessage());
-			return Redirect::to("process/submit");
+			return Redirect::to("job/submit");
 		}
 
 		
@@ -991,7 +994,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	   		$platform = App::make($parameters[0]);
 	   		return $platform->createView()->with('jobconf', $jc->content);
 		} catch (ReflectionException $e){
-			return Redirect::to("process/batch");
+			return Redirect::to("job/batch");
 		}
 	  // 
 	}

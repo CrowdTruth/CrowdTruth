@@ -111,8 +111,8 @@ return array(
 		'Jenssegers\Mongodb\MongodbServiceProvider',
 		'Gloudemans\Shoppingcart\ShoppingcartServiceProvider',
 		
-		'Cw\Crowdflower\CrowdflowerServiceProvider',
-		'Cw\Mturk\MturkServiceProvider'
+		'CrowdTruth\Crowdflower\CrowdflowerServiceProvider',
+		'CrowdTruth\Mturk\MturkServiceProvider'
 /*		'PlatformProvider'*/
 	),
 

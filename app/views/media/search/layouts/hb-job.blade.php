@@ -138,7 +138,7 @@
 			            <td data-vbIdentifier="status" class="actiontd">
 			            	<div id="status@{{@index}}">@{{this.status}}</div>
 							<div class="btn-group actionbar">
-								<a class="btn btn-default btn-sm" href="/process/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o"></i></a>
+								<a class="btn btn-default btn-sm" href="/jobs/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o"></i></a>
 								@{{#if this.url}}
 								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link"></i></a>
 								@{{/if}}

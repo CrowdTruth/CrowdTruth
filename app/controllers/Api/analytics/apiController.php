@@ -208,6 +208,44 @@ class apiController extends BaseController
         return $result;
     }
 
+    public function getMapreduceunit(){
+        $db = \DB::getMongoDB();
+        $db->execute('loadServerScripts');
+
+        $map = new \MongoCode("function() {var key =  this['unit_id']; var value = this.dictionary; emit(key, value);}");
+        $reduce = new \MongoCode("function(key, mTasks) {
+                                var aggVector = {};
+                                for (iterMTasks in mTasks){
+                                    var mTask = mTasks[iterMTasks];
+                                    for (keyTask in mTask) {
+                                       if (keyTask in aggVector) {
+                                           for (annKey in mTask[keyTask]) {
+                                               aggVector[keyTask][annKey] += mTask[keyTask][annKey];
+                                           }
+                                       } else {
+                                           aggVector[keyTask]= mTask[keyTask];
+                                       }
+
+                                    }
+                               }
+                               return aggVector;
+                            }
+                            ");
+
+        $sales = $db->command(array(
+            "mapreduce" => "entities",
+            "map" => $map,
+            "reduce" => $reduce,
+            "query" => array("documentType" => "annotation",'type'=>'FactSpan'),
+            "out" => array("merge" => "eventCounts")));
+
+
+
+
+        //return $selection;
+        return $sales;
+    }
+    
     public function getJob()
     {
         $result = array();

@@ -1,0 +1,24 @@
+{
+    "name": "crowdtruth/crowdflower",
+    "description": "Extension for the CrowdWatson framework that adds Crowdflower as a platform.",
+    "authors": [
+        {
+            "name": "Arne Rutjes",
+            "email": "arne123@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.1.*"
+    },
+    "autoload": {
+        "classmap": [
+            "src/migrations",
+			"src/commands"
+        ],
+        "psr-0": {
+            "CrowdTruth\\Crowdflower\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}

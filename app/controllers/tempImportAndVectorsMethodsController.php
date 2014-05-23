@@ -115,7 +115,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 
 	public function getHit($id){
-		$turk = new Cw\Mturk\Turkapi\MechanicalTurk('https://mechanicalturk.amazonaws.com/', false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
+		$turk = new CrowdTruth\Mturk\Turkapi\MechanicalTurk('https://mechanicalturk.amazonaws.com/', false, Config::get('mturk::accesskey'), Config::get('mturk::secretkey'));
 		//$hit = $turk->getHIT($id);
 		//dd($hit);
 		//dd($turk->getAssignmentsForHIT($id));
