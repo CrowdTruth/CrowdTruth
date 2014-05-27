@@ -3,6 +3,7 @@
 use \BaseController as BaseController;
 use \Input as Input;
 use \URL as URL;
+use \Auth as Auth;
 use \Response as Response;
 
 use \MongoDB\Repository as Repository;
@@ -81,7 +82,11 @@ class apiController extends BaseController
                             if ($key == 'like') {
                                 $aggregateOperators['$match'][$field] = new \MongoRegex('/' . $val . '/i');
                             } else {
-                                $aggregateOperators['$match'][$field][$key] = floatval($val);
+                                if(is_numeric($val)) {
+                                    $aggregateOperators['$match'][$field][$key] = floatval($val);}
+                                else {
+                                    $aggregateOperators['$match'][$field]['$nin'] = $val;
+                                }
                             }
                         }
                     } else {
@@ -117,6 +122,7 @@ class apiController extends BaseController
 
     public function getWorker()
     {
+
         $result = array();
         $aggregateOperators = $this->processAggregateInput(Input::all());
         $crowdAgentID = Input::get('agent');
@@ -208,44 +214,107 @@ class apiController extends BaseController
         return $result;
     }
 
+
     public function getMapreduceunit(){
+
         $db = \DB::getMongoDB();
         $db->execute('loadServerScripts');
 
-        $map = new \MongoCode("function() {var key =  this['unit_id']; var value = this.dictionary; emit(key, value);}");
+        $map = new \MongoCode("function() {
+                            var key =  this['unit_id'];
+                            var annVects = this.annotationVector;
+                            for (iterMTasks in annVects){
+                                    var annVector = annVects[iterMTasks];
+                                    var value = {'vector':annVector, 'count':1};
+                                    emit(key+'/'+iterMTasks, value);
+                                }
+                        }");
         $reduce = new \MongoCode("function(key, mTasks) {
-                                var aggVector = {};
-                                for (iterMTasks in mTasks){
-                                    var mTask = mTasks[iterMTasks];
-                                    for (keyTask in mTask) {
-                                       if (keyTask in aggVector) {
-                                           for (annKey in mTask[keyTask]) {
-                                               aggVector[keyTask][annKey] += mTask[keyTask][annKey];
-                                           }
-                                       } else {
-                                           aggVector[keyTask]= mTask[keyTask];
-                                       }
+            var reducedVal = {'vector':{}, 'count': 0};
+            for (iter in mTasks) {
+                mTask = mTasks[iter]['vector'];
+                reducedVal.count += mTasks[iter]['count'];
+                for (annKey in mTask ) {
+                    if (annKey in reducedVal.vector) {
+                       reducedVal.vector[annKey] += mTask[annKey];
+                    } else {
+                       reducedVal.vector[annKey]= mTask[annKey];
+                    }
+                }
+            }
 
-                                    }
-                               }
-                               return aggVector;
-                            }
-                            ");
+           return reducedVal;
+        }");
 
+        $aggregateOperators = $this->processAggregateInput(Input::all());
         $sales = $db->command(array(
             "mapreduce" => "entities",
             "map" => $map,
             "reduce" => $reduce,
-            "query" => array("documentType" => "annotation",'type'=>'FactSpan'),
-            "out" => array("merge" => "eventCounts")));
+            "query" => $aggregateOperators['$match'],
+            "out" => array("inline" => 1)));
 
-
-
-
-        //return $selection;
         return $sales;
     }
-    
+
+    public function getMapreduceworker(){
+
+        $db = \DB::getMongoDB();
+        $db->execute('loadServerScripts');
+
+        $map = new \MongoCode("function() {
+                            var key =  this['crowdAgent_id'];
+
+                            var annVects = this.annotationVector;
+                            for (iterMTasks in annVects){
+                                    var annVector = annVects[iterMTasks];
+                                    var unit_id = this['unit_id'] +  '/' + iterMTasks;
+                                    var value = { 'workerUnits' : [{  unit_id:unit_id , vector:annVector, count:1}]};
+                                    emit(key, value);
+                                }
+                        }");
+
+        $reduce = new \MongoCode("function(key, units) {
+            var uniqueUnits = {};
+            var freqUnits = {};
+            for (iterUnit in units) {
+                workerUnits = units[iterUnit]['workerUnits'];
+                for (iterWorker in workerUnits) {
+                    unit_id = workerUnits[iterWorker]['unit_id'];
+                    if(unit_id in uniqueUnits) {
+                       for (annKey in workerUnits[iterWorker]['vector']) {
+                          uniqueUnits[unit_id][annKey] += workerUnits[iterWorker]['vector'][annKey];
+                       }
+                       freqUnits[unit_id] += workerUnits[iterWorker]['count'];
+                    } else {
+                        uniqueUnits[unit_id] = workerUnits[iterWorker]['vector'];
+                        freqUnits[unit_id] = workerUnits[iterWorker]['count'];
+                    }
+                }
+            }
+            var result = { 'workerUnits' :[]};
+            for (unit_id in uniqueUnits) {
+                var unitInfo = {};
+                unitInfo['unit_id'] = unit_id;
+                unitInfo['vector'] = uniqueUnits[unit_id];
+                unitInfo['count'] = freqUnits[unit_id];
+                result.workerUnits.push(unitInfo);
+            }
+
+            return result;
+        }");
+
+        $aggregateOperators = $this->processAggregateInput(Input::all());
+        $sales = $db->command(array(
+            "mapreduce" => "entities",
+            "map" => $map,
+            "reduce" => $reduce,
+            "query" => $aggregateOperators['$match'],
+            "out" => array("inline" => 1)));
+
+        return $sales;
+    }
+
     public function getJob()
     {
         $result = array();
