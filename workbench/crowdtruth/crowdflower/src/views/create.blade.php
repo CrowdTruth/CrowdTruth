@@ -6,7 +6,7 @@
 	<div class='maincolumn CW_box_style'>
 
 		<div class='tab'>
-			@include('process.nav')
+			@include('job.nav')
 			@include('layouts.flashdata')
 			<div>
 				<div class="panel panel-default">		

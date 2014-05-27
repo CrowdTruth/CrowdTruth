@@ -25,7 +25,7 @@ class JobsController extends BaseController {
     }
 
 	public function getTemplatebuilder(){
-		return View::make('process.tabs.templatebuilder');
+		return View::make('job.tabs.templatebuilder');
 	}
 
 	public function getWorkers(){
