@@ -54,6 +54,14 @@ def closse(response):
 #url = 'http://crowdtruth.org/api/media/test'
 url = 'http://dev.crowdtruth.org/api/media/test'
 #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# things to be set for now:
+# 1. address above
+# 2  path in predict_adopted.py
+# keys.py to be put in this folder
+# this should be in the init:
+# sudo touch /dev/raw1394  
+# sudo chmod a+rw /dev/raw1394 
 
 headers = {'content-type': 'application/json'}
 
