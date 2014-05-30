@@ -4,10 +4,10 @@ import encoder
 from Metrics.UnitMetrics.Unit import *
 from Metrics.UnitMetrics.UnitMetricsEnum import *
 
-s = Unit(sentence_id="entity/text/medical/relex-structured-sentence/132",
+s = Unit(sentence_id="entity/text/medical/twrex-structured-sentence/132",
                  jobs_dict={"entity/text/medical/job/4": ["/crowdagent/cf/19935135","/crowdagent/amt/A1M46I0H8KNEEX"],
                           "entity/text/medical/job/5": []}, filtered=False)
-# s = unit.Unit(sentence_id="entity/text/medical/relex-structured-sentence/132",
+# s = unit.Unit(sentence_id="entity/text/medical/twrex-structured-sentence/132",
 #                   jobs_dict={"entity/text/medical/job/4"
 #                            }, filtered=True)
 

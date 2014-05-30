@@ -4,7 +4,6 @@ import sys
 from enum import Enum
 import urllib
 import json
-import config
 from Metrics.TaskMetrics.Task import *
 
 #job_id_list = sys.argv[1].split(',');
@@ -21,10 +20,10 @@ from Metrics.TaskMetrics.Task import *
 # template = response[0]['template'];
 # #s = Task(job, sys.argv[2])
 template = "entity/text/medical/FactSpan/Factor_Span/0"
-job_id = "entity/text/medical/job/3"
-s = Task([job_id],template);
+job_id = "entity/text/medical/job/0"
+s = Task([job_id],template)
 metrics = s.create_metrics()
-
+ 
 
 print(metrics)
 #res = s.get_metrics(WorkerMetricsEnum.no_of_sent)

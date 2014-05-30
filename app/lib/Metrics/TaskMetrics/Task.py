@@ -13,24 +13,17 @@ from ..AnnotationMetrics.Annotation import *
 from ..AnnotationMetrics.AnnotationMetricsEnum import *
 
 class Task:
-    def update_metrics(self, jobID):
-        #update all the metrics - if null create
-        #TODOf
-        pass
 
     def __init__(self, jobs, template_id):
         # update to include multiple type of jobs..
         self.template_id = template_id
         self.default_thresholds = self.__get_default_thresholds()
-        if isinstance(jobs, dict):
-            self.jobs_dict = jobs
-        else:
-            self.jobs_dict = {}
-            for job_id in jobs:
-                api_param = urllib.urlencode({'field[_id]': job_id, 'limit':10000})
-                api_call = urllib2.urlopen(config.server + "?" + api_param)
-                response = json.JSONDecoder().decode(api_call.read())
-                self.jobs_dict[job_id] = response[0]['results']['withSpam'].keys()
+        self.default_query = {}
+        for jobPosition in range(len(jobs)):
+            query_key = "match[job_id][" + str(jobPosition) + "]"
+            self.default_query[query_key] = jobs[jobPosition]
+
+        self.default_query["match[documentType]"] = 'workerUnit'
 
     def __create_unit_cluster(self):
         unit_cluster = {}
@@ -43,15 +36,14 @@ class Task:
         return unit_cluster
 
     def __compute_mean_measure(self, all_units_metrics):
+
         mean_measures = {}
         metrics_keys = all_units_metrics[all_units_metrics.keys()[0]].keys()
-        annotations = all_units_metrics[all_units_metrics.keys()[0]][metrics_keys[0]].keys();
         for key in metrics_keys:
-            metric_mean = {}
             mean_measures[key] = {}
-            for annotation in annotations:
-                metric_mean[annotation] = sum(metric[key][annotation] for (unit,metric) in all_units_metrics.iteritems())
-                mean_measures[key][annotation] = metric_mean[annotation]/len(all_units_metrics)
+            metric_mean = sum(metric[key] for (unit,metric) in all_units_metrics.iteritems())
+            mean_measures[key] = metric_mean/len(all_units_metrics)
+
         return mean_measures
 
     def __compute_stddev_measure(self, all_units_metrics, mean_metrics = None):
@@ -60,13 +52,10 @@ class Task:
 
         stddev_measures = {}
         metrics_keys = all_units_metrics[all_units_metrics.keys()[0]].keys()
-        annotations = all_units_metrics[all_units_metrics.keys()[0]][metrics_keys[0]].keys();
         for key in metrics_keys:
-            metric_stddev = {}
             stddev_measures[key] = {}
-            for annotation in annotations:
-                metric_stddev[annotation] = sum(pow((metric[key][annotation] - mean_metrics[key][annotation]),2) for (unit,metric) in all_units_metrics.iteritems())
-                stddev_measures[key][annotation] = pow((metric_stddev[annotation]/len(all_units_metrics)), 0.5)
+            metric_stddev = sum(pow((metric[key] - mean_metrics[key]),2) for (unit,metric) in all_units_metrics.iteritems())
+            stddev_measures[key] = pow((metric_stddev/len(all_units_metrics)), 0.5)
 
         return stddev_measures
 
@@ -80,364 +69,303 @@ class Task:
     def __get_default_thresholds(self):
         api_param = urllib.urlencode({'field[_id]': self.template_id,'limit':10000,
                               'only[]': 'content.defaultThresholds'})
-        api_call = urllib2.urlopen(config.server + "?" + api_param)
+
+        api_call = urllib2.urlopen(config.server + "v1/?" + api_param)
         response = json.JSONDecoder().decode(api_call.read())
         return response[0]['content']['defaultThresholds']
 
-    def __get_all_workers(self,filtered):
-        workers_clusters = {}
-        for job_id in self.jobs_dict:
-            api_param = urllib.urlencode({'field[job_id]': job_id,'limit':10000,
-                              'field[documentType]': 'workerUnit',
-                              'only[]': 'crowdAgent_id'})
-            api_call = urllib2.urlopen(config.server + "?" + api_param)
-            response = json.JSONDecoder().decode(api_call.read())
-            print len(response)
-            for annotation in response:
-                crowd_agent = annotation['crowdAgent_id']
-                if crowd_agent in workers_clusters:
-                    if job_id not in workers_clusters[crowd_agent]:
-                        workers_clusters[crowd_agent][job_id] = filtered
-                else:
-                    workers_clusters[crowd_agent] = {job_id:filtered}
-        workers = []
-        for worker_id in workers_clusters:
-            #if the worker performance will be ever compared, it should be computed on the same filtered set of
-            #sentences
-            worker = Worker(worker_id, workers_clusters[worker_id], True, workers_clusters)
-            workers.append(worker)
+    def __get_units(self, add_query_list, annotations_to_filter):
+        media_units = {}
+        #get the list of media units
+        queryCriteria = dict(self.default_query.items() + add_query_list.items())
+        api_param = urllib.urlencode(queryCriteria)
+        api_call = urllib2.urlopen(config.server + "analytics/mapreduceunit/?" + api_param)
+        response = json.JSONDecoder().decode(api_call.read())
+        #create media unit objects
+        for media_unit in response['results']:
+            unit_vector = media_unit['value']['vector']
+            for annotation in annotations_to_filter:
+                unit_vector = Annotation.filter_annotation(annotation, annotations_to_filter[annotation], unit_vector)
+            media_units[media_unit['_id']] = Unit(media_unit['_id'], unit_vector, media_unit['value']['count'],)
+
+        return media_units
+
+    def __get_workers(self, add_query_list, annotations_to_filter):
+        workers = {}
+        #get the list of workers
+        queryCriteria = dict(self.default_query.items() + add_query_list.items())
+        api_param = urllib.urlencode(queryCriteria)
+        api_call = urllib2.urlopen(config.server + "analytics/mapreduceworker/?" + api_param)
+        response = json.JSONDecoder().decode(api_call.read())
+        #create worker objects
+        for worker_info in response['results']:
+            worker_id = worker_info['_id']
+            unit_vectors = {}
+            unit_freq = {}
+            for unit in worker_info['value']['workerUnits']:
+                unit_id = unit['unit_id']
+                unit_vector = unit['vector']
+                for annotation in annotations_to_filter:
+                    unit_vector = Annotation.filter_annotation(annotation, annotations_to_filter[annotation], unit_vector)
+                unit_vectors[unit_id] = unit_vector
+                unit_freq[unit_id] = unit['count']
+
+            workers[worker_id] = Worker(worker_id, unit_vectors, unit_freq)
+
         return workers
 
-    def get_FactSpan_spam(self, all_workerFilter_metrics):
-        spammers = []
-        for worker in all_workerFilter_metrics:
-            spam = False
-            check_failed  =  all_workerFilter_metrics[worker][WorkerMetricsEnum.factor_selection_check]
-            agree  =  all_workerFilter_metrics[worker][WorkerMetricsEnum.avg_worker_agreement]
-            cos =  all_workerFilter_metrics[worker][WorkerMetricsEnum.worker_cosine];
+    def process_units(self, units_metrics):
+        results = {}
 
-            if agree < 0.3:
-                spam = True
+        for unit in units_metrics:
+            position = unit.rfind('/')
+            unit_id = unit[:position-1]
+            key_id = unit[position+1:]
+            if unit_id not in results:
+                results[unit_id] = {}
+            results[unit_id][key_id] = units_metrics[unit]
 
-            if agree < 0.5 and check_failed > 0.3:
-                spam = True
+        return results
 
-            if cos > 0.6:
-                spam = True
+    def print_pivot_tables(self, unfiltered_workers, unfiltered_units, unfiltered_annotation, filtered_workers, filtered_units, filtered_annotation, results):
+        results['metrics']['pivotTables']['workers'] = {}
+        results['metrics']['pivotTables']['workers']['withFilter'] = {}
+        results['metrics']['pivotTables']['workers']['withoutFilter'] = {}
+        for worker in filtered_workers:
+           results['metrics']['pivotTables']['workers']['withFilter'] [worker] = filtered_workers[worker].worker_agreement
+           results['metrics']['pivotTables']['workers']['withoutFilter'] [worker] = unfiltered_workers[worker].worker_agreement
 
-            if cos > 0.4 and check_failed > 0.3:
-                spam = True
+        results['metrics']['pivotTables']['units'] = {}
+        results['metrics']['pivotTables']['units']['withSpam'] = {}
+        results['metrics']['pivotTables']['units']['withoutSpam'] = {}
+        for unit in filtered_units:
+            position = unit.rfind('/')
+            unit_id = unit[:position-1]
+            key_id = unit[position+1:]
+            if unit_id not in results['metrics']['pivotTables']['units']['withSpam']:
+                results['metrics']['pivotTables']['units']['withSpam'][unit_id] = {}
+                results['metrics']['pivotTables']['units']['withoutSpam'][unit_id] = {}
+            results['metrics']['pivotTables']['units']['withSpam'][unit_id][key_id] = filtered_units[unit].cosine_vector
+            results['metrics']['pivotTables']['units']['withoutSpam'][unit_id][key_id] = unfiltered_units[unit].cosine_vector
 
-            if spam == True and worker not in spammers:
-                spammers.append(worker)
+        results['metrics']['pivotTables']['annotations'] = {}
+        results['metrics']['pivotTables']['annotations']['withSpam'] = {}
+        results['metrics']['pivotTables']['annotations']['withoutSpam'] = {}
+        results['metrics']['pivotTables']['annotations']['withSpam']['rel_similarity'] = unfiltered_annotation.rel_similarity_dict
+        results['metrics']['pivotTables']['annotations']['withSpam']['cond_prob'] = unfiltered_annotation.cond_prob_dict
+        results['metrics']['pivotTables']['annotations']['withSpam']['cond_prob_minus_rel_prob'] = unfiltered_annotation.cond_prob_minus_rel_prob_dict
+        results['metrics']['pivotTables']['annotations']['withSpam']['top_ann_cond_prob'] = unfiltered_annotation.top_ann_cond_prob_dict
+        results['metrics']['pivotTables']['annotations']['withSpam']['mutual_info_dict'] = unfiltered_annotation.mutual_info_dict
+        results['metrics']['pivotTables']['annotations']['withoutSpam']['rel_similarity'] = filtered_annotation.rel_similarity_dict
+        results['metrics']['pivotTables']['annotations']['withoutSpam']['cond_prob'] = filtered_annotation.cond_prob_dict
+        results['metrics']['pivotTables']['annotations']['withoutSpam']['cond_prob_minus_rel_prob'] = filtered_annotation.cond_prob_minus_rel_prob_dict
+        results['metrics']['pivotTables']['annotations']['withoutSpam']['top_ann_cond_prob'] = filtered_annotation.top_ann_cond_prob_dict
+        results['metrics']['pivotTables']['annotations']['withoutSpam']['mutual_info_dict'] = filtered_annotation.mutual_info_dict
 
-        return spammers
+    def get_worker_units(self, selected_workers_to_filter):
+        query = {}
+        worker_units = []
+        iter = 0
+        for worker in selected_workers_to_filter:
+            query['field[crowdAgent_id][' + str(iter) + ']'] = worker
+            iter += 1
+        query['only[]'] = '_id'
+        query['limit'] = 10000
 
-    def get_RelDir_spam(self, all_workerFilter_metrics):
-        spammers = []
+        query = dict(self.default_query.items() + query.items())
+        api_param = urllib.urlencode(query)
+        api_call = urllib2.urlopen(config.server + "v1/?" + api_param)
+        response = json.JSONDecoder().decode(api_call.read())
+        for worker_unit in response:
+            worker_units.append(worker_unit['_id']);
 
-        for metric_name in self.default_thresholds['workerThresholds'].keys():
-            metric_thresholds = self.default_thresholds['workerThresholds'][metric_name]
-            metric = getattr(WorkerMetricsEnum, metric_name, None)
-            for worker in all_workerFilter_metrics:
-              #  print(all_workers_metrics[worker])
-              #  print(metric_thresholds)
-                if metric_thresholds[0] < all_workerFilter_metrics[worker][metric] < metric_thresholds[1]:
-                    if worker not in spammers:
-                        spammers.append(worker)
-
-        return spammers
-
-    def get_RelExt_spam(self, all_workerFilter_metrics):
-        spammers = []
-
-        return spammers
+        return worker_units
 
     def create_metrics(self):
-        unit_cluster = self.__create_unit_cluster()
-        metrics = {}
 
-        all_units_metrics = {}
-        all_units = []
-        all_units_vec = {}
-
-        for unit_id in unit_cluster:
-         #   print(unit_id)
-            unit = Unit(unit_id, unit_cluster[unit_id], False)
-            all_units_vec[unit_id] = unit.get_unit_vector()
-            all_units.append(unit)
+        #get the unfiltered units for this jobs
+        unfiltered_units = self.__get_units({},{})
+        #compute all the metrics on the units
+        unfiltered_units_metrics = {}
+        for unit_id in unfiltered_units:
+            unit = unfiltered_units[unit_id]
+            #compute all the metrics, if it is computationally intense, define in the template the metrics to be computed
             unit_result = unit.get_metrics(UnitMetricsEnum.__members__.values())
-            all_units_metrics[unit_id] = unit_result
+            unfiltered_units_metrics[unit_id] = unit_result
 
-        metrics['pivotTables'] = {}
-        metrics['pivotTables']['units'] = {}
-        metrics['pivotTables']['units']['withSpam'] = {}
-        for unit in all_units:
-            metrics['pivotTables']['units']['withSpam'][unit.sentence_id] = unit.get_cosine_vector()
+        #get the unfiltered workers for this jobs
+        unfiltered_workers = self.__get_workers({},{})
+        #compute all the metrics on the workers
+        unfiltered_workers_metrics = {}
+        for worker_id in unfiltered_workers:
+            worker = unfiltered_workers[worker_id]
+            #compute all the metrics, if it is computationally intense, define in the template the metrics to be computed
+            worker_result = worker.get_metrics(unfiltered_workers, unfiltered_units, WorkerMetricsEnum.__members__.values())
+            unfiltered_workers_metrics[worker_id] = worker_result
 
-        print 1
-        metrics['pivotTables']['annotations'] = {}
-        metrics['pivotTables']['annotations']['withSpam'] = {}
-        ann_keys = all_units[0].get_unit_vector().keys()
-        annotation_metrics = {}
-        for ann_key in ann_keys:
-            annotation = Annotation(all_units, ann_key)
-            annotation_metrics[ann_key] = annotation.get_metrics(AnnotationMetricsEnum.__members__.values())
-            metrics['pivotTables']['annotations']['withSpam'][ann_key] = annotation.get_rel_similarity_dict()
+        #get the metrics for unfiltered annotations
+        unfiltered_annotation = Annotation(unfiltered_units)
+        unfiltered_annotation_metrics = unfiltered_annotation.get_metrics(AnnotationMetricsEnum.__members__.values())
 
-        metrics['annotations'] = {}
-        metrics['annotations']['withSpam'] = annotation_metrics
+        #get the mean metrics of units
+        unfiltered_unit_mean_metrics = self.__compute_mean_measure(unfiltered_units_metrics)
+        unfiltered_unit_stddev_measure = self.__compute_stddev_measure(unfiltered_units_metrics, unfiltered_unit_mean_metrics)
+        unit_thresholds = self.__get_sentence_filter_threshold()
 
-        #(union_filtered_sent)
-        #TODO - if sentence provided select just workers which annotated those sentences
-        workers = self.__get_all_workers([])
-        all_workers_metrics = {}
-        for worker in workers:
-            worker_result = worker.get_metrics(WorkerMetricsEnum.__members__.values())
-            all_workers_metrics[worker.crowd_agent_id] = worker_result
+        unit_filter = Filters(unfiltered_unit_mean_metrics, unfiltered_unit_stddev_measure, unit_thresholds)
 
-
-
-
-        mean_metrics = self.__compute_mean_measure(all_units_metrics)
-        stddev_measure = self.__compute_stddev_measure(all_units_metrics, mean_metrics)
-        thresholds = self.__get_sentence_filter_threshold()
-
-
-
-
-        #print(mean_metrics)
-        #print(stddev_measure)
-        print 2
-        #filter based on both sentences or one
-        unit_filter = Filters(mean_metrics,stddev_measure,thresholds)
-        filtered_sentences = {}
+        #compute the filtered sentence according to each filter type
+        units_to_filter = {}
         for filter_type in UnitFiltersEnum.__members__.values():
             filtered_list = []
-            for unit in all_units:
-                if unit_filter.is_filtered(unit, filter_type):
-                    filtered_list.append(unit.sentence_id)
-            filtered_sentences[filter_type] = filtered_list
+            for unit in unfiltered_units:
+                if unit_filter.is_filtered(unfiltered_units[unit], filter_type):
+                    filtered_list.append(unit)
+            units_to_filter[filter_type] = filtered_list
 
-        metrics['units'] = {}
-        for unit in all_units_metrics:
-            for metric in all_units_metrics[unit]:
-                avg = 0
-                count  = 0
-                for ann in all_units_metrics[unit][metric]:
-                    count += 1
-                    avg += all_units_metrics[unit][metric][ann]
-                all_units_metrics[unit][metric]['avg'] = avg/(1.0 * count)
-
-        metrics['units']['withSpam'] = all_units_metrics
-        #print("filtered sentences:")
-
-        union_filtered_sent = []
+        #get the list of unclear units to be filtered
+        selected_units_to_filter = []
         for filter_name in self.default_thresholds['unitThresholds']:
             filter_enum_type = getattr(UnitFiltersEnum, filter_name, None)
-            union_filtered_sent = list(set(union_filtered_sent)|set(filtered_sentences[filter_enum_type]))
-
-        metrics['filteredUnits'] = {}
-        metrics['filteredUnits']['count'] = len(union_filtered_sent)
-        metrics['filteredUnits']['list'] = union_filtered_sent
-
-        #print(union_filtered_sent)
-        #TODO - if sentence provided select just workers which annotated those sentences
-        workersFilter = self.__get_all_workers(union_filtered_sent)
-        all_workerFilter_metrics = {}
-        for worker in workersFilter:
-            worker_result = worker.get_metrics(WorkerMetricsEnum.__members__.values())
-            #if the worker doesn't have units which are not unfiltered
-            if worker_result == 0:
-                worker_result = all_workers_metrics[worker.crowd_agent_id]
-            all_workerFilter_metrics[worker.crowd_agent_id] = worker_result
-
-        print 3
+            selected_units_to_filter = list(set(selected_units_to_filter)|set(units_to_filter[filter_enum_type]))
 
 
+        #compute the average values for workers
+        unfiltered_worker_mean_metrics = self.__compute_mean_measure(unfiltered_workers_metrics)
+        unfiltered_worker_stddev_measure = self.__compute_stddev_measure(unfiltered_workers_metrics, unfiltered_worker_mean_metrics)
 
-        worker_mean_metrics = self.__compute_mean_measure(all_workerFilter_metrics)
-        worker_stddev_measure = self.__compute_stddev_measure(all_workerFilter_metrics, worker_mean_metrics)
-
-
-        spammers = []
+        #get the list of low quality workers
+        selected_workers_to_filter = []
         for metric_name in self.default_thresholds['workerThresholds'].keys():
-
             metric_thresholds = self.default_thresholds['workerThresholds'][metric_name]
             metric = getattr(WorkerMetricsEnum, metric_name, None)
-            for worker in all_workerFilter_metrics:
-              #  print(all_workers_metrics[worker])
-              #  print(metric_thresholds)
-                annotations = all_workerFilter_metrics[worker][metric].keys()
-                spammer = True
+            for worker in unfiltered_workers_metrics:
+                if metric_thresholds[0] < unfiltered_workers_metrics[worker][metric] < metric_thresholds[1]:
+                    if worker not in selected_workers_to_filter:
+                        selected_workers_to_filter.append(worker)
 
-                for annotation in annotations:
-                    if (not (metric_thresholds[0] < all_workerFilter_metrics[worker][metric][annotation] < metric_thresholds[1])):
-                        spammer = False
 
-                if spammer == True:
-                    if worker not in spammers:
-                        spammers.append(worker)
+        #compute the list of unclear, ambiguous annotations
+        selected_annotations_to_filter = {}
+        for metric_name in self.default_thresholds['annotationThresholds'].keys():
+            metric_thresholds = self.default_thresholds['annotationThresholds'][metric_name]
+            metric = getattr(AnnotationMetricsEnum, metric_name, None)
+            filtered_set = unfiltered_annotation.get_filtered_set(metric, metric_thresholds)
+            selected_annotations_to_filter[metric] = filtered_set
 
-        for worker in all_workerFilter_metrics:
-            for metric in all_workerFilter_metrics[worker]:
-                avg = 0
-                count = 0
-                for ann in all_workerFilter_metrics[worker][metric]:
-                    avg += all_workerFilter_metrics[worker][metric][ann]
-                    count += 1
-                all_workerFilter_metrics[worker][metric]['avg'] = avg/(1.0 * count)
+        spam_worker_query_list = {}
+        iter = 0
+        for worker in selected_workers_to_filter:
+            spam_worker_query_list['match[crowdAgent_id][<>][' + str(iter) + ']'] = worker
+            iter += 1
 
-        metrics['workers'] = {}
-        metrics['workers']['withFilter'] = all_workerFilter_metrics
-        metrics['aggWorker'] = {}
-
-        for metric in worker_mean_metrics:
-            count = 0
-            avg = 0
-            for ann in worker_mean_metrics[metric]:
-                count += 1
-                avg += worker_mean_metrics[metric][ann]
-            worker_mean_metrics[metric]['avg'] = avg/(1.0 * count)
-
-        metrics['aggWorker']['mean'] = worker_mean_metrics
-
-        for metric in worker_stddev_measure:
-            avg = 0
-            count = 0;
-            for ann in worker_stddev_measure[metric]:
-                count += 1;
-                avg += worker_stddev_measure[metric][ann]
-            worker_stddev_measure[metric]['avg'] = avg/(1.0 * count)
-
-        print 3
-        metrics['aggWorker']['stddev'] = worker_stddev_measure
-
-        # if self.template_id == 'entity/text/medical/FactSpan/Factor_Span/0':
-        #     spammers = self.get_FactSpan_spam(all_workerFilter_metrics);
-        # elif self.template_id == 'entity/text/medical/RelDir/Relation_Direction/0':
-        #     spammers = self.get_RelDir_spam(all_workerFilter_metrics);
-        # else:
-        #     spammers = self.get_RelExt_spam(all_workerFilter_metrics);
-
-        #print(spammers)
-        metrics['spammers'] = {}
-        metrics['spammers']['count'] = len(spammers)
-        metrics['spammers']['list'] = spammers
-        #print(all_workers_metrics.keys())
-
-        #get all the annotations of the spammers
-        filtered_annotations = []
-        for job_id in self.jobs_dict.keys():
-            for spammer in spammers:
-                api_param = urllib.urlencode({'field[job_id]': job_id,'limit':10000,
-                                              'field[crowdAgent_id]': spammer,
-                                              'field[documentType]': 'workerUnit',
-                                              'only[]': '_id'})
-                api_call = urllib2.urlopen(config.server + "?" + api_param)
-                response = json.JSONDecoder().decode(api_call.read())
-                for res in response:
-                    filtered_annotations.append(res['_id']);
-
-        metrics['filteredAnnotations'] = {}
-        metrics['filteredAnnotations']['count'] = len(filtered_annotations)
-        metrics['filteredAnnotations']['list'] = filtered_annotations
-        #create a new job dic with newly computed spammers
-        all_units_metrics_ws = {}
-        all_units_ws = []
-        all_units_vec_ws = {}
-        #compute average and compare
-        for unit_id in unit_cluster:
-         #   print(unit_id)
-            job_dict = {}
-            for job_id in unit_cluster[unit_id]:
-                job_dict[job_id] = spammers
-            unit_cluster[unit_id] = job_dict
-            unit = Unit(unit_id, unit_cluster[unit_id], True)
-            all_units_vec_ws[unit_id] = unit.get_unit_vector()
-            all_units_ws.append(unit)
-         #!save here the without spam result for units
+        filtered_units = self.__get_units(spam_worker_query_list, selected_annotations_to_filter)
+        #compute all the metrics on the units
+        filtered_units_metrics = {}
+        for unit_id in unfiltered_units:
+            unit = filtered_units[unit_id]
+            #compute all the metrics, if it is computationally intense, define in the template the metrics to be computed
             unit_result = unit.get_metrics(UnitMetricsEnum.__members__.values())
-            all_units_metrics_ws[unit_id] = unit_result
+            filtered_units_metrics[unit_id] = unit_result
 
-        metrics['pivotTables']['units']['withoutSpam'] = {}
-        for unit in all_units_ws:
-            metrics['pivotTables']['units']['withoutSpam'][unit.sentence_id] = unit.get_cosine_vector()
+        #create the workers without spam workers and unclear/ambiguous annotations
+        unclear_units_query_list = {}
+        iter = 0
+        for unit in selected_units_to_filter:
+            unclear_units_query_list['match[unit_id][<>][' + str(iter) + ']'] = unit
+            iter += 1
 
-        print 4
-
-        mean_metrics_ws = self.__compute_mean_measure(all_units_metrics_ws)
-        stddev_measure_ws = self.__compute_stddev_measure(all_units_metrics_ws, mean_metrics)
-
-
-        for unit in all_units_metrics_ws:
-            for metric in all_units_metrics_ws[unit]:
-                avg = 0
-                count  = 0
-                for ann in all_units_metrics_ws[unit][metric]:
-                    count += 1
-                    avg += all_units_metrics_ws[unit][metric][ann]
-                all_units_metrics_ws[unit][metric]['avg'] = avg/(1.0 * count)
-
-        metrics['units']['withoutSpam'] = all_units_metrics_ws
+        filtered_workers = self.__get_workers(unclear_units_query_list, selected_annotations_to_filter)
+        #compute all the metrics on the units
+        filtered_workers_metrics = {}
+        for worker_id in filtered_workers:
+            worker = filtered_workers[worker_id]
+            #compute all the metrics, if it is computationally intense, define in the template the metrics to be computed
+            worker_result = worker.get_metrics(filtered_workers, filtered_units, WorkerMetricsEnum.__members__.values())
+            filtered_workers_metrics[worker_id] = worker_result
 
 
-        metrics['aggUnits'] = {}
-        for metric in mean_metrics_ws:
-            avg = 0
-            count  = 0
-            for ann in mean_metrics_ws[metric]:
-                count += 1
-                avg += mean_metrics_ws[metric][ann]
-            mean_metrics_ws[metric]['avg'] = avg/(1.0 * count)
+        #get the unfiltered units for this jobs
+        filtered_units_workers = {}
+        for unit_id in filtered_units:
+            if unit_id not in selected_units_to_filter:
+                filtered_units_workers[unit_id] = filtered_units[unit_id]
+        # should be done like this once the params are sent by value
+        #unclear_units_workers_query_list = dict(unclear_units_query_list.items() + spam_worker_query_list.items())
+        #filtered_units_workers = self.__get_units(unclear_units_workers_query_list,{})
+        #get the metrics for unfiltered annotations
+        filtered_annotation = Annotation(filtered_units_workers)
+        filtered_annotation_metrics = filtered_annotation.get_metrics(AnnotationMetricsEnum.__members__.values())
 
-        metrics['aggUnits']['mean'] = mean_metrics_ws
+        #get the mean metrics of units
+        filtered_unit_mean_measure = self.__compute_mean_measure(filtered_units_metrics)
+        filtered_unit_stddev_measure = self.__compute_stddev_measure(filtered_units_metrics, filtered_unit_mean_measure)
 
-        for metric in stddev_measure_ws:
-            count = 0
-            avg = 0
-            for ann in stddev_measure_ws[metric]:
-                count +=1
-                avg += stddev_measure_ws[metric][ann]
-            stddev_measure_ws[metric]['avg'] = avg/(1.0 * count)
+        filtered_worker_mean_measure = self.__compute_mean_measure(filtered_workers_metrics)
+        filtered_worker_stddev_measure = self.__compute_stddev_measure(filtered_workers_metrics, filtered_worker_mean_measure)
 
-        metrics['aggUnits']['stddev'] = stddev_measure_ws
-
-        metrics['workerThresholds'] = self.default_thresholds['workerThresholds']
-        metrics['unitThresholds'] = self.default_thresholds['unitThresholds']
-
-        for worker in all_workers_metrics:
-            for metric in all_workers_metrics[worker]:
-                avg = 0
-                count = 0
-                for ann in all_workers_metrics[worker][metric]:
-                    avg += all_workers_metrics[worker][metric][ann]
-                    count += 1
-                all_workers_metrics[worker][metric]['avg'] = avg/(1.0 * count)
-
-        print 5
-        metrics['workers']['withoutFilter'] = all_workers_metrics
-
-        metrics['pivotTables']['annotations']['withoutSpam'] = {}
-        ann_keys = all_units_ws[0].get_unit_vector().keys()
-        annotation_metrics_ws = {}
-        for ann_key in ann_keys:
-            annotation = Annotation(all_units_ws, ann_key)
-            annotation_metrics_ws[ann_key] = annotation.get_metrics(AnnotationMetricsEnum.__members__.values())
-            metrics['pivotTables']['annotations']['withoutSpam'][ann_key] = annotation.get_rel_similarity_dict()
-
-        metrics['annotations']['withoutSpam'] = annotation_metrics_ws
+        pr_unfiltered_units_metrics = self.process_units(unfiltered_units_metrics)
+        pr_filtered_units_metrics = self.process_units(filtered_units_metrics)
 
         results = {}
-        results['metrics'] = metrics
-        results['results'] = {}
-        results['results']['withoutSpam'] = all_units_vec_ws
-        #results['results']['withSpam'] = all_units_vec
+        results['metrics'] = {}
 
+        results['metrics']['spammers'] = {}
+        results['metrics']['spammers']['count'] = len(selected_workers_to_filter)
+        results['metrics']['spammers']['list'] = selected_workers_to_filter
+
+        selected_worker_units_to_filter = self.get_worker_units(selected_workers_to_filter)
+        results['metrics']['filteredWorkerUnits'] = {}
+        results['metrics']['filteredWorkerUnits']['count'] = len(selected_worker_units_to_filter)
+        results['metrics']['filteredWorkerUnits']['list'] = selected_worker_units_to_filter
+
+        results['metrics']['filteredUnits'] = {}
+        results['metrics']['filteredUnits']['count'] = len(selected_units_to_filter)
+        results['metrics']['filteredUnits']['list'] = selected_units_to_filter
+
+        results['metrics']['filteredAnnotations'] = selected_annotations_to_filter
+
+        results['metrics']['workerThresholds'] = self.default_thresholds['workerThresholds']
+        results['metrics']['unitThresholds'] = self.default_thresholds['unitThresholds']
+        results['metrics']['annotationThresholds'] = self.default_thresholds['annotationThresholds']
+
+        results['metrics']['aggWorker'] = {}
+        results['metrics']['aggWorker']['stddev'] = filtered_worker_stddev_measure
+        results['metrics']['aggWorker']['mean'] = filtered_worker_mean_measure
+
+        results['metrics']['aggUnits'] = {}
+        results['metrics']['aggUnits']['stddev'] = filtered_unit_stddev_measure
+        results['metrics']['aggUnits']['mean'] = filtered_unit_mean_measure
+
+        results['metrics']['workers'] = {}
+        results['metrics']['workers']['withoutFilter'] = unfiltered_workers_metrics
+        results['metrics']['workers']['withFilter'] = filtered_workers_metrics
+
+        results['metrics']['annotations'] = {}
+        results['metrics']['annotations']['withSpam'] = unfiltered_annotation_metrics
+        results['metrics']['annotations']['withoutSpam'] = filtered_annotation_metrics
+
+        results['metrics']['units'] = {}
+        results['metrics']['units']['withSpam'] = pr_unfiltered_units_metrics
+        results['metrics']['units']['withoutSpam'] = pr_filtered_units_metrics
+
+        results['metrics']['pivotTables'] = {}
+
+        self.print_pivot_tables(unfiltered_workers, unfiltered_units, unfiltered_annotation, filtered_workers, filtered_units, filtered_annotation, results)
+
+        results['results'] = {}
+        results['results']['withoutSpam'] = {}
+        units_without_spam = self.__get_units(spam_worker_query_list, {})
+
+        for unit in units_without_spam:
+            position = unit.rfind('/')
+            unit_id = unit[:position-1]
+            key_id = unit[position+1:]
+            if unit_id not in results['results']['withoutSpam']:
+               results['results']['withoutSpam'][unit_id] = {}
+
+            results['results']['withoutSpam'][unit_id][key_id] = units_without_spam[unit].get_unit_vector()
 
         encoder.c_make_encoder = None
         metrics_json = encoder.JSONEncoder().encode(results)
-
-        #get the unfiltered sentences
-        #print(std_dev_metrics)
         return metrics_json
