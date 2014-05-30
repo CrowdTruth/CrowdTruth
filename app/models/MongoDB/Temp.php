@@ -61,20 +61,28 @@ class Temp extends Moloquent {
                     }
 
                     
-                    foreach($child['content']['features'] as $k => $v){
-                        
+                     if(isset($child['content']['features']))
+                    {
+                        if(is_array($child['content']['features'])){
+                             foreach($child['content']['features'] as $k => $v){
+                                if (array_key_exists($k, $parent['content']['features'])){
+                                        if(! is_array($parent['content']['features'][$k])) 
+                                            $parent['content']['features'][$k] = [$parent['content']['features'][$k]];
 
-                        if (array_key_exists($k, $parent['content']['features'])){
-                                if(! is_array($parent['content']['features'][$k])) 
-                                    $parent['content']['features'][$k] = [$parent['content']['features'][$k]];
-                                foreach($v as $vit)
-                                    array_push($parent['content']['features'][$k], $vit);
-                        }
-                        else 
-                        {
-                            $parent['content']['features'][$k] = $v;
-                        }
+                                        if(is_array($v)){
+                                            foreach($v as $vit)
+                                                array_push($parent['content']['features'][$k], $vit);
+                                        }
+                                }
+                                else 
+                                {
+                                    $parent['content']['features'][$k] = $v;
+                                }
+                            }                            
+                        }                  
                     }
+
+
 
                     // $featureKey = key($child['content']['features']);
 
