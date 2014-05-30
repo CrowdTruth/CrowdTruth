@@ -34,7 +34,7 @@ Route::get('/urlsurls', function()
 	foreach($results as $result)
 	{	
 
-		echo $result['content']['url'] . PHP_EOL;
+		echo $result['content']['url'] . ' ';
 		echo $result['_id'] . PHP_EOL;
 	}
 	echo PHP_EOL . PHP_EOL;
