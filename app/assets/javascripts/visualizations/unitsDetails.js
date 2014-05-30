@@ -11,6 +11,9 @@ function unitsDetails(category, categoryName, openModal) {
     var currentSelection = [];
     var currentSelectionInfo = {};
 
+    var metrics_data = {};
+    var active_metrics = "non_spam";
+
     var spammers = [];
     var seriesBase = [];
     var pieChart = "";
@@ -24,9 +27,8 @@ function unitsDetails(category, categoryName, openModal) {
         img.attr("data-toggle","tooltip");
         img.attr("title", "Click to see results without low quality annotations");
         img.on('click',function(){
-            alert("under construction");
+            updateMetrics()});
             // prcessing after image is clicked
-        });
         var img = $this.renderer.image('/assets/cross.png',$this.chartWidth-90,16,19,12);
         img.add();
         img.css({'cursor':'pointer'});
@@ -37,6 +39,38 @@ function unitsDetails(category, categoryName, openModal) {
             alert("under construction");
             // prcessing after image is clicked
         });
+    }
+
+    var updateMetrics = function (){
+        var local_active_metrics = 'non_spam'
+        var local_non_active_metrics = 'spam'
+        if (active_metrics == local_active_metrics) {
+            active_metrics = 'spam'
+            local_active_metrics = 'spam'
+            local_non_active_metrics = 'non_spam'
+        } else {
+            active_metrics = 'non_spam'
+        }
+
+        for (var series in metrics_data) {
+            var data = [];
+            for (var iterData in metrics_data[series][active_metrics]) {
+                var value_data = metrics_data[series][local_non_active_metrics][iterData] - metrics_data[series][active_metrics][iterData]
+
+                if (value_data > 0 ) {
+                    data.push({ y: metrics_data[series][active_metrics][iterData],
+                        marker: { symbol: 'triangle', fillColor: '#00FF00'}});
+                } else {
+                    data.push({ y: metrics_data[series][active_metrics][iterData],
+                        marker: { symbol: 'triangle-down', fillColor: '#FF0000'}});
+                }
+            }
+            console.dir(series);
+            console.dir(" ");
+
+            console.dir(barChart.series);
+            barChart.series[series].setData(data);
+        }
     }
 
     var drawPieChart = function (platform, spam) {
@@ -161,6 +195,9 @@ function unitsDetails(category, categoryName, openModal) {
                 type: 'column',
                 width: (3*(($('.maincolumn').width() - 50)/5)),
                 height: 430,
+                animation: {
+                    duration: 1000
+                },
                 events: {
                     load: function () {
                         var chart = this,
@@ -425,7 +462,7 @@ function unitsDetails(category, categoryName, openModal) {
 
                 if (queryField == 'job_id') {
                     //get the metrics for jobs
-                    var urlJobsInfo =  '/api/v1/?field[documentType]=job&only[]=metrics.units.withoutSpam&';
+                    var urlJobsInfo =  '/api/v1/?field[documentType]=job&only[]=metrics.units.withoutSpam&&only[]=metrics.units.withSpam&';
 
                     for (var indexUnits in currentSelection) {
                         urlJobsInfo += 'field[_id][]=' + currentSelection[indexUnits] + '&';
@@ -434,7 +471,10 @@ function unitsDetails(category, categoryName, openModal) {
                     $.getJSON(urlJobsInfo, function (data) {
                         for (var iterData in data) {
                             if (!('metrics' in data[iterData])) {continue;}
-                            var metrics = data[iterData]['metrics']['units']['withoutSpam'];
+                            var metrics_before_filter = data[iterData]['metrics']['units']['withSpam'];
+                            var metrics_before_filter_data = [];
+                            var metrics_after_filter = data[iterData]['metrics']['units']['withoutSpam'];
+                            var metrics_after_filter_data = [];
                             var job_id =  data[iterData]['_id'];
                             var arrayID = job_id.split("/");
                             var value = arrayID[arrayID.length - 1];
@@ -442,24 +482,62 @@ function unitsDetails(category, categoryName, openModal) {
                             //linkedTo: seriesMaps[job_id], yAxis:1};
                             var avg_magnitude = {'name': value + " avg magnitude", data:[], categoryID:job_id, type: 'spline', color:Highcharts.Color( colorMaps[job_id]).brighten(0.1).get(), yAxis:1,'dashStyle':'LongDash'};
                             // linkedTo: seriesMaps[job_id], yAxis:1};
-                            for (var agentIDIter in categories){
-                                var agentID = categories[agentIDIter];
-                                if ( agentID in metrics) {
-                                    avg_clarity['data'].push(metrics[agentID]['max_relation_Cos']['avg']);
-                                    avg_magnitude['data'].push(metrics[agentID]['magnitude']['avg']);
-                                } else{
-                                    avg_clarity['data'].push(0);
-                                    avg_magnitude['data'].push(0);
-                                }
 
-                            }
                             var position = 0;
+                            var nextPosition = 1;
                             for(var iterSeries in series){
                                 if(series[iterSeries].name == job_id && series[iterSeries].type == 'column'){
                                     position = iterSeries;
+                                    nextPosition = parseInt(position + 1);
                                     break;
                                 }
                             }
+                            metrics_data[position] = {};
+                            metrics_data[position]['spam'] = [];
+                            metrics_data[position]['non_spam'] = [];
+
+                            metrics_data[nextPosition] = {};
+                            metrics_data[nextPosition]['spam'] = [];
+                            metrics_data[nextPosition]['non_spam'] = [];
+
+                            for (var agentIDIter in categories){
+                                var agentID = categories[agentIDIter];
+                                if ( agentID in metrics_before_filter) {
+                                    metrics_data[position]['spam'].push(metrics_before_filter[agentID]['max_relation_Cos']['avg'])
+                                    metrics_data[position]['non_spam'].push(metrics_after_filter[agentID]['max_relation_Cos']['avg'])
+                                    metrics_data[nextPosition]['spam'].push(metrics_before_filter[agentID]['magnitude']['avg'])
+                                    metrics_data[nextPosition]['non_spam'].push(metrics_after_filter[agentID]['magnitude']['avg'])
+                                } else{
+                                    metrics_data[position]['spam'].push(0)
+                                    metrics_data[position]['non_spam'].push(0)
+                                    metrics_data[nextPosition]['spam'].push(0)
+                                    metrics_data[nextPosition]['non_spam'].push(0)
+                                }
+
+                            }
+                            console.dir(metrics_data);
+
+                            for ( var iterData in  metrics_data[position]['spam']){
+                                var value_data = metrics_data[position]['spam'][iterData] - metrics_data[position]['non_spam'][iterData]
+                                if (value_data > 0 ) {
+                                    avg_clarity['data'].push({ y: metrics_data[position]['non_spam'][iterData],
+                                            marker: { symbol: 'triangle', fillColor: '#00FF00'}});
+                                } else {
+                                    avg_clarity['data'].push({ y: metrics_data[position]['non_spam'][iterData],
+                                        marker: { symbol: 'triangle-down', fillColor: '#FF0000'}});
+                                }
+
+                                var value_data = metrics_data[nextPosition]['spam'][iterData] - metrics_data[nextPosition]['non_spam'][iterData]
+                                if (value_data > 0 ) {
+                                    avg_magnitude['data'].push({ y: metrics_data[nextPosition]['non_spam'][iterData],
+                                        marker: { symbol: 'triangle', fillColor: '#00FF00'}});
+                                } else {
+                                    avg_magnitude['data'].push({ y: metrics_data[nextPosition]['non_spam'][iterData],
+                                        marker: { symbol: 'triangle-down', fillColor: '#FF0000'}});
+                                }
+
+                            }
+
                             currentSelectionInfo[value + " avg clarity"] = {}
                             currentSelectionInfo[value + " avg magnitude"] = {}
                             currentSelectionInfo[value + " avg clarity"]['tooltipLegend'] = "CrowdTruth Average Unit Clarity: the value is defined as the maximum unit annotation score achieved on any annotation for that unit. High agreement over the annotations is represented by high cosine scores, indicating a clear unit. Click to select/deselect."

@@ -14,19 +14,12 @@ class Filters:
 
     @staticmethod
     def below_mean(unit_measure, agg_measure):
-        for annotation in unit_measure:
-            measure = unit_measure[annotation] < agg_measure[annotation]
-            if measure == False:
-                return measure
-        return True
+        return unit_measure < agg_measure
 
     @staticmethod
     def below_diff(unit_measure, factor, first_agg_measure, second_agg_measure):
-        for annotation in unit_measure:
-            measure = unit_measure[annotation] < factor * (first_agg_measure[annotation] - second_agg_measure[annotation])
-            if measure == False:
-                return measure
-        return True
+        return unit_measure < factor * (first_agg_measure - second_agg_measure)
+
 
     def is_filtered(self, sentence, filter_type):
 
