@@ -22,8 +22,8 @@ def predict(classifier, image):
     K = 4
     STANDARD_SIZE = (W, W)
     try:
-        svm = mlpy.LibSvm.load_model("/var/www/crowd-watson/app/lib/getAPIS/classifiers/" + classifier + ".cffpart1")
-        with open("/var/www/crowd-watson/app/lib/getAPIS/classifiers/" + classifier + ".cffpart2", 'rb') as handle:
+        svm = mlpy.LibSvm.load_model("/var/www/crowdtruth_dev/app/lib/getAPIS/classifiers/" + classifier + ".cffpart1")
+        with open("/var/www/crowdtruth_dev/app/lib/getAPIS/classifiers/" + classifier + ".cffpart2", 'rb') as handle:
                 pca = pickle.load(handle)     
         test_data = []    
         img = img_to_matrix(image, 2, STANDARD_SIZE)
