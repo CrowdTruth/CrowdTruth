@@ -37,7 +37,7 @@ class apiController extends BaseController
         '>' => '$gt',
         '>=' => '$gte',
     );
-    protected $pipelineList = array('$match','$sort','$project','$group');
+    protected $pipelineList = array('$match', '$sort', '$project', '$group');
 
     public $restful = true;
     private $content_type = 'application/json';
@@ -82,9 +82,9 @@ class apiController extends BaseController
                             if ($key == 'like') {
                                 $aggregateOperators['$match'][$field] = new \MongoRegex('/' . $val . '/i');
                             } else {
-                                if(is_numeric($val)) {
-                                    $aggregateOperators['$match'][$field][$key] = floatval($val);}
-                                else {
+                                if (is_numeric($val)) {
+                                    $aggregateOperators['$match'][$field][$key] = floatval($val);
+                                } else {
                                     $aggregateOperators['$match'][$field]['$nin'] = $val;
                                 }
                             }
@@ -175,8 +175,8 @@ class apiController extends BaseController
                     }
                 }
             }
-     //       $result['workerUnitContent'][$value['_id']]['workerUnitType'] = $workerUnitType;
-        $result['workerUnitContent'][$value['_id']]['workerUnitType'] = array();
+            //       $result['workerUnitContent'][$value['_id']]['workerUnitType'] = $workerUnitType;
+            $result['workerUnitContent'][$value['_id']]['workerUnitType'] = array();
             foreach ($workerUnitType as $job => $workerUnit) {
                 $workerUnitInfo = array('job_id' => $job, 'workerUnit' => $workerUnit);
                 $result['workerUnitContent'][$value['_id']]['workerUnitType'][$job] = $workerUnitInfo;
@@ -185,37 +185,38 @@ class apiController extends BaseController
 
         $unitIDs = array_unique($unitIDs);
         $units = \MongoDB\Entity::whereIn('_id', $unitIDs)->get(array('content.sentence.formatted',
-                                                                    'content.sentence.formatted',
-                                    'documentType',
-                                    'domain',
-                                                                    'content.relation.noPrefix',
-                                                                    'content.terms.first.formatted',
-                                                                    'content.terms.second.formatted'))->toArray();
-        foreach($units as $index =>$value) {
+            'content.sentence.formatted',
+            'documentType',
+            'domain',
+            'content.relation.noPrefix',
+            'content.terms.first.formatted',
+            'content.terms.second.formatted'))->toArray();
+        foreach ($units as $index => $value) {
             $result['workerUnitContent'][$value['_id']]['unitContent'] = $value;
         }
 
         $jobIDs = array_unique($jobIDs);
-        $jobs = \MongoDB\Entity::whereIn('_id', $jobIDs)->get(array('metrics.workers.withFilter.'.$crowdAgentID,
-                                                                     'metrics.aggWorkers', 'type', 'jobConf_id', 'template', 'platformJobId', 'metrics.units', 'results'))->toArray();
-    foreach($jobs as $index =>$value) {
-        $result['jobContent'][$value['_id']] = $value;
-        $jobConfID = \MongoDB\Entity::where('_id', '=', $value['_id'])->lists('jobConf_id');
-        $jobTitle = \MongoDB\Entity::whereIn('_id', $jobConfID)->get(array('content.title'))->toArray();
-        $result['jobContent'][$value['_id']]['jobConf'] = $jobTitle[0];
-    }
-    
-    foreach($result['workerUnitContent'] as $id => $annInfo ) {
+        $jobs = \MongoDB\Entity::whereIn('_id', $jobIDs)->get(array('metrics.workers.withFilter.' . $crowdAgentID,
+            'metrics.aggWorkers', 'type', 'jobConf_id', 'template', 'platformJobId', 'metrics.units', 'results'))->toArray();
+        foreach ($jobs as $index => $value) {
+            $result['jobContent'][$value['_id']] = $value;
+            $jobConfID = \MongoDB\Entity::where('_id', '=', $value['_id'])->lists('jobConf_id');
+            $jobTitle = \MongoDB\Entity::whereIn('_id', $jobConfID)->get(array('content.title'))->toArray();
+            $result['jobContent'][$value['_id']]['jobConf'] = $jobTitle[0];
+        }
+
+        foreach ($result['workerUnitContent'] as $id => $annInfo) {
             foreach ($result['workerUnitContent'][$id]['workerUnitType'] as $index => $value) {
                 $job_id = $value['job_id'];
-                $result['workerUnitContent'][$id]['workerUnitType'][$index]['job_info'] =  $result['jobContent'][$job_id];
+                $result['workerUnitContent'][$id]['workerUnitType'][$index]['job_info'] = $result['jobContent'][$job_id];
             }
         }
         return $result;
     }
 
 
-    public function getMapreduceunit(){
+    public function getMapreduceunit()
+    {
 
         $db = \DB::getMongoDB();
         $db->execute('loadServerScripts');
@@ -226,7 +227,10 @@ class apiController extends BaseController
                             for (iterMTasks in annVects){
                                     var annVector = annVects[iterMTasks];
                                     var value = {'vector':annVector, 'count':1};
-                                    emit(key+'/'+iterMTasks, value);
+                                    var newKey = key+'/'+iterMTasks;
+                                    if (units_to_remove.indexOf(newKey) == -1) {
+                                        emit(key+'/'+iterMTasks, value);
+                                    }
                                 }
                         }");
         $reduce = new \MongoCode("function(key, mTasks) {
@@ -245,19 +249,25 @@ class apiController extends BaseController
 
            return reducedVal;
         }");
-
+        //remove the scope when the db is fixed
+        $scope = array();
         $aggregateOperators = $this->processAggregateInput(Input::all());
+        if (array_key_exists('unit_id', $aggregateOperators['$match'])){
+            $scope = $aggregateOperators['$match']['unit_id']['$nin'];
+        }
         $sales = $db->command(array(
             "mapreduce" => "entities",
             "map" => $map,
             "reduce" => $reduce,
+            "scope" => array('units_to_remove' => array_flatten($scope)),
             "query" => $aggregateOperators['$match'],
             "out" => array("inline" => 1)));
 
         return $sales;
     }
 
-    public function getMapreduceworker(){
+    public function getMapreduceworker()
+    {
 
         $db = \DB::getMongoDB();
         $db->execute('loadServerScripts');
@@ -269,8 +279,10 @@ class apiController extends BaseController
                             for (iterMTasks in annVects){
                                     var annVector = annVects[iterMTasks];
                                     var unit_id = this['unit_id'] +  '/' + iterMTasks;
-                                    var value = { 'workerUnits' : [{  unit_id:unit_id , vector:annVector, count:1}]};
-                                    emit(key, value);
+                                    if (units_to_remove.indexOf(unit_id) == -1) {
+                                        var value = { 'workerUnits' : [{  unit_id:unit_id , vector:annVector, count:1}]};
+                                        emit(key, value);
+                                    }
                                 }
                         }");
 
@@ -303,12 +315,17 @@ class apiController extends BaseController
 
             return result;
         }");
-
+        $scope = array();
         $aggregateOperators = $this->processAggregateInput(Input::all());
+        if (array_key_exists('unit_id', $aggregateOperators['$match'])){
+            $scope = $aggregateOperators['$match']['unit_id']['$nin'];
+        }
+
         $sales = $db->command(array(
             "mapreduce" => "entities",
             "map" => $map,
             "reduce" => $reduce,
+            "scope" => array('units_to_remove' => array_flatten($scope)),
             "query" => $aggregateOperators['$match'],
             "out" => array("inline" => 1)));
 
@@ -318,22 +335,22 @@ class apiController extends BaseController
     public function getJob()
     {
         $result = array();
-     //   $aggregateOperators = $this->processAggregateInput(Input::all());
+        //   $aggregateOperators = $this->processAggregateInput(Input::all());
         $jobID = Input::get('job');
         $result['infoStat'] = \MongoDB\Entity::where('_id', $jobID)->get()->toArray()[0];
-	$jobConfID = \MongoDB\Entity::where('_id', $jobID)->lists('jobConf_id');
+        $jobConfID = \MongoDB\Entity::where('_id', $jobID)->lists('jobConf_id');
         $jobConf = \MongoDB\Entity::whereIn('_id', $jobConfID)->get()->toArray();
         $result['infoStat']['jobConf'] = $jobConf[0];
-	if(isset($result['infoStat']['metrics'])) {
-		foreach ($result['infoStat']['metrics']['workers']['withoutFilter'] as $workerId => $value) {
-			$result['infoStat']['workers'][$workerId] = \MongoDB\CrowdAgent::where('_id', $workerId)->get()->toArray()[0];
-		
-		}
-		foreach ($result['infoStat']['results']['withSpam'] as $unitId => $value) {
-			$result['infoStat']['units'][$unitId] = \MongoDB\Entity::where('_id', $unitId)->get()->toArray()[0];
-		
-		}
-    	}
+        if (isset($result['infoStat']['metrics'])) {
+            foreach ($result['infoStat']['metrics']['workers']['withoutFilter'] as $workerId => $value) {
+                $result['infoStat']['workers'][$workerId] = \MongoDB\CrowdAgent::where('_id', $workerId)->get()->toArray()[0];
+
+            }
+            foreach ($result['infoStat']['results']['withSpam'] as $unitId => $value) {
+                $result['infoStat']['units'][$unitId] = \MongoDB\Entity::where('_id', $unitId)->get()->toArray()[0];
+
+            }
+        }
         return $result;
 
     }
@@ -349,12 +366,12 @@ class apiController extends BaseController
         $result = array();
         $aggregateOperators = $this->processAggregateInput(Input::all());
 
-        $projectList = array('id' => '_id','annotationVector' => 'annotationVector', 'job_id'=>'job_id', 'unit_id'=>'unit_id', 'crowdAgent_id' => 'crowdAgent_id');
+        $projectList = array('id' => '_id', 'annotationVector' => 'annotationVector', 'job_id' => 'job_id', 'unit_id' => 'unit_id', 'crowdAgent_id' => 'crowdAgent_id');
 
         $selection = \MongoDB\Entity::raw(function ($collection) use ($aggregateOperators, $projectList) {
             foreach ($projectList as $k => $v) {
                 $aggregateOperators['$project'][$k] = array('$ifNull' => array('$' . $v, 0));
-                $aggregateOperators['$group'][$k] = array('$push' => ('$'.$k));
+                $aggregateOperators['$group'][$k] = array('$push' => ('$' . $k));
             }
             $aggregateOperators['$project']['constField'] = array('$const' => 0);
             $aggregateOperators['$group']['count'] = array('$sum' => 1);
@@ -369,7 +386,7 @@ class apiController extends BaseController
 
         $units = \MongoDB\Entity::whereIn('_id', $response['unit_id'])->get(array('avg_clarity', 'content.sentence'))->toArray();
         $unitsDict = array();
-        foreach($units as $index =>$value) {
+        foreach ($units as $index => $value) {
             $unitsDict[$value['_id']] = $value;
         }
 
@@ -377,20 +394,20 @@ class apiController extends BaseController
         $collection = $this->repository->returnCollectionObjectFor($c);
         $jobs = $collection->whereIn('_id', $response['job_id'])->get(array('metrics.annotations', 'hasConfiguration.content.title', 'hasConfiguration.content.type'))->toArray();
         $jobsDict = array();
-        foreach($jobs as $index =>$value) {
+        foreach ($jobs as $index => $value) {
             $jobsDict[$value['_id']] = $value;
         }
 
         $agents = \MongoDB\CrowdAgent::whereIn('_id', $response['crowdAgent_id'])->get(array('softwareAgent_id', 'avg_agreement', 'avg_cosine', 'flagged'))->toArray();
         $agentsDict = array();
-        foreach($agents as $index =>$value) {
+        foreach ($agents as $index => $value) {
             $agentsDict[$value['_id']] = $value;
         }
 
-        $results =  array();
-        foreach($response['id'] as $index => $value){
-        //    $results[$index] = array();
-        //    $results[$value]['id'] = ;
+        $results = array();
+        foreach ($response['id'] as $index => $value) {
+            //    $results[$index] = array();
+            //    $results[$value]['id'] = ;
             $results[$value]['annotationVector'] = $response['annotationVector'][$index];
             $results[$value]['unit'] = $unitsDict[$response['unit_id'][$index]];
             $results[$value]['job'] = $jobsDict[$response['job_id'][$index]];
@@ -431,9 +448,9 @@ class apiController extends BaseController
 
         $crowdAgentIDs = array();
         $jobIDs = array();
-    $result['workerUnitContent'] = array();
-    $result['jobContent'] = array();
-    $result['agentContent'] = array();
+        $result['workerUnitContent'] = array();
+        $result['jobContent'] = array();
+        $result['agentContent'] = array();
         foreach ($response as $agent => $value) {
             $result['workerUnitContent'][$value['_id']] = $value;
             array_push($crowdAgentIDs, $value['_id']);
@@ -467,38 +484,38 @@ class apiController extends BaseController
         $agents = \MongoDB\CrowdAgent::whereIn('_id', $crowdAgentIDs)->get(array('cache',
             'cfWorkerTrust',
             'softwareAgent_id'))->toArray();
-        foreach($agents as $index =>$value) {
-        $result['workerUnitContent'][$value['_id']]["valuesWorker"] = $value;
-    //        $result['agentContent'][$value['_id']] = $value;
+        foreach ($agents as $index => $value) {
+            $result['workerUnitContent'][$value['_id']]["valuesWorker"] = $value;
+            //        $result['agentContent'][$value['_id']] = $value;
         }
 
         $jobIDs = array_unique($jobIDs);
-        $jobs = \MongoDB\Entity::whereIn('_id', $jobIDs)->get(array('results.withoutSpam.'.$unitID,
-            'results.withSpam.'.$unitID,
-            'metrics.units.withoutSpam.'.$unitID,
+        $jobs = \MongoDB\Entity::whereIn('_id', $jobIDs)->get(array('results.withoutSpam.' . $unitID,
+            'results.withSpam.' . $unitID,
+            'metrics.units.withoutSpam.' . $unitID,
             'metrics.aggUnits',
             'metrics.filteredUnits',
-            'metrics.workers.withFilter', 
-            'sofwareAgent_id', 
-        'platformJobId'))->toArray();
+            'metrics.workers.withFilter',
+            'sofwareAgent_id',
+            'platformJobId'))->toArray();
 
-        foreach($jobs as $index =>$value) {
+        foreach ($jobs as $index => $value) {
             $result['jobContent'][$value['_id']] = $value;
-        $jobConfID = \MongoDB\Entity::where('_id', '=', $value['_id'])->lists('jobConf_id');
-        $jobTitle = \MongoDB\Entity::whereIn('_id', $jobConfID)->get(array('content.title'))->toArray();
-        $result['jobContent'][$value['_id']]['jobConf'] = $jobTitle[0];
+            $jobConfID = \MongoDB\Entity::where('_id', '=', $value['_id'])->lists('jobConf_id');
+            $jobTitle = \MongoDB\Entity::whereIn('_id', $jobConfID)->get(array('content.title'))->toArray();
+            $result['jobContent'][$value['_id']]['jobConf'] = $jobTitle[0];
         }
-        
-        foreach($result['workerUnitContent'] as $id => $annInfo ) {
+
+        foreach ($result['workerUnitContent'] as $id => $annInfo) {
             foreach ($result['workerUnitContent'][$id]['workerUnitType'] as $index => $value) {
                 $job_id = $value['job_id'];
-                $result['workerUnitContent'][$id]['workerUnitType'][$index]['job_info'] =  $result['jobContent'][$job_id];
+                $result['workerUnitContent'][$id]['workerUnitType'][$index]['job_info'] = $result['jobContent'][$job_id];
             }
         }
         return $result;
     }
 
-   public function getUnitworkerpie()
+    public function getUnitworkerpie()
     {
         $selection = \MongoDB\Entity::raw(function ($collection) {
 
@@ -550,16 +567,18 @@ class apiController extends BaseController
         $results['query'] = Input::get('match');
         return $results;
     }
-    public function getMetrics(){
+
+    public function getMetrics()
+    {
 
         $IDsQuery = \MongoDB\Entity::raw(function ($collection) {
             $input = Input::all();
             $aggregateOperators = $this->processAggregateInput($input);
             $aggregateOperators['$group']['_id'] = 0;
             $aggregateQuery = array();
-            foreach($this->pipelineList as $operator){
-                if(array_key_exists($operator, $aggregateOperators)) {
-                    array_push( $aggregateQuery, array($operator=>$aggregateOperators[$operator]));
+            foreach ($this->pipelineList as $operator) {
+                if (array_key_exists($operator, $aggregateOperators)) {
+                    array_push($aggregateQuery, array($operator => $aggregateOperators[$operator]));
                 }
             }
 
@@ -603,7 +622,8 @@ class apiController extends BaseController
         return $spammersSet['result'][0]['spammers'];
     }
 
-    public function getUnitvector() {
+    public function getUnitvector()
+    {
         $template = Input::get('template');
         $aggregateOperators = $this->processAggregateInput(Input::all());
 
@@ -627,14 +647,14 @@ class apiController extends BaseController
 
             //:{ 'jobs': {$cond: [{ $gt: [{$ifNull: [ '$cache.jobs.count', 0 ] }, 0]}, 'inJobs', 'notInJobs']}}}
             $aggregateOperators['$project']['jobs'] = array('$cond' =>
-                array( array('$gt'=>array( array('$ifNull' => array ('$cache.jobs.count', 0)),0)), 'used in Jobs', 'not used in Jobs'));
+                array(array('$gt' => array(array('$ifNull' => array('$cache.jobs.count', 0)), 0)), 'used in Jobs', 'not used in Jobs'));
             $aggregateOperators['$group']['_id'] = "$" . $groupValue;
             $aggregateOperators['$group']['count'] = array('$sum' => 1);
 
             $aggregateQuery = array();
-            foreach($this->pipelineList as $operator){
-                if(array_key_exists($operator, $aggregateOperators)) {
-                    array_push( $aggregateQuery, array($operator=>$aggregateOperators[$operator]));
+            foreach ($this->pipelineList as $operator) {
+                if (array_key_exists($operator, $aggregateOperators)) {
+                    array_push($aggregateQuery, array($operator => $aggregateOperators[$operator]));
                 }
             }
             return $collection->aggregate($aggregateQuery);
@@ -644,6 +664,7 @@ class apiController extends BaseController
 
         return $results;
     }
+
     public function getWorkergraph()
     {
         $c = Input::get('collection', 'Entity');
@@ -678,9 +699,9 @@ class apiController extends BaseController
 
 
             $aggregateQuery = array();
-            foreach($this->pipelineList as $operator){
-                if(array_key_exists($operator, $aggregateOperators)) {
-                    array_push( $aggregateQuery, array($operator=>$aggregateOperators[$operator]));
+            foreach ($this->pipelineList as $operator) {
+                if (array_key_exists($operator, $aggregateOperators)) {
+                    array_push($aggregateQuery, array($operator => $aggregateOperators[$operator]));
                 }
             }
             return $collection->aggregate($aggregateQuery);
