@@ -50,9 +50,9 @@ def closse(response):
         pass
 
 #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#url = 'http://localhost/api/media/test'
+url = 'http://localhost/api/media/test'
 #url = 'http://crowdtruth.org/api/media/test'
-url = 'http://dev.crowdtruth.org/api/media/test'
+#url = 'http://dev.crowdtruth.org/api/media/test'
 #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #
 # things to be set for now:
