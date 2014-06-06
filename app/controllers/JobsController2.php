@@ -657,18 +657,18 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			//throw $e; // for debugging: see where it originates
 		}
 
-		$toomany = '';
-		if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)){
-			$jc->setValue('unitsPerTask', count($batch->wasDerivedFrom)); 
-			Session::flash('flashNotice', 'Adapted units per task to match the batch size.');
-		}	
+		// $toomany = '';
+		// if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)){
+		// 	$jc->setValue('unitsPerTask', count($batch->wasDerivedFrom)); 
+		// 	Session::flash('flashNotice', 'Adapted units per task to match the batch size.');
+		// }	
 
-		if(!$jc->validate() or !empty($toomany)){
-			$msg = '<ul>';
-			foreach ($jc->getErrors()->all() as $message)
-				$msg .= "<li>$message</li>";
-			Session::flash('flashError', "$msg$toomany</ul>");
-		} 
+		// if(!$jc->validate() or !empty($toomany)){
+		// 	$msg = '<ul>';
+		// 	foreach ($jc->getErrors()->all() as $message)
+		// 		$msg .= "<li>$message</li>";
+		// 	Session::flash('flashError', "$msg$toomany</ul>");
+		// } 
 
 		return View::make('job2.tabs.submit')
 			->with('treejson', $treejson)
@@ -741,7 +741,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		if(isset($jc->content)) $jcc = $jc->content;
 		else $jcc = array();
 
-		$template = Session::get('template');
+		//$template = Session::get('template');
 
 		if(Input::has('batch')){
 			// TODO: CSRF
@@ -755,75 +755,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			}	
 		}
 
-		if(Input::has('template')){
-			// Create the JobConfiguration object if it doesn't already exist.
-			$ntemplate = Input::get('template');
-			if (empty($template) or ($template != $ntemplate))	
-				$jc = JobConfiguration::fromJSON(Config::get('config.templatedir') . "$ntemplate.json");
-			$template = $ntemplate;
-			$origjobconf = 'jcid'; // TODO!
-
-
-			// FOR TESTING -> static questiontemplate. // TODO!
-			$filename = Config::get('config.templatedir') . $template . '.questiontemplate.json';
-			if(file_exists($filename))
-				$testdata = json_decode(file_get_contents($filename), true);
-			else $testdata = null;
-			/*if($testdata == null) 
-				Session::flash('flashNotice', 'JSON not found or incorrectly formatted.');*/
-			$qt = new QuestionTemplate;
-			$qt->format = $batch->format;
-			$qt->domain = $batch->domain;
-			$qt->content = $testdata;
-			$hash = md5(serialize($qt->content));
-            $existing = QuestionTemplate::where('hash', $hash)->pluck('_id');
-            
-            if($existing) 
-                $qtid = $existing;// Stop saving, it already exists.
-            else{
-	            $qt->hash = $hash;
-				$qt->save();
-				$qtid = $qt->_id;
-			}
-			Session::put('questiontemplateid', $qtid);
-			//////////////////////////////////////////////////////////
-
-
-		} else {
-			if (empty($jc)){
-				// No JobConfiguration and no template selected, not good.
-				if($next != 'template')
-					Session::flash('flashNotice', 'Please select a template first.');
-				return Redirect::to("jobs2/template");
-			} else {
-				// There already is a JobConfiguration object. Merge it with Input!
-				$jcc = array_merge($jcc, Input::get());	
-
-				// If leaving the details page...
-				if(Input::has('title')){
-					$jcc['answerfields'] = Input::get('answerfields', false);
-					if($next == 'nextplatform'){
-						if(isset($jcc['platform'][0])){
-							$next = $jcc['platform'][0];
-						} else {
-							Session::flash('flashNotice', 'Please select a platform first');
-							return Redirect::to("jobs2/platform");
-						}
-					}
-				}
-
-				// If leaving the Platform page....:
-				if(Input::has('platformpage'))
-					$jcc['platform'] = Input::get('platform', array());
-
-
-				// DEFAULT VALUES
-				if(!isset($jcc['eventType'])) $jcc['eventType'] = 'HITReviewable'; 
-				if(!isset($jcc['frameheight'])) $jcc['frameheight'] = 650;
-				unset($jcc['_token']);
-				$jc->content = $jcc;	
-
-				// After specific platform tab, call the method and determine which is next.
+	
 				$pid = Input::get('platformid', false);
 				if($pid){
 					$platform = App::make($pid);
@@ -837,11 +769,11 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 							$next = 'submit';	
 					}				
 				}
-			}		
-		}
+					
+		
 
-		Session::put('jobconf', serialize($jc));
-		Session::put('template', $template);
+	//	Session::put('jobconf', serialize($jc));
+	//	Session::put('template', $template);
 
 		try {
 			return Redirect::to("jobs2/$next");
