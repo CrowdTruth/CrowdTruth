@@ -113,9 +113,10 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                         var selectedInfo = {};
                         for (var index in currentSelectedUnits) {
                             selectedInfo[currentSelectedUnits[index]] = {};
-                            selectedInfo[currentSelectedUnits[index]]['tooltipLegend'] = specificInfo[currentSelectedUnits[index]][specificFields[category]['sendInfo']];
+                            selectedInfo[currentSelectedUnits[index]]['tooltipLegend'] = {}
+                            selectedInfo[currentSelectedUnits[index]]['tooltipLegend']['Sentence'] = specificInfo[currentSelectedUnits[index]][specificFields[category]['sendInfo']];
                             selectedInfo[currentSelectedUnits[index]]['tooltipChart'] = {};
-                            selectedInfo[currentSelectedUnits[index]]['tooltipChart']['unit avg clarity'] = specificInfo[currentSelectedUnits[index]]['avg_clarity'];
+                            selectedInfo[currentSelectedUnits[index]]['tooltipChart']['unit avg clarity across jobs'] = specificInfo[currentSelectedUnits[index]]['avg_clarity'];
                         }
                         workerUpdateFunction.update(currentSelectedUnits, selectedInfo);
                         jobsUpdateFunction.update(currentSelectedUnits, selectedInfo);
@@ -311,9 +312,10 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                             var selectedInfo = {};
                             for (var index in selectedUnits) {
                                 selectedInfo[selectedUnits[index]] = {};
-                                selectedInfo[selectedUnits[index]]['tooltipLegend'] = specificInfo[selectedUnits[index]][specificFields[category]['sendInfo']];
+                                selectedInfo[selectedUnits[index]]['tooltipLegend'] = {}
+                                selectedInfo[selectedUnits[index]]['tooltipLegend']['Sentence'] = specificInfo[selectedUnits[index]][specificFields[category]['sendInfo']];
                                 selectedInfo[selectedUnits[index]]['tooltipChart'] = {};
-                                selectedInfo[selectedUnits[index]]['tooltipChart']['unit avg clarity'] = specificInfo[selectedUnits[index]]['avg_clarity'];
+                                selectedInfo[selectedUnits[index]]['tooltipChart']['unit avg clarity across jobs'] = specificInfo[selectedUnits[index]]['avg_clarity'];
                             }
                             workerUpdateFunction.update(selectedUnits, selectedInfo);
                             jobsUpdateFunction.update(selectedUnits, selectedInfo);

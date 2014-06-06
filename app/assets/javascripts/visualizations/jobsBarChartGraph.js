@@ -1,5 +1,6 @@
 
 function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction, getSelection, updateSelection) {
+
     var barChart = "";
     var selectedUnits = [];
     var projectCriteria = "";
@@ -94,8 +95,8 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                     for (var index in selectedUnits) {
                         selectedInfo[selectedUnits[index]] = {};
                         selectedInfo[selectedUnits[index]]['tooltipLegend'] = {};
-                        selectedInfo[selectedUnits[index]]['tooltipLegend']['title'] = info[selectedUnits[index]]['title'];
-                        selectedInfo[selectedUnits[index]]['tooltipLegend']['type'] = info[selectedUnits[index]]['type'];
+                        selectedInfo[selectedUnits[index]]['tooltipLegend']['Title'] = info[selectedUnits[index]]['title'];
+                        selectedInfo[selectedUnits[index]]['tooltipLegend']['Type'] = info[selectedUnits[index]]['type'];
                     }
                     workerUpdateFunction.update(selectedUnits, selectedInfo);
                     jobsUpdateFunction.update(selectedUnits, selectedInfo);
@@ -240,8 +241,8 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                             for (var index in selectedUnits) {
                                 selectedInfo[selectedUnits[index]] = {};
                                 selectedInfo[selectedUnits[index]]['tooltipLegend'] = {};
-                                selectedInfo[selectedUnits[index]]['tooltipLegend']['title'] = info[selectedUnits[index]]['title'];
-                                selectedInfo[selectedUnits[index]]['tooltipLegend']['type'] = info[selectedUnits[index]]['type'];
+                                selectedInfo[selectedUnits[index]]['tooltipLegend']['Title'] = info[selectedUnits[index]]['title'];
+                                selectedInfo[selectedUnits[index]]['tooltipLegend']['Type'] = info[selectedUnits[index]]['type'];
                             }
                             workerUpdateFunction.update(selectedUnits, selectedInfo);
                             jobsUpdateFunction.update(selectedUnits, selectedInfo);

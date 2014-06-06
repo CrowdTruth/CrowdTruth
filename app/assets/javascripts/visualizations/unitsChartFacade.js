@@ -63,11 +63,11 @@ function unitsChartFacade(category, openModal, getSelection, updateSelection) {
     }
 
     this.update = function(matchStr, sortStr){
-        this.barChartGraph.updateBarChart(matchStr,sortStr);
-        for (var pieChart in this.pieCharts){
-            pieChart.updatePieChart(matchStr, sortStr);
+        console.dir("update");
+        this.barChartGraph.createBarChart(matchStr, sortStr);
+        for (var pieChartIndex in this.pieCharts){
+            this.pieCharts[pieChartIndex].createPieChart(matchStr);
         }
-        //create the jobs pie chart
         this.unitsWorkerDetails.createUnitsWorkerDetails();
         this.unitsAnnotationDetails.createUnitsAnnotationDetails();
         this.unitsJobDetails.createUnitsJobDetails();
@@ -80,7 +80,6 @@ function unitsChartFacade(category, openModal, getSelection, updateSelection) {
 
         for (var pieChartIndex in this.pieCharts){
             this.pieCharts[pieChartIndex].createPieChart(matchStr);
-
         }
         this.unitsWorkerDetails.createUnitsWorkerDetails();
         this.unitsAnnotationDetails.createUnitsAnnotationDetails();

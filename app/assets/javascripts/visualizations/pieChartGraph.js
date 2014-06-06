@@ -96,7 +96,7 @@ function pieChartGraph(tooltip, matchStr, groupID, chartName, divName, nrPieChar
                 var name = data[indexData]['_id'] + '';
                 chartData.push([name , data[indexData]['count']]);
             }
-            drawPieChart(chartData);
+            return drawPieChart(chartData);
            /* $('#' + renderTo + ' .highcharts-legend text, .highcharts-legend span').each(function(index, element) {
                 $(element).hover(function() {
                     pieChart.tooltip.refresh(pieChart.series[0].data[index]);

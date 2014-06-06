@@ -1,5 +1,6 @@
 //= require highcharts.js
 //= require modules/exporting.js
+//= require modules/heatmap.js
 //= require no-data-to-display.js
 //= require visualizations/unitsChartFacade.js
 //= require visualizations/unitsWorkerDetails.js

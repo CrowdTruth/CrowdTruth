@@ -85,15 +85,17 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                     var selectedInfo = {};
                     for (var index in selectedUnits) {
                         selectedInfo[selectedUnits[index]] = {};
-                        selectedInfo[selectedUnits[index]]['tooltipLegend'] = info[selectedUnits[index]]['platform'];
+                        selectedInfo[selectedUnits[index]]['tooltipLegend'] = {}
+                        selectedInfo[selectedUnits[index]]['tooltipLegend']['Platform'] = info[selectedUnits[index]]['platform'];
                         selectedInfo[selectedUnits[index]]['tooltipChart'] = {};
                         selectedInfo[selectedUnits[index]]['tooltipChart']['platform trust'] = info[selectedUnits[index]]['platformTrust'];
-                        selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker agreement'] = info[selectedUnits[index]]['workerAgreement'];
-                        selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker cosine'] = info[selectedUnits[index]]['workerCosine'];
+                        selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker agreement across jobs'] = info[selectedUnits[index]]['workerAgreement'];
+                        selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker cosine across jobs'] = info[selectedUnits[index]]['workerCosine'];
                     }
                     workerUpdateFunction.update(selectedUnits, selectedInfo);
                     jobsUpdateFunction.update(selectedUnits, selectedInfo);
                     annotationsUpdateFunction.update(selectedUnits, selectedInfo);
+
 
                 }
             }
@@ -237,11 +239,12 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                             var selectedInfo = {};
                             for (var index in selectedUnits) {
                                 selectedInfo[selectedUnits[index]] = {};
-                                selectedInfo[selectedUnits[index]]['tooltipLegend'] = info[selectedUnits[index]]['platform'];
+                                selectedInfo[selectedUnits[index]]['tooltipLegend'] = {}
+                                selectedInfo[selectedUnits[index]]['tooltipLegend']['Platform'] = info[selectedUnits[index]]['platform'];
                                 selectedInfo[selectedUnits[index]]['tooltipChart'] = {};
                                 selectedInfo[selectedUnits[index]]['tooltipChart']['platform trust'] = info[selectedUnits[index]]['platformTrust'];
-                                selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker agreement'] = info[selectedUnits[index]]['workerAgreement'];
-                                selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker cosine'] = info[selectedUnits[index]]['workerCosine'];
+                                selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker agreement across jobs'] = info[selectedUnits[index]]['workerAgreement'];
+                                selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker cosine  across jobs'] = info[selectedUnits[index]]['workerCosine'];
                             }
                             workerUpdateFunction.update(selectedUnits, selectedInfo);
                             jobsUpdateFunction.update(selectedUnits, selectedInfo);
