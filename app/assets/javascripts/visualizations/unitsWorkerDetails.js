@@ -484,7 +484,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 series[iterSeries]['color'] = Highcharts.Color(colors[(iterSeries/2)%(colors.length)]).get();
                 series[iterSeries]['type'] = 'column';
                 series[iterSeries]['categoryID'] = series[iterSeries]['name'];
-                colorMaps[series[iterSeries]['name']] = colors[iterSeries%(colors.length)];
+                colorMaps[series[iterSeries]['name']] = colors[(iterSeries/2)%(colors.length)];
                 seriesMaps[series[iterSeries]['name']] = iterSeries;
 
                 series[nextSeries]['type'] = 'column';

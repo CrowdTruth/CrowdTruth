@@ -3,6 +3,8 @@ function pieChartGraph(tooltip, matchStr, groupID, chartName, divName, nrPieChar
     this.matchStr = matchStr;
     this.groupID = groupID;
     this.chartName = chartName;
+    var colors =  Highcharts.getOptions().colors;
+    var colorMaps = {};
     var pieChart = "";
     var renderTo = divName + "_div";
 
@@ -90,11 +92,18 @@ function pieChartGraph(tooltip, matchStr, groupID, chartName, divName, nrPieChar
             matchStr = this.matchStr;
         }
         $.getJSON(this.url + matchStr + '&group=' + groupID, function(data) {
-            chartData = [];
+            var chartData = [];
 
             for (var indexData in data){
                 var name = data[indexData]['_id'] + '';
-                chartData.push([name , data[indexData]['count']]);
+                var color = ""
+                if (name in colorMaps) {
+                    color = colorMaps[name];
+                } else {
+                    color = colors[indexData%(colors.length)];
+                    colorMaps[name] = color;
+                }
+                chartData.push({name:name , y:data[indexData]['count'], color : color});
             }
             return drawPieChart(chartData);
            /* $('#' + renderTo + ' .highcharts-legend text, .highcharts-legend span').each(function(index, element) {

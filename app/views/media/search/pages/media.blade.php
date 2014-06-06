@@ -204,6 +204,7 @@ Swag.registerHelpers();
 
 $('.selectpicker').selectpicker();
 var xhr;
+var unitsChart;
 var selectedRows = [];
 var templates = {};
 var defaultColumns = {};
@@ -646,8 +647,13 @@ function getResults(baseApiURL){
 		if($('.graphViewButton').hasClass('hidden')){
             var selectedCategory = activeTabKey;
 			$(activeTabKey + ' .checkAll').removeAttr('checked');
-			var unitsChart = new unitsChartFacade(selectedCategory, openModal, getSelection, updateSelection);
-			unitsChart.init(getTabFieldsQuery(),"");
+            if(unitsChart == undefined)
+            {
+                unitsChart = new unitsChartFacade(selectedCategory, openModal, getSelection, updateSelection);
+                unitsChart.init(getTabFieldsQuery(),"");
+            } else {
+                unitsChart.update(getTabFieldsQuery(),"");
+            }
 		}
 
 		updateSelection();
