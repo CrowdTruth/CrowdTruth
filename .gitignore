@@ -1,4 +1,5 @@
 #
+/app/lib/getAPIS/keys.py
 /app/config/database.php
 /bootstrap/compiled.php
 /vendor

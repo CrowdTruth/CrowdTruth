@@ -50,10 +50,18 @@ def closse(response):
         pass
 
 #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#url = 'http://localhost/api/media/test'
+url = 'http://localhost/api/media/test'
 #url = 'http://crowdtruth.org/api/media/test'
-url = 'http://dev.crowdtruth.org/api/media/test'
+#url = 'http://dev.crowdtruth.org/api/media/test'
 #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#
+# things to be set for now:
+# 1. address above
+# 2  path in predict_adopted.py
+# keys.py to be put in this folder
+# this should be in the init:
+# sudo touch /dev/raw1394  
+# sudo chmod a+rw /dev/raw1394 
 
 headers = {'content-type': 'application/json'}
 
@@ -310,8 +318,8 @@ for iter in range(4, len(sys.argv), 2):
         data['relevantFeatures'] = []
         if val > th:
             data['relevantFeatures'].append("flowers")
-
-        r = requests.post(url, data=json.dumps(data), headers=headers)
+        if val >= 0:
+            r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r)     
         log(r) 
         if WRITE_FILE==1:        
@@ -337,8 +345,8 @@ for iter in range(4, len(sys.argv), 2):
         if val > th:
             data['relevantFeatures'].append("birds")
 
-
-        r = requests.post(url, data=json.dumps(data), headers=headers)
+        if val >= 0:    
+            r = requests.post(url, data=json.dumps(data), headers=headers)
         print (r) 
         log(r) 
         if WRITE_FILE==1:        

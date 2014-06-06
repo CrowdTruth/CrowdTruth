@@ -13,6 +13,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('media', 'MediaController');
 
 	Route::controller('jobs', 'JobsController');
+	Route::controller('jobs2', 'JobsController2');
 	Route::controller('workers', 'WorkersController');
     Route::controller('analyze','AnalyticsController');
     Route::controller('onlinesource', 'OnlineSourceController');
@@ -34,7 +35,7 @@ Route::get('/urlsurls', function()
 	foreach($results as $result)
 	{	
 
-		echo $result['content']['url'] . PHP_EOL;
+		echo $result['content']['url'] . ' ';
 		echo $result['_id'] . PHP_EOL;
 	}
 	echo PHP_EOL . PHP_EOL;
