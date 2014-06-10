@@ -28,18 +28,6 @@ class apiController extends BaseController {
     	'=' , '<', '>', '<=', '>=', '<>', 'like'
     );	
 
-    // protected $operators = array(
-    //     '=', '<', '>', '<=', '>=', '<>', '!=',
-    //     'like', 'not like', 'between', 'ilike',
-    //     '&', '|', '^', '<<', '>>',
-    //     'exists', 'type', 'mod', 'where', 'all', 'size', 'regex',
-    // );
-
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
 	public function getIndex()
 	{
 		$c = Input::get('collection', 'Entity');
@@ -60,53 +48,6 @@ class apiController extends BaseController {
 		$start = (int) Input::get('start', 0);
 		$limit = (int) Input::get('limit', 100);
 		$only = Input::get('only', array());
-
-		if(Input::has('datatables'))
-		{
-			$start = (int) Input::get('iDisplayStart', 0);
-			$limit = (int) Input::get('iDisplayLength', 100);
-
-			$sortingColumnIndex = (int) Input::get('iSortCol_0', 0);
-			$sortingColumnName = Input::get('mDataProp_' . $sortingColumnIndex, '_id');
-			$sortingDirection = Input::get('sSortDir_0', 'asc');
-
-			$sortingColumnName = $sortingColumnName == "_id" ? "natural" : $sortingColumnName;
-
-			$iTotalDisplayRecords = new \MongoDB\Entity;
-			$iTotalDisplayRecords = $this->processFields($iTotalDisplayRecords);
-			$iTotalDisplayRecords = $iTotalDisplayRecords->count();
-		
-			$collection = $collection->skip($start)->orderBy($sortingColumnName, $sortingDirection)->take($limit)->get($only);
-
-			if($input = Input::get('match'))
-			{
-				$iTotalRecords = new \MongoDB\Entity;
-
-				if(isset($input['format']))
-				{
-					$iTotalRecords = $iTotalRecords->whereIn('format', array_flatten([$input['format']]));
-				}
-
-				if(isset($input['domain']))
-				{
-					$iTotalRecords = $iTotalRecords->whereIn('domain', array_flatten([$input['domain']]));
-				}
-
-				if(isset($input['documentType']))
-				{
-					$iTotalRecords = $iTotalRecords->whereIn('documentType', array_flatten([$input['documentType']]));
-				}
-
-				$iTotalRecords = $iTotalRecords->count();
-			}
-
-			return Response::json([
-		        "sEcho" => Input::get('sEcho', 10),
-		        "iTotalRecords" => $iTotalRecords,
-		        "iTotalDisplayRecords" => $iTotalDisplayRecords,
-		        "aaData" => $collection->toArray()
-		   ]);			
-		}
 
 		// return $collection = ["entries" => $collection->skip($start)->take($limit)->get($only)->toArray()];
 
@@ -129,11 +70,12 @@ class apiController extends BaseController {
 			$writer = new Writer(new \SplTempFileObject);
 			$writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
 
+
+			$headerDotted = array();
+
 			foreach($documents as $line_index => $row)
 			{
-				// $this->recur_ksort($documentValue['content']);
-
-				// $row['_id'] = $documentValue['_id'];
+				unset($row['metrics'], $row['platformJobId'], $row['results'], $row['cache']);
 
 				if(isset($row['parents']))
 				{
@@ -141,40 +83,40 @@ class apiController extends BaseController {
 					unset($row['parents']);
 				}
 
-				// $row['content'] = $documentValue['content'];
-
-				if($line_index == 0)
+				foreach(array_dot($row) as $k => $v)
 				{
-					$headerDotted = array_dot($row);
-					$header = array_change_key_case(str_replace('.', '_', array_keys($headerDotted)), CASE_LOWER);
-					$writer->insertOne($header);
+					array_push($headerDotted, $k);
+				}
+
+			}
+
+			$headerDotted = array_unique($headerDotted);
+			natcasesort($headerDotted);
+
+			$csvHeader = array_change_key_case(str_replace('.', '_', array_values($headerDotted)), CASE_LOWER);
+			$writer->insertOne($csvHeader);
+
+			foreach($documents as $line_index => $row)
+			{
+				if(isset($row['parents']))
+				{
+					$row['wasDerivedFrom'] = implode(",", $row['parents']);
+					unset($row['parents']);
 				}
 
 				$row = array_dot($row);
 
-				$csvRow = array();
-
-				// foreach($row as $columnKey => $columnValue)
-				// {
-				// 	if($columnKey == "parents")
-				// 	{
-				// 		$columnKey = "wasDerivedFrom";
-				// 	}
-
-				// 	$csvRow[str_replace('.', '_', $columnKey)] = $columnValue;
-				// }
-
-				foreach($headerDotted as $columnKey => $columnValue)
+				foreach($headerDotted as $column)
 				{
-					// if($columnKey == "parents")
-					// {
-					// 	$columnKey = "wasDerivedFrom";
-					// }
-
-					$csvRow[str_replace('.', '_', $columnKey)] = $row[$columnKey];
+					if(isset($row[$column]))
+					{
+						$csvRow[str_replace('.', '_', $column)] = $row[$column];
+					}
+					else
+					{
+						$csvRow[str_replace('.', '_', $column)] = "";
+					}
 				}				
-
-				// return $csvRow;
 
 				$writer->insertOne($csvRow);
 			}
@@ -182,7 +124,6 @@ class apiController extends BaseController {
 			$writer->output(time() . '.csv');
 
 			die;
-			// return array_dot($csv);
 		}		
 
 		return Response::json([

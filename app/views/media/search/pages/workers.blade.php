@@ -38,9 +38,8 @@
 						Actions <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu" role="menu">
-							@if(Request::segment(1) == 'workers')
-								<li><a href="#" onclick="javascript:alert('Mass messaging is currently disabled. Sorry!')">Message workers</a></li>
-							@endif
+							<li><a href="#" onclick="javascript:alert('Mass messaging is currently disabled. Sorry!')">Message workers</a></li>
+							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
 						</ul>
 					</div>
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
