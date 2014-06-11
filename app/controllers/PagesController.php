@@ -21,7 +21,6 @@ class PagesController extends BaseController {
 		return View::make('papers');
 	}
 
-
 	public function team()
 	{
 		return View::make('team');
@@ -30,6 +29,11 @@ class PagesController extends BaseController {
 	public function apiExamples()
 	{
 		return View::make('api_examples');
+	}
+
+	public function templatesExamples()
+	{
+		return View::make('templates_examples');
 	}
 
 }
