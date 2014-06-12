@@ -277,5 +277,4 @@ h3 {
     });
 	});
 </script>
-</script>
 @stop					
