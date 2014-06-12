@@ -89,7 +89,7 @@ h3 {
 			    		<li><a href='#ArtDomain'>Templates in Art Domain</a>
 					    	<ul>
 					    		<li><a href='#WithBoundingBox'>Flower annotation in images (local with bounding box)</a></li>
-					    		<li><a href='#WithoutBoungindBox'>Flower annotation in images (global for the whole image)</a></li>
+					    		<li><a href='#WithoutBoundingBox'>Flower annotation in images (global for the whole image)</a></li>
 					    	</ul>
 			    		</li>
 			    		<li><a href='#NewsDomain'>Templates in News Domain</a>
@@ -151,7 +151,10 @@ h3 {
 						            	<li><strong>Annotation setting:</strong>The workers are given a medical sentence with two highlighted terms (factors) in it. They are asked to select all relations that apply between them. The set of relations contains 23 possible relations: the 11 non-symmetric relations used in RelEx with their inverses (e.g. causes and caused-by), plus NONE and OTHER. The relation definitions available include an explanation of the directionality. </li>
 						            	<li><strong>Possible adaptations of this template:</strong>This template could be executed in four versions, (1) with verification question, (2) without verification questions, (3) with gold sentences and (4) without gold sentences. </li>
 						            	<li><strong>Result vector:</strong>The crowd answers are stored in a vector, which captures each selection of the crowd as following: [R1, R1-inverse, R2, R2-inverse, R3, R3-inverse, R4, R4-inverse, R5, R5-inverse, R6, R6-inverse, R7, R7-inverse, R8, R8-inverse, R9, R9-inverse, R10, R10-inverse, R11, R11-inverse, NONE, OTHER, Answer-Validation-NONE, Answer-Validation-OTHER, Answer-Validation-Directionality] </li>
-						            </ul>        
+						            </ul>
+								<br/>           
+						        <img src='/images/templates/RelExDir/RelExDir1.png' />            
+						        <img src='/images/templates/RelExDir/RelExDir2.png' />  
 			            	</li>
 			            </ul>
 			        </section>
