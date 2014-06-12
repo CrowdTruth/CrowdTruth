@@ -390,7 +390,7 @@ class JobsController2 extends BaseController {
 		//$jc = unserialize(Session::get('jobconf'));
 		$jc = new JobConfiguration;
 		$jc->documnetType = "jobconf";
-		$jc->content = array("Lukasz:::");
+		$jc->content = array("Lukasz:::" . rand());
 		//$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
 		//$questiontemplateid = Session::get('questiontemplateid');
@@ -417,10 +417,11 @@ class JobsController2 extends BaseController {
         	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id')) //[qq]
                 $jcid = $existingid; // Don't save, it already exists.
             else {
-            	$jc->format = "text";
-				$jc->domain = "medical";
+            	$jc->format = $batch->format;
+				$jc->domain = $batch->domain;
 	            $jc->hash = $hash;
-	            $jc->type = "RelEx";
+	            $jc->type = " FORM :: templatetype";
+	            $jc->title = " FORM :: title";
 	            $jc->tags = array("Lukasz:::");
 				$jc->activity_id = $activity->_id;
 				$jc->save();
