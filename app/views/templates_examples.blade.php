@@ -163,7 +163,7 @@ h3 {
 						            	<li><strong>Goal:</strong> In this template the goal is to provide flower annotations in images.</li>
 						            	<li><strong>Annotation setting:</strong> The workers are given an image that has a high chance of depicting flowers. They are asked to identify all the flowers that appear by surrounding each flower with a box, and to fill in their names, the total number of flowers and the number of different flower types depicted. </li>
 						            	<li><strong>Result vector:</strong> The crowd answers are stored in a vector which captures each selection of the crowd as following: each different flower name with the number of selections [FT1, FT2, … , FTn] </li>
-						            	<li><strong>Possible adaptations of this template</strong>This template could be also executed in a global version: tag flowers by giving only the name and the type and without surrounding the flowers with boxes.</li>
+						            	<li><strong>Possible adaptations of this template:</strong>This template could be also executed in a global version: tag flowers by giving only the name and the type and without surrounding the flowers with boxes.</li>
 						            </ul>
 								<br/>
 								<h3 id='WithBoundingBox'> With bounding box </h3>       
@@ -194,12 +194,12 @@ h3 {
 				                <img src='/images/templates/EventsNews/event/eventnews2.png' />                
 				                <img src='/images/templates/EventsNews/event/eventnews3.png' />
 			            	</li>
-			            	<li><h3>DescEventEx: Event Identification in Video Description:</h3>
+			            	<li id='LocEx'><h3>LocEx, TimeEx, PartEx: Event Location, Time & Participants Identification: </h3>
 						            <ul>
-						            	<li><strong>Goal:</strong> In this template the goal is to identify events and event role fillers in video metadata description.</li>
-						            	<li><strong>Annotation setting:</strong>The workers are given the description of a video. They are asked to highlight each event or event role filler that appears in the video description. </li>
-						            	<li><strong>Possible adaptations of this template:</strong>This template could be executed in 3 versions: (1) ask only for event annotations or one event role filler at a time, (2) ask to confirm or reject machine annotations (named or common entities extracted by various NLP tools), (3) cluster the annotations in events, periods, participants and locations.</li>
-						            	<li><strong>Result vector:</strong>The crowd answers are stored in a vector which captures each selection of the crowd as following: each different annotation with the total number of selections [EvA1, EvA2, … , EvAn] </li>
+						            	<li><strong>Goal:</strong> In this template the goal is to identify the location, the time or the participants of the event that is highlighted in a sentence.</li>
+						            	<li><strong>Annotation setting:</strong> The workers are given a sentence with one putative event highlighted. The first question constitutes a control question because it reviews the first step of EventEx: the workers are asked to judge whether the capitalized word phrase refers to an event, an action or none of them and motivate the answer. The second step applies only when the worker considers the capitalized word phrase an event/action. Thus, the workers are asked to indicate whether the text contains a reference for the time/location/participants of the event. If the answer is no, they are asked for a motivation. Otherwise, they are asked to highlight the words referring to the attribute and to choose their type from a type list. Because events could have more that one participant, the template allows a followup question to choose a second participant (replicate the highlight of participants from the sentence and the choosing of participant type).</li>
+						            	<li><strong>Result vector:</strong> The crowd answers are stored in a vector, which captures each selection of the crowd as following: [EvRFT1, EvRFT2, … EvRFTn, OTHER, NOT_APPLICABLE], EvRFTi - Event Role Filler (time, location, participant) Type n </li>
+						            	<li><strong>Possible adaptations of this template</strong>This template could be executed in 2 versions: (1) with motivation/explanation question, (2) without motivation/explanation question</li>
 						            </ul>
 								<br/>           
 				                <img src='/images/templates/EventsNews/time/time1.png' />
@@ -221,6 +221,14 @@ h3 {
 					        <img src='/images/templates/Videos/VideoContent/videoContent1.png' />
 					        <img src='/images/templates/Videos/VideoContent/videoContent2.png' />
 			            	</li>
+			            	<li><h3>DescEventEx: Event Identification in Video Description:</h3>
+					            <ul>
+					            	<li><strong>Goal:</strong> In this template the goal is to identify events and event role fillers in video metadata description.</li>
+					            	<li><strong>Annotation setting:</strong>The workers are given the description of a video. They are asked to highlight each event or event role filler that appears in the video description. </li>
+					            	<li><strong>Possible adaptations of this template:</strong>This template could be executed in 3 versions: (1) ask only for event annotations or one event role filler at a time, (2) ask to confirm or reject machine annotations (named or common entities extracted by various NLP tools), (3) cluster the annotations in events, periods, participants and locations.</li>
+					            	<li><strong>Result vector:</strong>The crowd answers are stored in a vector which captures each selection of the crowd as following: each different annotation with the total number of selections [EvA1, EvA2, … , EvAn] </li>
+					            </ul>                             
+			            	</li>			            	
 			            </ul>
 			        </section>
 
