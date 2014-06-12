@@ -22,6 +22,7 @@
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown">Info <b class="caret"></b></a>
 							<ul class="dropdown-menu">
 								<li>{{ link_to('info', "Documentation") }}</li>
+								<li>{{ link_to('templates/examples', "Examples") }}</li>
 								<li>{{ link_to('papers', "Papers") }}</li>
 								<li>{{ link_to('team', "Team") }}</li>
 								<li class="divider"></li>
