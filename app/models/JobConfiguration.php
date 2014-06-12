@@ -31,8 +31,8 @@ class JobConfiguration extends Entity {
                 if(isset($c['autoApprovalDelayInMinutes'])) $c['autoApprovalDelayInMinutes'] = intval($c['autoApprovalDelayInMinutes']);
                 if(isset($c['expirationInMinutes'])) $c['expirationInMinutes'] = intval($c['expirationInMinutes']);
                 if(isset($c['workerUnitsPerUnit'])) $c['workerUnitsPerUnit'] = intval($c['workerUnitsPerUnit']);
-                if(isset($c['unitsPerTask'])) $c['unitsPerTask'] = intval($c['unitsPerTask']);
-                if($c['unitsPerTask'] == 0) $c['unitsPerTask'] = 1;
+                if(isset($c['unitsPerTask'])){ $c['unitsPerTask'] = intval($c['unitsPerTask']);
+                if($c['unitsPerTask'] == 0) $c['unitsPerTask'] = 1;}
                 $jobconf->content = $c;
             } catch (Exception $e){
                 if($jobconf) $jobconf->forceDelete();
