@@ -13,6 +13,7 @@
 						<h4>Preview task and submit</h4>
 					</div>
 					<div class="panel-body">
+						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
 					<?php
 					/* 	<fieldset>
 							<legend>Properties</legend>
@@ -72,14 +73,14 @@
 											
 										</div>
 										<div class="form-group">
-											<label for="titleown" class="col-sm-3 control-label">Own title:</label>
+											<label for="titleOwn" class="col-sm-3 control-label">Own title:</label>
 											
-											<input type="text" id="titleown" ng-model="titleown"/>
+											<input type="text" id="titleOwn" ng-model="titleOwn"/>
 										</div>
 									</div>
 
 									<div class="form-group">
-										<label for="document_type" class="col-sm-3 control-label">Template Type</label>
+										<label for="templateType" class="col-sm-3 control-label">Template Type</label>
 										<div class="col-sm-5">
 											<select name="templateType" class="form-control" id="templateType" ng-model="type">
 												<option value="Images Standard">Images Standard</option>
@@ -90,25 +91,43 @@
 											
 										</div><br>
 										<div class="form-group">
-											<label for="templatetypeown" class="col-sm-3 control-label">Own template type:</label>
+											<label for="templateTypeOwn" class="col-sm-3 control-label">Own template type:</label>
 											
-											<input type="text" id="templatetypeown" ng-model="templatetypeown"/>
+											<input type="text" id="templateTypeOwn" ng-model="templateTypeOwn"/>
 										</div>
 									</div>
 								</div>
 							</div>
-
+							<br/>
+							<fieldset>
+							{{ Form::label('title', 'Select a title from the set of predefined ones or give your own', 
+									array('class' => 'col-xs-4 control-label')) }}
+								<div class="input-group col-xs-2">
+									{{ Form::select('title',  array('Images standard' => 'Images standard', 'A big task' => 'A big task'), null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
+								</div>
+							<br/>
+							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own', 
+									array('class' => 'col-xs-4 control-label')) }}
+								<div class="input-group col-xs-2">
+									{{ Form::select('templateType',  array('RelEx' => 'RelEx', 'Image tagging' => 'Image tagging'), null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
+								</div>
+							<br/>
+							</fieldset>
 							<!-- 						</fieldset><br><br> -->
-							<button class="btn btn-default btn-lg pull-left" data-toggle="modal" data-target="#myModal">
+						
+
+						<!-- 	<button class="btn btn-default btn-lg pull-left" data-toggle="modal" data-target="#myModal">
 								Save settings
-							</button>
+							</button> -->
 		<!--				{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController@postSubmitFinal', 'order'), 'method' => 'POST')) }}
 							{{ Form::submit('Submit and order', array('class' => 'btn btn-lg btn-primary pull-right')); }}
 						{{ Form::close()}}	
 
 						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
 						{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }} -->
-						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
+						
+
+
 						{{ Form::submit('Create Job', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }}
 						{{ Form::close()}}
 

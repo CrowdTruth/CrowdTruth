@@ -420,8 +420,8 @@ class JobsController2 extends BaseController {
             	$jc->format = $batch->format;
 				$jc->domain = $batch->domain;
 	            $jc->hash = $hash;
-	            $jc->type = " FORM :: templatetype";
-	            $jc->title = " FORM :: title";
+	            $jc->type = Input::get('templateType');
+	            $jc->title = Input::get('title');
 	            $jc->tags = array("Lukasz:::");
 				$jc->activity_id = $activity->_id;
 				$jc->save();
@@ -431,24 +431,26 @@ class JobsController2 extends BaseController {
 
 			// Publish jobs
 			// foreach($jc->content['platform'] as $platformstring){
-			// 	$j = new Job;
-			// 	$j->format = $batch->format;
-			// 	$j->domain = $batch->domain;
-			// 	$j->type = explode('/', $template)[1];
+			 	$j = new Job;
+			 	$j->format = $batch->format;
+			 	$j->domain = $batch->domain;
+			 	$j->type =  Input::get('templateType');
 			// 	$j->template = $template; // TODO: remove
-			// 	$j->batch_id = $batch->_id;
+			 	$j->batch_id = $batch->_id;
 			// 	$j->questionTemplate_id = $questiontemplateid;
-			// 	$j->jobConf_id = $jcid;
-			// 	$j->softwareAgent_id = $platformstring;
-			// 	$j->activity_id = $activity->_id;
+			 	$j->jobConf_id = $jcid;
+			 //	$j->softwareAgent_id = $platformstring;
+			 	$j->activity_id = $activity->_id;
+			 	$j->iamemptyjob = "yes";
+			 	$j->save(); //convert to publish later
 			// 	$j->publish(($ordersandbox == 'sandbox' ? true : false));
-			// 	$jobs[] = $j;
+			 //	$jobs[] = $j;
 			// }
 
 			// Success.
 			//Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
 			//				strtoupper(implode(', ', $jc->content['platform'])) . '.');
-			$successmessage = "Created job :-)"; // . (count($jc->content['platform']) > 1 ? 's' : '') . " on " . 
+			$successmessage = "Created job with jobConf :-)"; // . (count($jc->content['platform']) > 1 ? 's' : '') . " on " . 
 							//strtoupper(implode(', ', $jc->content['platform'])) . '. Order it by pressing the button under \'Actions\'. Demo jobs are published on the sandbox or internal channels only.';
 			
 			// TODO: this only takes the first job of potentially two
