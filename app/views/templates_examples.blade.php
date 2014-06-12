@@ -120,7 +120,7 @@ h3 {
 						            </ul>
 								<br/>           
 								<img src='/images/templates/FactSpan/FactSpan1.png' />
-								<img src='/images/templates/FactSpan/FactSpan3.png' />
+								<img src='/images/templates/FactSpan/FactSpan2.png' />
 								<img src='/images/templates/FactSpan/FactSpan3.png' />						            
 			            	</li>
 			            	<li id='RelEx'><h3>RelEx: Medical Relation annotation in text (between Factors):</h3>
