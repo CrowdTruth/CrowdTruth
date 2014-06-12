@@ -168,7 +168,7 @@ class JobsController2 extends BaseController {
 		$questiontemplateid = Session::get('questiontemplateid');
 		$treejson = $this->makeDirTreeJSON($template, $batch->format, false);
 		
-		$jc->unsetKey('platformpage');
+		//$jc->unsetKey('platformpage');
 		// TODO: this here is really bad.
 		// The previews should be decoupled form AMT.
 		// HTML should be generated based on the QuestionTemplate.
@@ -185,7 +185,7 @@ class JobsController2 extends BaseController {
 			Session::flash('flashNotice', $e->getMessage());
 			//throw $e; // for debugging: see where it originates
 		}
-
+		//dd("o");
 		// $toomany = '';
 		// if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)){
 		// 	$jc->setValue('unitsPerTask', count($batch->wasDerivedFrom)); 
@@ -202,10 +202,11 @@ class JobsController2 extends BaseController {
 		return View::make('job2.tabs.submit')
 			->with('treejson', $treejson)
 			->with('questions',  $questions)
-			->with('table', $jc->toHTML())
+		//	->with('table', $jc->toHTML())
 			->with('template', '')//$jc->content['template'])
 			->with('frameheight', (isset($jc->content['frameheight']) ? $jc->content['frameheight'] : 650))
-			->with('jobconf', $jc->content);
+		//	->with('jobconf', $jc->content)
+			;
 	}
 
 	public function getClearTask(){
@@ -266,11 +267,12 @@ class JobsController2 extends BaseController {
 	* It combines the Input fields with the JobConfiguration that we already have in the Session.
 	*/
 	public function postFormPart($next){
+
 		$jc = unserialize(Session::get('jobconf', serialize(new JobConfiguration)));
 		if(isset($jc->content)) $jcc = $jc->content;
 		else $jcc = array();
 
-		//$template = Session::get('template');
+		$template = Session::get('template');
 
 		if(Input::has('batch')){
 			// TODO: CSRF
@@ -280,11 +282,80 @@ class JobsController2 extends BaseController {
 			$batch = unserialize(Session::get('batch'));
 			if(empty($batch)){
 				Session::flash('flashNotice', 'Please select a batch first.');
-				return Redirect::to("jobs2/batch");
+				return Redirect::to("jobs/batch");
 			}	
 		}
 
-	
+		if(Input::has('template')){
+			// Create the JobConfiguration object if it doesn't already exist.
+			$ntemplate = Input::get('template');
+			if (empty($template) or ($template != $ntemplate))	
+				$jc = JobConfiguration::fromJSON(Config::get('config.templatedir') . "$ntemplate.json");
+			$template = $ntemplate;
+			$origjobconf = 'jcid'; // TODO!
+
+
+			// FOR TESTING -> static questiontemplate. // TODO!
+			$filename = Config::get('config.templatedir') . $template . '.questiontemplate.json';
+			if(file_exists($filename))
+				$testdata = json_decode(file_get_contents($filename), true);
+			else $testdata = null;
+			/*if($testdata == null) 
+				Session::flash('flashNotice', 'JSON not found or incorrectly formatted.');*/
+			$qt = new QuestionTemplate;
+			$qt->format = $batch->format;
+			$qt->domain = $batch->domain;
+			$qt->content = $testdata;
+			$hash = md5(serialize($qt->content));
+            $existing = QuestionTemplate::where('hash', $hash)->pluck('_id');
+            
+            if($existing) 
+                $qtid = $existing;// Stop saving, it already exists.
+            else{
+	            $qt->hash = $hash;
+				$qt->save();
+				$qtid = $qt->_id;
+			}
+			Session::put('questiontemplateid', $qtid);
+			//////////////////////////////////////////////////////////
+
+
+		} else {
+
+			if (empty($jc)){
+				// No JobConfiguration and no template selected, not good.
+				if($next != 'template')
+					Session::flash('flashNotice', 'Please select a template first.');
+				return Redirect::to("jobs2/template");
+			} else {
+				// There already is a JobConfiguration object. Merge it with Input! OK
+				$jcc = array_merge($jcc, Input::get());	
+
+				// If leaving the details page...
+				if(Input::has('title')){
+					$jcc['answerfields'] = Input::get('answerfields', false);
+					if($next == 'nextplatform'){
+						if(isset($jcc['platform'][0])){
+							$next = $jcc['platform'][0];
+						} else {
+							Session::flash('flashNotice', 'Please select a platform first');
+							return Redirect::to("jobs2/platform");
+						}
+					}
+				}
+
+				// If leaving the Platform page....:
+				if(Input::has('platformpage'))
+					$jcc['platform'] = Input::get('platform', array());
+
+
+				// DEFAULT VALUES
+				if(!isset($jcc['eventType'])) $jcc['eventType'] = 'HITReviewable'; 
+				if(!isset($jcc['frameheight'])) $jcc['frameheight'] = 650;
+				unset($jcc['_token']);
+				$jc->content = $jcc;	
+
+				// After specific platform tab, call the method and determine which is next.
 				$pid = Input::get('platformid', false);
 				if($pid){
 					$platform = App::make($pid);
@@ -298,11 +369,11 @@ class JobsController2 extends BaseController {
 							$next = 'submit';	
 					}				
 				}
-					
-		
+			}		
+		}
 
-	//	Session::put('jobconf', serialize($jc));
-	//	Session::put('template', $template);
+		Session::put('jobconf', serialize($jc));
+		Session::put('template', $template);
 
 		try {
 			return Redirect::to("jobs2/$next");
@@ -316,20 +387,23 @@ class JobsController2 extends BaseController {
 	* Send it to the platforms.
 	*/
 	public function postSubmitFinal($ordersandbox = 'order'){
-		$jc = unserialize(Session::get('jobconf'));
-		$template = Session::get('template');
+		//$jc = unserialize(Session::get('jobconf'));
+		$jc = new JobConfiguration;
+		$jc->documnetType = "jobconf";
+		$jc->content = array("Lukasz:::");
+		//$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
-		$questiontemplateid = Session::get('questiontemplateid');
-		$jobs = array();
+		//$questiontemplateid = Session::get('questiontemplateid');
+		//$jobs = array();
 
-		if(!$jc->validate()){
+		/*if(!$jc->validate()){
 			$msg = '';
 			foreach ($jc->getErrors()->all() as $message)
 				$msg .= "<li>$message</li>";
 			Session::flash('flashError', "<ul>$msg</ul>");
 			return Redirect::to("jobs2/submit");
 		}
-
+	*/
 		try{
 
 			// Save activity
@@ -340,12 +414,14 @@ class JobsController2 extends BaseController {
 
 			// Save jobconf if necessary
 			$hash = md5(serialize($jc->content));
-        	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id'))
+        	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id')) //[qq]
                 $jcid = $existingid; // Don't save, it already exists.
             else {
-            	$jc->format = $batch->format;
-				$jc->domain = $batch->domain;
+            	$jc->format = "text";
+				$jc->domain = "medical";
 	            $jc->hash = $hash;
+	            $jc->type = "RelEx";
+	            $jc->tags = array("Lukasz:::");
 				$jc->activity_id = $activity->_id;
 				$jc->save();
 				$jcid = $jc->_id;
@@ -353,43 +429,45 @@ class JobsController2 extends BaseController {
 	
 
 			// Publish jobs
-			foreach($jc->content['platform'] as $platformstring){
-				$j = new Job;
-				$j->format = $batch->format;
-				$j->domain = $batch->domain;
-				$j->type = explode('/', $template)[1];
-				$j->template = $template; // TODO: remove
-				$j->batch_id = $batch->_id;
-				$j->questionTemplate_id = $questiontemplateid;
-				$j->jobConf_id = $jcid;
-				$j->softwareAgent_id = $platformstring;
-				$j->activity_id = $activity->_id;
-				$j->publish(($ordersandbox == 'sandbox' ? true : false));
-				$jobs[] = $j;
-			}
+			// foreach($jc->content['platform'] as $platformstring){
+			// 	$j = new Job;
+			// 	$j->format = $batch->format;
+			// 	$j->domain = $batch->domain;
+			// 	$j->type = explode('/', $template)[1];
+			// 	$j->template = $template; // TODO: remove
+			// 	$j->batch_id = $batch->_id;
+			// 	$j->questionTemplate_id = $questiontemplateid;
+			// 	$j->jobConf_id = $jcid;
+			// 	$j->softwareAgent_id = $platformstring;
+			// 	$j->activity_id = $activity->_id;
+			// 	$j->publish(($ordersandbox == 'sandbox' ? true : false));
+			// 	$jobs[] = $j;
+			// }
 
 			// Success.
 			//Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
 			//				strtoupper(implode(', ', $jc->content['platform'])) . '.');
-			$successmessage = "Created job" . (count($jc->content['platform']) > 1 ? 's' : '') . " on " . 
-							strtoupper(implode(', ', $jc->content['platform'])) . '. Order it by pressing the button under \'Actions\'. Demo jobs are published on the sandbox or internal channels only.';
-
+			$successmessage = "Created job :-)"; // . (count($jc->content['platform']) > 1 ? 's' : '') . " on " . 
+							//strtoupper(implode(', ', $jc->content['platform'])) . '. Order it by pressing the button under \'Actions\'. Demo jobs are published on the sandbox or internal channels only.';
+			
 			// TODO: this only takes the first job of potentially two
-			if(!empty($jobs[0]->url))
-				$successmessage .= ". After that, you can view it <a href='{$jobs[0]->url}' target='blank'>here</a>.";
+			//if(!empty($jobs[0]->url))
+			//	$successmessage .= ". After that, you can view it <a href='{$jobs[0]->url}' target='blank'>here</a>.";
 
 			Session::flash('flashSuccess', $successmessage);
-			return Redirect::to("jobs2/");
-//(Auth::user()->role == 'demo' ? '. Because this is a demo account, you can not order it. Please take a look at our finished jobs!' : '. Click on \'actions\' on the job to order it.')
+			//dd("ooa");
+			return Redirect::to("jobs");
+
+			//(Auth::user()->role == 'demo' ? '. Because this is a demo account, you can not order it. Please take a look at our finished jobs!' : '. Click on \'actions\' on the job to order it.')
 		} catch (Exception $e) {
 
 			// Undo creation and delete jobs
-			if(isset($jobs))
-			foreach($jobs as $j){
-				if(isset($j->platformJobId))
-					$j->undoCreation($j->platformJobId);
-				$j->forceDelete();
-			}		
+			// if(isset($jobs))
+			// foreach($jobs as $j){
+			// 	if(isset($j->platformJobId))
+			// 		$j->undoCreation($j->platformJobId);
+			// 	$j->forceDelete();
+			// }		
 
 			//delete activity
 			if($activity) $activity->forceDelete();
@@ -397,6 +475,7 @@ class JobsController2 extends BaseController {
 			throw $e; //for debugging
 
 			Session::flash('flashError', $e->getMessage());
+
 			return Redirect::to("jobs2/submit");
 		}
 

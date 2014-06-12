@@ -13,7 +13,8 @@
 						<h4>Preview task and submit</h4>
 					</div>
 					<div class="panel-body">
-					<!-- 	<fieldset>
+					<?php
+					/* 	<fieldset>
 							<legend>Properties</legend>
 							{{ $table }}
 						</fieldset>
@@ -55,6 +56,8 @@
 							    <span class="fa fa-chevron-right" style="color:black; position:absolute; top:50%"></span>
 							  </a>
 							</div> -->
+							*/ ?>
+
 							<div class="panel-body bordered">							
 								<div class="form-horizontal">
 									<div class="form-group">
