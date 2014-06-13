@@ -41,6 +41,7 @@
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
+							<li><a href="#" class='toCSV'>Export results to CSV</a></li>													
 						</ul>
 					</div>					
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">

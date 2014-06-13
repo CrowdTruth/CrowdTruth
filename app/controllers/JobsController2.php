@@ -28,478 +28,7 @@ class JobsController2 extends BaseController {
 		return View::make('job2.tabs.templatebuilder');
 	}
 
-	public function getWorkers(){
-		$c = 0;
-		foreach (\MongoDB\CrowdAgent::where('softwareAgent_id', 'cf')->get() as $w) {
-			$w->platformAgentId = (string) $w->platformAgentId;
-			$w->save();
-			$c++;
-
-		}
-		echo $c;
-	}
-
-	public function getA(){
-		//Queue::push('Queues\UpdateUnits', array("entity/text/medical/relex-structured-sentence/1078"));
-		$ca = \MongoDB\CrowdAgent::where("_id", "crowdagent/cf/14781069")->first();
-		Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($ca)));
-	}
-
-	public function getGeneraterandomjobdates(){
-		foreach (Job::get() as $job) {
-			if(empty($job->runningTimeInSeconds))
-				dd($job);
-		}	
-	}
-
-	public function getTestmetrics(){
-		$job = Job::id("entity/text/medical/job/1")->first();
-		Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-			
-	}
-
-
-/*
-
-	public function getUpdate(){
-		foreach (Job::get() as $job) {
-			$job->results = null;
-			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-
-		}
-	}*/
-
-	public function getAnnotationVector($entity, $format, $domain, $docType, $incr){
-
-		$id = "$entity/$format/$domain/$docType/$incr";
-
-		foreach(WorkerUnit::where('unit_id', $id)->where('softwareAgent_id', 'cf')->get() as $ann){
-			//$ann = WorkerUnit::id('entity/text/medical/WorkerUnit/5265')->first();
-			echo "\r\n{$ann->_id}\r\n";
-			print_r($ann->createAnnotationVector());
-			echo "\r\n\r\n---------------------------------\r\n\r\n";
-		}
-	}
-
-
-	public function getResults(){
-		if (($handle = fopen(storage_path() . '/test2.csv', 'r')) === false) {
-		    die('Error opening file');
-		}
-
-		$jobresults = array();
-		foreach(Job::where('softwareAgent_id', 'cf')->type('FactSpan')->get() as $job){
-			$jobresults = array_merge($jobresults, $job->results['withSpam']);
-		}	
-
-		$headers = fgetcsv($handle, 1024, ',');
-		$count = 0;
-		$complete = array();
-		$return = array();
-		$skip = false;
-
-		while ($row = fgetcsv($handle, 1024, ',')) {
-			set_time_limit(30);
-/*
-			$skip=!$skip;
-			if($skip)
-				continue;*/
-
-			$count++;
-			$c = array_combine($headers, $row);
-
-			$sentence = rtrim($c['sentence'], '.');
-			$term1 = $c['term1'];
-			$term2 = $c['term2'];
-
-			$found = false;
-			//foreach (MongoDB\Entity::where('documentType', 'relex-structured-sentence')->get() as $unit) {
-			$unit = MongoDB\Entity::where('documentType', 'relex-structured-sentence')
-			->where('content.sentence.text', $sentence)
-			->where('content.terms.first.text', $term1)
-			->where('content.terms.second.text', $term2)->first(); 
-
-			if($unit){	
 	
-	/*			if($unit['content']['sentence']['text'] == $sentence and
-					$unit['content']['terms']['first']['text'] == $term1 and
-					$unit['content']['terms']['second']['text'] == $term2){*/
-					$found = true;
-				//dd($unit->_id);
-					// THis can also be used to compare with CF.
-					//foreach (Job::type('FactSpan')->where('softwareAgent_id', 'amt')->get() as $job) {
-					//$job = Job::where('softwareAgent_id', 'cf')->type('FactSpan')->first();
-					
-					if(array_key_exists($unit->_id, $jobresults)){
-						$vector = $jobresults[$unit->_id];
-						$temp = array('Sent id' => $c['Sent id']);
-						if(substr($c['Sent id'], -2) == 'T1'){
-							if(isset($vector['term1'])){
-								//$temp = $this->computeSimilarity($vector['term1'], 1, $unit->_id, $job->softwareAgent_id);
-								
-								$temp = array_merge($this->computeSimilarity($vector['term1'], 1, $unit->_id, 'cf'), $temp);
-								
-								$temp['sentence']=$sentence;
-								$temp['term1']=$term1;
-								$temp['term2']=$term2;
-								$temp['vector'] = '{' . implode(',', array_values($vector['term1'])) . '}';
-								$result[] = $temp;
-								
-							}
-						} elseif(substr($c['Sent id'], -2) == 'T2'){
-
-							if(isset($vector['term2'])){
-								//$temp = $this->computeSimilarity($vector['term2'], 2, $unit->_id, $job->softwareAgent_id);
-								$temp = array_merge($this->computeSimilarity($vector['term2'], 2, $unit->_id, 'cf'), $temp);
-								$temp['sentence']=$sentence;
-								$temp['term1']=$term1;
-								$temp['term2']=$term2;
-								$temp['vector'] = '{' . implode(',', array_values($vector['term2'])) . '}';
-								$result[] = $temp;
-							}
-						}
-						
-					}
-				} else {
-					$result[] = array('','','','','','','','','','','','','','');
-				}
-				
-				//}
-				
-			//}
-			
-/*			if(!$found){
-				$result[] = array('','','','','','','','','','','','','','');
-				$result[] = array('','','','','','','','','','','','','','');
-			}*/
-			//if($count==5) dd($result);
-	/*	
-		if($count == 5){
-			dd($result);
-			$path =storage_path() . '/amt_new_output.csv';
-			$out = fopen($path, 'w');
-
-			fputcsv($out, array_keys($result[0]));
-			foreach ($result as $row)
-				fputcsv($out, $row);	
-			
-			// Close file
-			rewind($out);
-			fclose($out);
-			dd($path);
-		}*/
-		}
-
-		$path =storage_path() . '/cf_new_output.csv';
-		$out = fopen($path, 'w');
-
-		fputcsv($out, array_keys($result[0]));
-		foreach ($result as $row)
-			fputcsv($out, $row);	
-		
-		// Close file
-		rewind($out);
-		fclose($out);
-		dd($path);
-
-
-
-	}
-
-
-
-
-//test
-	public function getUpdateca(){
-		/*$ca = \MongoDB\CrowdAgent::id('crowdagent/cf/19822336')->first();
-		$ca->updateStats2();*/
-
-		foreach(MongoDB\CrowdAgent::get() as $ca){
-			//$ca->updateStats2();
-			$ca->blocked = false;
-			//$ca->messagesRecieved = array('count'=>0, 'messages'=>[]);
-			$ca->save();
-		}
-		//$ca->updateStats2();
-/*
-		//$unitids = array('entity/text/medical/relex-structured-sentence/1736');
-		Queue::push('Queues\UpdateUnits', $unitids);
-		//dd($unitids);
-		echo count($unitids);*/
-	}
-
-
-	public function getUpdatecfdictionaries(){
-		
-		foreach(Job::where('softwareAgent_id', 'cf')->type('FactSpan')->get() as $job){
-			foreach ($job->workerUnits as $ann) {
-				$ann->annotationVector = $ann->createAnnotationVector();
-				$ann->save();
-			}
-
-
-			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-		}
-	}
-
-
-
-public function getVector(){
-	if (($handle = fopen(storage_path() . '/output_AMT_FactSpan_sentences_raw.csv', 'r')) === false) {
-		    die('Error opening file');
-	}
-	$headers = fgetcsv($handle, 1024, ',');
-	$count = 0;
-	$complete = array();
-	$return = array();
-	$skip = false;
-
-	while ($row = fgetcsv($handle, 1024, ',')) {
-		set_time_limit(30);
-
-		$skip=!$skip;
-		if($skip)
-			continue;
-
-		$count++;
-		$c = array_combine($headers, $row);
-
-		$sentence = rtrim($c['sentence'], '.');
-		$term1 = $c['term1'];
-		$term2 = $c['term2'];
-
-		$found = false;
-		foreach (MongoDB\Entity::where('documentType', 'relex-structured-sentence')->get() as $unit) {
-			if($unit['content']['sentence']['formatted'] == $sentence and
-				$unit['content']['terms']['first']['formatted'] == $term1 and
-				$unit['content']['terms']['second']['formatted'] == $term2){
-				$found = true;
-				// THis can also be used to compare with CF.
-				//foreach (Job::type('FactSpan')->where('softwareAgent_id', 'amt')->get() as $job) {
-				$job = Job::id('entity/text/medical/job/0')->first();
-					if(in_array($unit->_id, array_keys($job->results))){
-						$vector = $job->results[$unit->_id];
-
-						if(isset($vector['term1'])){
-							//$temp = $this->computeSimilarity($vector['term1'], 1, $unit->_id, $job->softwareAgent_id);
-							$temp = $vector['term1'];
-							$temp['sentence']=$sentence;
-							$temp['term1']=$term1;
-							$temp['term2']=$term2;
-							$result[] = $temp;
-						}
-
-						if(isset($vector['term2'])){
-							//$temp = $this->computeSimilarity($vector['term2'], 2, $unit->_id, $job->softwareAgent_id);
-							$temp = $vector['term2'];
-							$temp['sentence']=$sentence;
-							$temp['term1']=$term1;
-							$temp['term2']=$term2;
-							$result[] = $temp;
-						}
-						
-					}
-				}
-				
-			//}
-			
-		}
-
-		if(!$found){
-			$result[] = array('','','','','','','','','','','','','','');
-			$result[] = array('','','','','','','','','','','','','','');
-		}
-		//if($count==5) dd($result);
-/*	
-	if($count == 5){
-		dd($result);
-		$path =storage_path() . '/amt_new_output.csv';
-		$out = fopen($path, 'w');
-
-		fputcsv($out, array_keys($result[0]));
-		foreach ($result as $row)
-			fputcsv($out, $row);	
-		
-		// Close file
-		rewind($out);
-		fclose($out);
-		dd($path);
-	}*/
-	}
-
-	$path =storage_path() . '/amt_new_output.csv';
-	$out = fopen($path, 'w');
-
-	fputcsv($out, array_keys($result[0]));
-	foreach ($result as $row)
-		fputcsv($out, $row);	
-	
-	// Close file
-	rewind($out);
-	fclose($out);
-	dd($path);
-
-
-}
-
-
-private function computeSimilarity($vector, $num, $uid, $softwareAgent_id = 'amt'){
-	$temp = array();
-	foreach ($vector as $key=>$val) {
-			$arr2 = array(
-		        "[WORD_-3]"=>0,
-		        "[WORD_-2]"=>0,
-		        "[WORD_-1]"=>0,
-		        "[WORD_+1]"=>0,
-		        "[WORD_+2]"=>0,
-		        "[WORD_+3]"=>0,
-		        "[WORD_OTHER]"=>0,
-		        "[NIL]"=>0,
-		        "[CHECK_FAILED]"=>0);
-
-			$arr2[$key] = 1;
-			$temp[$key] = $this->similarity($vector, $arr2);
-
-		}
-	$temp['maxRelCos'] = max($temp);
-	$temp['termno'] = $num;
-	$temp['unit_id'] = $uid;
-	$temp['numAnnots']= WorkerUnit::where('unit_id', $uid)->where('softwareAgent_id', $softwareAgent_id)->count();
-	return $temp;
-}
- public function similarity(array $vec1, array $vec2) {
-    return $this->_dotProduct($vec1, $vec2) / ($this->_absVector($vec1) * $this->_absVector($vec2));
-  }
-  
-  protected function _dotProduct(array $vec1, array $vec2) {
-    $result = 0;
-    
-    foreach (array_keys($vec1) as $key1) {
-      foreach (array_keys($vec2) as $key2) {
-	if ($key1 === $key2) $result += $vec1[$key1] * $vec2[$key2];
-      }
-    }
-    
-    return $result;
-  }
-  
-  protected function _absVector(array $vec) {
-    $result = 0;
-    
-    foreach (array_values($vec) as $value) {
-      $result += $value * $value;
-    }
-    
-    return sqrt($result);
-  }
-
-public function getTest($entity, $format, $domain, $docType, $incr){
-
-		$id = "$entity/$format/$domain/$docType/$incr";
-
-		$unit = MongoDB\Entity::id($id)->first();
-		echo "<h1>{$unit->_id}</h1>\n";
-		echo "-Sentence:{$unit->content['sentence']['formatted']}<br>\n";
-		echo "-Term1:{$unit->content['terms']['first']['formatted']}<br>\n";
-		echo "-Term2:{$unit->content['terms']['second']['formatted']}<br>\n";
-		echo "<hr>\r\n";
-		foreach(WorkerUnit::where('unit_id', $unit->_id)->where('softwareAgent_id', 'amt')->get() as $ann){
-			$dic = $ann->createAnnotationVector();
-
-			echo "<table>";
-			foreach ($ann->content as $key => $value) {
-				echo "<tr><td><b>$key</b></td><td>$value</td></tr>\r\n";
-			}
-			echo "</table>";
-			echo "\r\nTERM1\r\n";
-			echo "<table>";
-			foreach ($dic['term1'] as $key => $value) {
-				echo "<tr><td><b>$key</b></td><td>$value</td></tr>\r\n";
-			}
-			echo "</table>";
-			echo "\r\nTERM2\r\n";
-			echo "<table>";
-			foreach ($dic['term2'] as $key => $value) {
-				echo "<tr><td><b>$key</b></td><td>$value</td></tr>\r\n";
-			}
-			echo "</table>";
-			echo "\r\n<hr>\r\n";
-		}
-
-}
-// Status: Units found / not found
-// reldir 360 - 1420
-// relex 277 - 1530
-// FactSpan 916 - 192
-	
-
-	public function getLoop(){
-		foreach (Job::get() as $job){
-			//if(!isset($job->projectedCost)){
-				try{
-				$batch = $job->batch;
-				$reward = $job->jobConfiguration->content['reward'];
-				$workerUnitsPerUnit = intval($job->jobConfiguration->content['workerUnitsPerUnit']);
-				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);
-				$unitsCount = count($batch->wasDerivedFrom);
-	            if(!$unitsPerTask)
-	                $unitsPerTask = 1;
-				    
-				$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$workerUnitsPerUnit), 2);
-
-				$count = 0;
-				foreach ($job->workerUnits as $ann) {
-					$count++;
-				}
-				$job->realCost = $count*$reward;
-
-				$job->unitsCount = $unitsCount;
-				$job->projectedCost = $projectedCost;
-				$job->save;
-				} catch (LogicException $e) {
-					echo $e->getMessage();
-				}
-			//}
-		}
-	}
-
-	public function getUpdatecrowdagent(){
-		foreach (MongoDB\CrowdAgent::get() as $worker) {
-			set_time_limit(30);
-			Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($worker)));
-		}
-	}
-
-	public function getRegenerateamtfactspan(){
-		foreach (Job::type('FactSpan')->where('softwareAgent_id', 'amt')->get() as $job) {
-			foreach ($job->workerUnits as $ann) {
-				$ann->annotationVector=$ann->createAnnotationVector();
-				$ann->save();
-				echo "saved";
-			}
-			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-		}
-	}
-
-
-	public function getRegenerateamtrelex(){
-		$count = $failed = 0;
-		foreach (Job::type('RelEx')->where('softwareAgent_id', 'amt')->get() as $job) {
-			foreach ($job->workerUnits as $ann) {
-				//dd($ann);
-				$ann->annotationVector=$ann->createAnnotationVector();
-				$ann->save();
-				echo "saved";
-				if(is_null($ann->annotationVector)) $failed++;
-				else $count++;
-			}
-			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-		}
-		echo "\r\nOK: $count. Failed: $failed";
-	}
-
-
-
 	public function getBatch() {
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
@@ -639,7 +168,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$questiontemplateid = Session::get('questiontemplateid');
 		$treejson = $this->makeDirTreeJSON($template, $batch->format, false);
 		
-		$jc->unsetKey('platformpage');
+		//$jc->unsetKey('platformpage');
 		// TODO: this here is really bad.
 		// The previews should be decoupled form AMT.
 		// HTML should be generated based on the QuestionTemplate.
@@ -656,27 +185,28 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			Session::flash('flashNotice', $e->getMessage());
 			//throw $e; // for debugging: see where it originates
 		}
+		//dd("o");
+		// $toomany = '';
+		// if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)){
+		// 	$jc->setValue('unitsPerTask', count($batch->wasDerivedFrom)); 
+		// 	Session::flash('flashNotice', 'Adapted units per task to match the batch size.');
+		// }	
 
-		$toomany = '';
-		if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)){
-			$jc->setValue('unitsPerTask', count($batch->wasDerivedFrom)); 
-			Session::flash('flashNotice', 'Adapted units per task to match the batch size.');
-		}	
-
-		if(!$jc->validate() or !empty($toomany)){
-			$msg = '<ul>';
-			foreach ($jc->getErrors()->all() as $message)
-				$msg .= "<li>$message</li>";
-			Session::flash('flashError', "$msg$toomany</ul>");
-		} 
+		// if(!$jc->validate() or !empty($toomany)){
+		// 	$msg = '<ul>';
+		// 	foreach ($jc->getErrors()->all() as $message)
+		// 		$msg .= "<li>$message</li>";
+		// 	Session::flash('flashError', "$msg$toomany</ul>");
+		// } 
 
 		return View::make('job2.tabs.submit')
 			->with('treejson', $treejson)
 			->with('questions',  $questions)
-			->with('table', $jc->toHTML())
+		//	->with('table', $jc->toHTML())
 			->with('template', '')//$jc->content['template'])
 			->with('frameheight', (isset($jc->content['frameheight']) ? $jc->content['frameheight'] : 650))
-			->with('jobconf', $jc->content);
+		//	->with('jobconf', $jc->content)
+			;
 	}
 
 	public function getClearTask(){
@@ -737,6 +267,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	* It combines the Input fields with the JobConfiguration that we already have in the Session.
 	*/
 	public function postFormPart($next){
+
 		$jc = unserialize(Session::get('jobconf', serialize(new JobConfiguration)));
 		if(isset($jc->content)) $jcc = $jc->content;
 		else $jcc = array();
@@ -751,7 +282,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			$batch = unserialize(Session::get('batch'));
 			if(empty($batch)){
 				Session::flash('flashNotice', 'Please select a batch first.');
-				return Redirect::to("jobs2/batch");
+				return Redirect::to("jobs/batch");
 			}	
 		}
 
@@ -790,13 +321,14 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 
 		} else {
+
 			if (empty($jc)){
 				// No JobConfiguration and no template selected, not good.
 				if($next != 'template')
 					Session::flash('flashNotice', 'Please select a template first.');
 				return Redirect::to("jobs2/template");
 			} else {
-				// There already is a JobConfiguration object. Merge it with Input!
+				// There already is a JobConfiguration object. Merge it with Input! OK
 				$jcc = array_merge($jcc, Input::get());	
 
 				// If leaving the details page...
@@ -855,20 +387,23 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	* Send it to the platforms.
 	*/
 	public function postSubmitFinal($ordersandbox = 'order'){
-		$jc = unserialize(Session::get('jobconf'));
-		$template = Session::get('template');
+		//$jc = unserialize(Session::get('jobconf'));
+		$jc = new JobConfiguration;
+		$jc->documnetType = "jobconf";
+		$jc->content = array("Lukasz:::" . rand());
+		//$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
-		$questiontemplateid = Session::get('questiontemplateid');
-		$jobs = array();
+		//$questiontemplateid = Session::get('questiontemplateid');
+		//$jobs = array();
 
-		if(!$jc->validate()){
+		/*if(!$jc->validate()){
 			$msg = '';
 			foreach ($jc->getErrors()->all() as $message)
 				$msg .= "<li>$message</li>";
 			Session::flash('flashError', "<ul>$msg</ul>");
 			return Redirect::to("jobs2/submit");
 		}
-
+	*/
 		try{
 
 			// Save activity
@@ -879,12 +414,15 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 			// Save jobconf if necessary
 			$hash = md5(serialize($jc->content));
-        	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id'))
+        	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id')) //[qq]
                 $jcid = $existingid; // Don't save, it already exists.
             else {
             	$jc->format = $batch->format;
 				$jc->domain = $batch->domain;
 	            $jc->hash = $hash;
+	            $jc->type = Input::get('templateType');
+	            $jc->title = Input::get('title');
+	            $jc->tags = array("Lukasz:::");
 				$jc->activity_id = $activity->_id;
 				$jc->save();
 				$jcid = $jc->_id;
@@ -892,43 +430,47 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	
 
 			// Publish jobs
-			foreach($jc->content['platform'] as $platformstring){
-				$j = new Job;
-				$j->format = $batch->format;
-				$j->domain = $batch->domain;
-				$j->type = explode('/', $template)[1];
-				$j->template = $template; // TODO: remove
-				$j->batch_id = $batch->_id;
-				$j->questionTemplate_id = $questiontemplateid;
-				$j->jobConf_id = $jcid;
-				$j->softwareAgent_id = $platformstring;
-				$j->activity_id = $activity->_id;
-				$j->publish(($ordersandbox == 'sandbox' ? true : false));
-				$jobs[] = $j;
-			}
+			// foreach($jc->content['platform'] as $platformstring){
+			 	$j = new Job;
+			 	$j->format = $batch->format;
+			 	$j->domain = $batch->domain;
+			 	$j->type =  Input::get('templateType');
+			// 	$j->template = $template; // TODO: remove
+			 	$j->batch_id = $batch->_id;
+			// 	$j->questionTemplate_id = $questiontemplateid;
+			 	$j->jobConf_id = $jcid;
+			 //	$j->softwareAgent_id = $platformstring;
+			 	$j->activity_id = $activity->_id;
+			 	$j->iamemptyjob = "yes";
+			 	$j->save(); //convert to publish later
+			// 	$j->publish(($ordersandbox == 'sandbox' ? true : false));
+			 //	$jobs[] = $j;
+			// }
 
 			// Success.
 			//Session::flash('flashSuccess', "Created " . ($ordersandbox == 'sandbox' ? 'but didn\'t order' : 'and ordered') . " job(s) on " . 
 			//				strtoupper(implode(', ', $jc->content['platform'])) . '.');
-			$successmessage = "Created job" . (count($jc->content['platform']) > 1 ? 's' : '') . " on " . 
-							strtoupper(implode(', ', $jc->content['platform'])) . '. Order it by pressing the button under \'Actions\'. Demo jobs are published on the sandbox or internal channels only.';
-
+			$successmessage = "Created job with jobConf :-)"; // . (count($jc->content['platform']) > 1 ? 's' : '') . " on " . 
+							//strtoupper(implode(', ', $jc->content['platform'])) . '. Order it by pressing the button under \'Actions\'. Demo jobs are published on the sandbox or internal channels only.';
+			
 			// TODO: this only takes the first job of potentially two
-			if(!empty($jobs[0]->url))
-				$successmessage .= ". After that, you can view it <a href='{$jobs[0]->url}' target='blank'>here</a>.";
+			//if(!empty($jobs[0]->url))
+			//	$successmessage .= ". After that, you can view it <a href='{$jobs[0]->url}' target='blank'>here</a>.";
 
 			Session::flash('flashSuccess', $successmessage);
-			return Redirect::to("jobs2/");
-//(Auth::user()->role == 'demo' ? '. Because this is a demo account, you can not order it. Please take a look at our finished jobs!' : '. Click on \'actions\' on the job to order it.')
+			//dd("ooa");
+			return Redirect::to("jobs");
+
+			//(Auth::user()->role == 'demo' ? '. Because this is a demo account, you can not order it. Please take a look at our finished jobs!' : '. Click on \'actions\' on the job to order it.')
 		} catch (Exception $e) {
 
 			// Undo creation and delete jobs
-			if(isset($jobs))
-			foreach($jobs as $j){
-				if(isset($j->platformJobId))
-					$j->undoCreation($j->platformJobId);
-				$j->forceDelete();
-			}		
+			// if(isset($jobs))
+			// foreach($jobs as $j){
+			// 	if(isset($j->platformJobId))
+			// 		$j->undoCreation($j->platformJobId);
+			// 	$j->forceDelete();
+			// }		
 
 			//delete activity
 			if($activity) $activity->forceDelete();
@@ -936,6 +478,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 			throw $e; //for debugging
 
 			Session::flash('flashError', $e->getMessage());
+
 			return Redirect::to("jobs2/submit");
 		}
 

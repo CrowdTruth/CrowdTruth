@@ -39,7 +39,7 @@ class Job extends Entity {
                 $softwareAgent->label = "Job creation";
             }
 
-			if(!isset($job->projectedCost)){
+			if(!isset($job->projectedCost) and !isset($job->iamemptyjob)){
 				$reward = $job->jobConfiguration->content['reward'];
 				$workerUnitsPerUnit = intval($job->jobConfiguration->content['workerUnitsPerUnit']);
 				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);

@@ -5,15 +5,16 @@
 							<li{{ (Request::segment(2) == 'batch' ? ' class="active"' : '') }} title='batch'>{{ link_to('jobs2/selectbatch', "1. Batch") }}</li>
 						<!--	<li{{ (Request::segment(2) == 'template' ? ' class="active"' : '') }} title='template'>{{ link_to('jobs/template', "2. Template") }}</li> -->
 						<!--	<li{{ (Request::segment(2) == 'platform' ? ' class="active"' : '') }} title='platform'>{{ link_to('jobs/platform', "3. Platform") }}</li> -->
-							<li{{ (Request::segment(2) == 'details' ? ' class="active"' : '') }} title='details'>{{ link_to('jobs2/details', "2. Job Details") }}</li>
-							<?php $count = 0; ?>
+						<!-- 	<li{{ (Request::segment(2) == 'details' ? ' class="active"' : '') }} title='details'>{{ link_to('jobs2/details', "2. Job Details") }}</li>
+						 -->
+						 <?php $count = 0; ?> 
 							<!-- @if(isset($jobconf) && isset($jobconf['platform']))
 								@foreach ($jobconf['platform'] as $p)
 								<?php $count++; $link = "jobs2/$p"; $ptoupper = strtoupper($p); ?>
 							<li{{ (Request::segment(2) == $p ? ' class="active"' : '') }} title="{{$p}}">{{ link_to($link, "5.$count Platform: $ptoupper") }}</li>
 								@endforeach
 							@endif -->
-							<li{{ (Request::segment(2) == 'submit' ? ' class="active"' : '') }} title='submit'>{{ link_to('jobs2/submit', "3. Submit") }}</li>
+							<li{{ (Request::segment(2) == 'submit' ? ' class="active"' : '') }} title='submit'>{{ link_to('jobs2/submit', "2. Submit") }}</li>
 							<a href='/jobs2/clear-task' class="btn btn-danger pull-right">Reset form</a></li>
 
 						</ul>

@@ -14,7 +14,7 @@
 						<h4>Select Batch</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postFormPart', 'template'), 'method' => 'POST'))}}
+						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postFormPart', 'submit'), 'method' => 'POST'))}}
 							<div class='table-responsive'>
 								<table class='table table-striped'>
 									<thead>
