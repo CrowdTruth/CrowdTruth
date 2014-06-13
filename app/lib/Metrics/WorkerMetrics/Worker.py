@@ -26,12 +26,16 @@ class Worker:
 
         results = {}
 
-        if len(self.unit_vectors.keys()) == 0:
-            return 0
+
 
         for metric_key in metrics_to_apply:
             if metric_key in self.worker_metrics:
                 results[metric_key] = self.worker_metrics[metric_key]
+                continue
+
+            if len(self.unit_vectors.keys()) == 0:
+                results[metric_key] = 0
+                self.worker_metrics[metric_key] = 0
                 continue
 
             metric_value = 0

@@ -22,6 +22,25 @@ Route::group(array('before' => 'auth'), function()
 
 Route::get('/', function()
 {
+    /*$template = 'entity/text/medical/FactSpan/Factor_Span/0';
+    $jobs = array('entity/text/medical/job/4');//,'entity/text/medical/job/5', 'entity/text/medical/job/4', 'entity/text/medical/job/3'*/
+    /*$template = 'entity/text/medical/RelDir/Relation_Direction/0';
+    $jobs = array('entity/text/medical/job/14'); //,'entity/text/medical/job/11', 'entity/text/medical/job/12', 'entity/text/medical/job/13', 'entity/text/medical/job/14'*/
+    /*$template = 'entity/text/medical/RelExt/Relation_Extraction/0';
+    $jobs = array('entity/text/medical/job/10');//,'entity/text/medical/job/6', 'entity/text/medical/job/7', 'entity/text/medical/job/8', 'entity/text/medical/job/9', 'entity/text/medical/job/10'*/
+   /* foreach ($jobs as $job) {
+        $j = \MongoDB\Entity::where('_id',$job)->first();
+        exec('/usr/bin/python2.7 ' . base_path()  . '/app/lib/generateMetrics.py \''.$job.'\' \''.$template.'\'', $output, $error);
+
+        $response = json_decode($output[0],true);
+        $j->metrics = $response['metrics'];
+        $r = $j->results;
+        $r['withoutSpam'] = $response['results']['withoutSpam'];
+        $j->results = $r;
+        $j->save();
+    }
+    return "done";*/
+
 
     return Redirect::to('home');
 });

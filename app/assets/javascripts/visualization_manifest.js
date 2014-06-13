@@ -3,6 +3,7 @@
 //= require modules/heatmap.js
 //= require no-data-to-display.js
 //= require visualizations/unitsChartFacade.js
+//= require visualizations/heatMapGraph.js
 //= require visualizations/unitsWorkerDetails.js
 //= require visualizations/unitsAnnotationDetails.js
 //= require visualizations/unitsJobDetails.js

@@ -1,6 +1,7 @@
 function unitsDetails(category, categoryName, openModal) {
     var queryField = 'crowdAgent_id';
-    var categoryPrefix = 'of'
+    var categoryPrefix = 'of';
+    var unitMaps = {};
     if (category == '#job_tab') {
         queryField = 'job_id'
         categoryPrefix = 'in'
@@ -183,7 +184,7 @@ function unitsDetails(category, categoryName, openModal) {
         });
     }
 
-    var drawBarChart = function (series, categories, max) {
+    var drawBarChart = function (series, categories) {
 
         var barChartOptions = {
             chart: {
@@ -203,7 +204,6 @@ function unitsDetails(category, categoryName, openModal) {
                             /*if (typeof currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'] === 'string') {
                                 var tooltipValue = currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'];
                             } else {*/
-                            console.dir(currentSelectionInfo)
                                 for (var indexInfoKey in currentSelectionInfo[legend.allItems[i].name]['tooltipLegend']) {
                                     tooltipValue += " " + indexInfoKey + ": " +
                                         currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'][indexInfoKey] + '<br/>';
@@ -282,9 +282,9 @@ function unitsDetails(category, categoryName, openModal) {
                     if (arrayName.length > 1) {
                         var indexHideStr = value.indexOf('_hide')
                         if (indexHideStr != -1) {
-                            return  categoryName + ' ' + value.substring(0, indexHideStr) + ' # of low quality judgements ';
+                            return  ' # of low quality judgements of ' + categoryName + ' ' + value.substring(0, indexHideStr);
                         } else {
-                            return  categoryName + ' ' + value + ' # of high quality judgements ';
+                            return  ' # of high quality judgements of ' + categoryName + ' ' + value ;
                         }
 
                     } else {
@@ -307,7 +307,7 @@ function unitsDetails(category, categoryName, openModal) {
                 formatter: function () {
                     var arrayID = this.x.split("/");
                     var id = arrayID[arrayID.length - 1];
-                    var s = '<div style="white-space:normal;"><b>Unit ID ' + id + '</b><br/>';
+                    var s = '<div style="white-space:normal;"><b>Unit ' + id + '</b><br/>';
                     for (var index in infoFields) {
                         var field = infoFields[index]['field'];
                         var pointValue = unitInfo[this.x][field];
@@ -354,6 +354,7 @@ function unitsDetails(category, categoryName, openModal) {
                     //s += '<div style="text-align: center"><b>' + categoryName + '(s) of unit' + '</b></div>'
                     s += '<table calss="table table-condensed">';
                     for (var item in seriesOptions) {
+                        if (unitMaps[this.x].indexOf(item) == -1) continue;
                         var arrayName = item.split('/');
                         var id = arrayName[arrayName.length - 1];
                         s += '<tr><td></td><td style="text-align: left"><b>' + categoryName + ' ' + id + ':</b></td></tr>';
@@ -449,6 +450,7 @@ function unitsDetails(category, categoryName, openModal) {
         $.getJSON(workersURL, function (data) {
             for (var iterData in data) {
                 categories.push(data[iterData]['_id']);
+                unitMaps[data[iterData]['_id']] = []
                 for (var iterSeries in series) {
                     if (iterSeries % 2 == 1)
                         continue
@@ -462,6 +464,7 @@ function unitsDetails(category, categoryName, openModal) {
                             } else {
                                 nonSpamValue++
                             }
+                            unitMaps[data[iterData]['_id']].push(unit_id);
                         }
                     }
 
@@ -502,7 +505,6 @@ function unitsDetails(category, categoryName, openModal) {
             urlUnitInfo += 'match[documentType][]=workerUnit&project[unit_id]=unit_id&push[unit_id]=unit_id' +
                 '&metrics[]=avg_clarity&metrics[]=domain&metrics[]=format';
             $.getJSON(urlUnitInfo, function (data) {
-
                 for (var iterData in data) {
                     unitInfo[data[iterData]['_id']] = data[iterData];
                 }
@@ -559,8 +561,8 @@ function unitsDetails(category, categoryName, openModal) {
                             for (var agentIDIter in categories) {
                                 var agentID = categories[agentIDIter];
                                 if (agentID in metrics_before_filter) {
-                                    avg_clarity_spam['data'].push(metrics_before_filter[agentID]['max_relation_Cos']['avg'])
-                                    avg_clarity['data'].push(metrics_after_filter[agentID]['max_relation_Cos']['avg'])
+                                    avg_clarity_spam['data'].push(metrics_before_filter[agentID]['avg']['max_relation_Cos'])
+                                    avg_clarity['data'].push(metrics_after_filter[agentID]['avg']['max_relation_Cos'])
                                 } else {
                                     avg_clarity_spam['data'].push(0)
                                     avg_clarity['data'].push(0)
@@ -595,7 +597,7 @@ function unitsDetails(category, categoryName, openModal) {
                                 metrics_ids.push(series_id)
                             }
                         }
-                        drawBarChart(series, categories, max);
+                        drawBarChart(series, categories);
                     });
 
                 } else {
@@ -606,7 +608,7 @@ function unitsDetails(category, categoryName, openModal) {
                             spam_ids.push(series_id)
                         }
                     }
-                    drawBarChart(series, categories, max);
+                    drawBarChart(series, categories);
                 }
 
             });

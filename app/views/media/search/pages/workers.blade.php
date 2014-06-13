@@ -151,12 +151,42 @@
                                 </tr>
                             </table>
                             <table>
-                                <tr>
-                                    <td class="pieDivGraphs pieDivLarge">
+                                <tr >
+                                    <td class="pieDivGraphs">
                                         <div id="annotationsPie_div"></div>
                                     </td>
                                     <td>
-                                        <div id="annotationsBar_div"></div>
+                                        <div id="annotationsAfter_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricAfter_0_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricAfter_1_div"></div>
+                                    </td>
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="annotationsBefore_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricBefore_0_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricBefore_1_div"></div>
+                                    </td>
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="annotationsDiff_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricDiff_0_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricDiff_1_div"></div>
                                     </td>
                                 </tr>
                             </table>

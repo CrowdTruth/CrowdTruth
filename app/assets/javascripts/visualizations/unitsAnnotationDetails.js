@@ -1,20 +1,39 @@
 function unitsAnnotationDetails(category, categoryName, openModal) {
+
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+    var annotationDivs = ['annotationsPie_div'];
     var queryField = 'unit_id';
+    var categoryPrefix = 'in';
+    var querySettings = {'metricCateg':'units', metricFilter:['withSpam', 'withoutSpam'], aggName:"aggUnits", metricFields:['max_relation_Cos'],
+        metricName:['clarity'],
+        metricTooltip : [{key:'CrowdTruth Average Unit Clarity', value:"the value is defined as the maximum unit annotation score achieved on any annotation for that unit. " +
+            "High agreement over the annotations is represented by high cosine scores, indicating a clear unit. " +
+            "Click to select/deselect."}],
+        metricSuffix: ".avg"}
+
     if (category == '#job_tab'){
         queryField = 'job_id'
+//        querySettings = {'metricCateg':'units', metricFilter:['withSpam', 'withoutSpam'], aggName:"aggUnits", metricFields:['max_relation_Cos'],
+//            metricName:['unit clarity'],
+//            metricTooltip : [{key:'CrowdTruth Average Unit Clarity', value:"the value is defined as the maximum unit annotation score achieved on any annotation for that unit. " +
+//                "High agreement over the annotations is represented by high cosine scores, indicating a clear unit. " +
+//                "Click to select/deselect."}],
+//            metricSuffix: ".avg"}
     } else if (category == '#crowdagents_tab'){
         queryField = 'crowdAgent_id'
+        querySettings = {'metricCateg':'workers',metricFilter:['withoutFilter', 'withFilter'], aggName:'aggWorkers', metricFields:['avg_worker_agreement','worker_cosine'],
+            metricName:['agreement','cosine'], metricSuffix: "",
+            metricTooltip : [{key:'CrowdTruth Average Worker Agreement score', value:'Higher scores indicate better quality workers. Click to select/deselect.'},
+                {key:'CrowdTruth Average Cosine Similarity', value:'Higher Scores indicate better quality workers. Click to select/deselect.'}]}
+        categoryPrefix = 'from';
     }
+
     var currentSelection = [];
     var currentSelectionInfo = {};
     var unitsAnnotationInfo = {};
     var activeSelectedPlatform = "";
     var activeSelectedType = "";
-    var spammers = [];
-    var seriesBase = [];
     var pieChart = "";
-    var barChart = "";
 
     var callback = function callback($this){
         var img = $this.renderer.image('/assets/check_mark.png',$this.chartWidth-60,15,19,14);
@@ -88,11 +107,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                     formatter: function () {
                         var arrayUnit = this.value.split("/");
                         var value = arrayUnit[arrayUnit.length - 1];
-                        if ($.inArray(this.value, spammers) > -1) {
-                            return '<span style="fill: red;">' + value + '</span>';
-                        } else {
-                            return value;
-                        }
+                        return value;
                     },
                     rotation: -45,
                     align: 'right'
@@ -302,130 +317,217 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
     }
 
-    var getBarChartData = function(platform, type) {
+    var getHeatMapData = function(platform, type) {
         //url to get the annotation
 
         var categories = [];
-        var series = [];
-        var annotationsURL = urlBase;
+        var series = {};
         activeSelectedPlatform = platform;
         activeSelectedType = type;
+
+        var annotationsURL = urlBase;
         annotationsURL += 'match[softwareAgent_id][]=' + platform ;
         if (type != ""){
             annotationsURL += '&match[type][]=' + type;
         }
-
-        annotationsURL += '&project[annotationVector]=annotationVector&group=' + queryField + '&push[annotationVector]=annotationVector';
+        annotationsURL += '&project[annotationVector]=annotationVector&project[spam]=spam&project[job_id]=job_id&group=' + queryField +
+            '&push[annotationVector]=annotationVector&push[spam]=spam&push[job_id]=job_id';
 
         //get the list of workers for this units
         $.getJSON(annotationsURL, function (data) {
-            var colors =  Highcharts.getOptions().colors;
+            var urlJobsInfo =  '/api/v1/?field[documentType]=job&'
 
-            var colorMaps = {};
-            var seriesMaps = {};
-            var microtasks = [];
-            for (var iterData in data) {
+            for (var dataIter in data){
+                var fieldID = data[dataIter]['_id'];
+                series[fieldID] = {};
+                for (var iterMetric in querySettings['metricFields']){
+                    var metricName = querySettings['metricFields'][iterMetric]
 
-                microtasks = [];
-                var seriesData = {};
-                for (var iterObject in data[iterData]['annotationVector']) {
-                    var object = data[iterData]['annotationVector'][iterObject];
-                    for (var microTaskKey in object) {
-                        if (!(microTaskKey in seriesData)) {
-                            microtasks.push(microTaskKey);
-                            seriesData[microTaskKey] = object[microTaskKey];
-                            continue;
+                    var metricFilters = querySettings['metricFilter']
+                    for (var iterFilter in metricFilters) {
+                        urlJobsInfo += '&only[]=metrics.' + querySettings['metricCateg'] + '.' +
+                            metricFilters[iterFilter] + '.' + fieldID + querySettings['metricSuffix'] + '.' + metricName ;
+                    }
+                }
+                for (var iterJob in data[dataIter]['job_id']){
+                    var jobID = data[dataIter]['job_id'][iterJob]
+                   /* urlJobsInfo += 'field[_id][]=' + jobID + '&';
+                    for (var iterMetric in querySettings['metricFields']){
+                        var metricName = querySettings['metricFields'][iterMetric]
+
+                        var metricFilters = querySettings['metricFilter']
+                        for (var iterFilter in metricFilters) {
+                            urlJobsInfo += '&only[]=metrics.' + querySettings['metricCateg'] + '.' +
+                                metricFilters[iterFilter] + '.' + fieldID + '.' + metricName + querySettings['metricSuffix'];
+                        }
+                    }*/
+
+                    var dataCategory = 'spam';
+                    if (!(jobID in series[fieldID])) {
+                        series[fieldID][jobID] = {}
+                    }
+                    if (data[dataIter]['spam'][iterJob] == false) dataCategory = 'nonSpam';
+
+                    var annVectors = data[dataIter]['annotationVector'][iterJob]
+                    for (var annTaskKey in annVectors) {
+                        if (categories.length == 0) {
+                            categories = Object.keys(annVectors[annTaskKey]);
+                        }
+                        var missingKeys =  false;
+                        if (!(dataCategory in series[fieldID][jobID])) {
+                            missingKeys = true;
+                            series[fieldID][jobID]['spam'] = {}
+                            series[fieldID][jobID]['nonSpam'] = {}
                         }
 
-                        for (var key in object[microTaskKey]){
-                            if(key in seriesData[microTaskKey]){
-                                seriesData[microTaskKey][key] += object[microTaskKey][key];
+                        for (var annKey in annVectors[annTaskKey]) {
+                            if (missingKeys){
+                                series[fieldID][jobID]['spam'][annKey] = 0
+                                series[fieldID][jobID]['nonSpam'][annKey] = 0
+                                series[fieldID][jobID][dataCategory][annKey] = annVectors[annTaskKey][annKey];
                             } else {
-                                seriesData[microTaskKey][key] = object[microTaskKey][key];
+                                series[fieldID][jobID][dataCategory][annKey] += annVectors[annTaskKey][annKey];
                             }
                         }
                     }
                 }
-
-                if (categories.length == 0) {
-                    for (var microTaskKeyIter in microtasks) {
-                        for (var key in seriesData[microtasks[microTaskKeyIter]]) {
-                            categories.push(key);
-                        }
-                        break
-                    }
-                }
-
-                var first = true;
-                var manyAnnVectors = microtasks.length > 1 ;
-
-                for (var microTaskKey in microtasks) {
-
-                    var newSeries = {'name':  data[iterData]['_id'], categoryID:data[iterData]['_id'], 'manyAnnVectors':manyAnnVectors, data:[], type: 'column', stack:microtasks[microTaskKey], color: colors[iterData%colors.length]};
-                    colorMaps[data[iterData]['_id']] = colors[iterData%colors.length];
-                    seriesMaps[data[iterData]['_id']] = series.length;
-                    if(!(first == true)){
-                        newSeries.linkedTo = ':previous';
-                    } else {
-                        first = false;
-                    }
-                    for(var iterCategories in categories) {
-                        newSeries.data.push(seriesData[microtasks[microTaskKey]][categories[iterCategories]]);
-                    }
-
-                    series.push(newSeries);
-                }
-
             }
-
-            var additionalSeries = [];
-            if (queryField == 'job_id') {
-
-                var urlJobs = "/api/v1/?";
-                for (var indexUnits in currentSelection) {
-                    urlJobs += 'field[_id][]=' + currentSelection[indexUnits] + '&';
-                }
-                urlJobs += 'field[softwareAgent_id][]=' + activeSelectedPlatform ;
-                if (activeSelectedType != ""){
-                    urlJobs += '&field[type][]=' + activeSelectedType + '&';
-                }
-                urlJobs += 'only[]=metrics.annotations';
-
-                $.getJSON(urlJobs, function (data) {
-
-                    for (var iter in data){
-                        //iterate job
-                        var jobData = data[iter];
-                        var ambiguity = {'name': "ambiguity", data:[], categoryID:data[iter]['_id'], type: 'spline', 'dashStyle':'shortdot',
-                            color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.3).get(), linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
-                        var clarity = {'name': "clarity", data:[], categoryID:data[iter]['_id'], type: 'spline','dashStyle':'LongDash',
-                            color:Highcharts.Color( colorMaps[data[iter]['_id']]).brighten(0.1).get(),  linkedTo: seriesMaps[data[iter]['_id']], xAxis:1, yAxis:1};
-                        for (var iterCateg in categories) {
-                            for (var iterMicroTask in microtasks){
-                                if (!('metrics' in data[iterData])) {continue;}
-                                var value = data[iter]['metrics']['annotations']['withoutSpam'][microtasks[iterMicroTask]]['annot_ambiguity'][categories[iterCateg]];
-                                ambiguity['data'].push(value);
-                                var value = data[iter]['metrics']['annotations']['withoutSpam'][microtasks[iterMicroTask]]['annot_clarity'][categories[iterCateg]];
-                                clarity['data'].push(value);
+            var categoriesY = [];
+            var heatMapDataAfter = []
+            var heatMapDataBefore = []
+            var heatMapDataDiff = []
+            var indexX = 0;
+            var min = Number.MAX_VALUE;
+            var max = Number.MIN_VALUE;
+            var indexY = 0;
+            for (var annotation in categories) {
+                indexY = 0;
+                for (var worker in series) {
+                    for (var job in series[worker]){
+                        var arrayUnit = worker.split("/");
+                        var workerID = arrayUnit[arrayUnit.length - 1];
+                        var arrayUnit = job.split("/");
+                        var jobID = arrayUnit[arrayUnit.length - 1];
+                        if(indexX == 0) {
+                            if ( workerID == jobID) {
+                                categoriesY.push(categoryName + ' ' + workerID  );
+                            } else {
+                                categoriesY.push(categoryName + ' ' + workerID + ' in job ' + jobID );
                             }
 
                         }
-                        series.push(ambiguity);
-                        series.push(clarity);
+                        var afterData =  series[worker][job]['nonSpam'][categories[annotation]];
+                        var beforeData =  series[worker][job]['spam'][categories[annotation]];
+                        heatMapDataAfter.push([indexX, indexY, afterData]);
+                        heatMapDataBefore.push([indexX, indexY, afterData + beforeData]);
+                        heatMapDataDiff.push([indexX, indexY, beforeData]);
+                        if( max < (afterData + beforeData)) max = afterData + beforeData;
+                        if( min > afterData) min = afterData;
+                        if( min > beforeData) min = beforeData;
+                        indexY += 1;
                     }
-                    var categoriesJobs = [];
-                    for (iter in categories) {
-                        for(iterMicroTask in microtasks) {
-                            categoriesJobs.push(categories[iter]);
+                }
+                indexX += 1;
+            }
+            var title = 'Aggregated view of ' + categories.length + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
+            var width = (3*(($('.maincolumn').width() - 50)/5))
+            if (category == '#job_tab'){
+                width = (4*(($('.maincolumn').width() - 50)/5))
+            }
+            var tooltip = function () {
+                return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> got <b>' +
+                    this.point.value + '</b> annotations ' + categoryPrefix + ' <b>' + this.series.yAxis.categories[this.point.y] + '</b>';
+            }
+            var height = 12 * categoriesY.length;
+            heatMapGraph(categories, categoriesY, heatMapDataAfter, title , 'Without low quality annotations.Select an area to zoom', min, max, 'annotationsAfter_div', width, height, tooltip);
+            annotationDivs.push('annotationsAfter_div');
+            heatMapGraph(categories, categoriesY, heatMapDataBefore, title, 'With low quality annotations.Select an area to zoom', min, max, 'annotationsBefore_div', width, height, tooltip);
+            annotationDivs.push('annotationsBefore_div');
+            heatMapGraph(categories, categoriesY, heatMapDataDiff, title, 'Difference between low and high quality annotations.Select an area to zoom', min, max, 'annotationsDiff_div',width, height, tooltip);
+            annotationDivs.push('annotationsDiff_div');
+            //display spam data
+            //display spam data
+
+            if (category == '#job_tab'){
+                return;
+            }
+
+            var metricsData = {};
+            metricsData['spam'] = {};
+            metricsData['nonSpam'] = {};
+            $.getJSON(urlJobsInfo, function (data) {
+                for(var iterData in data){
+                    var jobID = data[iterData]['_id'];
+                    var arrayUnit = jobID.split("/");
+                    var jobNo = arrayUnit[arrayUnit.length - 1];
+
+                    if (!('metrics' in data[iterData])) continue;
+
+                    var jobInfo = data[iterData]['metrics'][querySettings['metricCateg']];
+                    var metricFilters = querySettings['metricFilter']
+
+                    for (var worker in jobInfo[metricFilters[0]]) {
+                        for (var iterMetric in querySettings['metricFields']){
+                            var metricName = querySettings['metricFields'][iterMetric];
+                            if (!(metricName in metricsData['spam'])) {
+                                metricsData['spam'][metricName] = {}
+                                metricsData['nonSpam'][metricName] = {}
+                            }
+                            var arrayUnit = worker.split("/");
+                            var workerID = arrayUnit[arrayUnit.length - 1];
+                            var key = categoryName + ' ' + workerID + ' in job ' + jobNo
+                            metricsData['spam'][metricName][key] = jobInfo[metricFilters[0]][worker][metricName];
+                            if (querySettings['metricSuffix'] != '') metricsData['spam'][metricName][key] = jobInfo[metricFilters[0]][worker]['avg'][metricName];
+                            metricsData['nonSpam'][metricName][key] = jobInfo[metricFilters[1]][worker][metricName];
+                            if (querySettings['metricSuffix'] != '') metricsData['nonSpam'][metricName][key] = jobInfo[metricFilters[1]][worker]['avg'][metricName];
                         }
                     }
-                    drawBarChart(series, [categories, categoriesJobs]);
-                });
+                }
+                //create the basic heatMap - should exist for each view
 
-            } else {
-                drawBarChart(series, [categories,categories]);
-            }
-            //drawBarChart(series, [categories,categories]);
+
+
+                //display non spam data
+                for (var iterMetric in querySettings['metricFields']) {
+                    var minMetric = Number.MAX_VALUE;
+                    var maxMetric = Number.MIN_VALUE;
+                    var metricName = querySettings['metricFields'][iterMetric];
+                    var spamData = [];
+                    var nonSpamData = [];
+                    var diffData = [];
+
+                    for (var iterCateg in categoriesY) {
+                        var y = parseInt(iterCateg);
+                        var afterData = metricsData['nonSpam'][metricName][categoriesY[iterCateg]]
+                        var beforeData = metricsData['spam'][metricName][categoriesY[iterCateg]]
+                        spamData.push([0, y, beforeData.toFixed(3)]);
+                        nonSpamData.push([0, y, afterData.toFixed(3)]);
+                        diffData.push([0, y, (beforeData.toFixed(3) - afterData.toFixed(3)).toFixed(3)]);
+                        if( maxMetric < afterData) maxMetric = afterData;
+                        if( maxMetric < beforeData) maxMetric = beforeData;
+                        if( minMetric > afterData) minMetric = afterData;
+                        if( minMetric > beforeData - afterData) minMetric = beforeData - afterData;
+                    }
+
+                    var title = categoryName + " " + querySettings['metricName'][iterMetric]
+                    var width = ((1/querySettings.metricName.length)*(($('.maincolumn').width() - 50)/5))
+
+                    var tooltip = function () {
+                        return '<p class = "pieDivGraphs">' + this.series.yAxis.categories[this.point.y] + ', ' + this.series.xAxis.categories[this.point.x] + ' score:<b>' +
+                            this.point.value + '</p>';
+                    }
+                    var height = 14 * categoriesY.length;
+                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, nonSpamData, title , 'After filtering low quality', minMetric, maxMetric, 'annotationsMetricAfter_'+iterMetric+'_div',width, height, tooltip);
+                    annotationDivs.push('annotationsMetricAfter_'+iterMetric+'_div');
+                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, spamData, title , 'Before filtering low quality', minMetric, maxMetric, 'annotationsMetricBefore_'+iterMetric+'_div', width, height, tooltip);
+                    annotationDivs.push('annotationsMetricBefore_'+iterMetric+'_div');
+                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, diffData, title , 'low - high quality metrics', minMetric, maxMetric, 'annotationsMetricDiff_'+iterMetric+'_div', width, height, tooltip);
+                    annotationDivs.push('annotationsMetricDiff_'+iterMetric+'_div');
+                }
+
+
+            });
+
         });
         //group them
     }
@@ -435,8 +537,9 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
             chart: {
                 renderTo: 'annotationsPie_div',
                 type: 'pie',
-                width: (2*(($('.maincolumn').width() - 50)/5)),
-                height: 430
+                marginTop: 0,
+                width: (1*(($('.maincolumn').width() - 50)/5)),
+                height:400
             },
             title: {
                 text: 'Type of Annotations of the ' + currentSelection.length + ' selected '+ ' ' + categoryName + '(s)'
@@ -470,7 +573,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                                 if ('type' in this.options) {
                                     type = this.options.type;
                                 }
-                                getBarChartData(platform, type);
+                                getHeatMapData(platform, type);
 
                             }
                         }
@@ -527,27 +630,23 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
     this.update = function (selectedUnits, selectedInfo) {
         if(selectedUnits.length == 0){
+            for (var iterDiv in annotationDivs){
+                var divName = annotationDivs[iterDiv];
+                if ( $('#'+divName).highcharts() != undefined ) {
 
-            if ( $('#annotationsPie_div').highcharts() != undefined ) {
-
-                $('#annotationsPie_div').highcharts().destroy();
+                    $('#'+divName).highcharts().destroy();
+                }
             }
-            if ( $('#annotationsPie_div').highcharts() != undefined ) {
-
-                $('#annotationsPie_div').highcharts().destroy();
-            }
-
             return;
         }
+        activeSelectedPlatform = "";
+        activeSelectedType = "";
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
-        seriesBase = [];
         urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match[' + queryField + '][]=' + selectedUnits[indexUnits] + '&';
-            seriesBase.push({'name': selectedUnits[indexUnits], data: [],  yAxis: 0,
-                type: 'column'});
         }
 
 
@@ -603,66 +702,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
         });
 
     }
-/*
-    $('#container_TEST').highcharts({
 
-        chart: {
-            type: 'heatmap',
-            marginTop: 40,
-            marginBottom: 40
-        },
-
-
-        title: {
-            text: 'Sales per employee per weekday'
-        },
-
-        xAxis: {
-            categories: ['Alexander', 'Marie', 'Maximilian', 'Sophia', 'Lukas', 'Maria', 'Leon', 'Anna', 'Tim', 'Laura']
-        },
-
-        yAxis: {
-            categories: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-            title: null
-        },
-
-        colorAxis: {
-            min: 0,
-            minColor: '#FFFFFF',
-            maxColor: Highcharts.getOptions().colors[0]
-        },
-
-        legend: {
-            align: 'right',
-            layout: 'vertical',
-            margin: 0,
-            verticalAlign: 'top',
-            y: 25,
-            symbolHeight: 320
-        },
-
-        tooltip: {
-            formatter: function () {
-                return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> sold <br><b>' +
-                    this.point.value + '</b> items on <br><b>' + this.series.yAxis.categories[this.point.y] + '</b>';
-            }
-        },
-
-        series: [{
-            name: 'Sales per employee',
-            borderWidth: 1,
-            data: [[0,0,10],[0,1,19],[0,2,8],[0,3,24],[0,4,67],[1,0,92],[1,1,58],[1,2,78],[1,3,117],[1,4,48],[2,0,35],[2,1,15],[2,2,123],[2,3,64],[2,4,52],[3,0,72],[3,1,132],[3,2,114],[3,3,19],[3,4,16],[4,0,38],[4,1,5],[4,2,8],[4,3,117],[4,4,115],[5,0,88],[5,1,32],[5,2,12],[5,3,6],[5,4,120],[6,0,13],[6,1,44],[6,2,88],[6,3,98],[6,4,96],[7,0,31],[7,1,1],[7,2,82],[7,3,32],[7,4,30],[8,0,85],[8,1,97],[8,2,123],[8,3,64],[8,4,84],[9,0,47],[9,1,114],[9,2,31],[9,3,48],[9,4,91]],
-            dataLabels: {
-                enabled: true,
-                color: 'black',
-                style: {
-                    textShadow: 'none',
-                    HcTextStroke: null
-                }
-            }
-        }]
-
-    });*/
 
     this.createUnitsAnnotationDetails = function () {
 

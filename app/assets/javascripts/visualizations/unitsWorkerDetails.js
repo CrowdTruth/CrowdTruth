@@ -1,5 +1,6 @@
 function unitsWorkerDetails(category, categoryName, openModal) {
     var queryField = 'unit_id';
+    var workerMaps = {};
     var categoryPrefix = 'on'
     if (category == '#job_tab'){
         queryField = 'job_id'
@@ -9,7 +10,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
 
     var querySettings = { metricFields:['avg_cosine','avg_agreement'],
         metricName:['avg worker cosine across jobs','avg worker agreement across jobs'], metricSuffix: "",
-        metricTooltip : [{key:'CrowdTruth Average Cosine Similarity', value:'Higher Scores indicate better quality workers. Click to select/deselect.'}, {key:'CrowdTruth Average Worker Agreement score', value:'Higher scores indicate better quality workers. Click to select/deselect.'}]}
+        metricTooltip : [{key:'CrowdTruth Average Cosine Similarity', value:'Lower Scores indicate better quality workers. Click to select/deselect.'}, {key:'CrowdTruth Average Worker Agreement score', value:'Higher scores indicate better quality workers. Click to select/deselect.'}]}
 
     var infoFields = [ {field:'softwareAgent_id', name:'platform'}, {field:'flagged', name:'flagged'} ,{field:'cfWorkerTrust', name:'platform worker trust'},
         {field:'avg_cosine', name:'avg worker cosine across jobs'}, {field:'avg_agreement', name:'avg worker agreement across jobs'} ];
@@ -287,9 +288,9 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                     if (arrayName.length > 1) {
                         var indexHideStr = value.indexOf('_hide')
                         if (indexHideStr != -1) {
-                            return  categoryName + ' ' + value.substring(0, indexHideStr) + ' # of low quality judgements ';
+                            return '# of low quality judgements of ' + categoryName + ' ' + value.substring(0, indexHideStr) ;
                         } else {
-                            return  categoryName + ' ' + value + ' # of high quality judgements ';
+                            return  '# of high quality judgements of ' + categoryName + ' ' + value ;
                         }
 
                     } else {
@@ -317,7 +318,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 formatter: function() {
                     var arrayID = this.x.split("/");
                     var id =  arrayID[arrayID.length - 1];
-                    var s = '<div style="white-space:normal;"><b>Worker ID '+ id +' </b><br/>';
+                    var s = '<div style="white-space:normal;"><b>Worker '+ id +' </b><br/>';
                     for (var index in infoFields) {
                         var field = infoFields[index]['field'];
                         var pointValue =  workerInfo[this.x][field];
@@ -364,6 +365,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                     s += '<table calss="table table-condensed">';
                     for (var item in seriesOptions)
                     {
+                        if (workerMaps[this.x].indexOf(item) == -1) continue;
                         var arrayName = item.split('/');
                         var id = arrayName[arrayName.length - 1];
                         s += '<tr><td> </td><td style="text-align: left"><b>' + categoryName + ' ' +  id + ':</b></td></tr>';
@@ -452,9 +454,9 @@ function unitsWorkerDetails(category, categoryName, openModal) {
         }
         //get the list of workers for this units
         $.getJSON(workersURL, function (data) {
-
             for (var iterData in data) {
                 categories.push(data[iterData]['_id']);
+                workerMaps[data[iterData]['_id']] = []
                 for (var iterSeries in series) {
                     if (iterSeries % 2 == 1)
                         continue
@@ -468,6 +470,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                             } else {
                                 nonSpamValue++
                             }
+                            workerMaps[data[iterData]['_id']].push(unit_id);
                         }
                     }
 
@@ -577,10 +580,10 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                            for (var agentIDIter in categories) {
                                var agentID = categories[agentIDIter];
                                if (agentID in metrics_before_filter) {
-                                   avg_agreement_spam['data'].push(metrics_before_filter[agentID]['avg_worker_agreement']['avg'])
-                                   avg_agreement['data'].push(metrics_after_filter[agentID]['avg_worker_agreement']['avg'])
-                                   avg_cosine_spam['data'].push(metrics_before_filter[agentID]['worker_cosine']['avg'])
-                                   avg_cosine['data'].push(metrics_after_filter[agentID]['worker_cosine']['avg'])
+                                   avg_agreement_spam['data'].push(metrics_before_filter[agentID]['avg_worker_agreement'])
+                                   avg_agreement['data'].push(metrics_after_filter[agentID]['avg_worker_agreement'])
+                                   avg_cosine_spam['data'].push(metrics_before_filter[agentID]['worker_cosine'])
+                                   avg_cosine['data'].push(metrics_after_filter[agentID]['worker_cosine'])
                                } else {
                                    avg_agreement_spam['data'].push(0)
                                    avg_agreement['data'].push(0)

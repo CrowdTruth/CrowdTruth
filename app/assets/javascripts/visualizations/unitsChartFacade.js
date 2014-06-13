@@ -1,5 +1,5 @@
 function unitsChartFacade(category, openModal, getSelection, updateSelection) {
-    var categoryNameMap  = {'#relex-structured-sentence_tab':'RelEx-structured sentence',
+    var categoryNameMap  = {'#relex-structured-sentence_tab':'Sentence',
         '#fullvideo_tab':'Video',
         '#job_tab': 'job',
         '#crowdagents_tab':'worker',
@@ -63,7 +63,6 @@ function unitsChartFacade(category, openModal, getSelection, updateSelection) {
     }
 
     this.update = function(matchStr, sortStr){
-        console.dir("update");
         this.barChartGraph.createBarChart(matchStr, sortStr);
         for (var pieChartIndex in this.pieCharts){
             this.pieCharts[pieChartIndex].createPieChart(matchStr);

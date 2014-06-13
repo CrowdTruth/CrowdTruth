@@ -39,7 +39,7 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
             'workerAgreement': {'color': '#483D8B', 'field': 'avg_agreement', 'name':'avg worker agreement', 'type': 'spline', 'dashStyle':'Solid',
                 tooltip: "CrowdTruth Average Worker Agreement score. Higher scores indicate better quality workers. Click to select/deselect."},
             'workerCosine': {'color': '#6B8E23', 'field': 'avg_cosine', 'name':'avg worker cosine', 'type': 'spline', 'dashStyle':'Solid',
-                tooltip: "CrowdTruth Average Cosine Similarity.  Higher Scores indicate better quality workers. Click to select/deselect."}}
+                tooltip: "CrowdTruth Average Cosine Similarity.  Lower Scores indicate better quality workers. Click to select/deselect."}}
     }
 
     var chartGeneralOptions = {
@@ -88,9 +88,9 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                         selectedInfo[selectedUnits[index]]['tooltipLegend'] = {}
                         selectedInfo[selectedUnits[index]]['tooltipLegend']['Platform'] = info[selectedUnits[index]]['platform'];
                         selectedInfo[selectedUnits[index]]['tooltipChart'] = {};
-                        selectedInfo[selectedUnits[index]]['tooltipChart']['platform trust'] = info[selectedUnits[index]]['platformTrust'];
-                        selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker agreement across jobs'] = info[selectedUnits[index]]['workerAgreement'];
-                        selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker cosine across jobs'] = info[selectedUnits[index]]['workerCosine'];
+                        selectedInfo[selectedUnits[index]]['tooltipChart']['worker trust on ' + info[selectedUnits[index]]['platform']] = info[selectedUnits[index]]['platformTrust'];
+                        selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker agreement across all jobs'] = info[selectedUnits[index]]['workerAgreement'];
+                        selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker cosine across all jobs'] = info[selectedUnits[index]]['workerCosine'];
                     }
                     workerUpdateFunction.update(selectedUnits, selectedInfo);
                     jobsUpdateFunction.update(selectedUnits, selectedInfo);
@@ -242,9 +242,9 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                                 selectedInfo[selectedUnits[index]]['tooltipLegend'] = {}
                                 selectedInfo[selectedUnits[index]]['tooltipLegend']['Platform'] = info[selectedUnits[index]]['platform'];
                                 selectedInfo[selectedUnits[index]]['tooltipChart'] = {};
-                                selectedInfo[selectedUnits[index]]['tooltipChart']['platform trust'] = info[selectedUnits[index]]['platformTrust'];
-                                selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker agreement across jobs'] = info[selectedUnits[index]]['workerAgreement'];
-                                selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker cosine  across jobs'] = info[selectedUnits[index]]['workerCosine'];
+                                selectedInfo[selectedUnits[index]]['tooltipChart']['worker trust on ' + info[selectedUnits[index]]['platform']] = info[selectedUnits[index]]['platformTrust'];
+                                selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker agreement across all jobs'] = info[selectedUnits[index]]['workerAgreement'];
+                                selectedInfo[selectedUnits[index]]['tooltipChart']['avg worker cosine  across all jobs'] = info[selectedUnits[index]]['workerCosine'];
                             }
                             workerUpdateFunction.update(selectedUnits, selectedInfo);
                             jobsUpdateFunction.update(selectedUnits, selectedInfo);

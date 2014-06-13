@@ -2,9 +2,12 @@ function unitsJobDetails(category , categoryName, openModal) {
     var queryField = 'unit_id';
     var infoFields = [ {field:'type', name:'type'}, {field:'softwareAgent_id', name:'platform'} ];
     var querySettings = {};
+    var jobsMaps = {};
+    var yAxisTitle = 'unit clarity per job'
 
     if (category == '#crowdagents_tab'){
         queryField = 'crowdAgent_id';
+        var yAxisTitle = 'metrics';
         infoFields.push({field:'avg_worker_agreement', name:'avg worker agreement in this job'});
         infoFields.push({field:'worker_cosine', name:'avg worker cosine in this job'});
         querySettings = {'metricCateg':'workers',metricFilter:['withoutFilter', 'withFilter'], aggName:'aggWorkers', metricFields:['avg_worker_agreement','worker_cosine'],
@@ -93,7 +96,7 @@ function unitsJobDetails(category , categoryName, openModal) {
         var seriesMaps = {};
         var colors =  Highcharts.getOptions().colors;
         var series = seriesBase;
-        jobsURL = url + 'project[' + queryField + ']=' + queryField +
+        var jobsURL = url + 'project[' + queryField + ']=' + queryField +
             '&project[spam]=spam&group=job_id&push[spam]=spam&push[' + queryField + ']=' + queryField;
         for (var iterSeries in series) {
             series[iterSeries]['data'] = [];
@@ -107,6 +110,7 @@ function unitsJobDetails(category , categoryName, openModal) {
             for (var iterData in data) {
                 //urlJobMatchStr += "&match[_id][]=" + data[iterData]['_id'];
                 categories.push(data[iterData]['_id']);
+                jobsMaps[data[iterData]['_id']] = [];
                 for (var iterSeries in series) {
                     if (iterSeries % 2 == 1)
                         continue
@@ -120,6 +124,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                             } else {
                                 nonSpamValue++
                             }
+                            jobsMaps[data[iterData]['_id']].push(unit_id);
                         }
                     }
 
@@ -165,7 +170,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                     var metricFilters = querySettings['metricFilter']
                     for (var iterFilter in metricFilters) {
                         urlJobsInfo += '&only[]=metrics.' + querySettings['metricCateg'] + '.' +
-                            metricFilters[iterFilter] + '.' + categoryID + '.' + metricName + querySettings['metricSuffix'];
+                            metricFilters[iterFilter] + '.' + categoryID +  querySettings['metricSuffix'] +'.' + metricName;
                     }
 
                     var dashStyle ='shortdot';
@@ -217,7 +222,7 @@ function unitsJobDetails(category , categoryName, openModal) {
             urlUnitInfo += 'match[documentType][]=workerUnit&project[job_id]=job_id&push[job_id]=job_id' +
                 '&metrics[]=type&metrics[]=softwareAgent_id&'
             for (var indexMetric in querySettings['metricFields']) {
-                urlUnitInfo += 'metrics[]=metrics.' + querySettings['aggName'] + '.mean.' + querySettings['metricFields'][indexMetric] + '.avg&';
+                urlUnitInfo += 'metrics[]=metrics.' + querySettings['aggName'] + '.mean.' + querySettings['metricFields'][indexMetric] + '&';
             }
 
             $.getJSON(urlUnitInfo, function (data) {
@@ -225,12 +230,11 @@ function unitsJobDetails(category , categoryName, openModal) {
                     unitInfo[data[iterData]['_id']] = data[iterData];
                     for (var indexMetric in querySettings['metricFields']) {
                         var metricName = querySettings['metricFields'][indexMetric];
-                        unitInfo[data[iterData]['_id']][metricName] = data[iterData]['metrics'][querySettings['aggName']]['mean'][metricName]['avg'];
+                        unitInfo[data[iterData]['_id']][metricName] = data[iterData]['metrics'][querySettings['aggName']]['mean'][metricName];
                     }
                 }
 
                 $.getJSON(urlJobsInfo, function (data) {
-
                     data.sort(compare);
                     var maxMetric = -1;
                     for (var iterData in data) {
@@ -244,13 +248,20 @@ function unitsJobDetails(category , categoryName, openModal) {
                                 for (var indexMetric in querySettings['metricFields']) {
                                     var metricName = querySettings['metricFields'][indexMetric];
                                     var filters = querySettings['metricFilter'];
-                                    newSeries[id][metricName][filters[0]]['data'].push(metrics_before_filter[id][metricName]['avg']);
-                                    newSeries[id][metricName][filters[1]]['data'].push(metrics_after_filter[id][metricName]['avg']);
-                                    if (metrics_before_filter[id][metricName]['avg'] > maxMetric) {
-                                        maxMetric = metrics_before_filter[id][metricName]['avg']
+                                    var beforeData = metrics_before_filter[id][metricName]
+                                    var afterData = metrics_after_filter[id][metricName]
+                                    if (querySettings['metricSuffix'] != "" ){
+                                        beforeData = metrics_before_filter[id]['avg'][metricName];
+                                        afterData = metrics_after_filter[id]['avg'][metricName];
                                     }
-                                    if (metrics_after_filter[id][metricName]['avg'] > maxMetric) {
-                                        maxMetric = metrics_after_filter[id][metricName]['avg']
+
+                                    newSeries[id][metricName][filters[0]]['data'].push(beforeData);
+                                    newSeries[id][metricName][filters[1]]['data'].push(afterData);
+                                    if (beforeData > maxMetric) {
+                                        maxMetric = beforeData
+                                    }
+                                    if (afterData > maxMetric) {
+                                        maxMetric = afterData
                                     }
                                 }
                             } else {
@@ -381,9 +392,9 @@ function unitsJobDetails(category , categoryName, openModal) {
                     if (arrayName.length > 1) {
                         var indexHideStr = value.indexOf('_hide')
                         if (indexHideStr != -1) {
-                            return  categoryName + ' ' + value.substring(0, indexHideStr) + ' # of low quality judgements ';
+                            return  '# of low quality judgements of ' + categoryName + ' ' + value.substring(0, indexHideStr);
                         } else {
-                            return  categoryName + ' ' + value + ' # of high quality judgements ';
+                            return  '# of high quality judgements of ' + categoryName + ' ' + value;
                         }
 
                     } else {
@@ -401,7 +412,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                     min: 0,
                     max: max[1] + 1,
                     title: {
-                        text: 'unit clarity per job'
+                        text: yAxisTitle
                     },
                     opposite:true
                 }],
@@ -412,7 +423,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                 formatter: function() {
                     var arrayID = this.x.split("/");
                     var id =  arrayID[arrayID.length - 1];
-                    var s = '<div style="white-space:normal;"><b>Job ID '+ id +'</b><br/>';
+                    var s = '<div style="white-space:normal;"><b>Job '+ id +'</b><br/>';
                     for (var index in infoFields) {
                         var field = infoFields[index]['field'];
                         var pointValue =  unitInfo[this.x][field];
@@ -456,6 +467,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                     s += '<table calss="table table-condensed">';
                     for (var item in seriesOptions)
                     {
+                        if (jobsMaps[this.x].indexOf(item) == -1) continue;
                         var arrayName = item.split('/');
                         var id = arrayName[arrayName.length - 1];
                         s += '<tr><td> </td><td style="text-align: left"><b>' + categoryName + ' ' +  id + ':</b></td></tr>';

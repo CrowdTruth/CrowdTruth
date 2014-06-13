@@ -44,10 +44,10 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
                 tooltip: "CrowdTruth Average Unit Clarity: the value is defined as the maximum unit annotation score achieved on any annotation for that unit. High agreement over the annotations is represented by high cosine scores, indicating a clear unit. Click to select/deselect."},
             'magnitude': {'color': '#00FA9A', 'field': 'metrics.aggUnits.mean.magnitude.avg', 'name':'avg unit magnitude', 'type': 'spline', 'dashStyle':'Solid',
                 tooltip: "CrowdTruth Average Unit magnitude score. Click to select/deselect."},
-            'workerAgreement': {'color': '#483D8B', 'field': 'metrics.aggWorkers.mean.avg_worker_agreement.avg', 'name':'avg worker agreement', 'type': 'spline', 'dashStyle':'Solid',
+            'workerAgreement': {'color': '#483D8B', 'field': 'metrics.aggWorkers.mean.avg_worker_agreement', 'name':'avg worker agreement', 'type': 'spline', 'dashStyle':'Solid',
                 tooltip: "CrowdTruth Average Worker Agreement score. Higher scores indicate better quality workers. Click to select/deselect."},
-            'workerCosine': {'color': '#6B8E23', 'field': 'metrics.aggWorkers.mean.worker_cosine.avg', 'name':'avg worker cosine', 'type': 'spline', 'dashStyle':'Solid',
-                tooltip: "CrowdTruth Average Cosine Similarity.  Higher Scores indicate better quality workers. Click to select/deselect."}}
+            'workerCosine': {'color': '#6B8E23', 'field': 'metrics.aggWorkers.mean.worker_cosine', 'name':'avg worker cosine', 'type': 'spline', 'dashStyle':'Solid',
+                tooltip: "CrowdTruth Average Cosine Similarity.  Lower Scores indicate better quality workers. Click to select/deselect."}}
     }
 
     var chartGeneralOptions = {
