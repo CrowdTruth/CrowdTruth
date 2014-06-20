@@ -151,16 +151,20 @@ class Task:
         results['metrics']['pivotTables']['annotations'] = {}
         results['metrics']['pivotTables']['annotations']['withSpam'] = {}
         results['metrics']['pivotTables']['annotations']['withoutSpam'] = {}
-        results['metrics']['pivotTables']['annotations']['withSpam']['rel_similarity'] = unfiltered_annotation.rel_similarity_dict
-        results['metrics']['pivotTables']['annotations']['withSpam']['cond_prob'] = unfiltered_annotation.cond_prob_dict
-        results['metrics']['pivotTables']['annotations']['withSpam']['cond_prob_minus_rel_prob'] = unfiltered_annotation.cond_prob_minus_rel_prob_dict
-        results['metrics']['pivotTables']['annotations']['withSpam']['top_ann_cond_prob'] = unfiltered_annotation.top_ann_cond_prob_dict
-        results['metrics']['pivotTables']['annotations']['withSpam']['mutual_info_dict'] = unfiltered_annotation.mutual_info_dict
-        results['metrics']['pivotTables']['annotations']['withoutSpam']['rel_similarity'] = filtered_annotation.rel_similarity_dict
-        results['metrics']['pivotTables']['annotations']['withoutSpam']['cond_prob'] = filtered_annotation.cond_prob_dict
-        results['metrics']['pivotTables']['annotations']['withoutSpam']['cond_prob_minus_rel_prob'] = filtered_annotation.cond_prob_minus_rel_prob_dict
-        results['metrics']['pivotTables']['annotations']['withoutSpam']['top_ann_cond_prob'] = filtered_annotation.top_ann_cond_prob_dict
-        results['metrics']['pivotTables']['annotations']['withoutSpam']['mutual_info_dict'] = filtered_annotation.mutual_info_dict
+
+        if unfiltered_annotation is not None:
+            results['metrics']['pivotTables']['annotations']['withSpam']['rel_similarity'] = unfiltered_annotation.rel_similarity_dict
+            results['metrics']['pivotTables']['annotations']['withSpam']['cond_prob'] = unfiltered_annotation.cond_prob_dict
+            results['metrics']['pivotTables']['annotations']['withSpam']['cond_prob_minus_rel_prob'] = unfiltered_annotation.cond_prob_minus_rel_prob_dict
+            results['metrics']['pivotTables']['annotations']['withSpam']['top_ann_cond_prob'] = unfiltered_annotation.top_ann_cond_prob_dict
+            results['metrics']['pivotTables']['annotations']['withSpam']['mutual_info_dict'] = unfiltered_annotation.mutual_info_dict
+
+        if filtered_annotation is not None:
+            results['metrics']['pivotTables']['annotations']['withoutSpam']['rel_similarity'] = filtered_annotation.rel_similarity_dict
+            results['metrics']['pivotTables']['annotations']['withoutSpam']['cond_prob'] = filtered_annotation.cond_prob_dict
+            results['metrics']['pivotTables']['annotations']['withoutSpam']['cond_prob_minus_rel_prob'] = filtered_annotation.cond_prob_minus_rel_prob_dict
+            results['metrics']['pivotTables']['annotations']['withoutSpam']['top_ann_cond_prob'] = filtered_annotation.top_ann_cond_prob_dict
+            results['metrics']['pivotTables']['annotations']['withoutSpam']['mutual_info_dict'] = filtered_annotation.mutual_info_dict
 
     def get_worker_units(self, selected_workers_to_filter):
         query = {}
@@ -204,9 +208,11 @@ class Task:
             unfiltered_workers_metrics[worker_id] = worker_result
 
         #get the metrics for unfiltered annotations
-
-        unfiltered_annotation = Annotation(unfiltered_units)
-        unfiltered_annotation_metrics = unfiltered_annotation.get_metrics(AnnotationMetricsEnum.__members__.values())
+        unfiltered_annotation_metrics = {}
+        unfiltered_annotation = None
+        if len(self.default_thresholds['annotationThresholds']) > 0:
+            unfiltered_annotation = Annotation(unfiltered_units)
+            unfiltered_annotation_metrics = unfiltered_annotation.get_metrics(AnnotationMetricsEnum.__members__.values())
 
         #get the mean metrics of units
         unfiltered_unit_mean_metrics = self.__compute_mean_measure(unfiltered_units_metrics)
@@ -292,19 +298,21 @@ class Task:
             worker_result = worker.get_metrics(filtered_workers, filtered_units, WorkerMetricsEnum.__members__.values())
             filtered_workers_metrics[worker_id] = worker_result
 
-
-        #get the unfiltered units for this jobs
-        filtered_units_annotations = self.__get_units(spam_worker_query_list, {})
-        filtered_units_workers = {}
-        for unit_id in filtered_units_annotations:
-            if unit_id not in selected_units_to_filter:
-                filtered_units_workers[unit_id] = filtered_units_annotations[unit_id]
-        # should be done like this once the params are sent by value
-        #unclear_units_workers_query_list = dict(unclear_units_query_list.items() + spam_worker_query_list.items())
-        #filtered_units_workers = self.__get_units(unclear_units_workers_query_list,{})
-        #get the metrics for unfiltered annotations
-        filtered_annotation = Annotation(filtered_units_workers)
-        filtered_annotation_metrics = filtered_annotation.get_metrics(AnnotationMetricsEnum.__members__.values())
+        filtered_annotation_metrics = {}
+        filtered_annotation = None
+        if len(self.default_thresholds['annotationThresholds']) > 0:
+            #get the unfiltered units for this jobs
+            filtered_units_annotations = self.__get_units(spam_worker_query_list, {})
+            filtered_units_workers = {}
+            for unit_id in filtered_units_annotations:
+                if unit_id not in selected_units_to_filter:
+                    filtered_units_workers[unit_id] = filtered_units_annotations[unit_id]
+            # should be done like this once the params are sent by value
+            #unclear_units_workers_query_list = dict(unclear_units_query_list.items() + spam_worker_query_list.items())
+            #filtered_units_workers = self.__get_units(unclear_units_workers_query_list,{})
+            #get the metrics for unfiltered annotations
+            filtered_annotation = Annotation(filtered_units_workers)
+            filtered_annotation_metrics = filtered_annotation.get_metrics(AnnotationMetricsEnum.__members__.values())
 
         #get the mean metrics of units
         filtered_unit_mean_measure = self.__compute_mean_measure(filtered_units_metrics)
