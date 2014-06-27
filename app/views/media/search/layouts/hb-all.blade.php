@@ -46,8 +46,8 @@
 						<input class="input-sm form-control" type='text' data-query-key="match[domain]" data-query-operator="like" />
 					</td>
 					<td>
-						<input class="input-sm form-control" type='text' data-query-key="match[documentType]" data-query-operator="like" />
-					</td>
+                        <input class="input-sm form-control" type='text' data-query-key="match[documentType]" data-query-operator="like" />
+                    </td>
 					<td data-vbIdentifier="created_at">
 						<div class="input-daterange">
 						    <input type="text" class="input-sm form-control" name="start" data-query-key="match[created_at]" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />

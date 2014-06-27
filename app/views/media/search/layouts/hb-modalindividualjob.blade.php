@@ -101,18 +101,18 @@
 						  <td> Norm Rel Magnitude </td>
 						 </tr>
 						 <tr>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.no_annotators.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.max_relation_Cos.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_magnitude.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.magnitude.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_relation_magnitude_all.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_relation_magnitude.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.no_annotators.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.max_relation_Cos.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_magnitude.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.magnitude.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_relation_magnitude_all.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_relation_magnitude.avg 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.no_annotators 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.max_relation_Cos 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_magnitude 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.magnitude 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_relation_magnitude_all 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_relation_magnitude 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.no_annotators 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.max_relation_Cos 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_magnitude 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.magnitude 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_relation_magnitude_all 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_relation_magnitude 2}} </td>
 						 </tr>
 						</table>
 						<hr/>
@@ -135,14 +135,14 @@
 						  <td> Worker Cosine </td>
 						 </tr>
 						 <tr>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.ann_per_unit.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.no_of_units.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.avg_worker_agreement.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.worker_cosine.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.ann_per_unit.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.no_of_units.avg 2}} </td>	
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.avg_worker_agreement.avg 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.worker_cosine.avg 2}} </td>						 </tr>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.ann_per_unit 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.no_of_units 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.avg_worker_agreement 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.worker_cosine 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.ann_per_unit 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.no_of_units 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.avg_worker_agreement 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.worker_cosine 2}} </td>						 </tr>
 						</table>
 						</div>
 					      </div>
@@ -185,12 +185,12 @@
 						    @{{else}}
 						    <td> False </td>
 						    @{{/inArray}}
-						    <td> @{{ toFixed no_annotators.avg 2}} </td>	
-						    <td> @{{ toFixed max_relation_Cos.avg 2}} </td>	
-						    <td> @{{ toFixed norm_magnitude.avg 2}} </td>
-						    <td> @{{ toFixed magnitude.avg 2}} </td>
-						    <td> @{{ toFixed norm_relation_magnitude_all.avg 2}} </td>
-						    <td> @{{ toFixed norm_relation_magnitude.avg 2}} </td>
+						    <td> @{{ toFixed avg.no_annotators 2}} </td>
+						    <td> @{{ toFixed avg.max_relation_Cos 2}} </td>
+						    <td> @{{ toFixed avg.norm_magnitude 2}} </td>
+						    <td> @{{ toFixed avg.magnitude 2}} </td>
+						    <td> @{{ toFixed avg.norm_relation_magnitude_all 2}} </td>
+						    <td> @{{ toFixed avg.norm_relation_magnitude 2}} </td>
 						    <td>
 						    @{{#each @root.infoStat.results.withoutSpam}}
 						    @{{#ifvalue ../key value=@key}}
@@ -260,10 +260,10 @@
 						     <td> @{{ toFixed avg_cosine 2}} </td> 
 						   @{{/ifvalue}}
 						  @{{/each}} 
-						   <td> @{{ toFixed avg_worker_agreement.avg 2 }} </td>
-						   <td> @{{ toFixed worker_cosine.avg 2 }} </td>
-						   <td> @{{ toFixed ann_per_unit.avg 2 }} </td>
-						   <td> @{{ toFixed no_of_units.avg 2 }} </td>
+						   <td> @{{ toFixed avg_worker_agreement 2 }} </td>
+						   <td> @{{ toFixed worker_cosine 2 }} </td>
+						   <td> @{{ toFixed ann_per_unit 2 }} </td>
+						   <td> @{{ toFixed no_of_units 2 }} </td>
 						  </tr>
 						  @{{/each}}  	
 						 </tbody>

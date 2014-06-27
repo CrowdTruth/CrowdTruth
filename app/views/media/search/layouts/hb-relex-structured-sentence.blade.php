@@ -17,6 +17,8 @@
 						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="format"></i>Format</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="domain"></i>Domain</a></li>
+
+
 						<!-- <li><a href="#" data-vb="show" data-vbSelector="documentType"></i>Document-Type</a></li> -->
 						<li><a href="#" data-vb="show" data-vbSelector="relation"></i>Seed Relation</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="sent_id"></i>ID</a></li>
@@ -28,6 +30,8 @@
 						<li><a href="#" data-vb="show" data-vbSelector="sentence_processed"></i>Sentence processed</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i># Batches</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i># Jobs</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_cf_judgements"></i># CF judgements</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_amt_judgements"></i># AMT judgements</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="sentence_wordcount"></i># Words</a></li>					
 						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created</a></li>
 					</ul>
@@ -132,6 +136,8 @@
 		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="sentence_wordcount" data-query-key="orderBy[content.properties.sentenceWordCount]" data-toggle="tooltip" data-placement="top" title="Number of words in the sentence"># Words</th>
 		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]" data-toggle="tooltip" data-placement="top" title="Number of batches the sentence was used in"># Batches</th>
 		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[cache.jobs.count]" data-toggle="tooltip" data-placement="top" title="Number of jobs the sentence was used in"># Jobs</th>     
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_cf_judgements" data-query-key="orderBy[cache.softwareAgent.cf]" data-toggle="tooltip" data-placement="top" title="Number of judgements the unit got on CrowdFlower"># CF judgements</th>
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_amt_judgements" data-query-key="orderBy[cache.softwareAgent.amt]" data-toggle="tooltip" data-placement="top" title="Number of judgements the unit got on AMT"># AMT judgements</th>
 		            <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the sentence was loaded into the framework">Created</th>
 		        </tr>
 				<tr class="inputFilters">
@@ -183,6 +189,14 @@
 						<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 						<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 					</td>
+                    <td data-vbIdentifier="number_of_cf_judgements">
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.cf]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.cf]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                    </td>
+                    <td data-vbIdentifier="number_of_amt_judgements">
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.amt]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.amt]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                    </td>
 					<td data-vbIdentifier="created_at">
 						<div class="input-daterange">
 						    <input type="text" class="input-sm form-control" name="start" data-query-key="match[created_at]" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />
@@ -214,6 +228,8 @@
 			            <td data-vbIdentifier="sentence_wordcount">@{{ this.content.properties.sentenceWordCount }}</td>
 			            <td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>
 			            <td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>
+			            <td data-vbIdentifier="number_of_cf_judgements">@{{ this.cache.softwareAgent.cf }}</td>
+			            <td data-vbIdentifier="number_of_amt_judgements">@{{ this.cache.softwareAgent.amt }}</td>
 			            <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
 			        </tr>
 			        @{{/each}}

@@ -539,7 +539,7 @@ function unitsJobDetails(category , categoryName, openModal) {
 
     }
 
-    var drawPieChart = function (platform, spam) {
+    var drawPieChart = function (platform, spam, totalValue) {
         pieChart = new Highcharts.Chart({
             chart: {
                 renderTo: 'jobsPie_div',
@@ -548,7 +548,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                 height: 400
             },
             title: {
-                text: 'Number of Jobs of the ' + currentSelection.length + ' selected ' + categoryName + '(s)'
+                text: 'Platform distribution for ' + totalValue + ' Job(s) of the ' + currentSelection.length + ' selected ' + categoryName + '(s)'
             },
             subtitle: {
                 text: 'Click a category to see the distribution of judgements per jobs'
@@ -650,12 +650,14 @@ function unitsJobDetails(category , categoryName, openModal) {
         pieChartOptions = {};
         unitInfo = {};
         seriesBase = [];
+        console.dir(selectedUnits.length);
         if(selectedUnits.length == 0){
-            if ( $('#jobsBar_div').highcharts() != undefined ) {
-                $('#jobsBar_div').highcharts().destroy();
-                $('#jobsPie_div').highcharts().destroy();
-            }
+                $('#jobsBar_div').hide();
+                $('#jobsPie_div').hide();
             return;
+        } else {
+            $('#jobsBar_div').show();
+            $('#jobsPie_div').show();
         }
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
@@ -699,6 +701,7 @@ function unitsJobDetails(category , categoryName, openModal) {
             }
             var defer = $.when.apply($, requests);
             defer.done(function () {
+                var totalValue = 0;
 
 
                 $.each(arguments, function (index, responseData) {
@@ -714,11 +717,12 @@ function unitsJobDetails(category , categoryName, openModal) {
                                 y: responseData[iterObj].content.length,
                                 color: Highcharts.Color(colors[index]).brighten(-0.01*iterObj).get(),
                                 platform: data[index]['_id']});
+                            totalValue += responseData[iterObj].content.length;
                             pieChartOptions[data[index]['_id']][responseData[iterObj]['_id']] = responseData[iterObj].content;
                         }
                     }
                 });
-                drawPieChart(platformData, categoriesData);
+                drawPieChart(platformData, categoriesData, totalValue);
             });
 
         });

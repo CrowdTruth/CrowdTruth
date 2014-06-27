@@ -77,7 +77,8 @@ class Entity extends Moloquent {
         {
             $entity->format = strtolower($entity->format);            
             $entity->domain = strtolower($entity->domain);
-            $entity->documentType = strtolower($entity->documentType);
+           // $entity->documentType = strtolower($entity->documentType);
+            $entity->documentType = $entity->documentType;
 
             static::validateEntity($entity);         
         });

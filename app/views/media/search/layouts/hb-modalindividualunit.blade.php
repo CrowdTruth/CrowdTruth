@@ -84,7 +84,7 @@
 						 <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
 						 <td> @{{ jobConf.content.title }} </td>
 						 @{{#each metrics.units.withoutSpam }}
-						 <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
+						 <td> @{{ toFixed avg.max_relation_Cos 2}} </td>
 						 @{{/each}}
 						</tr>
 						 @{{/inArray}}
@@ -139,13 +139,13 @@
 						   @{{/inArray}}
 
 						   @{{#each metrics.units.withoutSpam}}
-						   <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
-						   <td> @{{ toFixed no_annotators.avg 2}} </td>
+						   <td> @{{ toFixed avg.max_relation_Cos 2}} </td>
+						   <td> @{{ toFixed avg.no_annotators 2}} </td>
 						   @{{/each}}
-						   <td> @{{ toFixed metrics.aggUnits.mean.max_relation_Cos.avg 2}} </td>
-						   <td> @{{ toFixed metrics.aggUnits.mean.no_annotators.avg 2}} </td>
-						   <td> @{{ toFixed metrics.aggUnits.stddev.max_relation_Cos.avg 2}} </td>
-						   <td> @{{ toFixed metrics.aggUnits.stddev.no_annotators.avg 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.mean.max_relation_Cos 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.mean.no_annotators 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.stddev.max_relation_Cos 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.stddev.no_annotators 2}} </td>
 						   <td> 
     							@{{#each results.withoutSpam}}
 							 @{{#each this}} 
@@ -205,9 +205,9 @@
 						     <td> @{{ job_info.jobConf.content.title}} </td>
 						      @{{#each job_info.metrics.workers.withFilter}}
 						       @{{#ifvalue ../../_id value=@key}}
-						       <td> @{{ toFixed worker_cosine.avg 2}} </td>
-						       <td> @{{ toFixed avg_worker_agreement.avg 2}} </td>
-						       <td> @{{ toFixed ann_per_unit.avg 2}} </td>
+						       <td> @{{ toFixed worker_cosine 2}} </td>
+						       <td> @{{ toFixed avg_worker_agreement 2}} </td>
+						       <td> @{{ toFixed ann_per_unit 2}} </td>
 						       @{{/ifvalue}}
 						      @{{/each}}
 						       <td> 

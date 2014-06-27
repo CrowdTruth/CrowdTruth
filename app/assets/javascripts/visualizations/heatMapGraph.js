@@ -1,4 +1,4 @@
-function heatMapGraph(categoriesX, categoriesY, heatMapData, heatMapTitle, heatMapSubtitle, min, max, divName, width, height, tooltip) {
+function heatMapGraph(categoriesX, categoriesY, heatMapData, heatMapTitle, heatMapSubtitle, min, max, divName, width, height, tooltip, show) {
 
     var heatMapChart = "";
     var hideIcon = false;
@@ -94,7 +94,7 @@ function heatMapGraph(categoriesX, categoriesY, heatMapData, heatMapTitle, heatM
             title: null,
             labels: {
                 formatter: function() {
-                    if (divName.indexOf('Metric') != -1) return ""
+                    if (!(show)) return ""
                     return this.value;
                 },
                 align: 'left'

@@ -115,7 +115,12 @@
                             <table>
                                 <tr >
                                     <td>
-                                    <div id="generalBarChart_div" ></div>
+                                        <div id="generalBarChart_div" ></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div id="generalBarChartMaster_div"></div>
                                     </td>
                                 </tr>
                             </table>
@@ -519,7 +524,8 @@ $('.input-daterange input').on('changeDate', function(e) {
 
     var updateSelection = function(id) {
         var activeTabKey = getActiveTabKey();
-
+console.dir(activeTabKey);
+        console.dir(id);
         if (typeof selectedRows[activeTabKey] == 'undefined') {
             selectedRows[activeTabKey] = [];
         }
@@ -669,7 +675,7 @@ function getResults(baseApiURL){
                 unitsChart = new unitsChartFacade(selectedCategory, openModal, getSelection, updateSelection);
                 unitsChart.init(getTabFieldsQuery(),"");
             } else {
-                unitsChart.update(getTabFieldsQuery(),"");
+                unitsChart.init(getTabFieldsQuery(),"");
             }
         }
 

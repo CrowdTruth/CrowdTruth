@@ -119,6 +119,11 @@
                                     <div id="generalBarChart_div" ></div>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>
+                                        <div id="generalBarChartMaster_div"></div>
+                                    </td>
+                                </tr>
                             </table>
                             <table>
                                 <tr>
@@ -159,29 +164,216 @@
                                         <div id="annotationsAfter_div"></div>
                                     </td>
                                     <td class="pieDivGraphs">
+                                        <div id="unitsMetricAfter_0_div"></div>
+                                    </td>
+                                </tr>
+
+                                <tr >
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableAfter_0_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
                                         <div id="annotationsMetricAfter_0_div"></div>
                                     </td>
-
                                 </tr>
+                                <tr >
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableAfter_1_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricAfter_1_div"></div>
+                                    </td>
+                                </tr>
+                                <tr >
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableAfter_2_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricAfter_2_div"></div>
+                                    </td>
+                                </tr>
+                                <tr >
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableAfter_3_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricAfter_3_div"></div>
+                                    </td>
+                                </tr>
+                                <tr >
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableAfter_4_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricAfter_4_div"></div>
+                                    </td>
+                                </tr>
+                                </table>
+                            <table>
+                                <tr >
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricAfter_5_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricAfter_6_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricAfter_7_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricAfter_8_div"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+
                                 <tr class='annotationHidden hide'>
                                     <td></td>
                                     <td>
                                         <div id="annotationsBefore_div"></div>
                                     </td>
                                     <td class="pieDivGraphs">
+                                        <div id="unitsMetricBefore_0_div"></div>
+                                    </td>
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableBefore_0_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
                                         <div id="annotationsMetricBefore_0_div"></div>
                                     </td>
-
                                 </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableBefore_1_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricBefore_1_div"></div>
+                                    </td>
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableBefore_2_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricBefore_2_div"></div>
+                                    </td>
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableBefore_3_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricBefore_3_div"></div>
+                                    </td>
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableBefore_4_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricBefore_4_div"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr class='annotationHidden hide'>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricBefore_5_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricBefore_6_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricBefore_7_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricBefore_8_div"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+
                                 <tr class='annotationHidden hide'>
                                     <td></td>
                                     <td>
                                         <div id="annotationsDiff_div"></div>
                                     </td>
                                     <td class="pieDivGraphs">
+                                        <div id="unitsMetricDiff_0_div"></div>
+                                    </td>
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableDiff_0_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
                                         <div id="annotationsMetricDiff_0_div"></div>
                                     </td>
-
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableDiff_1_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricDiff_1_div"></div>
+                                    </td>
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableDiff_2_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricDiff_2_div"></div>
+                                    </td>
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableDiff_3_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricDiff_3_div"></div>
+                                    </td>
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="pivotTableDiff_4_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricDiff_4_div"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr class='annotationHidden hide'>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricDiff_5_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricDiff_6_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricDiff_7_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricDiff_8_div"></div>
+                                    </td>
                                 </tr>
                             </table>
                             <div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -659,7 +851,7 @@ function getResults(baseApiURL){
                 unitsChart = new unitsChartFacade(selectedCategory, openModal, getSelection, updateSelection);
                 unitsChart.init(getTabFieldsQuery(),"");
             } else {
-                unitsChart.update(getTabFieldsQuery(),"");
+                unitsChart.init(getTabFieldsQuery(),"");
             }
         }
 

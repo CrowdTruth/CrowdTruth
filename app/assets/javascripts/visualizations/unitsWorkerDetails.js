@@ -1,4 +1,4 @@
-function unitsWorkerDetails(category, categoryName, openModal) {
+function unitsWorkerDetails(category, categoryName, openModal, updateSelection) {
     var queryField = 'unit_id';
     var workerMaps = {};
     var categoryPrefix = 'on'
@@ -35,6 +35,8 @@ function unitsWorkerDetails(category, categoryName, openModal) {
         img.attr("style", "opacity:0.5");
         img.attr("title", title);
         img.on('click', function () {
+/*            $('#workerTabOption')[0].children[0].click();
+            updateSelection({"crowdagent/cf/11338264":0});*/
             var hideIcon = true;
             for (var series in searchSet) {
                 var series_id = searchSet[series];
@@ -74,7 +76,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
 
     }
 
-    var drawPieChart = function (platform, spam) {
+    var drawPieChart = function (platform, spam, totalValue) {
         pieChart = new Highcharts.Chart({
             chart: {
                 renderTo: 'workersPie_div',
@@ -83,7 +85,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 height: 430
             },
             title: {
-                text: 'Quality of Workers of the ' + currentSelection.length +  ' selected ' + categoryName + '(s)'
+                text: 'Quality of ' + totalValue + ' Worker(s) of the ' + currentSelection.length +  ' selected ' + categoryName + '(s)'
             },
             subtitle: {
                 text: 'Click a category to see the distribution of judgements per worker'
@@ -536,6 +538,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                                type: 'spline',
                                color:Highcharts.Color( colorMaps[job_id]).brighten(0.3).get(),
                                yAxis:1,
+                               visible: false,
                                'dashStyle':'shortdot'};
                            var avg_agreement_spam = {'name': value + " avg agreement before filter",
                                data:[],
@@ -554,6 +557,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                                type: 'spline',
                                color:Highcharts.Color( colorMaps[job_id]).brighten(0.1).get(),
                                yAxis:1,
+                               visible: false,
                                'dashStyle':'LongDash'};
 
                            var avg_cosine_spam = {'name': value + " avg cosine before filter",
@@ -644,14 +648,15 @@ function unitsWorkerDetails(category, categoryName, openModal) {
         pieChartOptions = {};
         workerInfo = {};
         seriesBase = [];
-        if(selectedUnits.length == 0){
-            if ( $('#workersBar_div').highcharts() != undefined ) {
-                $('#workersBar_div').highcharts().destroy();
-                $('#workersPie_div').highcharts().destroy();
-            }
-
+        if (selectedUnits.length == 0) {
+            $('#workersBar_div').hide();
+            $('#workersPie_div').hide();
             return;
+        } else {
+            $('#workersBar_div').show();
+            $('#workersPie_div').show();
         }
+
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
@@ -687,6 +692,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
             }
             var defer = $.when.apply($, requests);
             defer.done(function () {
+                var totalValue = 0;
 
                 $.each(arguments, function (index, responseData) {
                     // "responseData" will contain an array of response information for each specific request
@@ -711,6 +717,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                                 }
                             }, this);
 
+
                             if (responseData[iterObj]['_id'] === true) {
                                 spamData.push({name: 'low quality',
                                     spam: 0, //spammers
@@ -726,6 +733,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                                     platform: data[index]['_id']});
                                 pieChartOptions[data[index]['_id']]['nonSpam'] = content;
                             }
+                            totalValue += content.length;
                         }
                         if(commonWorkers.length > 0) {
                             spamData.push({name: 'potentially low quality',
@@ -735,9 +743,10 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                                 platform: data[index]['_id']});
                             pieChartOptions[data[index]['_id']]['potential'] = commonWorkers;
                         }
+                        totalValue += commonWorkers.length;
                     }
                 });
-                drawPieChart(platformData, spamData);
+                drawPieChart(platformData, spamData, totalValue);
             });
 
         });

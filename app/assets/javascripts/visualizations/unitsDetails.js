@@ -1,4 +1,4 @@
-function unitsDetails(category, categoryName, openModal) {
+function unitsDetails(category, categoryName, openModal, modalName) {
     var queryField = 'crowdAgent_id';
     var categoryPrefix = 'of';
     var unitMaps = {};
@@ -72,7 +72,7 @@ function unitsDetails(category, categoryName, openModal) {
 
     }
 
-    var drawPieChart = function (platform, spam) {
+    var drawPieChart = function (platform, spam, totalValue) {
         pieChart = new Highcharts.Chart({
             chart: {
                 renderTo: 'unitsPie_div',
@@ -81,7 +81,7 @@ function unitsDetails(category, categoryName, openModal) {
                 height: 400
             },
             title: {
-                text: 'Number of Units ' + categoryPrefix + ' the ' + currentSelection.length + ' selected ' + categoryName + '(s)'
+                text: 'Platforms distribution for ' + totalValue + ' Unit(s) ' + categoryPrefix + ' the ' + currentSelection.length + ' selected ' + categoryName + '(s)'
             },
             subtitle: {
                 text: 'Click a category to see the distribution of judgements per unit'
@@ -406,10 +406,10 @@ function unitsDetails(category, categoryName, openModal) {
                                 anchorModal = $('<a class="testModal"' +
                                     'data-modal-query="unit=' + this.category + '&' + urlBase +
                                     '" data-api-target="/api/analytics/unit?" ' +
-                                    'data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="" ' +
+                                    'data-target="' + modalName + '" data-toggle="tooltip" data-placement="top" title="" ' +
                                     'data-original-title="Click to see the individual worker page">6345558 </a>');
                                 //$('body').append(anchorModal);
-                                openModal(anchorModal, '#relex-structured-sentence_tab');
+                                openModal(anchorModal, category);
 
 
                             }
@@ -620,12 +620,14 @@ function unitsDetails(category, categoryName, openModal) {
         pieChartOptions = {};
         unitInfo = {};
         seriesBase = [];
+
         if (selectedUnits.length == 0) {
-            if ($('#unitsBar_div').highcharts() != undefined) {
-                $('#unitsBar_div').highcharts().destroy();
-                $('#unitsPie_div').highcharts().destroy();
-            }
+            $('#unitsBar_div').hide();
+            $('#unitsPie_div').hide();
             return;
+        } else {
+            $('#unitsBar_div').show();
+            $('#unitsPie_div').show();
         }
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
@@ -646,6 +648,7 @@ function unitsDetails(category, categoryName, openModal) {
             var spamData = [];
             var requests = [];
             var iterColors = 0;
+            var totalNumber = 0;
             var colors = ['#FFC640', '#A69C00'];
 
 
@@ -656,9 +659,10 @@ function unitsDetails(category, categoryName, openModal) {
                     platform: platformID});
                 pieChartOptions[platformID] = {};
                 pieChartOptions[platformID]['all'] = data[platformIter]['content'];
-
+                totalNumber += data[platformIter]['content'].length
             }
-            drawPieChart(platformData, spamData);
+
+            drawPieChart(platformData, spamData, totalNumber);
 
 
         });

@@ -1,7 +1,7 @@
 function unitsAnnotationDetails(category, categoryName, openModal) {
 
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
-    var annotationDivs = ['annotationsPie_div'];
+    var annotationDivs = [];
     var queryField = 'unit_id';
     var categoryPrefix = 'in';
     var querySettings = {'metricCateg':'units', metricFilter:['withSpam', 'withoutSpam'], aggName:"aggUnits", metricFields:['max_relation_Cos'],
@@ -13,12 +13,12 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
     if (category == '#job_tab'){
         queryField = 'job_id'
-//        querySettings = {'metricCateg':'units', metricFilter:['withSpam', 'withoutSpam'], aggName:"aggUnits", metricFields:['max_relation_Cos'],
-//            metricName:['unit clarity'],
-//            metricTooltip : [{key:'CrowdTruth Average Unit Clarity', value:"the value is defined as the maximum unit annotation score achieved on any annotation for that unit. " +
-//                "High agreement over the annotations is represented by high cosine scores, indicating a clear unit. " +
-//                "Click to select/deselect."}],
-//            metricSuffix: ".avg"}
+        querySettings = {
+            annotationMetricFields:['top_ann_cond_prob', 'cond_prob', 'annot_ambiguity', 'cond_prob_minus_rel_prob', 'mutual_info', 'annot_prob', 'annot_top_prob',  'annot_freq', 'annot_clarity'],
+            annotationMetricNames:["max P(Rc|Rr-Top)", "max P(Rc|Rr)", "max Rr->Rc", "max P(Rc|Rr)-P(Rc)",  "max I(Rc,Rd)", "P(R)","P(R-Top)", "|S:R|", "RClar"],
+            pivotTableFields :['top_ann_cond_prob', 'cond_prob', 'rel_similarity', 'cond_prob_minus_rel_prob', 'mutual_info_dict'],
+            pivotTableNames :["P(Rc|Rr-Top)", 'P(Rc|Rr)', 'Rr->Rc', 'P(Rc|Rr)-P(Rc)', 'I(Rc,Rd)']
+            }
     } else if (category == '#crowdagents_tab'){
         queryField = 'crowdAgent_id'
         querySettings = {'metricCateg':'workers',metricFilter:['withoutFilter', 'withFilter'], aggName:'aggWorkers', metricFields:['avg_worker_agreement','worker_cosine'],
@@ -57,269 +57,299 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
             // prcessing after image is clicked
         });
     }
-    var drawBarChart = function (series, categories) {
 
-        barChart = new Highcharts.Chart({
-            chart: {
-                zoomType: 'x',
-                renderTo: 'annotationsBar_div',
-                type: 'column',
-                width: (3*(($('.maincolumn').width() - 50)/5)),
-                height: 400,
-                events: {
-                    load: function () {
-                        var chart = this,
-                            legend = chart.legend;
-                        for (var i = 0, len = legend.allItems.length; i < len; i++) {
-                            var item = legend.allItems[i].legendItem;
-                            var tooltipValue = "";
-                            if (typeof currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'] === 'string') {
-                                var tooltipValue = currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'];
-                            } else {
-                                for( var indexInfoKey in currentSelectionInfo[legend.allItems[i].name]['tooltipLegend']) {
-                                    tooltipValue +=  currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'][indexInfoKey] + '(' + indexInfoKey + ')' + '<br/>';
-                                }
-                            }
 
-                            item.attr("data-toggle","tooltip");
-                            item.attr("title", tooltipValue);
+    var  getJobHeatMapData = function(platform, type) {
 
-                        }
+        var series = {};
+        activeSelectedPlatform = platform;
+        activeSelectedType = type;
 
-                    }
+        var annotationsURL = '/api/v1/?field[documentType][]=job&'
+        for (var indexUnits in currentSelection) {
+            annotationsURL += '&field[_id][]=' + currentSelection[indexUnits];
+        }
+
+        annotationsURL += '&field[softwareAgent_id][]=' + platform ;
+        annotationsURL += '&field[type][]=' + type;
+
+        annotationsURL += '&only[]=results&only[]=metrics.units&only[]=metrics.annotations' +
+            '&only[]=metrics.pivotTables.annotations';
+
+        //get the list of workers for this units
+        $.getJSON(annotationsURL, function (data) {
+            var heatMapData = {};
+            heatMapData['annotations'] = {};
+            heatMapData['avg_clarity'] = {};
+            heatMapData['annotationMetric'] = {};
+            heatMapData['pivotTable'] = {};
+            for (var heatMapCateg in heatMapData){
+                heatMapData[heatMapCateg]['min'] = Number.MAX_VALUE;
+                heatMapData[heatMapCateg]['max'] = Number.MIN_VALUE;
+                heatMapData[heatMapCateg]['categoryY'] = [];
+                heatMapData[heatMapCateg]['indexY'] = 0;
+                heatMapData[heatMapCateg]['spam'] = [];
+                heatMapData[heatMapCateg]['nonSpam'] = [];
+                heatMapData[heatMapCateg]['diff'] = [];
+            }
+
+            var indexX = 0;
+
+            var allUnits = data[0]['results']['withoutSpam'];
+            var mTaksKeys = Object.keys(allUnits[Object.keys(allUnits)[0]]);
+            var categories = Object.keys(allUnits[Object.keys(allUnits)[0]][mTaksKeys[0]]);
+
+            for (var annotationIter in categories) {
+                var annotation = categories[annotationIter];
+                for (var heatMapCateg in heatMapData){
+                    heatMapData[heatMapCateg]['indexY'] = 0;
                 }
-            },
-            title: {
-                text: 'Aggregated view of ' + categories[0].length + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
-            },
-            subtitle: {
-                text: 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.'
-            },
-            credits: {
-                enabled: false
-            },
-            xAxis: [{
-                categories: categories[0],
-                title :{
-                    text: 'Annotation name'
-                },
-                labels: {
-                    formatter: function () {
-                        var arrayUnit = this.value.split("/");
-                        var value = arrayUnit[arrayUnit.length - 1];
-                        return value;
-                    },
-                    rotation: -45,
-                    align: 'right'
-                },
-                events:{
-                    setExtremes :function (event) {
-                        var min = 0;
-                        if (event.min != undefined){
-                            min = event.min;
-                        }
-                        var max = barChart.series[0].data.length
-                        if (event.max != undefined){
-                            max = event.max;
-                        }
-                        // chart.yAxis[0].options.tickInterval
-                        barChart.xAxis[0].options.tickInterval = Math.ceil( (max-min)/20);
-                    },
-                    afterSetExtremes :function(event){
-                        var graph = '';
-                        var interval = (event.max - event.min + 1);
-                        var title = "";
-                        if (interval ==  barChart.series[0].data.length) {
-                            title = 'Aggregated view of ' + interval.toFixed(0) + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
-                        } else {
-                            title = 'Aggregated view of ' + interval.toFixed(0) + '/' + barChart.series[0].data.length + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
-                        }
-                        barChart.setTitle({text: title});
+                for (var iterPivotTable in querySettings.pivotTableFields){
+                    var pivotTable = querySettings.pivotTableFields[iterPivotTable];
+                    if (!(pivotTable in heatMapData['pivotTable'] )) {
+                        heatMapData['pivotTable'][pivotTable] = {};
+                        heatMapData['pivotTable'][pivotTable]['min'] = Number.MAX_VALUE;
+                        heatMapData['pivotTable'][pivotTable]['max'] = Number.MIN_VALUE;
+                        heatMapData['pivotTable'][pivotTable]['categoryY'] = [];
+                        heatMapData['pivotTable'][pivotTable]['indexY'] = 0;
+                        heatMapData['pivotTable'][pivotTable]['spam'] = [];
+                        heatMapData['pivotTable'][pivotTable]['nonSpam'] = [];
+                        heatMapData['pivotTable'][pivotTable]['diff'] = [];
                     }
+                    heatMapData['pivotTable'][pivotTable]['indexY'] = 0;
                 }
+                for(var iterData in data) {
+                    var jobID =  data[iterData]['_id'];
+                    var arrayID = jobID.split("/");
+                    var jobNb = arrayID[arrayID.length - 1];
+                    //get annotation data
+                    for(var unitID in data[iterData]['results']['withSpam']){
+                        for (var taskIter in mTaksKeys) {
+                            var task = mTaksKeys[taskIter];
+                            if (task == 'avg') continue;
 
-            },{
-                    categories: categories[1],
-                    opposite:true,
-                labels:
-                {
-                    enabled: false
-                },
-                    events:{
-                        setExtremes :function (event) {
-                            var min = 0;
-                            if (event.min != undefined){
-                                min = event.min;
-                            }
-                            var max = barChart.series[0].data.length
-                            if (event.max != undefined){
-                                max = event.max;
-                            }
-                            // chart.yAxis[0].options.tickInterval
-                            barChart.xAxis[0].options.tickInterval = Math.ceil( (max-min)/20);
-                        },
-                        afterSetExtremes :function(event){
-                            var graph = '';
-                            var interval = (event.max - event.min + 1);
-                            var title = "";
-                            if (interval ==  barChart.series[0].data.length) {
-                                title = 'Aggregated view of ' + interval.toFixed(0) + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
-                            } else {
-                                title = 'Aggregated view of ' + interval.toFixed(0) + '/' + barChart.series[0].data.length + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
-                            }
-                            barChart.setTitle({text: title});
-                        }
-                    }
+                            var arrayUnit = unitID.split("/");
+                            var unitNb = arrayUnit[arrayUnit.length - 1];
 
-                }],
-            legend: {
-                maxHeight: 100,
-                labelFormatter: function() {
-                    var arrayName = this.name.split("/");
-                    var value = arrayName[arrayName.length - 1];
-                    return categoryName + ' ' + value;
-                }
-            },
-            yAxis: [{
-                min: 0,
-                title: {
-                    text: '# annotations'
-                }
-            },
-                {
-                    min: 0,
-                    opposite: true,
-                    title: {
-                        text: 'metrics'
-                    }
-                }]
-               ,
-            tooltip: {
+                            if(indexX == 0) {
 
-                hideDelay:10,
-                useHTML : true,
-                formatter: function() {
-                    var arrayID = this.x.split("/");
-                    var id =  arrayID[arrayID.length - 1];
-                    var s = '<div style="white-space:normal;"><b>Annotation </b>'+ id +'<br/>';
-
-
-                    var seriesOptions = {};
-                    $.each(this.points, function(i, point) {
-                        var pointValue = point.y
-                        if (pointValue != undefined &&!(typeof pointValue === 'string') && !(pointValue % 1 === 0)){
-                            pointValue = point.y.toFixed(2);
-                        }
-                        var id = point.series.options.categoryID;
-
-                        var name = point.series.name;
-                        var arrayName = id.split('/');
-                        var shortName = arrayName[arrayName.length - 1];
-
-                        if (point.series.name == id) {
-                            name = '# of ann ';
-                        }
-                        if(point.series.options.manyAnnVectors){
-                            var stackKey = point.series.stackKey;
-                            var columnName = 'column';
-                            name += '(' + stackKey.substr(columnName.length,stackKey.length) + ')';
-                        }
-
-                        var line = '<tr><td></td><td style="color: ' + point.series.color + ';text-align: left">   ' + name +':</td>'+
-                            '<td style="text-align: right">' + pointValue + '</td></tr>';
-                        if(!(id in seriesOptions)){
-                            seriesOptions[id] = [];
-                        }
-                        seriesOptions[id].push(line);
-                    });
-
-                    s += '<table calss="table table-condensed">';
-                    for (var item in seriesOptions)
-                    {
-                        var arrayName = item.split('/');
-                        var id = arrayName[arrayName.length - 1];
-                        s += '<tr><td> </td><td style="text-align: left"><b>' + categoryName + ' ' +  id + ':</b></td></tr>';
-                        if('tooltipChart' in currentSelectionInfo[item]){
-                            for (var tooltipInfo in currentSelectionInfo[item]['tooltipChart']){
-                                pointValue = currentSelectionInfo[item]['tooltipChart'][tooltipInfo];
-                                if (pointValue != undefined &&!(typeof pointValue === 'string') && !(pointValue % 1 === 0)){
-                                    pointValue = pointValue.toFixed(2);
-                                }
-                                s += '<tr><td></td><td style="text-align: left">   ' + tooltipInfo +':</td>'+
-                                    '<td style="text-align: right">' + pointValue + '</td></tr>';
-                            }
-                        }
-
-                        for(var li in seriesOptions[item]) {
-                            s += seriesOptions[item][li];
-                        }
-
-                    }
-                    s += '</table>';
-
-                    return s;
-                },
-                shared: true,
-                crosshairs: true
-            },
-            plotOptions: {
-                series: {
-                    minPointLength : 0,
-                    events: {
-                        legendItemClick: function(event) {
-                            var categoryID = this['options']['categoryID'];
-                            for (var iterData = 0; iterData < barChart.series.length; iterData++) {
-                                if (barChart.series[iterData]['options']['categoryID'] == categoryID & barChart.series[iterData].type == 'spline') {
-                                    barChart.series[iterData].visible ? barChart.series[iterData].hide() : barChart.series[iterData].show();
-                                }
-                            }
-
-                        }
-                    }
-                },
-                column: {
-
-                    stacking: 'normal',
-                    states: {
-
-                        select: {
-                            color: null,
-                            borderWidth:3,
-                            borderColor:'Blue'
-                        }
-                    },
-                    point: {
-                        events: {
-                            click: function () {
-                                urlBase = "";
-
-                                for (var indexUnits in currentSelection) {
-                                    urlBase += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
-                                }
-                                urlBase += 'match[softwareAgent_id][]=' + activeSelectedPlatform ;
-                                if (activeSelectedType != ""){
-                                    urlBase += '&match[type][]=' + activeSelectedType;
+                                if ( mTaksKeys.length > 1) {
+                                    heatMapData['annotations']['categoryY'].push( 'unit ' + unitNb + '(' + task + ')' + " in job " + jobNb);
+                                    heatMapData['avg_clarity']['categoryY'].push( 'unit ' + unitNb + '(' + task + ')' + " in job " + jobNb);
+                                } else {
+                                    heatMapData['annotations']['categoryY'].push( 'unit ' + unitNb + " in job " + jobNb);
+                                    heatMapData['avg_clarity']['categoryY'].push( 'unit ' + unitNb + " in job " + jobNb);
                                 }
 
-                                anchorModal = $('<a class="testModal"' +
-                                    'data-modal-query="' +  urlBase + '" data-api-target="/api/analytics/workerunit?" ' +
-                                    'data-target="#modalWorkerUnits" data-toggle="tooltip" data-placement="top" title="" ' +
-                                    'data-original-title="Click to see the individual worker page">6345558 </a>');
-                                //$('body').append(anchorModal);
-                                openModal(anchorModal, '#relex-structured-sentence_tab');
+                                var spamValue = data[iterData]['metrics']['units']['withSpam'][unitID][task]['max_relation_Cos'];
+                                var nonSpamValue = data[iterData]['metrics']['units']['withoutSpam'][unitID][task]['max_relation_Cos'];
+                                heatMapData['avg_clarity']['spam'].push([indexX, heatMapData['avg_clarity']['indexY'],spamValue]);
+                                heatMapData['avg_clarity']['nonSpam'].push([indexX, heatMapData['avg_clarity']['indexY'],nonSpamValue]);
+                                heatMapData['avg_clarity']['diff'].push([indexX, heatMapData['avg_clarity']['indexY'],spamValue-nonSpamValue]);
+                                if(  heatMapData['avg_clarity']['max'] < spamValue) heatMapData['avg_clarity']['max'] = spamValue;
+                                if(  heatMapData['avg_clarity']['min'] > nonSpamValue) heatMapData['avg_clarity']['min'] = nonSpamValue;
+                                if(  heatMapData['avg_clarity']['min'] > spamValue-nonSpamValue) heatMapData['avg_clarity']['min'] = spamValue-nonSpamValue;
+                                heatMapData['avg_clarity']['indexY'] += 1;
                             }
+
+                            var spamValue = data[iterData]['results']['withSpam'][unitID][task][annotation];
+                            var nonSpamValue = data[iterData]['results']['withoutSpam'][unitID][task][annotation];
+                            heatMapData['annotations']['spam'].push([indexX, heatMapData['annotations']['indexY'],spamValue]);
+                            heatMapData['annotations']['nonSpam'].push([indexX, heatMapData['annotations']['indexY'],nonSpamValue]);
+                            heatMapData['annotations']['diff'].push([indexX, heatMapData['annotations']['indexY'],spamValue-nonSpamValue]);
+                            if(  heatMapData['annotations']['max'] < spamValue) heatMapData['annotations']['max'] = spamValue;
+                            if(  heatMapData['annotations']['min'] > nonSpamValue) heatMapData['annotations']['min'] = nonSpamValue;
+                            if(  heatMapData['annotations']['min'] > spamValue-nonSpamValue) heatMapData['annotations']['min'] = spamValue-nonSpamValue;
+                            heatMapData['annotations']['indexY'] += 1;
                         }
                     }
+
+                    for(var iterPivotTable in querySettings.pivotTableFields){
+                        var pivotTable = querySettings.pivotTableFields[iterPivotTable];
+                        console.dir(pivotTable)
+                        for (var annotationIterY in categories) {
+                            var annotY = categories[annotationIterY];
+                            if(indexX == 0) {
+                                heatMapData['pivotTable'][pivotTable]['categoryY'].push( annotY + " in job " + jobNb);
+                            }
+                            console.dir(annotY)
+
+                            var spamValue = 0;
+                            var nonSpamValue = 0;
+                            if (annotation in data[iterData]['metrics']['pivotTables']['annotations']['withSpam'][pivotTable]) {
+                                var spamValue = data[iterData]['metrics']['pivotTables']['annotations']['withSpam'][pivotTable][annotY][annotation];
+                                var nonSpamValue = data[iterData]['metrics']['pivotTables']['annotations']['withoutSpam'][pivotTable][annotY][annotation];
+                            }
+                            console.dir(spamValue)
+                            console.dir(nonSpamValue)
+
+
+
+                            heatMapData['pivotTable'][pivotTable]['spam'].push([indexX, heatMapData['pivotTable'][pivotTable]['indexY'],spamValue.toFixed(3)]);
+                            heatMapData['pivotTable'][pivotTable]['nonSpam'].push([indexX, heatMapData['pivotTable'][pivotTable]['indexY'],nonSpamValue.toFixed(3)]);
+                            heatMapData['pivotTable'][pivotTable]['diff'].push([indexX, heatMapData['pivotTable'][pivotTable]['indexY'],(spamValue-nonSpamValue).toFixed(3)]);
+                            if(  heatMapData['pivotTable'][pivotTable]['max'] < spamValue) heatMapData['pivotTable'][pivotTable]['max'] = spamValue;
+                            if(  heatMapData['pivotTable'][pivotTable]['min'] > nonSpamValue) heatMapData['pivotTable'][pivotTable]['min'] = nonSpamValue;
+                            if(  heatMapData['pivotTable'][pivotTable]['min'] > spamValue-nonSpamValue) heatMapData['pivotTable'][pivotTable]['min'] = spamValue-nonSpamValue;
+                            heatMapData['pivotTable'][pivotTable]['indexY'] += 1;
+                        }
+                    }
+                    if(indexX == 0) {
+                        for(var iterMetrics in querySettings.annotationMetricFields){
+                            var metricField = querySettings.annotationMetricFields[iterMetrics];
+
+                            for (var annotationIterY in categories) {
+                                var annotY = categories[annotationIterY];
+                                if (!(metricField in heatMapData['annotationMetric'] )) {
+                                    heatMapData['annotationMetric'][metricField] = {};
+                                    heatMapData['annotationMetric'][metricField]['min'] = Number.MAX_VALUE;
+                                    heatMapData['annotationMetric'][metricField]['max'] = Number.MIN_VALUE;
+                                    heatMapData['annotationMetric'][metricField]['categoryY'] = [];
+                                    heatMapData['annotationMetric'][metricField]['indexY'] = 0;
+                                    heatMapData['annotationMetric'][metricField]['spam'] = [];
+                                    heatMapData['annotationMetric'][metricField]['nonSpam'] = [];
+                                    heatMapData['annotationMetric'][metricField]['diff'] = [];
+                                }
+                                heatMapData['annotationMetric'][metricField]['categoryY'].push( annotY + " in job " + jobNb);
+
+                                var spamValue = data[iterData]['metrics']['annotations']['withSpam'][metricField][annotY];
+                                var nonSpamValue = data[iterData]['metrics']['annotations']['withoutSpam'][metricField][annotY];
+                                heatMapData['annotationMetric'][metricField]['spam'].push([indexX, heatMapData['annotationMetric'][metricField]['indexY'],spamValue.toFixed(3)]);
+                                heatMapData['annotationMetric'][metricField]['nonSpam'].push([indexX, heatMapData['annotationMetric'][metricField]['indexY'],nonSpamValue.toFixed(3)]);
+                                heatMapData['annotationMetric'][metricField]['diff'].push([indexX, heatMapData['annotationMetric'][metricField]['indexY'],(spamValue-nonSpamValue).toFixed(3)]);
+                                if(  heatMapData['annotationMetric'][metricField]['max'] < spamValue) heatMapData['annotationMetric'][metricField]['max'] = spamValue;
+                                if(  heatMapData['annotationMetric'][metricField]['min'] > nonSpamValue) heatMapData['annotationMetric'][metricField]['min'] = nonSpamValue;
+                                if(  heatMapData['annotationMetric'][metricField]['min'] > spamValue-nonSpamValue) heatMapData['annotationMetric'][metricField]['min'] = spamValue-nonSpamValue;
+                                heatMapData['annotationMetric'][metricField]['indexY'] += 1;
+                            }
+                        }
+
+                    }
+
                 }
-            },
-            series: series
-        },callback);
+                indexX += 1;
+            }
+
+            var title = 'Aggregated view of ' + categories.length + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
+            var width = (3*(($('.maincolumn').width() - 50)/5))
+            var tooltip = function () {
+                return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> got <b>' +
+                    this.point.value + '</b> annotations ' + categoryPrefix + ' <b>' + this.series.yAxis.categories[this.point.y] + '</b>';
+            }
+            var min = heatMapData['annotations']['min'];
+            var max = heatMapData['annotations']['max'];
+            var height = 16 *  heatMapData['annotations']['categoryY'].length;
+            heatMapGraph(categories,  heatMapData['annotations']['categoryY'],  heatMapData['annotations']['nonSpam'], title ,
+                'High quality annotations.', min, max, 'annotationsAfter_div', width, height, tooltip, true);
+            annotationDivs.push('annotationsAfter_div');
+            heatMapGraph(categories,  heatMapData['annotations']['categoryY'],  heatMapData['annotations']['spam'], title,
+                'All annotations.', min, max, 'annotationsBefore_div', width, height, tooltip, true);
+            annotationDivs.push('annotationsBefore_div');
+            heatMapGraph(categories,  heatMapData['annotations']['categoryY'],  heatMapData['annotations']['diff'], title,
+                'Low quality annotations.', min, max, 'annotationsDiff_div',width, height, tooltip, true);
+            annotationDivs.push('annotationsDiff_div');
+
+
+            var title = "Unit clarity";
+            var width = ((($('.maincolumn').width() - 50)/5))
+
+            var tooltip = function () {
+                return '<p class = "pieDivGraphs">' + this.series.yAxis.categories[this.point.y] + ', ' + this.series.xAxis.categories[this.point.x] + ' score:<b>' +
+                    this.point.value + '</p>';
+            }
+            var height = 16 * heatMapData['avg_clarity']['categoryY'].length;
+            var min = heatMapData['avg_clarity']['min'];
+            var max = heatMapData['avg_clarity']['max'];
+            heatMapGraph(['clarity'], heatMapData['avg_clarity']['categoryY'], heatMapData['avg_clarity']['nonSpam'], title ,
+                'After filtering low quality', min, max, 'unitsMetricAfter_'+0+'_div',width, height, tooltip, false);
+            annotationDivs.push('unitsMetricAfter_'+0+'_div');
+            heatMapGraph(['clarity'], heatMapData['avg_clarity']['categoryY'], heatMapData['avg_clarity']['spam'], title ,
+                'Before filtering low quality', min, max, 'unitsMetricBefore_'+0+'_div', width, height, tooltip, false);
+            annotationDivs.push('unitsMetricBefore_'+0+'_div');
+            heatMapGraph(['clarity'], heatMapData['avg_clarity']['categoryY'], heatMapData['avg_clarity']['diff'], title ,
+                'low - high quality metrics', min, max, 'unitsMetricDiff_'+0+'_div', width, height, tooltip,false);
+            annotationDivs.push('unitsMetricDiff_'+0+'_div');
+
+            var iterMetrics = 0;
+            for (iterMetrics; iterMetrics < querySettings.pivotTableFields.length; iterMetrics++ ){
+                var metricField = querySettings.annotationMetricFields[iterMetrics];
+                var pivotTable = querySettings.pivotTableFields[iterMetrics];
+                var title = querySettings.pivotTableNames[iterMetrics] + ' of annotations for ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
+                var width = (3*(($('.maincolumn').width() - 50)/5))
+                var tooltip = function () {
+                    return '<p class = "pieDivGraphs">' + this.series.yAxis.categories[this.point.y] + ' - ' + this.series.xAxis.categories[this.point.x] + ' score:<b>' +
+                        this.point.value + '</p>';
+                }
+                var min = heatMapData['pivotTable'][pivotTable]['min'];
+                var max =heatMapData['pivotTable'][pivotTable]['max'];
+                var height = 16 *  heatMapData['pivotTable'][pivotTable]['categoryY'].length;
+                heatMapGraph(categories,  heatMapData['pivotTable'][pivotTable]['categoryY'],  heatMapData['pivotTable'][pivotTable]['nonSpam'], title ,
+                    'After filtering low quality', min, max, 'pivotTableAfter_'+iterMetrics+'_div', width, height, tooltip, true);
+                annotationDivs.push('pivotTableAfter_'+iterMetrics+'_div');
+                heatMapGraph(categories,  heatMapData['pivotTable'][pivotTable]['categoryY'],  heatMapData['pivotTable'][pivotTable]['spam'], title,
+                    'Before filtering low quality', min, max, 'pivotTableBefore_'+ iterMetrics +'_div', width, height, tooltip, true);
+                annotationDivs.push('pivotTableBefore_'+iterMetrics+'_div');
+                heatMapGraph(categories, heatMapData['pivotTable'][pivotTable]['categoryY'],  heatMapData['pivotTable'][pivotTable]['diff'], title,
+                    'low - high quality metrics', min, max, 'pivotTableDiff_'+ iterMetrics +'_div',width, height, tooltip, true);
+                annotationDivs.push('pivotTableDiff_'+ iterMetrics +'_div');
+
+
+                var title = querySettings.annotationMetricNames[iterMetrics];
+                var width = ((($('.maincolumn').width() - 50)/5))
+
+
+                var height = 16 * heatMapData['annotationMetric'][metricField]['categoryY'].length;
+                var min = heatMapData['annotationMetric'][metricField]['min'];
+                var max = heatMapData['annotationMetric'][metricField]['max'];
+                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['nonSpam'], title ,
+                    'After filtering low quality', min, max, 'annotationsMetricAfter_'+ iterMetrics +'_div',width, height, tooltip, false);
+                annotationDivs.push('annotationsMetricAfter_'+iterMetrics+'_div');
+                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['spam'], title ,
+                    'Before filtering low quality', min, max, 'annotationsMetricBefore_'+ iterMetrics+'_div', width, height, tooltip, false);
+                annotationDivs.push('annotationsMetricBefore_'+iterMetrics+'_div');
+                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'],heatMapData['annotationMetric'][metricField]['diff'], title ,
+                    'low - high quality metrics', min, max, 'annotationsMetricDiff_'+ iterMetrics +'_div', width, height, tooltip, false);
+                annotationDivs.push('annotationsMetricDiff_'+iterMetrics+'_div');
+            }
+            var noMetrics = querySettings.annotationMetricFields.length - iterMetrics;
+            var middleIter = (noMetrics)/2 + iterMetrics - 1;
+            for (iterMetrics; iterMetrics < querySettings.annotationMetricFields.length;iterMetrics++ ){
+                var metricField = querySettings.annotationMetricFields[iterMetrics];
+                var title = querySettings.annotationMetricNames[iterMetrics];
+                var width = ((($('.maincolumn').width() - 50)/(noMetrics + 1)))
+                console.dir(width);
+                var height = 16 * heatMapData['annotationMetric'][metricField]['categoryY'].length;
+                var min = heatMapData['annotationMetric'][metricField]['min'];
+                var max = heatMapData['annotationMetric'][metricField]['max'];
+                var show = false;
+                if (iterMetrics == middleIter ) {
+                    show = true;
+                    var width = (2*(($('.maincolumn').width() - 50)/(noMetrics + 1)))
+                }
+                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['nonSpam'], title ,
+                    'After filtering low quality', min, max, 'annotationsMetricAfter_'+ iterMetrics +'_div',width, height, tooltip, show);
+                annotationDivs.push('annotationsMetricAfter_'+iterMetrics+'_div');
+                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['spam'], title ,
+                    'Before filtering low quality', min, max, 'annotationsMetricBefore_'+ iterMetrics+'_div', width, height, tooltip, show);
+                annotationDivs.push('annotationsMetricBefore_'+iterMetrics+'_div');
+                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'],heatMapData['annotationMetric'][metricField]['diff'], title ,
+                    'low - high quality metrics', min, max, 'annotationsMetricDiff_'+ iterMetrics +'_div', width, height, tooltip, show);
+                annotationDivs.push('annotationsMetricDiff_'+iterMetrics+'_div');
+            }
+
+
+
+         });
+
 
     }
-
     var getHeatMapData = function(platform, type) {
         //url to get the annotation
 
+        if (category == '#job_tab'){
+            getJobHeatMapData(platform, type);
+            return;
+        }
         var categories = [];
         var series = {};
         activeSelectedPlatform = platform;
@@ -431,26 +461,24 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
             }
             var title = 'Aggregated view of ' + categories.length + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
             var width = (3*(($('.maincolumn').width() - 50)/5))
-            if (category == '#job_tab'){
-                width = (4*(($('.maincolumn').width() - 50)/5))
-            }
+
             var tooltip = function () {
                 return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> got <b>' +
                     this.point.value + '</b> annotations ' + categoryPrefix + ' <b>' + this.series.yAxis.categories[this.point.y] + '</b>';
             }
-            var height = 12 * categoriesY.length;
-            heatMapGraph(categories, categoriesY, heatMapDataAfter, title , 'Without low quality annotations.Select an area to zoom', min, max, 'annotationsAfter_div', width, height, tooltip);
+            var height = 16 * categoriesY.length;
+            heatMapGraph(categories, categoriesY, heatMapDataAfter, title , 'High quality annotations.', min, max,
+                'annotationsAfter_div', width, height, tooltip, true);
             annotationDivs.push('annotationsAfter_div');
-            heatMapGraph(categories, categoriesY, heatMapDataBefore, title, 'With low quality annotations.Select an area to zoom', min, max, 'annotationsBefore_div', width, height, tooltip);
+            heatMapGraph(categories, categoriesY, heatMapDataBefore, title, 'All annotations.',
+                min, max, 'annotationsBefore_div', width, height, tooltip, true);
             annotationDivs.push('annotationsBefore_div');
-            heatMapGraph(categories, categoriesY, heatMapDataDiff, title, 'Difference between low and high quality annotations.Select an area to zoom', min, max, 'annotationsDiff_div',width, height, tooltip);
+            heatMapGraph(categories, categoriesY, heatMapDataDiff, title, 'Low quality annotations.',
+                min, max, 'annotationsDiff_div',width, height, tooltip, true);
             annotationDivs.push('annotationsDiff_div');
             //display spam data
             //display spam data
 
-            if (category == '#job_tab'){
-                return;
-            }
 
             var metricsData = {};
             metricsData['spam'] = {};
@@ -516,12 +544,15 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                         return '<p class = "pieDivGraphs">' + this.series.yAxis.categories[this.point.y] + ', ' + this.series.xAxis.categories[this.point.x] + ' score:<b>' +
                             this.point.value + '</p>';
                     }
-                    var height = 14 * categoriesY.length;
-                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, nonSpamData, title , 'After filtering low quality', minMetric, maxMetric, 'annotationsMetricAfter_'+iterMetric+'_div',width, height, tooltip);
+                    var height = 16 * categoriesY.length;
+                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, nonSpamData, title ,
+                        'After filtering low quality', minMetric, maxMetric, 'annotationsMetricAfter_'+iterMetric+'_div',width, height, tooltip, false);
                     annotationDivs.push('annotationsMetricAfter_'+iterMetric+'_div');
-                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, spamData, title , 'Before filtering low quality', minMetric, maxMetric, 'annotationsMetricBefore_'+iterMetric+'_div', width, height, tooltip);
+                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, spamData, title ,
+                        'Before filtering low quality', minMetric, maxMetric, 'annotationsMetricBefore_'+iterMetric+'_div', width, height, tooltip, false);
                     annotationDivs.push('annotationsMetricBefore_'+iterMetric+'_div');
-                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, diffData, title , 'low - high quality metrics', minMetric, maxMetric, 'annotationsMetricDiff_'+iterMetric+'_div', width, height, tooltip);
+                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, diffData, title ,
+                        'low - high quality metrics', minMetric, maxMetric, 'annotationsMetricDiff_'+iterMetric+'_div', width, height, tooltip, false);
                     annotationDivs.push('annotationsMetricDiff_'+iterMetric+'_div');
                 }
 
@@ -533,6 +564,8 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
     }
 
     var drawPieChart = function (platform, spam) {
+        console.dir(platform)
+        console.dir(spam)
         pieChart = new Highcharts.Chart({
             chart: {
                 renderTo: 'annotationsPie_div',
@@ -572,8 +605,13 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                                 var type = "";
                                 if ('type' in this.options) {
                                     type = this.options.type;
+                                    getHeatMapData(platform, type);
+                                    for (var iterDiv in annotationDivs){
+                                        var divName = annotationDivs[iterDiv];
+                                        $('#'+divName).show();
+                                    }
                                 }
-                                getHeatMapData(platform, type);
+
 
                             }
                         }
@@ -629,15 +667,15 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
 
     this.update = function (selectedUnits, selectedInfo) {
+        for (var iterDiv in annotationDivs){
+            var divName = annotationDivs[iterDiv];
+            $('#'+divName).hide();
+        }
         if(selectedUnits.length == 0){
-            for (var iterDiv in annotationDivs){
-                var divName = annotationDivs[iterDiv];
-                if ( $('#'+divName).highcharts() != undefined ) {
+            $('#annotationsPie_div').hide();
+        } else {
+            $('#annotationsPie_div').show();
 
-                    $('#'+divName).highcharts().destroy();
-                }
-            }
-            return;
         }
         activeSelectedPlatform = "";
         activeSelectedType = "";

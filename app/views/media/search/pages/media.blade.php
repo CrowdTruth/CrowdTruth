@@ -120,11 +120,21 @@
                                         <div id="specificBarChart_div" ></div>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>
+                                        <div id="specificBarChartMaster_div"></div>
+                                    </td>
+                                </tr>
                             </table>
                             <table>
                                 <tr >
                                     <td>
                                     <div id="generalBarChart_div" ></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div id="generalBarChartMaster_div"></div>
                                     </td>
                                 </tr>
                             </table>
@@ -229,6 +239,7 @@ Swag.registerHelpers();
 $('.selectpicker').selectpicker();
 var xhr;
 var unitsChart;
+var oldTabKey;
 var selectedRows = [];
 var templates = {};
 var defaultColumns = {};
@@ -664,19 +675,16 @@ function getResults(baseApiURL){
 		visibleColumns();
 
 
-
-		// console.dir(selectedRows[activeTabKey]);
-		// console.log('starting search');
-
 		if($('.graphViewButton').hasClass('hidden')){
             var selectedCategory = activeTabKey;
 			$(activeTabKey + ' .checkAll').removeAttr('checked');
-            if(unitsChart == undefined)
+            if(!(oldTabKey == activeTabKey))
             {
                 unitsChart = new unitsChartFacade(selectedCategory, openModal, getSelection, updateSelection);
                 unitsChart.init(getTabFieldsQuery(),"");
+                oldTabKey = activeTabKey;
             } else {
-                unitsChart.update(getTabFieldsQuery(),"");
+                unitsChart.init(getTabFieldsQuery(),"");
             }
 		}
 

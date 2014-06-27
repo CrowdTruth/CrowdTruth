@@ -1,4 +1,5 @@
 //= require highcharts.js
+//= require contextmenu-highchart.js
 //= require modules/exporting.js
 //= require modules/heatmap.js
 //= require no-data-to-display.js

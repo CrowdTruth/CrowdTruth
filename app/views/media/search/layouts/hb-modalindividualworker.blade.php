@@ -120,19 +120,19 @@
 						  <tr>
 						    <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
 							@{{#each metrics.workers.withFilter}}
-							<td> @{{ toFixed avg_worker_agreement.avg 2 }} </td>
-							<td> @{{ toFixed ann_per_unit.avg 2 }} </td>
-						    	<td> @{{ toFixed worker_cosine.avg 2 }} </td>
-						    	<td> @{{ toFixed no_of_units.avg 0 }} </td>
+							<td> @{{ toFixed avg_worker_agreement 2 }} </td>
+							<td> @{{ toFixed ann_per_unit 2 }} </td>
+						    	<td> @{{ toFixed worker_cosine 2 }} </td>
+						    	<td> @{{ toFixed no_of_units 0 }} </td>
 							@{{/each}}
-						    <td> @{{ toFixed metrics.aggWorkers.mean.avg_worker_agreement.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.mean.ann_per_unit.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.mean.worker_cosine.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.mean.no_of_units.avg 0}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.stddev.avg_worker_agreement.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.stddev.ann_per_unit.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.stddev.worker_cosine.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.stddev.no_of_units.avg 0}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.mean.avg_worker_agreement 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.mean.ann_per_unit 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.mean.worker_cosine 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.mean.no_of_units 0}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.avg_worker_agreement 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.ann_per_unit 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.worker_cosine 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.no_of_units 0}} </td>
 			
 						    @{{#inArrayNew ../infoStat.cache.spammer.jobs this.platformJobId }}
 							<td> Spammer </td>
@@ -176,7 +176,7 @@
 						  <td> @{{ job_info.jobConf.content.title}} </td>  
 						  @{{#each job_info.metrics.units.withoutSpam}}
 						   @{{#ifvalue ../../_id value=@key}}
-						    <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
+						    <td> @{{ toFixed max_relation_Cos 2}} </td>
 						   @{{/ifvalue}}
 						  @{{/each}} 
 						  <td>

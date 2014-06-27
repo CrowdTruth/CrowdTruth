@@ -26,8 +26,6 @@ class Worker:
 
         results = {}
 
-
-
         for metric_key in metrics_to_apply:
             if metric_key in self.worker_metrics:
                 results[metric_key] = self.worker_metrics[metric_key]
@@ -163,6 +161,5 @@ class Worker:
 
         if count == 0:
             return 0
-
 
         return sum_cos/(1.0 * count)

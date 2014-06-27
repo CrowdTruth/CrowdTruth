@@ -269,16 +269,23 @@ class Task:
         filtered_units = self.__get_units(spam_worker_query_list, selected_annotations_to_filter)
         #compute all the metrics on the units
         filtered_units_metrics = {}
-        empty_vector = unfiltered_units[unfiltered_units.keys()[0]].get_unit_vector()
-        for key in empty_vector:
-            empty_vector[key] = 0;
+
         for unit_id in unfiltered_units:
             if unit_id not in filtered_units:
+                if len(self.default_thresholds['annotationThresholds']) > 0:
+                    empty_vector = filtered_units[filtered_units.keys()[0]].get_unit_vector()
+                else:
+                    empty_vector = unfiltered_units[unit_id].get_unit_vector()
+
+                for key in empty_vector:
+                        empty_vector[key] = 0
                 filtered_units[unit_id] = Unit(unit_id, empty_vector, 0)
+
             unit = filtered_units[unit_id]
             #compute all the metrics, if it is computationally intense, define in the template the metrics to be computed
             unit_result = unit.get_metrics(UnitMetricsEnum.__members__.values())
             filtered_units_metrics[unit_id] = unit_result
+
 
         #create the workers without spam workers and unclear/ambiguous annotations
         unclear_units_query_list = {}
@@ -288,6 +295,7 @@ class Task:
             iter += 1
 
         filtered_workers = self.__get_workers(unclear_units_query_list, selected_annotations_to_filter)
+        unfiltered_units_for_worker = self.__get_units({},selected_annotations_to_filter)
         #compute all the metrics on the units
         filtered_workers_metrics = {}
         for worker_id in unfiltered_workers:
@@ -295,7 +303,7 @@ class Task:
                 filtered_workers[worker_id] = Worker(worker_id, {}, {})
             worker = filtered_workers[worker_id]
             #compute all the metrics, if it is computationally intense, define in the template the metrics to be computed
-            worker_result = worker.get_metrics(filtered_workers, filtered_units, WorkerMetricsEnum.__members__.values())
+            worker_result = worker.get_metrics(filtered_workers, unfiltered_units_for_worker, WorkerMetricsEnum.__members__.values())
             filtered_workers_metrics[worker_id] = worker_result
 
         filtered_annotation_metrics = {}
@@ -397,7 +405,12 @@ class Task:
         results['results']['withoutSpam'] = {}
         units_without_spam = self.__get_units(spam_worker_query_list, {})
 
-        for unit in units_without_spam:
+        for unit in unfiltered_units:
+            if unit not in units_without_spam:
+                empty_vector = unfiltered_units[unit].get_unit_vector()
+                for key in empty_vector:
+                    empty_vector[key] = 0;
+                units_without_spam[unit] = Unit(unit, empty_vector, 0)
             position = unit.rfind('/')
             unit_id = unit[:position]
             key_id = unit[position+1:]
