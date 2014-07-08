@@ -88,6 +88,7 @@ class Crowdflower2 extends \FrameWork {
     */
     private function cfPublish($job, $sandbox){
     	$jc = $job->jobConfiguration;
+    	//dd($jc->title);
 		//$template = $job->template;
 		$data = $this->jobConfToCFData($jc);	
 		$csv = $this->batchToCSV($job->batch, $job->questionTemplate);
