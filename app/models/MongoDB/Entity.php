@@ -77,8 +77,7 @@ class Entity extends Moloquent {
         {
             $entity->format = strtolower($entity->format);            
             $entity->domain = strtolower($entity->domain);
-           // $entity->documentType = strtolower($entity->documentType);
-            $entity->documentType = $entity->documentType;
+            $entity->documentType = strtolower($entity->documentType);
 
             static::validateEntity($entity);         
         });
@@ -244,7 +243,7 @@ class Entity extends Moloquent {
         return $this->hasOne('\MongoDB\Entity', '_id', 'unit_id');
     }
 
-    public function workerUnits(){
+    public function workerunits(){
         return $this->hasMany('\MongoDB\Entity', 'unit_id', '_id');
     }
 
@@ -278,7 +277,7 @@ class Entity extends Moloquent {
     
     public function getJobCountAttribute(){
         if($this->documentType == "relex-structured-sentence"){
-            return $workerUnits = count(array_flatten(Entity::where('unit_id', $this->_id)->distinct('job_id')->get()->toArray()));
+            return $workerunits = count(array_flatten(Entity::where('unit_id', $this->_id)->distinct('job_id')->get()->toArray()));
         }
     }
 

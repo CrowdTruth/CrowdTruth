@@ -23,7 +23,7 @@ class Hit {
 	private $AutoApprovalDelayInSeconds; 			// The amount of time, in seconds after the Worker submits an assignment for the HIT that the results are automatically approved by the Requester.
 	private $QualificationRequirement;	 			// Array(array(key=>value)); Conditions that a Worker's Qualifications must meet in order to accept the HIT. 
 	private $Question; 								// The data the Worker completing the HIT uses produce the results.
-	private $RequesterWorkerUnit; 					// An arbitrary data field the Requester who created the HIT can use. This field is visible only to the creator of the HIT.
+	private $RequesterWorkerunit; 					// An arbitrary data field the Requester who created the HIT can use. This field is visible only to the creator of the HIT.
 	private $AssignmentReviewPolicy;				// --- only used for HIT creation --- array('AnswerKey' 	=> array(questionid => answer),
 													//											'Parameters' 	=> array(parameter => value). 
 													// http://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_AssignmentReviewPolicies.html
@@ -199,7 +199,7 @@ class Hit {
 						'AutoApprovalDelayInSeconds' => $this->AutoApprovalDelayInSeconds,
 						'QualificationRequirement' => $this->QualificationRequirement,
 						'Question' => $this->Question, 
-						'RequesterWorkerUnit' => $this->RequesterWorkerUnit,
+						'RequesterWorkerunit' => $this->RequesterWorkerunit,
 						'AssignmentReviewPolicy' => $this->AssignmentReviewPolicy,
 						
 						// Fields that can not be set.
@@ -342,12 +342,12 @@ class Hit {
 		$this->Question = $Question;
 	}
 
-	public function getRequesterWorkerUnit(){
-		return $this->RequesterWorkerUnit;
+	public function getRequesterWorkerunit(){
+		return $this->RequesterWorkerunit;
 	}
 
-	public function setRequesterWorkerUnit($RequesterWorkerUnit){
-		$this->RequesterWorkerUnit = $RequesterWorkerUnit;
+	public function setRequesterWorkerunit($RequesterWorkerunit){
+		$this->RequesterWorkerunit = $RequesterWorkerunit;
 	}
 
 	public function getNumberOfSimilarHITs(){

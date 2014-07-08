@@ -22,11 +22,11 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
             'workers': {'color': '#3D0000', 'field': 'workersCount', 'name':'# of high quality workers', 'type': 'column',
                 tooltip: "Number of high quality workers. Click to select/deselect."}},
         'judgements': {
-            'spamJudgements': {'color': '#60D4AE', 'field': 'metrics.filteredWorkerUnits.count', 'name':'# of low quality judgements', 'type': 'column',
+            'spamJudgements': {'color': '#60D4AE', 'field': 'metrics.filteredWorkerunits.count', 'name':'# of low quality judgements', 'type': 'column',
                 tooltip: "Number of low quality judgements. Click to select/deselect."},
-            'judgements': {'color': '#207F60', 'field': 'workerUnitsCount', 'name':'# of high quality judgements', 'type': 'column',
+            'judgements': {'color': '#207F60', 'field': 'workerunitsCount', 'name':'# of high quality judgements', 'type': 'column',
                 tooltip: "Number of high quality judgements. Click to select/deselect."},
-            'avgWorkerUnits': {'color': '#00AA72', 'field': '', 'name':'avg # of judgements', 'type': 'spline', 'dashStyle':'shortdot',
+            'avgWorkerunits': {'color': '#00AA72', 'field': '', 'name':'avg # of judgements', 'type': 'spline', 'dashStyle':'shortdot',
                 tooltip: "Average number of judgements. Click to select/deselect."}},
         'units': {
             'filteredUnits': {'color': '#689CD2', 'field': 'metrics.filteredUnits.count', 'name':'# of unclear units', 'type': 'column',

@@ -23,7 +23,7 @@ function unitsJobDetails(category , categoryName, openModal) {
         metricSuffix: ".avg"}
     }
 
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
     var currentSelection = [];
     var currentSelectionInfo = {};
     var pieChartOptions = {};
@@ -219,7 +219,7 @@ function unitsJobDetails(category , categoryName, openModal) {
             for (var indexUnits in currentSelection) {
                 urlUnitInfo += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
             }
-            urlUnitInfo += 'match[documentType][]=workerUnit&project[job_id]=job_id&push[job_id]=job_id' +
+            urlUnitInfo += 'match[documentType][]=workerunit&project[job_id]=job_id&push[job_id]=job_id' +
                 '&metrics[]=type&metrics[]=softwareAgent_id&'
             for (var indexMetric in querySettings['metricFields']) {
                 urlUnitInfo += 'metrics[]=metrics.' + querySettings['aggName'] + '.mean.' + querySettings['metricFields'][indexMetric] + '&';
@@ -662,7 +662,7 @@ function unitsJobDetails(category , categoryName, openModal) {
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match['+ queryField + '][]=' + selectedUnits[indexUnits] + '&';

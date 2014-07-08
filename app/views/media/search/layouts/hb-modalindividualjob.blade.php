@@ -62,7 +62,7 @@
 					      <div class="panel-body">
 						<div><strong> @{{ this.infoStat.unitsCount }} Unit(s)  </strong></div>
 						<div><strong> @{{ this.infoStat.workersCount }} Worker(s) </strong> </div>
-						<div><strong> @{{ this.infoStat.workerUnitsCount }} Annotation(s) </strong>  </div>
+						<div><strong> @{{ this.infoStat.workerunitsCount }} Annotation(s) </strong>  </div>
 						@{{#if this.infoStat.metrics.filteredUnits.count }}
 						<div><strong> @{{ this.infoStat.metrics.filteredUnits.count }} Filtered Unit(s) </strong> </div>
 						@{{else}}
@@ -73,8 +73,8 @@
 						@{{else}}
 						<div><strong> 0 Filtered Worker(s) as Spammer(s) </strong> </div>
 						@{{/if}}
-						@{{#if this.infoStat.metrics.filteredWorkerUnits.count }}
-						<div><strong> @{{ this.infoStat.metrics.filteredWorkerUnits.count }} Filtered Annotation(s) </strong> </div>
+						@{{#if this.infoStat.metrics.filteredWorkerunits.count }}
+						<div><strong> @{{ this.infoStat.metrics.filteredWorkerunits.count }} Filtered Annotation(s) </strong> </div>
 						@{{else}}
 						<div><strong> 0 Filtered Annotation(s) </strong> </div>
 						@{{/if}}

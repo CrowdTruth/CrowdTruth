@@ -1,6 +1,6 @@
 function unitsAnnotationDetails(category, categoryName, openModal) {
 
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
     var annotationDivs = [];
     var queryField = 'unit_id';
     var categoryPrefix = 'in';
@@ -681,7 +681,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
         activeSelectedType = "";
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match[' + queryField + '][]=' + selectedUnits[indexUnits] + '&';

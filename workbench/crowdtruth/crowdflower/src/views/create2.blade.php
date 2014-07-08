@@ -19,9 +19,9 @@
 						<div id="cf-div" style="padding: 10px;">
 							<fieldset>
 								<legend>CrowdFlower</legend> 
-								{{ Form::label('workerUnitsPerWorker', 'Max workerUnits per worker', array('class'=>'col-xs-4 control-label', 'data-toggle'=> 'tooltip', 'title'=>'Amount of units a worker is allowed to annotate')) }}
+								{{ Form::label('workerunitsPerWorker', 'Max workerunits per worker', array('class'=>'col-xs-4 control-label', 'data-toggle'=> 'tooltip', 'title'=>'Amount of units a worker is allowed to annotate')) }}
 								<div class="input-group col-xs-2">
-									{{ Form::input('number', 'workerUnitsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1')) }}
+									{{ Form::input('number', 'workerunitsPerWorker', null, array('class'=>'form-control input-sm', 'min' => '1')) }}
 								</div>
 								<br>
 								{{ Form::label('countries[]', 'Countries', array('class'=>'col-xs-4 control-label')) }}

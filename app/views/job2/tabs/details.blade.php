@@ -42,12 +42,12 @@
 						
 						<fieldset>
 							<legend>Count and cost</legend>
-								{{ Form::label('workerUnitsPerUnit', 'Annotations per Unit',
+								{{ Form::label('workerunitsPerUnit', 'Annotations per Unit',
 								array('class' => 'col-xs-4 control-label', 'data-toggle'=> 'tooltip', 'title'=>'The number of different annotations we want for every single unit (usually performed by different workers.')) }}
 
 							<div class="input-group col-xs-2">
-								{{ Form::input('number', 'workerUnitsPerUnit',  null,
-									array('onChange' => 'calculate()', 'id'=>'workerUnitsPerUnit', 'class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
+								{{ Form::input('number', 'workerunitsPerUnit',  null,
+									array('onChange' => 'calculate()', 'id'=>'workerunitsPerUnit', 'class' => 'form-control input-sm col-xs-6', 'min' => '1')) }}
 							</div>
 							<br>
 							{{ Form::label('unitsPerTask', 'Units per task', 
@@ -128,7 +128,7 @@
 								<div class="input-group col-xs-2">
 									{{ Form::select('eventType',  array('AssignmentAccepted' => 'AssignmentAccepted', 'AssignmentAbandoned' => 'AssignmentAbandoned', 'AssignmentReturned' => 'AssignmentReturned', 'AssignmentSubmitted' => 'AssignmentSubmitted', 'HITReviewable' => 'HITReviewable', 'HITExpired'=>'HITExpired'), null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
 								</div>
-							<!--note: removed RequesterWorkerUnit as it doesn't show up in the response (and we can have our tags locally)-->
+							<!--note: removed RequesterWorkerunit as it doesn't show up in the response (and we can have our tags locally)-->
 						</fieldset>
 						<br>
 						<br>

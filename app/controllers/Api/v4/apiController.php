@@ -44,7 +44,7 @@ class apiController extends BaseController {
 	{	
 		// $documents = $this->repository->returnCollectionObjectFor($collection)->where('documentType', $documentType);
 		// if(Input::has('id')){
-		// 	$documents = $this->repository->returnCollectionObjectFor("crowdagent")->with('hasDoneJobs')->with('hasGeneratedworkerUnits');
+		// 	$documents = $this->repository->returnCollectionObjectFor("crowdagent")->with('hasDoneJobs')->with('hasGeneratedworkerunits');
 		// } else {
 
 				
@@ -53,7 +53,7 @@ class apiController extends BaseController {
 		
 			$id = Input::get('id');
 			
-			$result = \MongoDB\CrowdAgent::with('hasGeneratedWorkerUnits.hasJob')->with('hasGeneratedWorkerUnits.hasUnit')->where('_id', $id)->get();
+			$result = \MongoDB\CrowdAgent::with('hasGeneratedWorkerunits.hasJob')->with('hasGeneratedWorkerunits.hasUnit')->where('_id', $id)->get();
 
 			$result = $result->toArray();
 			
@@ -61,24 +61,24 @@ class apiController extends BaseController {
 
 			foreach($result as $resultValue)
 			{
-				if(count($resultValue['hasGeneratedWorkerUnits']) > 0)
+				if(count($resultValue['hasGeneratedWorkerunits']) > 0)
 				{
 					$resultValue['jobs'] = array();
 
-					foreach($resultValue['hasGeneratedWorkerUnits'] as $hasGeneratedWorkerUnitKey => $hasGeneratedWorkerUnitVal)
+					foreach($resultValue['hasGeneratedWorkerunits'] as $hasGeneratedWorkerunitKey => $hasGeneratedWorkerunitVal)
 					{
-						array_push($resultValue['jobs'], $hasGeneratedWorkerUnitVal['hasJob']);
-						unset($resultValue['hasGeneratedWorkerUnits'][$hasGeneratedWorkerUnitKey]['hasJob']);
+						array_push($resultValue['jobs'], $hasGeneratedWorkerunitVal['hasJob']);
+						unset($resultValue['hasGeneratedWorkerunits'][$hasGeneratedWorkerunitKey]['hasJob']);
 					}
 
 					$resultValue['jobs'] = array_unique($resultValue['jobs'], SORT_REGULAR);
 
 					$resultValue['units'] = array();
 
-					foreach($resultValue['hasGeneratedWorkerUnits'] as $hasGeneratedWorkerUnitKey => $hasGeneratedWorkerUnitVal)
+					foreach($resultValue['hasGeneratedWorkerunits'] as $hasGeneratedWorkerunitKey => $hasGeneratedWorkerunitVal)
 					{
-						array_push($resultValue['units'], $hasGeneratedWorkerUnitVal['hasUnit']);
-						unset($resultValue['hasGeneratedWorkerUnits'][$hasGeneratedWorkerUnitKey]['hasUnit']);
+						array_push($resultValue['units'], $hasGeneratedWorkerunitVal['hasUnit']);
+						unset($resultValue['hasGeneratedWorkerunits'][$hasGeneratedWorkerunitKey]['hasUnit']);
 					}
 
 					$resultValue['units'] = array_unique($resultValue['units'], SORT_REGULAR);
@@ -92,7 +92,7 @@ class apiController extends BaseController {
 
 		} 
 
-		$documents = $this->repository->returnCollectionObjectFor("crowdagent")->with('hasGeneratedWorkerUnits');
+		$documents = $this->repository->returnCollectionObjectFor("crowdagent")->with('hasGeneratedWorkerunits');
 
 		if(Input::has('filter'))
 		{

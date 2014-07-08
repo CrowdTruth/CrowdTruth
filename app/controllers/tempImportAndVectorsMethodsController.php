@@ -29,8 +29,8 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 
 	public function getChangereldiramt(){
-		//foreach (WorkerUnit::type('RelDir') as $ann) {
-		foreach(WorkerUnit::type('RelDir')->where('softwareAgent_id', 'amt')->get() as $ann){
+		//foreach (Workerunit::type('RelDir') as $ann) {
+		foreach(Workerunit::type('RelDir')->where('softwareAgent_id', 'amt')->get() as $ann){
 			$c = $ann->content;
 
 			print_r($c);
@@ -137,13 +137,13 @@ class tempImportAndVectorsMethodsController extends BaseController {
 			$id = $row['HITId'];
 			$type = $row['Task'];
 			
-			$existing = \WorkerUnit::where('hitId', $id)->first();
+			$existing = \Workerunit::where('hitId', $id)->first();
 			if(isset($existing))
 				continue;
 
 			$hit = $turk->getHIT($id);
 			$h = $hit->toArray();
-			$jobId = (isset($h['RequesterWorkerUnit']) ? $h['RequesterWorkerUnit'] : 'unknown');//$job->_id;
+			$jobId = (isset($h['RequesterWorkerunit']) ? $h['RequesterWorkerunit'] : 'unknown');//$job->_id;
 /*
 			//Do this once:
 			if(empty($job->Expiration)) $job->Expiration = new MongoDate(strtotime($h['Expiration']));
@@ -172,20 +172,20 @@ class tempImportAndVectorsMethodsController extends BaseController {
 			foreach ($assignments as $ass){
 				$assignment = $ass->toArray();
 
-				$workerUnit = WorkerUnit::where('job_id', $jobId)
-								->where('platformWorkerUnitId', $assignment['AssignmentId'])
+				$workerunit = Workerunit::where('job_id', $jobId)
+								->where('platformWorkerunitId', $assignment['AssignmentId'])
 								->first();
 				
-				//print_r($workerUnits); die();
-				if($workerUnit) {
-					$annoldstatus = $workerUnit['status'];
+				//print_r($workerunits); die();
+				if($workerunit) {
+					$annoldstatus = $workerunit['status'];
 					$annnewstatus = $assignment['AssignmentStatus'];
 
 					if($annoldstatus != $annnewstatus){
-						$workerUnit->status = $annnewstatus;
-						$workerUnit->update();
+						$workerunit->status = $annnewstatus;
+						$workerunit->update();
 						print "Status '$annoldstatus' changed to '$annnewstatus'.";
-						Log::debug("Status of WorkerUnit {$workerUnit->_id} changed from $annoldstatus to $annnewstatus");
+						Log::debug("Status of Workerunit {$workerunit->_id} changed from $annoldstatus to $annnewstatus");
 					}
 				} else { // ASSIGNMENT entity not in DB: create activity, entity and refer to or create agent.
 
@@ -212,34 +212,34 @@ class tempImportAndVectorsMethodsController extends BaseController {
 					
 					// Create entity FOR EACH UNIT
 					foreach($groupedbyid as $uid=>$qidansarray){	*/
-						$workerUnit = new WorkerUnit;
-						$workerUnit->activity_id = $activity->_id;
-						$workerUnit->type = $type;
-						$workerUnit->crowdAgent_id = $agentId;
-						$workerUnit->softwareAgent_id = 'amt';
-						$workerUnit->job_id = $jobId;
-						$workerUnit->unit_id = '';
-						$workerUnit->hitId = $id;
-						$workerUnit->question = $h['Question'];
-						$workerUnit->platformWorkerUnitId = $assignment['AssignmentId'];
-						$workerUnit->acceptTime = new MongoDate(strtotime($assignment['AcceptTime']));
-						$workerUnit->submitTime = new MongoDate(strtotime($assignment['SubmitTime']));
+						$workerunit = new Workerunit;
+						$workerunit->activity_id = $activity->_id;
+						$workerunit->type = $type;
+						$workerunit->crowdAgent_id = $agentId;
+						$workerunit->softwareAgent_id = 'amt';
+						$workerunit->job_id = $jobId;
+						$workerunit->unit_id = '';
+						$workerunit->hitId = $id;
+						$workerunit->question = $h['Question'];
+						$workerunit->platformWorkerunitId = $assignment['AssignmentId'];
+						$workerunit->acceptTime = new MongoDate(strtotime($assignment['AcceptTime']));
+						$workerunit->submitTime = new MongoDate(strtotime($assignment['SubmitTime']));
 						//
 						// Todo: Optionally compute time spent doing the assignment here.
 						//
 						if(!empty($assignment['AutoApprovalTime']))
-							$workerUnit->autoApprovalTime = new MongoDate(strtotime($assignment['AutoApprovalTime']));
+							$workerunit->autoApprovalTime = new MongoDate(strtotime($assignment['AutoApprovalTime']));
 						if(!empty($assignment['ApprovalTime']))
-							$workerUnit->autoApprovalTime = new MongoDate(strtotime($assignment['ApprovalTime']));
+							$workerunit->autoApprovalTime = new MongoDate(strtotime($assignment['ApprovalTime']));
 						if(!empty($assignment['RejectionTime']))
-							$workerUnit->autoApprovalTime = new MongoDate(strtotime($assignment['RejectionTime']));
+							$workerunit->autoApprovalTime = new MongoDate(strtotime($assignment['RejectionTime']));
 
-						$workerUnit->content = $assignment['Answer'];
-						$workerUnit->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
-						$workerUnit->user_id = 'CrowdWatson';
-						$workerUnit->save();
+						$workerunit->content = $assignment['Answer'];
+						$workerunit->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
+						$workerunit->user_id = 'CrowdWatson';
+						$workerunit->save();
 
-						$newworkerUnits[] = $workerUnit;
+						$newworkerunits[] = $workerunit;
 
 					//}
 
@@ -258,7 +258,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 	public function getUnitsreldir(){
 		$count = 0;
-		foreach(\WorkerUnit::where('type', 'RelDir')->get() as $ann){
+		foreach(\Workerunit::where('type', 'RelDir')->get() as $ann){
 			set_time_limit(30);
 			if(!isset($ann->content)){
 				echo "{$ann->_id} no content\r\n";
@@ -317,7 +317,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 	public function getUnitsfactspan(){
 		$count = 0;
-		foreach(\WorkerUnit::where('type', 'FactSpan')->get() as $ann){
+		foreach(\Workerunit::where('type', 'FactSpan')->get() as $ann){
 			
 			set_time_limit(300);
 
@@ -374,7 +374,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 	public function getUnitsrelex(){
 		$count = 0;
-		foreach(\WorkerUnit::where('type', 'RelEx')->get() as $ann){
+		foreach(\Workerunit::where('type', 'RelEx')->get() as $ann){
 			set_time_limit(30);
 			if(!isset($ann->content)){
 				echo "{$ann->_id} no content\r\n";
@@ -470,8 +470,8 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		$result = array();
 		foreach($job->batch->wasDerivedFrom as $unit){
 			$a1t1 = $seed; $a1t2 = $seed;
-			$workerUnits = WorkerUnit::where('unit_id', $unit['_id'])->get();
-			foreach($workerUnits as $ann){
+			$workerunits = Workerunit::where('unit_id', $unit['_id'])->get();
+			foreach($workerunits as $ann){
 				if(!isset($ann->annotationVector))
 					continue;
 				// TODO: smarter? At least more different types.
@@ -502,13 +502,13 @@ class tempImportAndVectorsMethodsController extends BaseController {
 	public function getVectorsfactspan(){
 
 		//
-		// TODO: Some sentences [probably in 265 workerUnits] are different: Each time a factor is near "/" and "-", you actually need to the remove the spaces.
-		// We still have the Question URL in the workerUnit so we could use that to doublecheck.
+		// TODO: Some sentences [probably in 265 workerunits] are different: Each time a factor is near "/" and "-", you actually need to the remove the spaces.
+		// We still have the Question URL in the workerunit so we could use that to doublecheck.
 		// Also: check the business rules, should there be more validation?
 		//
 
 		$count =0;
-		foreach(\WorkerUnit::where('type', 'FactSpan')->get() as $ann){
+		foreach(\Workerunit::where('type', 'FactSpan')->get() as $ann){
 			if(isset($ann->annotationVector))
 				continue;
 
@@ -645,7 +645,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 	}
 
 	public function getVectorsrelex(){
-		foreach(\WorkerUnit::where('type', 'RelEx')->get() as $ann){
+		foreach(\Workerunit::where('type', 'RelEx')->get() as $ann){
 
 			if(!isset($ann->content))
 				dd($ann);
@@ -693,7 +693,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 	}	
 
 	public function getVectorsreldir(){ //FactSpan
-		foreach(\WorkerUnit::where('type', 'RelDir')->get() as $ann){
+		foreach(\Workerunit::where('type', 'RelDir')->get() as $ann){
 
 			if(!isset($ann->content))
 				dd($ann);
@@ -723,7 +723,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		$jobs = Job::type('RelDir')->get();
 		$count = 0;
 		foreach ($jobs as $job) {
-			foreach($job->workerUnits as $ann){
+			foreach($job->workerunits as $ann){
 				$count++;
 				$u = $ann->unit['content'];
 
@@ -766,7 +766,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		
 		foreach(Job::get() as $job){
 			$list = array();
-			foreach (WorkerUnit::type($job->type)->get() as $ann) {
+			foreach (Workerunit::type($job->type)->get() as $ann) {
 				
 				if(!empty($ann->unit_id))
 					$list[] = $ann->unit_id;
@@ -783,12 +783,12 @@ class tempImportAndVectorsMethodsController extends BaseController {
 	public function getUpdatecfdictionaries(){
 		
 		foreach(Job::where('softwareAgent_id', 'cf')->get() as $job){
-			foreach ($job->workerUnits as $ann) {
+			foreach ($job->workerunits as $ann) {
 				if(!empty($ann->annotationVector))
 					continue;
 				
 				$ann->type = $job->type;
-				$ann->annotationVector = $ann->createWorkerUnitVector();
+				$ann->annotationVector = $ann->createWorkerunitVector();
 				$ann->save();
 
 				if(is_null($ann->annotationVector))
@@ -807,9 +807,9 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 		$jobs = Job::get();
 		foreach ($jobs as $job) {
-			foreach($job->workerUnits as $ann){
+			foreach($job->workerunits as $ann){
 				//$ann->type = $job->type;
-				$ann->annotationVector = $ann->createWorkerUnitVector();
+				$ann->annotationVector = $ann->createWorkerunitVector();
 				$ann->save();
 			}
 

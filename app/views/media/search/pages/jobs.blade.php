@@ -86,7 +86,7 @@
 						@endif
 
 						@include('media.search.layouts.hb-modalindividualworker')
-						@include('media.search.layouts.hb-modalworkerUnits')
+						@include('media.search.layouts.hb-modalworkerunits')
 						@include('media.search.layouts.hb-modalindividualunit')
 
 

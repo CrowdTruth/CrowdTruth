@@ -6,7 +6,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
         queryField = 'job_id'
         var categoryPrefix = 'in'
     }
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
 
     var querySettings = { metricFields:['avg_cosine','avg_agreement'],
         metricName:['avg worker cosine across jobs','avg worker agreement across jobs'], metricSuffix: "",
@@ -506,7 +506,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
             for (var indexUnits in currentSelection) {
                 urlWorkerInfo += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
             }
-            urlWorkerInfo += 'match[documentType][]=workerUnit&project[crowdAgent_id]=crowdAgent_id&push[crowdAgent_id]=crowdAgent_id' +
+            urlWorkerInfo += 'match[documentType][]=workerunit&project[crowdAgent_id]=crowdAgent_id&push[crowdAgent_id]=crowdAgent_id' +
                 '&metrics[]=avg_agreement&metrics[]=avg_cosine'+
                 '&metrics[]=flagged&metrics[]=cfWorkerTrust&metrics[]=softwareAgent_id';
             $.getJSON(urlWorkerInfo, function (data) {
@@ -660,7 +660,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match[' + queryField + '][]=' + selectedUnits[indexUnits] + '&';

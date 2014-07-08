@@ -28,10 +28,10 @@ class Crowdflower extends \FrameWork {
 
 	public function getJobConfValidationRules(){
 		return array(
-			'workerUnitsPerUnit' => 'required|numeric|min:1',
+			'workerunitsPerUnit' => 'required|numeric|min:1',
 			'unitsPerTask' => 'required|numeric|min:1',
 			'instructions' => 'required',
-			'workerUnitsPerWorker' => 'required|numeric|min:1');
+			'workerunitsPerWorker' => 'required|numeric|min:1');
 	}
 
 	public function __construct(){
@@ -47,7 +47,7 @@ class Crowdflower extends \FrameWork {
 	}
 
 	public function updateJobConf($jc){
-		if(Input::has('workerUnitsPerWorker')){ // Check if we really come from the CF page (should be the case)
+		if(Input::has('workerunitsPerWorker')){ // Check if we really come from the CF page (should be the case)
 			$c = $jc->content;
 			$c['countries'] = Input::get('countries', array());
 			$jc->content = $c;
@@ -93,11 +93,11 @@ class Crowdflower extends \FrameWork {
 		$csv = $this->batchToCSV($job->batch, $job->questionTemplate);
 		$gold = $jc->answerfields;
 		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0)*60, 
-							"keywords" => (isset($jc->content['requesterWorkerUnit']) ? $jc->content['requesterWorkerUnit'] : ''),
+							"keywords" => (isset($jc->content['requesterWorkerunit']) ? $jc->content['requesterWorkerunit'] : ''),
 							"mail_to" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''));
     	
-    	if($jc->content['workerUnitsPerWorker'] < $jc->content['unitsPerTask'])
-    		throw new CFExceptions('WorkerUnits per worker should be larger than units per task.');
+    	if($jc->content['workerunitsPerWorker'] < $jc->content['unitsPerTask'])
+    		throw new CFExceptions('Workerunits per worker should be larger than units per task.');
     	
     	try {
 
@@ -245,11 +245,11 @@ class Crowdflower extends \FrameWork {
 
 		if(isset($jc['title'])) 			 	$data['title']					 	= $jc['title'];
 		if(isset($jc['instructions'])) 			$data['instructions']				= $jc['instructions'];
-		if(isset($jc['workerUnitsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['workerUnitsPerUnit'];
+		if(isset($jc['workerunitsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['workerunitsPerUnit'];
 		if(isset($jc['unitsPerTask']))			$data['units_per_assignment']		= $jc['unitsPerTask'];
-		if(isset($jc['workerUnitsPerWorker']))	{
-			$data['max_judgments_per_worker']	= $jc['workerUnitsPerWorker'];
-			$data['max_judgments_per_ip']		= $jc['workerUnitsPerWorker']; // We choose to keep this the same.
+		if(isset($jc['workerunitsPerWorker']))	{
+			$data['max_judgments_per_worker']	= $jc['workerunitsPerWorker'];
+			$data['max_judgments_per_ip']		= $jc['workerunitsPerWorker']; // We choose to keep this the same.
 		}
 
 		// Webhook doesn't work on localhost and the uri should be set. 

@@ -1,11 +1,11 @@
 <?php
 use MongoDB\Entity;
 
-class WorkerUnit extends Entity {
+class Workerunit extends Entity {
 
 	protected $attributes = array(  'format' => 'text', 
                                     'domain' => 'medical', 
-                                    'documentType' => 'workerUnit',
+                                    'documentType' => 'workerunit',
                                     'spam' => false);
 	
     /**
@@ -14,7 +14,7 @@ class WorkerUnit extends Entity {
     public function newQuery($excludeDeleted = true)
     {
         $query = parent::newQuery($excludeDeleted = true);
-        $query->where('documentType', 'workerUnit');
+        $query->where('documentType', 'workerunit');
         return $query;
     }
 
@@ -22,33 +22,33 @@ class WorkerUnit extends Entity {
     {
         parent::boot();
 
-        static::creating(function ( $workerUnit )
+        static::creating(function ( $workerunit )
         {
             
             // Inherit type, domain and format
-            if(empty($workerUnit->type) or empty($workerUnit->domain) or empty($workerUnit->format)){
-                $j = Job::where('_id', $workerUnit->job_id)->first();
-                $workerUnit->type = $j->type;
-                $workerUnit->domain = $j->domain;
-                $workerUnit->format = $j->format;
+            if(empty($workerunit->type) or empty($workerunit->domain) or empty($workerunit->format)){
+                $j = Job::where('_id', $workerunit->job_id)->first();
+                $workerunit->type = $j->type;
+                $workerunit->domain = $j->domain;
+                $workerunit->format = $j->format;
             }  
 
-            $workerUnit->annotationVector = $workerUnit->createAnnotationVector();
+            $workerunit->annotationVector = $workerunit->createAnnotationVector();
 
             // Activity if not exists
-            if(empty($workerUnit->activity_id)){
+            if(empty($workerunit->activity_id)){
                 try {
                     $activity = new Activity;
-                    $activity->label = "WorkerUnit is saved.";
-                    $activity->softwareAgent_id = $workerUnit->softwareAgent_id;
+                    $activity->label = "Workerunit is saved.";
+                    $activity->softwareAgent_id = $workerunit->softwareAgent_id;
                     $activity->save();
-                    $workerUnit->activity_id = $activity->_id;
-                    Log::debug("Saving workerUnit {$workerUnit->_id} with activity {$workerUnit->activity_id}.");
+                    $workerunit->activity_id = $activity->_id;
+                    Log::debug("Saving workerunit {$workerunit->_id} with activity {$workerunit->activity_id}.");
                 } catch (Exception $e) {
 
                     if($activity) $activity->forceDelete();
-                    //if($workerUnit) $workerUnit->forceDelete();
-                    throw new Exception('Error saving activity for workerUnit.');
+                    //if($workerunit) $workerunit->forceDelete();
+                    throw new Exception('Error saving activity for workerunit.');
                 }
             }
 
@@ -401,7 +401,7 @@ class WorkerUnit extends Entity {
 
 
      /**
-     * Creates a AnnotationVector ( possible multiple choice answers with 1 or 0 ) and saves it in the workerUnit.
+     * Creates a AnnotationVector ( possible multiple choice answers with 1 or 0 ) and saves it in the workerunit.
      * This might be reused when we start using the JSON QuestionTemplates.
      */
  /*   private function createAnnotationVectorDEPRECATED(){

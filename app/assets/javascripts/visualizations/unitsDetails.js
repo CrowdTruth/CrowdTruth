@@ -7,7 +7,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
         categoryPrefix = 'in'
     }
 
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
 
     var infoFields = [
         {field: 'domain', name: 'domain'},
@@ -502,7 +502,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
             for (var indexUnits in currentSelection) {
                 urlUnitInfo += 'match[' + queryField + '][]=' + currentSelection[indexUnits] + '&';
             }
-            urlUnitInfo += 'match[documentType][]=workerUnit&project[unit_id]=unit_id&push[unit_id]=unit_id' +
+            urlUnitInfo += 'match[documentType][]=workerunit&project[unit_id]=unit_id&push[unit_id]=unit_id' +
                 '&metrics[]=avg_clarity&metrics[]=domain&metrics[]=format';
             $.getJSON(urlUnitInfo, function (data) {
                 for (var iterData in data) {
@@ -632,7 +632,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match[' + queryField + '][]=' + selectedUnits[indexUnits] + '&';
