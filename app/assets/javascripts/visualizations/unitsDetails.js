@@ -1,12 +1,13 @@
-function unitsDetails(category, categoryName, openModal) {
+function unitsDetails(category, categoryName, openModal, modalName) {
     var queryField = 'crowdAgent_id';
-    var categoryPrefix = 'of'
+    var categoryPrefix = 'of';
+    var unitMaps = {};
     if (category == '#job_tab') {
         queryField = 'job_id'
         categoryPrefix = 'in'
     }
 
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
 
     var infoFields = [
         {field: 'domain', name: 'domain'},
@@ -71,7 +72,7 @@ function unitsDetails(category, categoryName, openModal) {
 
     }
 
-    var drawPieChart = function (platform, spam) {
+    var drawPieChart = function (platform, spam, totalValue) {
         pieChart = new Highcharts.Chart({
             chart: {
                 renderTo: 'unitsPie_div',
@@ -80,7 +81,7 @@ function unitsDetails(category, categoryName, openModal) {
                 height: 400
             },
             title: {
-                text: 'Number of Units ' + categoryPrefix + ' the ' + currentSelection.length + ' selected ' + categoryName + '(s)'
+                text: 'Platforms distribution for ' + totalValue + ' Unit(s) ' + categoryPrefix + ' the ' + currentSelection.length + ' selected ' + categoryName + '(s)'
             },
             subtitle: {
                 text: 'Click a category to see the distribution of judgements per unit'
@@ -183,7 +184,7 @@ function unitsDetails(category, categoryName, openModal) {
         });
     }
 
-    var drawBarChart = function (series, categories, max) {
+    var drawBarChart = function (series, categories) {
 
         var barChartOptions = {
             chart: {
@@ -203,7 +204,6 @@ function unitsDetails(category, categoryName, openModal) {
                             /*if (typeof currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'] === 'string') {
                                 var tooltipValue = currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'];
                             } else {*/
-                            console.dir(currentSelectionInfo)
                                 for (var indexInfoKey in currentSelectionInfo[legend.allItems[i].name]['tooltipLegend']) {
                                     tooltipValue += " " + indexInfoKey + ": " +
                                         currentSelectionInfo[legend.allItems[i].name]['tooltipLegend'][indexInfoKey] + '<br/>';
@@ -282,9 +282,9 @@ function unitsDetails(category, categoryName, openModal) {
                     if (arrayName.length > 1) {
                         var indexHideStr = value.indexOf('_hide')
                         if (indexHideStr != -1) {
-                            return  categoryName + ' ' + value.substring(0, indexHideStr) + ' # of low quality judgements ';
+                            return  ' # of low quality judgements of ' + categoryName + ' ' + value.substring(0, indexHideStr);
                         } else {
-                            return  categoryName + ' ' + value + ' # of high quality judgements ';
+                            return  ' # of high quality judgements of ' + categoryName + ' ' + value ;
                         }
 
                     } else {
@@ -307,7 +307,7 @@ function unitsDetails(category, categoryName, openModal) {
                 formatter: function () {
                     var arrayID = this.x.split("/");
                     var id = arrayID[arrayID.length - 1];
-                    var s = '<div style="white-space:normal;"><b>Unit ID ' + id + '</b><br/>';
+                    var s = '<div style="white-space:normal;"><b>Unit ' + id + '</b><br/>';
                     for (var index in infoFields) {
                         var field = infoFields[index]['field'];
                         var pointValue = unitInfo[this.x][field];
@@ -354,6 +354,7 @@ function unitsDetails(category, categoryName, openModal) {
                     //s += '<div style="text-align: center"><b>' + categoryName + '(s) of unit' + '</b></div>'
                     s += '<table calss="table table-condensed">';
                     for (var item in seriesOptions) {
+                        if (unitMaps[this.x].indexOf(item) == -1) continue;
                         var arrayName = item.split('/');
                         var id = arrayName[arrayName.length - 1];
                         s += '<tr><td></td><td style="text-align: left"><b>' + categoryName + ' ' + id + ':</b></td></tr>';
@@ -405,10 +406,10 @@ function unitsDetails(category, categoryName, openModal) {
                                 anchorModal = $('<a class="testModal"' +
                                     'data-modal-query="unit=' + this.category + '&' + urlBase +
                                     '" data-api-target="/api/analytics/unit?" ' +
-                                    'data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="" ' +
+                                    'data-target="' + modalName + '" data-toggle="tooltip" data-placement="top" title="" ' +
                                     'data-original-title="Click to see the individual worker page">6345558 </a>');
                                 //$('body').append(anchorModal);
-                                openModal(anchorModal, '#relex-structured-sentence_tab');
+                                openModal(anchorModal, category);
 
 
                             }
@@ -449,6 +450,7 @@ function unitsDetails(category, categoryName, openModal) {
         $.getJSON(workersURL, function (data) {
             for (var iterData in data) {
                 categories.push(data[iterData]['_id']);
+                unitMaps[data[iterData]['_id']] = []
                 for (var iterSeries in series) {
                     if (iterSeries % 2 == 1)
                         continue
@@ -462,6 +464,7 @@ function unitsDetails(category, categoryName, openModal) {
                             } else {
                                 nonSpamValue++
                             }
+                            unitMaps[data[iterData]['_id']].push(unit_id);
                         }
                     }
 
@@ -499,10 +502,9 @@ function unitsDetails(category, categoryName, openModal) {
             for (var indexUnits in currentSelection) {
                 urlUnitInfo += 'match[' + queryField + '][]=' + currentSelection[indexUnits] + '&';
             }
-            urlUnitInfo += 'match[documentType][]=workerUnit&project[unit_id]=unit_id&push[unit_id]=unit_id' +
+            urlUnitInfo += 'match[documentType][]=workerunit&project[unit_id]=unit_id&push[unit_id]=unit_id' +
                 '&metrics[]=avg_clarity&metrics[]=domain&metrics[]=format';
             $.getJSON(urlUnitInfo, function (data) {
-
                 for (var iterData in data) {
                     unitInfo[data[iterData]['_id']] = data[iterData];
                 }
@@ -559,8 +561,8 @@ function unitsDetails(category, categoryName, openModal) {
                             for (var agentIDIter in categories) {
                                 var agentID = categories[agentIDIter];
                                 if (agentID in metrics_before_filter) {
-                                    avg_clarity_spam['data'].push(metrics_before_filter[agentID]['max_relation_Cos']['avg'])
-                                    avg_clarity['data'].push(metrics_after_filter[agentID]['max_relation_Cos']['avg'])
+                                    avg_clarity_spam['data'].push(metrics_before_filter[agentID]['avg']['max_relation_Cos'])
+                                    avg_clarity['data'].push(metrics_after_filter[agentID]['avg']['max_relation_Cos'])
                                 } else {
                                     avg_clarity_spam['data'].push(0)
                                     avg_clarity['data'].push(0)
@@ -595,7 +597,7 @@ function unitsDetails(category, categoryName, openModal) {
                                 metrics_ids.push(series_id)
                             }
                         }
-                        drawBarChart(series, categories, max);
+                        drawBarChart(series, categories);
                     });
 
                 } else {
@@ -606,7 +608,7 @@ function unitsDetails(category, categoryName, openModal) {
                             spam_ids.push(series_id)
                         }
                     }
-                    drawBarChart(series, categories, max);
+                    drawBarChart(series, categories);
                 }
 
             });
@@ -618,17 +620,19 @@ function unitsDetails(category, categoryName, openModal) {
         pieChartOptions = {};
         unitInfo = {};
         seriesBase = [];
+
         if (selectedUnits.length == 0) {
-            if ($('#unitsBar_div').highcharts() != undefined) {
-                $('#unitsBar_div').highcharts().destroy();
-                $('#unitsPie_div').highcharts().destroy();
-            }
+            $('#unitsBar_div').hide();
+            $('#unitsPie_div').hide();
             return;
+        } else {
+            $('#unitsBar_div').show();
+            $('#unitsPie_div').show();
         }
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match[' + queryField + '][]=' + selectedUnits[indexUnits] + '&';
@@ -644,6 +648,7 @@ function unitsDetails(category, categoryName, openModal) {
             var spamData = [];
             var requests = [];
             var iterColors = 0;
+            var totalNumber = 0;
             var colors = ['#FFC640', '#A69C00'];
 
 
@@ -654,9 +659,10 @@ function unitsDetails(category, categoryName, openModal) {
                     platform: platformID});
                 pieChartOptions[platformID] = {};
                 pieChartOptions[platformID]['all'] = data[platformIter]['content'];
-
+                totalNumber += data[platformIter]['content'].length
             }
-            drawPieChart(platformData, spamData);
+
+            drawPieChart(platformData, spamData, totalNumber);
 
 
         });

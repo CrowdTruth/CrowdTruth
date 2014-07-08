@@ -67,15 +67,15 @@ class csvresultController extends BaseController {
 		}
 	}
 
-	public function getWorkerUnitdata($action = null)
+	public function getWorkerunitdata($action = null)
 	{
 		if(is_null($action))
 		{
-			$entities = \MongoDB\Entity::where('documentType', 'csvresult')->where('title', 'like', '%workerUnit%')->get();
+			$entities = \MongoDB\Entity::where('documentType', 'csvresult')->where('title', 'like', '%workerunit%')->get();
 
 			if(count($entities) > 0)
 			{
-				return View::make('preprocess.csvresult.pages.workerUnitdata', compact('entities'));
+				return View::make('preprocess.csvresult.pages.workerunitdata', compact('entities'));
 			}
 
 			return Redirect::to('files/upload')->with('flashNotice', 'You have not uploaded any "csvresult" documents yet');
@@ -87,7 +87,7 @@ class csvresultController extends BaseController {
 				if($entity = $this->repository->find($URI)) {
 					if($entity->documentType == "csvresult")
 					{
-                        return $document = $this->csvresultMapper->processWorkerUnitData($entity, true);
+                        return $document = $this->csvresultMapper->processWorkerunitData($entity, true);
 					}
 
 
@@ -101,7 +101,7 @@ class csvresultController extends BaseController {
 				if($entity = $this->repository->find($URI)) {
 					if($entity->documentType == "csvresult")
 					{
-                        return $document = $this->csvresultMapper->processWorkerUnitData($entity);
+                        return $document = $this->csvresultMapper->processWorkerunitData($entity);
 					}
 
 

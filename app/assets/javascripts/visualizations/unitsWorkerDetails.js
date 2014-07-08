@@ -1,15 +1,16 @@
-function unitsWorkerDetails(category, categoryName, openModal) {
+function unitsWorkerDetails(category, categoryName, openModal, updateSelection) {
     var queryField = 'unit_id';
+    var workerMaps = {};
     var categoryPrefix = 'on'
     if (category == '#job_tab'){
         queryField = 'job_id'
         var categoryPrefix = 'in'
     }
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
 
     var querySettings = { metricFields:['avg_cosine','avg_agreement'],
         metricName:['avg worker cosine across jobs','avg worker agreement across jobs'], metricSuffix: "",
-        metricTooltip : [{key:'CrowdTruth Average Cosine Similarity', value:'Higher Scores indicate better quality workers. Click to select/deselect.'}, {key:'CrowdTruth Average Worker Agreement score', value:'Higher scores indicate better quality workers. Click to select/deselect.'}]}
+        metricTooltip : [{key:'CrowdTruth Average Cosine Similarity', value:'Lower Scores indicate better quality workers. Click to select/deselect.'}, {key:'CrowdTruth Average Worker Agreement score', value:'Higher scores indicate better quality workers. Click to select/deselect.'}]}
 
     var infoFields = [ {field:'softwareAgent_id', name:'platform'}, {field:'flagged', name:'flagged'} ,{field:'cfWorkerTrust', name:'platform worker trust'},
         {field:'avg_cosine', name:'avg worker cosine across jobs'}, {field:'avg_agreement', name:'avg worker agreement across jobs'} ];
@@ -34,6 +35,8 @@ function unitsWorkerDetails(category, categoryName, openModal) {
         img.attr("style", "opacity:0.5");
         img.attr("title", title);
         img.on('click', function () {
+/*            $('#workerTabOption')[0].children[0].click();
+            updateSelection({"crowdagent/cf/11338264":0});*/
             var hideIcon = true;
             for (var series in searchSet) {
                 var series_id = searchSet[series];
@@ -73,7 +76,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
 
     }
 
-    var drawPieChart = function (platform, spam) {
+    var drawPieChart = function (platform, spam, totalValue) {
         pieChart = new Highcharts.Chart({
             chart: {
                 renderTo: 'workersPie_div',
@@ -82,7 +85,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 height: 430
             },
             title: {
-                text: 'Quality of Workers of the ' + currentSelection.length +  ' selected ' + categoryName + '(s)'
+                text: 'Quality of ' + totalValue + ' Worker(s) of the ' + currentSelection.length +  ' selected ' + categoryName + '(s)'
             },
             subtitle: {
                 text: 'Click a category to see the distribution of judgements per worker'
@@ -287,9 +290,9 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                     if (arrayName.length > 1) {
                         var indexHideStr = value.indexOf('_hide')
                         if (indexHideStr != -1) {
-                            return  categoryName + ' ' + value.substring(0, indexHideStr) + ' # of low quality judgements ';
+                            return '# of low quality judgements of ' + categoryName + ' ' + value.substring(0, indexHideStr) ;
                         } else {
-                            return  categoryName + ' ' + value + ' # of high quality judgements ';
+                            return  '# of high quality judgements of ' + categoryName + ' ' + value ;
                         }
 
                     } else {
@@ -317,7 +320,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                 formatter: function() {
                     var arrayID = this.x.split("/");
                     var id =  arrayID[arrayID.length - 1];
-                    var s = '<div style="white-space:normal;"><b>Worker ID '+ id +' </b><br/>';
+                    var s = '<div style="white-space:normal;"><b>Worker '+ id +' </b><br/>';
                     for (var index in infoFields) {
                         var field = infoFields[index]['field'];
                         var pointValue =  workerInfo[this.x][field];
@@ -364,6 +367,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                     s += '<table calss="table table-condensed">';
                     for (var item in seriesOptions)
                     {
+                        if (workerMaps[this.x].indexOf(item) == -1) continue;
                         var arrayName = item.split('/');
                         var id = arrayName[arrayName.length - 1];
                         s += '<tr><td> </td><td style="text-align: left"><b>' + categoryName + ' ' +  id + ':</b></td></tr>';
@@ -452,9 +456,9 @@ function unitsWorkerDetails(category, categoryName, openModal) {
         }
         //get the list of workers for this units
         $.getJSON(workersURL, function (data) {
-
             for (var iterData in data) {
                 categories.push(data[iterData]['_id']);
+                workerMaps[data[iterData]['_id']] = []
                 for (var iterSeries in series) {
                     if (iterSeries % 2 == 1)
                         continue
@@ -468,6 +472,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                             } else {
                                 nonSpamValue++
                             }
+                            workerMaps[data[iterData]['_id']].push(unit_id);
                         }
                     }
 
@@ -501,7 +506,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
             for (var indexUnits in currentSelection) {
                 urlWorkerInfo += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
             }
-            urlWorkerInfo += 'match[documentType][]=workerUnit&project[crowdAgent_id]=crowdAgent_id&push[crowdAgent_id]=crowdAgent_id' +
+            urlWorkerInfo += 'match[documentType][]=workerunit&project[crowdAgent_id]=crowdAgent_id&push[crowdAgent_id]=crowdAgent_id' +
                 '&metrics[]=avg_agreement&metrics[]=avg_cosine'+
                 '&metrics[]=flagged&metrics[]=cfWorkerTrust&metrics[]=softwareAgent_id';
             $.getJSON(urlWorkerInfo, function (data) {
@@ -533,6 +538,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                                type: 'spline',
                                color:Highcharts.Color( colorMaps[job_id]).brighten(0.3).get(),
                                yAxis:1,
+                               visible: false,
                                'dashStyle':'shortdot'};
                            var avg_agreement_spam = {'name': value + " avg agreement before filter",
                                data:[],
@@ -551,6 +557,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                                type: 'spline',
                                color:Highcharts.Color( colorMaps[job_id]).brighten(0.1).get(),
                                yAxis:1,
+                               visible: false,
                                'dashStyle':'LongDash'};
 
                            var avg_cosine_spam = {'name': value + " avg cosine before filter",
@@ -577,10 +584,10 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                            for (var agentIDIter in categories) {
                                var agentID = categories[agentIDIter];
                                if (agentID in metrics_before_filter) {
-                                   avg_agreement_spam['data'].push(metrics_before_filter[agentID]['avg_worker_agreement']['avg'])
-                                   avg_agreement['data'].push(metrics_after_filter[agentID]['avg_worker_agreement']['avg'])
-                                   avg_cosine_spam['data'].push(metrics_before_filter[agentID]['worker_cosine']['avg'])
-                                   avg_cosine['data'].push(metrics_after_filter[agentID]['worker_cosine']['avg'])
+                                   avg_agreement_spam['data'].push(metrics_before_filter[agentID]['avg_worker_agreement'])
+                                   avg_agreement['data'].push(metrics_after_filter[agentID]['avg_worker_agreement'])
+                                   avg_cosine_spam['data'].push(metrics_before_filter[agentID]['worker_cosine'])
+                                   avg_cosine['data'].push(metrics_after_filter[agentID]['worker_cosine'])
                                } else {
                                    avg_agreement_spam['data'].push(0)
                                    avg_agreement['data'].push(0)
@@ -641,18 +648,19 @@ function unitsWorkerDetails(category, categoryName, openModal) {
         pieChartOptions = {};
         workerInfo = {};
         seriesBase = [];
-        if(selectedUnits.length == 0){
-            if ( $('#workersBar_div').highcharts() != undefined ) {
-                $('#workersBar_div').highcharts().destroy();
-                $('#workersPie_div').highcharts().destroy();
-            }
-
+        if (selectedUnits.length == 0) {
+            $('#workersBar_div').hide();
+            $('#workersPie_div').hide();
             return;
+        } else {
+            $('#workersBar_div').show();
+            $('#workersPie_div').show();
         }
+
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerUnit&";
+        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match[' + queryField + '][]=' + selectedUnits[indexUnits] + '&';
@@ -684,6 +692,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
             }
             var defer = $.when.apply($, requests);
             defer.done(function () {
+                var totalValue = 0;
 
                 $.each(arguments, function (index, responseData) {
                     // "responseData" will contain an array of response information for each specific request
@@ -708,6 +717,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                                 }
                             }, this);
 
+
                             if (responseData[iterObj]['_id'] === true) {
                                 spamData.push({name: 'low quality',
                                     spam: 0, //spammers
@@ -723,6 +733,7 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                                     platform: data[index]['_id']});
                                 pieChartOptions[data[index]['_id']]['nonSpam'] = content;
                             }
+                            totalValue += content.length;
                         }
                         if(commonWorkers.length > 0) {
                             spamData.push({name: 'potentially low quality',
@@ -732,9 +743,10 @@ function unitsWorkerDetails(category, categoryName, openModal) {
                                 platform: data[index]['_id']});
                             pieChartOptions[data[index]['_id']]['potential'] = commonWorkers;
                         }
+                        totalValue += commonWorkers.length;
                     }
                 });
-                drawPieChart(platformData, spamData);
+                drawPieChart(platformData, spamData, totalValue);
             });
 
         });

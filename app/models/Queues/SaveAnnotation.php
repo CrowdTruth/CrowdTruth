@@ -1,16 +1,16 @@
 <?php
 namespace Queues;
 use \Queue;
-class SaveWorkerUnit {
+class SaveWorkerunit {
 
 
 	public function fire($job, $data){
 		// Metrics
-		$workerUnit = unserialize($data['workerUnit']);
-		$workerUnit->save();
-		\Log::debug("Saved workerUnit {$workerUnit->_id}.");
+		$workerunit = unserialize($data['workerunit']);
+		$workerunit->save();
+		\Log::debug("Saved workerunit {$workerunit->_id}.");
 
-		Queue::push('Queues\UpdateUnits', [$workerUnit->unit_id]);
+		Queue::push('Queues\UpdateUnits', [$workerunit->unit_id]);
 
 		$job->delete(); // the Queue job...
 	}

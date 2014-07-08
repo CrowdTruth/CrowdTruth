@@ -2,7 +2,7 @@
 namespace Queues;
 
 use \Job;
-use \WorkerUnit;
+use \Workerunit;
 class UpdateUnits {
 
 	/**
@@ -30,24 +30,24 @@ class UpdateUnits {
 
             $batch['count'] = count(\MongoDB\Entity::where('documentType', 'batch')->where('parents', 'all', array($unit->_id))->get()->toArray());
             
-            $workerUnit = array('count'=>0, 'spam'=>0, 'nonSpam'=>0);
+            $workerunit = array('count'=>0, 'spam'=>0, 'nonSpam'=>0);
             $workerlist = $workersspam = $workersnonspam = $joblist = array();
 
-            foreach(WorkerUnit::where('unit_id', $unit->_id)->get() as $a){
+            foreach(Workerunit::where('unit_id', $unit->_id)->get() as $a){
             	$joblist[] = $a->job_id;
             	$workerlist[] = $a->crowdAgent_id;
 
             	if($a->spam) {
-            		$workerUnit['spam']++;
+            		$workerunit['spam']++;
             		$workersspam[] = $a->crowdAgent_id;
             	} else {
-            		$workerUnit['nonSpam']++;
+            		$workerunit['nonSpam']++;
             		$workersnonspam[] = $a->crowdAgent_id;
             	}	
 
             }
 
-			$workerUnit['count'] = ($workerUnit['spam'] + $workerUnit['nonSpam']);
+			$workerunit['count'] = ($workerunit['spam'] + $workerunit['nonSpam']);
 
 			$workers['count'] = count(array_unique($workerlist));
             $workers['spam'] = count(array_unique($workersspam));
@@ -74,7 +74,7 @@ class UpdateUnits {
 
             $unit->cache = ["jobs" => $jobs,
                 			"workers" => $workers,
-                			"workerUnits" => $workerUnit,
+                			"workerunits" => $workerunit,
                             "filtered" => $filteredField,
                 			"batches" => $batch];
 

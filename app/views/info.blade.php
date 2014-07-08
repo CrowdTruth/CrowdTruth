@@ -152,7 +152,7 @@ img {padding:10px;}
 									<p><a href="#inner1">The Provenance model</a> requires us to save an Agent and an Activity for every Entity we save. The Job already has an activity, but the annotations need a new one. The agent is the CrowdAgent and the softwareAgentId is the shorthand name of your platform. There are many more ‘rules’ and they are important, so please study <a href="#inner1">the data model</a> carefully.</p>
 									<p>When you get the data:</p>
 									<ul>
-										<li>Initiate a new Annotation object and give it the necessary properties. After this, do: <br><code>Queue::push('Queues\SaveWorkerUnit', array('workerUnit' => serialize($workerUnit)));</code></li>
+										<li>Initiate a new Annotation object and give it the necessary properties. After this, do: <br><code>Queue::push('Queues\SaveWorkerunit', array('workerunit' => serialize($workerunit)));</code></li>
 										<li>Create or update the CrowdAgent and do:<br><code>Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));</code></li>
 										<li>Finally, update the Job (this is necessary to update the vectors and completion count)<br><code>Queue::push('Queues\UpdateJob', array('job' => serialize($job)));</code></li>
 									</ul>
@@ -177,7 +177,7 @@ img {padding:10px;}
 									<strong>Amazon Mechanical Turk</strong>
 									<p>Mechanical Turk uses HTML for it’s questions. Some special rules do apply however. For an HTML template to work correctly with our framework, only the HTML inside the form should be included. So you can leave the &lt;head>, &lt;body> and &lt;form> tags behind and just start with the &lt;input> fields. CSS and JavaScript have to be included in &lt;style> and &lt;script> tags. References to external CSS and JS are allowed, but only if the asset is hosted on a server that supports SSL (https://). The format of the parameters is the same as with CrowdFlower (see above). Every &lt;input> name has to be: {uid}_fieldname. To have multiple questions on a single page is also supported, please check out our RelDir template for this. Since this will be handled by the framework automatically in the future, we won’t go into this here.</p>
 									<strong>Vectors</strong>
-									<p>Right now, creating custom rules for how annotation vectors are generated has to be done in the source code (in the WorkerUnit class).</p>
+									<p>Right now, creating custom rules for how annotation vectors are generated has to be done in the source code (in the Workerunit class).</p>
 									<h6>Future implementation</h6>
 									<strong>Template</strong>
 									<p>To get an idea of how to create JSON templates in the next version of the framework, please refer to the discussion document at (link). When we implement this, detailed instructions will be available. We aim to make this process as straightforward as possible.</p>

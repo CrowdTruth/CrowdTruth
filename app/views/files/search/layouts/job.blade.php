@@ -3,7 +3,7 @@
 		<table class='table table-striped datatable_content'>
 			<thead>
 				<tr data-field-query="field[documentType][]=job">
-					<th data-key="workerUnitsCount">workerUnitsCount</th>
+					<th data-key="workerunitsCount">workerunitsCount</th>
 					<th data-key="completion">completion</th>
 					<th data-key="platformJobId">platformJobId</th>	
 					<th data-key="status">status</th>	

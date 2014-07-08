@@ -1,4 +1,4 @@
-"jobID","type","platform","dataset","startedAt","hitLifetimeInMinutes","autoApprovalDelayInMinutes","expirationInMinutes","reward","workerUnitsPerUnit","unitsPerTask","title","description","keywords","instructions","file"
+"jobID","type","platform","dataset","startedAt","hitLifetimeInMinutes","autoApprovalDelayInMinutes","expirationInMinutes","reward","workerunitsPerUnit","unitsPerTask","title","description","keywords","instructions","file"
 0,"FactSpan","CF","MfactSpan","01/30/2014 22:02:32","N/A","N/A",3,0.02,10,99,"Is the PHRASE complete? (medical sentences)","N/A","medical terms, text annotation, verify medical term","In the SENTENCE below verify whether the HIGHLIGHTED WORD(s) form a complete medical TERM. 
 
 - If it is COMPLETE --> confirm it by clicking on the HIGHLIGHTED WORD(s) in the sentence and use the confirmed WORD(s) in a sentence.

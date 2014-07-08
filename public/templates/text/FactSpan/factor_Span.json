@@ -4,7 +4,7 @@
 	"instructions": "In the SENTENCE below verify whether the HIGHLIGHTED WORD(s) form complete medical TERMS.",
     "keywords": "medical relations, medical text, word phrase extraction",
     "reward": "0.03",
-    "workerUnitsPerUnit": "10",
+    "workerunitsPerUnit": "10",
     "hitLifetimeInMinutes": "10080",
     "expirationInMinutes": "2",
     "unitsPerTask": 1,
@@ -22,6 +22,6 @@
         }
     ],
 	"platform":["amt"],
-    "workerUnitsPerWorker": 8,
-    "requesterWorkerUnit": ""
+    "workerunitsPerWorker": 8,
+    "requesterWorkerunit": ""
 }

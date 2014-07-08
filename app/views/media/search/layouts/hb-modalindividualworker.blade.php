@@ -54,7 +54,7 @@
 						<div><strong data-toggle="tooltip" data-placement="top" title="@{{#each this.infoStat.cache.mediaFormats.formats }}@{{ @key }}<br />@{{/each}}"> @{{ this.infoStat.cache.mediaFormats.distinct }} Distinct Media Format(s) </strong>  </div>
 						<div><strong data-toggle="tooltip" data-placement="top" title="@{{#each this.infoStat.cache.jobTypes.types }}@{{ @key }}<br />@{{/each}}"> @{{ this.infoStat.cache.jobTypes.distinct }} Distinct Job Type(s) </strong> </div>
 						<div><strong> @{{ this.infoStat.cache.jobTypes.count }} Job(s) as Contributor</strong> </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="# Spam Annotations: @{{ this.infoStat.cache.workerUnits.spam }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.workerUnits.nonspam }}"> @{{ this.infoStat.cache.workerUnits.count }} Annotation(s) in Total </strong> </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="# Spam Annotations: @{{ this.infoStat.cache.workerunits.spam }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.workerunits.nonspam }}"> @{{ this.infoStat.cache.workerunits.count }} Annotation(s) in Total </strong> </div>
 						<div><strong data-toggle="tooltip" data-placement="top" title="Messages: @{{ this.infoStat.messagesRecieved.messages }}"> @{{ this.infoStat.messagesRecieved.count}} Message(s) Sent to This Worker </strong></div>
 						<hr/>
 						<table style="width: 100%" border="1" bordercolor="#C0C0C0" text-align="center">
@@ -120,19 +120,19 @@
 						  <tr>
 						    <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
 							@{{#each metrics.workers.withFilter}}
-							<td> @{{ toFixed avg_worker_agreement.avg 2 }} </td>
-							<td> @{{ toFixed ann_per_unit.avg 2 }} </td>
-						    	<td> @{{ toFixed worker_cosine.avg 2 }} </td>
-						    	<td> @{{ toFixed no_of_units.avg 0 }} </td>
+							<td> @{{ toFixed avg_worker_agreement 2 }} </td>
+							<td> @{{ toFixed ann_per_unit 2 }} </td>
+						    	<td> @{{ toFixed worker_cosine 2 }} </td>
+						    	<td> @{{ toFixed no_of_units 0 }} </td>
 							@{{/each}}
-						    <td> @{{ toFixed metrics.aggWorkers.mean.avg_worker_agreement.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.mean.ann_per_unit.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.mean.worker_cosine.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.mean.no_of_units.avg 0}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.stddev.avg_worker_agreement.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.stddev.ann_per_unit.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.stddev.worker_cosine.avg 2}} </td>
-						    <td> @{{ toFixed metrics.aggWorkers.stddev.no_of_units.avg 0}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.mean.avg_worker_agreement 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.mean.ann_per_unit 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.mean.worker_cosine 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.mean.no_of_units 0}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.avg_worker_agreement 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.ann_per_unit 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.worker_cosine 2}} </td>
+						    <td> @{{ toFixed metrics.aggWorkers.stddev.no_of_units 0}} </td>
 			
 						    @{{#inArrayNew ../infoStat.cache.spammer.jobs this.platformJobId }}
 							<td> Spammer </td>
@@ -168,19 +168,19 @@
 						</tr> 
 						</thead>
 						<tbody>
-						 @{{#each this.workerUnitContent}}
+						 @{{#each this.workerunitContent}}
 
-						 @{{#each workerUnitType}}
+						 @{{#each workerunitType}}
 						 <tr>
 						  <td data-toggle="tooltip" data-placement="top" title="CrowdTruth ID: @{{ ../_id}} </br> Domain: @{{ ../unitContent.domain }} </br> Sentence: @{{ ../unitContent.content.sentence.formatted}} </br> Term1: @{{ ../unitContent.content.terms.first.formatted }} </br> Term2: @{{ ../unitContent.content.terms.second.formatted }} </br> Relation: @{{ ../unitContent.content.relation.noPrefix }}"> @{{ ../unitContent.documentType }} </td>
 						  <td> @{{ job_info.jobConf.content.title}} </td>  
 						  @{{#each job_info.metrics.units.withoutSpam}}
 						   @{{#ifvalue ../../_id value=@key}}
-						    <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
+						    <td> @{{ toFixed max_relation_Cos 2}} </td>
 						   @{{/ifvalue}}
 						  @{{/each}} 
 						  <td>
-						  @{{#each workerUnit}}
+						  @{{#each workerunit}}
 						   <table border="1" bordercolor="#C0C0C0">
 						    <tr> 
 						    @{{#eachProperty this}}

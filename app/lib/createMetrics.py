@@ -19,11 +19,10 @@ from Metrics.TaskMetrics.Task import *
 # response = json.JSONDecoder().decode(api_call.read())
 # template = response[0]['template'];
 # #s = Task(job, sys.argv[2])
-template = "entity/text/medical/FactSpan/Factor_Span/0"
-job_id = "entity/text/medical/job/0"
+template = "entity/text/medical/RelExt/Relation_Extraction/0"
+job_id = "entity/text/medical/job/1"
 s = Task([job_id],template)
 metrics = s.create_metrics()
- 
 
 print(metrics)
 #res = s.get_metrics(WorkerMetricsEnum.no_of_sent)

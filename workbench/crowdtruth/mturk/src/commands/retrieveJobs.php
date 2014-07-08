@@ -7,7 +7,7 @@ use \MongoDB\Entity;
 use \MongoDB\CrowdAgent;
 use \MongoDB\Activity;
 use \MongoDB\Agent;
-use \WorkerUnit;
+use \Workerunit;
 use \Job;
 use \MongoDate;
 use \Config;
@@ -29,7 +29,7 @@ class RetrieveJobs extends Command {
 	 *
 	 * @var string
 	 */
-	protected $description = 'Retrieve workerUnits from Mechanical Turk and update job status.';
+	protected $description = 'Retrieve workerunits from Mechanical Turk and update job status.';
 
 	/**
 	 * Create a new command instance.
@@ -66,8 +66,8 @@ class RetrieveJobs extends Command {
 					->get();
 
 		foreach($jobs as $job){
-			$newworkerUnits = array();
-			$newworkerUnitscount = 0;
+			$newworkerunits = array();
+			$newworkerunitscount = 0;
 			//$newplatformhitid = array();
 
 			foreach($job->platformJobId as $hitid){
@@ -112,20 +112,20 @@ class RetrieveJobs extends Command {
 					foreach ($assignments as $ass){
 						$assignment = $ass->toArray();
 
-						$workerUnit = WorkerUnit::where('job_id', $jobId)
-										->where('platformWorkerUnitId', $assignment['AssignmentId'])
+						$workerunit = Workerunit::where('job_id', $jobId)
+										->where('platformWorkerunitId', $assignment['AssignmentId'])
 										->first();
 						
-						//print_r($workerUnits); die();
-						if($workerUnit) {
-							$annoldstatus = $workerUnit['status'];
+						//print_r($workerunits); die();
+						if($workerunit) {
+							$annoldstatus = $workerunit['status'];
 							$annnewstatus = $assignment['AssignmentStatus'];
 
 							if($annoldstatus != $annnewstatus){
-								$workerUnit->status = $annnewstatus;
-								Queue::push('SaveWorkerUnit', array('workerUnit' => $workerUnit));
+								$workerunit->status = $annnewstatus;
+								Queue::push('SaveWorkerunit', array('workerunit' => $workerunit));
 								print "Status '$annoldstatus' changed to '$annnewstatus'.";
-								Log::debug("Status of WorkerUnit {$workerUnit->_id} changed from $annoldstatus to $annnewstatus");
+								Log::debug("Status of Workerunit {$workerunit->_id} changed from $annoldstatus to $annnewstatus");
 							}
 						} else { // ASSIGNMENT entity not in DB: create activity, entity and refer to or create agent.
 
@@ -151,34 +151,34 @@ class RetrieveJobs extends Command {
 
 							// Create entity FOR EACH UNIT
 							foreach($groupedbyid as $uid=>$qidansarray){
-								$workerUnit = new WorkerUnit;
-								$workerUnit->activity_id = $activity->_id;
-								$workerUnit->crowdAgent_id = $agentId;
-								$workerUnit->softwareAgent_id = 'amt';
-								$workerUnit->job_id = $jobId;
-								$workerUnit->unit_id = $uid;
-								$workerUnit->platformWorkerUnitId = $assignment['AssignmentId'];
-								$workerUnit->acceptTime = new MongoDate(strtotime($assignment['AcceptTime']));
-								$workerUnit->submitTime = new MongoDate(strtotime($assignment['SubmitTime']));
+								$workerunit = new Workerunit;
+								$workerunit->activity_id = $activity->_id;
+								$workerunit->crowdAgent_id = $agentId;
+								$workerunit->softwareAgent_id = 'amt';
+								$workerunit->job_id = $jobId;
+								$workerunit->unit_id = $uid;
+								$workerunit->platformWorkerunitId = $assignment['AssignmentId'];
+								$workerunit->acceptTime = new MongoDate(strtotime($assignment['AcceptTime']));
+								$workerunit->submitTime = new MongoDate(strtotime($assignment['SubmitTime']));
 								//
 								// Todo: Optionally compute time spent doing the assignment here.
 								//
 								if(!empty($assignment['AutoApprovalTime']))
-									$workerUnit->autoApprovalTime = new MongoDate(strtotime($assignment['AutoApprovalTime']));
+									$workerunit->autoApprovalTime = new MongoDate(strtotime($assignment['AutoApprovalTime']));
 								if(!empty($assignment['ApprovalTime']))
-									$workerUnit->autoApprovalTime = new MongoDate(strtotime($assignment['ApprovalTime']));
+									$workerunit->autoApprovalTime = new MongoDate(strtotime($assignment['ApprovalTime']));
 								if(!empty($assignment['RejectionTime']))
-									$workerUnit->autoApprovalTime = new MongoDate(strtotime($assignment['RejectionTime']));
+									$workerunit->autoApprovalTime = new MongoDate(strtotime($assignment['RejectionTime']));
 
-								$workerUnit->content = $qidansarray;
-								$workerUnit->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
+								$workerunit->content = $qidansarray;
+								$workerunit->status = $assignment['AssignmentStatus']; // Submitted | Approved | Rejected
 								
-								Queue::push('Queues\SaveWorkerUnit', array('workerUnit' => serialize($workerUnit)));
+								Queue::push('Queues\SaveWorkerunit', array('workerunit' => serialize($workerunit)));
 
-								//$workerUnit->save();
+								//$workerunit->save();
 
-								//$newworkerUnits[] = $workerUnit;
-								$newworkerUnitscount++;
+								//$newworkerunits[] = $workerunit;
+								$newworkerunitscount++;
 
 							}
 
@@ -201,16 +201,16 @@ class RetrieveJobs extends Command {
 
 						}
 
-						//if(count($newworkerUnits)>0)
-						if($newworkerUnitscount>0){
-							Log::debug("Saved $newworkerUnitscount new workerUnits for {$h['HITId']} - total " . count($assignments) . " assignments.");
-							print "Saved $newworkerUnitscount new workerUnits for {$h['HITId']} - total " . count($assignments) . " assignments.";
+						//if(count($newworkerunits)>0)
+						if($newworkerunitscount>0){
+							Log::debug("Saved $newworkerunitscount new workerunits for {$h['HITId']} - total " . count($assignments) . " assignments.");
+							print "Saved $newworkerunitscount new workerunits for {$h['HITId']} - total " . count($assignments) . " assignments.";
 						}
 					} // foreach assignment
 				//} // if / else				
 			} // foreach hit
 
-			//$job->addResults($newWorkerUnits);
+			//$job->addResults($newWorkerunits);
 			//$job->platformJobId = $newplatformhitid; 
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 

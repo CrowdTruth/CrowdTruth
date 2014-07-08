@@ -30,7 +30,7 @@ class JobConfiguration extends Entity {
                 if(isset($c['hitLifetimeInMinutes'])) $c['hitLifetimeInMinutes'] = intval($c['hitLifetimeInMinutes']);
                 if(isset($c['autoApprovalDelayInMinutes'])) $c['autoApprovalDelayInMinutes'] = intval($c['autoApprovalDelayInMinutes']);
                 if(isset($c['expirationInMinutes'])) $c['expirationInMinutes'] = intval($c['expirationInMinutes']);
-                if(isset($c['workerUnitsPerUnit'])) $c['workerUnitsPerUnit'] = intval($c['workerUnitsPerUnit']);
+                if(isset($c['workerunitsPerUnit'])) $c['workerunitsPerUnit'] = intval($c['workerunitsPerUnit']);
                 if(isset($c['unitsPerTask'])){ $c['unitsPerTask'] = intval($c['unitsPerTask']);
                 if($c['unitsPerTask'] == 0) $c['unitsPerTask'] = 1;}
                 $jobconf->content = $c;
@@ -64,12 +64,12 @@ class JobConfiguration extends Entity {
     								'description',
     								'instructions', // AMT: inject into template
     								'keywords', 
-    								'workerUnitsPerUnit', // AMT: maxAssignments
+    								'workerunitsPerUnit', // AMT: maxAssignments
     								'unitsPerTask', // AMT: not in API. Would be 'tasks per assignment'
     								'reward', 
     								'expirationInMinutes', // AMT: assignmentDurationInSeconds 
     								'notificationEmail',
-    								'requesterWorkerUnit',
+    								'requesterWorkerunit',
     								'instructions',
 
     								 //AMT specific 
@@ -81,7 +81,7 @@ class JobConfiguration extends Entity {
 									'eventType',
 
     	    						// CF specific 
-    	    						'workerUnitsPerWorker',
+    	    						'workerunitsPerWorker',
     	    						'countries',
 
     	    						// for our use 

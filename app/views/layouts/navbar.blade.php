@@ -13,10 +13,10 @@
 				</div>
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li{{ (Request::is('media/search') ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="Search Existing Media <br /> View Media Analytics">{{ link_to('media/search', "Media") }}</li>
-						<li{{ (Request::segment(1) == 'jobs' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="View Existing Job Analytics <br /> Create New Jobs">
+						<li{{ (Request::is('media/search') ? ' class="active"' : '') }} data-toggle="tooltip" id="mediaTabOption" data-placement="bottom" title="Search Existing Media <br /> View Media Analytics">{{ link_to('media/search', "Media") }}</li>
+						<li{{ (Request::segment(1) == 'jobs' ? ' class="active"' : '') }} data-toggle="tooltip" id="jobTabOption" data-placement="bottom" title="View Existing Job Analytics <br /> Create New Jobs">
 						{{ link_to('jobs', "Jobs") }}</li>
-						<li{{ (Request::segment(1) == 'workers' ? ' class="active"' : '') }} data-toggle="tooltip" data-placement="bottom" title="View Worker Analytics">
+						<li{{ (Request::segment(1) == 'workers' ? ' class="active"' : '') }} data-toggle="tooltip" id="workerTabOption" data-placement="bottom" title="View Worker Analytics">
 						{{ link_to('workers', "Workers") }}</li>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown">Info <b class="caret"></b></a>

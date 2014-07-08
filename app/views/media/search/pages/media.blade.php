@@ -88,7 +88,7 @@
 						@endforeach
 						
 						@include('media.search.layouts.hb-modalindividualworker')
-						@include('media.search.layouts.hb-modalworkerUnits')
+						@include('media.search.layouts.hb-modalworkerunits')
 						@include('media.search.layouts.hb-modalindividualjob')
 
 						<div class='includeGraph hidden'>
@@ -120,11 +120,21 @@
                                         <div id="specificBarChart_div" ></div>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>
+                                        <div id="specificBarChartMaster_div"></div>
+                                    </td>
+                                </tr>
                             </table>
                             <table>
                                 <tr >
                                     <td>
                                     <div id="generalBarChart_div" ></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div id="generalBarChartMaster_div"></div>
                                     </td>
                                 </tr>
                             </table>
@@ -159,13 +169,37 @@
                                 </tr>
                             </table>
                             <table>
-                                <tr>
-                                    <td class="pieDivGraphs pieDivLarge">
+                                <tr >
+                                    <td class="pieDivGraphs">
                                         <div id="annotationsPie_div"></div>
                                     </td>
                                     <td>
-                                        <div id="annotationsBar_div"></div>
+                                        <div id="annotationsAfter_div"></div>
                                     </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricAfter_0_div"></div>
+                                    </td>
+
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="annotationsBefore_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricBefore_0_div"></div>
+                                    </td>
+
+                                </tr>
+                                <tr class='annotationHidden hide'>
+                                    <td></td>
+                                    <td>
+                                        <div id="annotationsDiff_div"></div>
+                                    </td>
+                                    <td class="pieDivGraphs">
+                                        <div id="annotationsMetricDiff_0_div"></div>
+                                    </td>
+
                                 </tr>
                             </table>
                             <div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -205,6 +239,7 @@ Swag.registerHelpers();
 $('.selectpicker').selectpicker();
 var xhr;
 var unitsChart;
+var oldTabKey;
 var selectedRows = [];
 var templates = {};
 var defaultColumns = {};
@@ -640,19 +675,16 @@ function getResults(baseApiURL){
 		visibleColumns();
 
 
-
-		// console.dir(selectedRows[activeTabKey]);
-		// console.log('starting search');
-
 		if($('.graphViewButton').hasClass('hidden')){
             var selectedCategory = activeTabKey;
 			$(activeTabKey + ' .checkAll').removeAttr('checked');
-            if(unitsChart == undefined)
+            if(!(oldTabKey == activeTabKey))
             {
                 unitsChart = new unitsChartFacade(selectedCategory, openModal, getSelection, updateSelection);
                 unitsChart.init(getTabFieldsQuery(),"");
+                oldTabKey = activeTabKey;
             } else {
-                unitsChart.update(getTabFieldsQuery(),"");
+                unitsChart.init(getTabFieldsQuery(),"");
             }
 		}
 

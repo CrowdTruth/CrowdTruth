@@ -1,7 +1,9 @@
 
-function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction, getSelection, updateSelection) {
+function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUpdateFunction, annotationsUpdateFunction, getSelection, updateSelection, openModal, modalName) {
     var unitsJobChart = "";
+    var unitsJobChartMaster = "";
     var unitsWordCountChart = "";
+    var unitsWordCountChartMaster = "";
     var selectedUnits = [];
     var projectCriteria = "";
     var matchCriteria = "";
@@ -47,7 +49,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
 
     var chartSeriesOptions = {
         'workers': {
-            'potentialSpamWorkers': {'color': '#FF0000', 'field': 'cache.workers.potentialSpam', 'name':'# of potential low quality workers', 'type': 'column',
+            'potentialSpamWorkers': {'color': '#FF0000', 'field': 'cache.workers.potentialSpam', 'name':'# of inconsistent quality workers', 'type': 'column',
             tooltip: "Number of workers whose annotations, on a unit, were marked as low quality in some jobs and high quality in others. Click to select/deselect."},
             'spamWorkers': {'color': '#A80000', 'field': 'cache.workers.spam', 'name':'# of low quality workers', 'type': 'column',
                 tooltip: "Number of low quality workers who annotated a unit. Click to select/deselect."},
@@ -56,15 +58,15 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             'avgWorkers': {'color': '#A63800', 'field': '', 'name':'avg # of workers', 'type': 'spline', 'dashStyle':'shortdot',
                 tooltip: "Average number workers who annotated a unit. Click to select/deselect."}},
         'judgements': {
-            'spamJudgements': {'color': '#60D4AE', 'field': 'cache.workerUnits.spam', 'name':'# of low quality judgements', 'type': 'column',
+            'spamJudgements': {'color': '#60D4AE', 'field': 'cache.workerunits.spam', 'name':'# of low quality judgements', 'type': 'column',
                 tooltip: "Number of low quality judgements for a unit. Click to select/deselect."},
-            'judgements': {'color': '#207F60', 'field': 'cache.workerUnits.nonSpam', 'name':'# of high quality judgements', 'type': 'column',
+            'judgements': {'color': '#207F60', 'field': 'cache.workerunits.nonSpam', 'name':'# of high quality judgements', 'type': 'column',
                 tooltip: "Number of high quality judgements for a unit. Click to select/deselect."},
-            'avgWorkerUnits': {'color': '#00AA72', 'field': '', 'name':'avg # of judgements', 'type': 'spline', 'dashStyle':'shortdot',
+            'avgWorkerunits': {'color': '#00AA72', 'field': '', 'name':'avg # of judgements', 'type': 'spline', 'dashStyle':'shortdot',
                 tooltip: "Average number judgements for a unit. Click to select/deselect."}},
         'batches': { 'batches': {'color': '#FF9E00', 'field': 'cache.batches.count', 'name':'# of batches', 'type': 'spline', 'dashStyle':'LongDash',
             tooltip: "Number of batches the sentence was used in. Click to select/deselect."}},
-        'metrics': {
+        'avg_clarity': {
             'avg_clarity': {'color': '#6B8E23', 'field': 'avg_clarity', 'name':'avg unit clarity', 'type': 'spline', 'dashStyle':'Solid',
                 tooltip: "Average Unit Clarity: the value is defined as the maximum unit annotation score achieved on any annotation for that unit. High agreement over the annotations is represented by high cosine scores, indicating a clear unit. Click to select/deselect."}}
     }
@@ -73,42 +75,41 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
         chart: {
             zoomType: 'x',
             alignTicks: false,
-            spacingBottom: 70,
+            //spacingBottom: 70,
             renderTo: 'generalBarChart_div',
-            marginBottom: 90,
+           // marginBottom: 90,
 			width: (($('.maincolumn').width() - 50)),
             height: 450,
             marginTop: 70,
-            events: {
-                load: function () {
+            events:{
+                load: function(){
                     var chart = this,
                         legend = chart.legend;
 
-                    for (var i = 0, len = legend.allItems.length; i < len; i++) {
-                        var item = legend.allItems[i].legendItem;
-
-                        var tooltipValue =  legend.allItems[i].userOptions.tooltipValue;
-                        item.attr("data-toggle","tooltip");
-                        item.attr("title", tooltipValue);
-
-                    }
                     var selectedUnits = getSelection();
                     var currentSelectedUnits = [];
                     for (var idUnitIter in selectedUnits){
                         var categoryName = selectedUnits[idUnitIter];
                         for (var iterData = 0; iterData < chart.series[0].data.length; iterData++) {
-                            
+
                             if (categoryName == chart.series[0].data[iterData]['category']) {
                                 currentSelectedUnits.push(categoryName);
                                 for (var iterSeries = 0; iterSeries < chart.series.length; iterSeries++) {
-                                                               
-                                   chart.series[iterSeries].data[iterData].select(null,true)
-                                                                   
-                               } 
+
+                                    chart.series[iterSeries].data[iterData].select(null,true)
+
+                                }
                             }
-                            
-                        }   
+
+                        }
                     }
+                    var buttonLength = this.exportSVGElements.length;
+                    if (currentSelectedUnits.length > 0) {
+                        this.exportSVGElements[buttonLength - 2].show();
+                    } else {
+                        this.exportSVGElements[buttonLength - 2].hide();
+                    }
+
                     if(chart.renderTo.id == 'generalBarChart_div' ) {
                         var selectedInfo = {};
                         for (var index in currentSelectedUnits) {
@@ -121,16 +122,62 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                         workerUpdateFunction.update(currentSelectedUnits, selectedInfo);
                         jobsUpdateFunction.update(currentSelectedUnits, selectedInfo);
                         annotationsUpdateFunction.update(currentSelectedUnits , selectedInfo);
-                    } 
+                    }
+                }
+            }
 
+        },
+        exporting: {
+            buttons: {
+                resetButton: {
+                    text: "Reset selection",
+                    theme: {
+                        fill: '#2aabd2',
+                        style:{
+                            color: 'white'
+                        }
+                    },
+                    onclick: function(e) {
+                        if (selectedUnits.length == 0) return;
+                        var selectedGraph = unitsWordCountChart;
+                        var unSelectedGraph = unitsJobChart;
+
+                        if(this.renderTo.id == 'generalBarChart_div' ) {
+                            selectedGraph = unitsJobChart;
+                            unSelectedGraph = unitsWordCountChart;
+                        }
+
+                        for (var iterData = 0; iterData < selectedGraph.series[0].data.length; iterData++) {
+                            for (var iterSeries = 0; iterSeries < selectedGraph.series.length; iterSeries++) {
+                                selectedGraph.series[iterSeries].data[iterData].select(false,true);
+                            }
+                        }
+                        var buttonLength = this.exportSVGElements.length;
+                        this.exportSVGElements[buttonLength - 2].hide();
+
+                        if (selectedGraph == unitsWordCountChart) return;
+
+                        for (var iterSelection in selectedUnits) {
+                            updateSelection(selectedUnits[iterSelection]);
+                        }
+
+                        selectedUnits = [];
+                        var selectedInfo = {};
+                        workerUpdateFunction.update(selectedUnits, selectedInfo);
+                        jobsUpdateFunction.update(selectedUnits, selectedInfo);
+                        annotationsUpdateFunction.update(selectedUnits , selectedInfo);
+
+                    }
                 }
             }
         },
+
         title: {
             text: 'Overview of units used in jobs'
         },
         legend:{
-            y: 70
+            enabled: false
+            //y: 70
         },
         subtitle: {
             text: 'Select area to zoom. To see detailed information select individual units'
@@ -139,16 +186,16 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             enabled: false
         },
         xAxis: {
-            title :{
-                text: 'Unit ID'
-            },
             events:{
                 setExtremes :function (event) {
                     var graph = '';
+                    var masterGraph = "";
                     if(this.chart.renderTo.id == 'generalBarChart_div' ) {
                         graph = unitsJobChart;
+                        masterGraph =  unitsJobChartMaster;
                     } else {
                         graph = unitsWordCountChart;
+                        masterGraph =  unitsWordCountChartMaster;
                     }
                     var min = 0;
                     if (event.min != undefined){
@@ -160,6 +207,13 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     }
                    // chart.yAxis[0].options.tickInterval
                     graph.xAxis[0].options.tickInterval = Math.ceil( (max-min)/20);
+                    masterGraph.xAxis[0].removePlotBand('mask-select');
+                    masterGraph.xAxis[0].addPlotBand({
+                        id: 'mask-select',
+                        from: min,
+                        to: max,
+                        color: 'rgba(0, 0, 0, 0.2)'
+                    });
                 },
                 afterSetExtremes :function(event){
                     var graph = '';
@@ -184,9 +238,17 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             },
             labels: {
                 formatter: function() {
-                    var arrayID = this.value.split("/");
-                    return arrayID[arrayID.length - 1];
+                    if(this.value.split != undefined) {
+                        var arrayID = this.value.split("/");
+                        return arrayID[arrayID.length - 1];
+                    } else {
+                        return this.value;
+                    }
+
                 }
+            },
+            title :{
+                text: 'Unit ID'
             }
         },
         tooltip: {
@@ -214,12 +276,23 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     if (!(pointValue % 1 === 0)) {
                         pointValue = point.y.toFixed(2);
                     }
+                    var percentage = point.percentage
+
+                    if (!(percentage % 1 === 0)) {
+                        percentage = percentage.toFixed(2);
+                    }
                     var line = '<tr><td></td><td style="color: ' + point.series.color + ';text-align: left">   ' + point.series.name +':</td>'+
-                        '<td style="text-align: right">' + pointValue + '</td></tr>';
+                        '<td style="text-align: right">' + pointValue;
+                    if(point.series.stackKey != "spline"){
+                        line  += ' (' + percentage +' %)</td></tr>';
+                    } else {
+                        line  += '</td></tr>';
+                    }
                     if (point.series.yAxis.axisTitle.text in seriesOptions) {
                         seriesOptions[point.series.yAxis.axisTitle.text]['items'].push(line);
                         if(point.series.stackKey != "spline"){
-                            seriesOptions[point.series.yAxis.axisTitle.text]['totalValue'] += point.y;}
+                            seriesOptions[point.series.yAxis.axisTitle.text]['totalValue'] += point.y;
+                        }
                     } else {
                         seriesOptions[point.series.yAxis.axisTitle.text] = {};
                         seriesOptions[point.series.yAxis.axisTitle.text]['items'] = [];
@@ -231,7 +304,6 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
 
                     }
                 });
-
                 s += '<table calss="table table-condensed">';
                 for (var item in seriesOptions)
                 {
@@ -288,6 +360,15 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                 //cursor: 'pointer',
                 point: {
                     events: {
+                        contextmenu: function (e) {
+                            anchorModal = $('<a class="testModal" id="' + this.category + '"' +
+                                'data-modal-query="unit=' + this.category+
+                                '" data-api-target="/api/analytics/unit?" ' +
+                                'data-target="' + modalName + '" data-toggle="tooltip" data-placement="top" title="" ' +
+                                'data-original-title="Click to see the individual worker page">6345558 </a>');
+                            //$('body').append(anchorModal);
+                            openModal(anchorModal, category);
+                        },
                         click: function () {
                             var selectedGraph = unitsWordCountChart;
                             var unSelectedGraph = unitsJobChart;
@@ -307,7 +388,17 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                                 selectedUnits.push(this.category)
                             }
 
+                            var buttonLength = selectedGraph.exportSVGElements.length;
+                            if(selectedGraph.getSelectedPoints().length == 0) {
+                                selectedGraph.exportSVGElements[buttonLength - 2].hide();
+                            } else {
+                                selectedGraph.exportSVGElements[buttonLength - 2].show();
+                            }
+
                             updateSelection(this.category);
+
+                            if (selectedGraph == unitsWordCountChart) return;
+
 
                             var selectedInfo = {};
                             for (var index in selectedUnits) {
@@ -342,6 +433,10 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             }
         }
 
+    }
+
+    var getLimit = function(value){
+        return value;
     }
 
     var getBarChartData = function(newMatchCriteria, sortCriteria){
@@ -403,12 +498,23 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                 specificInfo[id]['avg_clarity']= data['avg_clarity'][indexData];
             }
 
-
+            var startIndex = Math.ceil(2* data["id"].length/5);
+            var stopIndex = Math.ceil(3* data["id"].length/5);
+            if (stopIndex - startIndex < 2) {
+                startIndex = 0;
+                stopIndex = 2;
+            }
+            if (stopIndex - startIndex > 100){
+                stopIndex = startIndex + 100;
+            }
             for (var key in chartSeriesOptions) {
                 var yAxisSeriesGroup = chartSeriesOptions[key];
                 var color = 'black';
+
+                var totalValue = 0;
                 var max = 0;
                 for (var series in yAxisSeriesGroup) {
+
                     var newSeries = {
                         name: yAxisSeriesGroup[series]['name'],
                         color: yAxisSeriesGroup[series]['color'],
@@ -418,23 +524,26 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                         data: data[series],
                         visible: false
                     }
+                    var newMax = Math.max.apply(Math, data[series]);
+                    if(newMax > max) {
+                        max = newMax;
+                    }
                     if ("tooltip" in yAxisSeriesGroup[series]) {
                         newSeries['tooltip'] = yAxisSeriesGroup[series]['tooltip'];
                     }
                     if(yAxisSeriesGroup[series]['type'] == 'column') {
                         newSeries['stack'] =  key;
                         newSeries['visible'] = true;
+                        totalValue += newMax;
                     } else {
                         newSeries['dashStyle'] =  yAxisSeriesGroup[series]['dashStyle'];
                     }
-                    var newMax = Math.max.apply(Math, data[series]);
-                    if(newMax > max) {
-                        max = newMax;
-                    }
+
                     chartGeneralOptions.series.push(newSeries);
                     color = yAxisSeriesGroup[series]['color'];
 
                 }
+                if (key == '# jobs') color = '#000000';
 
                 var yAxisSettings = {
                     gridLineWidth: 0,
@@ -447,6 +556,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                         }
                     },
                     min: 0,
+                    max: 0,
                     title: {
                         text: key,
                         style: {
@@ -455,29 +565,51 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     },
                     opposite: false
                 };
-                if(key == 'workers' || key =='job types' || key == 'judgements')
+
+                if(key == 'workers' || key =='# jobs' || key == 'judgements') {
                     yAxisSettings.opposite = true;
+                    yAxisSettings.max = getLimit(totalValue);
+
+                } else {
+                    yAxisSettings.max = getLimit(max);
+                }
+                //we want the same maximum for workers and judgements
+                if (key == 'judgements'){
+                    var maxValueBothAxis = chartGeneralOptions.yAxis[ chartGeneralOptions.yAxis.length - 1].max;
+                    if (totalValue > maxValueBothAxis) {
+                        maxValueBothAxis = totalValue;
+                    }
+                    chartGeneralOptions.yAxis[ chartGeneralOptions.yAxis.length - 1].max = maxValueBothAxis;
+                    yAxisSettings.max = maxValueBothAxis;
+                }
+
                 chartGeneralOptions.yAxis.push(yAxisSettings);
             }
             chartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/20);
             chartGeneralOptions.chart.renderTo = 'generalBarChart_div';
             chartGeneralOptions.title.text = 'Overview of Units ' + data["id"].length +  ' used in Jobs';
-            chartGeneralOptions.subtitle.text = subTitle + '<br/>'+ 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.';
+            chartGeneralOptions.subtitle.text = subTitle + '<br/>'+ 'Select an area to zoom. To see detailed information select individual units.Right click for table view. From legend select/deselect features.';
             chartGeneralOptions.plotOptions.series.pointPadding = 0.01;
             chartGeneralOptions.plotOptions.series.borderWidth = 0.01;
             chartGeneralOptions.plotOptions.series.minPointLength = 2;
             chartGeneralOptions.legend.y = 70;
             unitsJobChart = new Highcharts.Chart(chartGeneralOptions);
+
+
+
+            unitsJobChartMaster = createMaster(chartGeneralOptions.series, chartGeneralOptions['xAxis']['categories'], chartGeneralOptions.yAxis, 'generalBarChartMaster_div',unitsJobChart, startIndex, stopIndex);
+            unitsJobChart.xAxis[0].setExtremes(startIndex, stopIndex);
+            unitsJobChart.showResetZoom();
         });
     }
     var drawBarChart = function(matchStr,sortStr) {
         var url = '/api/analytics/jobtypes';
         //add the job type series to graph
-        chartSeriesOptions['job types']={};
+        chartSeriesOptions['# jobs']={};
         $.getJSON(url, function(data) {
             $.each(data, function (key,value) {
 
-                chartSeriesOptions['job types'][data[key]] = {'color': colors[key % colors.length],
+                chartSeriesOptions['# jobs'][data[key]] = {'color': colors[key % colors.length],
                     'field': 'cache.jobs.types.' + data[key] + '.count', 'name':'# of ' + data[key] + ' jobs', 'type': 'column',
                     tooltip: 'Number of ' + data[key]  + ' jobs in which a unit was used. Click to select/deselect.'};
             });
@@ -526,7 +658,15 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                 subTitle += " having " + selectionOptions.substring(0, selectionOptions.length - 1);
             }
 
-
+            var startIndex = Math.ceil(2* data["id"].length/5);
+            var stopIndex = Math.ceil(3* data["id"].length/5);
+            if (stopIndex - startIndex < 2) {
+                startIndex = 0;
+                stopIndex = 2;
+            }
+            if (stopIndex - startIndex > 100){
+                stopIndex = startIndex + 100;
+            }
             for (var indexData in data['id']) {
                 var id = data['id'][indexData];
                 specificInfo[id] = {};
@@ -552,6 +692,9 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             };
             newChartGeneralOptions.series.push(newSeries);
 
+            var max = Math.max.apply(Math, data[specificFields[category]['data']]);
+            max += 10;
+
             var yAxisSettings = {
                 gridLineWidth: 0,
                 labels: {
@@ -563,6 +706,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     }
                 },
                 min: 0,
+                max: max,
                 title: {
                     text: '# of ' + specificFields[category]['data'],
                     style: {
@@ -576,12 +720,15 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             newChartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/20);
             newChartGeneralOptions.chart.renderTo = 'specificBarChart_div';
             newChartGeneralOptions.title.text = 'Overview of ' + data["id"].length + ' Units not used in Jobs';
-            newChartGeneralOptions.subtitle.text = subTitle + '<br/>'+ 'Select area to zoom. To see detailed information select individual units.From legend select/deselect features';
+            newChartGeneralOptions.subtitle.text = subTitle + '<br/>'+ 'Select area to zoom. To see detailed information select individual units.Right click for table view. From legend select/deselect features';
             newChartGeneralOptions.plotOptions.series.pointPadding = 0;
             newChartGeneralOptions.plotOptions.series.minPointLength = 2;
             newChartGeneralOptions.plotOptions.series.borderWidth = 0;
             newChartGeneralOptions.legend.y = 70;
             unitsWordCountChart = new Highcharts.Chart(newChartGeneralOptions);
+            unitsWordCountChartMaster = createMaster(newChartGeneralOptions.series, data["id"], newChartGeneralOptions.yAxis, 'specificBarChartMaster_div', unitsWordCountChart, startIndex, stopIndex);
+            unitsWordCountChart.xAxis[0].setExtremes(startIndex, stopIndex);
+            unitsWordCountChart.showResetZoom();
         });
     }
 
@@ -596,6 +743,171 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
 
 
     }
+
+
+    // create the master chart
+    function createMaster(seriesData, categories, yAxis, divName, chart, startIndex, stopIndex) {
+        var series = []
+        for (var iterSeries in seriesData) {
+            var serie = {
+                //type: 'area',
+                name: seriesData[iterSeries].name,
+                yAxis : seriesData[iterSeries].yAxis,
+                /* pointInterval: 24 * 3600 * 1000,
+                 pointStart: Date.UTC(2006, 0, 01),*/
+                tooltipValue: seriesData[iterSeries].tooltipValue,
+                data: seriesData[iterSeries].data,
+                color: seriesData[iterSeries].color,
+                visible: seriesData[iterSeries].visible
+            }
+            series.push(serie);
+        }
+
+        var masterChart = new Highcharts.Chart({
+            chart: {
+                borderWidth: 0,
+                renderTo: divName,
+                //backgroundColor: null,
+                alignTicks: false,
+                width: (($('.maincolumn').width() - 50)),
+                height: 150,
+
+                zoomType: 'x',
+                events: {
+
+
+                    load: function () {
+                            var chart = this,
+                                legend = chart.legend;
+
+                            for (var i = 0, len = legend.allItems.length; i < len; i++) {
+                                var item = legend.allItems[i].legendItem;
+                                var tooltipValue =  legend.allItems[i].userOptions.tooltipValue;
+                                item.attr("data-toggle","tooltip");
+                                item.attr("title", tooltipValue);
+
+                            }
+
+
+                        },
+                    selection: function(event) {
+
+                        if (event.resetSelection) {
+                            return false;
+                        }
+                        var min = event.xAxis[0].min;
+                        var max = event.xAxis[0].max;
+                        // move the plot bands to reflect the new detail span
+                        this.xAxis[0].removePlotBand('mask-select');
+                        this.xAxis[0].addPlotBand({
+                            id: 'mask-select',
+                            from: min,
+                            to: max,
+                            color: 'rgba(0, 0, 0, 0.2)'
+                        });
+
+                        chart.xAxis[0].setExtremes(min, max);
+                        if (chart.resetZoomButton == undefined){
+                            chart.showResetZoom();
+                        }
+
+
+                        return false;
+                    }
+                }
+            },
+            title: {
+                text: null
+            },
+            xAxis: {
+                labels: {
+                    formatter: function() {
+                        var arrayID = this.value.split("/");
+                        return arrayID[arrayID.length - 1];
+                    }
+                },
+                tickInterval: Math.ceil( categories.length/20),
+                categories : categories,
+                title :{
+                    text: 'Unit ID'
+                },
+                showLastTickLabel: true,
+                plotBands: [{
+                    id: 'mask-select',
+                    from: startIndex,
+                    to: stopIndex,
+                    color: 'rgba(0, 0, 0, 0.2)'
+                }]
+
+            },
+            yAxis: yAxis,/*{
+                gridLineWidth: 0,
+                labels: {
+                    enabled: false
+                },
+                title: {
+                    text: null
+                },
+                min: 0.6,
+                showFirstLabel: false
+            },*/
+            tooltip: {
+                formatter: function() {
+                    return false;
+                }
+            },
+            /*legend: {
+                enabled: false
+            },*/
+            credits: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    fillColor: {
+                        linearGradient: [0, 0, 0, 70],
+                        stops: [
+                            [0, Highcharts.getOptions().colors[0]],
+                            [1, 'rgba(255,255,255,0)']
+                        ]
+                    },
+                    events: {
+                        legendItemClick: function () {
+                            if(chart.series[this._i].visible) {
+                                chart.series[this._i].hide();
+                            } else {
+                                chart.series[this._i].show();
+                            }
+                            //return false;
+                            // <== returning false will cancel the default action
+                        }
+                    },
+                    lineWidth: 1,
+                    marker: {
+                        enabled: false
+                    },
+                    shadow: false,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    enableMouseTracking: false
+                }
+            },
+
+            series: series,
+
+            exporting: {
+                enabled: false
+            }
+
+        })
+        return masterChart;
+            ; // return chart instance
+    }
+
+
 
 
 }
