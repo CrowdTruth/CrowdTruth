@@ -6,7 +6,6 @@
 
 		<div class='tab'>
 			@include('job2.nav')
-			@include('layouts.flashdata') 
 			<div>
 				<div class="panel panel-default">		
 					<div class="panel-heading">
@@ -14,119 +13,21 @@
 					</div>
 					<div class="panel-body">
 						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
-					<?php
-					/* 	<fieldset>
-							<legend>Properties</legend>
-							{{ $table }}
-						</fieldset>
-						<br>
-						<fieldset>	
-							<legend>Questions</legend>
-							This is based on the AMT HTML template.<br><br>
-
-							<div id="question-carousel" class="carousel slide" data-ride="carousel"> -->
-								<!-- Indicators -->
-						<!-- 	  <ol class="carousel-indicators">
-							    <li data-target="#question-carousel" data-slide-to="0" class="active"></li>
-							    <li data-target="#question-carousel" data-slide-to="1"></li>
-							    <li data-target="#question-carousel" data-slide-to="2"></li>
-							  </ol>
-							-->
-							<!-- Wrapper for slides -->
-							<!-- <div class="carousel-inner" > -->
-							<!--   	<?php $count = 0; ?>
-							 	@foreach($questions as $question)
-							 		<?php $count++; ?>
-									 <div class="item <?php if($count == 1) echo 'active'; ?>">
-									
-							<iframe width="890"; height="{{ $frameheight }}" seamless sandbox="allow-scripts" srcdoc="{{ htmlentities($question) }}"></iframe>
-									<div class="carousel-caption" style="color:black; font-size:2em;">
-								        {{ $count }}
-								      </div>
-									</div>
-									<?php $active = ''; ?>
-								@endforeach
-
-							</div> -->
-
-							<!-- Controls -->
-						<!-- 	  <a class="left carousel-control" href="#question-carousel" data-slide="prev" style="background:none; height:50px; top:45%">
-							    <span class="fa fa-chevron-left" style="color:black; position:absolute; top:50%"></span>
-							  </a>
-							  <a class="right carousel-control" href="#question-carousel" data-slide="next" style="background:none; height:50px; top:45%">
-							    <span class="fa fa-chevron-right" style="color:black; position:absolute; top:50%"></span>
-							  </a>
-							</div> -->
-							*/ ?>
-
-							<div class="panel-body bordered">							
-								<div class="form-horizontal">
-									<div class="form-group">
-										<label for="title" class="col-sm-3 control-label">Title</label>
-										<div class="col-sm-5">
-											<select name="title" class="form-control" id="title" ng-model="title">
-												<option value="Images">Images</option>
-												<option value="Big Task" >Big Task</option>
-											</select>
-
-											
-											
-										</div>
-										<div class="form-group">
-											<label for="titleOwn" class="col-sm-3 control-label">Own title:</label>
-											
-											<input type="text" id="titleOwn" ng-model="titleOwn"/>
-										</div>
-									</div>
-
-									<div class="form-group">
-										<label for="templateType" class="col-sm-3 control-label">Template Type</label>
-										<div class="col-sm-5">
-											<select name="templateType" class="form-control" id="templateType" ng-model="type">
-												<option value="Images Standard">Images Standard</option>
-												<option value="Factor Span" class="art">Factor Span</option>
-												<option value="Relation Extraction" class="art">Relation Extraction</option>
-												<option value="Video Tagging" class="art">Video Tagging</option>
-											</select>
-											
-										</div><br>
-										<div class="form-group">
-											<label for="templateTypeOwn" class="col-sm-3 control-label">Own template type:</label>
-											
-											<input type="text" id="templateTypeOwn" ng-model="templateTypeOwn"/>
-										</div>
-									</div>
-								</div>
-							</div>
-							<br/>
 							<fieldset>
 							{{ Form::label('title', 'Select a title from the set of predefined ones or give your own', 
-									array('class' => 'col-xs-4 control-label')) }}
+									array('class' => 'col-xs-9 control-label')) }}
 								<div class="input-group col-xs-2">
 									{{ Form::select('title',  array('Images standard' => 'Images standard', 'A big task' => 'A big task'), null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
 								</div>
-							<br/>
+							<br/><br/>
 							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own', 
-									array('class' => 'col-xs-4 control-label')) }}
+									array('class' => 'col-xs-9 control-label')) }}
 								<div class="input-group col-xs-2">
 									{{ Form::select('templateType',  array('RelEx' => 'RelEx', 'Image tagging' => 'Image tagging'), null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
 								</div>
 							<br/>
 							</fieldset>
-							<!-- 						</fieldset><br><br> -->
-						
-
-						<!-- 	<button class="btn btn-default btn-lg pull-left" data-toggle="modal" data-target="#myModal">
-								Save settings
-							</button> -->
-		<!--				{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController@postSubmitFinal', 'order'), 'method' => 'POST')) }}
-							{{ Form::submit('Submit and order', array('class' => 'btn btn-lg btn-primary pull-right')); }}
-						{{ Form::close()}}	
-
-						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
-						{{ Form::submit('Submit to sandbox', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }} -->
-						
-
+	
 
 						{{ Form::submit('Create Job', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }}
 						{{ Form::close()}}

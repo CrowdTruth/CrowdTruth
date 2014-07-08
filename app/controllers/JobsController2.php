@@ -439,12 +439,12 @@ class JobsController2 extends BaseController {
 			 	$j->batch_id = $batch->_id;
 			// 	$j->questionTemplate_id = $questiontemplateid;
 			 	$j->jobConf_id = $jcid;
-			 //	$j->softwareAgent_id = $platformstring;
+			 	$j->softwareAgent_id = "cf2"; // $platformstring;
 			 	$j->activity_id = $activity->_id;
 			 	$j->iamemptyjob = "yes";
 			 	$j->save(); //convert to publish later
-			// 	$j->publish(($ordersandbox == 'sandbox' ? true : false));
-			 //	$jobs[] = $j;
+			 	$j->publish(($ordersandbox == 'sandbox' ? true : false));
+			 	$jobs[] = $j;
 			// }
 
 			// Success.
