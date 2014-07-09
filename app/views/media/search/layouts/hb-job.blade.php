@@ -138,20 +138,22 @@
 			            <td data-vbIdentifier="status" class="actiontd">
 			            	<div id="status@{{@index}}">@{{this.status}}</div>
 							<div class="btn-group actionbar">
-								<a class="btn btn-default btn-sm" href="/jobs/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o"></i></a>
+								<a class="btn btn-default btn-sm" href="/jobs/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o fa-2x"></i></a>
+								<a class="btn btn-default btn-sm" href="/jobs/refresh/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Refresh the job settings"><i class="fa fa-cloud-download fa-2x"></i></a>
+								<br />
 								@{{#if this.url}}
-								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link"></i></a>
+								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link fa-2x"></i></a>
 								@{{/if}}
 								@{{#is this.status 'unordered'}}
-								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'order', @{{@index}})"  id="order@{{@index}}" data-toggle="tooltip" data-placement="top" title="Order job on the platform. Warning: may take a long time for mTurk"><i class="fa fa-play"></i></a>
+								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'order', @{{@index}})"  id="order@{{@index}}" data-toggle="tooltip" data-placement="top" title="Order job on the platform. Warning: may take a long time for mTurk"><i class="fa fa-play fa-2x"></i></a>
 								@{{/is}}
 								@{{#is this.status 'running'}}
-								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'pause', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Pause job"><i class="fa fa-pause" id="pause@{{@index}}"></i></a>
-								    <a class="btn btn-default btn-sm" id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop"></i></a>
+								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'pause', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Pause job"><i class="fa fa-pause fa-2x" id="pause@{{@index}}"></i></a>
+								    <a class="btn btn-default btn-sm" id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop fa-2x"></i></a>
 								@{{/is}}
 								@{{#is this.status 'paused'}}
-								    <a class="btn btn-default btn-sm"  id="resume@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'resume', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Resume job"><i class="fa fa-play"></i></a>
-								    <a class="btn btn-default btn-sm"  id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})"data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop"></i></a>	
+								    <a class="btn btn-default btn-sm"  id="resume@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'resume', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Resume job"><i class="fa fa-play fa-2x"></i></a>
+								    <a class="btn btn-default btn-sm"  id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})"data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop fa-2x"></i></a>	
 								@{{/is}}
 							</div>
 	
