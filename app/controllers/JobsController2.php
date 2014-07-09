@@ -393,9 +393,16 @@ class JobsController2 extends BaseController {
 		//$jc->content = array("Lukasz:::" . rand());
 		
 		$jcco = array();
-		$jcco['type'] = Input::get('templateType');
-	    $jcco['title'] = Input::get('title');
+		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 1 )
+			 		$jcco['type'] = Input::get('templateTypeOwn');
+			 	else
+			 		$jcco['type'] =  Input::get('templateType');
+	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 1 )
+			 		$jcco['title'] = Input::get('titleOwn');
+			 	else
+			 		$jcco['title'] =  Input::get('title');
 	    $jc->content = $jcco;
+	    
 	    //$jc->content->tags = array("Lukasz:::");
 		//$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
@@ -438,7 +445,7 @@ class JobsController2 extends BaseController {
 			 	$j = new Job;
 			 	$j->format = $batch->format;
 			 	$j->domain = $batch->domain;
-			 	$j->type =  Input::get('templateType');
+			 	$j->type = $jcco['type'];
 			// 	$j->template = $template; // TODO: remove
 			 	$j->batch_id = $batch->_id;
 			// 	$j->questionTemplate_id = $questiontemplateid;
