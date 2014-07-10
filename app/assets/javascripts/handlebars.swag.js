@@ -843,11 +843,77 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
   return value * 100;
   });
 
+  function replaceStr(str, pos, value){
+    var arr = str.split('');
+    arr[pos]=value;
+    return arr.join('');
+  }
+ 
 
   Swag.addHelper('explodeLastSlash', function(value, options) {
     var arrayID = value.split("/");
     return arrayID[arrayID.length - 1];
   });
+
+  Swag.addHelper('highlightEntitiesDescription', function(searchQuery, content, options) {
+  var color = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
+               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
+               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
+               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
+               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
+               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
+               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
+               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
+               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
+               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
+               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
+               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc'];
+  var metadataDescription = content.description;
+  var buffer = [];
+  var position = metadataDescription.length;
+
+  if (content.features.entities){
+
+  content.features.entities.sort(function(a, b) { 
+      return a["startOffset"] >= b["startOffset"]?1:-1;
+  });
+
+  for(var i = content.features.entities.length - 1; i >= 0; i --) {
+    var entity = content.features.entities[i]["value"];
+    var startOffset = content.features.entities[i]["startOffset"];
+    var endOffset = content.features.entities[i]["endOffset"];
+    console.log(metadataDescription);
+  //  console.log("--" + metadataDescription.substring(0, startOffset) + "--");
+    //metadataDescription = metadataDescription.html().substring(0, startOffset) + '<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" style="background-color:' + color[i] + '">' + entity + '</span>' + metadataDescription.substring(endOffset, metadataDescription.length);
+    //pair = indices[i];
+        buffer.unshift('<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" style="background-color:' + color[i] + '">',
+                       metadataDescription.substring(startOffset, endOffset),
+                       "</span>",
+                       metadataDescription.substring(endOffset, position));
+        position = startOffset;
+    }
+    buffer.unshift(metadataDescription.substring(0, position));
+    console.log(buffer);
+    metadataDescription = buffer.join("");
+//    replace(metadataDescription.substring(parseInt(startOffset), parseInt(endOffset)), 
+//      '<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" 
+//      style="background-color:' + color[i] + '">' + entity + '</span>');
+  }
+
+//if(typeof searchQuery)
+    if(searchQuery.match["content.description"])
+    {
+      var highlightedSearchTerm = searchQuery.match["content.description"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+      metadataDescription = metadataDescription.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+         return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+
+    return new Handlebars.SafeString(metadataDescription);
+  });
+
 
   Swag.addHelper('highlightTerms', function(searchQuery, content, options) {
     var formattedSentence = content.sentence.formatted;

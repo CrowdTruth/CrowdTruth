@@ -51,8 +51,8 @@
 			    <th class="sorting" data-vbIdentifier="video_duration" data-query-key="orderBy[content.metadata.extent]">Duration</th>
 			    <th class="sorting" data-vbIdentifier="video_language" data-query-key="orderBy[content.metadata.language]">Language</th>
 			    <th class="sorting" data-vbIdentifier="video_spatial" data-query-key="orderBy[content.metadata.spatial.nl]">Location</th>
-			    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[batches.count]">Used In # of Batches</th>
-			    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[jobs.count]">Used In # of Jobs</th>     
+			    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]">Used In # of Batches</th>
+			    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[cache.jobs.count]">Used In # of Jobs</th>     
 			    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;">Created At</th>
 		        </tr>
 			<tr class="inputFilters">
@@ -107,12 +107,12 @@
 					<input class="input-sm form-control" type='text' data-query-key="match[content.metadata.spatial.nl]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="number_of_batches">
-					<input class="input-sm form-control" type='text' data-query-key="match[batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[batches.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="number_of_jobs">
-					<input class="input-sm form-control" type='text' data-query-key="match[jobs.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[jobs.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="created_at">
 					<div class="input-daterange">
@@ -161,8 +161,8 @@
 	      			    <td data-vbIdentifier="video_duration"> @{{ this.content.metadata.extent }}	</td>
 				    <td data-vbIdentifier="video_language">@{{ this.content.metadata.language }}</td>
 				    <td data-vbIdentifier="video_spatial" >@{{ this.content.metadata.spatial.nl }}</td>
-				    <td data-vbIdentifier="number_of_batches">@{{ this.batches.count }}</td>
-				    <td data-vbIdentifier="number_of_jobs">@{{ this.jobs.count }}</td>
+				    <td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>
+				    <td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>
 				    <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
 				</tr>
 			        @{{/each}}
@@ -352,7 +352,7 @@
 						 <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
 						 <td> @{{ jobConf.content.title }} </td>
 						 @{{#each metrics.units.withoutSpam }}
-						 <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
+						 <td> @{{ toFixed avg.max_relation_Cos 2}} </td>
 						 @{{/each}}
 						</tr>
 						 @{{/inArray}}
@@ -407,8 +407,8 @@
 						   @{{/inArray}}
 
 						   @{{#each metrics.units.withoutSpam}}
-						   <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
-						   <td> @{{ toFixed no_annotators.avg 2}} </td>
+						   <td> @{{ toFixed avg.max_relation_Cos.avg 2}} </td>
+						   <td> @{{ toFixed avg.no_annotators.avg 2}} </td>
 						   @{{/each}}
 						   <td> @{{ toFixed metrics.aggUnits.mean.max_relation_Cos.avg 2}} </td>
 						   <td> @{{ toFixed metrics.aggUnits.mean.no_annotators.avg 2}} </td>

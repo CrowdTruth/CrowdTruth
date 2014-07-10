@@ -324,27 +324,36 @@ class OnlineData extends Moloquent {
 		//dd($parentEntity->title);
 		$languageValues = $parentEntity->content["metadata"]["abstract"];
 		foreach($languageValues as $lang => $value) {
-			//dd($value);
+			if ($value != "" || $value != NULL) {
 			try {
 				$entity = new Entity;
 				$entity->_id = $entity->_id;
-				$entity->title = strtolower($title);
+				$entity->title = $lang . '.' . strtolower($title);
 				$entity->domain = $parentEntity->domain;
 				$entity->format = "text";
-				$entity->documentType = "metadataDescription";
+				$entity->documentType = "metadatadescription";
 				$entity->source = "openimages";
+				$entity->videoContent = $parentEntity->content["storage_url"];
+				$entity->videoTitle = $parentEntity->content["metadata"]["title"][$lang];
 				$entity->language = $lang;
 				$entity->parents = array($parentEntity->_id);
-				$entity->content = $value;	
+				
+				$content = array();
+				$content["description"] = $value;
+				
+				$entity->content = $content;
+				$entity->tags = array("unit");
 				$entity->hash = md5(serialize([$entity->content]));				
 				$entity->activity_id = $activity->_id;  
 				$entity->save();
+				Queue::push('Queues\UpdateUnits', [$entity->_id]);
 				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
 			} catch (Exception $e) {
 				// Something went wrong with creating the Entity
 				$activity->forceDelete();
 				$entity->forceDelete();
 				$status['error'][$title] = $e->getMessage();
+			}
 			}		
 		}
 		return $status;
