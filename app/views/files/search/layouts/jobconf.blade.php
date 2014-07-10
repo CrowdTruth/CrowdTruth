@@ -7,14 +7,14 @@
 					<th data-key="content.description">description</th>	
 					<th data-key="content.keywords">keywords</th>	
 					<th data-key="content.reward">reward</th>	
-					<th data-key="content.workerUnitsPerUnit">workerUnitsPerUnit</th>
+					<th data-key="content.workerunitsPerUnit">workerunitsPerUnit</th>
 					<th data-key="content.hitLifetimeInMinutes">hitLifetimeInMinutes</th>	
 					<th data-key="content.expirationInMinutes">expirationInMinutes</th>	
 					<th data-key="content.unitsPerTask">unitsPerTask</th>	
 					<th data-key="content.autoApprovalDelayInMinutes">autoApprovalDelayInMinutes</th>	
 					<th data-key="content.answerfields">answerfields</th>	
 					<th data-key="content.eventType">eventType</th>	
-					<th data-key="content.workerUnitsPerWorker">workerUnitsPerWorker</th>
+					<th data-key="content.workerunitsPerWorker">workerunitsPerWorker</th>
 					<th data-key="content.instructions">instructions</th>
 				</tr>
 			</thead>

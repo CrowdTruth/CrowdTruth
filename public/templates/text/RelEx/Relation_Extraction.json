@@ -3,7 +3,7 @@
 	"description": "Read a medical SENTENCE and select all the RELATION TYPE(s) that you think are expressed between the TWO HIGHLIGHTED WORDS in the text.",
 	"keywords": "medical relations, medical text,relation extraction,relation annotation",
 	"reward": "0.04",
-	"workerUnitsPerUnit": "15",
+	"workerunitsPerUnit": "15",
 	"hitLifetimeInMinutes": "10080",
 	"expirationInMinutes": "3",
 	"unitsPerTask": "1",

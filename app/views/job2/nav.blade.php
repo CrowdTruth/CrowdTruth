@@ -62,11 +62,11 @@ calculate();
 
     function calculate(){
         var reward = $('#reward').val();
-        var workerUnitsPerUnit = $('#workerUnitsPerUnit').val();
+        var workerunitsPerUnit = $('#workerunitsPerUnit').val();
         var unitsPerTask = $('#unitsPerTask').val();
         var expirationInMinutes = $('#expirationInMinutes').val();
         var unitsCount = {{ $unitscount or 0}};
-		var costPerUnit = (reward/unitsPerTask)*workerUnitsPerUnit;
+		var costPerUnit = (reward/unitsPerTask)*workerunitsPerUnit;
 		var rph = (reward/expirationInMinutes)*60;
 
         var el = document.getElementById('costPerUnit');
@@ -76,7 +76,7 @@ calculate();
 	    if(el0) el0.innerHTML= "$" + rph.toFixed(2);
 	    
 	    if(unitsCount > 0) {
-	    	var totalCost = (reward/unitsPerTask)*(unitsCount*workerUnitsPerUnit);
+	    	var totalCost = (reward/unitsPerTask)*(unitsCount*workerunitsPerUnit);
 	        var el1 = document.getElementById('totalCost');
 	        if(el1) el1.innerHTML= "<strong>$" + totalCost.toFixed(2)  + "</strong>";
     	}

@@ -51,12 +51,12 @@ class apiController extends BaseController {
 		if(Input::has('id')){
 			$id = Input::get('id');
 			
-			// Check if is workerUnit, when workerUnit append units, if not append workerUnits (assumption that it is a unit so far valid)
-			$workerUnitType = strpos($id, 'workerUnit');
+			// Check if is workerunit, when workerunit append units, if not append workerunits (assumption that it is a unit so far valid)
+			$workerunitType = strpos($id, 'workerunit');
 
-			if($workerUnitType === false){
+			if($workerunitType === false){
 
-				$result = \MongoDB\Entity::with('hasWorkerUnits')->where('_id', $id)->get();
+				$result = \MongoDB\Entity::with('hasWorkerunits')->where('_id', $id)->get();
 
 			} else {
 

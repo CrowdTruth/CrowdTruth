@@ -73,8 +73,8 @@ class JobsController extends BaseController {
 
 		$id = "$entity/$format/$domain/$docType/$incr";
 
-		foreach(WorkerUnit::where('unit_id', $id)->where('softwareAgent_id', 'cf')->get() as $ann){
-			//$ann = WorkerUnit::id('entity/text/medical/WorkerUnit/5265')->first();
+		foreach(Workerunit::where('unit_id', $id)->where('softwareAgent_id', 'cf')->get() as $ann){
+			//$ann = Workerunit::id('entity/text/medical/Workerunit/5265')->first();
 			echo "\r\n{$ann->_id}\r\n";
 			print_r($ann->createAnnotationVector());
 			echo "\r\n\r\n---------------------------------\r\n\r\n";
@@ -232,7 +232,7 @@ class JobsController extends BaseController {
 	public function getUpdatecfdictionaries(){
 		
 		foreach(Job::where('softwareAgent_id', 'cf')->type('FactSpan')->get() as $job){
-			foreach ($job->workerUnits as $ann) {
+			foreach ($job->workerunits as $ann) {
 				$ann->annotationVector = $ann->createAnnotationVector();
 				$ann->save();
 			}
@@ -364,7 +364,7 @@ private function computeSimilarity($vector, $num, $uid, $softwareAgent_id = 'amt
 	$temp['maxRelCos'] = max($temp);
 	$temp['termno'] = $num;
 	$temp['unit_id'] = $uid;
-	$temp['numAnnots']= WorkerUnit::where('unit_id', $uid)->where('softwareAgent_id', $softwareAgent_id)->count();
+	$temp['numAnnots']= Workerunit::where('unit_id', $uid)->where('softwareAgent_id', $softwareAgent_id)->count();
 	return $temp;
 }
  public function similarity(array $vec1, array $vec2) {
@@ -403,7 +403,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		echo "-Term1:{$unit->content['terms']['first']['formatted']}<br>\n";
 		echo "-Term2:{$unit->content['terms']['second']['formatted']}<br>\n";
 		echo "<hr>\r\n";
-		foreach(WorkerUnit::where('unit_id', $unit->_id)->where('softwareAgent_id', 'amt')->get() as $ann){
+		foreach(Workerunit::where('unit_id', $unit->_id)->where('softwareAgent_id', 'amt')->get() as $ann){
 			$dic = $ann->createAnnotationVector();
 
 			echo "<table>";
@@ -439,16 +439,16 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 				try{
 				$batch = $job->batch;
 				$reward = $job->jobConfiguration->content['reward'];
-				$workerUnitsPerUnit = intval($job->jobConfiguration->content['workerUnitsPerUnit']);
+				$workerunitsPerUnit = intval($job->jobConfiguration->content['workerunitsPerUnit']);
 				$unitsPerTask = intval($job->jobConfiguration->content['unitsPerTask']);
 				$unitsCount = count($batch->wasDerivedFrom);
 	            if(!$unitsPerTask)
 	                $unitsPerTask = 1;
 				    
-				$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$workerUnitsPerUnit), 2);
+				$projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$workerunitsPerUnit), 2);
 
 				$count = 0;
-				foreach ($job->workerUnits as $ann) {
+				foreach ($job->workerunits as $ann) {
 					$count++;
 				}
 				$job->realCost = $count*$reward;
@@ -472,7 +472,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 	public function getRegenerateamtfactspan(){
 		foreach (Job::type('FactSpan')->where('softwareAgent_id', 'amt')->get() as $job) {
-			foreach ($job->workerUnits as $ann) {
+			foreach ($job->workerunits as $ann) {
 				$ann->annotationVector=$ann->createAnnotationVector();
 				$ann->save();
 				echo "saved";
@@ -485,7 +485,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	public function getRegenerateamtrelex(){
 		$count = $failed = 0;
 		foreach (Job::type('RelEx')->where('softwareAgent_id', 'amt')->get() as $job) {
-			foreach ($job->workerUnits as $ann) {
+			foreach ($job->workerunits as $ann) {
 				//dd($ann);
 				$ann->annotationVector=$ann->createAnnotationVector();
 				$ann->save();

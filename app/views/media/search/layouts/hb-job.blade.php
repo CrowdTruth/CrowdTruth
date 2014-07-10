@@ -45,10 +45,10 @@
 		            <th class="sorting" data-vbIdentifier="job_description" data-query-key="orderBy[hasConfiguration.content.description]" data-toggle="tooltip" data-placement="top" title="Descripton">Job Description</th>
 		            <th class="sorting" data-vbIdentifier="job_size" data-query-key="orderBy[unitsCount]" data-toggle="tooltip" data-placement="top" title="The number of units in the job - <br /> set by the job definition"># Units</th>
 		            <th class="sorting" data-vbIdentifier="units_per_task" data-query-key="orderBy[hasConfiguration.content.unitsPerTask]" data-toggle="tooltip" data-placement="top" title="Number of media units (e.g. sentences, images) to be presented in each micro-task - <br /> set by the job definition">units/mTask</th>
-		            <th class="sorting" data-vbIdentifier="req_ann_per_unit" data-query-key="orderBy[hasConfiguration.content.workerUnitsPerUnit]" data-toggle="tooltip" data-placement="top" title="Number of workers requested per micro-task - <br /> set by the job definition">Workers/mTask Requested</th>
-		            <th class="sorting" data-vbIdentifier="total_ann" data-query-key="orderBy[expectedWorkerUnitsCount]" data-toggle="tooltip" data-placement="top" title="Total number of judgements requested for the job - <br /> [# units] * [Workers/mTask Requested]"># Judgements Requested</th>
-				    <th class="sorting" data-vbIdentifier="current_no_ann" data-query-key="orderBy[workerUnitsCount]" data-toggle="tooltip" data-placement="top" title="Number of judgements gathered so far - <br /> [# mTasks Complete Actual] * [units/mTask]"># Judgements Actual</th>
-				    <th class="sorting" data-vbIdentifier="req_ann_per_worker" data-query-key="orderBy[hasConfiguration.content.workerUnitsPerWorker]" data-toggle="tooltip" data-placement="top" title="Maximum number of micro-tasks per worker - <br /> set by the job definition">mTasks/Worker limit</th>
+		            <th class="sorting" data-vbIdentifier="req_ann_per_unit" data-query-key="orderBy[hasConfiguration.content.workerunitsPerUnit]" data-toggle="tooltip" data-placement="top" title="Number of workers requested per micro-task - <br /> set by the job definition">Workers/mTask Requested</th>
+		            <th class="sorting" data-vbIdentifier="total_ann" data-query-key="orderBy[expectedWorkerunitsCount]" data-toggle="tooltip" data-placement="top" title="Total number of judgements requested for the job - <br /> [# units] * [Workers/mTask Requested]"># Judgements Requested</th>
+				    <th class="sorting" data-vbIdentifier="current_no_ann" data-query-key="orderBy[workerunitsCount]" data-toggle="tooltip" data-placement="top" title="Number of judgements gathered so far - <br /> [# mTasks Complete Actual] * [units/mTask]"># Judgements Actual</th>
+				    <th class="sorting" data-vbIdentifier="req_ann_per_worker" data-query-key="orderBy[hasConfiguration.content.workerunitsPerWorker]" data-toggle="tooltip" data-placement="top" title="Maximum number of micro-tasks per worker - <br /> set by the job definition">mTasks/Worker limit</th>
 		            <th class="sorting" data-vbIdentifier="total_workers" data-query-key="orderBy[workersCount]" data-toggle="tooltip" data-placement="top" title="Number of workers who have completed at least one mTask"># Workers Actual</th>
 				    <th class="sorting" data-vbIdentifier="total_spam_workers" data-query-key="orderBy[metrics.spammers.count]" data-toggle="tooltip" data-placement="top" title="Number of workers labelled as spam"># Spammers Actual</th>
 				    <th class="sorting" data-vbIdentifier="cost_per_task" data-query-key="orderBy[hasConfiguration.content.reward]" data-toggle="tooltip" data-placement="top" title="Amount paid to each worker per micro-task, set by the job definition">Cost/mTask</th>
@@ -83,20 +83,20 @@
 					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.unitsPerTask]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="req_ann_per_unit">
-					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.workerUnitsPerUnit]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.workerUnitsPerUnit]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.workerunitsPerUnit]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.workerunitsPerUnit]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="total_ann">
-					<input class="input-sm form-control" type='text' data-query-key="match[expectedWorkerUnitsCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[expectedWorkerUnitsCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[expectedWorkerunitsCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[expectedWorkerunitsCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="current_no_ann">
-					<input class="input-sm form-control" type='text' data-query-key="match[workerUnitsCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[workerUnitsCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[workerunitsCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[workerunitsCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="req_ann_per_worker">
-					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.workerUnitsPerWorker]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.workerUnitsPerWorker]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.workerunitsPerWorker]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.workerunitsPerWorker]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="total_workers">
 					<input class="input-sm form-control" type='text' data-query-key="match[workersCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
@@ -138,20 +138,22 @@
 			            <td data-vbIdentifier="status" class="actiontd">
 			            	<div id="status@{{@index}}">@{{this.status}}</div>
 							<div class="btn-group actionbar">
-								<a class="btn btn-default btn-sm" href="/jobs/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o"></i></a>
+								<a class="btn btn-default btn-sm" href="/jobs/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o fa-2x"></i></a>
+								<a class="btn btn-default btn-sm" href="/jobs/refresh/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Refresh the job settings"><i class="fa fa-cloud-download fa-2x"></i></a>
+								<br />
 								@{{#if this.url}}
-								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link"></i></a>
+								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link fa-2x"></i></a>
 								@{{/if}}
 								@{{#is this.status 'unordered'}}
-								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'order', @{{@index}})"  id="order@{{@index}}" data-toggle="tooltip" data-placement="top" title="Order job on the platform. Warning: may take a long time for mTurk"><i class="fa fa-play"></i></a>
+								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'order', @{{@index}})"  id="order@{{@index}}" data-toggle="tooltip" data-placement="top" title="Order job on the platform. Warning: may take a long time for mTurk"><i class="fa fa-play fa-2x"></i></a>
 								@{{/is}}
 								@{{#is this.status 'running'}}
-								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'pause', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Pause job"><i class="fa fa-pause" id="pause@{{@index}}"></i></a>
-								    <a class="btn btn-default btn-sm" id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop"></i></a>
+								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'pause', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Pause job"><i class="fa fa-pause fa-2x" id="pause@{{@index}}"></i></a>
+								    <a class="btn btn-default btn-sm" id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop fa-2x"></i></a>
 								@{{/is}}
 								@{{#is this.status 'paused'}}
-								    <a class="btn btn-default btn-sm"  id="resume@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'resume', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Resume job"><i class="fa fa-play"></i></a>
-								    <a class="btn btn-default btn-sm"  id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})"data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop"></i></a>	
+								    <a class="btn btn-default btn-sm"  id="resume@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'resume', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Resume job"><i class="fa fa-play fa-2x"></i></a>
+								    <a class="btn btn-default btn-sm"  id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})"data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop fa-2x"></i></a>	
 								@{{/is}}
 							</div>
 	
@@ -167,10 +169,10 @@
 			            <td data-vbIdentifier="job_description">@{{ this.hasConfiguration.content.description }}</td>
 			            <td data-vbIdentifier="job_size">@{{ this.unitsCount }}</td>
 			            <td data-vbIdentifier="units_per_task">@{{ this.hasConfiguration.content.unitsPerTask }}</td>
-			            <td data-vbIdentifier="req_ann_per_unit">@{{ this.hasConfiguration.content.workerUnitsPerUnit }}</td>
-			            <td data-vbIdentifier="total_ann">@{{ this.expectedWorkerUnitsCount }}</td>
-			            <td data-vbIdentifier="current_no_ann">@{{ this.workerUnitsCount }}</td>
-					    <td data-vbIdentifier="req_ann_per_worker">@{{ this.hasConfiguration.content.workerUnitsPerWorker }}</td>
+			            <td data-vbIdentifier="req_ann_per_unit">@{{ this.hasConfiguration.content.workerunitsPerUnit }}</td>
+			            <td data-vbIdentifier="total_ann">@{{ this.expectedWorkerunitsCount }}</td>
+			            <td data-vbIdentifier="current_no_ann">@{{ this.workerunitsCount }}</td>
+					    <td data-vbIdentifier="req_ann_per_worker">@{{ this.hasConfiguration.content.workerunitsPerWorker }}</td>
 					    <td data-vbIdentifier="total_workers">@{{ this.workersCount }}</td>
 					    <td data-vbIdentifier="total_spam_workers">@{{ this.metrics.spammers.count }}</td>
 					    <td data-vbIdentifier="cost_per_task">@{{ this.hasConfiguration.content.reward }}</td>

@@ -27,6 +27,13 @@
 						<li><a href="#" data-vb="show" data-vbSelector="image_histogram"></i>Histogram</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i>Used In # of Batches</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i>Used In # of Jobs</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_cf_judgements"></i># CF judgements</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_amt_judgements"></i># AMT judgements</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_RelEx_jobs"></i># of RelEx jobs</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_FactSpan_jobs"></i># of FactSpan jobs</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_RelDir_jobs"></i># of RelDir jobs</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_children"></i># of children</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="parents"></i>parents</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created At</a></li>
 					</ul>
 				</div>
@@ -54,8 +61,16 @@
 				    <th class="sorting" data-vbIdentifier="image_colors" data-query-key="orderBy[content.features.ColorsMain]" data-toggle="tooltip" data-placement="top" title="Main colors recognized in the image, the size of the bar indicates its percentage. Hover over for details.">Main colors</th>
 				    <th class="sorting" data-vbIdentifier="image_histogram" data-query-key="orderBy[content.features.ColorsHistogram]" data-toggle="tooltip" data-placement="top" title="A histogram of the colors found in the image, the size of the ba indicates its percentage. Hover over for details. ">Histogram</th>
 				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[batches.count]" data-toggle="tooltip" data-placement="top" title="Number of batches in which this image is used">Used In # of Batches</th>
-				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[jobs.count]" data-toggle="tooltip" data-placement="top" title="Number of jobs in which this image is used">Used In # of Jobs</th>     
-				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="The time at which this image was uploaded to CrowdTruth">Created At</th>
+				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[jobs.count]" data-toggle="tooltip" data-placement="top" title="Number of jobs in which this image is used">Used In # of Jobs</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_cf_judgements" data-query-key="orderBy[cache.softwareAgent.cf]" data-toggle="tooltip" data-placement="top" title="Number of judgements the unit got on CrowdFlower"># CF judgements</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_amt_judgements" data-query-key="orderBy[cache.softwareAgent.amt]" data-toggle="tooltip" data-placement="top" title="Number of judgements the unit got on AMT"># AMT judgements</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_RelEx_jobs" data-query-key="orderBy[cache.jobs.types.RelEx.count]" data-toggle="tooltip" data-placement="top" title="Number of Relation Extraction jobs in which the unit was used"># of RelEx jobs</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_FactSpan_jobs" data-query-key="orderBy[cache.jobs.types.FactSpan.count]" data-toggle="tooltip" data-placement="top" title="Number of Factor Span jobs in which the unit was used"># of FactSpan jobs</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_RelDir_jobs" data-query-key="orderBy[cache.jobs.types.RelDir.count]" data-toggle="tooltip" data-placement="top" title="Number of Relation Direction jobs in which the unit was used"># of RelDir jobs</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_children" data-query-key="orderBy[cache.children.count]" data-toggle="tooltip" data-placement="top" title="The number of units generated from this unit"># of children</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="parents"  data-toggle="tooltip" data-placement="top" title="The units from which this media unit was created">parents</th>
+
+                    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="The time at which this image was uploaded to CrowdTruth">Created At</th>
 		        </tr>
 			<tr class="inputFilters">
 				<td data-vbIdentifier="checkbox">
@@ -119,6 +134,35 @@
 					<input class="input-sm form-control" type='text' data-query-key="match[jobs.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 					<input class="input-sm form-control" type='text' data-query-key="match[jobs.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
+                <td data-vbIdentifier="number_of_cf_judgements">
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.cf]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.cf]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                </td>
+                <td data-vbIdentifier="number_of_amt_judgements">
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.amt]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.amt]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                </td>
+
+                <td data-vbIdentifier="number_of_RelEx_jobs">
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelEx.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelEx.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                </td>
+                <td data-vbIdentifier="number_of_FactSpan_jobs">
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.FactSpan.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.FactSpan.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                </td>
+                <td data-vbIdentifier="number_of_RelDir_jobs">
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelDir.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelDir.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                </td>
+                <td data-vbIdentifier="number_of_children">
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.children.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                    <input class="input-sm form-control" type='text' data-query-key="match[cache.children.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                </td>
+
+                <td data-vbIdentifier="parents">
+                    <input class="input-sm form-control" type='text' data-query-key="match[parents][]" />
+                </td>
 				<td data-vbIdentifier="created_at">
 					<div class="input-daterange">
 					    <input type="text" class="input-sm form-control" name="start" data-query-key="match[created_at]" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />
@@ -217,6 +261,13 @@
 			            </td>
 					    <td data-vbIdentifier="number_of_batches">@{{ this.batches.count }}</td>
 					    <td data-vbIdentifier="number_of_jobs">@{{ this.jobs.count }}</td>
+                        <td data-vbIdentifier="number_of_cf_judgements">@{{ this.cache.softwareAgent.cf }}</td>
+                        <td data-vbIdentifier="number_of_amt_judgements">@{{ this.cache.softwareAgent.amt }}</td>
+                        <td data-vbIdentifier="number_of_RelEx_jobs">@{{ this.cache.jobs.types.RelEx.count }}</td>
+                        <td data-vbIdentifier="number_of_FactSpan_jobs">@{{ this.cache.jobs.types.FactSpan.count }}</td>
+                        <td data-vbIdentifier="number_of_RelDir_jobs">@{{ this.cache.jobs.types.RelDir.count }}</td>
+                        <td data-vbIdentifier="number_of_children">@{{ this.cache.children.count }}</td>
+                        <td data-vbIdentifier="parents">@{{ this.parents }}</td>
 					    <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
 					</tr>
 			        @{{/each}}

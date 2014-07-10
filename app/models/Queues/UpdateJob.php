@@ -13,24 +13,24 @@ class UpdateJob {
 
 		// Create the annotationVector
 		$workers = array();
-		$workerUnits = $j->workerUnits;
+		$workerunits = $j->workerunits;
         $result = array();
 		$count = 0;
-        foreach($workerUnits as $workerUnit){
+        foreach($workerunits as $workerunit){
         	
-        	if(empty($workerUnit->annotationVector))
+        	if(empty($workerunit->annotationVector))
         		continue; // Skip if no annotationVector.
 
-        	$workers[] = $workerUnit->crowdAgent_id;
+        	$workers[] = $workerunit->crowdAgent_id;
 
-			$uid = $workerUnit->unit_id; // to prevent mongoException: zero length key not allowed. Could also 'continue;'
+			$uid = $workerunit->unit_id; // to prevent mongoException: zero length key not allowed. Could also 'continue;'
 			if(empty($uid)) $uid = 'unknown';
 			else $count++;
 
 			if(!isset($result[$uid]))
-				$result[$uid] = $workerUnit->annotationVector;
+				$result[$uid] = $workerunit->annotationVector;
 			else {
-				foreach($workerUnit->annotationVector as $key=>$val){
+				foreach($workerunit->annotationVector as $key=>$val){
 					if(is_array($val)){ // term1 -> [k] -> 1
 						foreach($val as $k=>$v){
 							//if(isset($result[$uid][$key][$k]))
@@ -55,11 +55,11 @@ class UpdateJob {
 		}
 
 		$j->workersCount = count(array_unique($workers));
-        $j->workerUnitsCount = $count;
+        $j->workerunitsCount = $count;
 
-		$jpu = intval($j->jobConfiguration->content['workerUnitsPerUnit']);
+		$jpu = intval($j->jobConfiguration->content['workerunitsPerUnit']);
 		$uc = intval($j->unitsCount);
-		if($uc > 0 and $jpu > 0) $j->completion = $j->workerUnitsCount / ($uc * $jpu);
+		if($uc > 0 and $jpu > 0) $j->completion = $j->workerunitsCount / ($uc * $jpu);
 		else $j->completion = 0.00;
 		
 		if($j->completion>1)
@@ -82,7 +82,7 @@ class UpdateJob {
 		// If a page is done and there's a proper annotationVector...
 
 		try {
-			//if(count($j->results['withSpam'])>1) and ($j->workerUnitsCount % $j->jobConfiguration->content['unitsPerTask'] == 0)){
+			//if(count($j->results['withSpam'])>1) and ($j->workerunitsCount % $j->jobConfiguration->content['unitsPerTask'] == 0)){
 			if(empty($j->metrics) and $j->completion==1){
 				// do the metrics, we're in a queue anyway.
 				\Log::debug("Starting metrics for Job {$j->_id}.");
@@ -127,7 +127,7 @@ class UpdateJob {
 				$j->save();
 
 				// TODO
-				// Update workerUnits
+				// Update workerunits
 				// Update workers
 				// Update units
 				//

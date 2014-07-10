@@ -54,7 +54,7 @@
 						<div><strong data-toggle="tooltip" data-placement="top" title="@{{#each this.infoStat.cache.mediaFormats.formats }}@{{ @key }}<br />@{{/each}}"> @{{ this.infoStat.cache.mediaFormats.distinct }} Distinct Media Format(s) </strong>  </div>
 						<div><strong data-toggle="tooltip" data-placement="top" title="@{{#each this.infoStat.cache.jobTypes.types }}@{{ @key }}<br />@{{/each}}"> @{{ this.infoStat.cache.jobTypes.distinct }} Distinct Job Type(s) </strong> </div>
 						<div><strong> @{{ this.infoStat.cache.jobTypes.count }} Job(s) as Contributor</strong> </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="# Spam Annotations: @{{ this.infoStat.cache.workerUnits.spam }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.workerUnits.nonspam }}"> @{{ this.infoStat.cache.workerUnits.count }} Annotation(s) in Total </strong> </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="# Spam Annotations: @{{ this.infoStat.cache.workerunits.spam }} </br> # NonSpam Annotations: @{{ this.infoStat.cache.workerunits.nonspam }}"> @{{ this.infoStat.cache.workerunits.count }} Annotation(s) in Total </strong> </div>
 						<div><strong data-toggle="tooltip" data-placement="top" title="Messages: @{{ this.infoStat.messagesRecieved.messages }}"> @{{ this.infoStat.messagesRecieved.count}} Message(s) Sent to This Worker </strong></div>
 						<hr/>
 						<table style="width: 100%" border="1" bordercolor="#C0C0C0" text-align="center">
@@ -168,9 +168,9 @@
 						</tr> 
 						</thead>
 						<tbody>
-						 @{{#each this.workerUnitContent}}
+						 @{{#each this.workerunitContent}}
 
-						 @{{#each workerUnitType}}
+						 @{{#each workerunitType}}
 						 <tr>
 						  <td data-toggle="tooltip" data-placement="top" title="CrowdTruth ID: @{{ ../_id}} </br> Domain: @{{ ../unitContent.domain }} </br> Sentence: @{{ ../unitContent.content.sentence.formatted}} </br> Term1: @{{ ../unitContent.content.terms.first.formatted }} </br> Term2: @{{ ../unitContent.content.terms.second.formatted }} </br> Relation: @{{ ../unitContent.content.relation.noPrefix }}"> @{{ ../unitContent.documentType }} </td>
 						  <td> @{{ job_info.jobConf.content.title}} </td>  
@@ -180,7 +180,7 @@
 						   @{{/ifvalue}}
 						  @{{/each}} 
 						  <td>
-						  @{{#each workerUnit}}
+						  @{{#each workerunit}}
 						   <table border="1" bordercolor="#C0C0C0">
 						    <tr> 
 						    @{{#eachProperty this}}

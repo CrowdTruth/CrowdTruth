@@ -17,9 +17,7 @@
 						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="format"></i>Format</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="domain"></i>Domain</a></li>
-
-
-						<!-- <li><a href="#" data-vb="show" data-vbSelector="documentType"></i>Document-Type</a></li> -->
+                    	<!-- <li><a href="#" data-vb="show" data-vbSelector="documentType"></i>Document-Type</a></li> -->
 						<li><a href="#" data-vb="show" data-vbSelector="relation"></i>Seed Relation</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="sent_id"></i>ID</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="term_1"></i>Term 1</a></li>
@@ -32,7 +30,13 @@
 						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i># Jobs</a></li>
                         <li><a href="#" data-vb="hide" data-vbSelector="number_of_cf_judgements"></i># CF judgements</a></li>
                         <li><a href="#" data-vb="hide" data-vbSelector="number_of_amt_judgements"></i># AMT judgements</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="sentence_wordcount"></i># Words</a></li>					
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_RelEx_jobs"></i># of RelEx jobs</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_FactSpan_jobs"></i># of FactSpan jobs</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_RelDir_jobs"></i># of RelDir jobs</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_children"></i># of children</a></li>
+                        <li><a href="#" data-vb="hide" data-vbSelector="parents"></i>parents</a></li>
+
+						<li><a href="#" data-vb="show" data-vbSelector="sentence_wordcount"></i># Words</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created</a></li>
 					</ul>
 				</div>
@@ -133,11 +137,18 @@
 		            <th class="sorting" data-vbIdentifier="term_2_processed" data-query-key="orderBy[content.terms.second.formatted]" data-toggle="tooltip" data-placement="top" title="Term 2 with processing as it appears in Processed Sentences">Term 2 Processed</th>
 		            <th class="sorting" data-vbIdentifier="sentence" data-query-key="orderBy[content.sentence.text]" data-toggle="tooltip" data-placement="top" title="Original sentence from the corpus">Sentence</th>
 		            <th class="sorting" data-vbIdentifier="sentence_processed" data-query-key="orderBy[content.sentence.formatted]" data-toggle="tooltip" data-placement="top" title="Original sentence with extra processing including highlighting of terms">Sentence Processed</th>
-		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="sentence_wordcount" data-query-key="orderBy[content.properties.sentenceWordCount]" data-toggle="tooltip" data-placement="top" title="Number of words in the sentence"># Words</th>
+
 		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]" data-toggle="tooltip" data-placement="top" title="Number of batches the sentence was used in"># Batches</th>
 		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[cache.jobs.count]" data-toggle="tooltip" data-placement="top" title="Number of jobs the sentence was used in"># Jobs</th>     
 		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_cf_judgements" data-query-key="orderBy[cache.softwareAgent.cf]" data-toggle="tooltip" data-placement="top" title="Number of judgements the unit got on CrowdFlower"># CF judgements</th>
 		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_amt_judgements" data-query-key="orderBy[cache.softwareAgent.amt]" data-toggle="tooltip" data-placement="top" title="Number of judgements the unit got on AMT"># AMT judgements</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_RelEx_jobs" data-query-key="orderBy[cache.jobs.types.RelEx.count]" data-toggle="tooltip" data-placement="top" title="Number of Relation Extraction jobs in which the unit was used"># of RelEx jobs</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_FactSpan_jobs" data-query-key="orderBy[cache.jobs.types.FactSpan.count]" data-toggle="tooltip" data-placement="top" title="Number of Factor Span jobs in which the unit was used"># of FactSpan jobs</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_RelDir_jobs" data-query-key="orderBy[cache.jobs.types.RelDir.count]" data-toggle="tooltip" data-placement="top" title="Number of Relation Direction jobs in which the unit was used"># of RelDir jobs</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_children" data-query-key="orderBy[cache.children.count]" data-toggle="tooltip" data-placement="top" title="The number of units generated from this unit"># of children</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="parents"  data-toggle="tooltip" data-placement="top" title="The units from which this media unit was created">parents</th>
+
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="sentence_wordcount" data-query-key="orderBy[content.properties.sentenceWordCount]" data-toggle="tooltip" data-placement="top" title="Number of words in the sentence"># Words</th>
 		            <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the sentence was loaded into the framework">Created</th>
 		        </tr>
 				<tr class="inputFilters">
@@ -177,10 +188,7 @@
 					<td data-vbIdentifier="sentence_processed">
 						<input class="input-sm form-control" type='text' data-query-key="match[content.sentence.formatted]" data-query-operator="like" placeholder="Enter your search keywords here" />
 					</td>
-					<td data-vbIdentifier="sentence_wordcount">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.properties.sentenceWordCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-						<input class="input-sm form-control" type='text' data-query-key="match[content.properties.sentenceWordCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-					</td>
+
 					<td data-vbIdentifier="number_of_batches">
 						<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 						<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
@@ -196,6 +204,32 @@
                     <td data-vbIdentifier="number_of_amt_judgements">
                         <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.amt]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
                         <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.amt]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                    </td>
+
+                    <td data-vbIdentifier="number_of_RelEx_jobs">
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelEx.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelEx.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                    </td>
+                    <td data-vbIdentifier="number_of_FactSpan_jobs">
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.FactSpan.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.FactSpan.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                    </td>
+                    <td data-vbIdentifier="number_of_RelDir_jobs">
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelDir.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelDir.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                    </td>
+                    <td data-vbIdentifier="number_of_children">
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.children.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.children.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                    </td>
+                    <td data-vbIdentifier="parents">
+                        <input class="input-sm form-control" type='text' data-query-key="match[parents][]" />
+                    </td>
+
+
+                    <td data-vbIdentifier="sentence_wordcount">
+                        <input class="input-sm form-control" type='text' data-query-key="match[content.properties.sentenceWordCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+                        <input class="input-sm form-control" type='text' data-query-key="match[content.properties.sentenceWordCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
                     </td>
 					<td data-vbIdentifier="created_at">
 						<div class="input-daterange">
@@ -216,7 +250,7 @@
 				    <td data-vbIdentifier="sent_id">
 					
 					<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
-						RelEx-structured sentence @{{ explodeLastSlash this._id }}
+						@{{ this._id }}
 					</a>
 				    </td>
 			            <td data-vbIdentifier="term_1">@{{ this.content.terms.first.text }}</td>
@@ -225,12 +259,17 @@
 			            <td data-vbIdentifier="term_2_processed">@{{ this.content.terms.second.formatted }}</td>
 			            <td data-vbIdentifier="sentence" class="text-left">@{{ this.content.sentence.text }}</td>
 			            <td data-vbIdentifier="sentence_processed" class="text-left">@{{ highlightTerms ../searchQuery this.content }}</td>
-			            <td data-vbIdentifier="sentence_wordcount">@{{ this.content.properties.sentenceWordCount }}</td>
 			            <td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>
 			            <td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>
 			            <td data-vbIdentifier="number_of_cf_judgements">@{{ this.cache.softwareAgent.cf }}</td>
 			            <td data-vbIdentifier="number_of_amt_judgements">@{{ this.cache.softwareAgent.amt }}</td>
-			            <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
+                        <td data-vbIdentifier="number_of_RelEx_jobs">@{{ this.cache.jobs.types.RelEx.count }}</td>
+                        <td data-vbIdentifier="number_of_FactSpan_jobs">@{{ this.cache.jobs.types.FactSpan.count }}</td>
+                        <td data-vbIdentifier="number_of_RelDir_jobs">@{{ this.cache.jobs.types.RelDir.count }}</td>
+                        <td data-vbIdentifier="number_of_children">@{{ this.cache.children.count }}</td>
+                        <td data-vbIdentifier="parents">@{{ this.parents }}</td>
+                        <td data-vbIdentifier="sentence_wordcount">@{{ this.content.properties.sentenceWordCount }}</td>
+                        <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
 			        </tr>
 			        @{{/each}}
 				</script>
@@ -239,6 +278,6 @@
     </div>
 
 @include('media.search.layouts.hb-modalindividualunit')
-@include('media.search.layouts.hb-modalworkerUnits')
+@include('media.search.layouts.hb-modalworkerunits')
 				
 </div>
