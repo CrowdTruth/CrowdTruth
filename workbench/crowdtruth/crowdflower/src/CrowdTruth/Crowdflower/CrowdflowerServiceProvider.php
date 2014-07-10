@@ -25,6 +25,10 @@ class CrowdflowerServiceProvider extends ServiceProvider {
 			return new RetrieveJobs;
 		});
 		$this->commands('cf.retrievejobs');
+		$this->app['cf2.retrievejobs'] = $this->app->share(function(){
+			return new RetrieveJobs;
+		});
+		$this->commands('cf2.retrievejobs');
 
 		// Register the route to the webhook
 		Route::any('cfwebhook.php', function(){
@@ -36,6 +40,10 @@ class CrowdflowerServiceProvider extends ServiceProvider {
 		$this->app->bind('cf', function()
 	    {
 	    	return new Crowdflower;
+	    });
+	    $this->app->bind('cf2', function()
+	    {
+	    	return new Crowdflower2;
 	    });
 	}
 

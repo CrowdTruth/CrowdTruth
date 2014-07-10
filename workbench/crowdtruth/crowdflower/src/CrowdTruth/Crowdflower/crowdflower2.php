@@ -10,7 +10,7 @@ use \CrowdTruth\Crowdflower\Cfapi\Job;
 use \CrowdTruth\Crowdflower\Cfapi\Worker;
 //use Job;
 
-class Crowdflower extends \FrameWork {
+class Crowdflower2 extends \FrameWork {
 
 	protected $CFJob = null;
 
@@ -28,10 +28,10 @@ class Crowdflower extends \FrameWork {
 
 	public function getJobConfValidationRules(){
 		return array(
-			'workerunitsPerUnit' => 'required|numeric|min:1',
+			'workerUnitsPerUnit' => 'required|numeric|min:1',
 			'unitsPerTask' => 'required|numeric|min:1',
 			'instructions' => 'required',
-			'workerunitsPerWorker' => 'required|numeric|min:1');
+			'workerUnitsPerWorker' => 'required|numeric|min:1');
 	}
 
 	public function __construct(){
@@ -47,7 +47,7 @@ class Crowdflower extends \FrameWork {
 	}
 
 	public function updateJobConf($jc){
-		if(Input::has('workerunitsPerWorker')){ // Check if we really come from the CF page (should be the case)
+		if(Input::has('workerUnitsPerWorker')){ // Check if we really come from the CF page (should be the case)
 			$c = $jc->content;
 			$c['countries'] = Input::get('countries', array());
 			$jc->content = $c;
@@ -88,22 +88,23 @@ class Crowdflower extends \FrameWork {
     */
     private function cfPublish($job, $sandbox){
     	$jc = $job->jobConfiguration;
-		$template = $job->template;
+    	//dd($jc->title);
+		//$template = $job->template;
 		$data = $this->jobConfToCFData($jc);	
 		$csv = $this->batchToCSV($job->batch, $job->questionTemplate);
 		$gold = $jc->answerfields;
 		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0)*60, 
-							"keywords" => (isset($jc->content['requesterWorkerunit']) ? $jc->content['requesterWorkerunit'] : ''),
+							"keywords" => (isset($jc->content['requesterWorkerUnit']) ? $jc->content['requesterWorkerUnit'] : ''),
 							"mail_to" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''));
     	
-    	if($jc->content['workerunitsPerWorker'] < $jc->content['unitsPerTask'])
-    		throw new CFExceptions('Workerunits per worker should be larger than units per task.');
+    	//if($jc->content['workerUnitsPerWorker'] < $jc->content['unitsPerTask'])
+    	//	throw new CFExceptions('WorkerUnits per worker should be larger than units per task.');
     	
     	try {
 
     		// TODO: check if all the parameters are in the csv.
 			// Read the files
-			foreach(array('cml', 'css', 'js') as $ext){
+			/*foreach(array('cml', 'css', 'js') as $ext){
 				$filename = public_path() . "/templates/$template.$ext";
 				if(file_exists($filename) && is_readable($filename))
 					$data[$ext] = file_get_contents($filename);
@@ -111,7 +112,7 @@ class Crowdflower extends \FrameWork {
 
 			if(empty($data['cml']))
 				throw new CFExceptions("CML file $filename does not exist or is not readable.");
-
+				*/
 			/*if(!$sandbox) $data['auto_order'] = true; // doesn't seem to work */
 
 			// Create the job with the initial data
@@ -245,11 +246,11 @@ class Crowdflower extends \FrameWork {
 
 		if(isset($jc['title'])) 			 	$data['title']					 	= $jc['title'];
 		if(isset($jc['instructions'])) 			$data['instructions']				= $jc['instructions'];
-		if(isset($jc['workerunitsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['workerunitsPerUnit'];
+		if(isset($jc['workerUnitsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['workerUnitsPerUnit'];
 		if(isset($jc['unitsPerTask']))			$data['units_per_assignment']		= $jc['unitsPerTask'];
-		if(isset($jc['workerunitsPerWorker']))	{
-			$data['max_judgments_per_worker']	= $jc['workerunitsPerWorker'];
-			$data['max_judgments_per_ip']		= $jc['workerunitsPerWorker']; // We choose to keep this the same.
+		if(isset($jc['workerUnitsPerWorker']))	{
+			$data['max_judgments_per_worker']	= $jc['workerUnitsPerWorker'];
+			$data['max_judgments_per_ip']		= $jc['workerUnitsPerWorker']; // We choose to keep this the same.
 		}
 
 		// Webhook doesn't work on localhost and the uri should be set. 
@@ -295,7 +296,7 @@ class Crowdflower extends \FrameWork {
 				
 				$content[$key] = $val;
 			}*/
-			$content = $questionTemplate->flattenAndReplace($unit['content']);
+			//$content = $questionTemplate->flattenAndReplace($unit['content']);
 
 			// Add fields
 			$content['uid'] = $unit['_id'];

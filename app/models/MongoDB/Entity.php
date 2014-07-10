@@ -17,6 +17,7 @@ class Entity extends Moloquent {
             "keyframes" => "Key-frames",
             "totalrelevantfeatures" => "Relevant Features",
             "fullvideo" => "Full Video",
+            "metadatadescription" => "Metadata Description",
             "documentType" => "Document Type",
             "painting" => "Painting",
             "drawing" => "Drawing",

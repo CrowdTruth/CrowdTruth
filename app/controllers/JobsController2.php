@@ -389,8 +389,21 @@ class JobsController2 extends BaseController {
 	public function postSubmitFinal($ordersandbox = 'order'){
 		//$jc = unserialize(Session::get('jobconf'));
 		$jc = new JobConfiguration;
-		$jc->documnetType = "jobconf";
-		$jc->content = array("Lukasz:::" . rand());
+		$jc->documentType = "jobconf";
+		//$jc->content = array("Lukasz:::" . rand());
+		
+		$jcco = array();
+		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 1 )
+			 		$jcco['type'] = Input::get('templateTypeOwn');
+			 	else
+			 		$jcco['type'] =  Input::get('templateType');
+	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 1 )
+			 		$jcco['title'] = Input::get('titleOwn');
+			 	else
+			 		$jcco['title'] =  Input::get('title');
+	    $jc->content = $jcco;
+	    
+	    //$jc->content->tags = array("Lukasz:::");
 		//$template = Session::get('template');
 		$batch = unserialize(Session::get('batch'));
 		//$questiontemplateid = Session::get('questiontemplateid');
@@ -420,9 +433,7 @@ class JobsController2 extends BaseController {
             	$jc->format = $batch->format;
 				$jc->domain = $batch->domain;
 	            $jc->hash = $hash;
-	            $jc->type = Input::get('templateType');
-	            $jc->title = Input::get('title');
-	            $jc->tags = array("Lukasz:::");
+	            
 				$jc->activity_id = $activity->_id;
 				$jc->save();
 				$jcid = $jc->_id;
@@ -434,17 +445,17 @@ class JobsController2 extends BaseController {
 			 	$j = new Job;
 			 	$j->format = $batch->format;
 			 	$j->domain = $batch->domain;
-			 	$j->type =  Input::get('templateType');
+			 	$j->type = $jcco['type'];
 			// 	$j->template = $template; // TODO: remove
 			 	$j->batch_id = $batch->_id;
 			// 	$j->questionTemplate_id = $questiontemplateid;
 			 	$j->jobConf_id = $jcid;
-			 //	$j->softwareAgent_id = $platformstring;
+			 	$j->softwareAgent_id = "cf2"; // $platformstring;
 			 	$j->activity_id = $activity->_id;
 			 	$j->iamemptyjob = "yes";
 			 	$j->save(); //convert to publish later
-			// 	$j->publish(($ordersandbox == 'sandbox' ? true : false));
-			 //	$jobs[] = $j;
+			 	$j->publish(($ordersandbox == 'sandbox' ? true : false));
+			 	$jobs[] = $j;
 			// }
 
 			// Success.
