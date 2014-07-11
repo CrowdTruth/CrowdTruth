@@ -139,7 +139,7 @@
 			            	<div id="status@{{@index}}">@{{this.status}}</div>
 							<div class="btn-group actionbar">
 								<a class="btn btn-default btn-sm" href="/jobs/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o fa-2x"></i></a>
-								<a class="btn btn-default btn-sm" href="/jobs/refresh/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Refresh the job settings"><i class="fa fa-cloud-download fa-2x"></i></a>
+								<a class="btn btn-default btn-sm" href="/jobs2/refresh/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Refresh the job settings"><i class="fa fa-cloud-download fa-2x"></i></a>
 								<br />
 								@{{#if this.url}}
 								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link fa-2x"></i></a>

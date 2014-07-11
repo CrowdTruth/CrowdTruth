@@ -386,6 +386,14 @@ class JobsController2 extends BaseController {
 	/*
 	* Send it to the platforms.
 	*/
+
+	public function getRefresh($id){
+		$platform = App::make('cf2');
+		$platform->refreshJob($id);
+
+	}
+
+
 	public function postSubmitFinal($ordersandbox = 'order'){
 		//$jc = unserialize(Session::get('jobconf'));
 		$jc = new JobConfiguration;

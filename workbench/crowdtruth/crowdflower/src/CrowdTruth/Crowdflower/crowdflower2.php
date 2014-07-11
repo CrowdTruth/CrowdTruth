@@ -83,6 +83,8 @@ class Crowdflower2 extends \FrameWork {
 	}
 
 
+
+
 	/**
     * @return String id of published Job
     */
@@ -240,6 +242,29 @@ class Crowdflower2 extends \FrameWork {
     }
 
 
+
+
+	public function refreshJob($id){ // TODO
+		$job = \MongoDB\Entity::where('_id', $id)->get();
+		$jc = $job->jobConfiguration;
+		$result = $this->CFJob->readJob($id);
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Read: " . $result['result']['error']['message']);
+		$jcnew = CFDataToJobConf($result, $jc);
+
+		$jcnew->update();
+	}
+
+	 private function CFDataToJobConf($CFd, &$jc){ // TODO
+		$jcco = $jc->content;
+		if(isset($CFd['title']))  				$jcco['title'] = 				$CFd['title'];
+		if(isset($CFd['instructions'])) 		$jcco['instructions'] =			$CFd['instructions'];
+		if(isset($CFd['judgments_per_unit'])) 	$jcco['workerUnitsPerUnit'] = 	$CFd['judgments_per_unit'];
+		if(isset($CFd['units_per_assignment'])) $jcco['unitsPerTask'] = 		$CFd['units_per_assignment'];
+		return $jc;
+	}
+
+
     private function jobConfToCFData($jc){
 		$jc=$jc->content;
 		$data = array();
@@ -267,7 +292,7 @@ class Crowdflower2 extends \FrameWork {
 	/**
 	* @return path to the csv, ready to be sent to the CrowdFlower API.
 	*/
-	public function batchToCSV($batch, $questionTemplate, $path = null){
+		public function batchToCSV($batch, $questionTemplate, $path = null){
 
 		// Create and open CSV file
 		if(empty($path)) {
