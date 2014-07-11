@@ -23,7 +23,7 @@ class Task:
             query_key = "match[job_id][" + str(jobPosition) + "]"
             self.default_query[query_key] = jobs[jobPosition]
 
-        self.default_query["match[documentType]"] = 'workerUnit'
+        self.default_query["match[documentType]"] = 'workerunit'
 
     def __create_unit_cluster(self):
         unit_cluster = {}
@@ -102,7 +102,7 @@ class Task:
             worker_id = worker_info['_id']
             unit_vectors = {}
             unit_freq = {}
-            for unit in worker_info['value']['workerUnits']:
+            for unit in worker_info['value']['workerunits']:
                 unit_id = unit['unit_id']
                 unit_vector = unit['vector']
                 for annotation in annotations_to_filter:
@@ -340,13 +340,13 @@ class Task:
         results['metrics']['spammers']['list'] = selected_workers_to_filter
 
         selected_worker_units_to_filter = self.get_worker_units(selected_workers_to_filter)
-        results['metrics']['filteredWorkerUnits'] = {}
-        results['metrics']['filteredWorkerUnits']['count'] = len(selected_worker_units_to_filter)
-        results['metrics']['filteredWorkerUnits']['list'] = selected_worker_units_to_filter
+        results['metrics']['filteredWorkerunits'] = {}
+        results['metrics']['filteredWorkerunits']['count'] = len(selected_worker_units_to_filter)
+        results['metrics']['filteredWorkerunits']['list'] = selected_worker_units_to_filter
 
-        results['metrics']['filteredUnits'] = {}
-        results['metrics']['filteredUnits']['count'] = len(selected_units_to_filter)
-        results['metrics']['filteredUnits']['list'] = selected_units_to_filter
+        results['metrics']['filteredunits'] = {}
+        results['metrics']['filteredunits']['count'] = len(selected_units_to_filter)
+        results['metrics']['filteredunits']['list'] = selected_units_to_filter
 
         results['metrics']['filteredAnnotations'] = selected_annotations_to_filter
 
