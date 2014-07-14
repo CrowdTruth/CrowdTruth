@@ -1,7 +1,7 @@
 <div class='eventextraction'>
   <fieldset>
     <legend>TEXT SNIPPET:</legend>
-    <div class="passage" id="passage">{{ content_description }}</div>
+    <div class="passage" id="passage">{{description}}</div>
   </fieldset>
   <hr />
 <br />
