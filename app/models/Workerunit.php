@@ -69,6 +69,9 @@ class Workerunit extends Entity {
             case 'RelEx':
                 return $this->createAnnotationVectorRelEx();
                 break;
+             case 'HighlightEventConceptsInVideos':
+                return $this->createAnnotationVectorHighlightEventConceptsInVideos();
+                break;
             
             default:
                //return  $this->createAnnotationVectorFactSpan(); // For Debugging!
@@ -78,6 +81,77 @@ class Workerunit extends Entity {
                 break;
         }        
     }
+
+    public function createAnnotationVectorHighlightEventConceptsInVideos(){
+        $debug = false;
+
+
+        if(empty($this->unit_id))
+            return null;
+
+        $description = $this->unit->content['description'];
+        
+        // Set annotation vector for the sentence
+        $descriptionWords = explode(" ", $description);
+        $concepts = array("event", "location", "time", "participants", "other");
+        $annotationVector = array();
+
+        for ($i = 0; $i < count($concepts); $i ++) {
+            $annotationVector[$concepts[$i]] = array();
+            array_push($annotationVector[$concepts[$i]], "NONE_###_-1");
+            $annotationVector[$concepts[$i]]["NONE_###_-1"] = 0;
+        }
+
+        for ($i = 0; $i < count($descriptionWords); $i ++) {
+            for ($j = 0; $j < count($concepts); $j ++) {
+                array_push($annotationVector[$concepts[$j]], str_replace('.', '', $descriptionWords[$i] . "_###_" . $i));
+                $annotationVector[$concepts[$j]][str_replace('.', '', $descriptionWords[$i] . "_###_" . $i)] = 0;
+            }
+        }
+
+        $judgment = $this->content;
+        for ($i = 0; $i < 30; $i ++) {
+            if (isset($judgment["event" . $i])) {
+                $annotatedWords = takeAnnotationComponents($judgment["ev" . $i . "a"], $description);
+                for ($noAnnWords = 0; $noAnnWords < count($annotatedWords); $noAnnWords ++) {
+                    $annotationVector[$judgment["event" . $i]][$annotatedWords[$noAnnWords]] = 1; 
+                }
+            }
+        }
+
+        for ($i = 0; $i < count($concepts); $i ++) {
+            $annotations = 0;
+            foreach ($annotationVector[$concepts[$i]] as $key => $value) {
+                if ($value == 1) {
+                    $annotations ++; 
+                }
+            }
+            if ($annotations == 0 || count($annotationVector[$concepts[$i]]) == 0) {
+                $annotationVector[$concepts[$i]]["NONE_###_-1"] = 1;
+            }
+        }
+        
+        return array('event' => $annotationVector["event"], 'location' => $annotationVector["event"], 
+            'time' => $annotationVector["time"], 'participants' => $annotationVector["participants"],
+            'other' => $annotationVector["other"]);
+     }
+
+    public function takeAnnotationComponents($wordsNo, $sentence) {
+        $result = "";
+        $wordsSentence = explode(" ", $sentence);
+        if(strpos($wordsNo, "-") !== FALSE) {
+            $interval = explode("-", $wordsNo);
+            for ($i = (int)$interval[0]; $i <= (int)$interval[1]; $i ++) {
+                $result .= $wordsSentence[$i] . " ";
+            }
+        }
+        else {
+            $result = $wordsSentence[(int)$wordsNo];
+        }
+        $result = str_replace(".", "", $result);
+        return $result;
+    }
+
     //todo should be private
     public function createAnnotationVectorFactSpan(){
         $debug = false;

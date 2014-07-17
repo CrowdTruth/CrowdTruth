@@ -519,9 +519,10 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		$currenttemplate = Session::get('template');
 
         if(empty($currenttemplate)){
-			if($batch->format=='text')
+			if($batch->format=='text' && $batch->domain == "cultural")
+				$currenttemplate =  "text/HighlightEventConceptsInVideos/highlightEventConcepts";
+			else if ($batch->format=='text' && $batch->domain == "medical")
 				$currenttemplate = 'text/RelDir/relation_direction';
-
 			else if($batch->format=="video") 
 				$currenttemplate = 'video/SoundAndVision/videosegments';
 			else 
