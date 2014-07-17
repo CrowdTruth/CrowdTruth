@@ -103,6 +103,7 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                     text: "Reset selection",
                     theme: {
                         fill: '#2aabd2',
+                        id:"resetSelection",
                         style:{
                             color: 'white'
                         }

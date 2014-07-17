@@ -34,13 +34,14 @@ function unitsJobDetails(category , categoryName, openModal) {
     var pieChart = "";
     var barChart = "";
 
-    var createImage = function (chart, url, title, searchSet, w, h, x, y){
+    var createImage = function (id,chart, url, title, searchSet, w, h, x, y){
         var img = chart.renderer.image(url, w, h, x, y);
         img.add();
         img.css({'cursor': 'pointer'});
         img.attr({'title': 'Pop out chart'});
         img.attr("data-toggle", "tooltip");
         img.attr("style", "opacity:0.5");
+        img.attr("id", id);
         img.attr("title", title);
         img.on('click', function () {
             var hideIcon = true;
@@ -72,10 +73,10 @@ function unitsJobDetails(category , categoryName, openModal) {
 
     var callback = function callback($this) {
 
-        createImage(this, '/assets/judgements.png', "Low quality judgements", spam_ids, $this.chartWidth-60,15,19,14);
+        createImage("judgementButtonID",this, '/assets/judgements.png', "Low quality judgements", spam_ids, $this.chartWidth-60,15,19,14);
 
 
-        createImage(this, '/assets/metrics.png',
+        createImage('metricsButtonID',this, '/assets/metrics.png',
             "Results of metrics before filtering the low quality annotations and workers",
             metrics_ids, $this.chartWidth-90, 16, 19, 12);
 

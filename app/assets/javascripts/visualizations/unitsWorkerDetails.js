@@ -26,7 +26,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
     var pieChart = "";
     var barChart = "";
 
-    var createImage = function (chart, url, title, searchSet, w, h, x, y){
+    var createImage = function (id, chart, url, title, searchSet, w, h, x, y){
         var img = chart.renderer.image(url, w, h, x, y);
         img.add();
         img.css({'cursor': 'pointer'});
@@ -34,10 +34,11 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
         img.attr("data-toggle", "tooltip");
         img.attr("style", "opacity:0.5");
         img.attr("title", title);
+        img.attr("id", id);
         img.on('click', function () {
-/*            $('#workerTabOption')[0].children[0].click();
-            updateSelection({"crowdagent/cf/11338264":0});*/
-            var hideIcon = true;
+            localStorage.setItem("bar", JSON.stringify(["crowdagent/cf/11338264"]));
+            $('#workerTabOption')[0].children[0].click();
+            /*var hideIcon = true;
             for (var series in searchSet) {
                 var series_id = searchSet[series];
                 if (barChart.series[series_id].visible) {
@@ -60,17 +61,17 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
                 this.setAttribute("style", "opacity:0.5");
             } else {
                 this.setAttribute("style", "opacity:1");
-            }
+            }*/
         });
     }
 
     var callback = function callback($this) {
 
-        createImage(this, '/assets/judgements.png', "Low quality judgements", spam_ids, $this.chartWidth-60,15,19,14);
+        createImage('judgementButtonID',this, '/assets/judgements.png', "Low quality judgements", spam_ids, $this.chartWidth-60,15,19,14);
 
         if (queryField != 'job_id')  return;
 
-        createImage(this, '/assets/metrics.png',
+        createImage('metricsButtonID',this, '/assets/metrics.png',
             "Results of metrics before filtering the low quality annotations and workers",
             metrics_ids, $this.chartWidth-90, 16, 19, 12);
 

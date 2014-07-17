@@ -230,7 +230,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 indexX += 1;
             }
 
-            var title = 'Aggregated view of ' + categories.length + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
+            var title = 'Aggregated view of ' + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
             var width = (3*(($('.maincolumn').width() - 50)/5))
             var tooltip = function () {
                 return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> got <b>' +
@@ -459,7 +459,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 }
                 indexX += 1;
             }
-            var title = 'Aggregated view of ' + categories.length + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
+            var title = 'Aggregated view of ' + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
             var width = (3*(($('.maincolumn').width() - 50)/5))
 
             var tooltip = function () {

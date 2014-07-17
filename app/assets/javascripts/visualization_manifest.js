@@ -13,3 +13,4 @@
 //= require visualizations/unitsBarChartGraph.js
 //= require visualizations/workersBarChartGraph.js
 //= require visualizations/jobsBarChartGraph.js
+//= require intro.min.js
