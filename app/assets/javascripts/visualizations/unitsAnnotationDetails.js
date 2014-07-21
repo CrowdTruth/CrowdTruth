@@ -507,7 +507,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                             categoriesY.push(categoryYName );
                             if(category == '#crowdagents_tab') {
                                 legend[categoryYName] = {};
-                                legend[categoryYName] = 'Aggregated vector across all the annotated units with these type of annotations';
+                                legend[categoryYName] = 'Aggregated vector across all the annotated units with this type of annotations';
                             } else {
                                 console.dir(currentSelectionInfo)
                                 legend[categoryYName] = currentSelectionInfo[worker]['tooltipLegend']['Sentence'];
