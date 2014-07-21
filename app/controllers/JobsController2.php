@@ -399,24 +399,24 @@ class JobsController2 extends BaseController {
 		$jc = new JobConfiguration;
 		$jc->documentType = "jobconf";
 		//$jc->content = array("Lukasz:::" . rand());
-		
+		$batch = unserialize(Session::get('batch'));
 		$jcco = array();
-		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 1 )
+		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 )
 			 		$jcco['type'] = Input::get('templateTypeOwn');
 			 	else
 			 		$jcco['type'] =  Input::get('templateType');
-	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 1 )
+	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 0 )
 			 		$jcco['title'] = Input::get('titleOwn');
 			 	else
 			 		$jcco['title'] =  Input::get('title');
-	   
-	    $jcco['keywords'] = Input::get('keywords');
+	    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['type'] . " | " . $batch->format . " ]] ";
+	    //$jcco['keywords'] = Input::get('keywords');
 	    $jcco['platform'] = Array("cf");
 	    $jc->content = $jcco;
 	    
 	    //$jc->content->tags = array("Lukasz:::");
 		//$template = Session::get('template');
-		$batch = unserialize(Session::get('batch'));
+		
 		//$questiontemplateid = Session::get('questiontemplateid');
 		//$jobs = array();
 
