@@ -409,6 +409,9 @@ class JobsController2 extends BaseController {
 			 		$jcco['title'] = Input::get('titleOwn');
 			 	else
 			 		$jcco['title'] =  Input::get('title');
+	   
+	    $jcco['keywords'] = Input::get('keywords');
+	    $jcco['platform'] = Array("cf");
 	    $jc->content = $jcco;
 	    
 	    //$jc->content->tags = array("Lukasz:::");
