@@ -268,7 +268,7 @@ class Crowdflower2 extends \FrameWork {
     private function jobConfToCFData($jc){
 		$jc=$jc->content;
 		$data = array();
-
+		//if(isset($jc['keywords'])) 			 	$data['tags']					 	= $jc['keywords'];
 		if(isset($jc['title'])) 			 	$data['title']					 	= $jc['title'];
 		if(isset($jc['instructions'])) 			$data['instructions']				= $jc['instructions'];
 		if(isset($jc['workerUnitsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['workerUnitsPerUnit'];

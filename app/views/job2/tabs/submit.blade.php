@@ -34,6 +34,16 @@
 								</div>
 						
 							<br/>
+
+							<!-- <br/><br/>
+							{{ Form::label('keywords', 'Describe the job using a few keywords, separated by \',\'', 
+									array('class' => 'col-xs-5 control-label')) }}
+								<div class="input-group col-xs-3">
+									{{ Form::text('keywords', null, array('class' => 'form-control col-xs-2')) }}
+								</div>
+						
+							<br/> -->
+
 							</fieldset>
 	
 
