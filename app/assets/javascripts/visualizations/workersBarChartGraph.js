@@ -9,7 +9,7 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
     var info = {};
     var infoFields = [{project:'country', field:'country'}, {project:'platform', field:'softwareAgent_id'}, {project:'platformAgentId', field:'platformAgentId'}];
 
-    var colors = ['#E35467', '#5467E3', '#E4D354' ,'#00CDCD', '#607B8B' ];
+    var colors = [ '#0D233A','#2F7ED8','#77A1E5' ,'#F28F43', '#A7C96C', '#492970' ];
 
     var chartSeriesOptions = {
         '# jobs(by quality)': {
@@ -26,13 +26,13 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                 tooltip: "Number of high quality judgements. Click to select/deselect."},
             'avgWorkerunits': {'color': '#00AA72', 'field': '', 'name':'avg # of judgements', 'type': 'spline', 'dashStyle':'shortdot',
                 tooltip: "Average number of judgements. Click to select/deselect."}},
-        'counts': { 'mediaFormats': {'color': '#689CD2', 'field': 'cache.mediaFormats.count', 'name':'# annotated media formats', 'type': 'spline', 'dashStyle':'LongDash',
+        'counts': { 'mediaFormats': {'color': '#E35467', 'field': 'cache.mediaFormats.count', 'name':'# annotated media formats', 'type': 'spline', 'dashStyle':'LongDash',
             tooltip: "Number of annotated media formats of a worker. Click to select/deselect."},
-                 'mediaDomains': {'color': '#FF9E00', 'field': 'cache.mediaDomains.count', 'name':'# annotated media domains', 'type': 'spline','dashStyle':'LongDashDot',
+                 'mediaDomains': {'color': '#5467E3', 'field': 'cache.mediaDomains.count', 'name':'# annotated media domains', 'type': 'spline','dashStyle':'LongDashDot',
                      tooltip: "Number of annotated media domains of a worker. Click to select/deselect."},
-                 'mediaTypes': {'color': '#00CED1', 'field': 'cache.mediaTypes.count', 'name':'# annotated media types', 'type': 'spline','dashStyle':'LongDashDot',
+                 'mediaTypes': {'color': '#E4D354', 'field': 'cache.mediaTypes.count', 'name':'# annotated media types', 'type': 'spline','dashStyle':'LongDashDot',
                      tooltip: "Number of annotated media types of a worker. Click to select/deselect."},
-                 'messages': {'color': '#E00000', 'field': 'messagesRecieved.count', 'name':'# received messages', 'type': 'spline','dashStyle':'LongDashDot',
+                 'messages': {'color': '#00CDCD', 'field': 'messagesRecieved.count', 'name':'# received messages', 'type': 'spline','dashStyle':'LongDashDot',
                      tooltip: "Number of messages received by a worker from the framework. Click to select/deselect."}},
         'metrics': {
             'platformTrust': {'color': '#00FA9A', 'field': 'cfWorkerTrust', 'name':'platform worker trust', 'type': 'spline', 'dashStyle':'Solid',
@@ -45,11 +45,33 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
 
     var chartGeneralOptions = {
         chart: {
+            resetZoomButton: {
+
+                theme:{
+                    fill: '#2aabd2',
+                    style:{
+                        color:'white'
+                    }
+                },
+                position:{
+                    x: 30,
+                    y: -90
+                }
+            },
+            marginLeft: 120,
+            backgroundColor: {
+                linearGradient: [0, 0, 500, 500],
+                stops: [
+                    [0, 'rgb(255, 255, 255)'],
+                    [1, 'rgb(245, 245, 255)']
+                ]
+            },
+            marginRight: 180,
             zoomType: 'x',
             renderTo: 'generalBarChart_div',
-            width: (($('.maincolumn').width() - 50)),
+            width: ($('.maincolumn').width() - 0.05*($('.maincolumn').width())),
             height: 500,
-            marginTop: 70,
+            marginTop: 100,
             alignTicks: false,
             events: {
                 load: function () {
@@ -115,6 +137,7 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                         for (var iterData = 0; iterData < selectedGraph.series[0].data.length; iterData++) {
                             for (var iterSeries = 0; iterSeries < selectedGraph.series.length; iterSeries++) {
                                 selectedGraph.series[iterSeries].data[iterData].select(false,true);
+                                masterGraph.series[iterSeries].data[iterData].select(false,true);
                             }
                         }
 
@@ -139,7 +162,10 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
             enabled: false
         },
         title: {
-            text: 'Overview of workers'
+            text: 'Overview of workers',
+            style: {
+                fontWeight: 'bold'
+            }
         },
         subtitle: {
             text: 'Select workers for more information'
@@ -177,7 +203,11 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                     if (interval == barChart.series[0].data.length) {
                         title = 'Overview of ' + interval.toFixed(0) + ' Workers ';
                     } else {
-                        title = 'Overview of ' + interval.toFixed(0) + '/' + barChart.series[0].data.length + ' Workers';
+                        if(barChart.series[0].data.length > 0) {
+                            title = 'Overview of ' + interval.toFixed(0) + '/' + barChart.series[0].data.length + ' Jobs';
+                        } else {
+                            title = 'Overview of ' + interval.toFixed(0) + ' Workers ';
+                        }
                     }
                     barChart.setTitle({text: title});
                 }
@@ -195,6 +225,19 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
         tooltip: {
             hideDelay:10,
             useHTML : true,
+            positioner: function (labelWidth, labelHeight, point) {
+                var tooltipX, tooltipY;
+                if (point.plotX + labelWidth > barChart.plotWidth) {
+                    tooltipX = point.plotX + barChart.plotLeft - labelWidth - 20;
+                } else {
+                    tooltipX = point.plotX + barChart.plotLeft + 20;
+                }
+                tooltipY = point.plotY - labelHeight + barChart.plotTop + 10 ;
+                return {
+                    x: tooltipX,
+                    y: tooltipY
+                };
+            },
             formatter: function() {
                 var arrayID = this.x.split("/");
                 var id =  arrayID[arrayID.length - 1];
@@ -286,7 +329,8 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                         },
                         click: function () {
                             for (var iterSeries = 0; iterSeries < barChart.series.length; iterSeries++) {
-                                barChart.series[iterSeries].data[this.x].select(null,true)
+                                barChart.series[iterSeries].data[this.x].select(null,true);
+                                masterGraph.series[iterSeries].data[this.x].select(null,true);
                             }
 
                             if($.inArray(this.category, selectedUnits) > -1) {
@@ -412,6 +456,8 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
             if (stopIndex - startIndex > 100){
                 stopIndex = startIndex + 100;
             }
+            var offsetRight = 0;
+            var offsetLeft = 0;
 
             for (var key in chartSeriesOptions) {
                 var yAxisSeriesGroup = chartSeriesOptions[key];
@@ -450,7 +496,8 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                 if (key == '# jobs(by type)') color = '#000000';
 
                 var yAxisSettings = {
-                    gridLineWidth: 0,
+                    //gridLineWidth: 0,
+                    offset: 0,
                     labels: {
                         formatter: function () {
                             return this.value;
@@ -459,8 +506,12 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                             color: color
                         }
                     },
+                    showEmpty: false,
+                    gridLineColor:  color,
+                    startOnTick: false,
+                    endOnTick: false,
                     min: 0,
-                    max: 0,
+                   // max: 0,
                     title: {
                         text: key,
                         style: {
@@ -471,10 +522,13 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                 };
                 if(key == '# jobs(by quality)' || key =='# jobs(by type)' || key == 'judgements') {
                     yAxisSettings.opposite = true;
-                    yAxisSettings.max = getLimit(totalValue);
-
+                   // yAxisSettings.max = getLimit(totalValue);
+                    yAxisSettings.offset = offsetLeft;
+                    offsetLeft += 60;
                 } else {
-                    yAxisSettings.max = getLimit(max);
+                  //  yAxisSettings.max = getLimit(max);
+                    yAxisSettings.offset = offsetRight;
+                    offsetRight += 60;
                 }
                 if (key == '# jobs(by type)'){
                     //get the maximum for # jobs(by quality)
@@ -482,14 +536,14 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                     if (totalValue > maxValueBothAxis) {
                         maxValueBothAxis = totalValue;
                     }
-                    chartGeneralOptions.yAxis[0].max = maxValueBothAxis;
-                    yAxisSettings.max = maxValueBothAxis;
+                  //  chartGeneralOptions.yAxis[0].max = maxValueBothAxis;
+                 //   yAxisSettings.max = maxValueBothAxis;
                 }
 
                 chartGeneralOptions.yAxis.push(yAxisSettings);
             }
 
-            chartGeneralOptions.subtitle.text = subTitle + '<br/>' + 'Select an area to zoom. To see detailed information select individual workers.Right click for table view.From legend select features';
+            chartGeneralOptions.subtitle.text = subTitle + '<br/>' + 'Select an area to zoom. To see detailed information select individual workers.Right click for table view.From legend select features.Adjust Y-Axis by dragging the labels(double click to return to default).'
             chartGeneralOptions.title.text = 'Overview of ' +  data['id'].length  + ' Workers';
             chartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/50);
             chartGeneralOptions.plotOptions.series.minPointLength = 2;
@@ -502,6 +556,9 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
     // create the master chart
     function createMaster(seriesData, categories, yAxis, divName, chart, startIndex, stopIndex) {
         var series = []
+        for (var iterAxis in yAxis) {
+            yAxis[iterAxis]['gridLineWidth'] = 0;
+        }
         for (var iterSeries in seriesData) {
             var serie = {
                 //type: 'area',
@@ -519,11 +576,19 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
 
         var masterChart = new Highcharts.Chart({
             chart: {
+                marginLeft: 120,
+                marginRight: 180,
                 borderWidth: 0,
                 renderTo: divName,
-                //backgroundColor: null,
+                backgroundColor: {
+                    linearGradient: [0, 0, 500, 500],
+                    stops: [
+                        [0, 'rgb(255, 255, 255)'],
+                        [1, 'rgb(245, 245, 255)']
+                    ]
+                },
                 alignTicks: false,
-                width: (($('.maincolumn').width() - 50)),
+                width: ($('.maincolumn').width() - 0.05*($('.maincolumn').width())),
                 height: 260,
 
                 zoomType: 'x',
@@ -639,12 +704,21 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
                     },
                     lineWidth: 1,
                     marker: {
-                        enabled: false
+                        symbol: 'circle',
+                        radius: 0.5
+                        //enabled: false
                     },
                     shadow: false,
                     states: {
                         hover: {
                             lineWidth: 1
+                        },
+                        select: {
+                            color: 'Blue',
+                            radius: 0.5,
+                            lineWidth: 4,
+                            borderWidth: 40,
+                            borderColor:'Blue'
                         }
                     },
                     enableMouseTracking: false
@@ -678,8 +752,24 @@ function workersBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotati
     }
 
     this.createBarChart = function(matchStr, sortStr){
-        matchCriteria = '';
-        drawBarChart(matchStr,"");
+        matchStr = matchStr + '&';
+        if(matchStr.indexOf("orderBy") > -1) {
+            var secondHalf = matchStr.substring(matchStr.indexOf("orderBy")+8,matchStr.length);
+            var sortCriteria = secondHalf.substring(0, secondHalf.indexOf(']'));
+            var sortType = secondHalf.substring(0, secondHalf.indexOf('&')).indexOf('asc');
+            if(sortCriteria == "") sortCriteria = 'created_at';
+            if(sortType > 0){
+                sortStr= '&sort[' + sortCriteria + ']=1';
+            } else {
+                sortStr= '&sort[' + sortCriteria + ']=-1';
+            }
+        } else {
+            sortStr = '&sort[' + 'created_at' + ']=1'
+        }
+
+       // matchCriteria = '';
+        drawBarChart(matchStr,sortStr);
+
     }
 
 }

@@ -1,7 +1,16 @@
-function heatMapGraph(categoriesX, categoriesY, heatMapData, heatMapTitle, heatMapSubtitle, min, max, divName, width, height, tooltip, show) {
+function heatMapGraph(categoriesX, categoriesY, heatMapData, heatMapTitle, heatMapSubtitle, colorAxis, divName, width, height, tooltip, show, legend) {
 
     var heatMapChart = "";
     var hideIcon = false;
+    var addTooltipYLabel = function (divName, legend){
+        var legendItems = $(divName +' .highcharts-yaxis-labels')[0].children;
+        for (var legendItemIter in legendItems){
+            var elemeHTML = $(legendItems[legendItemIter]);
+            elemeHTML.attr('data-toggle','tooltip');
+            var tooltipValue = legend[elemeHTML.text()];
+            elemeHTML.attr('title',tooltipValue);
+        }
+    }
     var createImage = function (chart, url, title, x, y, w, h){
         var img = chart.renderer.image(url,  x, y, w, h);
         img.add();
@@ -11,6 +20,7 @@ function heatMapGraph(categoriesX, categoriesY, heatMapData, heatMapTitle, heatM
         img.attr("style", "opacity:0.5");
         img.attr("title", title);
         img.on('click', function () {
+
 
             /*for (var series in searchSet) {
                 var series_id = searchSet[series];
@@ -37,6 +47,8 @@ function heatMapGraph(categoriesX, categoriesY, heatMapData, heatMapTitle, heatM
             } else {
                 this.setAttribute("style", "opacity:1");
                 $('.annotationHidden').removeClass('hide');
+                addTooltipYLabel('#annotationsBefore_div', legend);
+                addTooltipYLabel('#annotationsDiff_div', legend);
                 hideIcon = true;
             }
         });
@@ -65,13 +77,25 @@ function heatMapGraph(categoriesX, categoriesY, heatMapData, heatMapTitle, heatM
             marginTop: 100,
             marginBottom: 190,
             width: width,
-            height: height + 190 + 100
+            height: height + 190 + 100,
+            events: {
+                load: function(event) {
+                    if(legend != undefined) {
+                        //addTooltipYLabel('#annotationsAfter_div', legend);
+                    }
+
+                }
+            }
+
         },
         credits: {
             enabled: false
         },
 
         title: {
+            style: {
+                fontWeight: 'bold'
+            },
             text: heatMapTitle
         },
         subtitle:{
@@ -89,30 +113,21 @@ function heatMapGraph(categoriesX, categoriesY, heatMapData, heatMapTitle, heatM
 
         yAxis: {
             opposite:true,
-
+            scalable:false,
             categories: categoriesY,
             title: null,
             labels: {
                 formatter: function() {
-                    if (!(show)) return ""
+                    if (!(show)) return "";
                     return this.value;
+                    /*console.dir('<a data-toggle="tooltip" title data-original-title="' + 'DA' + '">' + 'dada<a>');
+                    return '<a data-toggle="tooltip" title data-original-title="' + 'DA' + '">' + 'dada</a>';*/
                 },
                 align: 'left'
             }
         },
 
-        colorAxis: {
-            stops: [
-                [0, '#3060cf'],
-                [0.5, '#fffbbc'],
-                [0.9, '#c4463a']
-            ],
-            min:min,
-            max:max
-            /*min: 0,
-            minColor: '#006600',
-            maxColor: '#980000'*/
-        },
+        colorAxis: colorAxis,
         legend:{
             symbolWidth: width - 0.4*width,
 

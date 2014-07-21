@@ -45,7 +45,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
     }
 
 
-    var colors = ['#E35467', '#5467E3', '#E4D354' ,'#00CDCD', '#607B8B' ];
+    var colors = [ '#0D233A','#2F7ED8','#77A1E5' ,'#F28F43', '#A7C96C', '#492970' ];
 
     var chartSeriesOptions = {
         'workers': {
@@ -73,14 +73,36 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
 
     var chartGeneralOptions = {
         chart: {
+            resetZoomButton: {
+
+                theme:{
+                    fill: '#2aabd2',
+                    style:{
+                        color:'white'
+                    }
+                },
+                position:{
+                    x: 50,
+                    y: -90
+                }
+            },
+            marginLeft: 120,
+            marginRight: 180,
             zoomType: 'x',
             alignTicks: false,
+            backgroundColor: {
+                linearGradient: [0, 0, 500, 500],
+                stops: [
+                    [0, 'rgb(255, 255, 255)'],
+                    [1, 'rgb(245, 245, 255)']
+                ]
+            },
             //spacingBottom: 70,
             renderTo: 'generalBarChart_div',
            // marginBottom: 90,
-			width: (($('.maincolumn').width() - 50)),
+			width: ($('.maincolumn').width() - 0.05*($('.maincolumn').width())),
             height: 450,
-            marginTop: 70,
+            marginTop: 100,
             events:{
                 load: function(){
                     var chart = this,
@@ -141,15 +163,18 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                         if (selectedUnits.length == 0) return;
                         var selectedGraph = unitsWordCountChart;
                         var unSelectedGraph = unitsJobChart;
+                        var masterGraph = unitsWordCountChartMaster;
 
                         if(this.renderTo.id == 'generalBarChart_div' ) {
                             selectedGraph = unitsJobChart;
                             unSelectedGraph = unitsWordCountChart;
+                            masterGraph = unitsJobChartMaster;
                         }
 
                         for (var iterData = 0; iterData < selectedGraph.series[0].data.length; iterData++) {
                             for (var iterSeries = 0; iterSeries < selectedGraph.series.length; iterSeries++) {
                                 selectedGraph.series[iterSeries].data[iterData].select(false,true);
+                                masterGraph.series[iterSeries].data[iterData].select(false,true);
                             }
                         }
                         var buttonLength = this.exportSVGElements.length;
@@ -173,7 +198,10 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
         },
 
         title: {
-            text: 'Overview of units used in jobs'
+            text: 'Overview of units used in jobs',
+            style: {
+                fontWeight: 'bold'
+            }
         },
         legend:{
             enabled: false
@@ -223,14 +251,22 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                         if (interval == unitsJobChart.series[0].data.length) {
                             title = 'Overview of ' + unitsJobChart.series[0].data.length + ' Units used in Jobs';
                         } else {
-                            title = 'Overview of ' + interval.toFixed(0) + '/' + unitsJobChart.series[0].data.length + ' Units used in Jobs';
+                            if(unitsJobChart.series[0].data.length > 0){
+                                title = 'Overview of ' + interval.toFixed(0) + '/' + unitsJobChart.series[0].data.length + ' Units used in Jobs';
+                            }else {
+                                title = 'Overview of ' + unitsJobChart.series[0].data.length + ' Units used in Jobs';
+                            }
                         }
                         unitsJobChart.setTitle({text: title});
                     } else {
                         if (interval == unitsWordCountChart.series[0].data.length) {
                             title = 'Overview of ' + unitsWordCountChart.series[0].data.length + ' Units used in Jobs';
                         } else {
-                            title = 'Overview of ' + interval.toFixed(0) + '/' + unitsWordCountChart.series[0].data.length + ' Units used in Jobs';
+                            if(unitsWordCountChart.series[0].data.length > 0) {
+                                title = 'Overview of ' + interval.toFixed(0) + '/' + unitsWordCountChart.series[0].data.length + ' Units used in Jobs';
+                            } else {
+                                title = 'Overview of ' + unitsWordCountChart.series[0].data.length + ' Units used in Jobs';
+                            }
                         }
                         unitsWordCountChart.setTitle({text: title});
                     }
@@ -254,6 +290,24 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
         tooltip: {
             hideDelay:10,
             useHTML : true,
+            positioner: function (labelWidth, labelHeight, point) {
+                var selectedGraph = unitsWordCountChart;
+
+                if(this.chart.renderTo.id == 'generalBarChart_div' ) {
+                    selectedGraph = unitsJobChart;
+                }
+                var tooltipX, tooltipY;
+                if (point.plotX + labelWidth > selectedGraph.plotWidth) {
+                    tooltipX = point.plotX + selectedGraph.plotLeft - labelWidth - 20;
+                } else {
+                    tooltipX = point.plotX + selectedGraph.plotLeft + 20;
+                }
+                tooltipY = point.plotY - labelHeight + selectedGraph.plotTop + 10 ;
+                return {
+                    x: tooltipX,
+                    y: tooltipY
+                };
+            },
             formatter: function() {
                 var arrayID = this.x.split("/");
                 var id =  arrayID[arrayID.length - 1];
@@ -372,14 +426,17 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                         click: function () {
                             var selectedGraph = unitsWordCountChart;
                             var unSelectedGraph = unitsJobChart;
+                            var masterGraph = unitsWordCountChartMaster;
 
                             if(this.series.chart.renderTo.id == 'generalBarChart_div' ) {
                                 selectedGraph = unitsJobChart;
                                 unSelectedGraph = unitsWordCountChart;
+                                masterGraph = unitsJobChartMaster;
                             }
 
                             for (var iterSeries = 0; iterSeries < selectedGraph.series.length; iterSeries++) {
                                 selectedGraph.series[iterSeries].data[this.x].select(null,true)
+                                masterGraph.series[iterSeries].data[this.x].select(null,true)
                             }
 
                             if($.inArray(this.category, selectedUnits) > -1) {
@@ -507,6 +564,8 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             if (stopIndex - startIndex > 100){
                 stopIndex = startIndex + 100;
             }
+            var offsetRight = 0;
+            var offsetLeft = 0;
             for (var key in chartSeriesOptions) {
                 var yAxisSeriesGroup = chartSeriesOptions[key];
                 var color = 'black';
@@ -546,7 +605,9 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                 if (key == '# jobs') color = '#000000';
 
                 var yAxisSettings = {
-                    gridLineWidth: 0,
+                    //gridLineWidth: 0,
+                    offset: 0,
+                    showEmpty: false,
                     labels: {
                         formatter: function () {
                             return this.value;
@@ -555,8 +616,11 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                             color: color
                         }
                     },
+                    gridLineColor:  color,
+                    startOnTick: false,
+                    endOnTick: false,
                     min: 0,
-                    max: 0,
+                   // max: 0,
                     title: {
                         text: key,
                         style: {
@@ -568,10 +632,14 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
 
                 if(key == 'workers' || key =='# jobs' || key == 'judgements') {
                     yAxisSettings.opposite = true;
-                    yAxisSettings.max = getLimit(totalValue);
+                    yAxisSettings.offset = offsetLeft;
+                    offsetLeft += 60;
+               //     yAxisSettings.max = getLimit(totalValue);
 
                 } else {
-                    yAxisSettings.max = getLimit(max);
+             //       yAxisSettings.max = getLimit(max);
+                    yAxisSettings.offset = offsetRight;
+                    offsetRight += 60;
                 }
                 //we want the same maximum for workers and judgements
                 if (key == 'judgements'){
@@ -579,16 +647,18 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     if (totalValue > maxValueBothAxis) {
                         maxValueBothAxis = totalValue;
                     }
-                    chartGeneralOptions.yAxis[ chartGeneralOptions.yAxis.length - 1].max = maxValueBothAxis;
-                    yAxisSettings.max = maxValueBothAxis;
+               //     chartGeneralOptions.yAxis[ chartGeneralOptions.yAxis.length - 1].max = maxValueBothAxis;
+               //     yAxisSettings.max = maxValueBothAxis;
                 }
 
                 chartGeneralOptions.yAxis.push(yAxisSettings);
             }
+            chartGeneralOptions.chart.marginRight = 180
+            chartGeneralOptions.chart.resetZoomButton.position.x = 45
             chartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/20);
             chartGeneralOptions.chart.renderTo = 'generalBarChart_div';
             chartGeneralOptions.title.text = 'Overview of Units ' + data["id"].length +  ' used in Jobs';
-            chartGeneralOptions.subtitle.text = subTitle + '<br/>'+ 'Select an area to zoom. To see detailed information select individual units.Right click for table view. From legend select/deselect features.';
+            chartGeneralOptions.subtitle.text = subTitle + '<br/>'+ 'Select an area to zoom. To see detailed information select individual units.Right click for table view. From legend select/deselect features.Adjust Y-Axis by dragging the labels(double click to return to default).'
             chartGeneralOptions.plotOptions.series.pointPadding = 0.01;
             chartGeneralOptions.plotOptions.series.borderWidth = 0.01;
             chartGeneralOptions.plotOptions.series.minPointLength = 2;
@@ -597,7 +667,7 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
 
 
 
-            unitsJobChartMaster = createMaster(chartGeneralOptions.series, chartGeneralOptions['xAxis']['categories'], chartGeneralOptions.yAxis, 'generalBarChartMaster_div',unitsJobChart, startIndex, stopIndex);
+            unitsJobChartMaster = createMaster(chartGeneralOptions.series, chartGeneralOptions['xAxis']['categories'], chartGeneralOptions.yAxis, 'generalBarChartMaster_div',unitsJobChart, startIndex, stopIndex, 180);
             unitsJobChart.xAxis[0].setExtremes(startIndex, stopIndex);
             unitsJobChart.showResetZoom();
         });
@@ -706,7 +776,11 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     }
                 },
                 min: 0,
-                max: max,
+                offset: 60,
+                gridLineColor:  '#6B8E23',
+                startOnTick: false,
+                endOnTick: false,
+              //  max: max,
                 title: {
                     text: '# of ' + specificFields[category]['data'],
                     style: {
@@ -715,7 +789,8 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                 },
                 opposite: false
             };
-
+            newChartGeneralOptions.chart.marginRight = 0
+            newChartGeneralOptions.chart.resetZoomButton.position.x = -60
             newChartGeneralOptions.yAxis.push(yAxisSettings);
             newChartGeneralOptions.xAxis.tickInterval = Math.ceil( data["id"].length/20);
             newChartGeneralOptions.chart.renderTo = 'specificBarChart_div';
@@ -726,17 +801,30 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             newChartGeneralOptions.plotOptions.series.borderWidth = 0;
             newChartGeneralOptions.legend.y = 70;
             unitsWordCountChart = new Highcharts.Chart(newChartGeneralOptions);
-            unitsWordCountChartMaster = createMaster(newChartGeneralOptions.series, data["id"], newChartGeneralOptions.yAxis, 'specificBarChartMaster_div', unitsWordCountChart, startIndex, stopIndex);
+            unitsWordCountChartMaster = createMaster(newChartGeneralOptions.series, data["id"], newChartGeneralOptions.yAxis, 'specificBarChartMaster_div', unitsWordCountChart, startIndex, stopIndex, 0);
             unitsWordCountChart.xAxis[0].setExtremes(startIndex, stopIndex);
             unitsWordCountChart.showResetZoom();
         });
     }
 
-    this.createBarChart = function(matchStr){
-        matchCriteria = 'match[documentType][]=relex-structured-sentence';
-        drawBarChart(matchStr,"");
+    this.createBarChart = function(matchStr, sortStr){
+        matchStr = matchStr + '&';
+        if(matchStr.indexOf("orderBy") > -1) {
+            var secondHalf = matchStr.substring(matchStr.indexOf("orderBy")+8,matchStr.length);
+            var sortCriteria = secondHalf.substring(0, secondHalf.indexOf(']'));
+            var sortType = secondHalf.substring(0, secondHalf.indexOf('&')).indexOf('asc');
+            if(sortCriteria == "") sortCriteria = 'created_at';
+            if(sortType > 0){
+                sortStr= '&sort[' + sortCriteria + ']=1';
+            } else {
+                sortStr= '&sort[' + sortCriteria + ']=-1';
+            }
+        } else {
+            sortStr = '&sort[' + 'created_at' + ']=1'
+        }
+        drawBarChart(matchStr,sortStr);
         if (category != '#all_tab') {
-            drawSpecificBarChart(matchStr,"");
+            drawSpecificBarChart(matchStr,sortStr);
         } else {
             $('#specificBarChart_div').highcharts().destroy();
         }
@@ -746,8 +834,11 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
 
 
     // create the master chart
-    function createMaster(seriesData, categories, yAxis, divName, chart, startIndex, stopIndex) {
-        var series = []
+    function createMaster(seriesData, categories, yAxis, divName, chart, startIndex, stopIndex, marginRight) {
+        var series = [];
+        for (var iterAxis in yAxis) {
+            yAxis[iterAxis]['gridLineWidth'] = 0;
+        }
         for (var iterSeries in seriesData) {
             var serie = {
                 //type: 'area',
@@ -765,13 +856,21 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
 
         var masterChart = new Highcharts.Chart({
             chart: {
+                marginLeft: 120,
+                marginRight: marginRight,
                 borderWidth: 0,
                 renderTo: divName,
                 //backgroundColor: null,
                 alignTicks: false,
-                width: (($('.maincolumn').width() - 50)),
+                width: ($('.maincolumn').width() - 0.05*($('.maincolumn').width())),
                 height: 150,
-
+                backgroundColor: {
+                    linearGradient: [0, 0, 500, 500],
+                    stops: [
+                        [0, 'rgb(255, 255, 255)'],
+                        [1, 'rgb(245, 245, 255)']
+                    ]
+                },
                 zoomType: 'x',
                 events: {
 
@@ -884,12 +983,21 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
                     },
                     lineWidth: 1,
                     marker: {
-                        enabled: false
+                        symbol: 'circle',
+                        radius: 0.5
+                        //enabled: false
                     },
                     shadow: false,
                     states: {
                         hover: {
                             lineWidth: 1
+                        },
+                        select: {
+                            color: 'Blue',
+                            radius: 0.5,
+                            lineWidth: 4,
+                            borderWidth: 30,
+                            borderColor:'Blue'
                         }
                     },
                     enableMouseTracking: false

@@ -126,7 +126,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table style="border: solid thin #274B6D">
                                 <tr id="workersIDs">
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="workersPie_div"></div>
@@ -136,7 +136,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table style="border: solid thin #274B6D">
                                 <tr id="jobsIDs">
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="jobsPie_div"></div>
@@ -146,7 +146,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table style="border: solid thin #274B6D">
                                 <tr id="unitsIDs">
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="unitsPie_div"></div>
@@ -156,7 +156,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table style="border: solid thin #274B6D">
                                 <tr id="annotationIDs">
                                     <td class="pieDivGraphs">
                                         <div id="annotationsPie_div"></div>
@@ -935,14 +935,13 @@ $('.select_crowdagents').click();
 $('.documentTypesNav').find('#crowdagents_nav a').click();
 $('.graphViewButton').click();
 
-var test = localStorage.getItem("bar");
-if(test !=  null) {
-    test = JSON.parse(test);
-    for(var iterBar in test){
-        console.dir(test[iterBar]);
-        updateSelection(test[iterBar]);
+var workerList = localStorage.getItem("workerList");
+if(workerList !=  null) {
+    workerList = JSON.parse(workerList);
+    for(var iterWorker in workerList){
+        updateSelection(workerList[iterWorker]);
     }
-    localStorage.removeItem("bar");
+    localStorage.removeItem("workerList");
 }
 //updateSelection('crowdagent/cf/15881986');
 $('#introJS').on('click', function(){

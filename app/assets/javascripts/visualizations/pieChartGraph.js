@@ -68,7 +68,12 @@ function pieChartGraph(tooltip, matchStr, groupID, chartName, divName, nrPieChar
                 hideDelay:10
 
             },
-
+            legend :{
+                maxHeight:50
+            },
+            yAxis:[{
+                scalable:false
+            }],
             plotOptions: {
                 pie: {
                     dataLabels: {
