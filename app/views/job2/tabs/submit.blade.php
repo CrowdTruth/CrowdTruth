@@ -17,7 +17,17 @@
 							{{ Form::label('title', 'Select a title from the set of predefined ones or give your own', 
 									array('class' => 'col-xs-5 control-label')) }}
 								<div class="input-group col-xs-3">
-									{{ Form::select('title',  array('Images standard' => 'Images standard', 'A big task' => 'A big task'), null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
+
+
+									<?php 
+										$variable = \MongoDB\Entity
+										foreach($variables as $selectoption)
+										{
+											echo "<select>{$selectoption}</select>";
+										}
+									?>
+
+									{{ Form::select('title',  $variable, null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
 								</div><div class="input-group col-xs-3">
 									{{ Form::text('titleOwn', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
