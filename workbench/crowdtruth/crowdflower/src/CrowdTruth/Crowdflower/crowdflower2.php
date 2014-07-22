@@ -324,6 +324,8 @@ class Crowdflower2 extends \FrameWork {
 			//$content = $questionTemplate->flattenAndReplace($unit['content']);
 
 			// Add fields
+			if ($unit['format'] === "image")
+				$content['url'] = $unit['content']['url'];
 			$content['uid'] = $unit['_id'];
 			$content['_golden'] = 'false'; // TODO
 			$array[] = $content;
