@@ -387,10 +387,10 @@ class JobsController2 extends BaseController {
 	* Send it to the platforms.
 	*/
 
-	public function getRefresh($id){
+	public function getRefresh($entity, $format, $domain, $docType, $incr){
 		$platform = App::make('cf2');
-		$platform->refreshJob($id);
-
+		$platform->refreshJob("entity/$format/$domain/$docType/$incr");
+		return Redirect::to("jobs");
 	}
 
 

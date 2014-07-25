@@ -244,15 +244,20 @@ class Crowdflower2 extends \FrameWork {
 
 
 
-	public function refreshJob($id){ // TODO
-		$job = \MongoDB\Entity::where('_id', $id)->get();
-		$jc = $job->jobConfiguration;
-		$result = $this->CFJob->readJob($id);
+	public function refreshJob($id){
+		
+		$job = \MongoDB\Entity::where('_id', $id)->first();
+		$jc = \MongoDB\Entity::where('_id', $job->jobConf_id)->first();
+		$result = $this->CFJob->readJob($job->platformJobId);
 		if(isset($result['result']['error']['message']))
 			throw new Exception("Read: " . $result['result']['error']['message']);
-		$jcnew = CFDataToJobConf($result, $jc);
 
-		$jcnew->update();
+		// dd($jc);
+		//dd($result['result']['title']);
+
+		$this->CFDataToJobConf($result['result'], $jc);
+		//dd($jc);
+		$jc->update();
 	}
 
 	 private function CFDataToJobConf($CFd, &$jc){ // TODO
@@ -261,7 +266,8 @@ class Crowdflower2 extends \FrameWork {
 		if(isset($CFd['instructions'])) 		$jcco['instructions'] =			$CFd['instructions'];
 		if(isset($CFd['judgments_per_unit'])) 	$jcco['workerUnitsPerUnit'] = 	$CFd['judgments_per_unit'];
 		if(isset($CFd['units_per_assignment'])) $jcco['unitsPerTask'] = 		$CFd['units_per_assignment'];
-		return $jc;
+		$jc->content = $jcco;
+		//return $jc;
 	}
 
 
