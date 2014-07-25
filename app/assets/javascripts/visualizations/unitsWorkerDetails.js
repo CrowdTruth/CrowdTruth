@@ -17,6 +17,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
 
     var pieChartOptions = {};
     var workerInfo = {};
+    var workerSelection = [];
     var metrics_ids = [];
     var spam_ids = [];
     var currentSelection = [];
@@ -36,9 +37,8 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
         img.attr("title", title);
         img.attr("id", id);
         img.on('click', function () {
-            localStorage.setItem("bar", JSON.stringify(["crowdagent/cf/11338264"]));
-            $('#workerTabOption')[0].children[0].click();
-            /*var hideIcon = true;
+
+            var hideIcon = true;
             for (var series in searchSet) {
                 var series_id = searchSet[series];
                 if (barChart.series[series_id].visible) {
@@ -61,7 +61,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
                 this.setAttribute("style", "opacity:0.5");
             } else {
                 this.setAttribute("style", "opacity:1");
-            }*/
+            }
         });
     }
 
@@ -80,18 +80,29 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
     var drawPieChart = function (platform, spam, totalValue) {
         pieChart = new Highcharts.Chart({
             chart: {
+                backgroundColor: {
+                    linearGradient: [0, 0, 500, 500],
+                    stops: [
+                        [0, 'rgb(255, 255, 255)'],
+                        [1, 'rgb(225, 225, 255)']
+                    ]
+                },
                 renderTo: 'workersPie_div',
                 type: 'pie',
-                width: (2*(($('.maincolumn').width() - 50)/5)),
+                width: (1.3*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5)),
                 height: 430
             },
             title: {
+                style: {
+                    fontWeight: 'bold'
+                },
                 text: 'Quality of ' + totalValue + ' Worker(s) of the ' + currentSelection.length +  ' selected ' + categoryName + '(s)'
             },
             subtitle: {
                 text: 'Click a category to see the distribution of judgements per worker'
             },
             yAxis: {
+                scalable:false,
                 title: {
                     text: 'Number of workers per ' + categoryName
                 }
@@ -185,8 +196,8 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
                             // display only if larger than 1
                             return this.point.name;
                         },
-                        color: 'black'
-
+                        color: 'black',
+                        distance: 3
                     }
 
                 }
@@ -200,10 +211,33 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
             chart: {
                 zoomType: 'x',
                 alignTicks: false,
+                marginRight: 60,
+                marginLeft: 60,
+                resetZoomButton: {
+
+                    theme:{
+                        fill: '#2aabd2',
+                        style:{
+                            color:'white'
+                        }
+                    },
+                    position:{
+                        x: -70,
+                        y: -50
+                    }
+                },
+                backgroundColor: {
+                    linearGradient: [0, 0, 500, 500],
+                    stops: [
+                        [0, 'rgb(235, 235, 255)'],
+                        [1, 'rgb(255, 255, 255)']
+                    ]
+                },
+                alignTicks: false,
                 renderTo: 'workersBar_div',
                 type: 'column',
-                width: (3*(($('.maincolumn').width() - 50)/5)),
-                height: 400,
+                width: (3.7*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5)),
+                height: 430,
                 events: {
                     load: function () {
                         var chart = this,
@@ -229,16 +263,40 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
                     }
                 }
             },
+            exporting: {
+                buttons: {
+                    resetButton: {
+                        text: "View in workers' chart",
+                        theme: {
+                            fill: '#2aabd2',
+                            id:"resetSelection",
+                            style:{
+                                color: 'white'
+                            }
+                        },
+                        x: - (3.7*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5)) + 160,
+                        y: 0,
+                        onclick: function(e) {
+                            localStorage.setItem("workerList", JSON.stringify(workerSelection));
+                            $('#workerTabOption')[0].children[0].click();
+                        }
+                    }
+                }
+            },
             credits: {
                 enabled: false
             },
             title: {
+                style: {
+                    fontWeight: 'bold'
+                },
                 text: 'Judgements of ' + categories.length + ' Worker(s) ' + categoryPrefix + " "  + currentSelection.length + ' Selected ' +   categoryName + '(s)'
             },
             subtitle: {
                 text: 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.'
             },
             xAxis: {
+                tickInterval: Math.ceil( categories.length/35),
                 title :{
                     text: 'Worker ID (Red color : Workers identified at least ones on the platform as low quality)'
                 },
@@ -268,7 +326,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
                             max = event.max;
                         }
                         // chart.yAxis[0].options.tickInterval
-                        barChart.xAxis[0].options.tickInterval = Math.ceil( (max-min)/20);
+                        barChart.xAxis[0].options.tickInterval = Math.ceil( (max-min)/35);
                     },
                     afterSetExtremes :function(event){
                         var graph = '';
@@ -304,14 +362,47 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
             },
             yAxis: [{
                 min: 0,
+                offset: 0,
+                showEmpty: false,
+                labels: {
+                    formatter: function () {
+                        return this.value;
+                    },
+                    style: {
+                        color: '#274B6D'
+                    }
+                },
+                gridLineColor:  '#274B6D',
+                startOnTick: false,
+                endOnTick: false,
                 title: {
-                    text: '# judgements per worker'
+                    text: '# judgements per worker',
+                    style: {
+                        color: '#274B6D'
+                    }
+
                 }
             }, {
+                offset: 0,
+                showEmpty: false,
+                labels: {
+                    formatter: function () {
+                        return this.value;
+                    },
+                    style: {
+                        color: '#4897F1'
+                    }
+                },
+                gridLineColor:  '#4897F1',
+                startOnTick: false,
+                endOnTick: false,
                 min: 0,
                 opposite: true,
                 title: {
-                    text: 'metrics'
+                    text: 'metrics',
+                    style: {
+                        color: '#4897F1'
+                    }
                 }
             }],
             tooltip: {
@@ -407,7 +498,6 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
 
                     stacking: 'normal',
                     states: {
-
                         select: {
                             color: null,
                             borderWidth:3,
@@ -417,8 +507,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
 
                     point: {
                         events: {
-                            click: function () {
-
+                            contextmenu: function (e) {
                                 urlBase = "";
                                 for (var indexUnits in currentSelection) {
                                     urlBase += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
@@ -429,6 +518,26 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
                                     'data-original-title="Click to see the individual worker page">6345558 </a>');
                                 //$('body').append(anchorModal);
                                 openModal(anchorModal, "#crowdagents_tab");
+
+                            },
+                            click: function () {
+                                for (var iterSeries = 0; iterSeries < barChart.series.length; iterSeries++) {
+                                    barChart.series[iterSeries].data[this.x].select(null,true);
+                                }
+
+                                if($.inArray(this.category, workerSelection) > -1) {
+                                    workerSelection.splice( $.inArray(this.category, workerSelection), 1 );
+                                } else {
+                                    workerSelection.push(this.category)
+                                }
+
+
+                                var buttonLength = barChart.exportSVGElements.length;
+                                if(workerSelection.length == 0) {
+                                    barChart.exportSVGElements[buttonLength - 2].hide();
+                                } else {
+                                    barChart.exportSVGElements[buttonLength - 2].show();
+                                }
 
 
                             }
@@ -605,10 +714,10 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
                            currentSelectionInfo[value + " avg cosine after filter"]['tooltipLegend'] = {}
                            currentSelectionInfo[value + " avg cosine before filter"] = {}
                            currentSelectionInfo[value + " avg cosine before filter"]['tooltipLegend'] = {}
-                           currentSelectionInfo[value + " avg agreement after filter"]['tooltipLegend'] = 'CrowdTruth Average Worker Agreement score.Higher scores indicate better quality workers. Click to select/deselect.'
-                           currentSelectionInfo[value + " avg agreement before filter"]['tooltipLegend'] = 'CrowdTruth Average Worker Agreement score.Higher scores indicate better quality workers. Click to select/deselect.'
-                           currentSelectionInfo[value + " avg cosine after filter"]['tooltipLegend'] = 'CrowdTruth Average Cosine Similarity.Higher Scores indicate better quality workers. Click to select/deselect.'
-                           currentSelectionInfo[value + " avg cosine before filter"]['tooltipLegend'] = 'CrowdTruth Average Cosine Similarity.Higher Scores indicate better quality workers. Click to select/deselect.'
+                           currentSelectionInfo[value + " avg agreement after filter"]['tooltipLegend']['CrowdTruth Average Worker Agreement score'] = 'Higher scores indicate better quality workers. Click to select/deselect.'
+                           currentSelectionInfo[value + " avg agreement before filter"]['tooltipLegend']['CrowdTruth Average Worker Agreement score'] = 'Higher scores indicate better quality workers. Click to select/deselect.'
+                           currentSelectionInfo[value + " avg cosine after filter"]['tooltipLegend']['CrowdTruth Average Cosine Similarity'] = 'Lower Scores indicate better quality workers. Click to select/deselect.'
+                           currentSelectionInfo[value + " avg cosine before filter"]['tooltipLegend']['CrowdTruth Average Cosine Similarity'] = 'Lower Scores indicate better quality workers. Click to select/deselect.'
                            series.splice(position, 0, avg_agreement, avg_agreement_spam, avg_cosine, avg_cosine_spam);
                        }
                         metrics_ids = [];
@@ -623,6 +732,9 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
                             }
                         }
                        drawBarChart(series, categories);
+                        var buttonLength = barChart.exportSVGElements.length;
+                        barChart.exportSVGElements[buttonLength - 2].hide();
+
                     });
 
                 } else {
@@ -635,6 +747,8 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
                     }
 
                     drawBarChart(series, categories);
+                    var buttonLength = barChart.exportSVGElements.length;
+                    barChart.exportSVGElements[buttonLength - 2].hide();
                 }
 
 
@@ -649,6 +763,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
         pieChartOptions = {};
         workerInfo = {};
         seriesBase = [];
+        workerSelection = [];
         if (selectedUnits.length == 0) {
             $('#workersBar_div').hide();
             $('#workersPie_div').hide();

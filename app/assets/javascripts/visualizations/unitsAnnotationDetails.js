@@ -59,11 +59,13 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
     }
 
 
+
     var  getJobHeatMapData = function(platform, type) {
 
         var series = {};
         activeSelectedPlatform = platform;
         activeSelectedType = type;
+        var unitList = {};
 
         var annotationsURL = '/api/v1/?field[documentType][]=job&'
         for (var indexUnits in currentSelection) {
@@ -124,6 +126,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                     var jobNb = arrayID[arrayID.length - 1];
                     //get annotation data
                     for(var unitID in data[iterData]['results']['withSpam']){
+
                         for (var taskIter in mTaksKeys) {
                             var task = mTaksKeys[taskIter];
                             if (task == 'avg') continue;
@@ -136,9 +139,11 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                                 if ( mTaksKeys.length > 1) {
                                     heatMapData['annotations']['categoryY'].push( 'unit ' + unitNb + '(' + task + ')' + " in job " + jobNb);
                                     heatMapData['avg_clarity']['categoryY'].push( 'unit ' + unitNb + '(' + task + ')' + " in job " + jobNb);
+                                    unitList[unitID]= 'unit ' + unitNb + '(' + task + ')' + " in job " + jobNb;
                                 } else {
                                     heatMapData['annotations']['categoryY'].push( 'unit ' + unitNb + " in job " + jobNb);
                                     heatMapData['avg_clarity']['categoryY'].push( 'unit ' + unitNb + " in job " + jobNb);
+                                    unitList[unitID]= 'unit ' + unitNb + " in job " + jobNb;
                                 }
 
                                 var spamValue = data[iterData]['metrics']['units']['withSpam'][unitID][task]['max_relation_Cos'];
@@ -166,13 +171,11 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
                     for(var iterPivotTable in querySettings.pivotTableFields){
                         var pivotTable = querySettings.pivotTableFields[iterPivotTable];
-                        console.dir(pivotTable)
                         for (var annotationIterY in categories) {
                             var annotY = categories[annotationIterY];
                             if(indexX == 0) {
                                 heatMapData['pivotTable'][pivotTable]['categoryY'].push( annotY + " in job " + jobNb);
                             }
-                            console.dir(annotY)
 
                             var spamValue = 0;
                             var nonSpamValue = 0;
@@ -180,10 +183,6 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                                 var spamValue = data[iterData]['metrics']['pivotTables']['annotations']['withSpam'][pivotTable][annotY][annotation];
                                 var nonSpamValue = data[iterData]['metrics']['pivotTables']['annotations']['withoutSpam'][pivotTable][annotY][annotation];
                             }
-                            console.dir(spamValue)
-                            console.dir(nonSpamValue)
-
-
 
                             heatMapData['pivotTable'][pivotTable]['spam'].push([indexX, heatMapData['pivotTable'][pivotTable]['indexY'],spamValue.toFixed(3)]);
                             heatMapData['pivotTable'][pivotTable]['nonSpam'].push([indexX, heatMapData['pivotTable'][pivotTable]['indexY'],nonSpamValue.toFixed(3)]);
@@ -230,113 +229,175 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 indexX += 1;
             }
 
-            var title = 'Aggregated view of ' + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
-            var width = (3*(($('.maincolumn').width() - 50)/5))
-            var tooltip = function () {
-                return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> got <b>' +
-                    this.point.value + '</b> annotations ' + categoryPrefix + ' <b>' + this.series.yAxis.categories[this.point.y] + '</b>';
+
+
+            //get the content of units
+            var urlUnit = '/api/v1/?';
+            var legend = {};
+            var iterUnits = 0;
+            for(var keyUnits in unitList){
+                urlUnit += 'field[_id]['+iterUnits+']=' + keyUnits + '&';
+                iterUnits++;
             }
-            var min = heatMapData['annotations']['min'];
-            var max = heatMapData['annotations']['max'];
-            var height = 16 *  heatMapData['annotations']['categoryY'].length;
-            heatMapGraph(categories,  heatMapData['annotations']['categoryY'],  heatMapData['annotations']['nonSpam'], title ,
-                'High quality annotations.', min, max, 'annotationsAfter_div', width, height, tooltip, true);
-            annotationDivs.push('annotationsAfter_div');
-            heatMapGraph(categories,  heatMapData['annotations']['categoryY'],  heatMapData['annotations']['spam'], title,
-                'All annotations.', min, max, 'annotationsBefore_div', width, height, tooltip, true);
-            annotationDivs.push('annotationsBefore_div');
-            heatMapGraph(categories,  heatMapData['annotations']['categoryY'],  heatMapData['annotations']['diff'], title,
-                'Low quality annotations.', min, max, 'annotationsDiff_div',width, height, tooltip, true);
-            annotationDivs.push('annotationsDiff_div');
+            urlUnit += 'only[]=content.sentence.formatted';
+            $.getJSON(urlUnit, function (data) {
 
+                var title = "Unit clarity";
+                var width = ((($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5))
 
-            var title = "Unit clarity";
-            var width = ((($('.maincolumn').width() - 50)/5))
-
-            var tooltip = function () {
-                return '<p class = "pieDivGraphs">' + this.series.yAxis.categories[this.point.y] + ', ' + this.series.xAxis.categories[this.point.x] + ' score:<b>' +
-                    this.point.value + '</p>';
-            }
-            var height = 16 * heatMapData['avg_clarity']['categoryY'].length;
-            var min = heatMapData['avg_clarity']['min'];
-            var max = heatMapData['avg_clarity']['max'];
-            heatMapGraph(['clarity'], heatMapData['avg_clarity']['categoryY'], heatMapData['avg_clarity']['nonSpam'], title ,
-                'After filtering low quality', min, max, 'unitsMetricAfter_'+0+'_div',width, height, tooltip, false);
-            annotationDivs.push('unitsMetricAfter_'+0+'_div');
-            heatMapGraph(['clarity'], heatMapData['avg_clarity']['categoryY'], heatMapData['avg_clarity']['spam'], title ,
-                'Before filtering low quality', min, max, 'unitsMetricBefore_'+0+'_div', width, height, tooltip, false);
-            annotationDivs.push('unitsMetricBefore_'+0+'_div');
-            heatMapGraph(['clarity'], heatMapData['avg_clarity']['categoryY'], heatMapData['avg_clarity']['diff'], title ,
-                'low - high quality metrics', min, max, 'unitsMetricDiff_'+0+'_div', width, height, tooltip,false);
-            annotationDivs.push('unitsMetricDiff_'+0+'_div');
-
-            var iterMetrics = 0;
-            for (iterMetrics; iterMetrics < querySettings.pivotTableFields.length; iterMetrics++ ){
-                var metricField = querySettings.annotationMetricFields[iterMetrics];
-                var pivotTable = querySettings.pivotTableFields[iterMetrics];
-                var title = querySettings.pivotTableNames[iterMetrics] + ' of annotations for ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
-                var width = (3*(($('.maincolumn').width() - 50)/5))
                 var tooltip = function () {
-                    return '<p class = "pieDivGraphs">' + this.series.yAxis.categories[this.point.y] + ' - ' + this.series.xAxis.categories[this.point.x] + ' score:<b>' +
+                    return '<p class = "pieDivGraphs">' + this.series.yAxis.categories[this.point.y] + ', ' + this.series.xAxis.categories[this.point.x] + ' score:<b>' +
                         this.point.value + '</p>';
                 }
-                var min = heatMapData['pivotTable'][pivotTable]['min'];
-                var max =heatMapData['pivotTable'][pivotTable]['max'];
-                var height = 16 *  heatMapData['pivotTable'][pivotTable]['categoryY'].length;
-                heatMapGraph(categories,  heatMapData['pivotTable'][pivotTable]['categoryY'],  heatMapData['pivotTable'][pivotTable]['nonSpam'], title ,
-                    'After filtering low quality', min, max, 'pivotTableAfter_'+iterMetrics+'_div', width, height, tooltip, true);
-                annotationDivs.push('pivotTableAfter_'+iterMetrics+'_div');
-                heatMapGraph(categories,  heatMapData['pivotTable'][pivotTable]['categoryY'],  heatMapData['pivotTable'][pivotTable]['spam'], title,
-                    'Before filtering low quality', min, max, 'pivotTableBefore_'+ iterMetrics +'_div', width, height, tooltip, true);
-                annotationDivs.push('pivotTableBefore_'+iterMetrics+'_div');
-                heatMapGraph(categories, heatMapData['pivotTable'][pivotTable]['categoryY'],  heatMapData['pivotTable'][pivotTable]['diff'], title,
-                    'low - high quality metrics', min, max, 'pivotTableDiff_'+ iterMetrics +'_div',width, height, tooltip, true);
-                annotationDivs.push('pivotTableDiff_'+ iterMetrics +'_div');
+                var height = 16 * heatMapData['avg_clarity']['categoryY'].length;
+                var min = heatMapData['avg_clarity']['min'];
+                var max = heatMapData['avg_clarity']['max'];
+                var colorAxis = {
+                    stops: [
+                        [0, '#3060cf'],
+                        [0.5, '#fffbbc'],
+                        [0.9, '#c4463a']
+                    ],
+                    min:min,
+                    max:max
+                };
+                heatMapGraph(['clarity'], heatMapData['avg_clarity']['categoryY'], heatMapData['avg_clarity']['nonSpam'],title,
+                    'After filtering low quality', colorAxis, 'unitsMetricAfter_'+0+'_div',width, height, tooltip, false);
+                annotationDivs.push('unitsMetricAfter_'+0+'_div');
+                heatMapGraph(['clarity'], heatMapData['avg_clarity']['categoryY'], heatMapData['avg_clarity']['spam'],title,
+                    'Before filtering low quality', colorAxis, 'unitsMetricBefore_'+0+'_div', width, height, tooltip, false);
+                annotationDivs.push('unitsMetricBefore_'+0+'_div');
+                heatMapGraph(['clarity'], heatMapData['avg_clarity']['categoryY'], heatMapData['avg_clarity']['diff'],title,
+                    'low - high quality metrics', colorAxis, 'unitsMetricDiff_'+0+'_div', width, height, tooltip,false);
+                annotationDivs.push('unitsMetricDiff_'+0+'_div');
+
+                var iterMetrics = 0;
+                for (iterMetrics; iterMetrics < querySettings.pivotTableFields.length; iterMetrics++ ){
+                    var metricField = querySettings.annotationMetricFields[iterMetrics];
+                    var pivotTable = querySettings.pivotTableFields[iterMetrics];
+                    var title = querySettings.pivotTableNames[iterMetrics] + ' of annotations for ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
+                    var width = (3*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5))
+                    var tooltip = function () {
+                        return '<p class = "pieDivGraphs">' + this.series.yAxis.categories[this.point.y] + ' - ' + this.series.xAxis.categories[this.point.x] + ' score:<b>' +
+                            this.point.value + '</p>';
+                    }
+                    var min = heatMapData['pivotTable'][pivotTable]['min'];
+                    var max =heatMapData['pivotTable'][pivotTable]['max'];
+                    colorAxis = {
+                        stops: [
+                            [0, '#3060cf'],
+                            [0.5, '#fffbbc'],
+                            [0.9, '#c4463a']
+                        ],
+                        min:min,
+                        max:max
+                    };
+                    var height = 16 *  heatMapData['pivotTable'][pivotTable]['categoryY'].length;
+                    heatMapGraph(categories,  heatMapData['pivotTable'][pivotTable]['categoryY'],  heatMapData['pivotTable'][pivotTable]['nonSpam'],title,
+                        'After filtering low quality',colorAxis, 'pivotTableAfter_'+iterMetrics+'_div', width, height, tooltip, true);
+                    annotationDivs.push('pivotTableAfter_'+iterMetrics+'_div');
+                    heatMapGraph(categories,  heatMapData['pivotTable'][pivotTable]['categoryY'],  heatMapData['pivotTable'][pivotTable]['spam'],title,
+                        'Before filtering low quality', colorAxis, 'pivotTableBefore_'+ iterMetrics +'_div', width, height, tooltip, true);
+                    annotationDivs.push('pivotTableBefore_'+iterMetrics+'_div');
+                    heatMapGraph(categories, heatMapData['pivotTable'][pivotTable]['categoryY'],  heatMapData['pivotTable'][pivotTable]['diff'],title,
+                        'low - high quality metrics',  colorAxis, 'pivotTableDiff_'+ iterMetrics +'_div',width, height, tooltip, true);
+                    annotationDivs.push('pivotTableDiff_'+ iterMetrics +'_div');
 
 
-                var title = querySettings.annotationMetricNames[iterMetrics];
-                var width = ((($('.maincolumn').width() - 50)/5))
+                    var title = querySettings.annotationMetricNames[iterMetrics];
+                    var width = ((($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5))
 
 
-                var height = 16 * heatMapData['annotationMetric'][metricField]['categoryY'].length;
-                var min = heatMapData['annotationMetric'][metricField]['min'];
-                var max = heatMapData['annotationMetric'][metricField]['max'];
-                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['nonSpam'], title ,
-                    'After filtering low quality', min, max, 'annotationsMetricAfter_'+ iterMetrics +'_div',width, height, tooltip, false);
-                annotationDivs.push('annotationsMetricAfter_'+iterMetrics+'_div');
-                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['spam'], title ,
-                    'Before filtering low quality', min, max, 'annotationsMetricBefore_'+ iterMetrics+'_div', width, height, tooltip, false);
-                annotationDivs.push('annotationsMetricBefore_'+iterMetrics+'_div');
-                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'],heatMapData['annotationMetric'][metricField]['diff'], title ,
-                    'low - high quality metrics', min, max, 'annotationsMetricDiff_'+ iterMetrics +'_div', width, height, tooltip, false);
-                annotationDivs.push('annotationsMetricDiff_'+iterMetrics+'_div');
-            }
-            var noMetrics = querySettings.annotationMetricFields.length - iterMetrics;
-            var middleIter = (noMetrics)/2 + iterMetrics - 1;
-            for (iterMetrics; iterMetrics < querySettings.annotationMetricFields.length;iterMetrics++ ){
-                var metricField = querySettings.annotationMetricFields[iterMetrics];
-                var title = querySettings.annotationMetricNames[iterMetrics];
-                var width = ((($('.maincolumn').width() - 50)/(noMetrics + 1)))
-                console.dir(width);
-                var height = 16 * heatMapData['annotationMetric'][metricField]['categoryY'].length;
-                var min = heatMapData['annotationMetric'][metricField]['min'];
-                var max = heatMapData['annotationMetric'][metricField]['max'];
-                var show = false;
-                if (iterMetrics == middleIter ) {
-                    show = true;
-                    var width = (2*(($('.maincolumn').width() - 50)/(noMetrics + 1)))
+                    var height = 16 * heatMapData['annotationMetric'][metricField]['categoryY'].length;
+                    var min = heatMapData['annotationMetric'][metricField]['min'];
+                    var max = heatMapData['annotationMetric'][metricField]['max'];
+                    colorAxis = {
+                        stops: [
+                            [0, '#3060cf'],
+                            [0.5, '#fffbbc'],
+                            [0.9, '#c4463a']
+                        ],
+                        min:min,
+                        max:max
+                    };
+                    heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['nonSpam'],title,
+                        'After filtering low quality',  colorAxis, 'annotationsMetricAfter_'+ iterMetrics +'_div',width, height, tooltip, false);
+                    annotationDivs.push('annotationsMetricAfter_'+iterMetrics+'_div');
+                    heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['spam'],title,
+                        'Before filtering low quality',  colorAxis, 'annotationsMetricBefore_'+ iterMetrics+'_div', width, height, tooltip, false);
+                    annotationDivs.push('annotationsMetricBefore_'+iterMetrics+'_div');
+                    heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'],heatMapData['annotationMetric'][metricField]['diff'], title,
+                        'low - high quality metrics', colorAxis, 'annotationsMetricDiff_'+ iterMetrics +'_div', width, height, tooltip, false);
+                    annotationDivs.push('annotationsMetricDiff_'+iterMetrics+'_div');
                 }
-                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['nonSpam'], title ,
-                    'After filtering low quality', min, max, 'annotationsMetricAfter_'+ iterMetrics +'_div',width, height, tooltip, show);
-                annotationDivs.push('annotationsMetricAfter_'+iterMetrics+'_div');
-                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['spam'], title ,
-                    'Before filtering low quality', min, max, 'annotationsMetricBefore_'+ iterMetrics+'_div', width, height, tooltip, show);
-                annotationDivs.push('annotationsMetricBefore_'+iterMetrics+'_div');
-                heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'],heatMapData['annotationMetric'][metricField]['diff'], title ,
-                    'low - high quality metrics', min, max, 'annotationsMetricDiff_'+ iterMetrics +'_div', width, height, tooltip, show);
-                annotationDivs.push('annotationsMetricDiff_'+iterMetrics+'_div');
-            }
+                var noMetrics = querySettings.annotationMetricFields.length - iterMetrics;
+                var middleIter = (noMetrics)/2 + iterMetrics - 1;
+                for (iterMetrics; iterMetrics < querySettings.annotationMetricFields.length;iterMetrics++ ){
+                    var metricField = querySettings.annotationMetricFields[iterMetrics];
+                    var title = querySettings.annotationMetricNames[iterMetrics];
+                    var width = ((($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/(noMetrics + 1)))
+                    var height = 16 * heatMapData['annotationMetric'][metricField]['categoryY'].length;
+                    var min = heatMapData['annotationMetric'][metricField]['min'];
+                    var max = heatMapData['annotationMetric'][metricField]['max'];
+                    colorAxis = {
+                        stops: [
+                            [0, '#3060cf'],
+                            [0.5, '#fffbbc'],
+                            [0.9, '#c4463a']
+                        ],
+                        min:min,
+                        max:max
+                    };
+                    var show = false;
+                    if (iterMetrics == middleIter ) {
+                        show = true;
+                        var width = (2*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/(noMetrics + 1)))
+                    }
+                    heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['nonSpam'],title,
+                        'After filtering low quality',colorAxis, 'annotationsMetricAfter_'+ iterMetrics +'_div',width, height, tooltip, show);
+                    annotationDivs.push('annotationsMetricAfter_'+iterMetrics+'_div');
+                    heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'], heatMapData['annotationMetric'][metricField]['spam'],title ,
+                        'Before filtering low quality', colorAxis, 'annotationsMetricBefore_'+ iterMetrics+'_div', width, height, tooltip, show);
+                    annotationDivs.push('annotationsMetricBefore_'+iterMetrics+'_div');
+                    heatMapGraph(title, heatMapData['annotationMetric'][metricField]['categoryY'],heatMapData['annotationMetric'][metricField]['diff'],title ,
+                        'low - high quality metrics', colorAxis, 'annotationsMetricDiff_'+ iterMetrics +'_div', width, height, tooltip, show);
+                    annotationDivs.push('annotationsMetricDiff_'+iterMetrics+'_div');
+                }
 
+
+                var title = 'Aggregated view of ' + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
+                var width = (3*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5))
+                var tooltip = function () {
+                    return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> got <b>' +
+                        this.point.value + '</b> annotations ' + categoryPrefix + ' <b>' + this.series.yAxis.categories[this.point.y] + '</b>';
+                }
+                var min = heatMapData['annotations']['min'];
+                var max = heatMapData['annotations']['max'];
+                var height = 16 *  heatMapData['annotations']['categoryY'].length;
+                var colorAxisAnnotations = {
+                    min:min,
+                    max:max,
+                    minColor: '#fffbbc',
+                    maxColor: '#3060cf'
+                };
+
+                for(var iterDataUrl in data) {
+                    var unitInfoID = data[iterDataUrl]['_id'];
+                    legend[unitList[unitInfoID]]= data[iterDataUrl]['content']['sentence']['formatted'];
+                }
+                heatMapGraph(categories,  heatMapData['annotations']['categoryY'],  heatMapData['annotations']['nonSpam'], title ,
+                'High quality annotations.', colorAxisAnnotations, 'annotationsAfter_div', width, height, tooltip, true, legend);
+                annotationDivs.push('annotationsAfter_div');
+                heatMapGraph(categories,  heatMapData['annotations']['categoryY'],  heatMapData['annotations']['spam'], title,
+                'All annotations.', colorAxisAnnotations, 'annotationsBefore_div', width, height, tooltip, true, legend);
+                annotationDivs.push('annotationsBefore_div');
+                heatMapGraph(categories,  heatMapData['annotations']['categoryY'],  heatMapData['annotations']['diff'], title,
+                'Low quality annotations.', colorAxisAnnotations, 'annotationsDiff_div',width, height, tooltip, true, legend);
+                annotationDivs.push('annotationsDiff_div');
+                addTooltipYLabel('#annotationsAfter_div', legend);
+
+
+            });
 
 
          });
@@ -427,25 +488,32 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
             var heatMapDataBefore = []
             var heatMapDataDiff = []
             var indexX = 0;
+            var legend = {};
             var min = Number.MAX_VALUE;
             var max = Number.MIN_VALUE;
             var indexY = 0;
             for (var annotation in categories) {
                 indexY = 0;
                 for (var worker in series) {
+
                     for (var job in series[worker]){
                         var arrayUnit = worker.split("/");
                         var workerID = arrayUnit[arrayUnit.length - 1];
                         var arrayUnit = job.split("/");
                         var jobID = arrayUnit[arrayUnit.length - 1];
                         if(indexX == 0) {
-                            if ( workerID == jobID) {
-                                categoriesY.push(categoryName + ' ' + workerID  );
+                            var categoryYName = categoryName + ' ' + workerID
+                            if ( workerID != jobID) categoryYName += ' in job ' + jobID
+                            categoriesY.push(categoryYName );
+                            if(category == '#crowdagents_tab') {
+                                legend[categoryYName] = {};
+                                legend[categoryYName] = 'Aggregated vector across all the annotated units with this type of annotations';
                             } else {
-                                categoriesY.push(categoryName + ' ' + workerID + ' in job ' + jobID );
+                                console.dir(currentSelectionInfo)
+                                legend[categoryYName] = currentSelectionInfo[worker]['tooltipLegend']['Sentence'];
                             }
-
                         }
+
                         var afterData =  series[worker][job]['nonSpam'][categories[annotation]];
                         var beforeData =  series[worker][job]['spam'][categories[annotation]];
                         heatMapDataAfter.push([indexX, indexY, afterData]);
@@ -460,22 +528,31 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 indexX += 1;
             }
             var title = 'Aggregated view of ' + ' annotations of ' +  currentSelection.length   +  ' Selected ' + categoryName + '(s)'
-            var width = (3*(($('.maincolumn').width() - 50)/5))
+            var width = (3*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5))
 
             var tooltip = function () {
                 return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> got <b>' +
                     this.point.value + '</b> annotations ' + categoryPrefix + ' <b>' + this.series.yAxis.categories[this.point.y] + '</b>';
             }
+            var colorAxisAnnotations = {
+                    min:min,
+                    max:max,
+                    minColor: '#fffbbc',
+                    maxColor: '#3060cf'
+                };
             var height = 16 * categoriesY.length;
-            heatMapGraph(categories, categoriesY, heatMapDataAfter, title , 'High quality annotations.', min, max,
-                'annotationsAfter_div', width, height, tooltip, true);
+            console.dir(categoryName);
+            console.dir(currentSelectionInfo);
+            heatMapGraph(categories, categoriesY, heatMapDataAfter, 'High quality annotations.',title , colorAxisAnnotations,
+                'annotationsAfter_div', width, height, tooltip, true, legend);
             annotationDivs.push('annotationsAfter_div');
-            heatMapGraph(categories, categoriesY, heatMapDataBefore, title, 'All annotations.',
-                min, max, 'annotationsBefore_div', width, height, tooltip, true);
+            heatMapGraph(categories, categoriesY, heatMapDataBefore, 'All annotations.', title,
+                colorAxisAnnotations, 'annotationsBefore_div', width, height, tooltip, true, legend);
             annotationDivs.push('annotationsBefore_div');
-            heatMapGraph(categories, categoriesY, heatMapDataDiff, title, 'Low quality annotations.',
-                min, max, 'annotationsDiff_div',width, height, tooltip, true);
+            heatMapGraph(categories, categoriesY, heatMapDataDiff, 'Low quality annotations.', title,
+                colorAxisAnnotations, 'annotationsDiff_div',width, height, tooltip, true, legend);
             annotationDivs.push('annotationsDiff_div');
+
             //display spam data
             //display spam data
 
@@ -538,23 +615,32 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                     }
 
                     var title = categoryName + " " + querySettings['metricName'][iterMetric]
-                    var width = ((1/querySettings.metricName.length)*(($('.maincolumn').width() - 50)/5))
-
+                    var width = ((1/querySettings.metricName.length)*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5))
+                    var colorAxis = {
+                        stops: [
+                            [0, '#3060cf'],
+                            [0.5, '#fffbbc'],
+                            [0.9, '#c4463a']
+                        ],
+                        min:minMetric,
+                        max:maxMetric
+                    };
                     var tooltip = function () {
                         return '<p class = "pieDivGraphs">' + this.series.yAxis.categories[this.point.y] + ', ' + this.series.xAxis.categories[this.point.x] + ' score:<b>' +
                             this.point.value + '</p>';
                     }
                     var height = 16 * categoriesY.length;
-                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, nonSpamData, title ,
-                        'After filtering low quality', minMetric, maxMetric, 'annotationsMetricAfter_'+iterMetric+'_div',width, height, tooltip, false);
+                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, nonSpamData,title ,
+                        'After filtering low quality', colorAxis, 'annotationsMetricAfter_'+iterMetric+'_div',width, height, tooltip, false);
                     annotationDivs.push('annotationsMetricAfter_'+iterMetric+'_div');
                     heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, spamData, title ,
-                        'Before filtering low quality', minMetric, maxMetric, 'annotationsMetricBefore_'+iterMetric+'_div', width, height, tooltip, false);
+                        'Before filtering low quality', colorAxis, 'annotationsMetricBefore_'+iterMetric+'_div', width, height, tooltip, false);
                     annotationDivs.push('annotationsMetricBefore_'+iterMetric+'_div');
-                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, diffData, title ,
-                        'low - high quality metrics', minMetric, maxMetric, 'annotationsMetricDiff_'+iterMetric+'_div', width, height, tooltip, false);
+                    heatMapGraph([querySettings['metricName'][iterMetric]], categoriesY, diffData,title ,
+                        'low - high quality metrics',  colorAxis, 'annotationsMetricDiff_'+iterMetric+'_div', width, height, tooltip, false);
                     annotationDivs.push('annotationsMetricDiff_'+iterMetric+'_div');
                 }
+                addTooltipYLabel('#annotationsAfter_div', legend);
 
 
             });
@@ -563,18 +649,28 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
         //group them
     }
 
+    var addTooltipYLabel = function (divName, legend){
+        var legendItems = $(divName +' .highcharts-yaxis-labels')[0].children;
+        for (var legendItemIter in legendItems){
+            var elemeHTML = $(legendItems[legendItemIter]);
+            elemeHTML.attr('data-toggle','tooltip');
+            var tooltipValue = legend[elemeHTML.text()];
+            elemeHTML.attr('title',tooltipValue);
+        }
+    }
     var drawPieChart = function (platform, spam) {
-        console.dir(platform)
-        console.dir(spam)
         pieChart = new Highcharts.Chart({
             chart: {
                 renderTo: 'annotationsPie_div',
                 type: 'pie',
-                marginTop: 0,
-                width: (1*(($('.maincolumn').width() - 50)/5)),
-                height:400
+                marginTop: 80,
+                width: (1*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5)),
+                height:350
             },
             title: {
+                style: {
+                    fontWeight: 'bold'
+                },
                 text: 'Type of Annotations of the ' + currentSelection.length + ' selected '+ ' ' + categoryName + '(s)'
             },
             credits: {
@@ -584,6 +680,10 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                 text: 'Click a category to see the distribution of annotations'
             },
             yAxis: {
+                scalable:false,
+                style: {
+                    fontWeight: 'bold'
+                },
                 title: {
                     text: 'Number of workers per unit'
                 }
@@ -610,6 +710,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                                         var divName = annotationDivs[iterDiv];
                                         $('#'+divName).show();
                                     }
+
                                 }
 
 
@@ -656,7 +757,8 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                             // display only if larger than 1
                             return this.point.name;
                         },
-                        color: 'black'
+                        color: 'black',
+                        distance: 3
 
                     }
 
@@ -734,6 +836,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
                     }
                 });
                 drawPieChart(platformData, categoriesData);
+
 
             });
 

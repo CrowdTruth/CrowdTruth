@@ -176,7 +176,7 @@
 						  <td> @{{ job_info.jobConf.content.title}} </td>  
 						  @{{#each job_info.metrics.units.withoutSpam}}
 						   @{{#ifvalue ../../_id value=@key}}
-						    <td> @{{ toFixed max_relation_Cos 2}} </td>
+						    <td> @{{ toFixed avg.max_relation_Cos 2}} </td>
 						   @{{/ifvalue}}
 						  @{{/each}} 
 						  <td>
