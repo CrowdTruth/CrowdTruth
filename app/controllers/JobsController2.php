@@ -172,19 +172,19 @@ class JobsController2 extends BaseController {
 		// TODO: this here is really bad.
 		// The previews should be decoupled form AMT.
 		// HTML should be generated based on the QuestionTemplate.
-		try {
-			$j = new Job;
-			$j->batch_id = $batch->_id;
-			$j->template = $template;
-			$j->questionTemplate_id = $questiontemplateid;
-			//$j->jobConf_id = $jobconf->_id;  // BAD
-			$amt = App::make('amt');
-			$questions = $amt->amtPublish($j, true,true, $jc);//$j->getPreviews();
-		} catch (Exception $e) {
-			$questions = array('couldn\'t generate previews.');
-			Session::flash('flashNotice', $e->getMessage());
-			//throw $e; // for debugging: see where it originates
-		}
+		// try {
+		// 	$j = new Job;
+		// 	$j->batch_id = $batch->_id;
+		// 	$j->template = $template;
+		// 	$j->questionTemplate_id = $questiontemplateid;
+		// 	//$j->jobConf_id = $jobconf->_id;  // BAD
+		// 	$amt = App::make('amt');
+		// 	$questions = $amt->amtPublish($j, true,true, $jc);//$j->getPreviews();
+		// } catch (Exception $e) {
+		// 	$questions = array('couldn\'t generate previews.');
+		// 	Session::flash('flashNotice', $e->getMessage());
+		// 	//throw $e; // for debugging: see where it originates
+		// }
 		//dd("o");
 		// $toomany = '';
 		// if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)){
@@ -201,7 +201,7 @@ class JobsController2 extends BaseController {
 
 		return View::make('job2.tabs.submit')
 			->with('treejson', $treejson)
-			->with('questions',  $questions)
+		//	->with('questions',  $questions)
 		//	->with('table', $jc->toHTML())
 			->with('template', '')//$jc->content['template'])
 			->with('frameheight', (isset($jc->content['frameheight']) ? $jc->content['frameheight'] : 650))
@@ -409,11 +409,13 @@ class JobsController2 extends BaseController {
 			 		$jcco['title'] = Input::get('titleOwn');
 			 	else
 			 		$jcco['title'] =  Input::get('title');
+	    if ($jcco['title'] == Null or $jcco['type'] == Null) 
+	    		return Redirect::back()->with('flashError', "form not filled in.");
 	    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['type'] . " | " . $batch->format . " ]] ";
 	    //$jcco['keywords'] = Input::get('keywords');
 	    $jcco['platform'] = Array("cf");
 	    $jc->content = $jcco;
-	    
+
 	    //$jc->content->tags = array("Lukasz:::");
 		//$template = Session::get('template');
 		

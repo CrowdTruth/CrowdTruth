@@ -1,9 +1,9 @@
 @extends('layouts.default')
 @section('content')
-
+@include('layouts.flashdata')
 <div class="col-xs-10 col-md-offset-1">
 	<div class='maincolumn CW_box_style'>
-
+					
 		<div class='tab'>
 			@include('job2.nav')
 			<div>
@@ -20,14 +20,25 @@
 
 
 									<?php 
-										$variable = \MongoDB\Entity
-										foreach($variables as $selectoption)
-										{
-											echo "<select>{$selectoption}</select>";
+										$aTitles = array(null => '---');
+										$aTypes = array(null => '---');
+										$_format = (unserialize(Session::get('batch'))->format);
+										$_aTitles = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct("content.title")->get();
+									    $_aTitles = array_flatten($_aTitles->toArray());
+									    //dd($_aTitles);
+									    foreach($_aTitles as $key=>$value){
+										    $aTitles[$value] = $value;
 										}
+
+										$_aTypes = \MongoDB\Entity::where("documentType", "job")->where("format", $_format)->distinct('type')->get();
+									    $_aTypes = array_flatten($_aTypes->toArray());
+									    foreach($_aTypes as $key=>$value){
+										    $aTypes[$value] = $value;
+										}
+
 									?>
 
-									{{ Form::select('title',  $variable, null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
+									{{ Form::select('title',  $aTitles, null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
 								</div><div class="input-group col-xs-3">
 									{{ Form::text('titleOwn', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
@@ -38,7 +49,7 @@
 							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own', 
 									array('class' => 'col-xs-5 control-label')) }}
 								<div class="input-group col-xs-3">
-									{{ Form::select('templateType',  array('RelEx' => 'RelEx', 'Image tagging' => 'Image tagging'), null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
+									{{ Form::select('templateType',  $aTypes, null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
 									</div><div class="input-group col-xs-3">
 									{{ Form::text('templateTypeOwn', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
