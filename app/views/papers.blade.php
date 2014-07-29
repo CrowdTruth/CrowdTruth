@@ -41,6 +41,13 @@
 	
 						</ul>
 						
+						<b>Presentations</b>
+						<ul class="paperlist">	
+						
+						<li>Timmermans, Benjamin <strong><a href="http://www.slideshare.net/CrowdTruth/thesis-presentation-b-timmermans">Crowdsourcing Disagreement on Open-Domain Questions</a></strong> July 18th 2014</li>
+	
+						</ul>
+						
 						<b>Popular media</b>
 						<ul class="paperlist">	
 						<li>IBM Inspire: <a href="https://drive.google.com/file/d/0BzrxNZeLZ4YeUlJaVU5xNF83N2M/edit?usp=sharing">IBM en Vrije Universiteit slaan handen in elkaar</a> (Dutch)</li>
