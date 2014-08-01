@@ -264,6 +264,9 @@ class Crowdflower2 extends \FrameWork {
 		$jcco = $jc->content;
 		if(isset($CFd['title']))  				$jcco['title'] = 				$CFd['title'];
 		if(isset($CFd['instructions'])) 		$jcco['instructions'] =			$CFd['instructions'];
+		if(isset($CFd['css'])) 		$jcco['css'] =			$CFd['css'];
+		if(isset($CFd['cml'])) 		$jcco['cml'] =			$CFd['cml'];
+		if(isset($CFd['js'])) 		$jcco['js'] =			$CFd['js'];
 		if(isset($CFd['judgments_per_unit'])) 	$jcco['workerUnitsPerUnit'] = 	$CFd['judgments_per_unit'];
 		if(isset($CFd['units_per_assignment'])) $jcco['unitsPerTask'] = 		$CFd['units_per_assignment'];
 		$jc->content = $jcco;
@@ -276,6 +279,10 @@ class Crowdflower2 extends \FrameWork {
 		$data = array();
 		//if(isset($jc['keywords'])) 			 	$data['tags']					 	= $jc['keywords'];
 		if(isset($jc['title'])) 			 	$data['title']					 	= $jc['title'];
+		if(isset($jc['css'])) 			 	$data['css']					 	= $jc['css'];
+		if(isset($jc['cml'])) 			 	$data['cml']					 	= $jc['cml'];
+		if(isset($jc['js'])) 			 	$data['js']					 	= $jc['js'];
+
 		if(isset($jc['instructions'])) 			$data['instructions']				= $jc['instructions'];
 		if(isset($jc['workerUnitsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['workerUnitsPerUnit'];
 		if(isset($jc['unitsPerTask']))			$data['units_per_assignment']		= $jc['unitsPerTask'];

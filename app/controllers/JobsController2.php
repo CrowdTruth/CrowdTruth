@@ -219,9 +219,9 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getDuplicate($entity, $format, $domain, $docType, $incr){
-		Session::forget('jobconf');
-		Session::forget('origjobconf');
-		Session::forget('template');
+		//Session::forget('jobconf');
+		//Session::forget('origjobconf');
+		//Session::forget('template');
 		//Session::forget('questiontemplateid');
 		Session::forget('batch');
 
@@ -233,7 +233,8 @@ class JobsController2 extends BaseController {
 			$jc->parents= array($job->JobConfiguration->_id);
 			Session::put('jobconf', serialize($jc));
 			Session::put('batch', serialize($job->batch));
-			Session::put('template', $job->template);
+			//dd( $jc->content['type']);
+			Session::put('templatetype', $jc->content['type']);
 			// Job->parents = array($job->_id);
 			return Redirect::to("jobs2/batch");
 		} else {
@@ -267,6 +268,16 @@ class JobsController2 extends BaseController {
 	* It combines the Input fields with the JobConfiguration that we already have in the Session.
 	*/
 	public function postFormPart($next){
+		try {
+			return Redirect::to("jobs2/$next");
+		} catch (Exception $e) {
+			Session::flash('flashError', $e->getMessage()); // Todo: is this a good way? -> logging out due to timeout
+			return Redirect::to("jobs2");
+		}
+	}
+
+
+	public function postFormPart2($next){
 
 		$jc = unserialize(Session::get('jobconf', serialize(new JobConfiguration)));
 		if(isset($jc->content)) $jcc = $jc->content;
@@ -350,9 +361,9 @@ class JobsController2 extends BaseController {
 
 
 				// DEFAULT VALUES
-				if(!isset($jcc['eventType'])) $jcc['eventType'] = 'HITReviewable'; 
-				if(!isset($jcc['frameheight'])) $jcc['frameheight'] = 650;
-				unset($jcc['_token']);
+				//if(!isset($jcc['eventType'])) $jcc['eventType'] = 'HITReviewable'; 
+				//if(!isset($jcc['frameheight'])) $jcc['frameheight'] = 650;
+				//unset($jcc['_token']);
 				$jc->content = $jcc;	
 
 				// After specific platform tab, call the method and determine which is next.
@@ -396,26 +407,33 @@ class JobsController2 extends BaseController {
 
 	public function postSubmitFinal($ordersandbox = 'order'){
 		//$jc = unserialize(Session::get('jobconf'));
-		$jc = new JobConfiguration;
-		$jc->documentType = "jobconf";
-		//$jc->content = array("Lukasz:::" . rand());
 		$batch = unserialize(Session::get('batch'));
-		$jcco = array();
-		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 )
-			 		$jcco['type'] = Input::get('templateTypeOwn');
-			 	else
-			 		$jcco['type'] =  Input::get('templateType');
-	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 0 )
-			 		$jcco['title'] = Input::get('titleOwn');
-			 	else
-			 		$jcco['title'] =  Input::get('title');
-	    if ($jcco['title'] == Null or $jcco['type'] == Null) 
-	    		return Redirect::back()->with('flashError', "form not filled in.");
-	    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['type'] . " | " . $batch->format . " ]] ";
-	    //$jcco['keywords'] = Input::get('keywords');
-	    $jcco['platform'] = Array("cf");
-	    $jc->content = $jcco;
+		if (!$jc = unserialize(Session::get('jobconf'))){
 
+			$jc = new JobConfiguration;
+			$jc->documentType = "jobconf";
+			$jcco = array();
+		}
+		else
+			$jcco = $jc->content;
+			//$else->content = array("Lukasz:::" . rand());
+			
+			
+			if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 )
+				 		$jcco['type'] = Input::get('templateTypeOwn');
+				 	else
+				 		$jcco['type'] =  Input::get('templateType');
+		    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 0 )
+				 		$jcco['title'] = Input::get('titleOwn');
+				 	else
+				 		$jcco['title'] =  Input::get('title');
+		    if ($jcco['title'] == Null or $jcco['type'] == Null) 
+		    		return Redirect::back()->with('flashError', "form not filled in.");
+		    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['type'] . " | " . $batch->format . " ]] ";
+		    //$jcco['keywords'] = Input::get('keywords');
+		    $jcco['platform'] = Array("cf");
+		    $jc->content = $jcco;
+		
 	    //$jc->content->tags = array("Lukasz:::");
 		//$template = Session::get('template');
 		
@@ -440,6 +458,7 @@ class JobsController2 extends BaseController {
 
 			// Save jobconf if necessary
 			$hash = md5(serialize($jc->content));
+
         	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id')) //[qq]
                 $jcid = $existingid; // Don't save, it already exists.
             else {
@@ -458,7 +477,7 @@ class JobsController2 extends BaseController {
 			 	$j = new Job;
 			 	$j->format = $batch->format;
 			 	$j->domain = $batch->domain;
-			 	$j->type = $jcco['type'];
+			 	$j->type = $jc->content['type'];
 			// 	$j->template = $template; // TODO: remove
 			 	$j->batch_id = $batch->_id;
 			// 	$j->questionTemplate_id = $questiontemplateid;

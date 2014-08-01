@@ -20,14 +20,18 @@
 
 
 									<?php 
+										// Get a list of titles and template types which are already in the database
+										// and put them to dropdown
 										$aTitles = array(null => '---');
 										$aTypes = array(null => '---');
 										$_format = (unserialize(Session::get('batch'))->format);
 										$_aTitles = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct("content.title")->get();
 									    $_aTitles = array_flatten($_aTitles->toArray());
-									    //dd($_aTitles);
+									    
 									    foreach($_aTitles as $key=>$value){
-										    $aTitles[$value] = $value;
+									    	$pos = strpos($value, '[[');
+									    	if ( $pos > 0)
+										    	$aTitles[$value] = substr($value, 0, $pos);
 										}
 
 										$_aTypes = \MongoDB\Entity::where("documentType", "job")->where("format", $_format)->distinct('type')->get();
@@ -35,7 +39,13 @@
 									    foreach($_aTypes as $key=>$value){
 										    $aTypes[$value] = $value;
 										}
+										
 
+										if($phpres = Session::get('templatetype')){
+											if(!isset($aTypes[$phpres]))
+												$phpres =null;
+										}
+										
 									?>
 
 									{{ Form::select('title',  $aTitles, null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
@@ -49,7 +59,7 @@
 							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own', 
 									array('class' => 'col-xs-5 control-label')) }}
 								<div class="input-group col-xs-3">
-									{{ Form::select('templateType',  $aTypes, null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
+									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
 									</div><div class="input-group col-xs-3">
 									{{ Form::text('templateTypeOwn', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
