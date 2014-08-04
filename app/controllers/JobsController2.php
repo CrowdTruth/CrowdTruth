@@ -162,11 +162,11 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getSubmit() {
-		$jc = unserialize(Session::get('jobconf'));
-		$template = Session::get('template');
-		$batch = unserialize(Session::get('batch'));
-		$questiontemplateid = Session::get('questiontemplateid');
-		$treejson = $this->makeDirTreeJSON($template, $batch->format, false);
+		//$jc = unserialize(Session::get('jobconf'));
+		//$template = Session::get('template');
+		//$batch = unserialize(Session::get('batch'));
+		//$questiontemplateid = Session::get('questiontemplateid');
+		//$treejson = $this->makeDirTreeJSON($template, $batch->format, false);
 		
 		//$jc->unsetKey('platformpage');
 		// TODO: this here is really bad.
@@ -200,11 +200,11 @@ class JobsController2 extends BaseController {
 		// } 
 
 		return View::make('job2.tabs.submit')
-			->with('treejson', $treejson)
+		//	->with('treejson', null)
 		//	->with('questions',  $questions)
 		//	->with('table', $jc->toHTML())
-			->with('template', '')//$jc->content['template'])
-			->with('frameheight', (isset($jc->content['frameheight']) ? $jc->content['frameheight'] : 650))
+		//	->with('template', '')//$jc->content['template'])
+		//	->with('frameheight', (isset($jc->content['frameheight']) ? $jc->content['frameheight'] : 650))
 		//	->with('jobconf', $jc->content)
 			;
 	}
@@ -268,6 +268,17 @@ class JobsController2 extends BaseController {
 	* It combines the Input fields with the JobConfiguration that we already have in the Session.
 	*/
 	public function postFormPart($next){
+		if(Input::has('batch')){
+			// TODO: CSRF
+			$batch = Batch::find(Input::get('batch'));
+			Session::put('batch', serialize($batch));
+		} else {
+			$batch = unserialize(Session::get('batch'));
+			if(empty($batch)){
+				Session::flash('flashNotice', 'Please select a batch first.');
+				return Redirect::to("jobs/batch");
+			}	
+		}
 		try {
 			return Redirect::to("jobs2/$next");
 		} catch (Exception $e) {

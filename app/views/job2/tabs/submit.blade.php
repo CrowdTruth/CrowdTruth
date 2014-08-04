@@ -22,8 +22,10 @@
 									<?php 
 										// Get a list of titles and template types which are already in the database
 										// and put them to dropdown
+
 										$aTitles = array(null => '---');
 										$aTypes = array(null => '---');
+
 										$_format = (unserialize(Session::get('batch'))->format);
 										$_aTitles = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct("content.title")->get();
 									    $_aTitles = array_flatten($_aTitles->toArray());

@@ -264,13 +264,20 @@ class Crowdflower2 extends \FrameWork {
 		$jcco = $jc->content;
 		if(isset($CFd['title']))  				$jcco['title'] = 				$CFd['title'];
 		if(isset($CFd['instructions'])) 		$jcco['instructions'] =			$CFd['instructions'];
-		if(isset($CFd['css'])) 		$jcco['css'] =			$CFd['css'];
-		if(isset($CFd['cml'])) 		$jcco['cml'] =			$CFd['cml'];
-		if(isset($CFd['js'])) 		$jcco['js'] =			$CFd['js'];
+		if(isset($CFd['css'])) 					$jcco['css'] =					$CFd['css'];
+		if(isset($CFd['cml'])) 					$jcco['cml'] =					$CFd['cml'];
+		if(isset($CFd['js'])) 					$jcco['js'] =					$CFd['js'];
+		if(isset($CFd['state'])) 				$jcco['status'] =				$CFd['state'];
+		if(isset($CFd['payment_cents'])) 		$jcco['reward'] =				$CFd['payment_cents']/100;
+		if(isset($CFd['minimum_requirements'])) 		$jcco['minimumRequirements'] =				$CFd['minimum_requirements'];
+
 		if(isset($CFd['judgments_per_unit'])) 	$jcco['workerUnitsPerUnit'] = 	$CFd['judgments_per_unit'];
 		if(isset($CFd['units_per_assignment'])) $jcco['unitsPerTask'] = 		$CFd['units_per_assignment'];
+		if(isset($CFd['max_judgments_per_worker'])) $jcco['workerUnitsPerWorker'] = 		$CFd['max_judgments_per_worker'];
+		if(isset($CFd['max_judgments_per_ip'])) $jcco['workerUnitsPerWorker']     = 		$CFd['max_judgments_per_ip'];
+		// reward, keywords, expiration, workers_level, 
 		$jc->content = $jcco;
-		//return $jc;
+		
 	}
 
 
@@ -279,9 +286,10 @@ class Crowdflower2 extends \FrameWork {
 		$data = array();
 		//if(isset($jc['keywords'])) 			 	$data['tags']					 	= $jc['keywords'];
 		if(isset($jc['title'])) 			 	$data['title']					 	= $jc['title'];
-		if(isset($jc['css'])) 			 	$data['css']					 	= $jc['css'];
-		if(isset($jc['cml'])) 			 	$data['cml']					 	= $jc['cml'];
-		if(isset($jc['js'])) 			 	$data['js']					 	= $jc['js'];
+		if(isset($jc['css'])) 			 		$data['css']					 	= $jc['css'];
+		if(isset($jc['cml'])) 			 		$data['cml']					 	= $jc['cml'];
+		if(isset($jc['js'])) 			 		$data['js']					 		= $jc['js'];
+		//if(isset($jc['reward'])) 			 	$data['payment_cents']		 		= $jc['reward'];
 
 		if(isset($jc['instructions'])) 			$data['instructions']				= $jc['instructions'];
 		if(isset($jc['workerUnitsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['workerUnitsPerUnit'];
@@ -290,6 +298,8 @@ class Crowdflower2 extends \FrameWork {
 			$data['max_judgments_per_worker']	= $jc['workerUnitsPerWorker'];
 			$data['max_judgments_per_ip']		= $jc['workerUnitsPerWorker']; // We choose to keep this the same.
 		}
+
+
 
 		// Webhook doesn't work on localhost and the uri should be set. 
 		if((!(strpos(\Request::url(), 'localhost')>0)) and (Config::get('crowdflower::webhookuri') != '')){
