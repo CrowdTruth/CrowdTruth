@@ -28,7 +28,7 @@ class Crowdflower2 extends \FrameWork {
 
 	public function getJobConfValidationRules(){
 		return array(
-			'workerUnitsPerUnit' => 'required|numeric|min:1',
+		//	'workerUnitsPerUnit' => 'required|numeric|min:1',
 			'unitsPerTask' => 'required|numeric|min:1',
 			'instructions' => 'required',
 			'workerUnitsPerWorker' => 'required|numeric|min:1');

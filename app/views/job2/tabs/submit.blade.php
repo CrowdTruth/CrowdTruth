@@ -47,10 +47,15 @@
 											if(!isset($aTypes[$phpres]))
 												$phpres =null;
 										}
+
+										if($phprest = Session::get('title')){
+											if(!isset($aTitles[$phprest]))
+												$phprest =null;
+										}
 										
 									?>
 
-									{{ Form::select('title',  $aTitles, null, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
+									{{ Form::select('title',  $aTitles, $phprest, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
 								</div><div class="input-group col-xs-3">
 									{{ Form::text('titleOwn', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
@@ -68,17 +73,17 @@
 						
 							<br/>
 
-							<!-- <br/><br/>
-							{{ Form::label('keywords', 'Describe the job using a few keywords, separated by \',\'', 
+							<br/><br/>
+							{{ Form::label('description', 'Describe the job using a few word or keywords', 
 									array('class' => 'col-xs-5 control-label')) }}
-								<div class="input-group col-xs-3">
-									{{ Form::text('keywords', null, array('class' => 'form-control col-xs-2')) }}
+								<div class="input-group col-xs-5">
+									{{ Form::text('description', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
 						
-							<br/> -->
+							
 
 							</fieldset>
-	
+	<br/><br/>
 
 						{{ Form::submit('Create Job', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }}
 						{{ Form::close()}}

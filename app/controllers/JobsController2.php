@@ -235,6 +235,7 @@ class JobsController2 extends BaseController {
 			Session::put('batch', serialize($job->batch));
 			//dd( $jc->content['type']);
 			Session::put('templatetype', $jc->content['type']);
+			Session::put('title', $jc->content['title']);
 			// Job->parents = array($job->_id);
 			return Redirect::to("jobs2/batch");
 		} else {
@@ -443,7 +444,13 @@ class JobsController2 extends BaseController {
 		    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['type'] . " | " . $batch->format . " ]] ";
 		    //$jcco['keywords'] = Input::get('keywords');
 		    $jcco['platform'] = Array("cf");
+		    $jcco['description'] =  Input::get('description');
+
+
+
+		    ///////// PUT
 		    $jc->content = $jcco;
+
 		
 	    //$jc->content->tags = array("Lukasz:::");
 		//$template = Session::get('template');
