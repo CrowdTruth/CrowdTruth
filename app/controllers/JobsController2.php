@@ -30,6 +30,7 @@ class JobsController2 extends BaseController {
 
 	
 	public function getBatch() {
+		$this->getClearTask();
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 
@@ -37,7 +38,7 @@ class JobsController2 extends BaseController {
 		return View::make('job2.tabs.batch')->with('batches', $batches)->with('selectedbatchid', $selectedbatchid);
 	}
 
-	public function getTemplate() {
+	public function getTemplatea() {
 		// Create array for the tree
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch){
