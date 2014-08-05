@@ -95,7 +95,7 @@ class Crowdflower2 extends \FrameWork {
 		$data = $this->jobConfToCFData($jc);	
 		$csv = $this->batchToCSV($job->batch, $job->questionTemplate);
 		$gold = $jc->answerfields;
-		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0)*60, 
+		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 30)*60, 
 							"keywords" => (isset($jc->content['requesterWorkerUnit']) ? $jc->content['requesterWorkerUnit'] : ''),
 							"mail_to" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''));
     	
@@ -247,6 +247,7 @@ class Crowdflower2 extends \FrameWork {
 	public function refreshJob($id){
 		
 		$job = \MongoDB\Entity::where('_id', $id)->first();
+		$batch = \MongoDB\Entity::where('_id', $job->batch_id)->first();
 		$jc = \MongoDB\Entity::where('_id', $job->jobConf_id)->first();
 		$result = $this->CFJob->readJob($job->platformJobId);
 		if(isset($result['result']['error']['message']))
@@ -256,8 +257,24 @@ class Crowdflower2 extends \FrameWork {
 		//dd($result['result']['title']);
 
 		$this->CFDataToJobConf($result['result'], $jc);
-		//dd($jc);
+		
 		$jc->update();
+
+		//dd($jc);
+		if(!isset($job->projectedCost)){
+				$reward = $jc->content['reward'];
+				$workerunitsPerUnit = intval($jc->content['workerunitsPerUnit']);
+				$unitsPerTask = intval($jc->content['unitsPerTask']);
+				$unitsCount = count($batch->wasDerivedFrom);
+                if(!$unitsPerTask)
+                    $projectedCost = 0;
+                else
+				    $projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$workerunitsPerUnit), 2);
+
+                $job->expectedWorkerunitsCount=$unitsCount*$jc->content['workerunitsPerUnit'];
+                $job->projectedCost = $projectedCost;
+            }
+        $job->update();
 	}
 
 	 private function CFDataToJobConf($CFd, &$jc){ // TODO
@@ -271,11 +288,13 @@ class Crowdflower2 extends \FrameWork {
 		if(isset($CFd['payment_cents'])) 		$jcco['reward'] =				$CFd['payment_cents']/100;
 		if(isset($CFd['minimum_requirements'])) 		$jcco['minimumRequirements'] =				$CFd['minimum_requirements'];
 
-		if(isset($CFd['judgments_per_unit'])) 	$jcco['workerUnitsPerUnit'] = 	$CFd['judgments_per_unit'];
+		if(isset($CFd['options']['req_ttl_in_seconds'])) 				$jcco['expirationInMinutes'] =	intval($CFd['options']['req_ttl_in_seconds']/60);
+		if(isset($CFd['judgments_per_unit'])) 	$jcco['workerunitsPerUnit'] = 	$CFd['judgments_per_unit'];
 		if(isset($CFd['units_per_assignment'])) $jcco['unitsPerTask'] = 		$CFd['units_per_assignment'];
-		if(isset($CFd['max_judgments_per_worker'])) $jcco['workerUnitsPerWorker'] = 		$CFd['max_judgments_per_worker'];
-		if(isset($CFd['max_judgments_per_ip'])) $jcco['workerUnitsPerWorker']     = 		$CFd['max_judgments_per_ip'];
+		if(isset($CFd['max_judgments_per_worker'])) $jcco['workerunitsPerWorker'] = 		$CFd['max_judgments_per_worker'];
+		if(isset($CFd['max_judgments_per_ip'])) $jcco['workerunitsPerWorker']     = 		$CFd['max_judgments_per_ip'];
 		// reward, keywords, expiration, workers_level, 
+
 		$jc->content = $jcco;
 		
 	}
@@ -292,11 +311,11 @@ class Crowdflower2 extends \FrameWork {
 		//if(isset($jc['reward'])) 			 	$data['payment_cents']		 		= $jc['reward'];
 
 		if(isset($jc['instructions'])) 			$data['instructions']				= $jc['instructions'];
-		if(isset($jc['workerUnitsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['workerUnitsPerUnit'];
+		if(isset($jc['workerunitsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['workerunitsPerUnit'];
 		if(isset($jc['unitsPerTask']))			$data['units_per_assignment']		= $jc['unitsPerTask'];
-		if(isset($jc['workerUnitsPerWorker']))	{
-			$data['max_judgments_per_worker']	= $jc['workerUnitsPerWorker'];
-			$data['max_judgments_per_ip']		= $jc['workerUnitsPerWorker']; // We choose to keep this the same.
+		if(isset($jc['workerunitsPerWorker']))	{
+			$data['max_judgments_per_worker']	= $jc['workerunitsPerWorker'];
+			$data['max_judgments_per_ip']		= $jc['workerunitsPerWorker']; // We choose to keep this the same.
 		}
 
 
@@ -307,6 +326,8 @@ class Crowdflower2 extends \FrameWork {
 			$data['send_judgments_webhook'] = 'true';
 			\Log::debug("Webhook: {$data['webhook_uri']}");
 		} else {
+			$data['webhook_uri'] = Config::get('crowdflower::webhookuri');
+			$data['send_judgments_webhook'] = 'true';
 			\Log::debug("Warning: no webhook set.");
 		}
 		return $data;
