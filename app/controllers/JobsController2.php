@@ -235,7 +235,8 @@ class JobsController2 extends BaseController {
 			Session::put('jobconf', serialize($jc));
 			Session::put('batch', serialize($job->batch));
 			//dd( $jc->content['type']);
-			Session::put('templatetype', $jc->content['type']);
+			if(isset($jc->content['type']))
+                           Session::put('templatetype', $jc->content['type']);
 			Session::put('title', $jc->content['title']);
 			// Job->parents = array($job->_id);
 			return Redirect::to("jobs2/batch");
