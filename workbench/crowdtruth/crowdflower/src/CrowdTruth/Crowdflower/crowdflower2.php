@@ -368,8 +368,15 @@ class Crowdflower2 extends \FrameWork {
 			//$content = $questionTemplate->flattenAndReplace($unit['content']);
 
 			// Add fields
-			if ($unit['format'] === "image")
-				$content['url'] = $unit['content']['url'];
+			//if ($unit['format'] === "image")
+			//	$content['url'] = $unit['content']['url'];
+
+			$c = array_change_key_case(array_dot($unit['content']), CASE_LOWER);
+			foreach($c as $key=>$val){
+				$key = strtolower(str_replace('.', '_', $key));
+				$content[$key] = $val;
+			}
+			//dd($content);
 			$content['uid'] = $unit['_id'];
 			$content['_golden'] = 'false'; // TODO
 			$array[] = $content;
