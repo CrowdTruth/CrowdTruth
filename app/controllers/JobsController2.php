@@ -427,31 +427,32 @@ class JobsController2 extends BaseController {
 			$jc = new JobConfiguration;
 			$jc->documentType = "jobconf";
 			$jcco = array();
+			//dd("new__");
 		}
 		else
 			$jcco = $jc->content;
 			//$else->content = array("Lukasz:::" . rand());
 			
 			
-			if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 )
-				 		$jcco['type'] = Input::get('templateTypeOwn');
-				 	else
-				 		$jcco['type'] =  Input::get('templateType');
-		    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 0 )
-				 		$jcco['title'] = Input::get('titleOwn');
-				 	else
-				 		$jcco['title'] =  Input::get('title');
-		    if ($jcco['title'] == Null or $jcco['type'] == Null) 
-		    		return Redirect::back()->with('flashError', "form not filled in.");
-		    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['type'] . " | " . $batch->format . " ]] ";
-		    //$jcco['keywords'] = Input::get('keywords');
-		    $jcco['platform'] = Array("cf");
-		    $jcco['description'] =  Input::get('description');
+		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 )
+			 		$jcco['type'] = Input::get('templateTypeOwn');
+			 	else
+			 		$jcco['type'] =  Input::get('templateType');
+	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 0 )
+			 		$jcco['title'] = Input::get('titleOwn');
+			 	else
+			 		$jcco['title'] =  Input::get('title');
+	    if ($jcco['title'] == Null or $jcco['type'] == Null) 
+	    		return Redirect::back()->with('flashError', "form not filled in.");
+	    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['type'] . " | " . $batch->format . " ]] ";
+	    //$jcco['keywords'] = Input::get('keywords');
+	    $jcco['platform'] = Array("cf");
+	    $jcco['description'] =  Input::get('description');
 
 
 
-		    ///////// PUT
-		    $jc->content = $jcco;
+	    ///////// PUT
+	    $jc->content = $jcco;
 
 		
 	    //$jc->content->tags = array("Lukasz:::");

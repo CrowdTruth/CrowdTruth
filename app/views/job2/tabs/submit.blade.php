@@ -33,13 +33,16 @@
 									    foreach($_aTitles as $key=>$value){
 									    	$pos = strpos($value, '[[');
 									    	if ( $pos > 0)
-										    	$aTitles[$value] = substr($value, 0, $pos);
+									    		$t = trim(substr($value, 0, $pos));
+									    		if(!array_key_exists($t, $aTitles))
+										    		$aTitles[$t] = $t;
 										}
 
 										$_aTypes = \MongoDB\Entity::where("documentType", "job")->where("format", $_format)->distinct('type')->get();
 									    $_aTypes = array_flatten($_aTypes->toArray());
 									    foreach($_aTypes as $key=>$value){
-										    $aTypes[$value] = $value;
+									    	if(!isset($aTypes[$value]))
+										    	$aTypes[$value] = $value;
 										}
 										
 
@@ -49,6 +52,10 @@
 										}
 
 										if($phprest = Session::get('title')){
+											$pos = strpos($phprest, '[[');
+									    	if ( $pos > 0)
+												$phprest = trim(substr($phprest, 0, $pos));
+											
 											if(!isset($aTitles[$phprest]))
 												$phprest =null;
 										}
