@@ -32,10 +32,11 @@
 									    
 									    foreach($_aTitles as $key=>$value){
 									    	$pos = strpos($value, '[[');
-									    	if ( $pos > 0)
+									    	if ( $pos > 0) {
 									    		$t = trim(substr($value, 0, $pos));
 									    		if(!array_key_exists($t, $aTitles))
 										    		$aTitles[$t] = $t;
+									    	}
 										}
 
 										$_aTypes = \MongoDB\Entity::where("documentType", "job")->where("format", $_format)->distinct('type')->get();
