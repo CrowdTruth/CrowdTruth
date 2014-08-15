@@ -30,7 +30,7 @@ class JobsController2 extends BaseController {
 
 	
 	public function getBatch() {
-		dd('yo');
+
 		$this->getClearTask();
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
@@ -440,7 +440,7 @@ class JobsController2 extends BaseController {
 			$jc = new JobConfiguration;
 			$jc->documentType = "jobconf";
 			$jcco = array();
-			dd("new__");
+			
 		}
 		else
 			$jcco = $jc->content;
