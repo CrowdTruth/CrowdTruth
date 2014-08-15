@@ -30,6 +30,7 @@ class JobsController2 extends BaseController {
 
 	
 	public function getBatch() {
+		dd('yo');
 		$this->getClearTask();
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
@@ -37,6 +38,17 @@ class JobsController2 extends BaseController {
 		else $selectedbatchid = $batch->_id;
 		return View::make('job2.tabs.batch')->with('batches', $batches)->with('selectedbatchid', $selectedbatchid);
 	}
+
+	public function getBatchd() {
+		
+		
+		$batches = Batch::where('documentType', 'batch')->get(); 
+		$batch = unserialize(Session::get('batch'));
+		if(!$batch) $selectedbatchid = ''; 
+		else $selectedbatchid = $batch->_id;
+		return View::make('job2.tabs.batch')->with('batches', $batches)->with('selectedbatchid', $selectedbatchid);
+	}
+
 
 	public function getTemplatea() {
 		// Create array for the tree
@@ -232,6 +244,7 @@ class JobsController2 extends BaseController {
 			$jc = $job->JobConfiguration->replicate();
 			unset($jc->activity_id);
 			$jc->parents= array($job->JobConfiguration->_id);
+			//dd($jc);
 			Session::put('jobconf', serialize($jc));
 			Session::put('batch', serialize($job->batch));
 			//dd( $jc->content['type']);
@@ -239,7 +252,7 @@ class JobsController2 extends BaseController {
                            Session::put('templatetype', $jc->content['type']);
 			Session::put('title', $jc->content['title']);
 			// Job->parents = array($job->_id);
-			return Redirect::to("jobs2/batch");
+			return Redirect::to("jobs2/batchd");
 		} else {
 			Session::flash('flashError',"Job $id not found.");
 			return Redirect::back();
@@ -427,7 +440,7 @@ class JobsController2 extends BaseController {
 			$jc = new JobConfiguration;
 			$jc->documentType = "jobconf";
 			$jcco = array();
-			//dd("new__");
+			dd("new__");
 		}
 		else
 			$jcco = $jc->content;
