@@ -22,7 +22,8 @@ class RetrieveJobs extends Command {
 	 *
 	 * @var string
 	 */
-	protected $name = 'cf:retrievejobs';
+	protected $name = 'cf2:retrievejobs';
+	//protected $name = 'cf:retrievejobs';
 
 	/**
 	 * The console command description.

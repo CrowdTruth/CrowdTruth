@@ -289,6 +289,7 @@ class Crowdflower2 extends \FrameWork {
 		if(isset($CFd['minimum_requirements'])) 		$jcco['minimumRequirements'] =				$CFd['minimum_requirements'];
 
 		if(isset($CFd['options']['req_ttl_in_seconds'])) 				$jcco['expirationInMinutes'] =	intval($CFd['options']['req_ttl_in_seconds']/60);
+		if(isset($CFd['options']['mail_to'])) 				$jcco['notificationEmail'] =	$CFd['options']['mail_to'];
 		if(isset($CFd['judgments_per_unit'])) 	$jcco['workerunitsPerUnit'] = 	$CFd['judgments_per_unit'];
 		if(isset($CFd['units_per_assignment'])) $jcco['unitsPerTask'] = 		$CFd['units_per_assignment'];
 		if(isset($CFd['max_judgments_per_worker'])) $jcco['workerunitsPerWorker'] = 		$CFd['max_judgments_per_worker'];
