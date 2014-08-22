@@ -423,8 +423,12 @@ class apiController extends BaseController
         $result = array();
         $aggregateOperators = $this->processAggregateInput(Input::all());
         $unitID = Input::get('unit');
-        $result['infoStat'] = \MongoDB\Entity::where('_id', $unitID)->get()->toArray()[0];
-
+        $resultT = \MongoDB\Temp::where('_id', $unitID)->get()->toArray();
+        if (sizeof($resultT) != 0)
+            $result['infoStat'] = \MongoDB\Temp::where('_id', $unitID)->get()->toArray()[0];
+        else
+            $result['infoStat'] = \MongoDB\Entity::where('_id', $unitID)->get()->toArray()[0];
+    
         $selection = \MongoDB\Entity::raw(function ($collection) use ($aggregateOperators, $unitID) {
             $aggregateOperators['$match']['unit_id'] = $unitID;
             $aggregateOperators['$match']['documentType'] = 'workerunit';

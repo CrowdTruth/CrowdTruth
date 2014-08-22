@@ -37,14 +37,15 @@ class OnlineDataHelper {
 	}
 
 	public function getNoOfVideos() {
-		$number = $this->input['numberVideos'];
+		$number = (int)$this->input['numberVideos'];
 		if ($number) {
-			if ($number <= 0) {
+			if ($number == 0) {
 				throw new Exception('Please select a number grater or equal to 1!');		
 			}
-			else {
-				return $number;
+			if ($number < 0) {
+				throw new Exception('Please select a number grater or equal to 1!');		
 			}
+			return $number;
 		}
 	}
 }

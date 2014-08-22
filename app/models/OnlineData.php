@@ -33,9 +33,9 @@ class OnlineData extends Moloquent {
 
 
 	public function listRecords($parameters, $noEntries) {
-		
 		$listOfRecords = array();
 		$curlRequest = new SVRequest;
+
 		$url = $this->url . "verb=ListRecords";
 		if (isset($parameters)) {
 			if (!array_key_exists("metadataPrefix", $parameters)) {
@@ -58,6 +58,7 @@ class OnlineData extends Moloquent {
 			throw new Exception('Request parameters missing!');
 		}
 		while ($noEntries > 0) {
+		    //throw new Exception($noEntries);	
 			$result = $curlRequest->curlRequest($url, "POST", null);
 			$xml = simplexml_load_string($result["result"]);
 			if ($xml === false) {
@@ -65,30 +66,35 @@ class OnlineData extends Moloquent {
 			}
 			else {	
 				$xmlNode = $xml->ListRecords;
-				if (isset($xmlNode))
-				foreach ($xmlNode->record as $rNode) {
+				if (isset($xmlNode)){
+					foreach ($xmlNode->record as $rNode) {
+
     					if(strpos((string)$rNode->metadata->children('oai_oi', 1)->oi->children('oi', 1)->type, "Moving Image") !== false) {
-						if ($noEntries > 0) {
-							$entities = \MongoDB\Entity::where('documentType', 'fullvideo')->lists("title");
-							//dd($entities);
-							if (in_array((string)$rNode->header->identifier, $entities)) {
-								//dd("yes");
-								//break;
+							if ($noEntries > 0) {
+
+								$entities = \MongoDB\Entity::where('documentType', 'fullvideo')->lists("title");
+								//dd($entities);
+								if (!in_array((string)$rNode->header->identifier, $entities)) {
+									array_push($listOfRecords, (string)$rNode->header->identifier);
+									$noEntries --;
+								}
+								else {
+									continue;
+								}
 							}
 							else {
-								array_push($listOfRecords, (string)$rNode->header->identifier);
-								$noEntries --;
+								break;
 							}
-						}
-						else {
-							break;
 						}
 					}
 				}
+				
 				if (!isset($xml->ListRecords->resumptionToken)) {
+
 					return $listOfRecords;
 				}
 				else {
+
 					if ($noEntries > 0) {
 						if(!array_key_exists("resumptionToken", $parameters)) {
 							$parameters["resumptionToken"] = (string)$xml->ListRecords->resumptionToken;
@@ -104,30 +110,40 @@ class OnlineData extends Moloquent {
 				}
 			}
 		}
-		
+	//	dd($listOfRecords);
 		return $listOfRecords;
 	}
 
 	public function getRecord($recordId, $metadataPrefix) {
+		
 		$curlRequest = new SVRequest;
 		$record = array();
 		$url = $this->url . "verb=GetRecord";
+		
 		if (!isset($metadataPrefix)) {
 			throw new Exception("Request must contain -metadataPrefix- parameter");
 		}
 		else {
+
 			$url .= "&metadataPrefix=" . $metadataPrefix . "&identifier=" . $recordId;
 			$result = $curlRequest->curlRequest($url, "POST", null);
 			$xml = simplexml_load_string($result["result"]);
+
 			if ($xml === false) {
     				die('Error parsing XML');   
 			}
 			else {
 				$xmlNode = $xml->GetRecord->record;
+
 				if (isset($xmlNode)) {
 				//	$ancestors = array();
 				//	$record["ancestors"] = $ancestors;
 					$content = array("identifier" => $recordId, "datestamp" => (string)$xmlNode->header->datestamp, "specSet" => (string)$xmlNode->header->setSpec);
+					$searchInFile = false;
+					if(file_exists(public_path(). "/json/" . $recordId . ".json")) {
+						$file = file_get_contents(public_path(). "/json/" . $recordId . ".json");
+						$searchInFile = true;
+					}
 
 					$metadata = array();
 					$titleJson = array();
@@ -168,6 +184,30 @@ class OnlineData extends Moloquent {
 							}
 						}
 					}
+
+					if ($searchInFile == true)
+					if (isset($file['selecties'][0]['niveaus'][0]["trefwoorden"])) {
+						if (!array_key_exists("nl", $subjectJson)) {
+							$subjectJson["nl"] = array();
+						}
+						foreach ($file['selecties'][0]['niveaus'][0]["trefwoorden"] as $keywordSubject) {
+							if (!in_array($keywordSubject["trefwoord"], $subjectJson["nl"])) {
+								array_push($subjectJson["nl"], $keywordSubject["trefwoord"]);
+							}
+						}
+					}
+					if ($searchInFile == true)
+					if(isset($file['selecties'][0]['niveaus'][0]["namen"])) {
+						if (!array_key_exists("nl", $subjectJson)) {
+							$subjectJson["nl"] = array();
+						}
+						foreach ($file['selecties'][0]['niveaus'][0]["namen"] as $keywordSubject) {
+							if (!in_array($keywordSubject, $subjectJson["nl"])) {
+								array_push($subjectJson["nl"], $keywordSubject);
+							}
+						}
+					}
+
 					$metadata["subject"] = $subjectJson;
 
 					$descriptionJson = array();
@@ -264,8 +304,27 @@ class OnlineData extends Moloquent {
 							}
 						}
 					}
+					if ($searchInFile == true)
+					if (isset($file['selecties'][0]['niveaus'][0]['geografische_namen'])) {
+						if (!array_key_exists("nl", $spatialJson)) {
+							$spatialJson["nl"] = array();
+						}
+						foreach ($file['selecties'][0]['niveaus'][0]['geografische_namen'] as $location) {
+							if (!in_array($location, $spatialJson["nl"])) {
+								array_push($spatialJson["nl"], $location);
+							}
+						}
+					}
 					$metadata["spatial"] = $spatialJson;
 
+					$peopleArray = array();
+					$peopleArray["nl"] = array();
+					if ($searchInFile == true)
+					if (isset($file['selecties'][0]['niveaus'][0]['persoonsnamen']))
+						foreach ($file['selecties'][0]['niveaus'][0]['persoonsnamen'] as $person) {
+								array_push($peopleArray["nl"], $person);
+						}
+					$metadata["people"] = $peopleArray;
 
 					$attributionNameJson = array();
 					foreach ($xmlNode->metadata->children('oai_oi', 1)->oi->children('oi', 1)->attributionName as $attributionName) {
@@ -294,7 +353,7 @@ class OnlineData extends Moloquent {
 			$content["metadata"] = $metadata;
 			$record["content"] = $content;
 		}
-	//	dd($record);
+		
 		return $record;
 		
 	}
@@ -356,6 +415,7 @@ class OnlineData extends Moloquent {
 			}
 			}		
 		}
+
 		return $status;
 	}
 
@@ -363,7 +423,6 @@ class OnlineData extends Moloquent {
 	public function store ($format, $domain, $documentType, $parameters, $noOfVideos) {
 		//fastcgi_finish_request();
 		$listOfVideoIdentifiers = $this->listRecords($parameters, $noOfVideos);
-		
 		$status = array();
 
 		try {
@@ -418,7 +477,8 @@ class OnlineData extends Moloquent {
 				$entity->forceDelete();
 				$status['error'][$title] = $e->getMessage();
 			}	
-		}			
+		}		
+		$status["recno"] = 	count($listOfVideoIdentifiers);
 		return $status;
 	}
 

@@ -134,6 +134,8 @@ class Workerunit extends Entity {
         return array('event' => $annotationVector["event"], 'location' => $annotationVector["event"], 
             'time' => $annotationVector["time"], 'participants' => $annotationVector["participants"],
             'other' => $annotationVector["other"]);
+
+        
      }
 
     public function takeAnnotationComponents($wordsNo, $sentence) {
