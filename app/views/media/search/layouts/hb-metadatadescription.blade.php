@@ -30,7 +30,7 @@
 		            <th data-vbIdentifier="checkbox">Select</th>
 			    	<th class="sorting" data-vbIdentifier="metadata_identifier" data-query-key="orderBy[title]">Identifier</th>
 			    	<th class="sorting" data-vbIdentifier="metadata_entities_description" data-query-key="orderBy[content.description]">Metadata Entities </th>
-			    	<th class="sorting" data-vbIdentifier="metadata_entities" data-query-key="orderBy[content.features.entities.value]">Extracted Entities</th>
+			    	<th class="sorting" data-vbIdentifier="metadata_entities" data-query-key="orderBy[content.features.entities.label]">Extracted Entities</th>
 			    	<th class="sorting" data-vbIdentifier="metadata_topics" data-query-key="orderBy[content.features.topics.label]">Topics</th>
 			    	<th class="sorting" data-vbIdentifier="video_title" data-query-key="orderBy[videoTitle]">Title</th>
 		            <th class="sorting" data-vbIdentifier="metadata_language" data-query-key="orderBy[language]">Language</th>
@@ -96,7 +96,7 @@
 			            <td data-vbIdentifier="metadata_entities">
 			            	@{{#if  this.content.features.entities }}
 				            	@{{#eachProperty this.content.features.entities }}
-				            		<b>@{{value.value}}, </b>
+				            		<b>@{{value.label}}, </b>
 				            	@{{/eachProperty}}   
 			            	@{{/if}}
 			            </td>
@@ -130,7 +130,7 @@
 		    			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 		     			<h4 class="modal-title" id="myModalLabelMetadataDescriptionUnit">Individual @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Page</h4>
 		   			</div>
-		   			<div class="modal-body" >
+		   			<div class="modal-body report-modal-body report-pre">
 						<div>
 							<video width="240" height="160" controls preload="none" data-toggle="tooltip" data-placement="top" title="Click to play">
 								<source src="@{{ this.infoStat.videoContent }}" type="video/mp4" >
@@ -140,7 +140,7 @@
 							</video>
 							<div style="float:right;">
 								<strong> Video Title: </strong> @{{ this.infoStat.videoTitle }} <br>
-							    <strong> Video Metadata Description: </strong> @{{ this.infoStat.content }} 
+							    <strong> Video Metadata Description: </strong> @{{ this.infoStat.content.description }} 
 							</div>
 						</div>
 		         		<div class="panel-group" id="accordion">
@@ -159,6 +159,309 @@
 									   	<div><strong> Domain: </strong> @{{ this.infoStat.domain }} </div>
 									   	<div><strong> Source: </strong> @{{ this.infoStat.source }} </div>
 									   	<div><strong> Language: </strong> @{{ this.infoStat.language }} </div>
+			      					</div>
+			    				</div>
+			  				</div>	
+			  				<div class="panel panel-default">
+			    				<div class="panel-heading">
+			      					<a data-toggle="collapse" data-parent="#accordion" href="#collapseFive">
+										<h4 class="panel-title">
+				 							@{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Majority Voting Results 
+										</h4>
+			      					</a>
+			    				</div>
+			    				<div id="collapseFive" class="panel-collapse collapse">
+			      					<div class="panel-body report-pre report-modal-body">
+										<table class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0" text-align="center"> 
+											<thead> 
+												<tr> 
+												  	<th class="header" rowspan="2">Label</th>
+												  	<th class="header" rowspan="2">Start Offset</th>
+						   						  	<th class="header" rowspan="2">End Offset</th>
+						   						  	<th class="header" rowspan="2">Confidence</th>
+						   						  	<th class="header" colspan="3">Clarity</th>
+						   						   	<th class="header" colspan="2">Extractors/Label</th>
+						   						  	<th class="header" rowspan="2">Extractors/Type</th>
+						   						  	<th class="header" rowspan="2">Extractors/Resource</th>
+						   						  	<th class="header" rowspan="2">Extractors/LabelTypePair</th>
+						   						  	<th class="header" rowspan="2">Extractors/LabelResourcePair</th>
+						   						  	<th class="header" rowspan="2">Extractors/TypeResourcePair</th>
+						   						  	<th class="header" rowspan="2">Extractors/LabelTypeResource</th>
+												</tr>
+												<tr>
+													<th class="header">Mean</th>
+						   						  	<th class="header">Stddev</th>
+												  	<th class="header">MSE</th>
+						   						  	<th class="header">Extractors</th>
+						   						  	<th class="header">Relevance</th>
+						   						</tr>
+											</thead>
+											<tbody>
+												@{{#each this.infoStat.content.statistics.majvoting}}
+						 						<tr>
+													<td> @{{ label }} </td>
+													<td> @{{ startOffset }} </td>
+													<td> @{{ endOffset }} </td>
+													<td> @{{ toFixed confidence.value 3}} </td>
+													<td> @{{ toFixed clarity.mean 3}} </td>
+													<td> @{{ toFixed clarity.stddev 3}} </td>
+													<td> @{{ toFixed clarity.mse 3}} </td>
+													<td> @{{ noExtractorsPerLabel.count }} </td>
+													<td> @{{ toFixed noExtractorsPerLabel.relevanceScore.value 3}} </td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">Type</th>
+						   						  			<th class="header">Extractors</th>
+						   						  			<th class="header">Relevance</th>
+						   						  		</tr>
+														@{{#each noExtractorsPerType}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ count }} </td>
+																<td> @{{ toFixed relevanceScore.value 3}} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">Resource</th>
+						   						  			<th class="header">Extractors</th>
+						   						  			<th class="header">Relevance</th>
+						   						  		</tr>
+														@{{#each noExtractorsPerResource}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ count }} </td>
+																<td> @{{ toFixed relevanceScore.value 3}} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">LabelTypePair</th>
+						   						  			<th class="header">Extractors</th>
+						   						  			<th class="header">Relevance</th>
+						   						  		</tr>
+														@{{#each noExtractorsLabelTypePair}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ count }} </td>
+																<td> @{{ toFixed relevanceScore.value 3}} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">LabelResourcePair</th>
+						   						  			<th class="header">Extractors</th>
+						   						  			<th class="header">Relevance</th>
+						   						  		</tr>
+														@{{#each noExtractorsLabelResourcePair}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ count }} </td>
+																<td> @{{ toFixed relevanceScore.value 3}} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">TypeRespurcePair</th>
+						   						  			<th class="header">Extractors</th>
+						   						  			<th class="header">Relevance</th>
+						   						  		</tr>
+														@{{#each noExtractorsTypeResourcePair}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ count }} </td>
+																<td> @{{ toFixed relevanceScore.value 3}} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">LabelTypeResourcePair</th>
+						   						  			<th class="header">Extractors</th>
+						   						  			<th class="header">Relevance</th>
+						   						  		</tr>
+														@{{#each noExtractorsLabelTypeResourcePair}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ count }} </td>
+																<td> @{{ toFixed relevanceScore.value 3}} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+												</tr>
+												@{{/each}}
+											</tbody>
+										</table>
+			      					</div>
+			    				</div>
+			  				</div>
+
+
+			  				<div class="panel panel-default">
+			    				<div class="panel-heading">
+			      					<a data-toggle="collapse" data-parent="#accordion" href="#collapseSix">
+										<h4 class="panel-title">
+				 							@{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} CrowdTruth Cosine Similarity All Labels Result 
+										</h4>
+			      					</a>
+			    				</div>
+			    				<div id="collapseSix" class="panel-collapse collapse">
+			      					<div class="panel-body report-pre report-modal-body">
+										<table class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0" text-align="center"> 
+											<thead> 
+												<tr> 
+												  	<th class="header">Extractor</th>
+												  	<th class="header">Cosine Similarity</th>
+						   						</tr>
+											</thead>
+											<tbody>
+												@{{#each this.infoStat.content.statistics.crowdtruth.cosineSimilarityAllLabels}}
+						 						<tr>
+													<td> @{{ @key }} </td>
+													<td> @{{ this }} </td>
+												</tr>
+												@{{/each}}
+											</tbody>
+										</table>
+			      					</div>
+			    				</div>
+			  				</div>
+
+
+			  				<div class="panel panel-default">
+			    				<div class="panel-heading">
+			      					<a data-toggle="collapse" data-parent="#accordion" href="#collapseSeven">
+										<h4 class="panel-title">
+				 							@{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} CrowdTruth Cosine Similarity Per Label Results 
+										</h4>
+			      					</a>
+			    				</div>
+			    				<div id="collapseSeven" class="panel-collapse collapse">
+			      					<div class="panel-body report-pre report-modal-body">
+										<table class="tablesorter table table-striped table-condensed" border="1" bordercolor="#C0C0C0" text-align="center"> 
+											<thead> 
+												<tr> 
+												  	<th class="header">Label</th>
+												  	<th class="header">Start Offset</th>
+						   						  	<th class="header">End Offset</th>
+						   						  	<th class="header">CosineSimilarityPerType</th>
+						   						  	<th class="header">CosineSimilarityPerResource</th>
+						   						   	<th class="header">CosineSimilarityPerLabelTypePair</th>
+						   						  	<th class="header">CosineSimilarityPerLabelResourcePair</th>
+						   						  	<th class="header">CosineSimilarityPerTypeResourcePair</th>
+						   						  	<th class="header">CosineSimilarityPerLabelTypeResourcePair</th>
+												</tr>
+											</thead>
+											<tbody>
+												@{{#each this.infoStat.content.statistics.crowdtruth.entities}}
+						 						<tr>
+													<td> @{{ label }} </td>
+													<td> @{{ startOffset }} </td>
+													<td> @{{ endOffset }} </td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">Extractor</th>
+						   						  			<th class="header">CosSim</th>
+						   						  		</tr>
+														@{{#each cosineSimilarityPerType}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ this }} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">Extractor</th>
+						   						  			<th class="header">CosSim</th>
+						   						  		</tr>
+														@{{#each cosineSimilarityPerResource}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ this }} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">Extractor</th>
+						   						  			<th class="header">CosSim</th>
+						   						  		</tr>
+														@{{#each cosineSimilarityPerLabelTypePair}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ this }} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">Extractor</th>
+						   						  			<th class="header">CosSim</th>
+						   						  		</tr>
+														@{{#each cosineSimilarityPerLabelResourcePair}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ this }} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">Extractor</th>
+						   						  			<th class="header">CosSim</th>
+						   						  		</tr>
+														@{{#each cosineSimilarityPerTypeResourcePair}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ this }} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+													<td> 
+														<table border="1" bordercolor="#C0C0C0">
+														<tr>
+															<th class="header">Extractor</th>
+						   						  			<th class="header">CosSim</th>
+						   						  		</tr>
+														@{{#each cosineSimilarityPerLabelTypeResourcePair}}
+															<tr>
+																<td> @{{ @key }} </td>
+																<td> @{{ this }} </td>
+							    							</tr>
+						 								@{{/each}}
+														</table>
+													</td>
+												</tr>
+												@{{/each}}
+											</tbody>
+										</table>
 			      					</div>
 			    				</div>
 			  				</div>
