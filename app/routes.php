@@ -10,7 +10,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('media/preprocess/fullvideo', 'preprocess\FullvideoController');
 	Route::controller('media/preprocess/relex', 'preprocess\RelexController');
 	Route::controller('media/preprocess/CSVresultController', 'preprocess\CSVresultController');
-  Route::controller('media/preprocess/MetadatadescriptionController', 'preprocess\MetadatadescriptionController');
+  Route::controller('media/preprocess/metadatadescription', 'preprocess\MetadatadescriptionController');
 	Route::controller('media', 'MediaController');
 
 	Route::controller('jobs', 'JobsController');
