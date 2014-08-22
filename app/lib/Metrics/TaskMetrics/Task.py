@@ -19,11 +19,15 @@ class Task:
         self.template_id = template_id
         self.default_thresholds = self.__get_default_thresholds()
         self.default_query = {}
+        self.default_query_v1 = {}
         for jobPosition in range(len(jobs)):
             query_key = "match[job_id][" + str(jobPosition) + "]"
             self.default_query[query_key] = jobs[jobPosition]
+            #remove this when APIs are integrated
+            self.default_query_v1["field[job_id][" + str(jobPosition) + "]"] = jobs[jobPosition]
 
         self.default_query["match[documentType]"] = 'workerunit'
+        self.default_query_v1["field[documentType]"] = 'workerunit'
 
     def __create_unit_cluster(self):
         unit_cluster = {}
@@ -176,13 +180,12 @@ class Task:
         query['only[]'] = '_id'
         query['limit'] = 10000
 
-        query = dict(self.default_query.items() + query.items())
+        query = dict(self.default_query_v1.items() + query.items())
         api_param = urllib.urlencode(query)
         api_call = urllib2.urlopen(config.server + "v1/?" + api_param)
         response = json.JSONDecoder().decode(api_call.read())
         for worker_unit in response:
             worker_units.append(worker_unit['_id']);
-
         return worker_units
 
     def create_metrics(self):

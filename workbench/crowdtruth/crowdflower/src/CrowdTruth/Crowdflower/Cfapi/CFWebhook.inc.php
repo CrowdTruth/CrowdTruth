@@ -33,7 +33,7 @@ class CFWebhook {
     */ 
 	private function handleNewJudgments($judgments) {
 		//foreach($judgments as $judgment)
-		\Artisan::call('cf:retrievejobs', array('--judgments' => serialize($judgments)));
+		\Artisan::call('cf2:retrievejobs', array('--judgments' => serialize($judgments)));
 	}
 
 	/**

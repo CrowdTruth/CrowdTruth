@@ -30,6 +30,8 @@ class JobsController2 extends BaseController {
 
 	
 	public function getBatch() {
+
+		$this->getClearTask();
 		$batches = Batch::where('documentType', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 
@@ -37,7 +39,18 @@ class JobsController2 extends BaseController {
 		return View::make('job2.tabs.batch')->with('batches', $batches)->with('selectedbatchid', $selectedbatchid);
 	}
 
-	public function getTemplate() {
+	public function getBatchd() {
+		
+		
+		$batches = Batch::where('documentType', 'batch')->get(); 
+		$batch = unserialize(Session::get('batch'));
+		if(!$batch) $selectedbatchid = ''; 
+		else $selectedbatchid = $batch->_id;
+		return View::make('job2.tabs.batch')->with('batches', $batches)->with('selectedbatchid', $selectedbatchid);
+	}
+
+
+	public function getTemplatea() {
 		// Create array for the tree
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch){
@@ -162,29 +175,29 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getSubmit() {
-		$jc = unserialize(Session::get('jobconf'));
-		$template = Session::get('template');
-		$batch = unserialize(Session::get('batch'));
-		$questiontemplateid = Session::get('questiontemplateid');
-		$treejson = $this->makeDirTreeJSON($template, $batch->format, false);
+		//$jc = unserialize(Session::get('jobconf'));
+		//$template = Session::get('template');
+		//$batch = unserialize(Session::get('batch'));
+		//$questiontemplateid = Session::get('questiontemplateid');
+		//$treejson = $this->makeDirTreeJSON($template, $batch->format, false);
 		
 		//$jc->unsetKey('platformpage');
 		// TODO: this here is really bad.
 		// The previews should be decoupled form AMT.
 		// HTML should be generated based on the QuestionTemplate.
-		try {
-			$j = new Job;
-			$j->batch_id = $batch->_id;
-			$j->template = $template;
-			$j->questionTemplate_id = $questiontemplateid;
-			//$j->jobConf_id = $jobconf->_id;  // BAD
-			$amt = App::make('amt');
-			$questions = $amt->amtPublish($j, true,true, $jc);//$j->getPreviews();
-		} catch (Exception $e) {
-			$questions = array('couldn\'t generate previews.');
-			Session::flash('flashNotice', $e->getMessage());
-			//throw $e; // for debugging: see where it originates
-		}
+		// try {
+		// 	$j = new Job;
+		// 	$j->batch_id = $batch->_id;
+		// 	$j->template = $template;
+		// 	$j->questionTemplate_id = $questiontemplateid;
+		// 	//$j->jobConf_id = $jobconf->_id;  // BAD
+		// 	$amt = App::make('amt');
+		// 	$questions = $amt->amtPublish($j, true,true, $jc);//$j->getPreviews();
+		// } catch (Exception $e) {
+		// 	$questions = array('couldn\'t generate previews.');
+		// 	Session::flash('flashNotice', $e->getMessage());
+		// 	//throw $e; // for debugging: see where it originates
+		// }
 		//dd("o");
 		// $toomany = '';
 		// if($jc->content['unitsPerTask'] > count($batch->wasDerivedFrom)){
@@ -200,11 +213,11 @@ class JobsController2 extends BaseController {
 		// } 
 
 		return View::make('job2.tabs.submit')
-			->with('treejson', $treejson)
-			->with('questions',  $questions)
+		//	->with('treejson', null)
+		//	->with('questions',  $questions)
 		//	->with('table', $jc->toHTML())
-			->with('template', '')//$jc->content['template'])
-			->with('frameheight', (isset($jc->content['frameheight']) ? $jc->content['frameheight'] : 650))
+		//	->with('template', '')//$jc->content['template'])
+		//	->with('frameheight', (isset($jc->content['frameheight']) ? $jc->content['frameheight'] : 650))
 		//	->with('jobconf', $jc->content)
 			;
 	}
@@ -219,9 +232,9 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getDuplicate($entity, $format, $domain, $docType, $incr){
-		Session::forget('jobconf');
-		Session::forget('origjobconf');
-		Session::forget('template');
+		//Session::forget('jobconf');
+		//Session::forget('origjobconf');
+		//Session::forget('template');
 		//Session::forget('questiontemplateid');
 		Session::forget('batch');
 
@@ -231,11 +244,15 @@ class JobsController2 extends BaseController {
 			$jc = $job->JobConfiguration->replicate();
 			unset($jc->activity_id);
 			$jc->parents= array($job->JobConfiguration->_id);
+			//dd($jc);
 			Session::put('jobconf', serialize($jc));
 			Session::put('batch', serialize($job->batch));
-			Session::put('template', $job->template);
+			//dd( $jc->content['type']);
+			if(isset($jc->content['type']))
+                           Session::put('templatetype', $jc->content['type']);
+			Session::put('title', $jc->content['title']);
 			// Job->parents = array($job->_id);
-			return Redirect::to("jobs2/batch");
+			return Redirect::to("jobs2/batchd");
 		} else {
 			Session::flash('flashError',"Job $id not found.");
 			return Redirect::back();
@@ -267,6 +284,27 @@ class JobsController2 extends BaseController {
 	* It combines the Input fields with the JobConfiguration that we already have in the Session.
 	*/
 	public function postFormPart($next){
+		if(Input::has('batch')){
+			// TODO: CSRF
+			$batch = Batch::find(Input::get('batch'));
+			Session::put('batch', serialize($batch));
+		} else {
+			$batch = unserialize(Session::get('batch'));
+			if(empty($batch)){
+				Session::flash('flashNotice', 'Please select a batch first.');
+				return Redirect::to("jobs/batch");
+			}	
+		}
+		try {
+			return Redirect::to("jobs2/$next");
+		} catch (Exception $e) {
+			Session::flash('flashError', $e->getMessage()); // Todo: is this a good way? -> logging out due to timeout
+			return Redirect::to("jobs2");
+		}
+	}
+
+
+	public function postFormPart2($next){
 
 		$jc = unserialize(Session::get('jobconf', serialize(new JobConfiguration)));
 		if(isset($jc->content)) $jcc = $jc->content;
@@ -350,9 +388,9 @@ class JobsController2 extends BaseController {
 
 
 				// DEFAULT VALUES
-				if(!isset($jcc['eventType'])) $jcc['eventType'] = 'HITReviewable'; 
-				if(!isset($jcc['frameheight'])) $jcc['frameheight'] = 650;
-				unset($jcc['_token']);
+				//if(!isset($jcc['eventType'])) $jcc['eventType'] = 'HITReviewable'; 
+				//if(!isset($jcc['frameheight'])) $jcc['frameheight'] = 650;
+				//unset($jcc['_token']);
 				$jc->content = $jcc;	
 
 				// After specific platform tab, call the method and determine which is next.
@@ -387,33 +425,52 @@ class JobsController2 extends BaseController {
 	* Send it to the platforms.
 	*/
 
-	public function getRefresh($id){
+	public function getRefresh($entity, $format, $domain, $docType, $incr){
 		$platform = App::make('cf2');
-		$platform->refreshJob($id);
-
+		$platform->refreshJob("entity/$format/$domain/$docType/$incr");
+		return Redirect::to("jobs");
 	}
 
 
 	public function postSubmitFinal($ordersandbox = 'order'){
 		//$jc = unserialize(Session::get('jobconf'));
-		$jc = new JobConfiguration;
-		$jc->documentType = "jobconf";
-		//$jc->content = array("Lukasz:::" . rand());
-		
-		$jcco = array();
-		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 1 )
+		$batch = unserialize(Session::get('batch'));
+		if (!$jc = unserialize(Session::get('jobconf'))){
+
+			$jc = new JobConfiguration;
+			$jc->documentType = "jobconf";
+			$jcco = array();
+			
+		}
+		else
+			$jcco = $jc->content;
+			//$else->content = array("Lukasz:::" . rand());
+			
+			
+		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 )
 			 		$jcco['type'] = Input::get('templateTypeOwn');
 			 	else
 			 		$jcco['type'] =  Input::get('templateType');
-	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 1 )
+	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 0 )
 			 		$jcco['title'] = Input::get('titleOwn');
 			 	else
 			 		$jcco['title'] =  Input::get('title');
+	    if ($jcco['title'] == Null or $jcco['type'] == Null) 
+	    		return Redirect::back()->with('flashError', "form not filled in.");
+	    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['type'] . " | " . $batch->format . " ]] ";
+	    //$jcco['keywords'] = Input::get('keywords');
+	    $jcco['platform'] = Array("cf");
+	    $jcco['description'] =  Input::get('description');
+
+
+
+	    ///////// PUT
 	    $jc->content = $jcco;
-	    
+
+		
 	    //$jc->content->tags = array("Lukasz:::");
 		//$template = Session::get('template');
-		$batch = unserialize(Session::get('batch'));
+		
 		//$questiontemplateid = Session::get('questiontemplateid');
 		//$jobs = array();
 
@@ -435,6 +492,7 @@ class JobsController2 extends BaseController {
 
 			// Save jobconf if necessary
 			$hash = md5(serialize($jc->content));
+
         	if($existingid = JobConfiguration::where('hash', $hash)->pluck('_id')) //[qq]
                 $jcid = $existingid; // Don't save, it already exists.
             else {
@@ -453,7 +511,7 @@ class JobsController2 extends BaseController {
 			 	$j = new Job;
 			 	$j->format = $batch->format;
 			 	$j->domain = $batch->domain;
-			 	$j->type = $jcco['type'];
+			 	$j->type = $jc->content['type'];
 			// 	$j->template = $template; // TODO: remove
 			 	$j->batch_id = $batch->_id;
 			// 	$j->questionTemplate_id = $questiontemplateid;

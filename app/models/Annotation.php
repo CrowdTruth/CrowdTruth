@@ -379,7 +379,7 @@ class Workerunit extends Entity {
             $ans = $this->content['Q1'];
 
         // The CF template works like this.
-        if($this->softwareAgent_id == 'cf'){
+        if($this->softwareAgent_id == 'cf2'){
             $u = $this->unit->content;
 /*            if($ans == 'no_relation')
                 $ans = 'Choice3';*/

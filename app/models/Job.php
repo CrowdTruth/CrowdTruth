@@ -51,12 +51,14 @@ class Job extends Entity {
 
                 $job->expectedWorkerunitsCount=$unitsCount*$job->jobConfiguration->content['workerunitsPerUnit'];
                 $job->projectedCost = $projectedCost;
-				$job->unitsCount = $unitsCount;
-                $job->latestMetrics = 0;
-				$job->workerunitsCount = 0;
-				$job->completion = 0.00; // 0.00-1.00
+            }
+            
+			$job->unitsCount = count($job->batch->wasDerivedFrom);
+            $job->latestMetrics = 0;
+			$job->workerunitsCount = 0;
+			$job->completion = 0.00; // 0.00-1.00
 				
-			}
+			
 
 			if(!isset($job->activity_id)){
 		    	$activity = new Activity;

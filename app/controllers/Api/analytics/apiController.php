@@ -841,6 +841,18 @@ class apiController extends BaseController
                 array('$group' => $aggregateOperators['$group'])));
 
         });
+        if (count($selection['result']) == 0) {
+            foreach (Input::get('project') as $field => $value) {
+                $results[$field] = array();
+            }
+            $results['id'] = array();
+            $results['potentialSpamWorkers'] = array();
+            $results['avgUnits'] = array();
+            $results['avgWorkerunits'] = array();
+            $results['avgWorkers'] = array();
+            $results['query'] = Input::get('match');
+            return $results;
+        }
         $results = $selection['result'][0];
 
         //create an array for time values
@@ -872,6 +884,8 @@ class apiController extends BaseController
             $potentialSpammers = array_intersect($workersOfJob, $spammersSet);
             $potentialSpammersCount[$iter] = count($potentialSpammers);
             $results['workers'][$iter] = count($workersOfJob) - count($potentialSpammers);
+            $results['units'][$iter] = $results['units'][$iter] - $results['filteredUnits'][$iter] ;
+            $results['workerunits'][$iter] = $results['workerunits'][$iter] - $results['filteredWorkerunits'][$iter] ;
 
             //add the time value
 

@@ -4,6 +4,7 @@
 
 @section('head')
 {{ stylesheet_link_tag('bootstrap-select.css') }}
+{{ stylesheet_link_tag('introjs.min.css') }}
 {{ stylesheet_link_tag('bootstrap-dropdown-checkbox.css') }}
 {{ stylesheet_link_tag('bootstrap.datepicker3.css') }}
 
@@ -31,7 +32,7 @@
 					@endif
 				@endif
 
-					<div class='tabOptions pull-left'>
+					<div id="tabOptionsID" class='tabOptions pull-left'>
 					</div>
 					<div class="btn-group pull-left" style="margin-left:5px";>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -42,6 +43,7 @@
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
 						</ul>
 					</div>
+                    <div ><button style="margin-left:5px"; id="introJS" type="button" class="btn btn-warning" >Info Tour</button></div>
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
 						<option value="10">10 Records per page</option>
 						<option value="25">25 Records per page</option>
@@ -91,7 +93,7 @@
 
 						<div class='includeGraph hidden'>
                             <table>
-                                <tr class="pieDivGraphs">
+                                <tr id="pieDivGraphsID" class="pieDivGraphs">
                                     <td>
                                         <div id="domain_div"></div>
                                     </td>
@@ -112,7 +114,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table id="barChartsID">
                                 <tr >
                                     <td>
                                         <div id="generalBarChart_div" ></div>
@@ -124,8 +126,8 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
-                                <tr>
+                            <table style="border: solid thin #274B6D">
+                                <tr id="workersIDs">
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="workersPie_div"></div>
                                     </td>
@@ -134,8 +136,8 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
-                                <tr>
+                            <table style="border: solid thin #274B6D">
+                                <tr id="jobsIDs">
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="jobsPie_div"></div>
                                     </td>
@@ -144,8 +146,8 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
-                                <tr>
+                            <table style="border: solid thin #274B6D">
+                                <tr id="unitsIDs">
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="unitsPie_div"></div>
                                     </td>
@@ -154,8 +156,8 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
-                                <tr >
+                            <table style="border: solid thin #274B6D">
+                                <tr id="annotationIDs">
                                     <td class="pieDivGraphs">
                                         <div id="annotationsPie_div"></div>
                                     </td>
@@ -226,6 +228,7 @@
 <script>
 $('document').ready(function(){
 
+
 Swag.registerHelpers();
 
 $('.selectpicker').selectpicker();
@@ -245,6 +248,7 @@ var lastQueryResult;
 //     $(".facetedSearchFilters").css({"margin-top": 0 + "px"});
 //    }
 // });
+
 
 var getActiveTabKey = function(){
 	return '#' + $('.tab-pane.active').attr('id');
@@ -522,7 +526,8 @@ $('.input-daterange input').on('changeDate', function(e) {
 });
 
 
-    var updateSelection = function(id) {
+var updateSelection = function(id) {
+    console.dir(id);
         var activeTabKey = getActiveTabKey();
 console.dir(activeTabKey);
         console.dir(id);
@@ -554,7 +559,7 @@ console.dir(activeTabKey);
         console.dir(selectedRows[activeTabKey]);
     }
 
-    var getSelection = function() {
+var getSelection = function() {
         var activeTabKey = getActiveTabKey();
 
         if (typeof selectedRows[activeTabKey] != 'undefined') {
@@ -929,6 +934,205 @@ $('body').on('click', '.testModal', function(){
 $('.select_crowdagents').click();
 $('.documentTypesNav').find('#crowdagents_nav a').click();
 $('.graphViewButton').click();
+
+var workerList = localStorage.getItem("workerList");
+if(workerList !=  null) {
+    workerList = JSON.parse(workerList);
+    for(var iterWorker in workerList){
+        updateSelection(workerList[iterWorker]);
+    }
+    localStorage.removeItem("workerList");
+}
+//updateSelection('crowdagent/cf/15881986');
+$('#introJS').on('click', function(){
+    var intro = introJs();
+    var countMainBarchart  = 0;
+    var countAnnotations  = 0;
+    var countJobs  = 0;
+
+    intro.onbeforechange(function(targetElement) {
+
+        console.log(targetElement.id);
+
+        // console.log(targetElement.getClass());
+        switch (targetElement.id)
+        {
+
+            case "tabOptionsID":
+                $('.btn-group .vbColumns .btn')[0].click();
+                break;
+
+            case "annotationIDs":
+                $("#annotationsPie_div").highcharts().series[1].data[0].firePointEvent('click');
+                break;
+
+            case "jobsBar_div":
+                countJobs = countJobs + 1;
+                if(countJobs == 2) {
+                    $($("#jobsBar_div").highcharts().series[1].legendItem.element).trigger('click');
+                }
+                if(countJobs == 3) {
+                    $('#metricsButtonID').click();
+                }
+                if(countJobs == 4) {
+                    $($("#jobsBar_div").highcharts().series[2].legendItem.element).trigger('click');
+                    $($("#jobsBar_div").highcharts().series[4].legendItem.element).trigger('click');
+                    $($("#jobsBar_div").highcharts().series[6].legendItem.element).trigger('click');
+                    $($("#jobsBar_div").highcharts().series[8].legendItem.element).trigger('click');
+                    //$($("#jobsBar_div").highcharts().series[9].legendItem.element).trigger('click');
+                    $($("#jobsBar_div").highcharts().series[10].legendItem.element).trigger('click');
+                }
+                break;
+
+            case "generalBarChart_div":
+                countMainBarchart = countMainBarchart + 1;
+                if(countMainBarchart == 4) {
+                    var position1 = parseInt($("#generalBarChart_div").highcharts().series[1].data.length/2);
+                    var position2 = parseInt($("#generalBarChart_div").highcharts().series[1].data.length/2) + 1;
+                    $("#generalBarChart_div").highcharts().series[0].data[position1 + 6].firePointEvent('click');
+                    $("#generalBarChart_div").highcharts().series[0].data[position1 - 12].firePointEvent('click');
+                }
+
+                break;
+        }
+    });
+    intro.setOptions({
+        steps: [
+            {
+                intro: "<span style='font-family: Tahoma;font-size:20px;white-space: nowrap;'>Welcome to the page describing the <b>Workers</b> of the framework!</span>",
+                position: 'right'
+            },
+            {
+                element: '#crowdagents_tab',
+                intro:"<span style='font-family: Tahoma;white-space: nowrap;'>You can <b>refine your selection</b> of workers using these filters</span>",
+                position: 'top'
+            },
+            {
+                element: '#tabOptionsID',
+                intro:"<span style='font-family: Tahoma;'>You can enable <b>more filters</b> from here</span>",
+                position: 'left'
+            },
+            {
+                element: '#pieDivGraphsID',
+                intro:"<span style='font-family: Tahoma;white-space: nowrap;'>The pie charts show the <b>distribution</b> of properties in current selection</span>",
+                position: 'top'
+            },
+            {
+                element: '#barChartsID',
+                intro:"<span style='font-family: Tahoma;white-space: nowrap;'>The bar charts show the <b>properties of individual</b> workers</span>",
+                position: 'top'
+            },
+            {
+                element: '#generalBarChartMaster_div',
+                intro:"<span style='font-family: Tahoma;white-space: nowrap;'><b>All the workers</b> can be seen in this bar chart</span>",
+                position: 'top'
+            },
+            {
+                element: '#generalBarChartMaster_div',
+                intro:"<span style='font-family: Tahoma;white-space: nowrap;'>To <b>zoomed in </b> a subset of workers <b>select an area</b> in the bar chart</span>",
+                position: 'top'
+            },
+            {
+                element: '#generalBarChart_div',
+                intro:"<span style='font-family: Tahoma;white-space: nowrap;'>This bar chart represents the <b>zoomed in view</b> of a subset of workers</span>",
+                position: 'top'
+            },
+            {
+                element: '#generalBarChart_div',
+                intro:"<span style='font-family: Tahoma;white-space: nowrap;'>The <b>title</b> shows the <b>number of displayed</b> workers. <b>Reset zoom</b> to see all the workers.</span>",
+                position: 'top'
+            },
+            {
+                element: '#generalBarChart_div',
+                intro:"<span style='font-family: Tahoma;'>You can <b>right click</b> a bar to see <b>more information</b> about that worker. A <b> left click</b> will display the <b>related units, jobs and annotations</b> of the worker.</span>",
+                position: 'top'
+            },
+            {
+                element: '#generalBarChart_div',
+                intro:"<span style='font-family: Tahoma;'>Let us select two workers and go further</span>",
+                position: 'top'
+            },
+            {
+                element: '#jobsIDs',
+                intro:"<span style='font-family: Tahoma;white-space: nowrap;'>This view shows <b>the jobs</b> in which the workers <b>participated</b> </span>",
+                position: 'top'
+            },
+            {
+                element: '#jobsPie_div',
+                intro:"<span style='font-family: Tahoma;'><b>The pie chart</b> shows the <b>distribution</b> across <b>platforms and type of tasks</b> of the related jobs.</span>",
+                position: 'top'
+            },
+            {
+                element: '#jobsBar_div',
+                intro:"<span style='font-family: Tahoma;'><b>The bar chart </b> shows the <b>performance </b> of the workers on <b>individual jobs.</b></span>",
+                position: 'top'
+            },
+            {
+                element: '#jobsBar_div',
+                intro:"<span style='font-family: Tahoma;'>You can <b>enable </b> properties from the <b>legend</b></span>",
+                position: 'top'
+            },
+            {
+                element: '#jobsBar_div',
+                intro:"<span style='font-family: Tahoma;'>In the <b>right upper corner</b> you can <b>activate</b> more option to compare the <b>performance</b> of the workers <b>before low quality filtering</b></span>",
+                position: 'top'
+            },
+            {
+                element: '#jobsBar_div',
+                intro:"<span style='font-family: Tahoma;'>Lets <b>disable</b> the other elements <b>using the legend</b> for a better view.</span>",
+                position: 'top'
+            },
+            {
+                element: '#unitsIDs',
+                intro:"<span style='font-family: Tahoma;'>This view display <b>the units</b> annotated by the workers</span>",
+                position: 'top'
+            },
+            {
+                element: '#unitsPie_div',
+                intro:"<span style='font-family: Tahoma;white-space: nowrap;'>The pie chart shows the <b>distribution across platforms</b> of annotated units</span>",
+                position: 'top'
+            },
+            {
+                element: '#unitsBar_div',
+                intro:"<span style='font-family: Tahoma;white-space: nowrap;'>The barchart displays <b>the performance</b> of workers <b>on the annotated units</b></span>",
+                position: 'top'
+            },
+            {
+                element: '#annotationIDs',
+                intro:"<span style='font-family: Tahoma;white-space: nowrap;'>This view shows <b>the annotations</b> of the workers</span>",
+                position: 'top'
+            },
+            {
+                element: '#annotationsPie_div',
+                intro:"<span style='font-family: Tahoma;'>The pie charts display <b>the distribution</b> of workers' annotations across platforms and task types</span>",
+                position: 'top'
+            },
+            {
+                element: '#annotationsAfter_div',
+                intro:"<span style='font-family: Tahoma;'>Upon the selection of a task type, the <b> annotations</b> of the workers are shown</span>",
+                position: 'top'
+            },
+            {
+                element: '#annotationsMetricAfter_0_div',
+                intro:"<span style='font-family: Tahoma;'>With the associated <b>worker agreement </b> score in that task</span>",
+                position: 'top'
+            },
+            {
+                element: '#annotationsMetricAfter_1_div',
+                intro:"<span style='font-family: Tahoma;'>and <b>worker cosine </b> score in that task</span>",
+                position: 'top'
+            },
+            {
+                intro: "<span style='font-family: Tahoma;font-size:20px;white-space: nowrap;'>And that was all! I hope you Enjoy it!</span>",
+                position: 'right'
+            }
+
+
+        ]
+    });
+
+    intro.start();
+});
 
 });
 

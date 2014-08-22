@@ -22,7 +22,8 @@ class RetrieveJobs extends Command {
 	 *
 	 * @var string
 	 */
-	protected $name = 'cf:retrievejobs';
+	protected $name = 'cf2:retrievejobs';
+	//protected $name = 'cf:retrievejobs';
 
 	/**
 	 * The console command description.
@@ -79,7 +80,7 @@ class RetrieveJobs extends Command {
 				$activity->label = "Units are annotated on crowdsourcing platform.";
 				$activity->crowdAgent_id = $agentId; 
 				$activity->used = $ourjobid;
-				$activity->softwareAgent_id = 'cf';
+				$activity->softwareAgent_id = 'cf2';
 				$activity->save();
 			}
 
@@ -91,7 +92,7 @@ class RetrieveJobs extends Command {
 			if(!$agent = CrowdAgent::id($agentId)->first()){
 				$agent = new CrowdAgent;
 				$agent->_id= $agentId;
-				$agent->softwareAgent_id= 'cf';
+				$agent->softwareAgent_id= 'cf2';
 				$agent->platformAgentId = (string) $judgment['worker_id'];
 				$agent->country = $judgment['country'];
 				$agent->region = $judgment['region'];
@@ -123,11 +124,11 @@ class RetrieveJobs extends Command {
 	* @throws CFExceptions when no job is found. 
 	*/
 	private function getJob($jobid){
-		if(!$job = Job::where('softwareAgent_id', 'cf')
+		if(!$job = Job::where('softwareAgent_id', 'cf2')
 						->where('platformJobId', intval($jobid)) /* Mongo queries are strictly typed! We saved it as int in Job->store */
 						->first())
 		{
-			$job = Job::where('softwareAgent_id', 'cf')
+			$job = Job::where('softwareAgent_id', 'cf2')
 						->where('platformJobId', (string) $jobid) /* Try this to be sure. */
 						->first();
 		}
@@ -150,7 +151,7 @@ class RetrieveJobs extends Command {
 	{
 
 		// If exists return false. 
-		if(Workerunit::where('softwareAgent_id', 'cf')
+		if(Workerunit::where('softwareAgent_id', 'cf2')
 			->where('platformWorkerunitId', $judgment['id'])
 			->first())
 			return false;	
@@ -161,7 +162,7 @@ class RetrieveJobs extends Command {
 			//$workerunit->platformJobId = $judgment['job_id'];
 			$workerunit->activity_id = $activityId;
 			$workerunit->crowdAgent_id = $agentId;
-			$workerunit->softwareAgent_id = 'cf';
+			$workerunit->softwareAgent_id = 'cf2';
 			$workerunit->unit_id = $judgment['unit_data']['uid']; // uid field in the csv we created in $batch->toCFCSV().
 			$workerunit->platformWorkerunitId = $judgment['id'];
 			$workerunit->cfChannel = $judgment['external_type'];
