@@ -3,10 +3,12 @@
 namespace Preprocess;
 require_once 'sparqllib.php';
 
+
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
 use URL, Session, Exception;
+
 
 class MetadatadescriptionStructurer {
 
@@ -16,7 +18,9 @@ class MetadatadescriptionStructurer {
 		$result = null;
 		$db = sparql_connect('http://nl.dbpedia.org/sparql');
 		$query = "select ?wikipedia where {<$dutchResource> foaf:isPrimaryTopicOf ?wikipedia}";
+	//	print_r($query);
 		$resultQuery = sparql_query($query);
+	//	dd($resultQuery);
 		$fields = sparql_field_array($resultQuery);
 		$row = sparql_fetch_array($resultQuery);
 		if ($row != null) {
@@ -29,7 +33,9 @@ class MetadatadescriptionStructurer {
 		$result = null;
 		$db = sparql_connect('http://dbpedia.org/sparql');
 		$query = "select ?wikipedia where {<$englishResource> foaf:isPrimaryTopicOf ?wikipedia}";
+	//	print_r($query);
 		$resultQuery = sparql_query($query);
+	//	dd($resultQuery);
 		$fields = sparql_field_array($resultQuery);
 		$row = sparql_fetch_array($resultQuery);
 		if ($row != null) {
@@ -43,7 +49,9 @@ class MetadatadescriptionStructurer {
 		$db = sparql_connect('http://nl.dbpedia.org/sparql');
 		$query = "select ?resource where {<$dutchResource> owl:sameAs ?resource . 
 filter (regex (str(?resource), \"http://dbpedia\", \"i\") ) .}";
+//print_r($query);
 		$resultQuery = sparql_query($query);
+	//	dd($resultQuery);
 		$fields = sparql_field_array($resultQuery);
 		$row = sparql_fetch_array($resultQuery);
 	//	dd($resultQuery);
@@ -55,10 +63,13 @@ filter (regex (str(?resource), \"http://dbpedia\", \"i\") ) .}";
 
 	public function getDutchResourceFromEnglishResource($englishResource) {
 		$result = null;
+	//	dd($englishResource);
 		$db = sparql_connect('http://dbpedia.org/sparql');
-		$query = "select ?resource where {<$englishResource> owl:sameAs ?resource . 
+		$query = "select ?resource where {<".$englishResource."> owl:sameAs ?resource . 
 filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
+	//	dd($query);
 		$resultQuery = sparql_query($query);
+	//	dd($resultQuery);
 		$fields = sparql_field_array($resultQuery);
 		$row = sparql_fetch_array($resultQuery);
 		if ($row != null) {
@@ -74,8 +85,11 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 				filter ( regex (str(?types), \"http://dbpedia.org/ontology/\", \"i\") ).
 				filter ( regex(str(?types), \"^(?!http://dbpedia.org/ontology/Wikidata).+\", \"i\")) .}";
 		$resultQuery = sparql_query($query);
+		
 		$fields = sparql_field_array($resultQuery);
+
 		while($row = sparql_fetch_array($resultQuery)) {
+			
 			foreach($fields as $field) {
  				if ($field == "types") {
   					$typeArray = explode("/", (string)$row[$field]);
@@ -90,7 +104,9 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		$result = null;
 		$db = sparql_connect('http://nl.dbpedia.org/sparql');
 		$query = "select * where { ?resource foaf:isPrimaryTopicOf <$dutchWikipediaLink> .}";
+	//	print_r($query);
 		$resultQuery = sparql_query($query);
+	//	dd($resultQuery);
 		$fields = sparql_field_array($resultQuery);
 		$row = sparql_fetch_array($resultQuery);
 		if ($row != null) {
@@ -103,7 +119,9 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		$result = null;
 		$db = sparql_connect('http://dbpedia.org/sparql');
 		$query = "select * where { ?resource foaf:isPrimaryTopicOf <$englishWikipediaLink> .}";
+	//	print_r($query);
 		$resultQuery = sparql_query($query);
+	//	dd($resultQuery);
 		$fields = sparql_field_array($resultQuery);
 		$row = sparql_fetch_array($resultQuery);
 		if ($row != null) {
@@ -124,6 +142,7 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		$apikey = "150284785c5a49709990f973ec825d1e";
 		$result = array();
 		$result["entities"] = array();
+		$result["initialEntities"] = array();
 
 		for ($i = 0; $i < count($entity_type); $i ++) {
 			$output = "";
@@ -132,26 +151,49 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		//	dd($curlRequest);
 			$response = exec($curlRequest, $output);
 			$responseEntities = json_decode($output[0], true);	
+		
 		//	dd($responseEntities);
 			for ($j = 0; $j < count($responseEntities); $j++) {
 				$entity = array();
+				$initialEntity = array();
 				$entity["label"] = $responseEntities[$j]["underlyingString"];
 				$entity["startOffset"] = $responseEntities[$j]["startOffset"];
 				$entity["endOffset"] = $responseEntities[$j]["endOffset"];
 				$entity["confidence"] = null;
 				$entity["provenance"] = "thd";
+				$initialEntity["label"] = $responseEntities[$j]["underlyingString"];
+				$initialEntity["startOffset"] = $responseEntities[$j]["startOffset"];
+				$initialEntity["endOffset"] = $responseEntities[$j]["endOffset"];
+				$initialEntity["confidence"] = null;
+				$initialEntity["provenance"] = "thd";
 				$entity["types"] = array();
+				$initialEntity["types"] = array();
+
 				for ($k = 0; $k < count($responseEntities[$j]["types"]); $k++) {
 					
-					if ((strpos($responseEntities[$j]["types"][$k]["typeLabel"], "/resource/") !== false)) {
+					if ((strpos($responseEntities[$j]["types"][$k]["typeLabel"], "dbpedia.org/resource/") !== false)) {
 						continue;
 					}
 
 					$type = array();
+					$initialType = array();
 					$type["typeURI"] = str_replace(" ", "", $responseEntities[$j]["types"][$k]["typeLabel"]);
+					$initialType["typeURI"] = null;
+					if ($responseEntities[$j]["types"][$k]["provenance"] == "yago") {
+						$initialType["typeURI"] = str_replace(" ", "", $responseEntities[$j]["types"][$k]["typeLabel"]);
+						$initialType["typeURI"] = "YAGO::" . $initialType["typeURI"];
+					}
+					if (strpos($responseEntities[$j]["types"][$k]["typeURI"], "dbpedia") !== false) {
+						$initialType["typeURI"] = str_replace(" ", "", $responseEntities[$j]["types"][$k]["typeLabel"]);
+						$initialType["typeURI"] = "DBpedia::" . $initialType["typeURI"];
+					}
 					$type["wikiURI"] = array();
 					$type["wikiURI"]["en"] = null;
 					$type["wikiURI"]["nl"] = null;
+					$initialType["wikiURI"] = array();
+					$initialType["wikiURI"]["en"] = null;
+					$initialType["wikiURI"]["nl"] = null;
+					$initialType["entityURI"] = (string)$responseEntities[$j]["types"][$k]["entityURI"]; 
 
 					if ($responseEntities[$j]["types"][$k]["provenance"] == "yago") {
 						$type["typeURI"] = str_replace(" ", "", "YAGO::" . $type["typeURI"]);
@@ -162,29 +204,38 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 					else  {
 						if ($type["typeURI"] != null && $type["typeURI"] != "") {
 							$type["typeURI"] =  str_replace(" ", "", "DBpedia::" . $type["typeURI"]);
+
 						}
 						if (strpos($responseEntities[$j]["types"][$k]["entityURI"], 'nl.dbpedia.org') !== false) {
 							$type["entityURI"] = (string)$responseEntities[$j]["types"][$k]["entityURI"]; 
+							//dd($type["entityURI"]);
 							$englishEntityResource = $this->getEnglishResourceFromDutchResource($type["entityURI"]);
+							//	dd($englishEntityResource);
 							$type["wikiURI"]["en"] = $this->getEnglishWikipediaLinkFromEnglishResource($englishEntityResource);					
 	  						$type["wikiURI"]["nl"] = $this->getDutchWikipediaLinkFromDutchResource($type["entityURI"]);
 						}
 						else {
 							$englishEntityResource = (string)$responseEntities[$j]["types"][$k]["entityURI"];
+
 							$type["entityURI"] = $this->getDutchResourceFromEnglishResource($englishEntityResource);
+						//	dd($type["entityURI"]);
 	  						$type["wikiURI"]["en"] = $this->getEnglishWikipediaLinkFromEnglishResource($englishEntityResource);
-	  						$type["wikiURI"]["nl"] = $this->getDutchWikipediaLinkFromDutchResource($type["entityURI"]);;
+	  						$type["wikiURI"]["nl"] = $this->getDutchWikipediaLinkFromDutchResource($type["entityURI"]);
 						}
 					}
 						
 					$type["confidence"]["score"] = $responseEntities[$j]["types"][$k]["confidence"]["value"];
 					$type["confidence"]["bounds"] = $responseEntities[$j]["types"][$k]["confidence"]["bounds"];
 
+					$initialType["confidence"]["score"] = $responseEntities[$j]["types"][$k]["confidence"]["value"];
+					$initialType["confidence"]["bounds"] = $responseEntities[$j]["types"][$k]["confidence"]["bounds"];
+
+
 					foreach ($entity["types"] as $key => $value) {
 						if (strtolower($value["typeURI"]) == strtolower($type["typeURI"]) && $value["entityURI"] == $type["entityURI"] && 
 							$value["wikiURI"]["en"] == $type["wikiURI"]["en"] && $value["wikiURI"]["nl"] == $type["wikiURI"]["nl"]) {
 							if ($type["confidence"]["score"] != null && $value["confidence"]["score"] != null) {
-								$type["confidence"]["score"] = ($type["confidence"]["score"] + $value["confidence"]["score"]) / 2;
+								$type["confidence"]["score"] = max($type["confidence"]["score"], $value["confidence"]["score"]);
 							}
 							else {
 								if ($value["confidence"]["score"] != null) {
@@ -194,12 +245,31 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 							unset($entity["types"][$key]);
 						}
 					}
+
+					foreach ($initialEntity["types"] as $key => $value) {
+						if (strtolower($value["typeURI"]) == strtolower($initialType["typeURI"]) && $value["entityURI"] == $initialType["entityURI"] && 
+							$value["wikiURI"]["en"] == $initialType["wikiURI"]["en"] && $value["wikiURI"]["nl"] == $initialType["wikiURI"]["nl"]) {
+							if ($initialType["confidence"]["score"] != null && $value["confidence"]["score"] != null) {
+								$initialType["confidence"]["score"] = max($initialType["confidence"]["score"], $value["confidence"]["score"]);
+							}
+							else {
+								if ($value["confidence"]["score"] != null) {
+									$initialType["confidence"]["score"] = $value["confidence"]["score"];
+								}
+							}							
+							unset($initialEntity["types"][$key]);
+						}
+					}
+
 					array_push($entity["types"], $type);
+					array_push($initialEntity["types"], $initialType);
 
 					$entity["types"] = array_map("unserialize", array_unique(array_map("serialize", $entity["types"])));
+					$initialEntity["types"] = array_map("unserialize", array_unique(array_map("serialize", $initialEntity["types"])));
 				}
 
 				if (count($responseEntities[$j]["types"]) == 0) {
+					$type = array();
 					$type["typeURI"] = null;
 					$type["entityURI"] = null;
 					$type["wikiURI"] = array();
@@ -210,11 +280,14 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 					$type["confidence"]["bounds"] = null;
 
 					array_push($entity["types"], $type);
+					array_push($initialEntity["types"], $type);
 				}
 
 				array_push($result["entities"], $entity);
+				array_push($result["initialEntities"], $initialEntity);
 			}
 			$array["entities"] = array_map("unserialize", array_unique(array_map("serialize", $result["entities"])));
+			$array["initialEntities"] = array_map("unserialize", array_unique(array_map("serialize", $result["initialEntities"])));
 		}
 	//	dd($array);
 		return $array;	
@@ -231,6 +304,7 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		$urlLupedia = "http://lupedia.ontotext.com/lookup/text2html";
 		$result = array();
 		$result["entities"] = array();
+		$result["initialEntities"] = array();
 		$req = "curl -X POST \"http://lupedia.ontotext.com/lookup/text2json?lookupText=" . urlencode($descriptionContent) . "&lang=$lang&keep_specific=false\"";
 		$response = shell_exec($req);
 		$response = json_decode($response, true);
@@ -238,23 +312,42 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		for ($i = 0; $i < count($response); $i ++) {
 			$found = false;
 			$entity = array();
+			$initialEntity = array();
 			$entity["startOffset"] = $response[$i]["startOffset"];
+			$initialEntity["startOffset"] = $response[$i]["startOffset"];
 			$entity["endOffset"] = $response[$i]["endOffset"];
+			$initialEntity["endOffset"] = $response[$i]["endOffset"];
 			$entity["label"] = substr($descriptionContent, (int)$entity["startOffset"], (int)$entity["endOffset"] - (int)$entity["startOffset"]);
+			$initialEntity["label"] = substr($descriptionContent, (int)$entity["startOffset"], (int)$entity["endOffset"] - (int)$entity["startOffset"]);
 			$entity["confidence"] = null;
+			$initialEntity["confidence"] = null;
 			$entity["provenance"] = "lupedia";
+			$initialEntity["provenance"] = "lupedia";
 			$entity["types"] = array();
+			$initialEntity["types"] = array();
 
 			foreach ($result["entities"] as $key => $value) {
 				if ($value["label"] == $entity["label"] && $value["endOffset"] == $entity["endOffset"] && $value["startOffset"] == $entity["startOffset"]) {
 					$type = array();
+					$initialType = array();
 					$typeArray = explode("/", $response[$i]["instanceClass"]);
 					$type["typeURI"] = null;
-					$type["typeURI"] =  str_replace(" ", "", "DBpedia::" . $typeArray[count($typeArray) - 1]);
+					$initialType["typeURI"] = null;
+					if (isset($typeArray)) {
+						$type["typeURI"] =  str_replace(" ", "", "DBpedia::" . $typeArray[count($typeArray) - 1]);
+						$initialType["typeURI"] =  str_replace(" ", "", "DBpedia::" . $typeArray[count($typeArray) - 1]);
+					}
+					
 					$type["entityURI"] = null;
 					$type["wikiURI"] = array();
 					$type["wikiURI"]["en"] = null;
 					$type["wikiURI"]["nl"] = null;
+					$initialType["entityURI"] = null;
+					$initialType["wikiURI"] = array();
+					$initialType["wikiURI"]["en"] = null;
+					$initialType["wikiURI"]["nl"] = null;
+					$initialType["entityURI"] = urldecode(utf8_decode($response[$i]["instanceUri"]));
+
 					if ((strpos($response[$i]["instanceUri"], 'nl.dbpedia.org') !== false)) {
 						$type["entityURI"] = urldecode(utf8_decode($response[$i]["instanceUri"]));
 						$englishEntityResource = urldecode($this->getEnglishResourceFromDutchResource($type["entityURI"]));
@@ -267,22 +360,33 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 						$type["wikiURI"]["en"] = $this->getEnglishWikipediaLinkFromEnglishResource($englishEntityResource);
 						$type["wikiURI"]["nl"] = $this->getDutchWikipediaLinkFromDutchResource($type["entityURI"]);
 					}
+					$initialType["confidence"]["score"] = $response[$i]["weight"];
+					$initialType["confidence"]["bounds"] = null;
 					$type["confidence"]["score"] = $response[$i]["weight"];
 					$type["confidence"]["bounds"] = null;
+
 					array_push($value["types"], $type);
 					unset($result["entities"][$key]["types"]);
 					$result["entities"][$key]["types"] = $value["types"];
+
+					array_push($initialEntity["types"], $initialType);
 					$found = true;
 					break;
 				}
 			}
 			if ($found == false) {
 				$entity["types"] = array();
+				$initialEntity["types"] = array();
 				$typeArray = explode("/", $response[$i]["instanceClass"]);
 				$type["typeURI"] =  str_replace(" ", "", "DBpedia::" . $typeArray[count($typeArray) - 1]);
 				$type["wikiURI"] = array();
 				$type["wikiURI"]["en"] = null;
 				$type["wikiURI"]["nl"] = null;
+				$initialType["typeURI"] =  str_replace(" ", "", "DBpedia::" . $typeArray[count($typeArray) - 1]);
+				$initialType["entityURI"] =  urldecode(utf8_decode($response[$i]["instanceUri"]));
+				$initialType["wikiURI"] = array();
+				$initialType["wikiURI"]["en"] = null;
+				$initialType["wikiURI"]["nl"] = null;
 				if ((strpos($response[$i]["instanceUri"], 'nl.dbpedia.org') !== false)) {
 					$type["entityURI"] = urldecode(utf8_decode($response[$i]["instanceUri"]));
 					$englishEntityResource = urldecode(utf8_decode($this->getEnglishResourceFromDutchResource($type["entityURI"])));
@@ -297,10 +401,16 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 				}
 				$type["confidence"]["score"] = $response[$i]["weight"];
 				$type["confidence"]["bounds"] = null;
+				$initialType["confidence"]["score"] = $response[$i]["weight"];
+				$initialType["confidence"]["bounds"] = null;
 				array_push($entity["types"], $type);
 				array_push($result["entities"], $entity);
+
+				array_push($initialEntity["types"], $initialType);
+				array_push($result["initialEntities"], $initialEntity);
 			}
 		}
+	//	dd($result);
 		return $result;	
 	}
 
@@ -321,6 +431,8 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		if (isset($response['response']['entities'])) {
     		$result["entities"] = array();
     		$entities = array();
+    		$result["initialEntities"] = array();
+    		$initialEntities = array();
 			for ($i = 0; $i < count($response['response']['entities']); $i ++) {
 				$entity = array();
 				$entity["label"] = $response['response']['entities'][$i]["matchedText"];
@@ -329,10 +441,26 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 				$entity["confidence"] = 0 + ($response['response']['entities'][$i]["confidenceScore"] - $initialMin) * 1 / ($initialMax - $initialMin);
 				$entity["provenance"] = "textrazor";
 				$entity["types"] = array();	
+
+				$initialEntity = array();
+				$initialEntity["label"] = $response['response']['entities'][$i]["matchedText"];
+				$initialEntity["startOffset"] = $response['response']['entities'][$i]["startingPos"];
+				$initialEntity["endOffset"] = $response['response']['entities'][$i]["endingPos"];
+				$initialEntity["confidence"] = 0 + ($response['response']['entities'][$i]["confidenceScore"] - $initialMin) * 1 / ($initialMax - $initialMin);
+				$initialEntity["provenance"] = "textrazor";
+				$initialEntity["types"] = array();	
+
 				if (isset($response['response']['entities'][$i]["type"])) {
 					for ($k = 0; $k < count($response['response']['entities'][$i]["type"]); $k++) {
 						$type = array();
 						$type["typeURI"] = str_replace(" ", "", "DBpedia::" . $response['response']['entities'][$i]["type"][$k]);
+
+						$initialType = array();
+						$initialType["typeURI"] = str_replace(" ", "", "DBpedia::" . $response['response']['entities'][$i]["type"][$k]);
+						$initialType["entityURI"] = $response['response']['entities'][$i]["wikiLink"];
+						$initialType["wikiURI"] = array();
+						$initialType["wikiURI"]["nl"] = null;
+						$initialType["wikiURI"]["en"] = null;
 
 						if ($response['response']['entities'][$i]["wikiLink"] == "" || $response['response']['entities'][$i]["wikiLink"] == null) {
 							$type["entityURI"] = null;
@@ -372,7 +500,10 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 						}
 						$type["confidence"]["score"] = null;
 						$type["confidence"]["bounds"] = null;
+						$initialType["confidence"]["score"] = null;
+						$initialType["confidence"]["bounds"] = null;
 						array_push($entity["types"], $type);
+						array_push($initialEntity["types"], $initialType);
 					}
 				}
 				
@@ -380,13 +511,24 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 					for ($k = 0; $k < count($response['response']['entities'][$i]["freebaseTypes"]); $k++) {
 						$type = array();
 						$type["typeURI"] = str_replace(" ", "", "Freebase::" . $response['response']['entities'][$i]["freebaseTypes"][$k]);	
-						if (isset($response['response']['entities'][$i]["freebaseId"]))				
+						$initialType = array();
+						$initialType["typeURI"] = str_replace(" ", "", "Freebase::" . $response['response']['entities'][$i]["freebaseTypes"][$k]);	
+
+						if (isset($response['response']['entities'][$i]["freebaseId"]))	{			
 							$type["entityURI"] = "http://www.freebase.com" . $response['response']['entities'][$i]["freebaseId"];
-						else 
+							$initialType["entityURI"] = "http://www.freebase.com" . $response['response']['entities'][$i]["freebaseId"];
+						
+						}
+						else {
 							$type["entityURI"] = null;
+							$initialType["entityURI"] = null;
+						}
 						$type["wikiURI"] = array();
 						$type["wikiURI"]["en"] = null;
 						$type["wikiURI"]["nl"] = null;
+						$initialType["wikiURI"] = array();
+						$initialType["wikiURI"]["en"] = null;
+						$initialType["wikiURI"]["nl"] = null;
 
 						if (strpos($response['response']['entities'][$i]["wikiLink"], "nl.wikipedia") !== false) {
 							$type["wikiURI"]["nl"] = utf8_encode(utf8_decode($response['response']['entities'][$i]["wikiLink"]));
@@ -406,11 +548,22 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 						$type["confidence"]["score"] = null;
 						$type["confidence"]["bounds"] = null;
 						array_push($entity["types"], $type);
+
+						$initialType["confidence"]["score"] = null;
+						$initialType["confidence"]["bounds"] = null;
+						array_push($initialEntity["types"], $initialType);
 					}
 				}
 				if(!isset($response['response']['entities'][$i]["freebaseTypes"]) && !isset($response['response']['entities'][$i]["type"])) {
 					$type = array();
 					$type["typeURI"] = null;
+
+					$initialType = array();
+					$initialType["typeURI"] = null;
+					$initialType["entityURI"] = $response['response']['entities'][$i]["wikiLink"];
+					$initialType["wikiURI"] = array();
+					$initialType["wikiURI"]["en"] = null;
+					$initialType["wikiURI"]["nl"] = null;
 
 					if ($response['response']['entities'][$i]["wikiLink"] == "" || $response['response']['entities'][$i]["wikiLink"] == null) {
 						$type["entityURI"] = null;
@@ -452,8 +605,13 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 					$type["confidence"]["score"] = null;
 					$type["confidence"]["bounds"] = null;
 					array_push($entity["types"], $type);
+
+					$initialType["confidence"]["score"] = null;
+					$initialType["confidence"]["bounds"] = null;
+					array_push($initialEntity["types"], $initialType);
 				}
 				array_push($result["entities"], $entity);
+				array_push($result["initialEntities"], $initialEntity);
 			}
 		}
 		
@@ -478,6 +636,7 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		$lang = $entity->language;
 		$result = array();
 		$result["entities"] = array();
+		$result["initialEntities"] = array();
 		$entities = array();
 		$curlRequest = "curl -d \"language=" . $lang . "&text=$descriptionContent\" http://ner.vse.cz/SemiTags/rest/v1/recognize";
 		$response = exec($curlRequest, $output);
@@ -491,27 +650,64 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 				foreach ($rNode->occurrence as $occurrence) {
 					$entity = array();
 					$entity["label"] = (string)$rNode->name;
+					$initialEntity = array();
+					$initialEntity["label"] = (string)$rNode->name;
 					foreach ($occurrence->attributes() as $index => $value) {
-						if ((string)$index == "start")
+						if ((string)$index == "start") {
 							$entity["startOffset"] = (string)$value;
-						if ((string)$index == "end")
+							$initialEntity["startOffset"] = (string)$value;
+						}
+						if ((string)$index == "end") {
 							$entity["endOffset"] = (string)$value;
+							$initialEntity["endOffset"] = (string)$value;
+						}
 					}
-					if ((string)$rNode->confidence != "")
+					if ((string)$rNode->confidence != "") {
 						$entity["confidence"] = floatval($rNode->confidence);
-					else 
+						$initialEntity["confidence"] = floatval($rNode->confidence);
+					}
+					else {
 						$entity["confidence"] = null;
+						$initialEntity["confidence"] = null;
+					}
 					$entity["provenance"] = "semitags";
+					$initialEntity["provenance"] = "semitags";
 					$entity["types"] = array();
+					$initialEntity["types"] = array();
+					
 					$typeTemp = array();
+					$initialTypeTemp = array();
 					$typeTemp["wikiURI"] = array();
+					$typeTemp["entityURI"] = null;
+					$typeTemp["typeURI"] = null;
+					$initialTypeTemp["wikiURI"] = array();
 					$typeTemp["wikiURI"]["nl"] = (string)$rNode->wikipediaUri;
 					$typeTemp["wikiURI"]["en"] = null;
-					$typeTemp["entityURI"] = utf8_decode($this->getDutchResourceFromDutchWikipediaLink($typeTemp["wikiURI"]["nl"]));
-					$entityResource = $this->getEnglishResourceFromDutchResource($typeTemp["entityURI"]);
-					$typeTemp["wikiURI"]["en"] = $this->getEnglishWikipediaLinkFromEnglishResource($entityResource);
-					$extractedTypes = $this->getRDFTypesFromDutchResource($typeTemp["entityURI"]);
-					if (count($extractedTypes > 0)) {
+					$initialTypeTemp["wikiURI"]["nl"] = null;
+					$initialTypeTemp["wikiURI"]["en"] = null;
+					$initialTypeTemp["typeURI"] = "DBpedia::" . (string)$rNode->type;
+					$initialTypeTemp["entityURI"] = str_replace("de.dbpedia", "nl.dbpedia", (string)$rNode->dbpediaUri);
+
+					$initialTypeTemp["confidence"] = array();
+	  				$initialTypeTemp["confidence"]["score"] = null;
+					$initialTypeTemp["confidence"]["bounds"] = null;
+
+					array_push($initialEntity["types"], $initialTypeTemp);
+					$extractedTypes = array();
+					if ((string)$rNode->dbpediaUri != "") {
+						$typeTemp["entityURI"] = str_replace("de.dbpedia", "nl.dbpedia", (string)$rNode->dbpediaUri);
+						$entityResource = $this->getEnglishResourceFromDutchResource($typeTemp["entityURI"]);
+						$typeTemp["wikiURI"]["en"] = $this->getEnglishWikipediaLinkFromEnglishResource($entityResource);
+						$extractedTypes = $this->getRDFTypesFromDutchResource($typeTemp["entityURI"]);
+					}
+					else {
+						$typeTemp["entityURI"] = utf8_decode($this->getDutchResourceFromDutchWikipediaLink($typeTemp["wikiURI"]["nl"]));
+						$entityResource = $this->getEnglishResourceFromDutchResource($typeTemp["entityURI"]);
+						$typeTemp["wikiURI"]["en"] = $this->getEnglishWikipediaLinkFromEnglishResource($entityResource);
+						$extractedTypes = $this->getRDFTypesFromDutchResource($typeTemp["entityURI"]);
+					}
+
+					if (count($extractedTypes) > 0) {
 						foreach($extractedTypes as $extractedType) {
 							$type = array();
 		  					$typeArray = explode("/", $extractedType);
@@ -547,6 +743,7 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 						array_push($entity["types"], $type);
 					}
 					array_push($result["entities"], $entity);
+					array_push($result["initialEntities"], $initialEntity);
 				}				
 			}
 		}
@@ -561,21 +758,32 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		$lang = $entity->language;
 		$result = array();
 		$result["entities"] = array();
+		$result["initialEntities"] = array();
 		$curlRequest = "curl -H \"Accept: application/json\"  http://nl.dbpedia.org/spotlight/rest/annotate --data-urlencode \"text=$descriptionContent\" --data \"confidence=0.2\"";
 		$response = shell_exec($curlRequest);
 		$response = json_decode($response, true);
 	//	dd($response);
 		foreach ($response["Resources"] as $extractedEntity) {
 			$entity = array();
+			$initialEntity = array();
 			$entity["label"] = $extractedEntity["@surfaceForm"];
+			$initialEntity["label"] = $extractedEntity["@surfaceForm"];
 			$entity["startOffset"] = $extractedEntity["@offset"];
+			$initialEntity["startOffset"] = $extractedEntity["@offset"];
 			$entity["endOffset"] = (int)$extractedEntity["@offset"] + strlen($extractedEntity["@surfaceForm"]);
-			if ($extractedEntity["@similarityScore"] != "")
+			$initialEntity["endOffset"] = (int)$extractedEntity["@offset"] + strlen($extractedEntity["@surfaceForm"]);
+			if ($extractedEntity["@similarityScore"] != "") {
 				$entity["confidence"] = (float)$extractedEntity["@similarityScore"];
-			else 
+				$initialEntity["confidence"] = (float)$extractedEntity["@similarityScore"];
+			}
+			else { 
 				$entity["confidence"] = null;
+				$initialEntity["confidence"] = null;
+			}
 			$entity["provenance"] = "dbpediaspotlight";
+			$initialEntity["provenance"] = "dbpediaspotlight";
 			$entity["types"] = array();
+			$initialEntity["types"] = array();
 			$i = 0;
 			if (!empty($extractedEntity["@types"]) && $extractedEntity["@types"] != "") {
 				$extractedTypes = explode(",", $extractedEntity["@types"]);
@@ -583,18 +791,31 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 					if (explode(":", $typeName)[0] == "DBpedia") {
 						$i ++;
 						$type = array();
+						$initialType = array();
 		  				$type["typeURI"] = str_replace(" ","", "DBpedia::" . explode(":", $typeName)[1]);
+		  				$initialType["typeURI"] = str_replace(" ","", "DBpedia::" . explode(":", $typeName)[1]);
 						$type["entityURI"] = $extractedEntity["@URI"];
+						$initialType["entityURI"] = $extractedEntity["@URI"];
 						$type["wikiURI"] = array();
 						$type["wikiURI"]["nl"] = $this->getDutchWikipediaLinkFromDutchResource($type["entityURI"]);
 						$entityResource = $this->getEnglishResourceFromDutchResource($type["entityURI"]);
 						$type["wikiURI"]["en"] = $this->getEnglishWikipediaLinkFromEnglishResource($entityResource);
-						if ($extractedEntity["@similarityScore"] != "")
+						$initialType["wikiURI"] = array();
+						$initialType["wikiURI"]["nl"] = null;
+						$initialType["wikiURI"]["en"] = null;
+						if ($extractedEntity["@similarityScore"] != "") {
 							$type["confidence"]["score"] = (float)$extractedEntity["@similarityScore"];
-						else 
+							$initialType["confidence"]["score"] = (float)$extractedEntity["@similarityScore"];
+						}
+						else { 
 							$type["confidence"]["score"] = null;
+							$initialType["confidence"]["score"] = null;
+						}
 						$type["confidence"]["bounds"] = null;
 						array_push($entity["types"], $type);
+
+						$initialType["confidence"]["bounds"] = null;
+						array_push($initialEntity["types"], $initialType);
 					}
 				}
 				if ($i == 0) {
@@ -616,9 +837,36 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 						$type["confidence"]["bounds"] = null;
 						array_push($entity["types"], $type);
 					}
+
+					$initialType = array();
+					$initialType["typeURI"] = null;
+					$initialType["entityURI"] = $extractedEntity["@URI"];
+					$initialType["wikiURI"] = array();
+					$initialType["wikiURI"]["nl"] = null;
+					$initialType["wikiURI"]["en"] = null;
+					if ($extractedEntity["@similarityScore"] != "")
+						$initialType["confidence"]["score"] = (float)$extractedEntity["@similarityScore"];
+					else 
+						$initialType["confidence"]["score"] = null;
+					$initialType["confidence"]["bounds"] = null;
+					array_push($initialEntity["types"], $initialType);
 				}
 			}
 			else {
+
+				$initialType = array();
+				$initialType["typeURI"] = null;
+				$initialType["entityURI"] = $extractedEntity["@URI"];
+				$initialType["wikiURI"] = array();
+				$initialType["wikiURI"]["nl"] = null;
+				$initialType["wikiURI"]["en"] = null;
+				if ($extractedEntity["@similarityScore"] != "")
+					$initialType["confidence"]["score"] = (float)$extractedEntity["@similarityScore"];
+				else 
+					$initialType["confidence"]["score"] = null;
+				$initialType["confidence"]["bounds"] = null;
+				array_push($initialEntity["types"], $initialType);
+
 				$extractedTypes = $this->getRDFTypesFromDutchResource($extractedEntity["@URI"]);
 				if (count($extractedTypes == 0)) {
 					$type = array();
@@ -667,8 +915,20 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 				$type["confidence"]["score"] = null;
 				$type["confidence"]["bounds"] = null;
 				array_push($entity["types"], $type);
+
+				$initialType = array();
+				$initialType["typeURI"] = null;
+				$initialType["entityURI"] = null;
+				$initialType["wikiURI"] = array();
+				$initialType["wikiURI"]["nl"] = null;
+				$initialType["wikiURI"]["en"] = null;
+				$initialType["confidence"] = array();
+				$initialType["confidence"]["score"] = null;
+				$initialType["confidence"]["bounds"] = null;
+				array_push($initialEntity["types"], $initialType);
 			}
 			array_push($result["entities"], $entity);
+			array_push($result["initialEntities"], $initialEntity);
 		}
 	//	dd($result);
 		return $result;	
@@ -678,13 +938,14 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
 		$descriptionContent = $entity->content["description"];
-		$tempFile = public_path() . "/temp.txt";
-		$fh = fopen($tempFile, 'w') or die("Can't create file");
-		file_put_contents($tempFile, $descriptionContent);
+	//	$tempFile = public_path() . "/temp.txt";
+	//	$fh = fopen($tempFile, 'w') or die("Can't create file");
+	//	file_put_contents($tempFile, $descriptionContent);
 		$lang = $entity->language;
 		$apikey = "9u0sd79j21vpvv0tqin1oleb4di32oo6";
 		$result = array();
 		$result["entities"] = array();
+		$result["initialEntities"] = array();
 		$entities = array();
 		$curlRequest = "curl -i -X POST http://nerd.eurecom.fr/api/document -d \"text=" . addslashes($descriptionContent) . "&key=" . $apikey . "\"";
 		$response = exec($curlRequest, $output);
@@ -710,6 +971,15 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 			$entity["confidence"] = $value["relevance"];
 			$entity["provenance"] = "nerd";
 			$entity["types"] = array();
+
+			$initialEntity = array();
+			$initialEntity["label"] = $value["label"];
+			$initialEntity["startOffset"] = $value['startChar'];
+			$initialEntity["endOffset"] = $value['endChar'];
+			$initialEntity["confidence"] = $value["relevance"];
+			$initialEntity["provenance"] = "nerd";
+			$initialEntity["types"] = array();
+
 			$dbpediaTypes = array();
 			$freebaseTypes = array();
 
@@ -739,15 +1009,28 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 					$type["wikiURI"]["nl"] = null;
 					$type["wikiURI"]["en"] = null;
 					$type["entityURI"] = null;
+
+					$initialType = array();
+					$initialType["typeURI"] = str_replace(" ", "", "DBpedia::" . $typeValue);
+					$initialType["wikiURI"] = array();
+					$initialType["wikiURI"]["nl"] = null;
+					$initialType["wikiURI"]["en"] = null;
+					$initialType["entityURI"] = $value["uri"];
+
 					if ($value["uri"] != "") {
 						//it means we have the wiki link
 						if (strpos($value["uri"], "wikipedia") !== false) {
+
+							$initialType["entityURI"] = $value["uri"];
 							$type["wikiURI"]["nl"] = $value["uri"];
 							$type["entityURI"] = $this->getDutchResourceFromDutchWikipediaLink($type["wikiURI"]["nl"]);
 							$englishEntityResource = $this->getEnglishResourceFromDutchResource($type["entityURI"]);
 							$type["wikiURI"]["en"] = $this->getEnglishWikipediaLinkFromEnglishResource($englishEntityResource);
 						}
 						else { //it means we have the dbpedia resource
+
+							$initialType["entityURI"] = $value["uri"];
+
 							if (strpos($value["uri"], "nl.dbpedia") !== false) {
 								$type["entityURI"] = str_replace("de.dbpedia.org", "nl.dbpedia.org", $value["uri"]);
 								$type["wikiURI"]["nl"] = $this->getDutchWikipediaLinkFromDutchResource($type["entityURI"]);
@@ -769,10 +1052,21 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 						$type["wikiURI"]["nl"] = null;
 						$type["wikiURI"]["en"] = null;
 						$type["entityURI"] = null;
+
+						$initialType = array();
+						$initialType["typeURI"] = str_replace(" ", "", "DBpedia::" . $typeValue);
+						$initialType["wikiURI"] = array();
+						$initialType["wikiURI"]["nl"] = null;
+						$initialType["wikiURI"]["en"] = null;
+						$initialType["entityURI"] = $value["uri"];
 					}
 					$type["confidence"]["score"] = $value["relevance"];
 					$type["confidence"]["bounds"] = null;
 					array_push($entity["types"], $type);
+
+					$initialType["confidence"]["score"] = $value["relevance"];
+					$initialType["confidence"]["bounds"] = null;
+					array_push($initialEntity["types"], $initialType);
 				}
 			}
 			if (count($freebaseTypes) > 0) {
@@ -783,6 +1077,15 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 					$type["wikiURI"]["nl"] = null;
 					$type["wikiURI"]["en"] = null;
 					$type["entityURI"] = null;
+
+					$initialType = array();
+					$initialType["typeURI"] = str_replace(" ", "", "Freebase::" . $typeValue);
+					$initialType["wikiURI"] = array();
+					$initialType["wikiURI"]["nl"] = null;
+					$initialType["wikiURI"]["en"] = null;
+					$initialType["entityURI"] = $value["uri"];
+
+
 					if ($value["uri"] != "") {
 						//it means we have the wiki link
 						if (strpos($value["uri"], "nl.wikipedia") !== false) {
@@ -801,10 +1104,21 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 						$type["wikiURI"]["nl"] = null;
 						$type["wikiURI"]["en"] = null;
 						$type["entityURI"] = null;
+
+						$initialType = array();
+						$initialType["typeURI"] = str_replace(" ", "", "Freebase::" . $typeValue);
+						$initialType["wikiURI"] = array();
+						$initialType["wikiURI"]["nl"] = null;
+						$initialType["wikiURI"]["en"] = null;
+						$initialType["entityURI"] = null;
 					}
 					$type["confidence"]["score"] = $value["confidence"];
 					$type["confidence"]["bounds"] = null;
 					array_push($entity["types"], $type);
+
+					$initialType["confidence"]["score"] = $value["confidence"];
+					$initialType["confidence"]["bounds"] = null;
+					array_push($initialEntity["types"], $initialType);
 				}
 			}
 			if (count($dbpediaTypes) == 0 && count($freebaseTypes) == 0) {
@@ -814,6 +1128,16 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 				$type["wikiURI"]["nl"] = null;
 				$type["wikiURI"]["en"] = null;
 				$type["entityURI"] = null;
+
+				$initialType = array();
+				$initialType["typeURI"] = null;
+				$initialType["wikiURI"] = array();
+				$initialType["wikiURI"]["nl"] = null;
+				$initialType["wikiURI"]["en"] = null;
+				if ($value["uri"] != "")
+					$initialType["entityURI"] = $value["uri"];
+				else 
+					$initialType["entityURI"] = null;
 				if ($value["uri"] != "") {
 					if (strpos($value["uri"], "wikipedia") !== false) {
 						$type["wikiURI"]["nl"] = $value["uri"];
@@ -852,10 +1176,21 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 					$type["wikiURI"]["nl"] = null;
 					$type["wikiURI"]["en"] = null;
 					$type["entityURI"] = null;
+
+					$initialType = array();
+					$initialType["typeURI"] = null;
+					$initialType["wikiURI"] = array();
+					$initialType["wikiURI"]["nl"] = null;
+					$initialType["wikiURI"]["en"] = null;
+					$initialType["entityURI"] = null;
 				}
 				$type["confidence"]["score"] = $value["confidence"];
 				$type["confidence"]["bounds"] = null;
 				array_push($entity["types"], $type);
+
+				$initialType["confidence"]["score"] = $value["confidence"];
+				$initialType["confidence"]["bounds"] = null;
+				array_push($initialEntity["types"], $initialType);
 			}
 			if (sizeof($entity["types"]) == 0) {
 				$type = array();
@@ -870,7 +1205,21 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 				array_push($entity["types"], $type);
 			}
 
+			if (sizeof($initialEntity["types"]) == 0) {
+				$initialType = array();
+				$initialType["typeURI"] = null;
+				$initialType["entityURI"] = null;
+				$initialType["wikiURI"] = array();
+				$initialType["wikiURI"]["nl"] = null;
+				$initialType["wikiURI"]["en"] = null;
+				$initialType["confidence"] = array();
+				$initialType["confidence"]["score"] = null;
+				$initialType["confidence"]["bounds"] = null;
+				array_push($initialEntity["types"], $initialType);
+			}
+
 			array_push($result["entities"], $entity);
+			array_push($result["initialEntities"], $initialEntity);
 		}
 	//	dd($result);
 		return $result;	

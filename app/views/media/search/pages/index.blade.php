@@ -6,6 +6,7 @@
 {{ stylesheet_link_tag('bootstrap-select.css') }}
 {{ stylesheet_link_tag('bootstrap-dropdown-checkbox.css') }}
 {{ stylesheet_link_tag('bootstrap.datepicker3.css') }}
+{{ stylesheet_link_tag('custom.css') }}
 
 <style>
 .container {
@@ -932,7 +933,6 @@ var openModal = function(modalAnchor , activeTabKey){
             // *** send messages to console ***
             debug : false
         });
-
     });
 }
 

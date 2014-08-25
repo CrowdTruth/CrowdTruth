@@ -19,6 +19,7 @@ class MetadatadescriptionController extends BaseController {
 
 	public function getIndex()
 	{
+		
 		return Redirect::to('media/preprocess/metadatadescription/actions');
 	}
 
@@ -29,6 +30,7 @@ class MetadatadescriptionController extends BaseController {
 
 	public function getActions()
 	{
+
 		$entities = \MongoDB\Entity::where('documentType', '=', 'metadatadescription')->get();
 	
 		if(count($entities) > 0)

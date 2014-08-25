@@ -2,6 +2,8 @@
 
 namespace MongoDB;
 
+require_once 'help_functions.php';
+
 use Moloquent, Input;
 
 
@@ -32,76 +34,6 @@ class Temp extends Moloquent {
         if(isset($input['without'])) $this->hidden = array_merge($this->hidden, array_flatten(array($input['without'])));
     }  
 
-    public function cmp($a, $b)
-{
-    if ($a["startOffset"] == $b["startOffset"]) {
-        return 0;
-    }
-    return ($a["startOffset"] < $b["startOffset"]) ? -1 : 1;
-}     
-
-function norm($vector) {
-    return sqrt(dotProduct($vector, $vector));
-}
-
-function dotProduct($a, $b) {
-    $dotProduct = 0;
-    foreach ($a as $key => $val) {
-        if (!empty($a[$key]) && !empty($b[$key])) {
-            $dotProduct += $a[$key] * $b[$key];
-        }
-    }
-    return $dotProduct;
-}
-
-function cosinus($a, $b) {
-    $normA = norm($a);
-    $normB = norm($b);
-
-    return (($normA * $normB) != 0)
-           ? dotProduct($a, $b) / ($normA * $normB)
-           : 0;
-}
-
-function sumUpArrays($allArrays) {
-    $sum = array();
-
-    foreach ($allArrays as $arrayVal) {
-        $j = 0;
-        foreach ($arrayVal as $key => $val) { 
-            $sum[$key] = 0;
-            $j ++;
-        }
-        break;
-    }
-
-    foreach ($allArrays as $extrName => $extrValues) {
-        $j = 0;
-        foreach ($extrValues as $key => $val) {
-            $sum[$key] = $sum[$key] + $val;
-            $j ++;
-        }
-        
-    }
-//  dd($sum);
-    return $sum;
-}
-
-function extractArrays($sumArray, $referenceArray) {
-    $result = array();
-
-    foreach($sumArray as $key => $value)  {
-        $result[$key] = 0;
-    }
-
-    $i = 0;
-    foreach ($sumArray as $key => $value) {
-        $result[$key] = $sumArray[$key] - $referenceArray[$key];
-        $i ++;
-    }
-//  dd($result);
-    return $result;
-}                                        
 
     public static function createStatisticsForMetadatadescriptionCache () {
         set_time_limit(5200);
@@ -116,6 +48,7 @@ function extractArrays($sumArray, $referenceArray) {
                 $parent['content']['statistics']['majvoting'] = array();
                 $parent['content']['statistics']["crowdtruth"] = array();
                 $parent['content']['features']['entities'] = array();
+                //$parent['content']['features']['initialEntities'] = array();
                 $parent['content']['features']['topics'] = array();
 
                 foreach ($children as $child) {  
@@ -125,7 +58,7 @@ function extractArrays($sumArray, $referenceArray) {
                 }
 
                 foreach ($children as $child) {  
-                    foreach($child['content']['features']['entities'] as $childKey => $childValue) {
+                    foreach($child['content']['features']['initialEntities'] as $childKey => $childValue) {
                         $found = false;
                         foreach ($parent['content']['statistics']['majvoting'] as $parentKey => $parentValue) {
                             if (strtolower($childValue["label"]) == strtolower($parentValue["label"]) && intval($childValue["startOffset"]) == intval($parentValue["startOffset"]) && intval($childValue["endOffset"]) == intval($parentValue["endOffset"])) {
@@ -146,12 +79,12 @@ function extractArrays($sumArray, $referenceArray) {
                                 }
                                 if ($noConf != 0) {
                                     $parent["content"]["statistics"]["majvoting"][$parentKey]["clarity"]["mean"] = array_sum($parent["content"]["statistics"]["majvoting"][$parentKey]["confidence"]["extractors"]) / $noConf;
-                                    $parent["content"]["statistics"]["majvoting"][$parentKey]["clarity"]["stddev"] = stats_standard_deviation($parent["content"]["statistics"]["majvoting"][$parentKey]["confidence"]["extractors"]);
+                                    $parent["content"]["statistics"]["majvoting"][$parentKey]["clarity"]["stddev"] = stats_stddev($parent["content"]["statistics"]["majvoting"][$parentKey]["confidence"]["extractors"]);
                                     $parent["content"]["statistics"]["majvoting"][$parentKey]["clarity"]["mse"] = pow($parent["content"]["statistics"]["majvoting"][$parentKey]["clarity"]["stddev"], 2) / $noConf;
                                 }
                                 else {
                                     $parent["content"]["statistics"]["majvoting"][$parentKey]["clarity"]["mean"] = $parent["content"]["statistics"]["majvoting"][$parentKey]["confidence"]["value"];
-                                    $parent["content"]["statistics"]["majvoting"][$parentKey]["clarity"]["stddev"] = stats_standard_deviation($parent["content"]["statistics"]["majvoting"][$parentKey]["confidence"]["extractors"]);
+                                    $parent["content"]["statistics"]["majvoting"][$parentKey]["clarity"]["stddev"] = stats_stddev($parent["content"]["statistics"]["majvoting"][$parentKey]["confidence"]["extractors"]);
                                     $parent["content"]["statistics"]["majvoting"][$parentKey]["clarity"]["mse"] = pow($parent["content"]["statistics"]["majvoting"][$parentKey]["clarity"]["stddev"], 2);
                                 }
 
@@ -381,7 +314,7 @@ function extractArrays($sumArray, $referenceArray) {
                             $newEntity["confidence"]["value"] = $childValue["confidence"];
                             $newEntity["clarity"] = array();
                             $newEntity["clarity"]["mean"] = $childValue["confidence"];
-                            $newEntity["clarity"]["stddev"] = stats_standard_deviation($newEntity["confidence"]["extractors"]);
+                            $newEntity["clarity"]["stddev"] = stats_stddev($newEntity["confidence"]["extractors"]);
                             $newEntity["clarity"]["mse"] = pow($newEntity["clarity"]["stddev"], 2) / 1;
                             $newEntity["noExtractorsPerType"] = array();
                             $newEntity["noExtractorsPerResource"] = array();
