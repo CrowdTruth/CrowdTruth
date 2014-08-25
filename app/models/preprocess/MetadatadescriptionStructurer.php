@@ -658,8 +658,8 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 							$initialEntity["startOffset"] = (string)$value;
 						}
 						if ((string)$index == "end") {
-							$entity["endOffset"] = (string)$value;
-							$initialEntity["endOffset"] = (string)$value;
+							$entity["endOffset"] = (int)$value + 1;
+							$initialEntity["endOffset"] = (int)$value + 1;
 						}
 					}
 					if ((string)$rNode->confidence != "") {
@@ -938,9 +938,6 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
 		$descriptionContent = $entity->content["description"];
-	//	$tempFile = public_path() . "/temp.txt";
-	//	$fh = fopen($tempFile, 'w') or die("Can't create file");
-	//	file_put_contents($tempFile, $descriptionContent);
 		$lang = $entity->language;
 		$apikey = "9u0sd79j21vpvv0tqin1oleb4di32oo6";
 		$result = array();
