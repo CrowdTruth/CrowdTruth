@@ -649,19 +649,21 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 			foreach ($xml->namedEntity as $rNode) {
 				foreach ($rNode->occurrence as $occurrence) {
 					$entity = array();
-					$entity["label"] = (string)$rNode->name;
+				//	$entity["label"] = (string)$rNode->name;
 					$initialEntity = array();
-					$initialEntity["label"] = (string)$rNode->name;
+				//	$initialEntity["label"] = (string)$rNode->name;
 					foreach ($occurrence->attributes() as $index => $value) {
 						if ((string)$index == "start") {
-							$entity["startOffset"] = (string)$value;
-							$initialEntity["startOffset"] = (string)$value;
+							$entity["startOffset"] = (int)$value;
+							$initialEntity["startOffset"] = (int)$value;
 						}
 						if ((string)$index == "end") {
 							$entity["endOffset"] = (int)$value + 1;
 							$initialEntity["endOffset"] = (int)$value + 1;
 						}
 					}
+					$entity["label"] = substr($descriptionContent, $entity["startOffset"], $entity["endOffset"] - $entity["startOffset"]);
+					$initialEntity["label"] = substr($descriptionContent, $entity["startOffset"], $entity["endOffset"] - $entity["startOffset"]);
 					if ((string)$rNode->confidence != "") {
 						$entity["confidence"] = floatval($rNode->confidence);
 						$initialEntity["confidence"] = floatval($rNode->confidence);
