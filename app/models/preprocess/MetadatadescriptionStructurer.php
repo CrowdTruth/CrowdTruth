@@ -164,6 +164,14 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 				$initialEntity["label"] = $responseEntities[$j]["underlyingString"];
 				$initialEntity["startOffset"] = $responseEntities[$j]["startOffset"];
 				$initialEntity["endOffset"] = $responseEntities[$j]["endOffset"];
+
+				if (substr($descriptionContent, $entity["startOffset"], $entity["endOffset"] - $entity["startOffset"]) != $entity["label"]) {
+				//	dd($entity["startOffset"]);
+					$entity["startOffset"] = (int)$entity["startOffset"] + 1;
+					$entity["endOffset"] = (int)$entity["startOffset"] + strlen($entity["label"]);
+					$initialEntity["startOffset"] = (int)$entity["startOffset"] + 1;
+					$initialEntity["endOffset"] = (int)$entity["startOffset"] + strlen($entity["label"]);
+				}
 				$initialEntity["confidence"] = null;
 				$initialEntity["provenance"] = "thd";
 				$entity["types"] = array();
@@ -965,16 +973,25 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		foreach($resultArray as $key => $value) {
 			$entity = array();
 			$entity["label"] = $value["label"];
-			$entity["startOffset"] = $value['startChar'];
-			$entity["endOffset"] = $value['endChar'];
-			$entity["confidence"] = $value["relevance"];
-			$entity["provenance"] = "nerd";
-			$entity["types"] = array();
-
+			$entity["startOffset"] = (int)$value['startChar'];
+			$entity["endOffset"] = (int)$value['endChar'];
 			$initialEntity = array();
 			$initialEntity["label"] = $value["label"];
 			$initialEntity["startOffset"] = $value['startChar'];
 			$initialEntity["endOffset"] = $value['endChar'];
+
+			if (substr($descriptionContent, $entity["startOffset"], $entity["endOffset"] - $entity["startOffset"]) != $entity["label"]) {
+			//	dd($entity["startOffset"]);
+				$entity["startOffset"] = (int)$value['startChar'] - 1;
+				$entity["endOffset"] = $entity["startOffset"] + strlen($entity["label"]);
+				$initialEntity["startOffset"] = (int)$value['startChar'] - 1;
+				$initialEntity["endOffset"] = $entity["startOffset"] + strlen($entity["label"]);
+			}
+			$entity["confidence"] = $value["relevance"];
+			$entity["provenance"] = "nerd";
+			$entity["types"] = array();
+
+			
 			$initialEntity["confidence"] = $value["relevance"];
 			$initialEntity["provenance"] = "nerd";
 			$initialEntity["types"] = array();

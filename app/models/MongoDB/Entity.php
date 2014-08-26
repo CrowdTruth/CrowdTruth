@@ -21,6 +21,7 @@ class Entity extends Moloquent {
             "documentType" => "Document Type",
             "painting" => "Painting",
             "drawing" => "Drawing",
+            "biographynet-sentence" => "BiographyNet passage",
             "relation" => "Seed Relation"
         ];
     }
@@ -168,7 +169,7 @@ class Entity extends Moloquent {
             throw new Exception("Entity has a wrong value \"{$entity->format}\" for the format field");
         }
 
-        if(($entity->domain == "medical" || $entity->domain == "news" || $entity->domain == "cultural" || $entity->domain == "art") == FALSE){
+        if(($entity->domain == "medical" || $entity->domain == "biography" || $entity->domain == "news" || $entity->domain == "cultural" || $entity->domain == "art") == FALSE){
             throw new Exception("Entity has a wrong value \"{$entity->domain}\" for the domain field");
         }
     }
