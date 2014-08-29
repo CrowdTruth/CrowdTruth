@@ -41,6 +41,15 @@
 	
 						</ul>
 						
+						<b>Presentations</b>
+						<ul class="paperlist">	
+						
+						<li>Benjamin Timmermans: <strong><a href="http://www.slideshare.net/CrowdTruth/thesis-presentation-b-timmermans">Crowdsourcing Disagreement on Open-Domain Questions</a></strong> July 18th 2014</li>
+						<li>Rens van Honschooten: <strong><a href="http://www.slideshare.net/CrowdTruth/presentation-rens-2014-june-18">Gamification of crowdsourcing tasks: What motivates a medical expert?</a></strong> July 18th 2014</li>
+	
+	
+						</ul>
+						
 						<b>Popular media</b>
 						<ul class="paperlist">	
 						<li>IBM Inspire: <a href="https://drive.google.com/file/d/0BzrxNZeLZ4YeUlJaVU5xNF83N2M/edit?usp=sharing">IBM en Vrije Universiteit slaan handen in elkaar</a> (Dutch)</li>
