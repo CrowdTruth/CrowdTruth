@@ -2,20 +2,22 @@
 
 namespace preprocess;
 
+use CoffeeScript\compact;
+
 use \MongoDB\Repository as Repository;
 use \MongoDB\Entity as Entity;
 use BaseController, Cart, View, App, Input, Redirect, Session;
 use League\Csv\Reader as Reader;
 
-use \softwareComponents\FileUploader as FileUploader;
+use \softwareComponents\TextSentencePreprocessor as TextSentencePreprocessor;
 
 class TextController extends BaseController {
 	protected $repository;
-	protected $uploader;
+	protected $processor;
 	
-	public function __construct(Repository $repository, FileUploader $uploader) {
+	public function __construct(Repository $repository, TextSentencePreprocessor $processor) {
 		$this->repository = $repository;
-		$this->uploader = $uploader;
+		$this->processor = $processor;
 	}
 
 	private function getSeparator($csvstring) {
@@ -99,14 +101,18 @@ class TextController extends BaseController {
 		$nLines = -1;	// Process all lines
 		$dataTable = $this->getDocumentData($document['content'], $nLines);
 		
+		$entities = [];
 		foreach ($dataTable as $line) {
-			$content = [];
-			$rootProcessor->call($line, $content, $content);
+			$lineEntity = [];
+			$rootProcessor->call($line, $lineEntity, $lineEntity);
+			array_push($entities, $lineEntity);
 		}
 		
-		$status = $this->uploader->store($document, $dataTable);
+		$status = $this->processor->store($document, $entities);
 		
-		return $status;
+		// Redirect here ? // TODO: where should this redirect?
+		return $this->getConfigure()
+						->with('status', $status);
 	}
 		
 	private function doPreview($rootProcessor, $document) {

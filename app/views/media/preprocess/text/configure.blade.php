@@ -181,6 +181,35 @@
 @stop
 
 @section('relexContent')
+
+<!-- START status messages -->
+@if (isset($status['error']))
+	<div class="panel panel-danger">
+		<div class="panel-heading">
+			<h4><i class="fa fa-exclamation-triangle fa-fw"></i>Error</h4>
+		</div>
+		<div class="panel-body CW_messages">
+			<ul class="list-group">
+				<li class="list-group-item"><span class='message'> {{ $status['error'] }} </li>
+			</ul>
+		</div>
+	</div>
+@endif
+
+@if(isset($status['success']))
+	<div class="panel panel-success">
+		<div class="panel-heading">
+			<h4><i class="fa fa-check fa-fw"></i>Success</h4>
+		</div>
+		<div class="panel-body CW_messages">
+			<ul class="list-group">
+			<li class="list-group-item"><span class='message'> {{ $status['success'] }} </li>
+			</ul>
+		</div>
+	</div>
+@endif
+<!-- End status messages -->
+
 <!-- START preprocess/text/configure -->
 <div class="page-header">
 	<p>

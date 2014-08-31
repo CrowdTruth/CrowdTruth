@@ -62,12 +62,11 @@ class MediaController extends BaseController {
 				$documentType = Input::get('document_create');
 				$newDocType;
 			}
-
 			
 			if($newDomain || $newDocType) {
 				$uploader = SoftwareAgent::find("fileuploader");
 
-				// TODO: Move this code to new class UploadAgent extends SoftwareAgent ?
+				// TODO: Move this code to new class UploadComponent extends SoftwareComponent ?
 				if($newDomain) {
 					$domainName = Input::get('domain_create');
 					$fileFormat = Input::get('file_format');

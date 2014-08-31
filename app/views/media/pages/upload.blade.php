@@ -7,6 +7,7 @@
 				<div class="col-xs-10 col-sm-offset-1">
 					<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')	
+
 @include('media.layouts.nav_new')	
 
 
@@ -16,7 +17,7 @@
 								<h4><i class="fa fa-exclamation-triangle fa-fw"></i>Error</h4>
 							</div>
 							<div class="panel-body CW_messages">
-								<ul class="list-group">					
+								<ul class="list-group">
 						@foreach ($status_upload['error'] as $status_message)
 							<li class="list-group-item"><span class='message'> {{ $status_message }} </li>
 						@endforeach
@@ -31,7 +32,7 @@
 								<h4><i class="fa fa-check fa-fw"></i>Success</h4>
 							</div>
 							<div class="panel-body CW_messages">
-								<ul class="list-group">					
+								<ul class="list-group">
 						@foreach ($status_upload['success'] as $status_message)
 							<li class="list-group-item"><span class='message'> {{ $status_message }} </li>
 						@endforeach
