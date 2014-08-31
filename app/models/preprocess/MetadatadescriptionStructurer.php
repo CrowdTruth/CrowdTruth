@@ -154,6 +154,7 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		
 		//	dd($responseEntities);
 			for ($j = 0; $j < count($responseEntities); $j++) {
+			//	dd($responseEntities);
 				$entity = array();
 				$initialEntity = array();
 				$entity["label"] = $responseEntities[$j]["underlyingString"];
@@ -232,12 +233,12 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 						}
 					}
 					$type["confidence"] = array();
-					$type["confidence"]["score"] = $responseEntities[$j]["types"][$k]["confidence"]["value"];
-					$type["confidence"]["bounds"] = $responseEntities[$j]["types"][$k]["confidence"]["bounds"];
+					$type["confidence"]["score"] = $responseEntities[$j]["types"][$k]["salience"]["confidence"];
+					$type["confidence"]["bounds"] = null;
 
 					$initialType["confidence"] = array();
-					$initialType["confidence"]["score"] = $responseEntities[$j]["types"][$k]["confidence"]["value"];
-					$initialType["confidence"]["bounds"] = $responseEntities[$j]["types"][$k]["confidence"]["bounds"];
+					$initialType["confidence"]["score"] = $responseEntities[$j]["types"][$k]["salience"]["confidence"];
+					$initialType["confidence"]["bounds"] = $responseEntities[$j]["types"][$k]["salience"]["confidence"];
 
 
 					foreach ($entity["types"] as $key => $value) {
