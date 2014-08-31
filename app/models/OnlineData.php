@@ -110,7 +110,7 @@ class OnlineData extends Moloquent {
 				}
 			}
 		}
-	//	dd($listOfRecords);
+		
 		return $listOfRecords;
 	}
 
@@ -423,6 +423,7 @@ class OnlineData extends Moloquent {
 	public function store ($format, $domain, $documentType, $parameters, $noOfVideos) {
 		//fastcgi_finish_request();
 		$listOfVideoIdentifiers = $this->listRecords($parameters, $noOfVideos);
+	//	dd("done");
 		$status = array();
 
 		try {

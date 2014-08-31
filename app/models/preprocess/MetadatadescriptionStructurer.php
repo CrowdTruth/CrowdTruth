@@ -231,10 +231,11 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 	  						$type["wikiURI"]["nl"] = $this->getDutchWikipediaLinkFromDutchResource($type["entityURI"]);
 						}
 					}
-						
+					$type["confidence"] = array();
 					$type["confidence"]["score"] = $responseEntities[$j]["types"][$k]["confidence"]["value"];
 					$type["confidence"]["bounds"] = $responseEntities[$j]["types"][$k]["confidence"]["bounds"];
 
+					$initialType["confidence"] = array();
 					$initialType["confidence"]["score"] = $responseEntities[$j]["types"][$k]["confidence"]["value"];
 					$initialType["confidence"]["bounds"] = $responseEntities[$j]["types"][$k]["confidence"]["bounds"];
 

@@ -69,8 +69,11 @@ class Workerunit extends Entity {
             case 'RelEx':
                 return $this->createAnnotationVectorRelEx();
                 break;
-             case 'HighlightEventConceptsInVideos':
-                return $this->createAnnotationVectorHighlightEventConceptsInVideos();
+             case 'MetaDEvents':
+                return $this->createAnnotationVectorMetaDEvents();
+                break;
+            case 'BiographyNetConcepts':
+                return $this->createAnnotationVectorBiographyNetConcepts();
                 break;
             
             default:
@@ -82,6 +85,15 @@ class Workerunit extends Entity {
         }        
     }
 
+    public function createAnnotationVectorMetaDEvents() {
+        return array();
+    }
+
+    public function createAnnotationVectorBiographyNetConcepts() {
+        return array();
+    }
+
+/*
     public function createAnnotationVectorHighlightEventConceptsInVideos(){
         $debug = false;
 
@@ -137,6 +149,7 @@ class Workerunit extends Entity {
 
         
      }
+     */
 
     public function takeAnnotationComponents($wordsNo, $sentence) {
         $result = "";
