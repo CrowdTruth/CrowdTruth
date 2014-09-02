@@ -70,9 +70,6 @@ class RelexStructurer {
 
 	public function processLines(&$relexLines)
 	{
-		// fastcgi_finish_request();
-		// dd(count($relexLines));
-
 		$relexStructuredSentences = array();
 		$tempRelexStructuredSentences = array();
 
@@ -80,20 +77,19 @@ class RelexStructurer {
 		{
 			$relexLineSegments = explode("\t", $relexLineVal);
 
+			// Ignore "0" on first column
 			if($relexLineSegments[0] == "0")
 			{
 				unset($relexLineSegments[0]);
 				$relexLineSegments = array_values($relexLineSegments);
 			}
 
+			// Ignore lines with less than 8 elements
 			if(count($relexLineSegments) < 8)
 			{
 				continue;
 			}
 
-			// if($relexLineKey < 340 || $relexLineKey > 1000)
-			// 	continue;
-				
 			$tempRelexStructuredSentence = [
 				"relation" => [
 					"original" => $relexLineSegments[0],
@@ -119,9 +115,6 @@ class RelexStructurer {
 			array_push($tempRelexStructuredSentences, $this->getAllTermCombinations($tempRelexStructuredSentence));
 		}
 
-		// dd(count($this->array_unique_multidimensional($tempRelexStructuredSentences)));
-		// dd(count($tempRelexStructuredSentences));
-
 		unset($relexLines);
 
 		$tempRelexStructuredSentences = $this->array_unique_multidimensional($tempRelexStructuredSentences);
@@ -143,7 +136,6 @@ class RelexStructurer {
 
 					if($this->overlappingOffsets($relexStructuredSentence))
 					{
-						// array_push($overlappingOffsetSentences, $relexStructuredSentence);
 						continue;
 					}
 
@@ -166,45 +158,7 @@ class RelexStructurer {
 
 				}
 			}
-
-			// unset($tempRelexStructuredSentences[$tKey]);
 		}
-
-		return $relexStructuredSentences;
-
-		// $allHashes = array();
-		// $duplicates = array();
-
-		// foreach($relexStructuredSentences as $u)
-		// {
-		// 	$hash = sha1(serialize($u));
-		// 	$u['hash'] = $hash;
-
-		// 	if(in_array($hash, $allHashes)){
-		// 		array_push($duplicates, $u);
-		// 	}
-		// 	else
-		// 	{
-		// 		array_push($allHashes, $hash);
-		// 	}
-			
-		// }
-
-		// return $duplicates;
-
-		// dd(count($relexStructuredSentences));
-
-		// dd(count(array_unique($relexStructuredSentences, SORT_REGULAR)));
-
-		// return $this->array_unique_multidimensional($relexStructuredSentences);
-
-		// dd(count($this->array_unique_multidimensional($relexStructuredSentences)));
-
-		// echo count($relexStructuredSentences) . PHP_EOL;
-		// echo count(array_unique($relexStructuredSentences, SORT_REGULAR)) . PHP_EOL;
-
-		// exit;
-		// // return array_slice($relexStructuredSentences, 0, 100);
 
 		return $relexStructuredSentences;
 	}
@@ -632,32 +586,25 @@ class RelexStructurer {
 		return $relationWithoutPrefix;
 	}
 
-	public function store(&$parentEntity, $relexStructuredSentences, $inc)
-	{
+	public function store(&$parentEntity, $relexStructuredSentences, $inc) {
 		// dd('test');
 
 		$allEntities = array();
 
-        foreach($relexStructuredSentences as $tKey => &$relexStructuredSentence)
-        {
-
+        foreach($relexStructuredSentences as $tKey => &$relexStructuredSentence) {
 			$title = $parentEntity['title'] . "_index_" . $inc;
-
 			$hash = md5(serialize(array_except($relexStructuredSentence, ['properties'])));
 
-			if($dup = Entity::where('hash', $hash)->first())
-			{
+			if($dup = Entity::where('hash', $hash)->first()) {
 				array_push($this->status['store']['error']['skipped_duplicates'], $tKey . " ---> " . $dup->_id);
 				continue;
 			}
 
-            if (Auth::check())
-            {
+            if (Auth::check()) {
                 $user_id = Auth::user()->_id;
-            } else 
-            {
+            } else  {
                 $user_id = "crowdwatson";
-            } 			
+            }
 
 			$entity = [
 				"_id" => 'entity/text/medical/relex-structured-sentence/' . $inc,
@@ -679,54 +626,13 @@ class RelexStructurer {
 
 			$inc++;
 
-			// array_push($this->status['store']['success'], $tKey);
-
 			array_push($this->status['store']['success'], $tKey . " ---> URI: {$entity['_id']}");
-
-			// $this->status['store']['success'][$title] = "URI: {$entity['_id']})";
 		}
 
-		if(count($allEntities) > 1)
-		{
+		if(count($allEntities) > 1) {
 			\DB::collection('entities')->insert($allEntities);
 			\MongoDB\Temp::truncate();
 		}
-
-		//	$allEntities = array_slice($allEntities, 0, 100);
-
-		// dd('yes');
-
-		// if(count($allEntities) > 1)
-		// {
-		// 	if(count($allEntities) > 20000)
-		// 	{
-		// 		$chunkSize = ceil(count($allEntities) / 20000);
-		// 		$arrayChunks = array_chunk($allEntities, $chunkSize);
-		// 		unset($allEntities);
-
-		// 		foreach($arrayChunks as $chunkKey => &$chunkVal)
-		// 		{
-		// 			try{
-		// 				\DB::collection('entities')->insert($chunkVal);
-		// 			} catch (Exception $e) {
-		// 				$status['error']['insert_chunk' . $chunkKey] = $e->getMessage();
-		// 			}
-		// 		}	
-		// 	}
-		// 	else
-		// 	{
-		// 		try{
-		// 			\DB::collection('entities')->insert($allEntities);
-		// 		} catch (Exception $e) {
-		// 			$status['error']['insert_batch'] = $e->getMessage();
-		// 		}
-
-		// 	}
-		// }
-		// else
-		// {
-		// 	$activity->forceDelete();
-		// }
 
 		return $inc;
 	}

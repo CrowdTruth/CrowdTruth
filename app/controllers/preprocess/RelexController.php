@@ -29,7 +29,11 @@ class RelexController extends BaseController {
 
 	public function getActions()
 	{
-		$entities = \MongoDB\Entity::where('documentType', 'relex')->get();
+		// TODO: format=text so pre-processing is applicable to ANY text document.
+		// TODO:   Rename class from RelexController to TEXT-CONTROLLER or something like that
+		// $entities = \MongoDB\Entity::where('documentType', 'relex')->get();
+		// TODO: Select document types dynamically
+		$entities = \MongoDB\Entity::whereIn('documentType', [ 'relex', 'csvesult', 'article', 'biographynet' ])->get();
 
 		if(count($entities) > 0)
 		{
@@ -74,9 +78,6 @@ class RelexController extends BaseController {
 				$entity = $entity->toArray();
 
 				return $status_processing = $this->relexStructurer->process($entity);
-				echo "<pre>";
-				dd($status_processing);
-				return Redirect::back();
 			}
 		} 
 		else 

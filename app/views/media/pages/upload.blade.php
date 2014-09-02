@@ -7,6 +7,7 @@
 				<div class="col-xs-10 col-sm-offset-1">
 					<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')	
+
 @include('media.layouts.nav_new')	
 
 
@@ -16,7 +17,7 @@
 								<h4><i class="fa fa-exclamation-triangle fa-fw"></i>Error</h4>
 							</div>
 							<div class="panel-body CW_messages">
-								<ul class="list-group">					
+								<ul class="list-group">
 						@foreach ($status_upload['error'] as $status_message)
 							<li class="list-group-item"><span class='message'> {{ $status_message }} </li>
 						@endforeach
@@ -31,7 +32,7 @@
 								<h4><i class="fa fa-check fa-fw"></i>Success</h4>
 							</div>
 							<div class="panel-body CW_messages">
-								<ul class="list-group">					
+								<ul class="list-group">
 						@foreach ($status_upload['success'] as $status_message)
 							<li class="list-group-item"><span class='message'> {{ $status_message }} </li>
 						@endforeach
@@ -66,11 +67,18 @@
 										<div class="col-sm-5">
 											<select name="domain_type" class="form-control" id="domain_type">
 												<option value="">--</option>
-												<option value="domain_type_art" class="file_format_image">Art</option>
-												<option value="domain_type_medical" class="file_format_text">Medical</option>
-												<option value="domain_type_news" class="file_format_text">News</option>
-												<option value="domain_type_other" class="file_format_text">Other</option>
+											@foreach($domains as $domain)
+												<option value="{{ $domain }}" class="{{ $fileTypes[$domain] }}">{{ $names[$domain] }}</option>
+											@endforeach
+												<option value="domain_type_other" class="file_format_text file_format_image file_format_video">Other</option>
 											</select>
+										</div>
+									</div>
+									
+									<div class="form-group hidden" id="domain_other_div">
+										<label for="domain_create" class="col-sm-3 control-label">Other domain</label>
+										<div class="col-sm-5">
+											<input type="text" name="domain_create" id="domain_create" class="form-control"/>
 										</div>
 									</div>
 
@@ -79,14 +87,20 @@
 										<div class="col-sm-5">
 											<select name="document_type" class="form-control" id="document_type">
 												<option value="">--</option>
-												<option value="document_type_relex" class="domain_type_medical">RElex</option>
-												<option value="document_type_csvresult" class="domain_type_medical">CSVResult</option>
-												<option value="document_type_article" class="domain_type_medical domain_type_news">Article</option>
-												<option value="document_type_book" class="domain_type_other">Book</option>
-												<option value="document_type_painting" class="domain_type_art">Painting</option>
-												<option value="document_type_drawing" class="domain_type_art">Drawing</option>
-												<option value="document_type_picture" class="domain_type_art">Picture</option>
+										@foreach($domains as $domain)
+											@foreach($doctypes[$domain] as $docType)
+												<option value="document_type_{{ $docType }}" class="{{ $domain }}">{{ $docType }}</option>
+											@endforeach
+										@endforeach
+												<option value="document_type_other" class="domain_type_art domain_type_medical domain_type_news domain_type_other">Other</option>
 											</select>
+										</div>
+									</div>
+
+									<div class="form-group hidden" id="document_other_div">
+										<label for="domain_create" class="col-sm-3 control-label">Other type of document</label>
+										<div class="col-sm-5">
+											<input type="text" name="document_create" id="document_create" class="form-control"/>
 										</div>
 									</div>
 
@@ -97,13 +111,6 @@
 											<!-- <p class='uploadHelpText'>Allowed filetypes are: txt</p> -->
 										</div>
 									</div>
-
-<!-- 									<div class="form-group">
-										<label class="col-sm-3 control-label">Increment Filename/URI if entry already exists</label>
-										<div class="col-sm-6" style="line-height:40px;">
-											<input type="checkbox" name="increment" value="true" />
-										</div>
-									</div> -->
 
 									<div class="form-group">
 										<div class="col-sm-offset-3 col-sm-5">
@@ -131,7 +138,6 @@
 												<option value="">--</option>
 												<option value="source_beeldengeluid" data-toggle="source_name">Netherlands Institute for Sound and Vision</option>
 												<option value="source_rijksmuseum" data-toggle="source_name">Rijksmuseum ImageGetter</option>
-										   <!-- <option value="source_template" data-toggle="source_name">New online source</option> -->
 											</select>
 										</div>
 									</div>
@@ -175,7 +181,6 @@
 							'numberVideos' 			: $('.onlineForm input[name=numberVideos]').val()
 						};
 
-						
 						// process the form
 						$.ajax({
 							type 		: 'POST', // define the type of HTTP verb we want to use (POST for our form)
@@ -184,26 +189,18 @@
 							dataType 	: 'json', // what type of data do we expect back from the server
 							encode          : true
 						})
-							// using the done promise callback
-							.done(function(data) {
-								// log data to the console so we can see
-								console.log(data); 
-
+						// using the done promise callback
+						.done(function(data) {
+							// log data to the console so we can see
+							console.log(data); 
 								// here we will handle errors and validation messages
-							});
+						});
 
-							setTimeout( function(){
-					location.href = "{{ URL::to('media/upload') }}";						
-							}, 2000);
-
-
-
+						setTimeout( function(){ location.href = "{{ URL::to('media/upload') }}"; }, 2000);
 
 						// stop the form from submitting the normal way and refreshing the page
 						event.preventDefault();
-					});
-			
-					
+					});					
 				}
 			});
 	
@@ -223,10 +220,26 @@
 				if ($('.toggle-data option:selected').val() != "source_beeldengeluid") {
 					inputvideo.addClass("hidden");
 				}
+			});
 
+			$("#domain_type").on('change', function() {
+				var type = $(this).val();
+				if(type=="domain_type_other") {
+					$("#domain_other_div").removeClass("hidden");
+				} else {
+					$("#domain_other_div").addClass("hidden");
+				}
+			});
+
+			$("#document_type").on('change', function() {
+				var type = $(this).val();
+				if(type=="document_type_other") {
+					$("#document_other_div").removeClass("hidden");
+				} else {
+					$("#document_other_div").addClass("hidden");
+				}
 			});
 		});
-
 
 	</script>
 @stop

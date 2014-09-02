@@ -169,9 +169,10 @@ class Entity extends Moloquent {
             throw new Exception("Entity has a wrong value \"{$entity->format}\" for the format field");
         }
 
-        if(($entity->domain == "medical" || $entity->domain == "biography" || $entity->domain == "news" || $entity->domain == "cultural" || $entity->domain == "art") == FALSE){
+        // TODO: Can we remove this constraint? IF we want to be able to extend to multiple domains, then maybe we have to ?
+/*        if(($entity->domain == "medical" || $entity->domain == "news" || $entity->domain == "cultural" || $entity->domain == "art") == FALSE){
             throw new Exception("Entity has a wrong value \"{$entity->domain}\" for the domain field");
-        }
+        } */
     }
 
     public static function createSchema(){
