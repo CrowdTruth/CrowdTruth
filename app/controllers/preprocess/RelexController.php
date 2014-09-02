@@ -33,7 +33,8 @@ class RelexController extends BaseController {
 		// TODO:   Rename class from RelexController to TEXT-CONTROLLER or something like that
 		// $entities = \MongoDB\Entity::where('documentType', 'relex')->get();
 		// TODO: Select document types dynamically
-		$entities = \MongoDB\Entity::whereIn('documentType', [ 'relex', 'csvesult', 'article', 'biographynet' ])->get();
+		$entities = \MongoDB\Entity::whereIn('documentType', [ 'relex', 'csvesult', 'article', 'biographynet', 
+				'term telations', 'questions & answer passages' ])->get();
 
 		if(count($entities) > 0)
 		{
