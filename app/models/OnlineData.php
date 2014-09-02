@@ -32,8 +32,8 @@ class OnlineData extends Moloquent {
 	}
 
 
-	public function listRecords($parameters, $noEntries) {
-		$listOfRecords = array();
+	public function listRecords($parameters, $noEntries, &$listOfRecords) {
+		
 		$curlRequest = new SVRequest;
 
 		$url = $this->url . "verb=ListRecords";
@@ -57,6 +57,9 @@ class OnlineData extends Moloquent {
 		else {
 			throw new Exception('Request parameters missing!');
 		}
+
+		$entities = \MongoDB\Entity::where('documentType', 'fullvideo')->lists("title");
+
 		while ($noEntries > 0) {
 		    //throw new Exception($noEntries);	
 			$result = $curlRequest->curlRequest($url, "POST", null);
@@ -66,16 +69,17 @@ class OnlineData extends Moloquent {
 			}
 			else {	
 				$xmlNode = $xml->ListRecords;
+
 				if (isset($xmlNode)){
 					foreach ($xmlNode->record as $rNode) {
 
     					if(strpos((string)$rNode->metadata->children('oai_oi', 1)->oi->children('oi', 1)->type, "Moving Image") !== false) {
 							if ($noEntries > 0) {
 
-								$entities = \MongoDB\Entity::where('documentType', 'fullvideo')->lists("title");
-								//dd($entities);
 								if (!in_array((string)$rNode->header->identifier, $entities)) {
 									array_push($listOfRecords, (string)$rNode->header->identifier);
+									array_push($entities, (string)$rNode->header->identifier);
+								//	dd($entities);
 									$noEntries --;
 								}
 								else {
@@ -89,29 +93,24 @@ class OnlineData extends Moloquent {
 					}
 				}
 				
-				if (!isset($xml->ListRecords->resumptionToken)) {
-
-					return $listOfRecords;
-				}
-				else {
-
+				if (isset($xml->ListRecords->resumptionToken)) {
 					if ($noEntries > 0) {
 						if(!array_key_exists("resumptionToken", $parameters)) {
 							$parameters["resumptionToken"] = (string)$xml->ListRecords->resumptionToken;
 							unset($parameters["metadataPrefix"]);
-							$this->listRecords($parameters, $noEntries);
+							$this->listRecords($parameters, $noEntries, $listOfRecords);
 						}
 						else {
 							$replacement = array("resumptionToken" => (string)$xml->ListRecords->resumptionToken);
 							$parameters = array_replace($parameters, $replacement);
-							$this->listRecords($parameters, $noEntries);
+							$this->listRecords($parameters, $noEntries, $listOfRecords);
 						}
 					}
 				}
 			}
 		}
-		
-		return $listOfRecords;
+	//	dd($listOfRecords);
+	//	return $listOfRecords;
 	}
 
 	public function getRecord($recordId, $metadataPrefix) {
@@ -422,8 +421,10 @@ class OnlineData extends Moloquent {
 
 	public function store ($format, $domain, $documentType, $parameters, $noOfVideos) {
 		//fastcgi_finish_request();
-		$listOfVideoIdentifiers = $this->listRecords($parameters, $noOfVideos);
-	//	dd("done");
+		$listOfVideoIdentifiers = array();
+		$this->listRecords($parameters, $noOfVideos, $listOfVideoIdentifiers);
+		
+		dd("done");
 		$status = array();
 
 		try {

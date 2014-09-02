@@ -86,11 +86,109 @@ class Workerunit extends Entity {
     }
 
     public function createAnnotationVectorMetaDEvents() {
-        return array();
+        $debug = false;
+
+        if(empty($this->unit_id))
+            return null;
+
+        $description = $this->unit->content['description'];
+        
+        // Set annotation vector for the sentence
+        $descriptionWords = explode(" ", $description);
+        $concepts = array("event");
+        $annotationVector = array();
+
+        for ($i = 0; $i < count($concepts); $i ++) {
+            $annotationVector[$concepts[$i]] = array();
+            array_push($annotationVector[$concepts[$i]], "NONE_###_-1");
+            $annotationVector[$concepts[$i]]["NONE_###_-1"] = 0;
+        }
+
+        for ($i = 0; $i < count($descriptionWords); $i ++) {
+            for ($j = 0; $j < count($concepts); $j ++) {
+                array_push($annotationVector[$concepts[$j]], str_replace('.', '', $descriptionWords[$i] . "_###_" . $i));
+                $annotationVector[$concepts[$j]][str_replace('.', '', $descriptionWords[$i] . "_###_" . $i)] = 0;
+            }
+        }
+
+        $judgment = $this->content;
+        for ($i = 0; $i < 30; $i ++) {
+            if (isset($judgment["event" . $i])) {
+                $annotatedWords = takeAnnotationComponents($judgment["ev" . $i . "a"], $description);
+                for ($noAnnWords = 0; $noAnnWords < count($annotatedWords); $noAnnWords ++) {
+                    $annotationVector[$judgment["event" . $i]][$annotatedWords[$noAnnWords]] = 1; 
+                }
+            }
+        }
+
+        for ($i = 0; $i < count($concepts); $i ++) {
+            $annotations = 0;
+            foreach ($annotationVector[$concepts[$i]] as $key => $value) {
+                if ($value == 1) {
+                    $annotations ++; 
+                }
+            }
+            if ($annotations == 0 || count($annotationVector[$concepts[$i]]) == 0) {
+                $annotationVector[$concepts[$i]]["NONE_###_-1"] = 1;
+            }
+        }
+        
+        return array('event' => $annotationVector["event"]);
     }
 
     public function createAnnotationVectorBiographyNetConcepts() {
-        return array();
+
+        $debug = false;
+
+        if(empty($this->unit_id))
+            return null;
+
+        $description = $this->unit->content['chunk_text'];
+        
+        // Set annotation vector for the sentence
+        $descriptionWords = explode(" ", $description);
+        $concepts = array("organization", "location", "time", "person", "other");
+        $annotationVector = array();
+
+        for ($i = 0; $i < count($concepts); $i ++) {
+            $annotationVector[$concepts[$i]] = array();
+            array_push($annotationVector[$concepts[$i]], "NONE_###_-1");
+            $annotationVector[$concepts[$i]]["NONE_###_-1"] = 0;
+        }
+
+        for ($i = 0; $i < count($descriptionWords); $i ++) {
+            for ($j = 0; $j < count($concepts); $j ++) {
+                array_push($annotationVector[$concepts[$j]], str_replace('.', '', $descriptionWords[$i] . "_###_" . $i));
+                $annotationVector[$concepts[$j]][str_replace('.', '', $descriptionWords[$i] . "_###_" . $i)] = 0;
+            }
+        }
+
+        $judgment = $this->content;
+        for ($i = 0; $i < 30; $i ++) {
+            if (isset($judgment["event" . $i])) {
+                $annotatedWords = takeAnnotationComponents($judgment["ev" . $i . "a"], $description);
+                for ($noAnnWords = 0; $noAnnWords < count($annotatedWords); $noAnnWords ++) {
+                    $annotationVector[$judgment["event" . $i]][$annotatedWords[$noAnnWords]] = 1; 
+                }
+            }
+        }
+
+        for ($i = 0; $i < count($concepts); $i ++) {
+            $annotations = 0;
+            foreach ($annotationVector[$concepts[$i]] as $key => $value) {
+                if ($value == 1) {
+                    $annotations ++; 
+                }
+            }
+            if ($annotations == 0 || count($annotationVector[$concepts[$i]]) == 0) {
+                $annotationVector[$concepts[$i]]["NONE_###_-1"] = 1;
+            }
+        }
+        
+        return array('organization' => $annotationVector["organization"], 'location' => $annotationVector["location"], 
+            'time' => $annotationVector["time"], 'person' => $annotationVector["person"],
+            'other' => $annotationVector["other"]);
+        
     }
 
 /*
