@@ -16,9 +16,9 @@ class DatabaseSeeder extends Seeder {
 		// Initialize file uploader
 		$id = 'textsentencepreprocessor';
 		$label = 'This component is used for storing files as documents within MongoDB';
-		$fileUploader = new SoftwareComponent($id, $label);
-		$fileUploader['domains'] = [];
-		$fileUploader->save();
+		$txtPreprocessor = new SoftwareComponent($id, $label);
+		$txtPreprocessor['domains'] = [];
+		$txtPreprocessor->save();
 		
 		// $this->call('UserTableSeeder');
 	}

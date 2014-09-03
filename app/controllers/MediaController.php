@@ -4,6 +4,8 @@ use CoffeeScript\compact;
 
 use \MongoDB\Repository as Repository;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
+use \MongoDB\SoftwareComponent as SoftwareComponent;
+use \SoftwareComponents\FileUploader as FileUploader;
 
 class MediaController extends BaseController {
 
@@ -19,6 +21,9 @@ class MediaController extends BaseController {
         return Redirect::to('media/upload');
 	}
 
+	/**
+	 * Return the media upload view.
+	 */
 	public function getUpload() {
 		return $this->loadMediaUploadView();
 	}
@@ -31,69 +36,10 @@ class MediaController extends BaseController {
 
 	public function postUpload()
 	{
-		$fileHelper = new FileHelper(Input::all());
-
 		try {
-			// TODO: Move this code to FileHelper ?? --> Ask Khalid
-			// $format = $fileHelper->getType();
-			// $domain = $fileHelper->getDomain();
-			// $documentType = $fileHelper->getDocumentType();
+			$uploader = new FileUploader();
+			$status_upload = $uploader->store();
 			
-			$format = $fileHelper->getType();		// text
-			$domain = Input::get('domain_type');	// other ==> NewDomain
-			$documentType = Input::get('document_type');	//document_type_other==>newType
-			// END TODO
-			$validatedFiles = $fileHelper->performValidation();
-
-			// TODO: Move this code to FileUpload ?? --> Ask Khalid
-			$newDomain = false;
-			$newDocType = false;
-			if($domain == 'domain_type_other') {
-				// Add new domain to DB
-				$domain = Input::get('domain_create');
-				$domain = str_replace(' ', '', $domain);
-				$domain = strtolower($domain);
-				$domain = 'domain_type_'.$domain;
-				$newDomain = true;
-			}
-			
-			if($documentType == 'document_type_other') {
-				// Add new doc_type to DB
-				$documentType = Input::get('document_create');
-				$newDocType;
-			}
-			
-			if($newDomain || $newDocType) {
-				$uploader = SoftwareAgent::find("fileuploader");
-
-				// TODO: Move this code to new class UploadComponent extends SoftwareComponent ?
-				if($newDomain) {
-					$domainName = Input::get('domain_create');
-					$fileFormat = Input::get('file_format');
-					$upDomains = $uploader->domains;
-					$upDomains[$domain] = [
-						"name" => $domainName,
-						"file_formats" => [	$fileFormat ],
-						"document_types" => [ $documentType ]
-					];
-					$uploader->domains = $upDomains;
-				} else if($newDocType) {
-					// Only docType is new -- domain already existed...
-					$docTypes = $uploader->domains[$domain]["document_types"];
-					array_push($docTypes, $documentType);
-					$uploader->domains[$domain]["document_types"] = $docTypes;
-				}
-				$uploader->save();
-				// END TODO
-			}
-			// END TODO
-
-			$domain = str_replace("domain_type_", "", $domain);
-			$documentType = str_replace("document_type_", "", $documentType);
-
-			$mongoDBFileUpload = new \FileUpload;
-			$status_upload = $mongoDBFileUpload->store($validatedFiles['passed'], $domain, $documentType);
-
 			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
 			return $uploadView;
 		} catch (Exception $e){
@@ -133,9 +79,13 @@ class MediaController extends BaseController {
 		return View::make('media.pages.upload', compact('status_onlinedata'));
 	}
 
+	/**
+	 * Load data for the Media Upload View and return the view ready to be sent 
+	 * back to the user.
+	 */
 	private function loadMediaUploadView() {
-		// Load properties from file uploader software agent.
-		$data = SoftwareAgent::find("fileuploader");
+		// Load properties from file uploader software component.
+		$data = SoftwareComponent::find("fileuploader");
 		$dbDomains = $data->domains;
 		
 		$domains = [];

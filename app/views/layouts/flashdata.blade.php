@@ -17,7 +17,7 @@
 @if (Session::has('flashSuccess'))
 <div class="alert alert-success">
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-   	<strong><i class="fa fa-check fa-fw"></i>Succes!</strong>
+   	<strong><i class="fa fa-check fa-fw"></i>Success!</strong>
     <hr class="message-inner-separator">
     <p>{{ Session::get('flashSuccess'); }}</p>
 </div>

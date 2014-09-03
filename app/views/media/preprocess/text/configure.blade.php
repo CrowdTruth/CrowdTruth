@@ -93,7 +93,7 @@
 	        '           <input type="hidden" name="' + groupId + '_groupName" id="' + groupId + '_groupName" value="' + groupId + '" class="groupName"/>' +
 	        '           <input type="hidden" name="' + groupId + '_groupParent" id="' + groupId + '_groupParent" value="' + parentGroupId + '"/>' +
 	        '           <input type="button" name="' + groupId + '_close" id="' + groupId + '_close" value="x"/><br/>' +
-	        '			Add new: ' +
+	        '			Add new: <br>' +
 	        '			<input type="text" value="" id="' + groupId + '_newName"/ >' +
 	        '			<input type="button" value="New property" id="' + groupId + '_newProp"/>' +
 	        '			<input type="button" value="New group" id="' + groupId + '_newGroup"/>' +
@@ -246,13 +246,14 @@ Document preview:
 
 <div class="panel panel-default">
 	<div class="panel-body">
-		Document properties:
+		Entity content structure:
 		<input type="hidden" name="root_groupName" id="root_groupName" value="root"/>
 
 		<div class="row">
 			<div class="col-md-6">
-				Add new: 
+				Add new: <br>
 				<input type="text" value="" id="root_newName" />
+				<input type="button" value="New property" id="root_newProp"/>
 				<input type="button" value="New group" id="root_newGroup" />
 			</div>
 	
@@ -288,7 +289,11 @@ Document preview:
 
 @section('end_javascript')
 <script>
+	// TODO: Couldn't this be added dynamically? 
 	$(document).ready(function(){
+		$("#root_newProp").click(function(){
+		  newPropertyAction("root");
+		});
 		$("#root_newGroup").click(function(){
 		  newGroupAction("root");
 		});

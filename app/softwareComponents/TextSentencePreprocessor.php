@@ -1,6 +1,5 @@
 <?php
-
-namespace softwareComponents;
+namespace SoftwareComponents;
 
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;

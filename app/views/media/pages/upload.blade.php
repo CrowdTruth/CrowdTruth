@@ -7,9 +7,7 @@
 				<div class="col-xs-10 col-sm-offset-1">
 					<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')	
-
 @include('media.layouts.nav_new')	
-
 
 					@if (isset($status_upload['error']))
 						<div class="panel panel-danger">
@@ -49,7 +47,6 @@
 
 								{{ Form::open(array('action' => 'MediaController@postUpload', 'files' => 'true')) }}
 								<div class="form-horizontal">
-
 									<div class="form-group">
 										<label for="file_format" class="col-sm-3 control-label">Type of File</label>
 										<div class="col-sm-5">
@@ -92,7 +89,9 @@
 												<option value="document_type_{{ $docType }}" class="{{ $domain }}">{{ $docType }}</option>
 											@endforeach
 										@endforeach
-												<option value="document_type_other" class="domain_type_art domain_type_medical domain_type_news domain_type_other">Other</option>
+
+												{{-- Display OTHER for all domain_type's --}}
+												<option value="document_type_other" class="{{  implode(' ', array_keys($doctypes)) }} domain_type_other">Other</option>
 											</select>
 										</div>
 									</div>
@@ -115,15 +114,13 @@
 									<div class="form-group">
 										<div class="col-sm-offset-3 col-sm-5">
 										{{ Form::button('Submit', array('type' => 'submit', 'value' => 'upload', 'class' => 'btn btn-info')) }} 
-										
 										</div>
 									</div>
 								</div>
-
 								{{ Form::close() }}				
-
 							</div>
 						</div>
+
 						<div class="panel panel-default">
 							<div class="panel-heading">
 								<h4><i class="fa fa-upload fa-fw"></i>Online Sources</h4>
@@ -240,6 +237,5 @@
 				}
 			});
 		});
-
 	</script>
 @stop

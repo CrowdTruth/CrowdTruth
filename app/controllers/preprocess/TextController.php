@@ -9,7 +9,7 @@ use \MongoDB\Entity as Entity;
 use BaseController, Cart, View, App, Input, Redirect, Session;
 use League\Csv\Reader as Reader;
 
-use \softwareComponents\TextSentencePreprocessor as TextSentencePreprocessor;
+use \SoftwareComponents\TextSentencePreprocessor as TextSentencePreprocessor;
 
 class TextController extends BaseController {
 	protected $repository;
@@ -81,7 +81,7 @@ class TextController extends BaseController {
 		$response = '';
 		
 		// Prepare processor
-		$rootProcessor = $this::buildGroupProcessor('root', '', $inputs);
+		$rootProcessor = new RootProcessor($inputs, $this::getAvailableFunctions());
 		
 		// Prepare document
 		// TODO: Validate URI is present
@@ -103,8 +103,7 @@ class TextController extends BaseController {
 		
 		$entities = [];
 		foreach ($dataTable as $line) {
-			$lineEntity = [];
-			$rootProcessor->call($line, $lineEntity, $lineEntity);
+			$lineEntity = $rootProcessor->call($line);
 			array_push($entities, $lineEntity);
 		}
 		
@@ -122,8 +121,7 @@ class TextController extends BaseController {
 		
 		$entities = [];
 		foreach ($dataTable as $line) {
-			$lineEntity = [];
-			$rootProcessor->call($line, $lineEntity, $lineEntity);
+			$lineEntity = $rootProcessor->call($line);
 			array_push($entities, $lineEntity);
 		}
 	
@@ -133,30 +131,37 @@ class TextController extends BaseController {
 	private function getAvailableFunctions() {
 		// Each function extends AbstractTextPreprocessor.
 		// see AbstractTextPreprocessor for more details
-	
-		// TODO: implement the following preprocessors:
-		//     return [ asText, asNumber, format, replaceText, wordCount, relation ]
+
+		// TODO: Load all AbstractTextPreprocessor dynamically (from DB? config file?
 		$processor1 = new \Preprocess\TextToTypePreprocessor;
 		$processor2 = new \Preprocess\RegExpPreprocessor;
 		$processor3 = new \Preprocess\WordCountPreprocessor;
 		$processor4 = new \Preprocess\TermReplacePreprocessor;
 	
 		return [ $processor1->getName() => $processor1,
-		$processor2->getName() => $processor2,
-		$processor3->getName() => $processor3,
-		$processor4->getName() => $processor4
+			$processor2->getName() => $processor2,
+			$processor3->getName() => $processor3,
+			$processor4->getName() => $processor4
 		];
 	}
+}
 
-//		def processGroup(root) {
-//			group = newEntity (root.name);
-//			foreach element in root {
-//				if element is group {
-//					subGroup = processGroup(element);
-//				} else if element is property {
-//					prop = processProperty(element);
-//				}
-//			}
+class RootProcessor {
+	private $processor;
+	private $providers;
+	
+	public function __construct($inputs, $providers) {
+		$this->providers = $providers;
+		$this->processor = $this::buildGroupProcessor('root', '', $inputs);
+	}
+	
+	public function call($line) {
+		$lineEntity = [];
+		$this->processor->call($line, $lineEntity, $lineEntity);
+		return $lineEntity['root'];
+	}
+	
+
 	private function buildGroupProcessor($groupName, $parentName, $inputs) {
 		if($parentName=='') {
 			$fullName = $groupName;
@@ -165,7 +170,7 @@ class TextController extends BaseController {
 			$groupName = str_replace($parentName.'_', '', $groupName);
 		}
 		$processor = new GroupProcessor($groupName);
-
+	
 		// Find groups an properties
 		$groups = [];
 		$props  = [];
@@ -176,13 +181,13 @@ class TextController extends BaseController {
 				// Add to list of subgroups
 				array_push($groups, str_replace('_groupParent', '', $name));
 				unset($inputs[$name]);
-			// else if element is property (and is property of this group)
+				// else if element is property (and is property of this group)
 			} else if( ends_with($name, '_propParent') && $value==$fullName) {
 				array_push($props, str_replace('_propParent', '', $name));
 				unset($inputs[$name]);
 			}
 		}
-
+	
 		// Generate processors for subgroups
 		foreach ($groups as $subGrpName) {
 			// Only pass inputs starting with $subGrpName_
@@ -190,7 +195,7 @@ class TextController extends BaseController {
 			$subGrpProcessor = $this::buildGroupProcessor($subGrpName, $fullName, $subInputs);
 			$processor->addSubgroupProcessor($subGrpProcessor);
 		}
-		
+	
 		// Generate processors for properties
 		foreach ($props as $propName) {
 			// Only pass inputs starting with $propName_
@@ -198,7 +203,7 @@ class TextController extends BaseController {
 			$propProcessor = $this::buildPropertyProcessor($propName, $fullName, $propInputs);
 			$processor->addPropertyProcessor($propProcessor);
 		}
-		
+	
 		return $processor;
 	}
 	
@@ -206,17 +211,14 @@ class TextController extends BaseController {
 		$fullName = $name;
 		$name =  str_replace($parentName.'_', '', $name);
 		$processor = new PropertyProcessor($name, $parentName);
-
-		// Available Preprocessor providers
-		$providers = $this::getAvailableFunctions();
-
+	
 		// Preprocessor provider
 		$propFuncName = $fullName.'_function';
 		$propFunc = $inputs[$propFuncName];
-		$provider = $providers[$propFunc];
+		$provider = $this->providers[$propFunc];
 		unset($inputs[$propFuncName]);
 		$processor->setProvider($provider);
-
+	
 		// Preprocessor parameters
 		$params = [];
 		foreach ($inputs as $paramName => $paramValue) {
@@ -224,10 +226,10 @@ class TextController extends BaseController {
 			$params[$paramName] = $paramValue;
 		}
 		$processor->setParameters($params);
-
+	
 		return $processor;
 	}
-
+	
 	private function getChildren($inputs, $parentName) {
 		$children = [];
 		foreach ($inputs as $name => $value)  {
