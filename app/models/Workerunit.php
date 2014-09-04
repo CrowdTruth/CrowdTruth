@@ -161,7 +161,7 @@ class Workerunit extends Entity {
         $judgment = $this->content;
         for ($i = 0; $i < 30; $i ++) {
             if (isset($judgment["event" . $i])) {
-                $annotatedWords = takeAnnotationComponents($judgment["ev" . $i . "a"], $description);
+                $annotatedWords = $this->takeAnnotationComponents($judgment["ev" . $i . "a"], $description);
                 for ($noAnnWords = 0; $noAnnWords < count($annotatedWords); $noAnnWords ++) {
                     $annotationVector[$judgment["event" . $i]][$annotatedWords[$noAnnWords]] ++; 
                 }
@@ -245,18 +245,18 @@ class Workerunit extends Entity {
      */
 
     public function takeAnnotationComponents($wordsNo, $sentence) {
-        $result = "";
+        $result = array();
         $wordsSentence = explode(" ", $sentence);
         if(strpos($wordsNo, "-") !== FALSE) {
             $interval = explode("-", $wordsNo);
             for ($i = (int)$interval[0]; $i <= (int)$interval[1]; $i ++) {
-                $result .= $wordsSentence[$i] . " ";
+                array_push($result, str_replace(".", "", $wordsSentence[$i]) . "_###_" . $i;
             }
         }
         else {
-            $result = $wordsSentence[(int)$wordsNo];
+            array_push($result, str_replace(".", "", $wordsSentence[(int)$wordsNo]) . "_###_" . $wordsNo;
         }
-        $result = str_replace(".", "", $result);
+
         return $result;
     }
 
