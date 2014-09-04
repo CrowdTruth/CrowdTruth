@@ -99,7 +99,7 @@ class Workerunit extends Entity {
         $annotationVector = array();
 
         $annotationVector["event"] = array();
-        array_push($annotationVector["event"], "NONE_###_-1");
+    //    array_push($annotationVector["event"], "NONE_###_-1");
         $annotationVector["event"]["NONE_###_-1"] = 0;
 
         for ($i = 0; $i < count($descriptionWords); $i ++) {

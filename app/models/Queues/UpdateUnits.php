@@ -74,7 +74,7 @@ class UpdateUnits {
             $filteredField['job_ids'] = array_flatten(Job::where('metrics.filteredUnits.list','all', array($unit['_id']))->get(['_id'])->toArray());
             $filteredField['count'] = count($filteredField['job_ids']);
 
-            $derivatives = \MongoDB\Entity::whereIn('parents', array($unit->_id]))->lists('_id');
+            $derivatives = \MongoDB\Entity::whereIn('parents', array($unit->_id))->lists('_id');
 
             $children["count"] = count($derivatives);
             $children["list"] = $derivatives;
