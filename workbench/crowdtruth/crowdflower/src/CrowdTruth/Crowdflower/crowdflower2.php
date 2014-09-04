@@ -28,10 +28,10 @@ class Crowdflower2 extends \FrameWork {
 
 	public function getJobConfValidationRules(){
 		return array(
-		//	'workerUnitsPerUnit' => 'required|numeric|min:1',
+			'workerunitsPerUnit' => 'required|numeric|min:1',
 			'unitsPerTask' => 'required|numeric|min:1',
 			'instructions' => 'required',
-			'workerUnitsPerWorker' => 'required|numeric|min:1');
+			'workerunitsPerWorker' => 'required|numeric|min:1');
 	}
 
 	public function __construct(){
@@ -47,7 +47,7 @@ class Crowdflower2 extends \FrameWork {
 	}
 
 	public function updateJobConf($jc){
-		if(Input::has('workerUnitsPerWorker')){ // Check if we really come from the CF page (should be the case)
+		if(Input::has('workerunitsPerWorker')){ // Check if we really come from the CF page (should be the case)
 			$c = $jc->content;
 			$c['countries'] = Input::get('countries', array());
 			$jc->content = $c;
@@ -96,7 +96,7 @@ class Crowdflower2 extends \FrameWork {
 		$csv = $this->batchToCSV($job->batch, $job->questionTemplate);
 		$gold = $jc->answerfields;
 		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 30)*60, 
-							"keywords" => (isset($jc->content['requesterWorkerUnit']) ? $jc->content['requesterWorkerUnit'] : ''),
+							"keywords" => (isset($jc->content['requesterWorkerunit']) ? $jc->content['requesterWorkerunit'] : ''),
 							"mail_to" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''));
     	
     	//if($jc->content['workerUnitsPerWorker'] < $jc->content['unitsPerTask'])
