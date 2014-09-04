@@ -99,6 +99,8 @@ class RetrieveJobs extends Command {
 				$agent->country = $judgment['country'];
 				$agent->region = $judgment['region'];
 				$agent->city = $judgment['city'];
+				$agent->cfWorkerTrust = $judgment['worker_trust'];
+				$agent->save();
 			}	
 			
 			$agent->cfWorkerTrust = $judgment['worker_trust'];
