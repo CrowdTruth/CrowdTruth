@@ -70,6 +70,8 @@ class RetrieveJobs extends Command {
 			$judgment = $judgments[0];
 			$agentId = "crowdagent/cf/{$judgment['worker_id']}";
 			$ourjobid = $this->getJob($cfjobid)->_id;
+			$ourjobdomain = $this->getJob($cfjobid)->domain;
+			$ourjobformat = $this->getJob($cfjobid)->format;
 
 
 			// TODO: check if exists. How?
@@ -86,7 +88,7 @@ class RetrieveJobs extends Command {
 
 			// Store judgments.
 			foreach($judgments as $judgment)
-				$this->storeJudgment($judgment, $ourjobid, $activity->_id, $agentId);
+				$this->storeJudgment($judgment, $ourjobid, $activity->_id, $agentId, $ourjobdomain, $ourjobformat);
 
 			// Create or update Agent
 			if(!$agent = CrowdAgent::id($agentId)->first()){
@@ -147,7 +149,7 @@ class RetrieveJobs extends Command {
 	/**
 	* @return true if created, false if exists
 	*/
-	private function storeJudgment($judgment, $ourjobid, $activityId, $agentId)
+	private function storeJudgment($judgment, $ourjobid, $activityId, $agentId, $ourjobdomain, $ourjobformat)
 	{
 
 		// If exists return false. 
@@ -159,6 +161,8 @@ class RetrieveJobs extends Command {
 		try {
 			$workerunit = new Workerunit;
 			$workerunit->job_id = $ourjobid;
+			$workerunit->domain = $ourjobdomain;
+			$workerunit->format = $ourjobformat;
 			//$workerunit->platformJobId = $judgment['job_id'];
 			$workerunit->activity_id = $activityId;
 			$workerunit->crowdAgent_id = $agentId;
