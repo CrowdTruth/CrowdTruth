@@ -104,6 +104,12 @@ h3 {
 					    		<li><a href='#PassageAlignment'>Passage alignment annotation</a></li>
 					    	</ul>
 			    		</li>
+			    		<li><a href='#Snippets'>Code snippets</a>
+					    	<ul>
+					    		<li><a href='#snippet1'>Highlight selection</a></li>
+					    		<li><a href='#snippet2'>Clear instructions</a></li>
+					    	</ul>
+			    		</li>
 			    	</ul>
 			    </nav>
 			    <!--Main Content -->
@@ -257,6 +263,22 @@ h3 {
 						            </ul>
 								<br/>     
 					            <img src='/images/templates/QA/image01.png' />
+			            	</li>
+			            </ul>
+			        </section>
+					
+			        <section id="Snippets" class="group">
+			            <h3><i class="fa fa-file-o"></i> Code snippets:</h3>
+			            <ul>
+			            	<li id='Snippet1'><h3>Highlight selection on CrowdFlower</h3>
+									In order to decrease the chance of workers accidentally selecting an answer, it can be colored when selected.
+									<br /><br />
+						            <iframe width="100%" height="300" src="http://jsfiddle.net/w5Ltx03c/1/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+			            	</li>
+			            	<li id='Snippet2'><h3>Clear instructions on CrowdFlower</h3>
+									In order to make the instructions for each question stand out more, they can be colored red.
+									<br /><br />
+									<iframe width="100%" height="300" src="http://jsfiddle.net/u1a4rbvd/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 			            	</li>
 			            </ul>
 			        </section>
