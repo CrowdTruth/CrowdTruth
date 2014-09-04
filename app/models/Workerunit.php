@@ -109,17 +109,17 @@ class Workerunit extends Entity {
 
         $judgment = $this->content;
         for ($i = 0; $i < 30; $i ++) {
-            if (isset($judgment["ev" . $i] . "a")) {
+            if (isset($judgment["ev" . $i . "a"])) {
                 $annotatedWords = takeAnnotationComponents($judgment["ev" . $i . "a"], $description);
                 for ($noAnnWords = 0; $noAnnWords < count($annotatedWords); $noAnnWords ++) {
-                    $annotationVector["event"][$annotatedWords[$noAnnWords]] = 1; 
+                    $annotationVector["event"][$annotatedWords[$noAnnWords]] ++; 
                 }
             }
         }
 
         $annotations = 0;
         foreach ($annotationVector["event"] as $key => $value) {
-            if ($value == 1) {
+            if ($value != 0) {
                 $annotations ++; 
             }
         }
@@ -163,7 +163,7 @@ class Workerunit extends Entity {
             if (isset($judgment["event" . $i])) {
                 $annotatedWords = takeAnnotationComponents($judgment["ev" . $i . "a"], $description);
                 for ($noAnnWords = 0; $noAnnWords < count($annotatedWords); $noAnnWords ++) {
-                    $annotationVector[$judgment["event" . $i]][$annotatedWords[$noAnnWords]] = 1; 
+                    $annotationVector[$judgment["event" . $i]][$annotatedWords[$noAnnWords]] ++; 
                 }
             }
         }
@@ -171,7 +171,7 @@ class Workerunit extends Entity {
         for ($i = 0; $i < count($concepts); $i ++) {
             $annotations = 0;
             foreach ($annotationVector[$concepts[$i]] as $key => $value) {
-                if ($value == 1) {
+                if ($value != 0) {
                     $annotations ++; 
                 }
             }
