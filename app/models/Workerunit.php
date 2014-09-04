@@ -149,13 +149,13 @@ class Workerunit extends Entity {
 
         for ($i = 0; $i < count($concepts); $i ++) {
             $annotationVector[$concepts[$i]] = array();
-            array_push($annotationVector[$concepts[$i]], "NONE_###_-1");
+        //    array_push($annotationVector[$concepts[$i]], "NONE_###_-1");
             $annotationVector[$concepts[$i]]["NONE_###_-1"] = 0;
         }
 
         for ($i = 0; $i < count($descriptionWords); $i ++) {
             for ($j = 0; $j < count($concepts); $j ++) {
-                array_push($annotationVector[$concepts[$j]], str_replace('.', '', $descriptionWords[$i] . "_###_" . $i));
+            //    array_push($annotationVector[$concepts[$j]], str_replace('.', '', $descriptionWords[$i] . "_###_" . $i));
                 $annotationVector[$concepts[$j]][str_replace('.', '', $descriptionWords[$i] . "_###_" . $i)] = 0;
             }
         }
