@@ -19,7 +19,6 @@ class FileUpload extends Moloquent {
 			$activity = new Activity;
 			$activity->softwareAgent_id = "fileuploader";
 			$activity->save();
-
 		} catch (Exception $e) {
 			// Something went wrong with creating the Activity
 			$activity->forceDelete();				
@@ -38,7 +37,7 @@ class FileUpload extends Moloquent {
 				$entity->format = "text";
 				$entity->documentType = $documentType;
 				$entity->content = File::get($file->getRealPath());
-				$entity->hash = md5(serialize([$entity->content]));				
+				$entity->hash = md5(serialize([$entity->content]));
 				$entity->activity_id = $activity->_id;
 				$entity->save();
 
@@ -55,8 +54,7 @@ class FileUpload extends Moloquent {
 	}
 
 	public function createFileUploaderSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('fileuploader'))
-		{
+		if(!\MongoDB\SoftwareAgent::find('fileuploader')) {
 			$softwareAgent = new \MongoDB\SoftwareAgent;
 			$softwareAgent->_id = "fileuploader";
 			$softwareAgent->label = "This component is used for storing files as documents within MongoDB";

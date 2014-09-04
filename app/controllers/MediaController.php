@@ -1,6 +1,11 @@
 <?php
 
+use CoffeeScript\compact;
+
 use \MongoDB\Repository as Repository;
+use \MongoDB\SoftwareAgent as SoftwareAgent;
+use \MongoDB\SoftwareComponent as SoftwareComponent;
+use \SoftwareComponents\FileUploader as FileUploader;
 
 class MediaController extends BaseController {
 
@@ -16,35 +21,31 @@ class MediaController extends BaseController {
         return Redirect::to('media/upload');
 	}
 
-	public function getUpload()
-	{
-        return View::make('media.pages.upload');
+	/**
+	 * Return the media upload view.
+	 */
+	public function getUpload() {
+		return $this->loadMediaUploadView();
 	}
 
 	public function getPreprocess($action = "relex")
 	{
+		// TODO: Change default from RELEX to TEXT
 		return Redirect::to('media/preprocess/' . $action);
 	}	
 
 	public function postUpload()
 	{
-		$fileHelper = new FileHelper(Input::all());
-
 		try {
-			$format = $fileHelper->getType();
-			$domain = $fileHelper->getDomain();
-			$documentType = $fileHelper->getDocumentType();
-			$validatedFiles = $fileHelper->performValidation();
-
-			$mongoDBFileUpload = new \FileUpload;
-			$status_upload = $mongoDBFileUpload->store($validatedFiles['passed'], $domain, $documentType);
+			$uploader = new FileUploader();
+			$status_upload = $uploader->store();
+			
+			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
+			return $uploadView;
 		} catch (Exception $e){
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}
-
-		return View::make('media.pages.upload', compact('status_upload'));
-	}	
-
+	}
 
 	public function postOnlinedata()
 	{	
@@ -76,8 +77,42 @@ class MediaController extends BaseController {
 		}
 
 		return View::make('media.pages.upload', compact('status_onlinedata'));
-	}	
+	}
 
+	/**
+	 * Load data for the Media Upload View and return the view ready to be sent 
+	 * back to the user.
+	 */
+	private function loadMediaUploadView() {
+		// Load properties from file uploader software component.
+		$data = SoftwareComponent::find("fileuploader");
+		$dbDomains = $data->domains;
+		
+		$domains = [];
+		$names = [];
+		$fileTypes = [];
+		$doctypes = [];
+		foreach($dbDomains as $domainKey => $domain) {
+			// $domainKey = $domain['key'];
+		
+			array_push($domains, $domainKey);
+			$names[$domainKey] = $domain['name'];
+		
+			$fileTypeList = '';
+			foreach($domain['file_formats'] as $fileType) {
+				$fileTypeList = $fileTypeList.' '.$fileType;
+			}
+		
+			$fileTypes[$domainKey] = $fileTypeList;
+			$doctypes[$domainKey] = $domain['document_types'];
+		}
+
+		return View::make('media.pages.upload')
+			->with('domains', $domains)
+			->with('names', $names)
+			->with('fileTypes', $fileTypes)
+			->with('doctypes', $doctypes);
+	}
 
 	public function getView()
 	{

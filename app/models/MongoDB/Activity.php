@@ -11,12 +11,13 @@ class Activity extends Moloquent {
 	protected static $unguarded = true;
     public static $snakeAttributes = false;
 
+    // TODO: add parameters to Activity
     public function __construct()
     {
         $this->filterResults();
         parent::__construct();
     }
-
+	
     public function filterResults()
     {
         $input = Input::all();
@@ -24,7 +25,7 @@ class Activity extends Moloquent {
         if(array_key_exists('wasAssociatedWithCrowdAgent', $input))    array_push($this->with, 'wasAssociatedWithCrowdAgent');
         if(array_key_exists('wasAssociatedWithSoftwareAgent', $input))    array_push($this->with, 'wasAssociatedWithSoftwareAgent');
         if(array_key_exists('wasAssociatedWith', $input))    $this->with = array_merge($this->with, array('wasAssociatedWithUserAgent', 'wasAssociatedWithCrowdAgent', 'wasAssociatedWithSoftwareAgent'));
-    }  
+    }
 
     public static function boot()
     {
@@ -53,19 +54,6 @@ class Activity extends Moloquent {
         });
     }
 
-    // public static function generateIncrementedBaseURI($activity)
-    // {
-    //     $lastMongoIncUsed = Activity::where('softwareAgent_id', $activity->softwareAgent_id)->count();
-
-    //     if(isset($lastMongoIncUsed)){
-    //         $inc = $lastMongoIncUsed;
-    //     } else {
-    //         $inc = 0;
-    //     }
-
-    //     return 'activity' . '/' . $activity->softwareAgent_id . '/' . $inc;
-    // }
-
     public static function generateIncrementedBaseURI($activity){
         $lastMongoURIUsed = Activity::where('softwareAgent_id', $activity->softwareAgent_id)->get(array("_id"));
         if(is_object($lastMongoURIUsed)) {
@@ -84,7 +72,7 @@ class Activity extends Moloquent {
         return 'activity' . '/' . $activity->softwareAgent_id . '/' . $id;
     }
 
-	public static function createSchema(){
+	public static function createSchema() {
 		Schema::create('activities', function($collection)
 		{
 		    $collection->index('type');
@@ -104,8 +92,4 @@ class Activity extends Moloquent {
     public function wasAssociatedWithSoftwareAgent(){
         return $this->hasOne('\MongoDB\SoftwareAgent', '_id', 'softwareAgent_id');
     }
-
-    // public function used(){
-    // 	return $this->hasOne('\MongoDB\Entity', '_id', 'entityUsed_id');
-    // }
 }

@@ -3,6 +3,7 @@
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableInterface;
 
+// TODO: Rename to MongoDB/UserAgent.php
 class User extends Moloquent implements UserInterface {
 
 	/**
