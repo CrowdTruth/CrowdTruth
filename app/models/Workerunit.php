@@ -103,7 +103,7 @@ class Workerunit extends Entity {
         $annotationVector["event"]["NONE_###_-1"] = 0;
 
         for ($i = 0; $i < count($descriptionWords); $i ++) {
-            array_push($annotationVector["event"], str_replace('.', '', $descriptionWords[$i] . "_###_" . $i));
+        //    array_push($annotationVector["event"], str_replace('.', '', $descriptionWords[$i] . "_###_" . $i));
             $annotationVector["event"][str_replace('.', '', $descriptionWords[$i] . "_###_" . $i)] = 0;
         }
 
@@ -112,7 +112,9 @@ class Workerunit extends Entity {
             if (isset($judgment["ev" . $i . "a"])) {
                 $annotatedWords = $this->takeAnnotationComponents($judgment["ev" . $i . "a"], $description);
                 for ($noAnnWords = 0; $noAnnWords < count($annotatedWords); $noAnnWords ++) {
-                    $annotationVector["event"][$annotatedWords[$noAnnWords]] ++; 
+                    if (isset($annotationVector["event"][$annotatedWords[$noAnnWords]])) {
+                        $annotationVector["event"][$annotatedWords[$noAnnWords]] ++; 
+                    }
                 }
             }
         }

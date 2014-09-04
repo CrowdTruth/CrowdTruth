@@ -68,7 +68,7 @@ class UpdateUnits {
 
             $platformField = array();
             $platformField['cf'] = count(\MongoDB\Entity::where('unit_id', $unit->_id)->where('softwareAgent_id','cf' )->get()->toArray());
-            $platformField['amt'] = count(\MongoDB\Entity::where('unit_id', $unit->_id])->where('softwareAgent_id','amt' )->get()->toArray());
+            $platformField['amt'] = count(\MongoDB\Entity::where('unit_id', $unit->_id)->where('softwareAgent_id','amt' )->get()->toArray());
             //filtered
             $filteredField = array();
             $filteredField['job_ids'] = array_flatten(Job::where('metrics.filteredUnits.list','all', array($unit['_id']))->get(['_id'])->toArray());
