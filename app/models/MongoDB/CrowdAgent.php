@@ -141,6 +141,9 @@ class CrowdAgent extends Moloquent {
                 $this->save();        
                      
             }
+            else {
+                $this->save();
+            }
         }
 
   

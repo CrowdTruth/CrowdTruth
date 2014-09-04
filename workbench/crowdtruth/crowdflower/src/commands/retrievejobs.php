@@ -104,10 +104,10 @@ class RetrieveJobs extends Command {
 			$agent->cfWorkerTrust = $judgment['worker_trust'];
 
 			Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));
-
+			sleep(10);
 			$job = $this->getJob($cfjobid);
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-
+			sleep(10);
 			//Log::debug("Saved new workerunits to {$job->_id} to DB.");
 		} catch (CFExceptions $e){
 			Log::warning($e->getMessage());
