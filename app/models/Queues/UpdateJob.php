@@ -89,13 +89,13 @@ class UpdateJob {
 
 
 				// TODO: of course all this hardcoded stuff has to go.
-				if($j->type = 'FactSpan')
+				if($j->type == 'FactSpan')
 					$templateid = 'entity/text/medical/FactSpan/Factor_Span/0';
-				elseif($j->type = 'RelEx')
+				else if($j->type == 'RelEx')
 					$templateid = 'entity/text/medical/RelEx/Relation_Extraction/0';
-				elseif($j->type = 'RelDir')
+				else if($j->type == 'RelDir')
 					$templateid = 'entity/text/medical/RelDir/Relation_Direction/0';
-				elseif($j->type = 'MetaDEvents')
+				else if($j->type == 'MetaDEvents')
 					$templateid = 'entity/text/cultural/MetaDEvents/MetadataDescription_Events/0';
 				else
 					throw new Exception("Type {$j->type} not recognised. We currently only have FactSpan, RelEx and RelDir.");
