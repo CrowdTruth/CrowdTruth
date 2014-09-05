@@ -146,6 +146,73 @@ class WordCountPreprocessor extends AbstractTextPreprocessor {
 	}
 }
 
+class StringLengthPreprocessor extends AbstractTextPreprocessor {
+	function getName() {
+		return 'String length';
+	}
+
+	function getParameterJSFunctionName() {
+		return 'stringlengthPreprocessor';
+	}
+
+	function getParameterJSFunction() {
+		return '<script src="/js/preprocessors/text/basetextpreprocessors.js"></script>';
+	}
+
+	function processItem($params, $data, $entities) {
+		// Validate required parameters are present
+		if(!array_key_exists('usecol', $params)) {
+			return 'N/A';
+		}
+		$colName = $params['usecol'];
+		
+		// Validate required columns are present
+		if(! array_key_exists($colName, $data)) {
+			return 'N/A';
+		}
+		$value = $data[$colName];
+
+		return strlen($value);
+	}
+}
+
+class TermDifferencePreprocessor extends AbstractTextPreprocessor {
+	function getName() {
+		return 'Term difference';
+	}
+
+	function getParameterJSFunctionName() {
+		return 'termdifferencePreprocessor';
+	}
+
+	function getParameterJSFunction() {
+		return '<script src="/js/preprocessors/text/basetextpreprocessors.js"></script>';
+	}
+
+	function processItem($params, $data, $entities) {
+		// Validate required parameters are present
+		if(!array_key_exists('col1', $params) || 
+			!array_key_exists('col2', $params)) {
+			return 'N/A';
+		}
+		$col1 = $params['col1'];
+		$col2 = $params['col2'];
+		
+		// Validate required columns are present
+		if(! array_key_exists($col1, $data) || ! array_key_exists($col2, $data)) {
+			return 'N/A';
+		}
+
+		try {
+			$distance = levenshtein ($data[$col1], $data[$col2]);
+		} catch(\ErrorException $e) {
+			$distance = -1;
+		}
+			
+		return $distance;
+	}
+}
+
 class TermReplacePreprocessor extends AbstractTextPreprocessor {
 	function getName() {
 		return 'Replace term';
