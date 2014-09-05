@@ -41,6 +41,22 @@ function wordcountPreprocessor(propId) {
 	return htmlText;
 }
 
+function stringlengthPreprocessor(propId) {
+	htmlText = '' + 
+		'Perform string length of column: <br>' + 
+		getColumnsSelector(propId + '_usecol') + '<br>' + 
+		'';
+	return htmlText;
+}
+
+function termdifferencePreprocessor(propId) {
+	htmlText = '' + 
+		'This function returns the Levenshtein-Distance between the two terms or -1, if one of the argument strings is longer than the limit of 255 characters. <br>' + 
+		getColumnsSelector(propId + '_col1') + ' and ' + getColumnsSelector(propId + '_col2') + '<br>' + 
+		'';
+	return htmlText;
+}
+
 function replaceTermPreprocessor(propId) {
 	htmlText = '' + 
 		'Replace terms: <br>' + 

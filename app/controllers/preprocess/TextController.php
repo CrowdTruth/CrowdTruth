@@ -136,12 +136,16 @@ class TextController extends BaseController {
 		$processor1 = new \Preprocess\TextToTypePreprocessor;
 		$processor2 = new \Preprocess\RegExpPreprocessor;
 		$processor3 = new \Preprocess\WordCountPreprocessor;
-		$processor4 = new \Preprocess\TermReplacePreprocessor;
+		$processor4 = new \Preprocess\StringLengthPreprocessor;
+		$processor5 = new \Preprocess\TermDifferencePreprocessor;
+		$processor6 = new \Preprocess\TermReplacePreprocessor;
 	
 		return [ $processor1->getName() => $processor1,
 			$processor2->getName() => $processor2,
 			$processor3->getName() => $processor3,
-			$processor4->getName() => $processor4
+			$processor4->getName() => $processor4,
+			$processor5->getName() => $processor5,
+			$processor6->getName() => $processor6
 		];
 	}
 }
