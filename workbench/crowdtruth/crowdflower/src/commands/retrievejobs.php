@@ -78,12 +78,18 @@ class RetrieveJobs extends Command {
 			// For now this hacks helps: else a new activity would be created even if this 
 			// command was called as the job is finished. It doesn't work against manual calling the command though.
 			if($this->option('judgments')) {
-				$activity = new Activity;
-				$activity->label = "Units are annotated on crowdsourcing platform.";
-				$activity->crowdAgent_id = $agentId; 
-				$activity->used = $ourjobid;
-				$activity->softwareAgent_id = 'cf2';
-				$activity->save();
+				try {
+					$activity = new Activity;
+					$activity->label = "Units are annotated on crowdsourcing platform.";
+					$activity->crowdAgent_id = $agentId; 
+					$activity->used = $ourjobid;
+					$activity->softwareAgent_id = 'cf2';
+					$activity->save();
+				} catch (Exception $e) {
+                    if($activity) $activity->forceDelete();
+                    //if($workerunit) $workerunit->forceDelete();
+                    throw new Exception('Error saving activity for workerunit.');
+                }
 			}
 
 			// Store judgments.
@@ -104,10 +110,10 @@ class RetrieveJobs extends Command {
 			$agent->cfWorkerTrust = $judgment['worker_trust'];
 
 			Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));
-			sleep(10);
+			
 			$job = $this->getJob($cfjobid);
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-			sleep(10);
+
 			//Log::debug("Saved new workerunits to {$job->_id} to DB.");
 		} catch (CFExceptions $e){
 			Log::warning($e->getMessage());
