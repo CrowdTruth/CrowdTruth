@@ -57,7 +57,8 @@ class Temp extends Moloquent {
                     }
                 }
 
-                foreach ($children as $child) {  
+                foreach ($children as $child) {
+                    if (!empty($child['content']['features']['initialEntities']))
                     foreach($child['content']['features']['initialEntities'] as $childKey => $childValue) {
                         $found = false;
                         foreach ($parent['content']['statistics']['majvoting'] as $parentKey => $parentValue) {
@@ -182,15 +183,18 @@ class Temp extends Moloquent {
                                         $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelTypePair"][$childValue["label"] . "-" . $tempTypeValue]["relevanceScore"]["value"] = 1 / $parent["content"]["statistics"]["majvoting"][$parentKey]["noExtractorsPerLabel"]["count"];
                                     }
 
+                                    /*
                                     $foundLabelResourcePair = false;
                                     $tempResourceValue = "";
                                     if ($valueType["entityURI"] != null) {
                                         $tempResourceValue = $valueType["entityURI"];
                                     }
-                                    foreach ($parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"] as $parentLabelTypeKey => $parentLabelTypeValue) {
+                                    foreach ($parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"] as $parentLabelResourceKey => $parentLabelResourceValue) {
                             
-                                        if (strtolower($parentLabelTypeKey) == strtolower($childValue["label"] . "-" . $tempResourceValue)) {
-                                            if (!in_array($childValue["provenance"], $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelTypeKey]["extractors"])) {
+                                        if (strtolower($parentLabelResourceKey) == strtolower($childValue["label"] . "-" . $tempResourceValue)) {
+                                            if (!in_array($childValue["provenance"], $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelResourceKey]["extractors"])) {
+                                                //echo $parent["_id"];
+                                                //dd($parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"]);
                                                 $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["count"] += 1;
                                                 array_push($parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["extractors"], $childValue["provenance"]);
                                                 $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["relevanceScore"]["value"] = $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["count"] / $parent["content"]["statistics"]["majvoting"][$parentKey]["noExtractorsPerLabel"]["count"];
@@ -198,7 +202,7 @@ class Temp extends Moloquent {
                                             $foundLabelResourcePair = true;
                                         }
                                         else {
-                                            $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelTypeKey]["relevanceScore"]["value"] = $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelTypeKey]["count"] / $parent["content"]["statistics"]["majvoting"][$parentKey]["noExtractorsPerLabel"]["count"];
+                                            $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelResourceKey]["relevanceScore"]["value"] = $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelResourceKey]["count"] / $parent["content"]["statistics"]["majvoting"][$parentKey]["noExtractorsPerLabel"]["count"];
                                         }
 
                                         if ($foundLabelResourcePair == true) {
@@ -214,6 +218,7 @@ class Temp extends Moloquent {
                                         $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["relevanceScore"] = array();
                                         $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["relevanceScore"]["value"] = 1/$parent["content"]["statistics"]["majvoting"][$parentKey]["noExtractorsPerLabel"]["count"];
                                     }
+                                    */
 
                                     $foundTypeResourcePair = false;
                                     $tempTypeValue = "";

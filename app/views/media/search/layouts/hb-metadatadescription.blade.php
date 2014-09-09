@@ -311,8 +311,6 @@
 			      					</div>
 			    				</div>
 			  				</div>
-
-
 			  				<div class="panel panel-default">
 			    				<div class="panel-heading">
 			      					<a data-toggle="collapse" data-parent="#accordion" href="#collapseSix">
@@ -342,8 +340,6 @@
 			      					</div>
 			    				</div>
 			  				</div>
-
-
 			  				<div class="panel panel-default">
 			    				<div class="panel-heading">
 			      					<a data-toggle="collapse" data-parent="#accordion" href="#collapseSeven">
@@ -479,7 +475,7 @@
 										<div><strong data-toggle="tooltip" data-placement="top" title="@{{#eachProperty this.infoStat.cache.jobs.types }}@{{ key }} <br /> @{{/eachProperty}}"> Used in @{{ this.infoStat.cache.jobs.distinct }} Distinct Job Type(s) </strong></div>
 										<div><strong> Annotated in a total of @{{ this.infoStat.cache.jobs.count }} Job(s) </strong> </div>
 										<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Workers: @{{ this.infoStat.cache.workers.spam }} <br /> #NonSpam Workers: @{{ this.infoStat.cache.workers.nonSpam }} <br /> #PotentialSpam Workers: @{{ this.infoStat.cache.workers.potentialSpam }}"> Annotated by a total of @{{ this.infoStat.cache.workers.count }} Worker(s) </strong> </div>
-										<div><strong data-toggle="tooltip" data-placement="top" title="#Spam WorkerUnits: @{{ this.infoStat.cache.workerUnits.spam }} </br> # NonSpam WorkerUnits: @{{ this.infoStat.cache.workerUnits.nonSpam }}"> Collected a total of @{{ this.infoStat.cache.workerUnits.count }} Annotation(s) </strong> </div>
+										<div><strong data-toggle="tooltip" data-placement="top" title="#Spam WorkerUnits: @{{ this.infoStat.cache.workerunits.spam }} </br> # NonSpam WorkerUnits: @{{ this.infoStat.cache.workerunits.nonSpam }}"> Collected a total of @{{ this.infoStat.cache.workerunits.count }} Annotation(s) </strong> </div>
 										<hr/>
 										<div><strong> Average @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Clarity (across CrowdTruth jobs): @{{ toFixed this.infoStat.avg_clarity 2}} </strong> </div>
 					  					<div><strong> Marked as low-quality in @{{ this.infoStat.cache.filtered.count}} Job(s): </strong></div>
@@ -493,7 +489,7 @@
 											</thead>
 											<tbody>
 												@{{#each this.jobContent}}
-						 							@{{#inArray metrics.filteredUnits.list ../infoStat._id }}
+						 							@{{#inArray metrics.filteredunits.list ../infoStat._id }}
 													<tr>
 													 <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
 													 <td> @{{ jobConf.content.title }} </td>
@@ -508,7 +504,7 @@
 					      			</div>
 					    		</div>
        					   	</div>
-					   	   	<div class="panel panel-default">
+       					   	<div class="panel panel-default">
 					    		<div class="panel-heading">
 					      			<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
 					       				<h4 class="panel-title">
@@ -545,20 +541,20 @@
 						 
 						  <tr>
 						   <td data-toggle="tooltip" data-placement="top" title="Job Title: @{{ jobConf.content.title }}"> @{{#ifarray platformJobId }} @{{/ifarray}} </td>  					  
-		                                   @{{#inArray metrics.filteredUnits.list ../infoStat._id}}
+		                                   @{{#inArray metrics.filteredunits.list ../infoStat._id}}
 							<td> True </td>
 						   @{{else}}
 							<td> False </td>
 						   @{{/inArray}}
 
 						   @{{#each metrics.units.withoutSpam}}
-						   <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
-						   <td> @{{ toFixed no_annotators.avg 2}} </td>
+						   <td> @{{ toFixed avg.max_relation_Cos 2}} </td>
+						   <td> @{{ toFixed avg.no_annotators 2}} </td>
 						   @{{/each}}
-						   <td> @{{ toFixed metrics.aggUnits.mean.max_relation_Cos.avg 2}} </td>
-						   <td> @{{ toFixed metrics.aggUnits.mean.no_annotators.avg 2}} </td>
-						   <td> @{{ toFixed metrics.aggUnits.stddev.max_relation_Cos.avg 2}} </td>
-						   <td> @{{ toFixed metrics.aggUnits.stddev.no_annotators.avg 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.mean.max_relation_Cos 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.mean.no_annotators 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.stddev.max_relation_Cos 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.stddev.no_annotators 2}} </td>
 						   <td> 
     							@{{#each results.withoutSpam}}
 							 @{{#each this}} 
@@ -609,8 +605,8 @@
 						</tr> 
 						</thead>
 						<tbody>
-						  @{{#each this.workerUnitContent}}
-						   @{{#each workerUnitType}}
+						  @{{#each this.workerunitContent}}
+						   @{{#each workerunitType}}
 						    <tr>
 						     <td> @{{ ../_id }} </td>  		  
 		                                     <td> @{{ ../valuesWorker.softwareAgent_id}} </td>
@@ -618,13 +614,13 @@
 						     <td> @{{ job_info.jobConf.content.title}} </td>
 						      @{{#each job_info.metrics.workers.withFilter}}
 						       @{{#ifvalue ../../_id value=@key}}
-						       <td> @{{ toFixed worker_cosine.avg 2}} </td>
-						       <td> @{{ toFixed avg_worker_agreement.avg 2}} </td>
-						       <td> @{{ toFixed ann_per_unit.avg 2}} </td>
+						       <td> @{{ toFixed worker_cosine 2}} </td>
+						       <td> @{{ toFixed avg_worker_agreement 2}} </td>
+						       <td> @{{ toFixed ann_per_unit 2}} </td>
 						       @{{/ifvalue}}
 						      @{{/each}}
 						       <td> 
-    							@{{#each workerUnit}}
+    							@{{#each workerunit}}
 							 
 							   <table border="1" bordercolor="#C0C0C0">
 							    <tr> 
@@ -650,6 +646,8 @@
 					      </div>
 					    </div>
 					  </div>
+					  
+
 			</div>
 		   </div>
   	          </div>

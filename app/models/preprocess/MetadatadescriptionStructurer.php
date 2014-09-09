@@ -134,7 +134,7 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
 
-		$descriptionContent = $entity->content["description"];
+		$descriptionContent = urlencode($entity->content["description"]);
 		$lang = $entity->language;
 		$format = "json";
 		$entity_type = array("ne", "ce");
@@ -166,13 +166,6 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 				$initialEntity["startOffset"] = $responseEntities[$j]["startOffset"];
 				$initialEntity["endOffset"] = $responseEntities[$j]["endOffset"];
 
-				if (substr($descriptionContent, $entity["startOffset"], $entity["endOffset"] - $entity["startOffset"]) != $entity["label"]) {
-				//	dd($entity["startOffset"]);
-					$entity["startOffset"] = (int)$entity["startOffset"] + 1;
-					$entity["endOffset"] = (int)$entity["startOffset"] + strlen($entity["label"]);
-					$initialEntity["startOffset"] = (int)$entity["startOffset"] + 1;
-					$initialEntity["endOffset"] = (int)$entity["startOffset"] + strlen($entity["label"]);
-				}
 				$initialEntity["confidence"] = null;
 				$initialEntity["provenance"] = "thd";
 				$entity["types"] = array();
@@ -642,7 +635,7 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 	public function processSemiTagsApi($entity) {
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
-		$descriptionContent = $entity->content["description"];
+		$descriptionContent = urlencode($entity->content["description"]);
 		$lang = $entity->language;
 		$result = array();
 		$result["entities"] = array();
@@ -650,8 +643,10 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		$entities = array();
 		$curlRequest = "curl -d \"language=" . $lang . "&text=$descriptionContent\" http://ner.vse.cz/SemiTags/rest/v1/recognize";
 		$response = exec($curlRequest, $output);
-		$xml = simplexml_load_string($output[0]);
+	//	dd($curlRequest);
+		$xml = simplexml_load_string(urldecode(utf8_encode($output[0])));
 	//	dd($xml);
+		$descriptionContent = $entity->content["description"];
 		if ($xml === false) {
     		die('Error parsing XML');   
 		}
@@ -672,8 +667,8 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 							$initialEntity["endOffset"] = (int)$value + 1;
 						}
 					}
-					$entity["label"] = substr($descriptionContent, $entity["startOffset"], $entity["endOffset"] - $entity["startOffset"]);
-					$initialEntity["label"] = substr($descriptionContent, $entity["startOffset"], $entity["endOffset"] - $entity["startOffset"]);
+					$entity["label"] = utf8_encode(substr($descriptionContent, $entity["startOffset"], $entity["endOffset"] - $entity["startOffset"]));
+					$initialEntity["label"] = utf8_encode(substr($descriptionContent, $entity["startOffset"], $entity["endOffset"] - $entity["startOffset"]));
 					if ((string)$rNode->confidence != "") {
 						$entity["confidence"] = floatval($rNode->confidence);
 						$initialEntity["confidence"] = floatval($rNode->confidence);
@@ -774,7 +769,7 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		$curlRequest = "curl -H \"Accept: application/json\"  http://nl.dbpedia.org/spotlight/rest/annotate --data-urlencode \"text=$descriptionContent\" --data \"confidence=0.2\"";
 		$response = shell_exec($curlRequest);
 		$response = json_decode($response, true);
-	//	dd($response);
+		if ($response != null)
 		foreach ($response["Resources"] as $extractedEntity) {
 			$entity = array();
 			$initialEntity = array();
@@ -956,7 +951,7 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		$result["entities"] = array();
 		$result["initialEntities"] = array();
 		$entities = array();
-		$curlRequest = "curl -i -X POST http://nerd.eurecom.fr/api/document -d \"text=" . addslashes($descriptionContent) . "&key=" . $apikey . "\"";
+		$curlRequest = "curl -i -X POST http://nerd.eurecom.fr/api/document -d \"text=" . urlencode($descriptionContent) . "&key=" . $apikey . "\"";
 		$response = exec($curlRequest, $output);
 		$documentId = "";
 		if (strpos($output[count($output) - 1], 'idDocument') !== false) {
@@ -982,13 +977,13 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 			$initialEntity["startOffset"] = $value['startChar'];
 			$initialEntity["endOffset"] = $value['endChar'];
 
-			if (substr($descriptionContent, $entity["startOffset"], $entity["endOffset"] - $entity["startOffset"]) != $entity["label"]) {
+		//	if (substr($descriptionContent, $entity["startOffset"], $entity["endOffset"] - $entity["startOffset"]) != $entity["label"]) {
 			//	dd($entity["startOffset"]);
-				$entity["startOffset"] = (int)$value['startChar'] - 1;
-				$entity["endOffset"] = $entity["startOffset"] + strlen($entity["label"]);
-				$initialEntity["startOffset"] = (int)$value['startChar'] - 1;
-				$initialEntity["endOffset"] = $entity["startOffset"] + strlen($entity["label"]);
-			}
+		//		$entity["startOffset"] = (int)$value['startChar'] - 1;
+		//		$entity["endOffset"] = $entity["startOffset"] + strlen($entity["label"]);
+		//		$initialEntity["startOffset"] = (int)$value['startChar'] - 1;
+		//		$initialEntity["endOffset"] = $entity["startOffset"] + strlen($entity["label"]);
+		//	}
 			$entity["confidence"] = $value["relevance"];
 			$entity["provenance"] = "nerd";
 			$entity["types"] = array();
