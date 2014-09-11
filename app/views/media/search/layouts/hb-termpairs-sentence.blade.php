@@ -73,12 +73,12 @@
 							@{{ this.content.class }}
 				    	</td>
 				    	<td data-vbIdentifier="content_focus">
-				    		<span style='color: #6666CD; font-weight:bold;'>
+				    		<span class='highlighter-t1'>
 								@{{ this.content.terms.focus }}
 			            	</span>
 			            </td>
 			            <td data-vbIdentifier="content_candidate">
-				    		<span style='color: #CD6666;; font-weight:bold;'>
+				    		<span class='highlighter-t2'>
 								@{{ this.content.terms.candidate }}
 							</span>
 			            </td>
