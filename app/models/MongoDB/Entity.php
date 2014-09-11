@@ -21,6 +21,8 @@ class Entity extends Moloquent {
             "documentType" => "Document Type",
             "painting" => "Painting",
             "drawing" => "Drawing",
+            "termpairs-sentence" => "Term Pairs",
+            "qa-passages-sentence" => "Question & Answer Passages",
             "biographynet-sentence" => "BiographyNet passage",
             "relation" => "Seed Relation"
         ];

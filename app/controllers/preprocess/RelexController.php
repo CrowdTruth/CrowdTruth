@@ -34,7 +34,7 @@ class RelexController extends BaseController {
 		// $entities = \MongoDB\Entity::where('documentType', 'relex')->get();
 		// TODO: Select document types dynamically
 		$entities = \MongoDB\Entity::whereIn('documentType', [ 'relex', 'csvesult', 'article', 'biographynet', 
-				'term relations', 'questions & answer passages' ])->get();
+				'termpairs', 'qa-passages' ])->get();
 
 		if(count($entities) > 0)
 		{

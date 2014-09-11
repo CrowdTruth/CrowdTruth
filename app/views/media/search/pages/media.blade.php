@@ -643,7 +643,14 @@ function getResults(baseApiURL){
 			templates[activeTabKey] = $(activeTabKey).find('.template').html();
 			defaultColumns[activeTabKey] = $('.searchOptions').find(".vbColumns").html();
 		}
-
+		
+		// highlight terms in termpair template
+		Handlebars.registerHelper('highlight', function(val) {
+			val = val.replace(/{/g, "<span style='color: #6666CD; font-weight:bold;'>").replace(/}/g, "</span>");
+			val = val.replace(/\[/g, "<span style='color: #CD6666;; font-weight:bold;'>").replace(/\]/g, "</span>");
+			return new Handlebars.SafeString(val);
+		});
+		
 		var template = Handlebars.compile(templates[activeTabKey]);
 		var html = template(data);
 		$('.cw_pagination').empty().prepend($(data.pagination));
