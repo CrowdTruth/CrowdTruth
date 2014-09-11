@@ -37,12 +37,21 @@ class MediaController extends BaseController {
 	public function postUpload()
 	{
 		try {
+			$fileFormat = Input::get('file_format');
+			$domain = Input::get('domain_type');
+			$documentType = Input::get('document_type');
+			$domainCreate = Input::get('domain_create');
+			$documentCreate = Input::get('document_create');
+			$files = Input::file('files');
+			
 			$uploader = new FileUploader();
-			$status_upload = $uploader->store();
+			$status_upload = $uploader->store($fileFormat, $domain, $documentType, $domainCreate, 
+					$documentCreate, $files);
 			
 			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
 			return $uploadView;
 		} catch (Exception $e){
+			dd([$e->getMessage(),Input::all()]);
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}
 	}

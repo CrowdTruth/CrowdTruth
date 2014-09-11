@@ -15,8 +15,6 @@ class TextSentencePreprocessor {
 	}
 	
 	public function store($document, $sentences) {
-		// Copy from FileUpload
-		// Once this work, get rid of FileHelper & FileUpload ;-)
 		$nEnts = count($sentences);
 		if($nEnts<=0 && $nEnts>=10000) {
 			// We will have problems processing empty files or more than 10,000 entities
