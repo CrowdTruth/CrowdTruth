@@ -73,17 +73,17 @@
 							@{{ this.content.class }}
 				    	</td>
 				    	<td data-vbIdentifier="content_focus">
-				    		<span style='color: #6666CD; font-weight:bold;'>
+				    		<span class='highlight-t1'>
 								@{{ this.content.terms.focus }}
 			            	</span>
 			            </td>
 			            <td data-vbIdentifier="content_candidate">
-				    		<span style='color: #CD6666;; font-weight:bold;'>
+				    		<span class='highlight-t2'>
 								@{{ this.content.terms.candidate }}
 							</span>
 			            </td>
-				    	<td data-vbIdentifier="content_passage1">@{{ this.content.examples.passage1 }}</td>
-					    <td data-vbIdentifier="content_passage2">@{{ this.content.examples.passage2 }}</td>
+				    	<td data-vbIdentifier="content_passage1">@{{ highlight this.content.examples.passage1 }}</td>
+					    <td data-vbIdentifier="content_passage2">@{{ highlight this.content.examples.passage2 }}</td>
 					    <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
 					    <td data-vbIdentifier="created_by">@{{ this.user_id }}</td>
 					</tr>
