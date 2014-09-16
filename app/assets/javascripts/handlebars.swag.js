@@ -1025,17 +1025,48 @@ function objSort() {
     return new Handlebars.SafeString(metadataDescription);
   });
 
+  // highlight terms based on tags
+  Swag.addHelper('highlightTagged', function(searchQuery, passage, options) {
+    
+	passage = passage.replace(/{/g, '<span class="highlightTermOne" data-toggle="tooltip" data-placement="top" title="Term 1">').replace(/}/g, '</span>');
+	passage = passage.replace(/\[/g, '<span class="highlightTermTwo" data-toggle="tooltip" data-placement="top" title="Term 2">').replace(/\]/g, '</span>');
 
+	// get search field
+	for(search in searchQuery.match) {
+		if(search != "documentType") {
+			var match = search;
+		}
+	}
+	
+    if(searchQuery.match[match])
+    {
+      var highlightedSearchTerm = searchQuery.match[match].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+   //   formattedSentence = formattedSentence.replace(regEx, '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="top" title="Your search term">$1</span>');
+
+      passage = passage.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+	
+    return new Handlebars.SafeString(passage);
+  });
+
+  
+  // highlight terms
   Swag.addHelper('highlightTerms', function(searchQuery, content, options) {
     var formattedSentence = content.sentence.formatted;
     var t1 = content.terms.first.formatted;
     var t2 = content.terms.second.formatted;
 
-    formattedSentence = formattedSentence.replace(t1, '<span class="highlightTermOne" data-toggle="tooltip" data-placement="top" title="Term 1">' + t1 + '</span>');
-    formattedSentence = formattedSentence.replace(t2, '<span class="highlightTermTwo" data-toggle="tooltip" data-placement="top" title="Term 2">' + t2 + '</span>');
-
-    var relation = content.relation.noPrefix;
-
+    var term = t1.replace(/[\[\]]/g,'');
+	formattedSentence = formattedSentence.replace(t1, '<span class="highlightTermOne" data-toggle="tooltip" data-placement="top" title="Term 1">' + term + '</span>');
+    var term = t2.replace(/[\[\]]/g,'');
+	formattedSentence = formattedSentence.replace(t2, '<span class="highlightTermTwo" data-toggle="tooltip" data-placement="top" title="Term 2">' + term + '</span>');
+    
+	var relation = content.relation.noPrefix;
     if(relation == "diagnose")
     {
       relation = "diagnos";

@@ -48,10 +48,10 @@
 						<input class="input-sm form-control" type='text' data-query-key="match[content.terms.candidate]" data-query-operator="like" />
 					</td>
 					<td data-vbIdentifier="content_passage1">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.examples.passage1]" data-query-operator="like" />
+						<input class="input-sm form-control" type='text' data-query-key="match[content.examples.passage1]" data-query-operator="like"  placeholder="Enter your search keywords here" />
 					</td>
 					<td data-vbIdentifier="content_passage2">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.examples.passage2]" data-query-operator="like" />
+						<input class="input-sm form-control" type='text' data-query-key="match[content.examples.passage2]" data-query-operator="like"  placeholder="Enter your search keywords here" />
 					</td>
 					<td data-vbIdentifier="created_at">
 						<div class="input-daterange">
@@ -72,18 +72,14 @@
 				    	<td data-vbIdentifier="content_class"> 
 							@{{ this.content.class }}
 				    	</td>
-				    	<td data-vbIdentifier="content_focus">
-				    		<span class='highlight-t1'>
+				    	<td data-vbIdentifier="content_focus" class='highlightTermOne'>
 								@{{ this.content.terms.focus }}
-			            	</span>
 			            </td>
-			            <td data-vbIdentifier="content_candidate">
-				    		<span class='highlight-t2'>
+			            <td data-vbIdentifier="content_candidate" class='highlightTermTwo'>
 								@{{ this.content.terms.candidate }}
-							</span>
 			            </td>
-				    	<td data-vbIdentifier="content_passage1">@{{ highlight this.content.examples.passage1 }}</td>
-					    <td data-vbIdentifier="content_passage2">@{{ highlight this.content.examples.passage2 }}</td>
+				    	<td data-vbIdentifier="content_passage1">@{{ highlightTagged ../searchQuery this.content.examples.passage1 }}</td>
+					    <td data-vbIdentifier="content_passage2">@{{ highlightTagged ../searchQuery this.content.examples.passage2 }}</td>
 					    <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
 					    <td data-vbIdentifier="created_by">@{{ this.user_id }}</td>
 					</tr>

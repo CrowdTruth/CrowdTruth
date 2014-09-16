@@ -253,10 +253,10 @@
 						@{{ this._id }}
 					</a>
 				    </td>
-			            <td data-vbIdentifier="term_1">@{{ this.content.terms.first.text }}</td>
-			            <td data-vbIdentifier="term_1_processed">@{{ this.content.terms.first.formatted }}</td>
-			            <td data-vbIdentifier="term_2">@{{ this.content.terms.second.text }}</td>
-			            <td data-vbIdentifier="term_2_processed">@{{ this.content.terms.second.formatted }}</td>
+			            <td data-vbIdentifier="term_1" class='highlightTermOne'>@{{ this.content.terms.first.text }}</td>
+			            <td data-vbIdentifier="term_1_processed" class='highlightTermOne'>@{{ this.content.terms.first.formatted }}</td>
+			            <td data-vbIdentifier="term_2" class='highlightTermTwo'>@{{ this.content.terms.second.text }}</td>
+			            <td data-vbIdentifier="term_2_processed" class='highlightTermTwo'>@{{ this.content.terms.second.formatted }}</td>
 			            <td data-vbIdentifier="sentence" class="text-left">@{{ this.content.sentence.text }}</td>
 			            <td data-vbIdentifier="sentence_processed" class="text-left">@{{ highlightTerms ../searchQuery this.content }}</td>
 			            <td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>

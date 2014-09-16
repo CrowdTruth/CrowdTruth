@@ -6,7 +6,6 @@
 {{ stylesheet_link_tag('bootstrap-select.css') }}
 {{ stylesheet_link_tag('bootstrap-dropdown-checkbox.css') }}
 {{ stylesheet_link_tag('bootstrap.datepicker3.css') }}
-{{ stylesheet_link_tag('highlight.css') }}
 
 <style>
 .container {
@@ -644,13 +643,6 @@ function getResults(baseApiURL){
 			templates[activeTabKey] = $(activeTabKey).find('.template').html();
 			defaultColumns[activeTabKey] = $('.searchOptions').find(".vbColumns").html();
 		}
-
-		// highlight terms in termpair template
-		Handlebars.registerHelper('highlight', function(val) {
-			val = val.replace(/{/g, "<span class='highlight-t1'>").replace(/}/g, "</span>");
-			val = val.replace(/\[/g, "<span class='highlight-t2'>").replace(/\]/g, "</span>");
-			return new Handlebars.SafeString(val);
-		});
 		
 		var template = Handlebars.compile(templates[activeTabKey]);
 		var html = template(data);
