@@ -1,0 +1,15 @@
+.status-running {
+	text-transform: capitalize;
+	color: #8ec549;
+}
+.status-unordered {
+	text-transform: capitalize;
+	color: #808080;
+}
+.status-paused {
+	text-transform: capitalize;
+	color: #9e9e00;
+}
+.status-finished  {
+	text-transform: capitalize;
+}

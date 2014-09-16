@@ -6,6 +6,7 @@
 {{ stylesheet_link_tag('bootstrap-select.css') }}
 {{ stylesheet_link_tag('bootstrap-dropdown-checkbox.css') }}
 {{ stylesheet_link_tag('bootstrap.datepicker3.css') }}
+{{ stylesheet_link_tag('jobs.css') }}
 
 <style>
 .container {
