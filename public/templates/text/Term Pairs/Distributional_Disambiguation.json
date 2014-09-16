@@ -20,5 +20,5 @@
 			"IntegerValue": "90"
 		}
 	],
-	"Each task contains two terms that might be related to each other in some way. Select ALL options that apply to these terms. In some cases, you will need to motivate your answer.<br /><br /><i>The example sentences may help you understand the terms and their relation(s).</i>"
+	"instructions":"Each task contains two terms that might be related to each other in some way. Select ALL options that apply to these terms. In some cases, you will need to motivate your answer.<br /><br /><i>The example sentences may help you understand the terms and their relation(s).</i>"
 }
