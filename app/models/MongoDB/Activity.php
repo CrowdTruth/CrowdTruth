@@ -56,9 +56,9 @@ class Activity extends Moloquent {
     }
 
     public static function generateIncrementedBaseURI($activity) {
-    	$seqName = 'activity' . '/' . $activity->softwareAgent_id . '/';
+    	$seqName = 'activity' . '/' . $activity->softwareAgent_id;
     	$id = Counter::getNextId($seqName);
-        return $seqName.$id;
+        return $seqName.'/'.$id;
     }
 
 	public static function createSchema() {

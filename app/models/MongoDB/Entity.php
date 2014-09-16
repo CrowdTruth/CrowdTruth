@@ -4,6 +4,8 @@ namespace MongoDB;
 
 use Moloquent, Schema, Cache, Input, Exception, Auth, User, Session;
 
+use \Counter as Counter;
+
 class Entity extends Moloquent {
 
     protected $collection = 'entities';
@@ -98,72 +100,13 @@ class Entity extends Moloquent {
         });
     }
 
-    // public static function generateIncrementedBaseURI($entity)
-    // {
-    //     if(is_null($entity->_id))
-    //     {
-    //         $lastMongoIncUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->count();
-        
-    //         if(isset($lastMongoIncUsed))
-    //         {
-    //             $inc = $lastMongoIncUsed;
-    //         } else {
-    //             $inc = 0;
-    //         }
-    //     }
-    //     else
-    //     {
-    //         $entityIDSegments = explode("/", $entity->_id);
-    //         $inc = (end($entityIDSegments) + 1);
-    //     }
-
-    //     return 'entity/' . $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $inc;
-    // }     
-
     public static function generateIncrementedBaseURI($entity)
     {
-        $inc = 0;
-
-        if(is_null($entity->_id))
-        {
-            $lastMongoURIUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->get(array("_id"));
-        
-            if(count($lastMongoURIUsed) > 0) {
-                $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
-                    return $entity->_id;
-                }, SORT_NATURAL)->toArray();
-
-                if(end($lastMongoURIUsed)){
-                    $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
-                    $inc = end($lastMongoIDUsed) + 1;                
-                }
-            }
-
-        } else {
-                $lastMongoIDUsed = explode("/", $entity->_id);
-                $inc = end($lastMongoIDUsed) + 1;
-        }
-
-        return 'entity/' . $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $inc;
+        $seqName = 'entity/' . $entity->format . '/' . $entity->domain . '/' . $entity->documentType;
+        $id = Counter::getNextId($seqName);
+        return $seqName.'/'.$id;
     }     
   
-    // public static function generateIncrementedBaseURI($entity)
-    // {
-    //     if(is_null($entity->inc))
-    //     {
-    //         $lastMongoIncUsed = Entity::where('format', $entity->format)->where('domain', $entity->domain)->where("documentType", $entity->documentType)->max('inc');
-        
-    //         if(isset($lastMongoIncUsed)){
-    //             $entity->inc = $lastMongoIncUsed;
-    //         }
-    //     }
-
-    //     $entity->inc++;
-
-    //     return $entity->format . '/' . $entity->domain . '/' . $entity->documentType . '/' . $entity->inc;
-    // }  
-
-
     public static function validateEntity($entity){
         if(($entity->format == "text" || $entity->format == "image" || $entity->format == "video") == FALSE){
             throw new Exception("Entity has a wrong value \"{$entity->format}\" for the format field");
