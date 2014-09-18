@@ -1,0 +1,24 @@
+{
+	"title": "Choose the MATCHING TERMS and how they match in the two PASSAGES",
+	"description": "Highlight as many TERMS from the QUESTION and the PASSAGE that match each other in meaning.",
+	"keywords": "question, answering, passage, alignment",
+	"reward": "0.06",
+	"workerunitsPerUnit": "10",
+	"hitLifetimeInMinutes": "10080",
+	"expirationInMinutes": "10",
+	"unitsPerTask": "1",
+	"autoApprovalDelayInMinutes": "2880",
+	"qualificationRequirement": [
+		{
+			"QualificationTypeId": "00000000000000000040",
+			"Comparator": "GreaterThan",
+			"IntegerValue": "1000"
+		},
+		{
+			"QualificationTypeId": "000000000000000000L0",
+			"Comparator": "GreaterThan",
+			"IntegerValue": "90"
+		}
+	],	
+	"instructions":"Each task contains a QUESTION and an explanatory PASSAGE. You can IGNORE STOP WORDS (the, of, but, etc) and IGNORE SPELLING MISTAKES.<br /><br /><b>STEP 1:</b> Highlight WORDS in the QUESTION and highlight WORDS in the PASSAGE that match each other in meaning.<br /><br /><b>STEP 2:</b> Select the MATCH TYPE for each selected pair in STEP 1:- <b>identical:</b> the two terms are identical, ignoring spelling mistakes and plurals<br />- <b>synonym:</b> the two terms mean the same thing<br />- <b>generalization:</b> one term is more general than the other<br />- <b>paraphrase:</b> one term says the same thing as the other, but in a different way<br />- <b>negation:</b> the terms match by being opposites or through negation<br />- <b>overlap:</b> the terms both have two or more words and partially overlap<br /><br /><br />An example of matching terms and their relation:<br /><div id='example'>    <fieldset><legend>EXAMPLE QUESTION:</legend>      <div class='passage'> <span class='word'>Do</span> <span class='term rel0term'> <div class='exampleRel' style='border-bottom: 6px solid #8dd3c7; width: 423px; position: absolute; z-index: 3; top: 60px; left: 70px; -webkit-transform: rotate(0.2851rad); transform:rotate(0.2851rad); -ms-transform:rotate(0.2851rad);'>is identical to</div> <span class='word'>isotopes</span> </span> <span class='word'>of</span> <span class='word'>the </span>   <span class='term rel3term'> <span class='term rel2term'>  <span class='term rel1term'> <span class='word'>same </span> </span> </span> <span class='word'>element</span> </span> <span class='word'>have</span> <span class='word'>the</span> <span class='term rel4term'> <span class='word'>same </span> <span class='term rel5term'> <span class='word'>atonic  </span> <span class='word'>weight?</span> </span> </span> </div>    </fieldset><hr><fieldset><legend>EXAMPLE PASSAGE:</legend>      <div class='passage'> <span class='term rel3term'> <div class='exampleRel' style='border-bottom: 6px solid #fb8072; width: 196.2px; position: absolute; z-index: 3; top: -60px; left: 85px; -webkit-transform: rotate(-0.55rad);transform:rotate(-0.55rad);-ms-transform:rotate(-0.55rad);'>paraphrases</div>   <span class='term rel1term'> <div class='exampleRel' style='border-bottom: 6px solid #ffffb3; width: 199px; position: absolute; z-index: 3; top: -58px; left: 20px; -webkit-transform: rotate(-0.55rad); transform:rotate(-0.55rad);-ms-transform:rotate(-0.55rad);'>is a synonym of</div> <span class='word'>Similar</span> </span> <span class='word'>elements</span> </span> <span class='word'>with</span>   <span class='term rel4term'> <div class='exampleRel' style='border-bottom: 6px solid #80b1d3; width: 203.8px; position: absolute; z-index: 3; top: -60px; left: 65px; -webkit-transform: rotate(-0.5rad);transform:rotate(-0.5rad);-ms-transform:rotate(-0.5rad);'>overlaps with</div>   <span class='term rel2term'> <div class='exampleRel' style='border-bottom: 6px solid #bebada; width: 110px; position: absolute; z-index: 3; top: -47px; left: -10px; -webkit-transform: rotate(1.4rad);transform:rotate(1.4rad);-ms-transform:rotate(1.4rad);'>negates</div> <span class='word'>different</span> </span>   <span class='term rel5term'> <div class='exampleRel' style='border-bottom: 6px solid #fdb462; width: 219.5px; position: absolute; z-index: 3; top: -55px; left: 20px; -webkit-transform: rotate(-0.5rad);transform:rotate(-0.5rad);-ms-transform:rotate(-0.5rad);'>generalizes</div> <span class='word'>atomic </span> </span> <span class='word'>weights</span> </span> <span class='word'>are</span> <span class='word'>called</span> <span class='word'>an</span> <span class='term rel0term'> <span class='word'>isotope.</span> </span> </div>    </fieldset></div><br /><br /><b>STEP 3:</b> Repeat STEP1 and STEP2 for as many reasonably matching terms, but it is not important to cover all the terms in the PASSAGE.<br /><br /><b>IF YOU CANNOT FIND ENOUGH MATCHING TERMS</b>: Please explain why you cannot match any more terms, for instance why the question makes no sense."
+}

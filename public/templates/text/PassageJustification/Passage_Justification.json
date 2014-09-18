@@ -1,0 +1,24 @@
+{
+	"title": "What is the Answer to the Question?",
+	"description": "Choose the type of a Question and select passages that contain the answer.",
+	"keywords": "question, answer, type, select passages",
+	"reward": "0.05",
+	"workerunitsPerUnit": "6",
+	"hitLifetimeInMinutes": "10080",
+	"expirationInMinutes": "10",
+	"unitsPerTask": "1",
+	"autoApprovalDelayInMinutes": "2880",
+	"qualificationRequirement": [
+		{
+			"QualificationTypeId": "00000000000000000040",
+			"Comparator": "GreaterThan",
+			"IntegerValue": "1000"
+		},
+		{
+			"QualificationTypeId": "000000000000000000L0",
+			"Comparator": "GreaterThan",
+			"IntegerValue": "90"
+		}
+	],
+	"instructions":"Each task contains a QUESTION and explanatory PASSAGES. Please perform the steps below, and <u>IGNORE SPELLING MISTAKES</u> in the question and passages."
+}

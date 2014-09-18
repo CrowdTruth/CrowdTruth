@@ -1,0 +1,28 @@
+<cml:radios name="Question" label="Choose the TYPE of the question:" validates="required">
+  <div class="question">{{question_text}}</div>
+  <cml:radio value="Subjective" label="a question that requires an answer that is a &lt;b&gt;subjective fact&lt;/b&gt; or &lt;b&gt;an opinion&lt;/b&gt;. (e.g. &quot;Who is the best ...?&quot;) "/>
+  <cml:radio value="YesNo" label="a question that requires a &lt;b&gt;Yes/No answer&lt;/b&gt;. (e.g. &quot;Is the sky blue?&quot;)"/>
+  <cml:radio value="NotYesNo" label="a question that requires a &lt;b&gt;different answer&lt;/b&gt; than Yes/No. (e.g. &quot;What is the capital of ...?&quot;)" id=""/>
+  <cml:radio value="Unanswerable" label="a question that &lt;b&gt;makes no sense&lt;/b&gt;. (e.g. &quot;The king?&quot;)" id=""/>
+</cml:radios>
+
+<cml:checkboxes name="Justifying" label="Read the following passages and select ALL passages that give THE ANSWER to the question:">
+  <div class="question">{{question_text}}</div>
+  <cml:checkbox value="{{passage1_id}}" label="{{passage1_text}}"/>
+  <cml:checkbox value="{{passage2_id}}" label="{{passage2_text}}"/>
+  <cml:checkbox value="{{passage3_id}}" label="{{passage3_text}}"/>
+  <cml:checkbox value="{{passage4_id}}" label="{{passage4_text}}"/>
+  <cml:checkbox value="{{passage5_id}}" label="{{passage5_text}}"/>
+  <cml:checkbox value="{{passage6_id}}" label="{{passage6_text}}"/>
+</cml:checkboxes>
+
+<cml:radios name="Answer" label="Based on what you have read in the previous passages, choose THE ANSWER to the question:" validates="required">
+  <div class="question">{{question_text}}</div>
+  <cml:radio value="Noanswer" label="None of the passages contains the answer to the question"/>
+  <cml:radio value="Yes" label="Yes"/>
+  <cml:radio value="No" label="No"/>
+  <cml:radio value="Other" label="Other answer:" />
+  <cml:radio value="Unanswerable" label="The question makes no sense (e.g. &quot;The King?&quot;)" />
+</cml:radios>
+
+<cml:text name="What is the specific answer to this question?" only-if="answer:[Other]" validates="required" />

@@ -144,7 +144,7 @@ $('.example').html(function(i, val) {
 });
 
 // if input field other is selected, it must become required
-$('#other').terms_focus(function() {
+$('#other').focus(function() {
   $('#other').prop('required','true');
   $('.highlighter[value=other]').prop("checked", true).parents('.checkbox').css("background-color", "#99FF99");
 });

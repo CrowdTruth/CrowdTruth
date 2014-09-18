@@ -41,7 +41,8 @@ class FileUpload extends Moloquent {
 				$entity->activity_id = $activity->_id;
 				$entity->save();
 
-				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
+				// TODO variable format
+				$status['success'][$title] = $title . " was successfully uploaded.  <a class='btn btn-success' style='right:0px;' href='" . URL::to('media/preprocess/text/configure?URI=' . $entity->_id) . "'><i class='fa fa-gear fa-fw'></i>Configure</a>";
 			} catch (Exception $e) {
 				// Something went wrong with creating the Entity
 				$activity->forceDelete();
