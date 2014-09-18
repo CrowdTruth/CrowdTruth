@@ -470,33 +470,6 @@ tr.tablesorter-filter-row input.disabled {
 	white-space: nowrap !important;
 }
 
-.highlightTermOne {
-	background:#ffe0e0;
-	font-weight:bold;
-	white-space: nowrap;
-}
-
-.highlightTermTwo {
-	background:#e0edff;
-	font-weight:bold;
-	white-space: nowrap;
-}
-
-.highlightedSearchTerm {
-	background:#ffffad;
-	font-weight:bold;
-}
-
-.highlightRelation {
-	background:#bdf9b1;
-	font-weight:bold;
-}
-
-.highlightSemicolon {
-	background:#ff8989;
-	font-weight:bold;
-}
-
 .tooltip-inner {
 	padding:6px 8px;
 	font-weight:bold;
@@ -545,20 +518,29 @@ border-top:1px solid #e0e0e0;
 	float:left !important;
 }*/
 .includeGraph {
-	table {
-		margin-bottom:70px;
-	}
+  table {
+    margin : auto;
+    margin-bottom:70px;
+
+  }
 }
 #generalBarChart_div {overflow: visible !important;}
 .highcharts-container { overflow: visible !important; }
 
+#generalBarChart_div .highcharts-container{
+  z-index: 10 !important; /*If you have problems with the label hiding behind some other div or chart play with z-index*/
+}
+
 .highcharts-tooltip span {
-  width:300px!important;
+  width:320px!important;
   max-height:400px!important;
   overflow:visible;
   white-space:normal !important;
   table {
     margin-bottom:0px;
+    margin-left:0px;
+    margin-right:0px;
+    margin-top:0px;
   }
 }
 
@@ -657,3 +639,4 @@ background-color: #8dbdd8;
 .bs-example-modal-lg .modal-lg {
   	width: 85%; 
 }
+

@@ -126,7 +126,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table >
                                 <tr >
                                     <td>
                                     <div id="generalBarChart_div" ></div>
@@ -137,8 +137,8 @@
                                         <div id="generalBarChartMaster_div"></div>
                                     </td>
                                 </tr>
-                            </table>
-                            <table>
+                            </table >
+                            <table style="border: solid thin #274B6D">
                                 <tr>
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="workersPie_div"></div>
@@ -148,7 +148,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table style="border: solid thin #274B6D">
                                 <tr>
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="jobsPie_div"></div>
@@ -158,7 +158,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table style="border: solid thin #274B6D">
                                 <tr>
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="unitsPie_div"></div>
@@ -168,7 +168,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table style="border: solid thin #274B6D">
                                 <tr >
                                     <td class="pieDivGraphs">
                                         <div id="annotationsPie_div"></div>
@@ -643,7 +643,7 @@ function getResults(baseApiURL){
 			templates[activeTabKey] = $(activeTabKey).find('.template').html();
 			defaultColumns[activeTabKey] = $('.searchOptions').find(".vbColumns").html();
 		}
-
+		
 		var template = Handlebars.compile(templates[activeTabKey]);
 		var html = template(data);
 		$('.cw_pagination').empty().prepend($(data.pagination));
@@ -938,6 +938,14 @@ $('body').on('click', '.testModal', function(){
 $('.select_relex-structured-sentence').click();
 $('.documentTypesNav').find('#relex-structured-sentence_nav a').click();
 $('.graphViewButton').click();
+var workerList = localStorage.getItem("unitList");
+if(workerList !=  null) {
+    workerList = JSON.parse(workerList);
+    for(var iterWorker in workerList){
+        updateSelection(workerList[iterWorker]);
+    }
+    localStorage.removeItem("unitList");
+}
 
 });
 

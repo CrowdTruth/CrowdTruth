@@ -1,0 +1,26 @@
+.highlightTermOne {
+	color:#6666CD;
+	font-weight:bold;
+	white-space: nowrap;
+}
+
+.highlightTermTwo {
+	color:#CD6666;
+	font-weight:bold;
+	white-space: nowrap;
+}
+
+.highlightedSearchTerm {
+	background:#ffffad;
+	font-weight:bold;
+}
+
+.highlightRelation {
+	background:#bdf9b1;
+	font-weight:bold;
+}
+
+.highlightSemicolon {
+	background:#ff8989;
+	font-weight:bold;
+}

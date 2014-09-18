@@ -14,7 +14,7 @@
  *= require font-awesome.min.css
  *= require jstree.min.css
  *= require style.css.scss
- *= require nv.d3.css
+ *= require introjs.min.css
 =======
 /**
  * This is a manifest file that'll be compiled into application.css, which will include all the files
@@ -32,6 +32,6 @@
  *= require font-awesome.min.css
  *= require jstree.min.css
  *= require style.css.scss
- *= require nv.d3.css
+ *= require introjs.min.css
  *= require custom.css
  */

@@ -17,18 +17,16 @@ class CrowdAgent extends Moloquent {
     public static $snakeAttributes = false;
 	
     // TODO: optimize
-    public function updateStats2(){
+    public function updateStats2() {
       
         // take all the jobs for that worker
-        if($crowdAgentJobs = Job::where('metrics.workers.withFilter.' . $this->_id, 'exists', true)->get(['_id']))
-        {
+        if($crowdAgentJobs = Job::where('metrics.workers.withFilter.' . $this->_id, 'exists', true)->get(['_id'])) {
             //if there is at least one job with that worker
-            if(count($crowdAgentJobs->toArray()) > 0)
-            {   
+            if(count($crowdAgentJobs->toArray()) > 0) {   
 
                 $domains = $formats = $types = $jobids = array();
                 $spam = $nonspam = $totalNoOfWorkerunits = 0;
-                foreach($this->workerunits as $a){
+                foreach($this->workerunits as $a) {
                     $totalNoOfWorkerunits++;
 
                     if($a->spam) $spam++;
@@ -83,15 +81,13 @@ class CrowdAgent extends Moloquent {
                 
 
 
-                if(count($distinctWorkerunitTypes) > 0)
-                {
+                if(count($distinctWorkerunitTypes) > 0) {
                     $cache["jobTypes"] = [
                         "distinct" => count($distinctWorkerunitTypes),
                         "count" => count(array_unique($jobids)),
                         "types" => []
                     ];
-                    foreach($distinctWorkerunitTypes as $distinctJobType)
-                    {
+                    foreach($distinctWorkerunitTypes as $distinctJobType) {
                         $distinctJobTypeCount = Job::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->type($distinctJobType)->count();
                         
                         $distinctJobTemplateTypes = Job::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->type($distinctJobType)->distinct('template')->get()->toArray();
@@ -100,8 +96,7 @@ class CrowdAgent extends Moloquent {
                         $cache["jobTypes"]["types"][$distinctJobType]['distinct'] = count($distinctJobTemplateTypes);
                         $cache["jobTypes"]["types"][$distinctJobType]['count'] = count($countJobTemplateTypes);
                         $cache["jobTypes"]["types"][$distinctJobType]["templates"] = [];
-                        foreach($distinctJobTemplateTypes as $distinctJobTemplateType)
-                        {
+                        foreach($distinctJobTemplateTypes as $distinctJobTemplateType) {
                         
                             $distinctJobTemplateAndCount = Job::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('template', $distinctJobTemplateType)->count();
                             
@@ -111,8 +106,7 @@ class CrowdAgent extends Moloquent {
                 }
 
 
-                if(count($distinctMediaFormats) > 0)
-                {
+                if(count($distinctMediaFormats) > 0) {
                     $cache["mediaFormats"] = [
                         "distinct" => count($distinctMediaFormats),
                         "count" => $workerParticipatedIn,
@@ -127,15 +121,13 @@ class CrowdAgent extends Moloquent {
                     ];
 
 
-                    foreach($distinctMediaFormats as $distinctMediaFormat)
-                    {
+                    foreach($distinctMediaFormats as $distinctMediaFormat) {
                         $distinctMediaFormatAndCount = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('format', $distinctMediaFormat)->count();
                         $cache["mediaFormats"]["formats"][$distinctMediaFormat] = $distinctMediaFormatAndCount;
                     }           
 
 
-                    foreach($distinctMediaDomains as $distinctMediaDomain)
-                    {
+                    foreach($distinctMediaDomains as $distinctMediaDomain) {
                         $distinctMediaDomainAndCount = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('domain', $distinctMediaDomain)->count();
                         $cache["mediaDomains"]["domains"][$distinctMediaDomain] = $distinctMediaDomainAndCount;
                     }                                                   
@@ -148,6 +140,9 @@ class CrowdAgent extends Moloquent {
                 $this->cache = $cache;
                 $this->save();        
                      
+            }
+            else {
+                $this->save();
             }
         }
 

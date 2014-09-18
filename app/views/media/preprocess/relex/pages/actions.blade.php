@@ -35,18 +35,10 @@
 										<td>
 <a class='btn btn-success' href='{{ URL::to('media/preprocess/relex/preview?URI=' . $entity['_id']) }}'><i class="fa fa-search fa-fw"></i>Preview</a>
 <a class='btn btn-success' href='{{ URL::to('media/preprocess/relex/process?URI=' . $entity['_id']) }}'><i class="fa fa-gear fa-fw"></i>Process</a>
+<a class='btn btn-success' href='{{ URL::to('media/preprocess/text/configure?URI=' . $entity['_id']) }}'><i class="fa fa-gear fa-fw"></i>Configure</a>	
 										</td>
 									</tr>
 								@endforeach
-									<tr style='display:none'>
-										<td>&nbsp;</td>
-										<td>&nbsp;</td>
-										<td>&nbsp;</td>
-										<td>
-<a class='btn' href='#' style='visibility:hidden;'><i class="fa fa-plus-circle fa-fw"></i>Preview</a>
-<a class='btn btn-success' href='{{ URL::to('media/preprocess/relex/process?URI=' . $entity['_id']) }}'><i class="fa fa-gears fa-fw"></i>Process All</a>
-										</td>
-									</tr>
 									</tbody>
 								</table>
 							</div>

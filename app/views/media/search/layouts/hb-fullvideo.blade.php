@@ -122,12 +122,12 @@
 					<input class="input-sm form-control" type='text' data-query-key="match[content.metadata.spatial.nl]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="number_of_batches">
-					<input class="input-sm form-control" type='text' data-query-key="match[batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[batches.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="number_of_jobs">
-					<input class="input-sm form-control" type='text' data-query-key="match[jobs.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-					<input class="input-sm form-control" type='text' data-query-key="match[jobs.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
                 <td data-vbIdentifier="number_of_cf_judgements">
                     <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.cf]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
@@ -205,6 +205,10 @@
 	      			    <td data-vbIdentifier="video_duration"> @{{ this.content.metadata.extent }}	</td>
 				    <td data-vbIdentifier="video_language">@{{ this.content.metadata.language }}</td>
 				    <td data-vbIdentifier="video_spatial" >@{{ this.content.metadata.spatial.nl }}</td>
+<<<<<<< HEAD
+				    <td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>
+				    <td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>
+=======
 				    <td data-vbIdentifier="number_of_batches">@{{ this.batches.count }}</td>
 				    <td data-vbIdentifier="number_of_jobs">@{{ this.jobs.count }}</td>
                     <td data-vbIdentifier="number_of_cf_judgements">@{{ this.cache.softwareAgent.cf }}</td>
@@ -214,6 +218,7 @@
                     <td data-vbIdentifier="number_of_RelDir_jobs">@{{ this.cache.jobs.types.RelDir.count }}</td>
                     <td data-vbIdentifier="number_of_children">@{{ this.cache.children.count }}</td>
                     <td data-vbIdentifier="parents">@{{ this.parents }}</td>
+>>>>>>> 30cbbf91bdbf9ad92fcd25301c4b730ff1748d1d
 				    <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
 				</tr>
 			        @{{/each}}
@@ -403,7 +408,7 @@
 						 <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
 						 <td> @{{ jobConf.content.title }} </td>
 						 @{{#each metrics.units.withoutSpam }}
-						 <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
+						 <td> @{{ toFixed avg.max_relation_Cos 2}} </td>
 						 @{{/each}}
 						</tr>
 						 @{{/inArray}}
@@ -458,8 +463,8 @@
 						   @{{/inArray}}
 
 						   @{{#each metrics.units.withoutSpam}}
-						   <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
-						   <td> @{{ toFixed no_annotators.avg 2}} </td>
+						   <td> @{{ toFixed avg.max_relation_Cos.avg 2}} </td>
+						   <td> @{{ toFixed avg.no_annotators.avg 2}} </td>
 						   @{{/each}}
 						   <td> @{{ toFixed metrics.aggUnits.mean.max_relation_Cos.avg 2}} </td>
 						   <td> @{{ toFixed metrics.aggUnits.mean.no_annotators.avg 2}} </td>

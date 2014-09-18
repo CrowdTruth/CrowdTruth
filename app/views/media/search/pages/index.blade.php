@@ -6,6 +6,7 @@
 {{ stylesheet_link_tag('bootstrap-select.css') }}
 {{ stylesheet_link_tag('bootstrap-dropdown-checkbox.css') }}
 {{ stylesheet_link_tag('bootstrap.datepicker3.css') }}
+{{ stylesheet_link_tag('custom.css') }}
 
 <style>
 .container {
@@ -177,6 +178,10 @@
 
 						@if(isset($mainSearchFilters['documentTypes']['fullvideo']))
 							@include('media.search.layouts.hb-fullvideo')
+						@endif
+
+						@if(isset($mainSearchFilters['documentTypes']['metadatadescription']))
+							@include('media.search.layouts.hb-metadatadescription')
 						@endif
 
 						@if(isset($mainSearchFilters['documentTypes']['painting']))
@@ -932,7 +937,6 @@ var openModal = function(modalAnchor , activeTabKey){
             // *** send messages to console ***
             debug : false
         });
-
     });
 }
 

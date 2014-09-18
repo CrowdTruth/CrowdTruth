@@ -423,8 +423,12 @@ class apiController extends BaseController
         $result = array();
         $aggregateOperators = $this->processAggregateInput(Input::all());
         $unitID = Input::get('unit');
-        $result['infoStat'] = \MongoDB\Entity::where('_id', $unitID)->get()->toArray()[0];
-
+        $resultT = \MongoDB\Temp::where('_id', $unitID)->get()->toArray();
+        if (sizeof($resultT) != 0)
+            $result['infoStat'] = \MongoDB\Temp::where('_id', $unitID)->get()->toArray()[0];
+        else
+            $result['infoStat'] = \MongoDB\Entity::where('_id', $unitID)->get()->toArray()[0];
+    
         $selection = \MongoDB\Entity::raw(function ($collection) use ($aggregateOperators, $unitID) {
             $aggregateOperators['$match']['unit_id'] = $unitID;
             $aggregateOperators['$match']['documentType'] = 'workerunit';
@@ -494,7 +498,7 @@ class apiController extends BaseController
             'results.withSpam.' . $unitID,
             'metrics.units.withoutSpam.' . $unitID,
             'metrics.aggUnits',
-            'metrics.filteredUnits',
+            'metrics.filteredunits',
             'metrics.workers.withFilter',
             'sofwareAgent_id',
             'platformJobId'))->toArray();
@@ -837,6 +841,18 @@ class apiController extends BaseController
                 array('$group' => $aggregateOperators['$group'])));
 
         });
+        if (count($selection['result']) == 0) {
+            foreach (Input::get('project') as $field => $value) {
+                $results[$field] = array();
+            }
+            $results['id'] = array();
+            $results['potentialSpamWorkers'] = array();
+            $results['avgUnits'] = array();
+            $results['avgWorkerunits'] = array();
+            $results['avgWorkers'] = array();
+            $results['query'] = Input::get('match');
+            return $results;
+        }
         $results = $selection['result'][0];
 
         //create an array for time values
@@ -868,6 +884,8 @@ class apiController extends BaseController
             $potentialSpammers = array_intersect($workersOfJob, $spammersSet);
             $potentialSpammersCount[$iter] = count($potentialSpammers);
             $results['workers'][$iter] = count($workersOfJob) - count($potentialSpammers);
+            $results['units'][$iter] = $results['units'][$iter] - $results['filteredUnits'][$iter] ;
+            $results['workerunits'][$iter] = $results['workerunits'][$iter] - $results['filteredWorkerunits'][$iter] ;
 
             //add the time value
 

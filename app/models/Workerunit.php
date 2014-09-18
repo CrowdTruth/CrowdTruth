@@ -69,6 +69,12 @@ class Workerunit extends Entity {
             case 'RelEx':
                 return $this->createAnnotationVectorRelEx();
                 break;
+             case 'MetaDEvents':
+                return $this->createAnnotationVectorMetaDEvents();
+                break;
+            case 'BiographyNetConcepts':
+                return $this->createAnnotationVectorBiographyNetConcepts();
+                break;
             
             default:
                //return  $this->createAnnotationVectorFactSpan(); // For Debugging!
@@ -78,6 +84,126 @@ class Workerunit extends Entity {
                 break;
         }        
     }
+
+    public function createAnnotationVectorMetaDEvents() {
+        $debug = false;
+
+        if(empty($this->unit_id))
+            return null;
+
+        $description = $this->unit->content['description'];
+        
+        // Set annotation vector for the sentence
+        $descriptionWords = explode(" ", $description);
+        $concepts = array("event");
+        $annotationVector = array();
+
+        $annotationVector["event"] = array();
+    //    array_push($annotationVector["event"], "NONE_###_-1");
+        $annotationVector["event"]["NONE_###_-1"] = 0;
+
+        for ($i = 0; $i < count($descriptionWords); $i ++) {
+        //    array_push($annotationVector["event"], str_replace('.', '', $descriptionWords[$i] . "_###_" . $i));
+            $annotationVector["event"][str_replace('.', '', $descriptionWords[$i] . "_###_" . $i)] = 0;
+        }
+
+        $judgment = $this->content;
+        for ($i = 0; $i < 30; $i ++) {
+            if (isset($judgment["ev" . $i . "a"])) {
+                $annotatedWords = $this->takeAnnotationComponents($judgment["ev" . $i . "a"], $description);
+                for ($noAnnWords = 0; $noAnnWords < count($annotatedWords); $noAnnWords ++) {
+                    if (isset($annotationVector["event"][$annotatedWords[$noAnnWords]])) {
+                        $annotationVector["event"][$annotatedWords[$noAnnWords]] ++; 
+                    }
+                }
+            }
+        }
+
+        $annotations = 0;
+        foreach ($annotationVector["event"] as $key => $value) {
+            if ($value != 0) {
+                $annotations ++; 
+            }
+        }
+        if ($annotations == 0 || count($annotationVector["event"]) == 0) {
+            $annotationVector["event"]["NONE_###_-1"] = 1;
+        }
+        
+        
+        return array('event' => $annotationVector["event"]);
+    }
+
+    public function createAnnotationVectorBiographyNetConcepts() {
+
+        $debug = false;
+
+        if(empty($this->unit_id))
+            return null;
+
+        $description = $this->unit->content['chunk_text'];
+        
+        // Set annotation vector for the sentence
+        $descriptionWords = explode(" ", $description);
+        $concepts = array("organization", "location", "time", "person", "other");
+        $annotationVector = array();
+
+        for ($i = 0; $i < count($concepts); $i ++) {
+            $annotationVector[$concepts[$i]] = array();
+        //    array_push($annotationVector[$concepts[$i]], "NONE_###_-1");
+            $annotationVector[$concepts[$i]]["NONE_###_-1"] = 0;
+        }
+
+        for ($i = 0; $i < count($descriptionWords); $i ++) {
+            for ($j = 0; $j < count($concepts); $j ++) {
+            //    array_push($annotationVector[$concepts[$j]], str_replace('.', '', $descriptionWords[$i] . "_###_" . $i));
+                $annotationVector[$concepts[$j]][str_replace('.', '', $descriptionWords[$i] . "_###_" . $i)] = 0;
+            }
+        }
+
+        $judgment = $this->content;
+        for ($i = 0; $i < 30; $i ++) {
+            if (isset($judgment["event" . $i])) {
+                $annotatedWords = $this->takeAnnotationComponents($judgment["ev" . $i . "a"], $description);
+                for ($noAnnWords = 0; $noAnnWords < count($annotatedWords); $noAnnWords ++) {
+                    $annotationVector[$judgment["event" . $i]][$annotatedWords[$noAnnWords]] ++; 
+                }
+            }
+        }
+
+        for ($i = 0; $i < count($concepts); $i ++) {
+            $annotations = 0;
+            foreach ($annotationVector[$concepts[$i]] as $key => $value) {
+                if ($value != 0) {
+                    $annotations ++; 
+                }
+            }
+            if ($annotations == 0 || count($annotationVector[$concepts[$i]]) == 0) {
+                $annotationVector[$concepts[$i]]["NONE_###_-1"] = 1;
+            }
+        }
+        
+        return array('organization' => $annotationVector["organization"], 'location' => $annotationVector["location"], 
+            'time' => $annotationVector["time"], 'person' => $annotationVector["person"],
+            'other' => $annotationVector["other"]);
+        
+    }
+
+    private function takeAnnotationComponents($wordsNo, $sentence) {
+        $result = array();
+        $wordsSentence = explode(" ", $sentence);
+        if(strpos($wordsNo, "-") !== FALSE) {
+            $interval = explode("-", $wordsNo);
+            for ($i = (int)$interval[0]; $i <= (int)$interval[1]; $i ++) {
+                array_push($result, str_replace(".", "", $wordsSentence[$i] . "_###_" . $i));
+            }
+        }
+        else {
+            array_push($result, str_replace(".", "", $wordsSentence[(int)$wordsNo] . "_###_" . $wordsNo));
+        }
+
+        return $result;
+    }
+
     //todo should be private
     public function createAnnotationVectorFactSpan(){
         $debug = false;
@@ -379,7 +505,7 @@ class Workerunit extends Entity {
             $ans = $this->content['Q1'];
 
         // The CF template works like this.
-        if($this->softwareAgent_id == 'cf'){
+        if($this->softwareAgent_id == 'cf2'){
             $u = $this->unit->content;
 /*            if($ans == 'no_relation')
                 $ans = 'Choice3';*/

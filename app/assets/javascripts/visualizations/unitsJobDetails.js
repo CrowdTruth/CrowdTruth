@@ -25,6 +25,7 @@ function unitsJobDetails(category , categoryName, openModal) {
 
     var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
     var currentSelection = [];
+    var jobSelection = [];
     var currentSelectionInfo = {};
     var pieChartOptions = {};
     var unitInfo = {};
@@ -34,13 +35,14 @@ function unitsJobDetails(category , categoryName, openModal) {
     var pieChart = "";
     var barChart = "";
 
-    var createImage = function (chart, url, title, searchSet, w, h, x, y){
+    var createImage = function (id,chart, url, title, searchSet, w, h, x, y){
         var img = chart.renderer.image(url, w, h, x, y);
         img.add();
         img.css({'cursor': 'pointer'});
         img.attr({'title': 'Pop out chart'});
         img.attr("data-toggle", "tooltip");
         img.attr("style", "opacity:0.5");
+        img.attr("id", id);
         img.attr("title", title);
         img.on('click', function () {
             var hideIcon = true;
@@ -72,10 +74,10 @@ function unitsJobDetails(category , categoryName, openModal) {
 
     var callback = function callback($this) {
 
-        createImage(this, '/assets/judgements.png', "Low quality judgements", spam_ids, $this.chartWidth-60,15,19,14);
+        createImage("judgementButtonID",this, '/assets/judgements.png', "Low quality judgements", spam_ids, $this.chartWidth-60,15,19,14);
 
 
-        createImage(this, '/assets/metrics.png',
+        createImage('metricsButtonID',this, '/assets/metrics.png',
             "Results of metrics before filtering the low quality annotations and workers",
             metrics_ids, $this.chartWidth-90, 16, 19, 12);
 
@@ -299,6 +301,8 @@ function unitsJobDetails(category , categoryName, openModal) {
                     }
 
                     drawBarChart(series, categories , [max, maxMetric]);
+                    var buttonLength = barChart.exportSVGElements.length;
+                    barChart.exportSVGElements[buttonLength - 2].hide();
                 });
             });
         });
@@ -311,8 +315,31 @@ function unitsJobDetails(category , categoryName, openModal) {
             chart: {
                 zoomType: 'x',
                 renderTo: 'jobsBar_div',
+                alignTicks: false,
+                marginRight: 60,
+                marginLeft: 60,
+                resetZoomButton: {
+
+                    theme:{
+                        fill: '#2aabd2',
+                        style:{
+                            color:'white'
+                        }
+                    },
+                    position:{
+                        x: -70,
+                        y: -50
+                    }
+                },
+                backgroundColor: {
+                    linearGradient: [0, 0, 500, 500],
+                    stops: [
+                        [0, 'rgb(235, 235, 255)'],
+                        [1, 'rgb(255, 255, 255)']
+                    ]
+                },
                 type: 'column',
-                width: (3*(($('.maincolumn').width() - 50)/5)),
+                width: (3.7*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5)),
                 height: 430,
                 events: {
                     load: function () {
@@ -338,13 +365,37 @@ function unitsJobDetails(category , categoryName, openModal) {
                     }
                 }
             },
+            exporting: {
+                buttons: {
+                    resetButton: {
+                        text: "View in jobs' chart",
+                        theme: {
+                            fill: '#2aabd2',
+                            id:"resetSelection",
+                            style:{
+                                color: 'white'
+                            }
+                        },
+                        x: - (3.7*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5)) + 160,
+                        y: 0,
+                        onclick: function(e) {
+                            localStorage.setItem("jobList", JSON.stringify(jobSelection));
+                            $('#jobTabOption')[0].children[0].click();
+                        }
+                    }
+                }
+            },
             title: {
+                style: {
+                    fontWeight: 'bold'
+                },
                 text: 'Judgements on ' + categories.length +' Job(s) of ' + currentSelection.length + ' Selected ' +  categoryName + '(s)'
             },
             subtitle: {
                 text: 'Select an area to zoom. To see detailed information select individual units.From legend select/deselect features.'
             },
             xAxis: {
+                tickInterval: Math.ceil( categories.length/35),
                 title :{
                     text: 'Job ID'
                 },
@@ -404,15 +455,46 @@ function unitsJobDetails(category , categoryName, openModal) {
             },
             yAxis: [{
                 min: 0,
+                offset: 0,
+                showEmpty: false,
+                labels: {
+                    formatter: function () {
+                        return this.value;
+                    },
+                    style: {
+                        color: '#274B6D'
+                    }
+                },
+                gridLineColor:  '#274B6D',
+                startOnTick: false,
+                endOnTick: false,
                 title: {
-                    text: '# judgements per job'
+                    text: '# judgements per job',
+                    style: {
+                        color: '#274B6D'
+                    }
                 }
             },
                 {
                     min: 0,
-                    max: max[1] + 1,
+                    offset: 0,
+                    showEmpty: false,
+                    labels: {
+                        formatter: function () {
+                            return this.value;
+                        },
+                        style: {
+                            color: '#4897F1'
+                        }
+                    },
+                    gridLineColor:  '#4897F1',
+                    startOnTick: false,
+                    endOnTick: false,
                     title: {
-                        text: yAxisTitle
+                        text: yAxisTitle,
+                        style: {
+                            color: '#4897F1'
+                        }
                     },
                     opposite:true
                 }],
@@ -514,7 +596,7 @@ function unitsJobDetails(category , categoryName, openModal) {
 
                     point: {
                         events: {
-                            click: function () {
+                            contextmenu: function (e) {
                                 urlBase = "";
 
                                 for (var indexUnits in currentSelection) {
@@ -526,6 +608,27 @@ function unitsJobDetails(category , categoryName, openModal) {
                                     'data-original-title="Click to see the individual worker page">6345558 </a>');
                                 //$('body').append(anchorModal);
                                 openModal(anchorModal, "#job_tab");
+
+
+                            },
+                            click: function () {
+                                for (var iterSeries = 0; iterSeries < barChart.series.length; iterSeries++) {
+                                    barChart.series[iterSeries].data[this.x].select(null,true);
+                                }
+
+                                if($.inArray(this.category, jobSelection) > -1) {
+                                    jobSelection.splice( $.inArray(this.category, jobSelection), 1 );
+                                } else {
+                                    jobSelection.push(this.category)
+                                }
+
+
+                                var buttonLength = barChart.exportSVGElements.length;
+                                if(jobSelection.length == 0) {
+                                    barChart.exportSVGElements[buttonLength - 2].hide();
+                                } else {
+                                    barChart.exportSVGElements[buttonLength - 2].show();
+                                }
 
 
 
@@ -543,17 +646,28 @@ function unitsJobDetails(category , categoryName, openModal) {
         pieChart = new Highcharts.Chart({
             chart: {
                 renderTo: 'jobsPie_div',
+                backgroundColor: {
+                    linearGradient: [0, 0, 500, 500],
+                    stops: [
+                        [0, 'rgb(255, 255, 255)'],
+                        [1, 'rgb(225, 225, 255)']
+                    ]
+                },
                 type: 'pie',
-                width: (2*(($('.maincolumn').width() - 50)/5)),
-                height: 400
+                width: (1.3*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5)),
+                height: 430
             },
             title: {
+                style: {
+                    fontWeight: 'bold'
+                },
                 text: 'Platform distribution for ' + totalValue + ' Job(s) of the ' + currentSelection.length + ' selected ' + categoryName + '(s)'
             },
             subtitle: {
                 text: 'Click a category to see the distribution of judgements per jobs'
             },
             yAxis: {
+                scalable:false,
                 title: {
                     text: 'Number of workers per unit'
                 }
@@ -636,7 +750,8 @@ function unitsJobDetails(category , categoryName, openModal) {
                             // display only if larger than 1
                             return this.point.name;
                         },
-                        color: 'black'
+                        color: 'black',
+                        distance: 3
 
                     }
 
@@ -650,7 +765,7 @@ function unitsJobDetails(category , categoryName, openModal) {
         pieChartOptions = {};
         unitInfo = {};
         seriesBase = [];
-        console.dir(selectedUnits.length);
+        jobSelection = [];
         if(selectedUnits.length == 0){
                 $('#jobsBar_div').hide();
                 $('#jobsPie_div').hide();

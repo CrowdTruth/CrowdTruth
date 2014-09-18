@@ -12,6 +12,7 @@
 		{{ stylesheet_link_tag('bootstrap-theme.min.css') }}
 		{{ stylesheet_link_tag('font-awesome.min.css') }}
 		{{ stylesheet_link_tag('custom/style.css.scss') }}
+		{{ stylesheet_link_tag('highlight.css') }}
 
 @yield('head')
 	</head>

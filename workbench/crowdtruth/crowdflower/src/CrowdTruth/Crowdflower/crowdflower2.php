@@ -28,10 +28,10 @@ class Crowdflower2 extends \FrameWork {
 
 	public function getJobConfValidationRules(){
 		return array(
-			'workerUnitsPerUnit' => 'required|numeric|min:1',
+			'workerunitsPerUnit' => 'required|numeric|min:1',
 			'unitsPerTask' => 'required|numeric|min:1',
 			'instructions' => 'required',
-			'workerUnitsPerWorker' => 'required|numeric|min:1');
+			'workerunitsPerWorker' => 'required|numeric|min:1');
 	}
 
 	public function __construct(){
@@ -47,7 +47,7 @@ class Crowdflower2 extends \FrameWork {
 	}
 
 	public function updateJobConf($jc){
-		if(Input::has('workerUnitsPerWorker')){ // Check if we really come from the CF page (should be the case)
+		if(Input::has('workerunitsPerWorker')){ // Check if we really come from the CF page (should be the case)
 			$c = $jc->content;
 			$c['countries'] = Input::get('countries', array());
 			$jc->content = $c;
@@ -83,17 +83,20 @@ class Crowdflower2 extends \FrameWork {
 	}
 
 
+
+
 	/**
     * @return String id of published Job
     */
     private function cfPublish($job, $sandbox){
     	$jc = $job->jobConfiguration;
+    	//dd($jc->title);
 		//$template = $job->template;
 		$data = $this->jobConfToCFData($jc);	
 		$csv = $this->batchToCSV($job->batch, $job->questionTemplate);
 		$gold = $jc->answerfields;
-		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 0)*60, 
-							"keywords" => (isset($jc->content['requesterWorkerUnit']) ? $jc->content['requesterWorkerUnit'] : ''),
+		$options = array(	"req_ttl_in_seconds" => (isset($jc->content['expirationInMinutes']) ? $jc->content['expirationInMinutes'] : 30)*60, 
+							"keywords" => (isset($jc->content['requesterWorkerunit']) ? $jc->content['requesterWorkerunit'] : ''),
 							"mail_to" => (isset($jc->content['notificationEmail']) ? $jc->content['notificationEmail'] : ''));
     	
     	//if($jc->content['workerUnitsPerWorker'] < $jc->content['unitsPerTask'])
@@ -239,18 +242,84 @@ class Crowdflower2 extends \FrameWork {
     }
 
 
+
+
+	public function refreshJob($id){
+		
+		$job = \MongoDB\Entity::where('_id', $id)->first();
+		$batch = \MongoDB\Entity::where('_id', $job->batch_id)->first();
+		$jc = \MongoDB\Entity::where('_id', $job->jobConf_id)->first();
+		$result = $this->CFJob->readJob($job->platformJobId);
+		if(isset($result['result']['error']['message']))
+			throw new Exception("Read: " . $result['result']['error']['message']);
+
+		// dd($jc);
+		//dd($result['result']['title']);
+
+		$this->CFDataToJobConf($result['result'], $jc);
+		
+		$jc->update();
+
+		//dd($jc);
+		if(!isset($job->projectedCost)){
+				$reward = $jc->content['reward'];
+				$workerunitsPerUnit = intval($jc->content['workerunitsPerUnit']);
+				$unitsPerTask = intval($jc->content['unitsPerTask']);
+				$unitsCount = count($batch->wasDerivedFrom);
+                if(!$unitsPerTask)
+                    $projectedCost = 0;
+                else
+				    $projectedCost = round(($reward/$unitsPerTask)*($unitsCount*$workerunitsPerUnit), 2);
+
+                $job->expectedWorkerunitsCount=$unitsCount*$jc->content['workerunitsPerUnit'];
+                $job->projectedCost = $projectedCost;
+            }
+        $job->update();
+	}
+
+	 private function CFDataToJobConf($CFd, &$jc){ // TODO
+		$jcco = $jc->content;
+		if(isset($CFd['title']))  				$jcco['title'] = 				$CFd['title'];
+		if(isset($CFd['instructions'])) 		$jcco['instructions'] =			$CFd['instructions'];
+		if(isset($CFd['css'])) 					$jcco['css'] =					$CFd['css'];
+		if(isset($CFd['cml'])) 					$jcco['cml'] =					$CFd['cml'];
+		if(isset($CFd['js'])) 					$jcco['js'] =					$CFd['js'];
+		if(isset($CFd['state'])) 				$jcco['status'] =				$CFd['state'];
+		if(isset($CFd['payment_cents'])) 		$jcco['reward'] =				$CFd['payment_cents']/100;
+		if(isset($CFd['minimum_requirements'])) 		$jcco['minimumRequirements'] =				$CFd['minimum_requirements'];
+
+		if(isset($CFd['options']['req_ttl_in_seconds'])) 				$jcco['expirationInMinutes'] =	intval($CFd['options']['req_ttl_in_seconds']/60);
+		if(isset($CFd['options']['mail_to'])) 				$jcco['notificationEmail'] =	$CFd['options']['mail_to'];
+		if(isset($CFd['judgments_per_unit'])) 	$jcco['workerunitsPerUnit'] = 	$CFd['judgments_per_unit'];
+		if(isset($CFd['units_per_assignment'])) $jcco['unitsPerTask'] = 		$CFd['units_per_assignment'];
+		if(isset($CFd['max_judgments_per_worker'])) $jcco['workerunitsPerWorker'] = 		$CFd['max_judgments_per_worker'];
+		if(isset($CFd['max_judgments_per_ip'])) $jcco['workerunitsPerWorker']     = 		$CFd['max_judgments_per_ip'];
+		// reward, keywords, expiration, workers_level, 
+
+		$jc->content = $jcco;
+		
+	}
+
+
     private function jobConfToCFData($jc){
 		$jc=$jc->content;
 		$data = array();
-
+		//if(isset($jc['keywords'])) 			 	$data['tags']					 	= $jc['keywords'];
 		if(isset($jc['title'])) 			 	$data['title']					 	= $jc['title'];
+		if(isset($jc['css'])) 			 		$data['css']					 	= $jc['css'];
+		if(isset($jc['cml'])) 			 		$data['cml']					 	= $jc['cml'];
+		if(isset($jc['js'])) 			 		$data['js']					 		= $jc['js'];
+		//if(isset($jc['reward'])) 			 	$data['payment_cents']		 		= $jc['reward'];
+
 		if(isset($jc['instructions'])) 			$data['instructions']				= $jc['instructions'];
-		if(isset($jc['workerUnitsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['workerUnitsPerUnit'];
+		if(isset($jc['workerunitsPerUnit'])) 	$data['judgments_per_unit']		  	= $jc['workerunitsPerUnit'];
 		if(isset($jc['unitsPerTask']))			$data['units_per_assignment']		= $jc['unitsPerTask'];
-		if(isset($jc['workerUnitsPerWorker']))	{
-			$data['max_judgments_per_worker']	= $jc['workerUnitsPerWorker'];
-			$data['max_judgments_per_ip']		= $jc['workerUnitsPerWorker']; // We choose to keep this the same.
+		if(isset($jc['workerunitsPerWorker']))	{
+			$data['max_judgments_per_worker']	= $jc['workerunitsPerWorker'];
+			$data['max_judgments_per_ip']		= $jc['workerunitsPerWorker']; // We choose to keep this the same.
 		}
+
+
 
 		// Webhook doesn't work on localhost and the uri should be set. 
 		if((!(strpos(\Request::url(), 'localhost')>0)) and (Config::get('crowdflower::webhookuri') != '')){
@@ -258,6 +327,8 @@ class Crowdflower2 extends \FrameWork {
 			$data['send_judgments_webhook'] = 'true';
 			\Log::debug("Webhook: {$data['webhook_uri']}");
 		} else {
+			$data['webhook_uri'] = Config::get('crowdflower::webhookuri');
+			$data['send_judgments_webhook'] = 'true';
 			\Log::debug("Warning: no webhook set.");
 		}
 		return $data;
@@ -266,7 +337,7 @@ class Crowdflower2 extends \FrameWork {
 	/**
 	* @return path to the csv, ready to be sent to the CrowdFlower API.
 	*/
-	public function batchToCSV($batch, $questionTemplate, $path = null){
+		public function batchToCSV($batch, $questionTemplate, $path = null){
 
 		// Create and open CSV file
 		if(empty($path)) {
@@ -298,6 +369,15 @@ class Crowdflower2 extends \FrameWork {
 			//$content = $questionTemplate->flattenAndReplace($unit['content']);
 
 			// Add fields
+			//if ($unit['format'] === "image")
+			//	$content['url'] = $unit['content']['url'];
+
+			$c = array_change_key_case(array_dot($unit['content']), CASE_LOWER);
+			foreach($c as $key=>$val){
+				$key = strtolower(str_replace('.', '_', $key));
+				$content[$key] = $val;
+			}
+			//dd($content);
 			$content['uid'] = $unit['_id'];
 			$content['_golden'] = 'false'; // TODO
 			$array[] = $content;

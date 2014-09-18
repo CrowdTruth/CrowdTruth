@@ -2,6 +2,9 @@
 //= require contextmenu-highchart.js
 //= require modules/exporting.js
 //= require modules/heatmap.js
+//= require modules/scalable-yaxis.js
+//= require modules/export-csv.js
+//= require modules/highcharts-legend-yaxis.js
 //= require no-data-to-display.js
 //= require visualizations/unitsChartFacade.js
 //= require visualizations/heatMapGraph.js
@@ -13,3 +16,4 @@
 //= require visualizations/unitsBarChartGraph.js
 //= require visualizations/workersBarChartGraph.js
 //= require visualizations/jobsBarChartGraph.js
+//= require intro.min.js

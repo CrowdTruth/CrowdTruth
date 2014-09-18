@@ -16,6 +16,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
     ]
     var currentSelection = [];
     var currentSelectionInfo = {};
+    var unitSelection = [];
     var pieChartOptions = {};
     var unitInfo = {};
     var metrics_ids = [];
@@ -75,12 +76,22 @@ function unitsDetails(category, categoryName, openModal, modalName) {
     var drawPieChart = function (platform, spam, totalValue) {
         pieChart = new Highcharts.Chart({
             chart: {
+                backgroundColor: {
+                    linearGradient: [0, 0, 500, 500],
+                    stops: [
+                        [0, 'rgb(255, 255, 255)'],
+                        [1, 'rgb(225, 225, 255)']
+                    ]
+                },
                 renderTo: 'unitsPie_div',
                 type: 'pie',
-                width: (2 * (($('.maincolumn').width() - 50) / 5)),
-                height: 400
+                width: (1.3*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5)),
+                height: 430
             },
             title: {
+                style: {
+                    fontWeight: 'bold'
+                },
                 text: 'Platforms distribution for ' + totalValue + ' Unit(s) ' + categoryPrefix + ' the ' + currentSelection.length + ' selected ' + categoryName + '(s)'
             },
             subtitle: {
@@ -90,6 +101,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
                 enabled: false
             },
             yAxis: {
+                scalable:false,
                 title: {
                     text: 'Number of workers per unit'
                 }
@@ -175,7 +187,8 @@ function unitsDetails(category, categoryName, openModal, modalName) {
                             // display only if larger than 1
                             return this.point.name;
                         },
-                        color: 'black'
+                        color: 'black',
+                        distance: 3
 
                     }
 
@@ -191,9 +204,31 @@ function unitsDetails(category, categoryName, openModal, modalName) {
                 zoomType: 'x',
                 renderTo: 'unitsBar_div',
                 type: 'column',
-                width: (3 * (($('.maincolumn').width() - 50) / 5)),
+                width: (3.7*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5)),
                 height: 430,
+                alignTicks: false,
+                marginRight: 60,
+                marginLeft: 60,
+                resetZoomButton: {
 
+                    theme:{
+                        fill: '#2aabd2',
+                        style:{
+                            color:'white'
+                        }
+                    },
+                    position:{
+                        x: -50,
+                        y: -50
+                    }
+                },
+                backgroundColor: {
+                    linearGradient: [0, 0, 500, 500],
+                    stops: [
+                        [0, 'rgb(235, 235, 255)'],
+                        [1, 'rgb(255, 255, 255)']
+                    ]
+                },
                 events: {
                     load: function () {
                         var chart = this,
@@ -218,7 +253,30 @@ function unitsDetails(category, categoryName, openModal, modalName) {
                     }
                 }
             },
+            exporting: {
+                buttons: {
+                    resetButton: {
+                        text: "View in media chart",
+                        theme: {
+                            fill: '#2aabd2',
+                            id:"resetSelection",
+                            style:{
+                                color: 'white'
+                            }
+                        },
+                        x: - (3.7*(($('.maincolumn').width() - 0.05*($('.maincolumn').width()))/5)) + 160,
+                        y: 0,
+                        onclick: function(e) {
+                            localStorage.setItem("unitList", JSON.stringify(unitSelection));
+                            $('#mediaTabOption')[0].children[0].click();
+                        }
+                    }
+                }
+            },
             title: {
+                style: {
+                    fontWeight: 'bold'
+                },
                 text: 'Judgements on ' + categories.length + ' Unit(s) ' + categoryPrefix + ' ' +
                     currentSelection.length + ' Selected ' + categoryName + '(s)'
             },
@@ -229,6 +287,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
                 enabled: false
             },
             xAxis: {
+                tickInterval: Math.ceil( categories.length/35),
                 title: {
                     text: 'Unit ID'
                 },
@@ -295,9 +354,24 @@ function unitsDetails(category, categoryName, openModal, modalName) {
             yAxis: [
                 {
                     min: 0,
-
+                    showEmpty: false,
+                    offset:0,
+                    labels: {
+                        formatter: function () {
+                            return this.value;
+                        },
+                        style: {
+                            color: '#274B6D'
+                        }
+                    },
+                    gridLineColor:  '#274B6D',
+                    startOnTick: false,
+                    endOnTick: false,
                     title: {
-                        text: '# judgements per unit'
+                        text: '# judgements per unit',
+                        style: {
+                            color: '#274B6D'
+                        }
                     }
                 }
             ],
@@ -397,7 +471,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
 
                     point: {
                         events: {
-                            click: function () {
+                            contextmenu: function (e) {
                                 urlBase = "";
 
                                 for (var indexUnits in currentSelection) {
@@ -406,10 +480,30 @@ function unitsDetails(category, categoryName, openModal, modalName) {
                                 anchorModal = $('<a class="testModal"' +
                                     'data-modal-query="unit=' + this.category + '&' + urlBase +
                                     '" data-api-target="/api/analytics/unit?" ' +
-                                    'data-target="' + modalName + '" data-toggle="tooltip" data-placement="top" title="" ' +
+                                    'data-target="' + '#modalIndividualUnit' + '" data-toggle="tooltip" data-placement="top" title="" ' +
                                     'data-original-title="Click to see the individual worker page">6345558 </a>');
                                 //$('body').append(anchorModal);
                                 openModal(anchorModal, category);
+
+                            },
+                            click: function () {
+                                for (var iterSeries = 0; iterSeries < barChart.series.length; iterSeries++) {
+                                    barChart.series[iterSeries].data[this.x].select(null,true);
+                                }
+
+                                if($.inArray(this.category, unitSelection) > -1) {
+                                    unitSelection.splice( $.inArray(this.category, unitSelection), 1 );
+                                } else {
+                                    unitSelection.push(this.category)
+                                }
+
+
+                                var buttonLength = barChart.exportSVGElements.length;
+                                if(unitSelection.length == 0) {
+                                    barChart.exportSVGElements[buttonLength - 2].hide();
+                                } else {
+                                    barChart.exportSVGElements[buttonLength - 2].show();
+                                }
 
 
                             }
@@ -422,10 +516,25 @@ function unitsDetails(category, categoryName, openModal, modalName) {
         if (queryField == 'job_id') {
             barChartOptions.yAxis.push({
                 min: 0,
-                max: 2,
+                offset: 0,
+                showEmpty: false,
+                labels: {
+                    formatter: function () {
+                        return this.value;
+                    },
+                    style: {
+                        color: '#4897F1'
+                    }
+                },
+                gridLineColor:  '#4897F1',
+                startOnTick: false,
+                endOnTick: false,
                 opposite: true,
                 title: {
-                    text: 'avg clarity'
+                    text: 'avg clarity',
+                    style: {
+                        color: '#4897F1'
+                    }
                 }})
         }
         barChart = new Highcharts.Chart(barChartOptions, callback);
@@ -598,6 +707,8 @@ function unitsDetails(category, categoryName, openModal, modalName) {
                             }
                         }
                         drawBarChart(series, categories);
+                        var buttonLength = barChart.exportSVGElements.length;
+                        barChart.exportSVGElements[buttonLength - 2].hide();
                     });
 
                 } else {
@@ -609,6 +720,8 @@ function unitsDetails(category, categoryName, openModal, modalName) {
                         }
                     }
                     drawBarChart(series, categories);
+                    var buttonLength = barChart.exportSVGElements.length;
+                    barChart.exportSVGElements[buttonLength - 2].hide();
                 }
 
             });
@@ -619,6 +732,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
     this.update = function (selectedUnits, selectedInfo) {
         pieChartOptions = {};
         unitInfo = {};
+        unitSelection = [];
         seriesBase = [];
 
         if (selectedUnits.length == 0) {

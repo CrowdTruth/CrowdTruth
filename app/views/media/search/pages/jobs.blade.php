@@ -6,6 +6,7 @@
 {{ stylesheet_link_tag('bootstrap-select.css') }}
 {{ stylesheet_link_tag('bootstrap-dropdown-checkbox.css') }}
 {{ stylesheet_link_tag('bootstrap.datepicker3.css') }}
+{{ stylesheet_link_tag('jobs.css') }}
 
 <style>
 .container {
@@ -34,13 +35,14 @@
 					<div class='tabOptions pull-left'>
 					</div>
 					<a href="{{ URL::to('/jobs/batch') }}" class="btn btn-default" style="margin-left:5px; float:left;">Create Job</a>
-					<a href="{{ URL::to('/jobs2/batch') }}" class="btn btn-default hidden" style="margin-left:5px; float:left;">Create Job 2</a>
+					<a href="{{ URL::to('/jobs2/batch') }}" class="btn btn-default" style="margin-left:5px; float:left;">Create Job 2</a>
 					<div class="btn-group pull-left" style="margin-left:5px";>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						Actions <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
+                            <li><a href="{{ URL::to('jobs/analyzeVideo') }}">Analyze Video</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>													
 						</ul>
 					</div>					
@@ -113,7 +115,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table >
                                 <tr >
                                     <td>
                                     <div id="generalBarChart_div" ></div>
@@ -125,8 +127,8 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
-                                <tr>
+                            <table style="border: solid thin #274B6D">
+                                <tr >
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="workersPie_div"></div>
                                     </td>
@@ -135,7 +137,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table style="border: solid thin #274B6D">
                                 <tr>
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="jobsPie_div"></div>
@@ -145,7 +147,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table style="border: solid thin #274B6D">
                                 <tr>
                                     <td class="pieDivGraphs pieDivLarge">
                                         <div id="unitsPie_div"></div>
@@ -155,7 +157,7 @@
                                     </td>
                                 </tr>
                             </table>
-                            <table>
+                            <table style="border: solid thin #274B6D">
                                 <tr >
                                     <td class="pieDivGraphs">
                                         <div id="annotationsPie_div"></div>
@@ -1105,6 +1107,14 @@ $('.select_job').click();
 $('.documentTypesNav').find('#job_nav a').click();
 $('.graphViewButton').click();
 
+var workerList = localStorage.getItem("jobList");
+if(workerList !=  null) {
+    workerList = JSON.parse(workerList);
+    for(var iterWorker in workerList){
+        updateSelection(workerList[iterWorker]);
+    }
+    localStorage.removeItem("jobList");
+}
 });
 
 function jobactions(job, action, index){
