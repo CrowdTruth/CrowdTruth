@@ -41,24 +41,24 @@ class TextController extends BaseController {
 		if($URI = Input::get('URI')) {
 			if($document = $this->repository->find($URI)) {
 				// Use only first Nlines of file for information
-				$nLines = 5;
-				$dataTable = $this->getDocumentData($document['content'], $nLines);
+/*				$dataTable = $this->getDocumentData($document['content'], "", "", $nLines);
 				
 				// Number the file columns
 				$columns   = [];
 				for($i=0; $i<count($dataTable[0]); $i = $i + 1) {
 					$columns[$i] = 'Col '.($i+1);
-				}
+				}*/
+				$docLen = 1024;
+				$docPreview = substr($document['content'], 0, $docLen);
 				
 				// Load which functions are available for display
 				$functions = $this->getAvailableFunctions();
 
 				return View::make('media.preprocess.text.configure')
+						->with('URI', $URI)
 						->with('docTitle', $document['title'])
-						->with('columns', $columns)
-						->with('dataTable', $dataTable)
-						->with('functions', $functions)
-						->with('URI', $URI);
+						->with('docPreview', $docPreview)
+						->with('functions', $functions);
 			} else {
 				return Redirect::back()->with('flashError', 'Document does not exist: ' . $URI);
 			}
@@ -67,10 +67,13 @@ class TextController extends BaseController {
 		}
 	}
 
-	private function getDocumentData($documentContent, $nLines) {
+	private function getDocumentData($documentContent, $delim, $enc, $nLines) {
+		// $delim = $this->getSeparator($documentContent);
+		// $enc = "\"";
+		
 		$reader = Reader::createFromString($documentContent);
-		$reader->setDelimiter($this->getSeparator($documentContent));
-		$reader->setEnclosure("\"");
+		$reader->setDelimiter($delim);
+		$reader->setEnclosure($enc);
 		$reader->setLimit($nLines);
 		$dataTable = $reader->fetchAll();
 		return $dataTable;
@@ -78,7 +81,6 @@ class TextController extends BaseController {
 
 	public function postConfigure() {
 		$inputs = Input::all();		// Same as $_POST
-		$response = '';
 		
 		// Prepare processor
 		$rootProcessor = new RootProcessor($inputs, $this::getAvailableFunctions());
@@ -88,11 +90,12 @@ class TextController extends BaseController {
 		$URI = Input::get('URI');
 		$document = $this->repository->find($URI);
 
-		// if preview
 		$isPreview = Input::get('preview');	// Preview comes as a string
 		if($isPreview=='true') {
+			// Preview preprocessing
 			return $this->doPreview($rootProcessor, $document);
 		} else {
+			// Do preprocessing
 			return $this->doPreprocess($rootProcessor, $document);
 		}
 	}

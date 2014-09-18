@@ -51,7 +51,6 @@ class MediaController extends BaseController {
 			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
 			return $uploadView;
 		} catch (Exception $e){
-			dd([$e->getMessage(),Input::all()]);
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}
 	}
