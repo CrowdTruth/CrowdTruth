@@ -14,3 +14,11 @@ crowd-watson.sublime-workspace
 /app/lib/getAPIS/*
 /app/storage/videostorage/*
 composer.lock
+.gitignore
+.buildpath
+.project
+.settings/
+Installation.md
+public/test1.html
+public/test1.php
+public/test2.html
