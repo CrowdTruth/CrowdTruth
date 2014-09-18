@@ -1,7 +1,7 @@
 <!-- START relex/breadcrumb -->
 <ol class="breadcrumb">
 	<!-- <li{{ (Request::is('preprocess/relex/info') ? ' class="active"' : '') }}>{{ link_to('preprocess/relex/info', "Info") }}</li> -->
-	<li{{ (Request::is('media/preprocess/relex/*') ? ' class="active"' : '') }}>{{ link_to('media/preprocess/relex/actions', "Relex") }}</li>
+	<li{{ (Request::is('media/preprocess/relex/*') ? ' class="active"' : '') }}>{{ link_to('media/preprocess/relex/actions', "Text") }}</li>
 	<li{{ (Request::is('media/preprocess/fullvideo/*') ? ' class="active"' : '') }}>{{ link_to('media/preprocess/fullvideo', "Full Video") }}</li>
 	<li{{ (Request::is('media/preprocess/metadatadescription/*') ? ' class="active"' : '') }}>{{ link_to('media/preprocess/metadatadescription/actions', "Metadata Description") }}</li>
 	@if(Request::is('media/preprocess/relex/preview'))
