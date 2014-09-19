@@ -2,6 +2,24 @@
 
 @section('head')
 <script>
+	function previewTable() {
+		alert("Preview table...");
+		formUrl = $("#docPreviewForm").attr("action");
+		formData = $("#docPreviewForm").serialize();
+//		$.ajax({
+//			type: "POST",
+//			url: formUrl,
+//			data: formData,
+//			success: buildDocPreview(data),
+//		});
+		buildDocPreview('Sample data');
+	}
+
+	function buildDocPreview(data) {
+		alert("Build doc preview");
+		previewTable = $("#docPreviewTable");
+	}
+
 {{--
 	Generate the DIV element which holds an individual document property. 
 	This div element contains the name of the property,  the function to be applied 
@@ -40,10 +58,10 @@
 		colsSelect = '' +
         	'<select name="' + selectorName + '" id="' + selectorName + '">' +
 {{-- Load the available columns --}}
-        	@foreach ($columns as $colIdx => $colName)
+        	{{--        	@foreach ($columns as $colIdx => $colName)
         	'  <option value="{{ $colIdx }}"> {{ $colName }} </option>' +
         	@endforeach
-        	'</select>';
+        	'</select>'; --}}
         return colsSelect;
 	}
 
@@ -217,26 +235,58 @@
 	</p>
 </div>
 
+<div class="panel panel-default">
+	Document preview:
+	<div style="height: 200px; overflow: auto;" class="panel-body">
+		<pre>{{ $docPreview }}</pre>
+	</div>
+</div>
+
+<div class="panel panel-default">
+	<div class="form-group panel-body">
+		{{ Form::open(array('action' => 'preprocess\TextController@postConfigure', 'name' => 'docPreviewForm', 'id' => 'docPreviewForm' )) }}
+		{{ Form::hidden('URI', $URI) }}
+		<div class="row">
+			{{ Form::label('ignoreHeader', 'Ignore headers:', [ 'class' => 'col-md-3 control-label' ]) }}
+			{{ Form::checkbox('ignoreHeader', 'value', false, [ 'class' => 'col-md-3' ]) }}
+		</div>
+		<div class="row">
+			{{ Form::label('delimiter', 'Field delimiter:', [ 'class' => 'col-md-3 control-label' ]) }}
+			{{ Form::text('delimiter', '',[ 'class' => 'col-md-3' ]) }}
+		</div>
+		<div class="row">
+		{{ Form::label('separator', 'Field separator:', [ 'class' => 'col-md-3 control-label' ]) }}
+		{{ Form::text('separator', '',[ 'class' => 'col-md-3' ]) }}
+		</div>
+		<div class="row">
+			{{ Form::button('Preview columns', [ 'onClick' => 'previewTable();' ]) }}
+		</div>
+		{{ Form::close() }}
+	</div>
+</div>
+
+<div class="panel panel-default">
 Document preview:
-<div style="height: 150px; overflow: auto;">
-	<table class="table table-bordered">
+<div style="height: 150px; overflow: auto;" class="panel-body">
+	<table class="table table-bordered" name="docPreviewTable" id="docPreviewTable">
 		<thead>
 			<tr>
-				@foreach ($columns as $column)
+{{--				@foreach ($columns as $column)
 				<th style="width: 10%">{{ $column }}</th> 
-				@endforeach
+				@endforeach --}}
 			</tr>
 		</thead>
 		<tbody>
-			@foreach ($dataTable as $row)
+{{--			@foreach ($dataTable as $row)
 			<tr>
 				@foreach ($row as $column)
 				<td>{{ str_limit($column, 30) }}</td>
 				@endforeach
 			</tr>
-			@endforeach
+			@endforeach --}}
 		</tbody>
 	</table>
+</div>
 </div>
 
 <!-- BEGIN DYNAMIC STRUCTURE FORM  -->
@@ -256,7 +306,7 @@ Document preview:
 				<input type="button" value="New property" id="root_newProp"/>
 				<input type="button" value="New group" id="root_newGroup" />
 			</div>
-	
+
 			<div class="col-md-6">
 				Load existing configuration
 				<input type="button" value="Select...">
