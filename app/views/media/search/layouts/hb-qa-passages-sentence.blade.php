@@ -29,8 +29,8 @@
 			    	<th class="sorting" data-vbIdentifier="content_question_text" data-query-key="orderBy[content.question.text]" style='min-width:400px; width:auto;'>Question</th>
 			    	<th class="sorting" data-vbIdentifier="content_passage_id" data-query-key="orderBy[content.passage.id]">Passage ID</th>
 					<th class="sorting" data-vbIdentifier="content_passage_text" data-query-key="orderBy[content.passage.text]">Passage</th>  
-				    <th class="sorting" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;">Created At</th>
-				    <th class="sorting" data-vbIdentifier="created_by" data-query-key="orderBy[user_id]">Created By</th>
+				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;">Created At</th>
+				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_by" data-query-key="orderBy[user_id]">Created By</th>
 		        </tr>
 				<tr class="inputFilters">
 					<td data-vbIdentifier="checkbox">
