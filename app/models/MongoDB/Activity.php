@@ -4,6 +4,8 @@ namespace MongoDB;
 
 use Moloquent, Schema, Auth, Exception, User, Input;
 
+use \Counter as Counter;
+
 class Activity extends Moloquent {
 
 	protected $collection = 'activities';
@@ -41,7 +43,6 @@ class Activity extends Moloquent {
             if(is_null($activity->_id))
             {
                $activity->_id = static::generateIncrementedBaseURI($activity);
-               // Throw new Exception("Activity ID is null");
             }
 
             if (Auth::check())
@@ -54,22 +55,10 @@ class Activity extends Moloquent {
         });
     }
 
-    public static function generateIncrementedBaseURI($activity){
-        $lastMongoURIUsed = Activity::where('softwareAgent_id', $activity->softwareAgent_id)->get(array("_id"));
-        if(is_object($lastMongoURIUsed)) {
-            $lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
-                return $entity->_id;
-            }, SORT_NATURAL)->toArray();
-        }
-
-        if(!end($lastMongoURIUsed)){
-            $id = 0;
-        } else {
-            $lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
-            $id = end($lastMongoIDUsed) + 1;
-        }
-       
-        return 'activity' . '/' . $activity->softwareAgent_id . '/' . $id;
+    public static function generateIncrementedBaseURI($activity) {
+    	$seqName = 'activity' . '/' . $activity->softwareAgent_id;
+    	$id = Counter::getNextId($seqName);
+        return $seqName.'/'.$id;
     }
 
 	public static function createSchema() {

@@ -1,40 +1,65 @@
 <?php
 namespace SoftwareComponents;
 
+use \MongoDB\Activity as Activity;
+use \MongoDB\Entity as Entity;
 use \MongoDB\SoftwareComponent as SoftwareComponent;
 
-// TODO: DO NOT USE INPUT HERE -- pass in all required parameters !
-use \Input as Input;
+use \Validator as Validator;
+use \File as File;
 
 class FileUploader {
 	protected $softwareComponent;
 	
+	
+	protected $validationRules = [
+			'text' => ['file' => 'mimes:txt|max:900000'],
+			'images' => ['file' => 'mimes:png|jpg|max:2000'],
+			'videos' => ['file' => 'mimes:mp4|avi|max:2000']
+	];
+	
+	protected $extraAllowedMimeTypes = [
+			'text' => [
+					'text/plain',
+					'text/anytext',
+					'application/txt',
+					'application/octet-stream',
+					'text/x-c',
+					'text/x-asm',
+					'text/x-pascal',
+					'text/x-c++'
+			],
+			'images' => [
+					'text/plain' // To be added
+			],
+			'videos' => [
+					'text/plain' // To be added
+			]
+	];
+
 	public function __construct() {
 		$this->softwareComponent = SoftwareComponent::find('fileuploader');
 	}
 
-	public function store() {
-		// TODO: pass in parameters, don't do Input::all here!
+	/**
+	 * Store a new file to the database. Construct all entity information for such file.
+	 * 
+	 * @param unknown_type $fileFormat
+	 * @param unknown_type $domain
+	 * @param unknown_type $documentType
+	 * @param unknown_type $domainCreate
+	 * @param unknown_type $documentCreate
+	 * @param unknown_type $files
+	 */
+	public function store($fileFormat, $domain, $documentType, $domainCreate, $documentCreate, $files) {
+		$format = $this->getType($fileFormat);
+		$validatedFiles = $this->performValidation($files, $format);
 		
-		$fileHelper = new \FileHelper(Input::all());
-		
-		// TODO: Move this code to FileHelper ?? --> Ask Khalid
-		// $format = $fileHelper->getType();
-		// $domain = $fileHelper->getDomain();
-		// $documentType = $fileHelper->getDocumentType();
-			
-		$format = $fileHelper->getType();		// text
-		$domain = Input::get('domain_type');	// other ==> NewDomain
-		$documentType = Input::get('document_type');	//document_type_other==>newType
-		// END TODO
-		$validatedFiles = $fileHelper->performValidation();
-		
-		// TODO: Move this code to FileUpload ?? --> Ask Khalid
 		$newDomain = false;
 		$newDocType = false;
 		if($domain == 'domain_type_other') {
 			// Add new domain to DB
-			$domain = Input::get('domain_create');
+			$domain = $domainCreate;
 			$domain = str_replace(' ', '', $domain);
 			$domain = strtolower($domain);
 			$domain = 'domain_type_'.$domain;
@@ -43,41 +68,118 @@ class FileUploader {
 			
 		if($documentType == 'document_type_other') {
 			// Add new doc_type to DB
-			$documentType = Input::get('document_create');
+			$documentType = $documentCreate;
 			$newDocType;
 		}
 			
 		if($newDomain || $newDocType) {
-			$uploader = SoftwareAgent::find("fileuploader");
-		
-			// TODO: Move this code to new class UploadComponent extends SoftwareComponent ?
 			if($newDomain) {
-				$domainName = Input::get('domain_create');
-				$fileFormat = Input::get('file_format');
-				$upDomains = $uploader->domains;
+				// newDomain and new DocType
+				$domainName = $domainCreate;
+				$upDomains = $this->softwareComponent->domains;
 				$upDomains[$domain] = [
-				"name" => $domainName,
-				"file_formats" => [	$fileFormat ],
-				"document_types" => [ $documentType ]
+					"name" => $domainName,
+					"file_formats" => [	$fileFormat ],
+					"document_types" => [ $documentType ]
 				];
-				$uploader->domains = $upDomains;
+				$this->softwareComponent->domains = $upDomains;
 			} else if($newDocType) {
 				// Only docType is new -- domain already existed...
-				$docTypes = $uploader->domains[$domain]["document_types"];
+				$docTypes = $this->softwareComponent->domains[$domain]["document_types"];
 				array_push($docTypes, $documentType);
-				$uploader->domains[$domain]["document_types"] = $docTypes;
+				$this->softwareComponent->domains[$domain]["document_types"] = $docTypes;
 			}
-			$uploader->save();
-			// END TODO
+			$this->softwareComponent->save();
 		}
-		// END TODO
 		
 		$domain = str_replace("domain_type_", "", $domain);
 		$documentType = str_replace("document_type_", "", $documentType);
 		
-		$mongoDBFileUpload = new \FileUpload;
-		$status_upload = $mongoDBFileUpload->store($validatedFiles['passed'], $domain, $documentType);
+		$status = [];
 		
-		return $status_upload;
+		try {
+			$activity = new Activity;
+			$activity->softwareAgent_id = "fileuploader";
+			$activity->save();
+		} catch (Exception $e) {
+			// Something went wrong with creating the Activity
+			$activity->forceDelete();
+			$status['error'] = $e->getMessage();
+			return $status;
+		}
+		
+		$files = $validatedFiles['passed'];
+		foreach($files as $file){
+			$title = $file->getClientOriginalName();
+
+			try {
+				$entity = new Entity;
+				$entity->_id = $entity->_id;
+				$entity->title = strtolower($title);
+				$entity->domain = $domain;
+				$entity->format = "text";
+				$entity->documentType = $documentType;
+				$entity->content = File::get($file->getRealPath());
+				$entity->hash = md5(serialize([$entity->content]));
+				$entity->activity_id = $activity->_id;
+				$entity->save();
+		
+				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
+			} catch (Exception $e) {
+				// Something went wrong with creating the Entity
+				$activity->forceDelete();
+				$entity->forceDelete();
+				$status['error'][$title] = $e->getMessage();
+			}
+		}
+		
+		return $status;
+	}
+
+	/**
+	 * Validate that input format is of a know file format: file_format_text,
+	 * file_format_image or file_format_video.
+	 * 
+	 * @param $format   Text representation of the file format.
+	 * @throws Exception if file is of an unknown format type.
+	 */
+	private function getType($format){
+		switch ($format) {
+			case 'file_format_text':
+				return 'text';
+			case 'file_format_image':
+				return 'image';
+			case 'file_format_video':
+				return 'video';
+		}
+		throw new \Exception('Invalid "Type of File" selected');
+	}
+
+	/**
+	 * Perform Mime types and size validations.
+	 * 
+	 * @param $files  Files to be validated
+	 * @param $format Format of files to be validated (different rules apply to different formats)
+	 * @return An array with two lists: one of valid ('passed') and one of invalid ('failed') files.
+	 */
+	private function performValidation($files, $format) {
+		$validatedFiles = [];
+		foreach($files as $fileKey => $file){
+			$validator = Validator::make(array('file' => $file), $this->validationRules[$format]);
+
+			if($validator->passes()){
+				$validatedFiles['passed'][$fileKey] = $file;
+			} else {
+				// Sometimes the Validator fails because it does not recognize all MimeTypes
+				// To solve this we check the MimeTypes in the uploaded files against our own list of allowed MimeTypes (extraAllowedMimeTypes)
+				if(in_array($file->getMimeType(), $this->extraAllowedMimeTypes[$format])){
+					$validatedFiles['passed'][$fileKey] = $file;
+				} else {
+					$validatedFiles['failed'][$fileKey] = $file;
+				}
+			}
+		}
+
+		return $validatedFiles;
 	}
 }
