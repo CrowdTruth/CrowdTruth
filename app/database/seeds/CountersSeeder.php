@@ -4,14 +4,6 @@ use MongoDB\SoftwareComponent as SoftwareComponent;
 use MongoDB\Activity as Activity;
 use MongoDB\Entity as Entity;
 
-/**
- * Generate seeds for Counter collection
- * 
- * To run this seeder alone:
- *   php artisan db:seed --class=CountersSeeder
- * 
- * @author carlosm
- */
 class CountersSeeder extends Seeder {
 
 	/**
@@ -42,15 +34,6 @@ class CountersSeeder extends Seeder {
 		}
 	}
 	
-	/**
-	 * Generate a list of seed values for a given list of Entity/Activity item.
-	 * The _id of the given items is used to determine the existing counter names
-	 * and maximum values.
-	 * 
-	 * @param $items   A dictionary where the keys are the name of the sequences existing 
-	 *                 in the given list of items and the value is the maximum id 
-	 *                 for that sequence.
-	 */
 	private function getSeeds($items) {
 		$seeds = [];
 		foreach($items as $item) {
