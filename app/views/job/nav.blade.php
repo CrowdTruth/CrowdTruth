@@ -66,8 +66,13 @@ calculate();
 } }).on('changed.jstree', function (e, data) {
 	var parent =  data.instance.get_node(data.selected).parent;
 	var self = data.instance.get_node(data.selected).id;
+
 	if(!(data.instance.is_parent(data.selected))){
-		$("#question").attr('src', '/templates/' +parent + '/' + self + '.html');
+		if(data.instance.get_node(data.selected).original.exists == true) {
+			$('#templatetext').html('<div class="well">Here is a preview for this template. The variables between @{{...}} will be replaced with values from the batch.</div><iframe id ="question" src="/templates/' +parent + '/' + self + '.html" seamless sandbox="allow-scripts" width="890" height="600"></iframe>');
+		} else {
+			$('#templatetext').html('<div class="well">There is no preview available for this template</div>');
+		}
 		$("#template").val(parent + '/' + self);
 	}
     //data.instance.get_node(data.selected).text

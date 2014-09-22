@@ -6,6 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta name="description" content="">
 		<meta name="author" content="">
+		<link rel="shortcut icon" href="/favicon.ico" >
 		<title>CrowdTruth</title>
 		<!--<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>-->
 		{{ stylesheet_link_tag('bootstrap.min.css') }}

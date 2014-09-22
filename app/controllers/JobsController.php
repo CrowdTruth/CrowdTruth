@@ -517,23 +517,24 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		} 
 
 		$currenttemplate = Session::get('template');
-
+		
         if(empty($currenttemplate)){
-			if($batch->format=='text' && $batch->domain == "cultural")
-				$currenttemplate =  "text/HighlightEventConceptsInVideos/highlightEventConcepts";
-			else if ($batch->format=='text' && $batch->domain == "medical")
-				$currenttemplate = 'text/RelDir/relation_direction';
-			else if($batch->format=="video") 
-				$currenttemplate = 'video/SoundAndVision/videosegments';
-			else 
-				$currenttemplate = 'images/Rijksmuseum/flowers'; // TODO: should be cleaner
+			$templatetext = '<div class="well">Please select a template.</div>';
+		} else {
+			if(File::exists('templates/' . $currenttemplate . '.html')) {
+				$templatetext = '<div class="well">Here is a preview for this template. The variables between @{{...}} will be replaced with values from the batch.</div>
+								<iframe id ="question" src="/templates/' . $currenttemplate . '.html" seamless sandbox="allow-scripts" width="890" height="600"></iframe>';
+			} else {
+				$templatetext = '<div class="well">There is no preview available for this template.</div>';
+			}
 		}
 
 		$treejson = $this->makeDirTreeJSON($currenttemplate, $batch->format);
-
+		
 		return View::make('job.tabs.template')
 			->with('treejson', $treejson)
 			->with('currenttemplate', $currenttemplate)
+			->with('templatetext', $templatetext)
 			->with('format', $batch->format);
 	}
 
@@ -969,12 +970,17 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 					$filename = substr($fullfilename, 0, -3);
 
 				if (isset($filename) and !(in_array($filename, $donefilenames))) {
+					if(File::exists('templates/' . $format . '/' . $dirname . '/' . $filename . '.html')) {
+						$exists = true;
+					} else {
+						$exists = false;
+					}
 		   			if($pretty) $displayname = ucfirst(str_replace('_', ' ', $filename));
 		   			else $displayname = $filename;
 		   			if("$format/$dirname/$filename" == $currenttemplate) {
-		   				$r[] = array('id' => $filename, 'parent' => "$format/$dirname", 'text' => $displayname, 'state' => array('selected' => 'true')); }
+		   				$r[] = array('id' => $filename, 'exists' => $exists, 'parent' => "$format/$dirname", 'text' => $displayname, 'state' => array('selected' => 'true')); }
 		   			else {
-		   				$r[] = array('id' => $filename, 'parent' => "$format/$dirname", 'text' => $displayname); }
+		   				$r[] = array('id' => $filename, 'exists' => $exists, 'parent' => "$format/$dirname", 'text' => $displayname); }
 		   			
 		   			$donefilenames[] = $filename;
 		   		}	

@@ -18,18 +18,12 @@
 
 
 						<div class="well">
-							<p>On this page, you can select a template for the job you want the workers to perform. In the tree, the parent is the job's <i>type</i> and the child is the specific template in this category.
-							</p>
-							<p>
-							 The preview you see below is how the job will look on Mechanical Turk. The variables between @{{curly_braces}} will be replaced with values from the batch or, in case of the @{{instructions}} variables, from the job settings. 
-							</p>
-
+							<p>Please choose one of the {{$format}} templates for the job you want the workers to perform, or add a new template.</p>
 						</div>
-			  		<p>Displaying templates with format <b>{{$format}}</b>, based on the selected batch.</p>
 						<div id="jstree"></div>
 						<br>
 						<button class="btn btn-default" data-toggle="modal" data-target="#myModal">
-						  Upload...
+						  Add a new template
 						</button>
 						<br>
 						<fieldset>	
@@ -37,21 +31,9 @@
 							 .jstree li > a > .jstree-icon {  display:none !important; } 
 							</style>
 							<br><br>
-
-							<iframe id ="question" src="/templates/{{ $currenttemplate }}.html" seamless sandbox="allow-scripts" width="890" height="600" 
-							@if($format=='image')
-								style="display:none"
-							@endif
-							@if($format=='video')
-								style="display:none"
-							@endif
-							></iframe>
-							@if($format!='text')
-							No preview available.
-							@endif
-							@if($format=='image')
-							No preview available.
-							@endif
+							<div id='templatetext'>
+								{{ $templatetext }}
+							</div>
 						</fieldset>
 						<br>
 						<br>
