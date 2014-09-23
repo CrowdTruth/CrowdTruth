@@ -35,7 +35,7 @@
 								<div class='cw_pagination pull-right'>
 								</div>
 							</div>
-								{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postFormPart', 'template'), 'method' => 'POST'))}}	
+								{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postFormPart', 'submit'), 'method' => 'POST'))}}	
 								<div class="tab-content documentTypesTabs">
 									<div class="tab-pane active ctable-responsive" id="all_tab">
 										<table class="table table-striped">
