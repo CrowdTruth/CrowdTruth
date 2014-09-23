@@ -46,7 +46,7 @@
 					  </li>
 					 <li class="media" style='padding:10px;'>
 						<i class="fa fa-fw fa-file-code-o pull-left" style='font-size:40px;'></i>				  	
-					    <a href="/info" class="noastyle">
+					    <a href="/templates/examples" class="noastyle">
 					    <div class="media-body">
 					      <h4 class="media-heading">Example Templates</h4>
 					      Example templates and code snippets
