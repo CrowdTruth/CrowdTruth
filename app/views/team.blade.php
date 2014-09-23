@@ -1,4 +1,4 @@
-@extends('layouts.default')
+@extends('layouts.default_new')
 @section('content')
 			<!-- START /index --> 			
 			<div class="col-xs-8 col-md-offset-2">

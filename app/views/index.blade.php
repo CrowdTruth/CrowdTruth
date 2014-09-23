@@ -1,4 +1,4 @@
-@extends('layouts.default')
+@extends('layouts.default_new')
 
 @section('content')
 			<!-- START /index --> 			
@@ -44,14 +44,32 @@
 					    </div>
 					</a>
 					  </li>
+					 <li class="media" style='padding:10px;'>
+						<i class="fa fa-fw fa-file-code-o pull-left" style='font-size:40px;'></i>				  	
+					    <a href="/info" class="noastyle">
+					    <div class="media-body">
+					      <h4 class="media-heading">Example Templates</h4>
+					      Example templates and code snippets
+					    </div>
+					</a>
+					  </li>
 					  <li class="media" style='padding:10px;'>
 						<i class="fa fa-fw fa-flask pull-left" style='font-size:40px;'></i>				  	
 					    <a href="/papers" class="noastyle">
-					    <div class="media-body">
-					      <h4 class="media-heading">Papers</h4>
-					      Scientific papers on CrowdTruth (harnessing disagreement)
-					    </div>
-					</a>
+							<div class="media-body">
+							  <h4 class="media-heading">Papers</h4>
+							  Scientific papers on CrowdTruth (harnessing disagreement)
+							</div>
+						</a>
+					  </li>
+					  <li class="media" style='padding:10px;'>
+						<i class="fa fa-fw fa-slideshare pull-left" style='font-size:40px;'></i>				  	
+					    <a href="/presentations" class="noastyle">
+							<div class="media-body">
+							  <h4 class="media-heading">Presentations</h4>
+							  Scientific presentations on CrowdTruth
+							</div>
+						</a>
 					  </li>
 					<li class="media" style='padding:10px;'>
 						<i class="fa fa-fw fa-puzzle-piece pull-left" style='font-size:40px;'></i>				  	

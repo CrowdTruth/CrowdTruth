@@ -110,6 +110,7 @@ Route::get('/urlsurls', function()
 Route::get('home', 'PagesController@index');
 Route::get('info', 'PagesController@info');
 Route::get('papers', 'PagesController@papers');
+Route::get('presentations', 'PagesController@presentations');
 Route::get('team', 'PagesController@team');
 Route::get('api/examples', 'PagesController@apiExamples');
 Route::get('templates/examples', 'PagesController@templatesExamples');

@@ -647,3 +647,26 @@ table .list-content-small {
 table .double-title {
 	padding: 4px 8px 4px 8px !important;
 }
+
+.presentations {
+	list-style:none; padding:0px; clear:both;
+}
+
+.presentations li {
+	float:left;
+	margin:16px;
+	width:312px;
+	background-color: #f5f5f5;
+	border: 1px solid #ccc;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
+
+.presentations div {
+	padding:8px;
+}
+
+.presentation-title {
+	margin-left:20px;
+}
