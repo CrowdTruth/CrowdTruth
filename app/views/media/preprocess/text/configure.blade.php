@@ -3,52 +3,33 @@
 @section('head')
 <script>
 	function previewTable() {
-		alert("Preview table...");
 		formUrl = $("#docPreviewForm").attr("action");
 		formData = $("#docPreviewForm").serialize();
 //		$.ajax({
 //			type: "POST",
 //			url: formUrl,
 //			data: formData,
-//			success: buildDocPreview(data),
+//			success: function(data) {
+//				$("#contentPreview").html(data);
+//			}
 //		});
-		buildDocPreview('Sample data');
+		var data = {};
+		data.d = [{FirstName: 'Beaner', Age: '20'}, 
+		          {FirstName: 'Cheese', Age: '98'},
+		          {FirstName: 'Martin', Age: '45'}];
+		displayDocumentPreview(data);
 	}
 
-	function buildDocPreview(data) {
-		alert("Build doc preview");
-		previewTable = $("#docPreviewTable");
-	}
+	function displayDocumentPreview(data) {
+		alert('Build table');
+	    var table = $("#docPreviewTable");
+	    table.find("tr").remove();
 
-{{--
-	Generate the DIV element which holds an individual document property. 
-	This div element contains the name of the property,  the function to be applied 
-	and the column such function should be applied to.
---}}
-	function getPropertyDiv(parentGroupId, propName){
-	    propId = parentGroupId + '_' + propName;
-	    divStr = '' +
-	        '		<div class="panel panel-default" id="' + propId + '_div">' +
-	        '		<div class="panel-body">' +
-	        '			Name: ' + propName +
-	        '            <input type="hidden" name="' + propId + '_propName" id="' + propId + '_propName" value="' + propId + '" class="propertyName"/>' +
-	        '            <input type="hidden" name="' + propId + '_propParent" id="' + propId + '_propParent" value="' + parentGroupId + '"/>' +	        
-	        '            <input type="button" name="' + propId + '_close" id="' + propId + '_close" value="x"/><br/>' +
-	        '			Value: <br>' +
-	        '			Function: <br>' +
-	        '           <select name="' + propId + '_function" id="' + propId + '_function">' +
-{{-- Load the available functions --}}
-	        @foreach ($functions as $function)
-			'           <option value="{{ $function->getName() }}"> {{ $function->getName()	 }} </option>' +
-			@endforeach
-	        '           </select> ' +
+	    alert('Table is clear');
 
-	        '			<div id="' + propId + '_params">' +
-	        '			</div>' +
-
-	        '		</div>' +
-	        '		</div>';
-	    return divStr;
+	    $.each(data, function(idx, elem){
+	        table.append("<tr><td>"+elem+"</td><td>"+idx+"</td></tr>");
+	    });
 	}
 
 {{--
@@ -58,10 +39,10 @@
 		colsSelect = '' +
         	'<select name="' + selectorName + '" id="' + selectorName + '">' +
 {{-- Load the available columns --}}
-        	{{--        	@foreach ($columns as $colIdx => $colName)
-        	'  <option value="{{ $colIdx }}"> {{ $colName }} </option>' +
-        	@endforeach
-        	'</select>'; --}}
+{{--        	@foreach ($columns as $colIdx => $colName) --}}
+{{--        	'  <option value="{{ $colIdx }}"> {{ $colName }} </option>' + --}}
+{{--        	@endforeach  --}}
+        	'</select>'; 
         return colsSelect;
 	}
 
@@ -107,7 +88,6 @@
 	        '		<div class="panel panel-default" id="' + groupId + '_div">' +
 	        '		<div class="panel-body">' +
 	        '			' + groupName + 
-
 	        '           <input type="hidden" name="' + groupId + '_groupName" id="' + groupId + '_groupName" value="' + groupId + '" class="groupName"/>' +
 	        '           <input type="hidden" name="' + groupId + '_groupParent" id="' + groupId + '_groupParent" value="' + parentGroupId + '"/>' +
 	        '           <input type="button" name="' + groupId + '_close" id="' + groupId + '_close" value="x"/><br/>' +
@@ -236,7 +216,7 @@
 </div>
 
 <div class="panel panel-default">
-	Document preview:
+	Original document:
 	<div style="height: 200px; overflow: auto;" class="panel-body">
 		<pre>{{ $docPreview }}</pre>
 	</div>
@@ -259,7 +239,8 @@
 		{{ Form::text('separator', '',[ 'class' => 'col-md-3' ]) }}
 		</div>
 		<div class="row">
-			{{ Form::button('Preview columns', [ 'onClick' => 'previewTable();' ]) }}
+			{{ Form::label('', '', [ 'class' => 'col-md-3' ]) }}
+			{{ Form::button('Preview document', [ 'onClick' => 'previewTable();', 'class' => 'col-md-3' ]) }}
 		</div>
 		{{ Form::close() }}
 	</div>

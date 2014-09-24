@@ -42,23 +42,30 @@ class TextController extends BaseController {
 			if($document = $this->repository->find($URI)) {
 				// Use only first Nlines of file for information
 				$nLines = 5;
-				$dataTable = $this->getDocumentData($document['content'], $nLines);
+				$newLine = "\n";
+				
+/*				$dataTable = $this->getDocumentData($document['content'], $nLines);
 				
 				// Number the file columns
 				$columns   = [];
 				for($i=0; $i<count($dataTable[0]); $i = $i + 1) {
 					$columns[$i] = 'Col '.($i+1);
 				}
-				
+				*/
 				// Load which functions are available for display
 				$functions = $this->getAvailableFunctions();
 
+				$docPreview = $document['content'];
+				$docPreview = explode($newLine, $docPreview);
+				$docPreview = array_slice($docPreview, 0, $nLines);
+				$docPreview = implode($newLine, $docPreview);
+				
 				return View::make('media.preprocess.text.configure')
+						->with('URI', $URI)
 						->with('docTitle', $document['title'])
-						->with('columns', $columns)
-						->with('dataTable', $dataTable)
+						->with('docPreview', $docPreview)
 						->with('functions', $functions)
-						->with('URI', $URI);
+						;
 			} else {
 				return Redirect::back()->with('flashError', 'Document does not exist: ' . $URI);
 			}
