@@ -30,7 +30,7 @@
 {{ javascript_include_tag('jquery.tablesorter.min.js') }}
 {{ javascript_include_tag('jquery.tablesorter.widgets.min.js') }}
 {{ javascript_include_tag('generalsearch_manifest') }}
-
+<link rel="stylesheet" type="text/css" href="/custom_assets/bootstrap-select.min.css">
 <script>
 $(document).ready(function(){
 	$("#processtabs > li").click(function(event){

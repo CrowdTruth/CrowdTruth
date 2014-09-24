@@ -292,7 +292,7 @@ class JobsController2 extends BaseController {
 			$batch = unserialize(Session::get('batch'));
 			if(empty($batch)){
 				Session::flash('flashNotice', 'Please select a batch first.');
-				return Redirect::to("jobs/batch");
+				return Redirect::to("jobs2/batch");
 			}	
 		}
 		try {
@@ -320,7 +320,7 @@ class JobsController2 extends BaseController {
 			$batch = unserialize(Session::get('batch'));
 			if(empty($batch)){
 				Session::flash('flashNotice', 'Please select a batch first.');
-				return Redirect::to("jobs/batch");
+				return Redirect::to("jobs2/batch");
 			}	
 		}
 
