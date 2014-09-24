@@ -63,7 +63,7 @@
 										
 									?>
 
-									{{ Form::select('title',  $aTitles, $phprest, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
+									{{ Form::select('title',  $aTitles, $phprest, array('class' => 'col-xs-4 control-label', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
 								</div><div class="input-group col-xs-3">
 									{{ Form::text('titleOwn', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
@@ -74,7 +74,7 @@
 							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own', 
 									array('class' => 'col-xs-5 control-label')) }}
 								<div class="input-group col-xs-3">
-									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
+									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'col-xs-4 control-label', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
 									</div><div class="input-group col-xs-3">
 									{{ Form::text('templateTypeOwn', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
