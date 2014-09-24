@@ -60,7 +60,18 @@
 													<td style='min-width:40px;'>
 													</td>
 													<td>
-														<input class="input-sm form-control" type='text' data-query-key="match[format]" data-query-operator="like" />
+														<?php 
+														$format = Session::get('format');
+														if (empty($format)){
+
+															echo '<input class="input-sm form-control" type="text" data-query-key="match[format]" data-query-operator="like" />';
+														}
+														else
+														{
+
+															echo '<input class="input-sm form-control" type="text" data-query-key="match[format]" data-query-value="'.$format.'" />';
+														}
+														?>
 													</td>
 													<td>
 														<input class="input-sm form-control" type='text' data-query-key="match[domain]" data-query-operator="like" />
