@@ -1,6 +1,7 @@
 #
 /app/lib/getAPIS/keys.py
 /app/config/database.php
+/app/config/packages/crowdtruth/
 /bootstrap/compiled.php
 /vendor
 .DS_Store
