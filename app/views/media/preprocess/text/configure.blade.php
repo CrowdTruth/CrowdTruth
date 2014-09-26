@@ -5,39 +5,31 @@
 	function previewTable() {
 		formUrl = $("#docPreviewForm").attr("action");
 		formData = $("#docPreviewForm").serialize();
-//		$.ajax({
-//			type: "POST",
-//			url: formUrl,
-//			data: formData,
-//			success: function(data) {
-//				$("#contentPreview").html(data);
-//			}
-//		});
-		var data = {}
-		data.headers = ['Col1', 'Col2'];
-		data.content = [[ 'Beaner', '20'], 
-		            [ 'Cheese', '98'],
-		            [ 'Martin', '45']];
-		displayDocumentPreview(data);
+
+        console.log('formUrl: ' + formUrl);
+        console.log('formData: ' + formData);
+
+		$.ajax({
+			type: "POST",
+			url: formUrl,
+			data: formData,
+			success: function(data) {
+				displayDocumentPreview(data);
+			}
+		});
 	}
 
 	function displayDocumentPreview(data) {
-		alert('Build table');
 	    var table = $("#docPreviewTable");
 	    table.find("tr").remove();
-	    alert('Table is clear');
-
 
 	    if(data.headers.length>0) {
-		    console.log('Do headers!');
 		    rowStr = "<tr>";
 		    for(col in data.headers) {
 			    rowStr += "<th>"+data.headers[col]+"</th>";
 			}
 		    rowStr += "</tr>";
 		    table.append(rowStr);
-		    console.log('Headers done!' + rowStr);
-		    
 		}
 	    
 	    for(row in data.content) {
@@ -175,7 +167,7 @@
 	}
 
 	function doPreview() {
-		$('#preview').val('true');
+		$('#postAction').val('processPreview');
 		formUrl = $("#theForm").attr("action");
 		formData = $("#theForm").serialize();
 		$.ajax({
@@ -244,17 +236,18 @@
 	<div class="form-group panel-body">
 		{{ Form::open(array('action' => 'preprocess\TextController@postConfigure', 'name' => 'docPreviewForm', 'id' => 'docPreviewForm' )) }}
 		{{ Form::hidden('URI', $URI) }}
+		{{ Form::hidden('postAction', 'tableView') }}
 		<div class="row">
-			{{ Form::label('ignoreHeader', 'Ignore headers:', [ 'class' => 'col-md-3 control-label' ]) }}
-			{{ Form::checkbox('ignoreHeader', 'value', false, [ 'class' => 'col-md-3' ]) }}
+			{{ Form::label('useHeaders', 'First row as headers:', [ 'class' => 'col-md-3 control-label' ]) }}
+			{{ Form::checkbox('useHeaders', 'tick', false, [ 'class' => 'col-md-3' ]) }}
 		</div>
 		<div class="row">
 			{{ Form::label('delimiter', 'Field delimiter:', [ 'class' => 'col-md-3 control-label' ]) }}
-			{{ Form::text('delimiter', '',[ 'class' => 'col-md-3' ]) }}
+			{{ Form::text('delimiter', '"',[ 'class' => 'col-md-3' ]) }}
 		</div>
 		<div class="row">
 		{{ Form::label('separator', 'Field separator:', [ 'class' => 'col-md-3 control-label' ]) }}
-		{{ Form::text('separator', '',[ 'class' => 'col-md-3' ]) }}
+		{{ Form::text('separator', ',',[ 'class' => 'col-md-3' ]) }}
 		</div>
 		<div class="row">
 			{{ Form::label('', '', [ 'class' => 'col-md-3' ]) }}
@@ -291,7 +284,7 @@ Document preview:
 <!-- BEGIN DYNAMIC STRUCTURE FORM  -->
 {{ Form::open(array('action' => 'preprocess\TextController@postConfigure', 'name' => 'theForm', 'id' => 'theForm' )) }}
 {{ Form::hidden('URI', $URI) }}
-{{ Form::hidden('preview', '', [ 'id' => 'preview' ]) }}
+{{ Form::hidden('postAction', 'preview', [ 'id' => 'postAction' ]) }}
 
 <div class="panel panel-default">
 	<div class="panel-body">
@@ -323,7 +316,7 @@ Document preview:
 	<input type="button" onclick="doPreview();" value="Preview" />
 	</div>
 	<div class="col-md-6">
-	<input type="submit" onClick="$('#preview').val('false');" value="Process ">
+	<input type="submit" onClick="$('#postAction').val('process');" value="Process ">
 	</div>
 </div>
 
