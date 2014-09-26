@@ -28,13 +28,16 @@
 					<div class="panel-heading">
 						<h4>Select Batch</h4>
 					</div>
-					<div class="panel-body">					
-							<div>
+					<div class="panel-body">
+						<div class='row'>
+							<div class='col-xs-12'>
 								<div class='searchStats pull-left'>
 								</div>
 								<div class='cw_pagination pull-right'>
 								</div>
 							</div>
+						</div>
+						<div class='row'>
 								{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postFormPart', 'submit'), 'method' => 'POST'))}}	
 								<div class="tab-content documentTypesTabs">
 									<div class="tab-pane active ctable-responsive" id="all_tab">
@@ -102,8 +105,11 @@
 										Showing @{{ count.from }} to @{{ count.to }} of @{{ count.total}} entries
 									</script>
 								</div>
-								{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}
+								<div class='col-xs-12'>
+									{{ Form::submit('Next', array('class' => 'btn btn-primary pull-right')); }}
+								</div>
 								{{ Form::close()}}	
+						</div>
 					</div>
 				</div>
 			</div>

@@ -1,6 +1,7 @@
 #
 /app/lib/getAPIS/keys.py
 /app/config/database.php
+/app/config/config.php
 /bootstrap/compiled.php
 /vendor
 .DS_Store
@@ -20,6 +21,7 @@ composer.lock
 .settings/
 Installation.md
 public/js/
+public/images/team/
 public/test1.html
 public/test1.php
 public/test2.html

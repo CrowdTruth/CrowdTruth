@@ -27,6 +27,7 @@
 								<li><a href='{{ url("papers") }}'><i class='fa fa-fw fa-flask'></i> Papers</a></li>
 								<li><a href='{{ url("presentations") }}'><i class='fa fa-fw fa-slideshare'></i> Presentations</a></li>
 								<li><a href='{{ url("team") }}'><i class='fa fa-fw fa-puzzle-piece'></i> Team</a></li>
+								<li><a href='{{ url("contact") }}'><i class='fa fa-fw fa-envelope-o'></i> Contact</a></li>
 								<li class="divider"></li>
 								<li><a href="https://www.vu.nl/en/index.asp" target="_blank"><i class='fa fa-fw fa-university'></i> VU University</a></li>
 								<li><a href="https://www.ibm.com" target="_blank"><i class='fa fa-fw fa-university'></i> IBM</a></li>

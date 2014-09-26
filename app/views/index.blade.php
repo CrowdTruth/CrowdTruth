@@ -3,13 +3,12 @@
 @section('content')
 			<!-- START /index --> 			
 			<div class="col-xs-8 col-md-offset-2">
-				<div class='maincolumn CW_box_style'>
-@include('layouts.flashdata')						
+				<div class='maincolumn CW_box_style'>		
 
 					<div class="page-header text-center" style="margin:10px;">
 						<h2>Hi{{ (Auth::check() ? ' ' . Auth::user()->firstname : '') }}! <small> Welcome to the CrowdTruth framework </small> </h2>
 					</div>
-
+					@include('layouts.flashdata')
 					<ul class="media-list">
 					  <li class="media" style='padding:10px;'>
 						<i class="fa fa-fw fa-files-o pull-left" style='font-size:40px;'></i>
@@ -79,7 +78,16 @@
 					      Description of team members and their roles and affiliation
 					    </div>
 					</a>
-					  </li>					  
+					  </li>		
+					<li class="media" style='padding:10px;'>
+						<i class="fa fa-fw fa-envelope-o pull-left" style='font-size:40px;'></i>				  	
+					    <a href="/contact" class="noastyle">
+					    <div class="media-body">
+					      <h4 class="media-heading">Contact</h4>
+					      Interested in joining the team or just have a question? Send us a message
+					    </div>
+					</a>
+					  </li>							  
 					</ul>	
 				</div>
 
