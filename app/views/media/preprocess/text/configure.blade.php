@@ -13,10 +13,11 @@
 //				$("#contentPreview").html(data);
 //			}
 //		});
-		var data = {};
-		data.d = [{FirstName: 'Beaner', Age: '20'}, 
-		          {FirstName: 'Cheese', Age: '98'},
-		          {FirstName: 'Martin', Age: '45'}];
+		var data = {}
+		data.headers = ['Col1', 'Col2'];
+		data.content = [[ 'Beaner', '20'], 
+		            [ 'Cheese', '98'],
+		            [ 'Martin', '45']];
 		displayDocumentPreview(data);
 	}
 
@@ -24,12 +25,29 @@
 		alert('Build table');
 	    var table = $("#docPreviewTable");
 	    table.find("tr").remove();
-
 	    alert('Table is clear');
 
-	    $.each(data, function(idx, elem){
-	        table.append("<tr><td>"+elem+"</td><td>"+idx+"</td></tr>");
-	    });
+
+	    if(data.headers.length>0) {
+		    console.log('Do headers!');
+		    rowStr = "<tr>";
+		    for(col in data.headers) {
+			    rowStr += "<th>"+data.headers[col]+"</th>";
+			}
+		    rowStr += "</tr>";
+		    table.append(rowStr);
+		    console.log('Headers done!' + rowStr);
+		    
+		}
+	    
+	    for(row in data.content) {
+		    rowStr = "<tr>";
+		    for(col in data.content[row]) {
+			    rowStr += "<td>"+data.content[row][col]+"</td>";
+			}
+		    rowStr += "</tr>";
+		    table.append(rowStr);
+	    }
 	}
 
 {{--
