@@ -110,7 +110,10 @@ Route::get('/urlsurls', function()
 Route::get('home', 'PagesController@index');
 Route::get('info', 'PagesController@info');
 Route::get('papers', 'PagesController@papers');
+Route::get('presentations', 'PagesController@presentations');
 Route::get('team', 'PagesController@team');
+Route::get('contact', 'ContactController@contact');
+Route::post('contact_request', 'ContactController@contactForm');
 Route::get('api/examples', 'PagesController@apiExamples');
 Route::get('templates/examples', 'PagesController@templatesExamples');
 Route::controller('api/v1', '\Api\v1\apiController');
@@ -123,4 +126,3 @@ Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index
 Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));
 
 Route::controller('user', 'UserController');
-

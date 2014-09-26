@@ -31,7 +31,7 @@
 												</div>
 										</td>
 										<td>{{ $entity->created_at }}</td>
-										<td>{{ link_to('#', $entity->wasAttributedToUserAgent->firstname . ' ' . $entity->wasAttributedToUserAgent->lastname) }}</td>										
+										<td>{{ $entity->wasAttributedToUserAgent->firstname . ' ' . $entity->wasAttributedToUserAgent->lastname }}</td>										
 										<td>
 <a class='btn btn-success' href='{{ URL::to('media/preprocess/relex/preview?URI=' . $entity['_id']) }}'><i class="fa fa-search fa-fw"></i>Preview</a>
 <a class='btn btn-success' href='{{ URL::to('media/preprocess/relex/process?URI=' . $entity['_id']) }}'><i class="fa fa-gear fa-fw"></i>Process</a>

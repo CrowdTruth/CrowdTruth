@@ -1,11 +1,11 @@
-@extends('layouts.default')
+@extends('layouts.default_new')
 @section('content')
 			<!-- START /index --> 			
 			<div class="col-xs-8 col-md-offset-2">
 				<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')	
 	<div class="page-header text-center" style="margin:10px;">
-						<h2><i class="fa fa-angle-left" style="float:left; color:#999; display:inline-block; cursor:pointer" onclick="javascript:window.history.back()"></i>Papers <small>by the CrowdWatson team</small></h2>
+						<h2><i class="fa fa-angle-left" style="float:left; color:#999; display:inline-block; cursor:pointer" onclick="javascript:window.history.back()"></i>Papers <small>by the CrowdTruth team</small></h2>
 					</div>
 					<div class="row">
 						<div class="col-xs-10 col-xs-offset-1"  style="padding-bottom:40px; padding-top:20px">
@@ -15,6 +15,8 @@
 						</ul>
 						<b>Conference articles</b>
 						<ul class="paperlist">	
+							<li>Oana Inel, Khalid Khamkham, Tatiana Cristea, Arne Rutjes, Jelle van der Ploeg, Lora Aroyo, Robert-Jan Sips, Anca Dumitrache and Lukasz Romaszko: <a href="http://loraaroyo.files.wordpress.com/2014/05/iswc2014-rdb-submitted.pdf"><strong>Crowd Truth: Machine-Human Computation Framework for Harnessing Disagreement in Gathering Annotated Data</strong></a>. <a href="http://semanticweb.org/">ISWC-RBDS 2014</a>.</li>
+
 							<li>Lora Aroyo, Chris Welty: <a href="http://www.researchgate.net/publication/236463327_Crowd_Truth_Harnessing_disagreement_in_crowdsourcing_a_relation_extraction_gold_standard/file/60b7d517f69c26c5d7.pdf"><strong>Crowd Truth: Harnessing disagreement in crowdsourcing a relation extraction gold standard</strong></a>. <a href="http://www.websci13.org/">ACM WebSci 2013</a>.</li>
 							
 							<li>Lora Aroyo, Chris Welty: <strong><a href="http://scholar.google.nl/citations?view_op=view_citation&hl=nl&user=FXGgl5IAAAAJ&sortby=pubdate&citation_for_view=FXGgl5IAAAAJ:ubry08Y2EpUC">Measuring crowd truth for medical relation extraction</a></strong>. AAAI Fall Symposium on Semantics for Big Data (2013)</li>
@@ -40,16 +42,7 @@
 						<li>Lora Aroyo, Chris Welty: <strong><a href="http://scholar.google.nl/citations?view_op=view_citation&hl=nl&user=FXGgl5IAAAAJ&sortby=pubdate&citation_for_view=FXGgl5IAAAAJ:F1b5ZUV5XREC">Harnessing disagreement in crowdsourcing a relation extraction gold standard</a></strong> Technical report RC25371 (WAT1304-058), IBM Research 4 (2013)</li>
 	
 						</ul>
-						
-						<b>Presentations</b>
-						<ul class="paperlist">	
-						
-						<li>Benjamin Timmermans: <strong><a href="http://www.slideshare.net/CrowdTruth/thesis-presentation-b-timmermans">Crowdsourcing Disagreement on Open-Domain Questions</a></strong> July 18th 2014</li>
-						<li>Rens van Honschooten: <strong><a href="http://www.slideshare.net/CrowdTruth/presentation-rens-2014-june-18">Gamification of crowdsourcing tasks: What motivates a medical expert?</a></strong> July 18th 2014</li>
-	
-	
-						</ul>
-						
+				
 						<b>Popular media</b>
 						<ul class="paperlist">	
 						<li>IBM Inspire: <a href="https://drive.google.com/file/d/0BzrxNZeLZ4YeUlJaVU5xNF83N2M/edit?usp=sharing">IBM en Vrije Universiteit slaan handen in elkaar</a> (Dutch)</li>

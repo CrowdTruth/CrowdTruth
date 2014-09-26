@@ -32,7 +32,7 @@
 					<th class="sorting whiteSpaceNormal" data-vbIdentifier="content_passage1" data-query-key="orderBy[content.examples.passage1]">Passage 1</th>
 				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="content_passage2" data-query-key="orderBy[content.examples.passage2]">Passage 2</th>     
 				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;">Created At</th>
-				    <th class="sorting" data-vbIdentifier="created_by" data-query-key="orderBy[user_id]">Created By</th>
+				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_by" data-query-key="orderBy[user_id]">Created By</th>
 		        </tr>
 				<tr class="inputFilters">
 					<td data-vbIdentifier="checkbox">

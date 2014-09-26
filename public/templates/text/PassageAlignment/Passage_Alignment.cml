@@ -1,0 +1,85 @@
+<label class="legend">Match terms in the Question to terms in the Passage</label>
+<div class='alignment'>
+  <fieldset>
+    <legend>QUESTION:</legend>
+    <div class='passage' id='passage1'>{{question}}</div>
+  </fieldset>
+  <hr />
+  <fieldset>
+    <legend>PASSAGE:</legend>
+    <div class='passage' id='passage2'>{{passage}}</div>
+  </fieldset>
+  
+  <br />
+  
+  <cml:hidden name='rel0a' /><cml:hidden name='rel0b' />
+  <cml:hidden name='rel1a' /><cml:hidden name='rel1b' />
+  <cml:hidden name='rel2a' /><cml:hidden name='rel2b' />
+  <cml:hidden name='rel3a' /><cml:hidden name='rel3b' />
+  <cml:hidden name='rel4a' /><cml:hidden name='rel4b' />
+  <cml:hidden name='rel5a' /><cml:hidden name='rel5b' />
+  <cml:hidden name='rel6a' /><cml:hidden name='rel6b' />
+  <cml:hidden name='rel7a' /><cml:hidden name='rel7b' />
+  <cml:hidden name='rel8a' /><cml:hidden name='rel8b' />
+  <cml:hidden name='rel9a' /><cml:hidden name='rel9b' />
+  <cml:hidden name='rel10a' /><cml:hidden name='rel10b' />
+  <cml:hidden name='rel11a' /><cml:hidden name='rel11b' />
+  <cml:hidden name='rel12a' /><cml:hidden name='rel12b' />
+  <cml:hidden name='rel13a' /><cml:hidden name='rel13b' />
+  <cml:hidden name='rel14a' /><cml:hidden name='rel14b' />
+  <cml:hidden name='rel15a' /><cml:hidden name='rel15b' />
+  <cml:hidden name='rel16a' /><cml:hidden name='rel16b' />
+  <cml:hidden name='rel17a' /><cml:hidden name='rel17b' />
+  <cml:hidden name='rel18a' /><cml:hidden name='rel18b' />
+  <cml:hidden name='rel19a' /><cml:hidden name='rel19b' />
+  <cml:hidden name='rel20a' /><cml:hidden name='rel20b' />
+  <cml:hidden name='rel21a' /><cml:hidden name='rel21b' />
+  <cml:hidden name='rel22a' /><cml:hidden name='rel22b' />
+  <cml:hidden name='rel23a' /><cml:hidden name='rel23b' />
+  <cml:hidden name='rel24a' /><cml:hidden name='rel24b' />
+  <cml:hidden name='rel25a' /><cml:hidden name='rel25b' />
+  <cml:hidden name='rel26a' /><cml:hidden name='rel26b' />
+  <cml:hidden name='rel27a' /><cml:hidden name='rel27b' />
+  <cml:hidden name='rel28a' /><cml:hidden name='rel28b' />
+  <cml:hidden name='rel29a' /><cml:hidden name='rel29b' />
+  
+  
+  
+  <cml:group class='relations' label='What is the type of the matched terms?' instructions='In the question or passage, click on a WORD or drag across a RANGE OF WORDS that you want to select. Click on the current selection to undo your selection. An added match can be removed by clicking the [x]. You can select up to 30 pairs.'>
+    
+<cml:select name='rel0' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel1' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel2' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel3' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel4' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel5' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel6' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel7' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel8' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel9' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel10' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel11' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel12' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel13' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel14' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel15' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel16' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel17' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel18' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel19' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel20' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel21' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel22' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel23' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel24' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel25' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel26' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel27' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel28' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+<cml:select name='rel29' class='relation hidden' validates="required"><cml:option value='ide' label="is identical to"/><cml:option value='syn' label="is a synonym of" /><cml:option value='gen' label="generalizes" /><cml:option value='par' label="paraphrases"/><cml:option value='neg' label="negates"/><cml:option value='int' label="overlaps with"/></cml:select>
+    
+  </cml:group>
+  <br />
+  <cml:textarea class='notPossible' name="notpossible" label="Why is it NOT possible to match more terms?" validates="required minLength:10" instructions="Note that you should IGNORE SPELLING MISTAKES in the question and passage."/>
+
+</div>

@@ -224,6 +224,7 @@ class JobsController2 extends BaseController {
 
 	public function getClearTask(){
 		Session::forget('jobconf');
+		Session::forget('format');
 		Session::forget('origjobconf');
 		Session::forget('template');
 		Session::forget('questiontemplateid');
@@ -247,6 +248,7 @@ class JobsController2 extends BaseController {
 			//dd($jc);
 			Session::put('jobconf', serialize($jc));
 			Session::put('batch', serialize($job->batch));
+			Session::put('format', $job->batch->format);
 			//dd( $jc->content['type']);
 			if(isset($jc->content['type']))
                            Session::put('templatetype', $jc->content['type']);
@@ -292,7 +294,7 @@ class JobsController2 extends BaseController {
 			$batch = unserialize(Session::get('batch'));
 			if(empty($batch)){
 				Session::flash('flashNotice', 'Please select a batch first.');
-				return Redirect::to("jobs/batch");
+				return Redirect::to("jobs2/batch");
 			}	
 		}
 		try {
@@ -320,7 +322,7 @@ class JobsController2 extends BaseController {
 			$batch = unserialize(Session::get('batch'));
 			if(empty($batch)){
 				Session::flash('flashNotice', 'Please select a batch first.');
-				return Redirect::to("jobs/batch");
+				return Redirect::to("jobs2/batch");
 			}	
 		}
 

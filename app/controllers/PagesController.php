@@ -20,6 +20,11 @@ class PagesController extends BaseController {
 	{
 		return View::make('papers');
 	}
+	
+	public function presentations()
+	{
+		return View::make('presentations');
+	}
 
 	public function team()
 	{

@@ -1,6 +1,7 @@
 #
 /app/lib/getAPIS/keys.py
 /app/config/database.php
+/app/config/config.php
 /app/config/packages/crowdtruth/
 /bootstrap/compiled.php
 /vendor
@@ -20,6 +21,5 @@ composer.lock
 .project
 .settings/
 Installation.md
-public/test1.html
-public/test1.php
-public/test2.html
+public/js/
+public/images/team/
