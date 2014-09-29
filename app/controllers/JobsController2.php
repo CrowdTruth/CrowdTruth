@@ -119,6 +119,13 @@ class JobsController2 extends BaseController {
 		return Redirect::to("jobs");
 	}
 
+	public function getDelete($id){
+		$platform = App::make('cf2');
+		//dd($id);
+		$platform->deleteJob($id);
+		return Redirect::to("jobs");
+	}
+
 
 	public function postSubmitFinal($ordersandbox = 'order'){
 		$batch = unserialize(Session::get('batch'));

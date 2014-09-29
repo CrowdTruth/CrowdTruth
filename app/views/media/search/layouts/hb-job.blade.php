@@ -140,6 +140,7 @@
 							<div class="btn-group actionbar">
 								<a class="btn btn-default btn-sm" href="/jobs2/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o"></i></a>
 								<a class="btn btn-default btn-sm" href="/jobs2/refresh/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Refresh the job settings"><i class="fa fa-refresh"></i></a>
+
 								@{{#if this.url}}
 								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link"></i></a>
 								@{{/if}}
@@ -154,6 +155,8 @@
 								    <a class="btn btn-default btn-sm"  id="resume@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'resume', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Resume job"><i class="fa fa-play"></i></a>
 								    <a class="btn btn-default btn-sm"  id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})"data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop"></i></a>	
 								@{{/is}}
+
+								<a class="btn btn-danger btn-sm" href="/jobs2/delete/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job"><i class="fa fa-remove"></i></a>
 							</div>
 	
 			            </td>
