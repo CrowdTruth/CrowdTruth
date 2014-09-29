@@ -123,6 +123,7 @@ class JobsController2 extends BaseController {
 		$platform = App::make('cf2');
 		//dd($id);
 		$platform->deleteJob($id);
+		// \MongoDB\Temp::drop();
 		return Redirect::to("jobs");
 	}
 
@@ -149,6 +150,7 @@ class JobsController2 extends BaseController {
 	    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['type'] . " | " . $batch->format . " ]] ";
 	    $jcco['platform'] = Array("cf");
 	    $jcco['description'] =  Input::get('description');
+	    $jcco['name'] =  Input::get('name');
 	    ///////// PUT
 	    $jc->content = $jcco;
 

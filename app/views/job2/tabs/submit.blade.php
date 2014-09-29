@@ -9,13 +9,13 @@
 			<div>
 				<div class="panel panel-default">		
 					<div class="panel-heading">
-						<h4>Preview task and submit</h4>
+						<h4>Provide job and template details</h4>
 					</div>
 					<div class="panel-body">
 						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
 							<fieldset>
 							{{ Form::label('title', 'Select a title from the set of predefined ones or give your own', 
-									array('class' => 'col-xs-5 control-label')) }}
+									array('class' => 'col-xs-6 control-label')) }}
 								<div class="input-group col-xs-3">
 
 
@@ -68,11 +68,16 @@
 									{{ Form::text('titleOwn', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
 							
-								
+								<br/><br/>
+							{{ Form::label('description', 'Describe the job using a few word or keywords', 
+									array('class' => 'col-xs-6 control-label')) }}
+								<div class="input-group col-xs-5">
+									{{ Form::text('description', null, array('class' => 'form-control col-xs-2')) }}
+								</div>	
 							
-							<br/><br/>
+							<br/><hr><br/>
 							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own', 
-									array('class' => 'col-xs-5 control-label')) }}
+									array('class' => 'col-xs-6 control-label')) }}
 								<div class="input-group col-xs-3">
 									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
 									</div><div class="input-group col-xs-3">
@@ -81,11 +86,12 @@
 						
 							<br/>
 
-							<br/><br/>
-							{{ Form::label('description', 'Describe the job using a few word or keywords', 
-									array('class' => 'col-xs-5 control-label')) }}
+						
+	<br/><br/>
+							{{ Form::label('description', 'Name the new template using 1 to 3 words (describe differences between the original template-type)', 
+									array('class' => 'col-xs-6 control-label')) }}
 								<div class="input-group col-xs-5">
-									{{ Form::text('description', null, array('class' => 'form-control col-xs-2')) }}
+									{{ Form::text('name', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
 						
 							
@@ -93,7 +99,7 @@
 							</fieldset>
 	<br/><br/>
 
-						{{ Form::submit('Create Job', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }}
+						{{ Form::submit('Create Job', array('class' => 'btn btn-lg btn-primary pull-right', 'style' => 'margin-right:20px')); }}
 						{{ Form::close()}}
 
 
