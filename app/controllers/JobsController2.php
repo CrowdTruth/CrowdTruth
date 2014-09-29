@@ -147,10 +147,13 @@ class JobsController2 extends BaseController {
 			 		$jcco['title'] =  Input::get('title');
 	    if ($jcco['title'] == Null or $jcco['type'] == Null) 
 	    		return Redirect::back()->with('flashError', "form not filled in.");
-	    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['type'] . " | " . $batch->format . " ]] ";
+	    
 	    $jcco['platform'] = Array("cf");
 	    $jcco['description'] =  Input::get('description');
 	    $jcco['name'] =  Input::get('name');
+	    $jcco['type_id'] =  (string) 99;
+	    $jcco['TIDN'] = $jcco['type'] . " | " . $jcco['type_id'] . " | " . $jcco['name'];
+	    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['TIDN'] . " | " . $batch->format . " ]] ";
 	    ///////// PUT
 	    $jc->content = $jcco;
 

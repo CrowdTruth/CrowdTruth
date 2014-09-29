@@ -39,7 +39,7 @@
 									    	}
 										}
 
-										$_aTypes = \MongoDB\Entity::where("documentType", "job")->where("format", $_format)->distinct('type')->get();
+										$_aTypes = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct('content.TIDN')->get();
 									    $_aTypes = array_flatten($_aTypes->toArray());
 									    foreach($_aTypes as $key=>$value){
 									    	if(!isset($aTypes[$value]))
