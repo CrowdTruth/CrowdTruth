@@ -123,7 +123,7 @@ class JobsController2 extends BaseController {
 		$platform = App::make('cf2');
 		//dd($id);
 		$platform->deleteJob($id);
-		// \MongoDB\Temp::drop();
+		\MongoDB\Temp::truncate();
 		return Redirect::to("jobs");
 	}
 
@@ -150,10 +150,10 @@ class JobsController2 extends BaseController {
 	    
 	    $jcco['platform'] = Array("cf");
 	    $jcco['description'] =  Input::get('description');
-	    $jcco['name'] =  Input::get('name');
+	    $jcco['variation'] =  Input::get('variation');
 	    $jcco['type_id'] =  (string) 99;
-	    $jcco['TIDN'] = $jcco['type'] . " | " . $jcco['type_id'] . " | " . $jcco['name'];
-	    $jcco['title'] = $jcco['title'] . "  [[ " . $jcco['TIDN'] . " | " . $batch->format . " ]] ";
+	    $jcco['TVID'] = $jcco['type'] . " | " . $jcco['type_id'] . " | " . $jcco['variation'];
+	    $jcco['title'] = $jcco['title'] . " [[ " . $jcco['TVID'] . " | " . $batch->format . " ]] ";
 	    ///////// PUT
 	    $jc->content = $jcco;
 
