@@ -127,6 +127,22 @@ class JobsController2 extends BaseController {
 		return Redirect::to("jobs");
 	}
 
+	public function getDeletect($id){
+		$platform = App::make('cf2');
+		//dd($id);
+		$platform->deleteJobCT($id);
+		\MongoDB\Temp::truncate();
+		return Redirect::to("jobs");
+	}
+
+	public function getDeletepl($id){
+		$platform = App::make('cf2');
+		//dd($id);
+		$platform->deleteJobPL($id);
+		\MongoDB\Temp::truncate();
+		return Redirect::to("jobs");
+	}
+
 
 	public function postSubmitFinal($ordersandbox = 'order'){
 		$batch = unserialize(Session::get('batch'));

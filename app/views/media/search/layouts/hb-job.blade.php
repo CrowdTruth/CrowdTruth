@@ -157,8 +157,8 @@
 								@{{/is}}
 								</div>
 								<div class="btn-group actionbar">
-								<a class="btn btn-danger btn-sm" href="/jobs2/deleteCT/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job only on CT"><i class="fa fa-minus-square"></i></a>
-								<a class="btn btn-danger btn-sm" href="/jobs2/deletePL/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job only on Platform"><i class="fa fa-minus-square-o"></i></a>
+								<a class="btn btn-danger btn-sm" href="/jobs2/deletect/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job only on CT"><i class="fa fa-minus-square"></i></a>
+								<a class="btn btn-danger btn-sm" href="/jobs2/deletepl/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job only on Platform"><i class="fa fa-minus-square-o"></i></a>
 								<a class="btn btn-danger btn-sm" href="/jobs2/delete/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job everywhere (CT and Platform)"><i class="fa fa-remove"></i></a>
 							</div>
 	
