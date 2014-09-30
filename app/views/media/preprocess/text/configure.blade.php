@@ -6,9 +6,6 @@
 		formUrl = $("#docPreviewForm").attr("action");
 		formData = $("#docPreviewForm").serialize();
 
-        console.log('formUrl: ' + formUrl);
-        console.log('formData: ' + formData);
-
 		$.ajax({
 			type: "POST",
 			url: formUrl,
@@ -20,9 +17,12 @@
 	}
 
 	function displayDocumentPreview(data) {
+		console.log('Data: ');
+		console.log(data);
+
 	    var table = $("#docPreviewTable");
 	    table.find("tr").remove();
-
+	    
 	    if(data.headers.length>0) {
 		    rowStr = "<tr>";
 		    for(col in data.headers) {
@@ -31,7 +31,10 @@
 		    rowStr += "</tr>";
 		    table.append(rowStr);
 		}
-	    
+		document.columns = data.headers;
+		console.log('Data - columns: ');
+		console.log(document.columns);
+
 	    for(row in data.content) {
 		    rowStr = "<tr>";
 		    for(col in data.content[row]) {
@@ -43,16 +46,44 @@
 	}
 
 {{--
+	Generate the DIV element which holds an individual document property. 
+	This div element contains the name of the property,  the function to be applied 
+	and the column such function should be applied to.
+--}}
+	function getPropertyDiv(parentGroupId, propName){
+	    propId = parentGroupId + '_' + propName;
+	    divStr = '' +
+	        '		<div class="panel panel-default" id="' + propId + '_div">' +
+	        '		<div class="panel-body">' +
+	        '			Name: ' + propName +
+	        '            <input type="hidden" name="' + propId + '_propName" id="' + propId + '_propName" value="' + propId + '" class="propertyName"/>' +
+	        '            <input type="hidden" name="' + propId + '_propParent" id="' + propId + '_propParent" value="' + parentGroupId + '"/>' +	        
+	        '            <input type="button" name="' + propId + '_close" id="' + propId + '_close" value="x"/><br/>' +
+	        '			Value: <br>' +
+	        '			Function: <br>' +
+	        '           <select name="' + propId + '_function" id="' + propId + '_function">' +
+{{-- Load the available functions --}}
+	        @foreach ($functions as $function)
+			'           <option value="{{ $function->getName() }}"> {{ $function->getName()	 }} </option>' + 
+			@endforeach
+	        '           </select> ' +
+	        '			<div id="' + propId + '_params">' +
+	        '			</div>' +
+	        '		</div>' +
+	        '		</div>';
+	    return divStr;
+	}
+
+{{--
 	Create a new SELECT element listing all columns available. 
 --}}
 	function getColumnsSelector(selectorName) {
-		colsSelect = '' +
-        	'<select name="' + selectorName + '" id="' + selectorName + '">' +
+		colsSelect = '<select name="' + selectorName + '" id="' + selectorName + '">';
 {{-- Load the available columns --}}
-{{--        	@foreach ($columns as $colIdx => $colName) --}}
-{{--        	'  <option value="{{ $colIdx }}"> {{ $colName }} </option>' + --}}
-{{--        	@endforeach  --}}
-        	'</select>'; 
+    	for( col in document.columns) {
+    		colsSelect += '  <option value="' +col + '">' + document.columns[col] + '</option>';
+    	}
+    	colsSelect += '</select>'; 
         return colsSelect;
 	}
 

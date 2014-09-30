@@ -38,7 +38,7 @@ class TextController extends BaseController {
 		if($separator) return $separator;
 		return $fallback;
 	}
-	
+
 	public function getConfigure() {
 		if($URI = Input::get('URI')) {
 			if($document = $this->repository->find($URI)) {
@@ -88,9 +88,6 @@ class TextController extends BaseController {
 		$URI = Input::get('URI');
 		$document = $this->repository->find($URI);
 		
-		dd(Input::all());
-		
-		
 		$delimiter = Input::get('delimiter');
 		$separator = Input::get('separator');
 		$ignoreHeader = !Input::get('useHeaders');
@@ -105,14 +102,12 @@ class TextController extends BaseController {
 		if($postAction=='tableView') {
 			return $this->doPreviewTable($document, $delimiter, $separator, $ignoreHeader);
 		} else {
-			dd(':)');
 			// Prepare processor
 			$inputs = Input::all();		// Same as $_POST
 			$rootProcessor = new RootProcessor($inputs, $this::getAvailableFunctions());
 			
 			// if preview
 			if($postAction=='processPreview') {
-				dd(':)');
 				return $this->doPreview($rootProcessor, $document, $delimiter, $separator, $ignoreHeader);
 			} else {	// $postAction=='process'
 				return $this->doPreprocess($rootProcessor, $document, $delimiter, $separator, $ignoreHeader);
@@ -140,17 +135,16 @@ class TextController extends BaseController {
 
 		return $data;
 	}
-	
-	private function doPreprocess($rootProcessor, $document) {
+
+	private function doPreprocess($rootProcessor, $document, $delimiter, $separator, $ignoreHeader) {
 		$nLines = -1;	// Process all lines
-		$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $nLines);
+		$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $ignoreHeader, $nLines);
 		
 		$entities = [];
 		foreach ($dataTable as $line) {
 			$lineEntity = $rootProcessor->call($line);
 			array_push($entities, $lineEntity);
 		}
-		
 		$status = $this->processor->store($document, $entities);
 		
 		// Redirect here ? // TODO: where should this redirect?
@@ -159,7 +153,6 @@ class TextController extends BaseController {
 	}
 
 	private function doPreview($rootProcessor, $document, $delimiter, $separator, $ignoreHeader) {
-		dd(':)');
 		// Use only first Nlines of file for information
 		$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $ignoreHeader, $this->nLines);
 		
@@ -171,7 +164,7 @@ class TextController extends BaseController {
 
 		return json_encode($entities, JSON_PRETTY_PRINT);
 	}
-	
+
 	private function getAvailableFunctions() {
 		// Each function extends AbstractTextPreprocessor.
 		// see AbstractTextPreprocessor for more details
@@ -347,7 +340,7 @@ class GroupProcessor {
 		foreach($this->props as $prop) {
 			$prop->call($data, $entityContent, $fullEntity);
 		}
-		
+
 		foreach($this->subGroups as $subGrp) {
 			$subGrp->call($data, $entityContent, $fullEntity);
 		}
