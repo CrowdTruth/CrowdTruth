@@ -78,8 +78,8 @@ class JobsController2 extends BaseController {
 			Session::put('jobconf', serialize($jc));
 			Session::put('batch', serialize($job->batch));
 			Session::put('format', $job->batch->format);
-			if(isset($jc->content['type']))
-                           Session::put('templatetype', $jc->content['type']);
+			if(isset($jc->content['TVID']))
+                           Session::put('templatetype', $jc->content['TVID']);
 			Session::put('title', $jc->content['title']);
 			return Redirect::to("jobs2/batchd");
 		} else {
@@ -155,21 +155,50 @@ class JobsController2 extends BaseController {
 			$jcco = $jc->content;
 		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 )
 			 		$jcco['type'] = Input::get('templateTypeOwn');
-			 	else
+			 	else{
+
 			 		$jcco['type'] =  Input::get('templateType');
+			 		$jcbase = \MongoDB\Entity::where("documentType", "jobconf")->where("content.TVID", $jcco['type'])->first();
+			 		if(!isset($jcbase)){
+			 			Session::flash('flashError', $e->getMessage());
+						return Redirect::to("jobs2/submit");
+					}
+			 		$jcbaseco = $jcbase->content;
+			 		if(!isset($jcbaseco['cml'])){
+			 			Session::flash('flashError', "No template in the original job");
+						return Redirect::to("jobs2/submit");
+					}
+					
+			 		$jcco['cml'] = $jcbaseco['cml'];
+
+			 		if(isset($jcbaseco['css']))
+			 			$jcco['css'] = $jcbaseco['css'];
+			 		if(isset($jcbaseco['instructions']))
+			 			$jcco['instructions'] = $jcbaseco['instructions'];
+			 		if(isset($jcbaseco['js']))
+			 			$jcco['js'] = $jcbaseco['js'];
+
+
+				}
+
 	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 0 )
 			 		$jcco['title'] = Input::get('titleOwn');
 			 	else
 			 		$jcco['title'] =  Input::get('title');
+
 	    if ($jcco['title'] == Null or $jcco['type'] == Null) 
 	    		return Redirect::back()->with('flashError', "form not filled in.");
 	    
+		
+
 	    $jcco['platform'] = Array("cf");
 	    $jcco['description'] =  Input::get('description');
 	    $jcco['variation'] =  Input::get('variation');
-	    $jcco['type_id'] =  (string) 99;
-	    $jcco['TVID'] = $jcco['type'] . " | " . $jcco['type_id'] . " | " . $jcco['variation'];
-	    $jcco['title'] = $jcco['title'] . " [[ " . $jcco['TVID'] . " | " . $batch->format . " ]] ";
+	   // $jcco['type_id'] =  (string) 99;
+	    $jcco['TVID'] = $jcco['type'] ;
+	    if(isset($jcco['variation']) and strlen($jcco['variation'])>0) 
+	    	$jcco['TVID']  = $jcco['TVID']  . "|" . $jcco['variation']; //. $jcco['type_id'] .;
+	    $jcco['title'] = $jcco['title'] . " [[" . $jcco['TVID'] . " (" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ") ]]";
 	    ///////// PUT
 	    $jc->content = $jcco;
 

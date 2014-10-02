@@ -39,7 +39,7 @@
 									    	}
 										}
 
-										$_aTypes = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct('content.TIDN')->get();
+										$_aTypes = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct('content.TVID')->get();
 									    $_aTypes = array_flatten($_aTypes->toArray());
 									    foreach($_aTypes as $key=>$value){
 									    	if(!isset($aTypes[$value]))
@@ -88,10 +88,10 @@
 
 						
 	<br/><br/>
-							{{ Form::label('description', 'Name the new template using 1 to 3 words (describe differences between the original template-type)', 
+							{{ Form::label('description', 'If you will CHANGE this template describe the VARIATION using 1 to 2 words (describe differences)', 
 									array('class' => 'col-xs-6 control-label')) }}
 								<div class="input-group col-xs-5">
-									{{ Form::text('name', null, array('class' => 'form-control col-xs-2')) }}
+									{{ Form::text('variation', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
 						
 							
