@@ -11,18 +11,20 @@ class JobsController2 extends BaseController {
 	public function getBatch() {
 		$this->getClearTask();
 		$batches = Batch::where('documentType', 'batch')->get(); 
-		$batch = unserialize(Session::get('batch'));
-		if(!$batch) $selectedbatchid = ''; 
-		else $selectedbatchid = $batch->_id;
-		return View::make('job2.tabs.batch')->with('batches', $batches)->with('selectedbatchid', $selectedbatchid);
+		//$batch = unserialize(Session::get('batch'));
+		//if(!$batch) $selectedbatchid = ''; 
+		//else $selectedbatchid = $batch->_id;
+		return View::make('job2.tabs.batch')->with('batches', $batches)->with('selectedbatchid', '');
 	}
 
 	public function getBatchd() {
 		$batches = Batch::where('documentType', 'batch')->get(); 
-		$batch = unserialize(Session::get('batch'));
-		if(!$batch) $selectedbatchid = ''; 
-		else $selectedbatchid = $batch->_id;
-		return View::make('job2.tabs.batch')->with('batches', $batches)->with('selectedbatchid', $selectedbatchid);
+		//$batch = unserialize(Session::get('batch'));
+		//dd($batch);
+		//if(!isset($batch)) $selectedbatchid = ''; 
+		//else $selectedbatchid = $batch->_id;
+		//dd($selectedbatchid);
+		return View::make('job2.tabs.batch')->with('batches', $batches)->with('selectedbatchid', '');
 	}
 
 
@@ -76,7 +78,7 @@ class JobsController2 extends BaseController {
 			unset($jc->activity_id);
 			$jc->parents= array($job->JobConfiguration->_id);
 			Session::put('jobconf', serialize($jc));
-			Session::put('batch', serialize($job->batch));
+			//Session::put('batch', serialize($job->batch));
 			Session::put('format', $job->batch->format);
 			if(isset($jc->content['TVID']))
                            Session::put('templatetype', $jc->content['TVID']);
@@ -97,6 +99,7 @@ class JobsController2 extends BaseController {
 			// TODO: CSRF
 			$batch = Batch::find(Input::get('batch'));
 			Session::put('batch', serialize($batch));
+
 		} else {
 			$batch = unserialize(Session::get('batch'));
 			if(empty($batch)){
@@ -105,7 +108,7 @@ class JobsController2 extends BaseController {
 			}	
 		}
 		try {
-			return Redirect::to("jobs2/$next");
+			return Redirect::to("jobs2/submit");
 		} catch (Exception $e) {
 			Session::flash('flashError', $e->getMessage()); 
 			return Redirect::to("jobs2");
@@ -154,32 +157,30 @@ class JobsController2 extends BaseController {
 		else
 			$jcco = $jc->content;
 		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 )
-			 		$jcco['type'] = Input::get('templateTypeOwn');
-			 	else{
+			 	$jcco['type'] = Input::get('templateTypeOwn');
+	 	else{
 
-			 		$jcco['type'] =  Input::get('templateType');
-			 		$jcbase = \MongoDB\Entity::where("documentType", "jobconf")->where("content.TVID", $jcco['type'])->first();
-			 		if(!isset($jcbase)){
-			 			Session::flash('flashError', $e->getMessage());
-						return Redirect::to("jobs2/submit");
-					}
-			 		$jcbaseco = $jcbase->content;
-			 		if(!isset($jcbaseco['cml'])){
-			 			Session::flash('flashError', "No template in the original job");
-						return Redirect::to("jobs2/submit");
-					}
-					
-			 		$jcco['cml'] = $jcbaseco['cml'];
+	 		$jcco['type'] =  Input::get('templateType');
+	 		$jcbase = \MongoDB\Entity::where("documentType", "jobconf")->where("content.TVID", $jcco['type'])->first();
+	 		if(!isset($jcbase)){
+	 			Session::flash('flashError', $e->getMessage());
+				return Redirect::to("jobs2/submit");
+			}
+	 		$jcbaseco = $jcbase->content;
+	 		if(!isset($jcbaseco['cml'])){
+	 			Session::flash('flashError', "No template in the original job");
+				return Redirect::to("jobs2/submit");
+			}
+			
+	 		$jcco['cml'] = $jcbaseco['cml'];
 
-			 		if(isset($jcbaseco['css']))
-			 			$jcco['css'] = $jcbaseco['css'];
-			 		if(isset($jcbaseco['instructions']))
-			 			$jcco['instructions'] = $jcbaseco['instructions'];
-			 		if(isset($jcbaseco['js']))
-			 			$jcco['js'] = $jcbaseco['js'];
-
-
-				}
+	 		if(isset($jcbaseco['css']))
+	 			$jcco['css'] = $jcbaseco['css'];
+	 		if(isset($jcbaseco['instructions']))
+	 			$jcco['instructions'] = $jcbaseco['instructions'];
+	 		if(isset($jcbaseco['js']))
+	 			$jcco['js'] = $jcbaseco['js'];
+		}
 
 	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 0 )
 			 		$jcco['title'] = Input::get('titleOwn');
@@ -194,10 +195,12 @@ class JobsController2 extends BaseController {
 	    $jcco['platform'] = Array("cf");
 	    $jcco['description'] =  Input::get('description');
 	    $jcco['variation'] =  Input::get('variation');
-	   // $jcco['type_id'] =  (string) 99;
+	    $jcco['type_id'] =  0;
 	    $jcco['TVID'] = $jcco['type'] ;
 	    if(isset($jcco['variation']) and strlen($jcco['variation'])>0) 
-	    	$jcco['TVID']  = $jcco['TVID']  . "|" . $jcco['variation']; //. $jcco['type_id'] .;
+	    	$jcco['TVID']  = $jcco['TVID']  . "|" . $jcco['variation'];
+	    if($jcco['type_id'] > 0) 
+	    	$jcco['TVID'] = $jcco['TVID'] . "|_" . (string)$jcco['type_id'];
 	    $jcco['title'] = $jcco['title'] . " [[" . $jcco['TVID'] . " (" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ") ]]";
 	    ///////// PUT
 	    $jc->content = $jcco;
@@ -235,6 +238,8 @@ class JobsController2 extends BaseController {
 			 	$j->publish(($ordersandbox == 'sandbox' ? true : false));
 			 	$jobs[] = $j;
 			$successmessage = "Created job with jobConf :-)"; 
+			$platform = App::make('cf2');
+			$platform->refreshJob($j->_id);
 			Session::flash('flashSuccess', $successmessage);
 			return Redirect::to("jobs");
 		} catch (Exception $e) {
@@ -246,6 +251,8 @@ class JobsController2 extends BaseController {
 			// 	$j->forceDelete();
 			// }		
 			//delete activity
+			if(isset($j)) $j->forceDelete();
+			if(isset($jc)) $jc->forceDelete();
 			if($activity) $activity->forceDelete();
 			throw $e; //for debugging
 			Session::flash('flashError', $e->getMessage());
