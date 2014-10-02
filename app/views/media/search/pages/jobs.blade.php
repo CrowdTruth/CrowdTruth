@@ -409,6 +409,16 @@
 <script>
 $('document').ready(function(){
 
+  // highlight own username
+  Swag.addHelper('highlightSelf', function(user, self, options) {
+    
+	if(user == '{{Auth::user()->_id}}') {
+		user = '<span class="highlightSelf">' + user + '</span>';
+	}
+	
+	return new Handlebars.SafeString(user);
+  });
+
 Swag.registerHelpers();
 
 $('.selectpicker').selectpicker();

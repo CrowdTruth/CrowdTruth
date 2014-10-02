@@ -9,13 +9,26 @@
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
+						<li role="presentation" class="dropdown-header">General</li>
 						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="status"></i>Status and actions</a></li>						
-						<li><a href="#" data-vb="show" data-vbSelector="job_id"></i>ID</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="job_title"></i>Title</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="job_id"></i>Job</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="job_type"></i>Type</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="created_at"></i>Created</a></li>	
+						<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
+						<li role="presentation" class="divider"></li>
+						<li role="presentation" class="dropdown-header">Content</li>
+						<li><a href="#" data-vb="show" data-vbSelector="job_title"></i>Title</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="job_description"></i>Description</a></li>
+						<li role="presentation" class="divider"></li>
+						<li role="presentation" class="dropdown-header">Status</li>
+						<li><a href="#" data-vb="show" data-vbSelector="completion"></i>Completion</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="running_time"></i>Run Time</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="total_job_cost"></i>Cost</a></li>
+						<li role="presentation" class="divider"></li>
+						<li role="presentation" class="dropdown-header">Statistics</li>
 						<li><a href="#" data-vb="hide" data-vbSelector="job_size"></i>Units</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="clarity"></i>Clarity</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="units_per_task"></i>units/mTask</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="req_ann_per_unit"></i>Workers/mTask Requested</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="total_ann"></i>Requested Judgements</a></li>
@@ -24,10 +37,6 @@
 						<li><a href="#" data-vb="hide" data-vbSelector="total_workers"></i>Workers</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="total_spam_workers"></i>Spammers</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="cost_per_task"></i>Cost/mTask</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="total_job_cost"></i>Cost</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="completion"></i>Completion</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="running_time"></i>Run Time</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="created_at"></i>Created</a></li>					
 					</ul>
 				</div>	
 			</div>
@@ -44,7 +53,8 @@
 		            <th class="sorting" data-vbIdentifier="job_type" data-query-key="orderBy[type]" data-toggle="tooltip" data-placement="top" title="Task type for the Job">Type</th>
 		            <th class="sorting" data-vbIdentifier="job_description" data-query-key="orderBy[hasConfiguration.content.description]" data-toggle="tooltip" data-placement="top" title="Descripton">Description</th>
 		            <th class="sorting" data-vbIdentifier="job_size" data-query-key="orderBy[unitsCount]" data-toggle="tooltip" data-placement="top" title="The number of units in the job - <br /> set by the job definition">Units</th>
-		            <th class="sorting" data-vbIdentifier="units_per_task" data-query-key="orderBy[hasConfiguration.content.unitsPerTask]" data-toggle="tooltip" data-placement="top" title="Number of media units (e.g. sentences, images) to be presented in each micro-task - <br /> set by the job definition">units/mTask</th>
+		            <th class="sorting" data-vbIdentifier="clarity" data-query-key="orderBy[avg_clarity]" data-toggle="tooltip" data-placement="top" title="Clarity of the results">Clarity</th>     
+					<th class="sorting" data-vbIdentifier="units_per_task" data-query-key="orderBy[hasConfiguration.content.unitsPerTask]" data-toggle="tooltip" data-placement="top" title="Number of media units (e.g. sentences, images) to be presented in each micro-task - <br /> set by the job definition">units/mTask</th>
 		            <th class="sorting" data-vbIdentifier="req_ann_per_unit" data-query-key="orderBy[hasConfiguration.content.workerunitsPerUnit]" data-toggle="tooltip" data-placement="top" title="Number of workers requested per micro-task - <br /> set by the job definition">Workers/mTask Requested</th>
 		            <th class="sorting" data-vbIdentifier="total_ann" data-query-key="orderBy[expectedWorkerunitsCount]" data-toggle="tooltip" data-placement="top" title="Total number of judgements requested for the job - <br /> [# units] * [Workers/mTask Requested]">Requested Judgements</th>
 				    <th class="sorting" data-vbIdentifier="current_no_ann" data-query-key="orderBy[workerunitsCount]" data-toggle="tooltip" data-placement="top" title="Number of judgements gathered so far - <br /> [# mTasks Complete Actual] * [units/mTask]">Judgements</th>
@@ -55,7 +65,8 @@
 				    <th class="sorting" data-vbIdentifier="total_job_cost" data-query-key="orderBy[projectedCost]" data-toggle="tooltip" data-placement="top" title="Amount paid so far - <br /> [# mTasks Complete Actual] * [Cost/mTask]">Cost</th>
 				    <th class="sorting" data-vbIdentifier="completion" data-query-key="orderBy[completion]" data-toggle="tooltip" data-placement="top" title="Percent of job complete so far">Completion</th>
 				    <th class="sorting" data-vbIdentifier="running_time" data-query-key="orderBy[runningTimeInSeconds]" data-toggle="tooltip" data-placement="top" title="Amount of time the job has taken so far">Run Time</th>
-		            <th class="sorting sorting_desc whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the job was created in the framework">Created</th>			    
+		            <th class="sorting sorting_desc whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the job was created in the framework">Created</th>
+				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_by" data-query-key="orderBy[user_id]">Created By</th>
 		        </tr>
 			<tr class="inputFilters">
 				<td data-vbIdentifier="checkbox">
@@ -77,6 +88,10 @@
 				<td data-vbIdentifier="job_size">
 					<input class="input-sm form-control" type='text' data-query-key="match[unitsCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 					<input class="input-sm form-control" type='text' data-query-key="match[unitsCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+				</td>
+				<td data-vbIdentifier="clarity">
+					<input class="input-sm form-control" type='text' data-query-key="match[content.avg_clarity]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[content.avg_clarity]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
 				<td data-vbIdentifier="units_per_task">
 					<input class="input-sm form-control" type='text' data-query-key="match[hasConfiguration.content.unitsPerTask]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
@@ -128,6 +143,9 @@
 					    <input type="text" class="input-sm form-control" name="end" data-query-key="match[created_at]" data-query-operator="=<" style="width:49% !important; float:right;" placeholder="End Date" />
 					</div>
 				</td>
+				<td data-vbIdentifier="created_by">
+					<input class="input-sm form-control" type='text' data-query-key="match[user_id]" data-query-operator="like" />	
+				</td>
 			</tr>											        
 	        </thead>
 	        <tbody class='results'>											
@@ -169,6 +187,7 @@
 			            <td data-vbIdentifier="job_type">@{{ this.type }}</td>
 			            <td data-vbIdentifier="job_description">@{{ this.hasConfiguration.content.description }}</td>
 			            <td data-vbIdentifier="job_size">@{{ this.unitsCount }}</td>
+			            <td data-vbIdentifier="clarity">@{{ this.avg_clarity }}</td>
 			            <td data-vbIdentifier="units_per_task">@{{ this.hasConfiguration.content.unitsPerTask }}</td>
 			            <td data-vbIdentifier="req_ann_per_unit">@{{ this.hasConfiguration.content.workerunitsPerUnit }}</td>
 			            <td data-vbIdentifier="total_ann">@{{ this.expectedWorkerunitsCount }}</td>
@@ -178,9 +197,10 @@
 					    <td data-vbIdentifier="total_spam_workers">@{{ this.metrics.spammers.count }}</td>
 					    <td data-vbIdentifier="cost_per_task">@{{ toPrice this.hasConfiguration.content.reward }}</td>
 					    <td data-vbIdentifier="total_job_cost">@{{ toPrice this.projectedCost }}</td>
-					    <td data-vbIdentifier="completion">@{{ createPercentage this.completion }}%</td>
+					    <td data-vbIdentifier="completion" class="status-@{{this.status}}">@{{ createPercentage this.completion }}%</td>
 					    <td data-vbIdentifier="running_time">@{{ duration this.runningTimeInSeconds }}</td>
-			            <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>				    
+			            <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
+					    <td data-vbIdentifier="created_by">@{{ highlightSelf this.user_id }}</td>
 			        </tr>
 			        @{{/each}}
 				</script>
