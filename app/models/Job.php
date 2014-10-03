@@ -125,7 +125,7 @@ class Job extends Entity {
 
     public function cancel(){
     	$this->getPlatform()->cancelJob($this->platformJobId);
-    	$this->status = 'cancelled';
+    	$this->status = 'canceled';
     	$this->update();
     }
 
