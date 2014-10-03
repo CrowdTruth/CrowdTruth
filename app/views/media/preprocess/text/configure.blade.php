@@ -2,6 +2,49 @@
 
 @section('head')
 <script>
+	function previewTable() {
+		formUrl = $("#docPreviewForm").attr("action");
+		formData = $("#docPreviewForm").serialize();
+
+		$.ajax({
+			type: "POST",
+			url: formUrl,
+			data: formData,
+			success: function(data) {
+				displayDocumentPreview(data);
+			}
+		});
+	}
+
+	function displayDocumentPreview(data) {
+		console.log('Data: ');
+		console.log(data);
+
+	    var table = $("#docPreviewTable");
+	    table.find("tr").remove();
+	    
+	    if(data.headers.length>0) {
+		    rowStr = "<tr>";
+		    for(col in data.headers) {
+			    rowStr += "<th>"+data.headers[col]+"</th>";
+			}
+		    rowStr += "</tr>";
+		    table.append(rowStr);
+		}
+		document.columns = data.headers;
+		console.log('Data - columns: ');
+		console.log(document.columns);
+
+	    for(row in data.content) {
+		    rowStr = "<tr>";
+		    for(col in data.content[row]) {
+			    rowStr += "<td>"+data.content[row][col]+"</td>";
+			}
+		    rowStr += "</tr>";
+		    table.append(rowStr);
+	    }
+	}
+
 {{--
 	Generate the DIV element which holds an individual document property. 
 	This div element contains the name of the property,  the function to be applied 
@@ -21,13 +64,11 @@
 	        '           <select name="' + propId + '_function" id="' + propId + '_function">' +
 {{-- Load the available functions --}}
 	        @foreach ($functions as $function)
-			'           <option value="{{ $function->getName() }}"> {{ $function->getName()	 }} </option>' +
+			'           <option value="{{ $function->getName() }}"> {{ $function->getName()	 }} </option>' + 
 			@endforeach
 	        '           </select> ' +
-
 	        '			<div id="' + propId + '_params">' +
 	        '			</div>' +
-
 	        '		</div>' +
 	        '		</div>';
 	    return divStr;
@@ -37,13 +78,12 @@
 	Create a new SELECT element listing all columns available. 
 --}}
 	function getColumnsSelector(selectorName) {
-		colsSelect = '' +
-        	'<select name="' + selectorName + '" id="' + selectorName + '">' +
+		colsSelect = '<select name="' + selectorName + '" id="' + selectorName + '">';
 {{-- Load the available columns --}}
-        	@foreach ($columns as $colIdx => $colName)
-        	'  <option value="{{ $colIdx }}"> {{ $colName }} </option>' +
-        	@endforeach
-        	'</select>';
+    	for( col in document.columns) {
+    		colsSelect += '  <option value="' +col + '">' + document.columns[col] + '</option>';
+    	}
+    	colsSelect += '</select>'; 
         return colsSelect;
 	}
 
@@ -89,7 +129,6 @@
 	        '		<div class="panel panel-default" id="' + groupId + '_div">' +
 	        '		<div class="panel-body">' +
 	        '			' + groupName + 
-
 	        '           <input type="hidden" name="' + groupId + '_groupName" id="' + groupId + '_groupName" value="' + groupId + '" class="groupName"/>' +
 	        '           <input type="hidden" name="' + groupId + '_groupParent" id="' + groupId + '_groupParent" value="' + parentGroupId + '"/>' +
 	        '           <input type="button" name="' + groupId + '_close" id="' + groupId + '_close" value="x"/><br/>' +
@@ -159,7 +198,7 @@
 	}
 
 	function doPreview() {
-		$('#preview').val('true');
+		$('#postAction').val('processPreview');
 		formUrl = $("#theForm").attr("action");
 		formData = $("#theForm").serialize();
 		$.ajax({
@@ -217,32 +256,66 @@
 	</p>
 </div>
 
+<div class="panel panel-default">
+	Original document:
+	<div style="height: 200px; overflow: auto;" class="panel-body">
+		<pre>{{ $docPreview }}</pre>
+	</div>
+</div>
+
+<div class="panel panel-default">
+	<div class="form-group panel-body">
+		{{ Form::open(array('action' => 'preprocess\TextController@postConfigure', 'name' => 'docPreviewForm', 'id' => 'docPreviewForm' )) }}
+		{{ Form::hidden('URI', $URI) }}
+		{{ Form::hidden('postAction', 'tableView') }}
+		<div class="row">
+			{{ Form::label('useHeaders', 'First row as headers:', [ 'class' => 'col-md-3 control-label' ]) }}
+			{{ Form::checkbox('useHeaders', 'tick', false, [ 'class' => 'col-md-3' ]) }}
+		</div>
+		<div class="row">
+			{{ Form::label('delimiter', 'Field delimiter:', [ 'class' => 'col-md-3 control-label' ]) }}
+			{{ Form::text('delimiter', '"',[ 'class' => 'col-md-3' ]) }}
+		</div>
+		<div class="row">
+		{{ Form::label('separator', 'Field separator:', [ 'class' => 'col-md-3 control-label' ]) }}
+		{{ Form::text('separator', ',',[ 'class' => 'col-md-3' ]) }}
+		</div>
+		<div class="row">
+			{{ Form::label('', '', [ 'class' => 'col-md-3' ]) }}
+			{{ Form::button('Preview document', [ 'onClick' => 'previewTable();', 'class' => 'col-md-3' ]) }}
+		</div>
+		{{ Form::close() }}
+	</div>
+</div>
+
+<div class="panel panel-default">
 Document preview:
-<div style="height: 150px; overflow: auto;">
-	<table class="table table-bordered">
+<div style="height: 150px; overflow: auto;" class="panel-body">
+	<table class="table table-bordered" name="docPreviewTable" id="docPreviewTable">
 		<thead>
 			<tr>
-				@foreach ($columns as $column)
+{{--				@foreach ($columns as $column)
 				<th style="width: 10%">{{ $column }}</th> 
-				@endforeach
+				@endforeach --}}
 			</tr>
 		</thead>
 		<tbody>
-			@foreach ($dataTable as $row)
+{{--			@foreach ($dataTable as $row)
 			<tr>
 				@foreach ($row as $column)
 				<td>{{ str_limit($column, 30) }}</td>
 				@endforeach
 			</tr>
-			@endforeach
+			@endforeach --}}
 		</tbody>
 	</table>
+</div>
 </div>
 
 <!-- BEGIN DYNAMIC STRUCTURE FORM  -->
 {{ Form::open(array('action' => 'preprocess\TextController@postConfigure', 'name' => 'theForm', 'id' => 'theForm' )) }}
 {{ Form::hidden('URI', $URI) }}
-{{ Form::hidden('preview', '', [ 'id' => 'preview' ]) }}
+{{ Form::hidden('postAction', 'preview', [ 'id' => 'postAction' ]) }}
 
 <div class="panel panel-default">
 	<div class="panel-body">
@@ -256,7 +329,7 @@ Document preview:
 				<input type="button" value="New property" id="root_newProp"/>
 				<input type="button" value="New group" id="root_newGroup" />
 			</div>
-	
+
 			<div class="col-md-6">
 				Load existing configuration
 				<input type="button" value="Select...">
@@ -274,7 +347,7 @@ Document preview:
 	<input type="button" onclick="doPreview();" value="Preview" />
 	</div>
 	<div class="col-md-6">
-	<input type="submit" onClick="$('#preview').val('false');" value="Process ">
+	<input type="submit" onClick="$('#postAction').val('process');" value="Process ">
 	</div>
 </div>
 
