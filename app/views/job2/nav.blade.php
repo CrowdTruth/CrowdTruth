@@ -14,7 +14,7 @@
 							<li{{ (Request::segment(2) == $p ? ' class="active"' : '') }} title="{{$p}}">{{ link_to($link, "5.$count Platform: $ptoupper") }}</li>
 								@endforeach
 							@endif -->
-							<li{{ (Request::segment(2) == 'submit' ? ' class="active"' : '') }} title='submit'>{{ link_to('jobs2/submit', "2. Submit") }}</li>
+							<li{{ (Request::segment(2) == 'submit' ? ' class="active"' : '') }} title='submit'>{{ link_to('jobs2/submit', "2. Job details") }}</li>
 							<a href='/jobs2/clear-task' class="btn btn-danger pull-right">Reset form</a></li>
 
 						</ul>

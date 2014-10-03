@@ -1,14 +1,6 @@
-@extends('layouts.default_new')
+@extends('layouts.default')
 @section('content')
 @include('layouts.flashdata')
-<style>
-.panel-body {
-	overflow-x:visible;
-}
-.row {
-	margin-top: 20px;
-}
-</style>
 <div class="col-xs-10 col-md-offset-1">
 	<div class='maincolumn CW_box_style'>
 					
@@ -17,14 +9,14 @@
 			<div>
 				<div class="panel panel-default">		
 					<div class="panel-heading">
-						<h4>Preview task and submit</h4>
+						<h4>Provide job and template details</h4>
 					</div>
 					<div class="panel-body">
 						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
-							
-							<div class="row">
-							{{ Form::label('title', 'Select a title', array('class' => 'col-xs-4 control-label')) }}
-								<div class="col-xs-6">
+							<fieldset>
+							{{ Form::label('title', 'Select a title from the set of predefined ones or give your own', 
+									array('class' => 'col-xs-6 control-label')) }}
+								<div class="input-group col-xs-3">
 
 
 									<?php 
@@ -47,7 +39,7 @@
 									    	}
 										}
 
-										$_aTypes = \MongoDB\Entity::where("documentType", "job")->where("format", $_format)->distinct('type')->get();
+										$_aTypes = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct('content.TVID')->get();
 									    $_aTypes = array_flatten($_aTypes->toArray());
 									    foreach($_aTypes as $key=>$value){
 									    	if(!isset($aTypes[$value]))
@@ -71,40 +63,46 @@
 										
 									?>
 
-									{{ Form::select('title',  $aTitles, $phprest, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip')) }}
+									{{ Form::select('title',  $aTitles, $phprest, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
+								</div><div class="input-group col-xs-3">
+									{{ Form::text('titleOwn', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
-								
-								
-								<div class="col-xs-6 col-xs-offset-4">
-									{{ Form::text('titleOwn', null, array('class' => 'form-control col-xs-6', 'placeholder' => 'Create new title')) }}
-								</div>
-							</div>
-								
-							<div class="row">
-							{{ Form::label('templateType', 'Select a template-type', 
-									array('class' => 'col-xs-4 control-label')) }}
-								<div class="col-xs-6">
+							
+								<br/><br/>
+							{{ Form::label('description', 'Describe the job using a few word or keywords', 
+									array('class' => 'col-xs-6 control-label')) }}
+								<div class="input-group col-xs-5">
+									{{ Form::text('description', null, array('class' => 'form-control col-xs-2')) }}
+								</div>	
+							
+							<br/><hr><br/>
+							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own', 
+									array('class' => 'col-xs-6 control-label')) }}
+								<div class="input-group col-xs-3">
 									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
+									</div><div class="input-group col-xs-3">
+									{{ Form::text('templateTypeOwn', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
-								<div class="col-xs-6 col-xs-offset-4">
-									{{ Form::text('templateTypeOwn', null, array('class' => 'form-control col-xs-4', 'placeholder' => 'Create new template')) }}
+						
+							<br/>
+
+						
+	<br/><br/>
+							{{ Form::label('description', 'If you will CHANGE this template describe the VARIATION using 1 to 2 words (describe differences)', 
+									array('class' => 'col-xs-6 control-label')) }}
+								<div class="input-group col-xs-5">
+									{{ Form::text('variation', null, array('class' => 'form-control col-xs-2')) }}
 								</div>
+						
 							
-							</div>
-							<div class="row">
-							{{ Form::label('description', 'Describe the job with keywords', 
-									array('class' => 'col-xs-4 control-label')) }}
-								<div class="col-xs-6">
-									{{ Form::text('description', null, array('class' => 'form-control col-xs-4', 'placeholder' => 'Keywords')) }}
-								</div>
-							</div>
-							
-							<div class="row">
-								<div class="col-xs-10">
-									{{ Form::submit('Create Job', array('class' => 'btn btn-primary pull-right')); }}
-								</div>
-							</div>
+
+							</fieldset>
+	<br/><br/>
+
+						{{ Form::submit('Create Job', array('class' => 'btn btn-lg btn-primary pull-right', 'style' => 'margin-right:20px')); }}
 						{{ Form::close()}}
+
+
 
 
 					</div>

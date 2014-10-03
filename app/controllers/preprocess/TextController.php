@@ -14,10 +14,12 @@ use \SoftwareComponents\TextSentencePreprocessor as TextSentencePreprocessor;
 class TextController extends BaseController {
 	protected $repository;
 	protected $processor;
+	protected $nLines;
 	
 	public function __construct(Repository $repository, TextSentencePreprocessor $processor) {
 		$this->repository = $repository;
 		$this->processor = $processor;
+		$this->nLines = 5;
 	}
 
 	private function getSeparator($csvstring) {
@@ -36,29 +38,25 @@ class TextController extends BaseController {
 		if($separator) return $separator;
 		return $fallback;
 	}
-	
+
 	public function getConfigure() {
 		if($URI = Input::get('URI')) {
 			if($document = $this->repository->find($URI)) {
-				// Use only first Nlines of file for information
-				$nLines = 5;
-				$dataTable = $this->getDocumentData($document['content'], $nLines);
-				
-				// Number the file columns
-				$columns   = [];
-				for($i=0; $i<count($dataTable[0]); $i = $i + 1) {
-					$columns[$i] = 'Col '.($i+1);
-				}
-				
 				// Load which functions are available for display
 				$functions = $this->getAvailableFunctions();
 
+				$newLine = "\n";
+				$docPreview = $document['content'];
+				$docPreview = explode($newLine, $docPreview);
+				$docPreview = array_slice($docPreview, 0, $this->nLines);
+				$docPreview = implode($newLine, $docPreview);
+				
 				return View::make('media.preprocess.text.configure')
+						->with('URI', $URI)
 						->with('docTitle', $document['title'])
-						->with('columns', $columns)
-						->with('dataTable', $dataTable)
+						->with('docPreview', $docPreview)
 						->with('functions', $functions)
-						->with('URI', $URI);
+						;
 			} else {
 				return Redirect::back()->with('flashError', 'Document does not exist: ' . $URI);
 			}
@@ -67,67 +65,106 @@ class TextController extends BaseController {
 		}
 	}
 
-	private function getDocumentData($documentContent, $nLines) {
+	private function getDocumentData($documentContent, $delimiter, $separator, $ignoreHeader, $nLines) {
 		$reader = Reader::createFromString($documentContent);
-		$reader->setDelimiter($this->getSeparator($documentContent));
-		$reader->setEnclosure("\"");
-		$reader->setLimit($nLines);
+		$reader->setDelimiter($separator);
+		$reader->setEnclosure($delimiter);
+		if($ignoreHeader) {
+			$reader->setLimit($nLines);
+		} else {
+			$reader->setOffset(1);
+			$reader->setLimit($nLines + 1);
+		}
+
 		$dataTable = $reader->fetchAll();
 		return $dataTable;
 	}
 
 	public function postConfigure() {
-		$inputs = Input::all();		// Same as $_POST
-		$response = '';
-		
-		// Prepare processor
-		$rootProcessor = new RootProcessor($inputs, $this::getAvailableFunctions());
+		$postAction = Input::get('postAction');
 		
 		// Prepare document
 		// TODO: Validate URI is present
 		$URI = Input::get('URI');
 		$document = $this->repository->find($URI);
-
-		// if preview
-		$isPreview = Input::get('preview');	// Preview comes as a string
-		if($isPreview=='true') {
-			return $this->doPreview($rootProcessor, $document);
+		
+		$delimiter = Input::get('delimiter');
+		$separator = Input::get('separator');
+		$ignoreHeader = !Input::get('useHeaders');
+		
+		if($delimiter=='') {
+			$delimiter = '"';
+		}
+		if($separator=='') {
+			$separator = ',';
+		}
+		
+		if($postAction=='tableView') {
+			return $this->doPreviewTable($document, $delimiter, $separator, $ignoreHeader);
 		} else {
-			return $this->doPreprocess($rootProcessor, $document);
+			// Prepare processor
+			$inputs = Input::all();		// Same as $_POST
+			$rootProcessor = new RootProcessor($inputs, $this::getAvailableFunctions());
+			
+			// if preview
+			if($postAction=='processPreview') {
+				return $this->doPreview($rootProcessor, $document, $delimiter, $separator, $ignoreHeader);
+			} else {	// $postAction=='process'
+				return $this->doPreprocess($rootProcessor, $document, $delimiter, $separator, $ignoreHeader);
+			}
 		}
 	}
 
-	private function doPreprocess($rootProcessor, $document) {
+	private function doPreviewTable($document, $delimiter, $separator, $ignoreHeader) {
+		// Number the file columns
+		$columns  = [];
+		if($ignoreHeader) {
+			$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $ignoreHeader, $this->nLines);
+			for($i=0; $i<count($dataTable[0]); $i = $i + 1) {
+				$columns[$i] = 'Col '.($i+1);
+			}
+		} else {
+			$rawData = $this->getDocumentData($document['content'], $delimiter, $separator, true, $this->nLines + 1);
+			$columns = array_slice($rawData, 0, 1)[0];
+			$dataTable = array_slice($rawData, 1, $this->nLines);
+		}
+		$data = [
+			'headers' => $columns,
+			'content' => $dataTable
+		];
+
+		return $data;
+	}
+
+	private function doPreprocess($rootProcessor, $document, $delimiter, $separator, $ignoreHeader) {
 		$nLines = -1;	// Process all lines
-		$dataTable = $this->getDocumentData($document['content'], $nLines);
+		$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $ignoreHeader, $nLines);
 		
 		$entities = [];
 		foreach ($dataTable as $line) {
 			$lineEntity = $rootProcessor->call($line);
 			array_push($entities, $lineEntity);
 		}
-		
 		$status = $this->processor->store($document, $entities);
 		
 		// Redirect here ? // TODO: where should this redirect?
 		return $this->getConfigure()
 						->with('status', $status);
 	}
-		
-	private function doPreview($rootProcessor, $document) {
+
+	private function doPreview($rootProcessor, $document, $delimiter, $separator, $ignoreHeader) {
 		// Use only first Nlines of file for information
-		$nLines = 5;
-		$dataTable = $this->getDocumentData($document['content'], $nLines);
+		$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $ignoreHeader, $this->nLines);
 		
 		$entities = [];
 		foreach ($dataTable as $line) {
 			$lineEntity = $rootProcessor->call($line);
 			array_push($entities, $lineEntity);
 		}
-	
+
 		return json_encode($entities, JSON_PRETTY_PRINT);
 	}
-	
+
 	private function getAvailableFunctions() {
 		// Each function extends AbstractTextPreprocessor.
 		// see AbstractTextPreprocessor for more details
@@ -303,7 +340,7 @@ class GroupProcessor {
 		foreach($this->props as $prop) {
 			$prop->call($data, $entityContent, $fullEntity);
 		}
-		
+
 		foreach($this->subGroups as $subGrp) {
 			$subGrp->call($data, $entityContent, $fullEntity);
 		}
