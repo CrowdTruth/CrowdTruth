@@ -156,8 +156,10 @@ class JobsController2 extends BaseController {
 		}
 		else
 			$jcco = $jc->content;
-		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 )
+		$own = false;
+		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 ){
 			 	$jcco['type'] = Input::get('templateTypeOwn');
+			    $own = true;}
 	 	else{
 
 	 		$jcco['type'] =  Input::get('templateType');
@@ -191,6 +193,10 @@ class JobsController2 extends BaseController {
 	    		return Redirect::back()->with('flashError', "form not filled in.");
 	    
 		
+	   
+
+
+			
 
 	    $jcco['platform'] = Array("cf");
 	    $jcco['description'] =  Input::get('description');
@@ -204,6 +210,13 @@ class JobsController2 extends BaseController {
 	    $jcco['title'] = $jcco['title'] . " [[" . $jcco['TVID'] . " (" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ") ]]";
 	    ///////// PUT
 	    $jc->content = $jcco;
+	    if($own){
+		    $_tt = \MongoDB\Entity::where("documentType", "jobconf")->where('content.TVID', $jcco['type'])->first();
+		    if(isset($_tt)){
+		    	Session::flash('flashError', "There is already a template with a given name (TVID). Please rename (or select this template from dropdown list.");
+				return Redirect::to("jobs2/submit");
+			}
+		}
 
 		try{
 			// Save activity
@@ -235,6 +248,7 @@ class JobsController2 extends BaseController {
 			 	$j->activity_id = $activity->_id;
 			 	$j->iamemptyjob = "yes";
 			 	$j->save(); //convert to publish later
+			 	//throw  new Exception("____|____");
 			 	$j->publish(($ordersandbox == 'sandbox' ? true : false));
 			 	$jobs[] = $j;
 			$successmessage = "Created job with jobConf :-)"; 
