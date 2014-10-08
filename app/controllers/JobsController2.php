@@ -168,11 +168,12 @@ class JobsController2 extends BaseController {
 	    		return Redirect::back()->with('flashError', "form not filled in (type).");	 	
 
 	    	// get a selected, newest jcbase
-	 		$template = \MongoDB\Template::where("type", $jcco['type'])->where("format", $batch->format)->sort(array("version" => -1 ))->first();
+	    	$maxi = \MongoDB\Template::where("type", $jcco['type'])->where("format", $batch->format)->max('version');
+	 		$jcbase = \MongoDB\Template::where("type", $jcco['type'])->where("format", $batch->format)->where('version', $maxi)->first();
 
 
 	 		if(!isset($jcbase)){
-	 			Session::flash('flashError', $e->getMessage());
+	 			Session::flash('flashError',"template not found");
 				return Redirect::to("jobs2/submit");
 			}
 	 		$jcbaseco = $jcbase;
