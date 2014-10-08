@@ -66,6 +66,8 @@ class Template extends Moloquent {
 		{
             $collection->index('hash');
             $collection->index('format');
+
+            $collection->index('version');
             $collection->index('type');    
             $collection->index('activity_id');
             $collection->index('user_id');

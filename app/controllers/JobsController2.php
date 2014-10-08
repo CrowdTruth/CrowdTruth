@@ -166,7 +166,11 @@ class JobsController2 extends BaseController {
 	 		$jcco['type'] =  Input::get('templateType');
 	 		if($jcco['type'] == Null) 
 	    		return Redirect::back()->with('flashError', "form not filled in (type).");	 	
-	 		$jcbase = \MongoDB\Template::where("type", $jcco['type'])->first();
+
+	    	// get a selected, newest jcbase
+	 		$template = \MongoDB\Template::where("type", $jcco['type'])->where("format", $batch->format)->sort(array("version" => -1 ))->first();
+
+
 	 		if(!isset($jcbase)){
 	 			Session::flash('flashError', $e->getMessage());
 				return Redirect::to("jobs2/submit");
@@ -185,6 +189,7 @@ class JobsController2 extends BaseController {
 	 			$jcco['instructions'] = $jcbaseco['instructions'];
 	 		if(isset($jcbaseco['js']))
 	 			$jcco['js'] = $jcbaseco['js'];
+	 		$jcco['template_id'] = $jcbaseco['_id'];
 		}
 
 	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 0 )
@@ -194,28 +199,14 @@ class JobsController2 extends BaseController {
 		if ($jcco['title'] == Null) 
 	    		return Redirect::back()->with('flashError', "form not filled in (title).");	 	
 
-	    
-	    
-		
-	   
-
-
-			
 
 	    $jcco['platform'] = Array("cf");
 	    $jcco['description'] =  Input::get('description');
-	    //$jcco['variation'] =  Input::get('variation');
-	    //$jcco['type_id'] =  0;
-	    //$jcco['TVID'] = $jcco['type'] ;
-	    //if(isset($jcco['variation']) and strlen($jcco['variation'])>0) 
-	    //	$jcco['TVID']  = $jcco['TVID']  . "|" . $jcco['variation'];
-	    //if($jcco['type_id'] > 0) 
-	    //	$jcco['TVID'] = $jcco['TVID'] . "|_" . (string)$jcco['type_id'];
 	    $jcco['title'] = $jcco['title'] . "[[" . $jcco['type'] . "(" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ")]]";
 	    ///////// PUT
 	    $jc->content = $jcco;
 	    if($own){
-		    $_tt = \MongoDB\Template::where('type', $jcco['type'])->first();
+		    $_tt = \MongoDB\Template::where('type', $jcco['type'])->where("format", $batch->format)->first();
 		    if(isset($_tt)){
 		    	Session::flash('flashError', "There is already a template of this type. Please rename (or select this template from dropdown list.");
 				return Redirect::to("jobs2/submit");
