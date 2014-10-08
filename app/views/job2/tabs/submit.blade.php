@@ -39,8 +39,9 @@
 									    	}
 										}
 
-										$_aTypes = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct('content.TVID')->get();
+										$_aTypes = \MongoDB\Template::where("format", $_format)->distinct('type')->get();
 									    $_aTypes = array_flatten($_aTypes->toArray());
+									    //$aTypes["______NONE______"] ="NONE";
 									    foreach($_aTypes as $key=>$value){
 									    	if(!isset($aTypes[$value]))
 										    	$aTypes[$value] = $value;
@@ -76,7 +77,7 @@
 								</div>	
 							
 							<br/><hr><br/>
-							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own', 
+							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own or null', 
 									array('class' => 'col-xs-6 control-label')) }}
 								<div class="input-group col-xs-3">
 									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
@@ -88,11 +89,7 @@
 
 						
 	<br/><br/>
-							{{ Form::label('description', 'If you will CHANGE this template describe the VARIATION using 1 to 2 words (describe differences)', 
-									array('class' => 'col-xs-6 control-label')) }}
-								<div class="input-group col-xs-5">
-									{{ Form::text('variation', null, array('class' => 'form-control col-xs-2')) }}
-								</div>
+							
 						
 							
 

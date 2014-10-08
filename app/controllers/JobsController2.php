@@ -163,12 +163,12 @@ class JobsController2 extends BaseController {
 	 	else{
 
 	 		$jcco['type'] =  Input::get('templateType');
-	 		$jcbase = \MongoDB\Entity::where("documentType", "jobconf")->where("content.TVID", $jcco['type'])->first();
+	 		$jcbase = \MongoDB\Template::where("type", $jcco['type'])->first();
 	 		if(!isset($jcbase)){
 	 			Session::flash('flashError', $e->getMessage());
 				return Redirect::to("jobs2/submit");
 			}
-	 		$jcbaseco = $jcbase->content;
+	 		$jcbaseco = $jcbase;
 	 		if(!isset($jcbaseco['cml'])){
 	 			Session::flash('flashError', "No template in the original job");
 				return Redirect::to("jobs2/submit");
@@ -200,20 +200,20 @@ class JobsController2 extends BaseController {
 
 	    $jcco['platform'] = Array("cf");
 	    $jcco['description'] =  Input::get('description');
-	    $jcco['variation'] =  Input::get('variation');
-	    $jcco['type_id'] =  0;
-	    $jcco['TVID'] = $jcco['type'] ;
-	    if(isset($jcco['variation']) and strlen($jcco['variation'])>0) 
-	    	$jcco['TVID']  = $jcco['TVID']  . "|" . $jcco['variation'];
-	    if($jcco['type_id'] > 0) 
-	    	$jcco['TVID'] = $jcco['TVID'] . "|_" . (string)$jcco['type_id'];
-	    $jcco['title'] = $jcco['title'] . " [[" . $jcco['TVID'] . " (" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ") ]]";
+	    //$jcco['variation'] =  Input::get('variation');
+	    //$jcco['type_id'] =  0;
+	    //$jcco['TVID'] = $jcco['type'] ;
+	    //if(isset($jcco['variation']) and strlen($jcco['variation'])>0) 
+	    //	$jcco['TVID']  = $jcco['TVID']  . "|" . $jcco['variation'];
+	    //if($jcco['type_id'] > 0) 
+	    //	$jcco['TVID'] = $jcco['TVID'] . "|_" . (string)$jcco['type_id'];
+	    $jcco['title'] = $jcco['title'] . "[[" . $jcco['type'] . "(" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ")]]";
 	    ///////// PUT
 	    $jc->content = $jcco;
 	    if($own){
-		    $_tt = \MongoDB\Entity::where("documentType", "jobconf")->where('content.TVID', $jcco['type'])->first();
+		    $_tt = \MongoDB\Template::where('type', $jcco['type'])->first();
 		    if(isset($_tt)){
-		    	Session::flash('flashError', "There is already a template with a given name (TVID). Please rename (or select this template from dropdown list.");
+		    	Session::flash('flashError', "There is already a template of this type. Please rename (or select this template from dropdown list.");
 				return Redirect::to("jobs2/submit");
 			}
 		}
