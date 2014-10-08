@@ -22,15 +22,16 @@
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class='fa fa-fw fa-info'></i> Info <b class="caret"></b></a>
 							<ul class="dropdown-menu">
-								<li><a href='{{ url("info") }}'><i class='fa fa-fw fa-info'></i> Documentation</a></li>
-								<li><a href='{{ url("templates/examples") }}'><i class='fa fa-fw fa-file-code-o'></i> Examples</a></li>
-								<li><a href='{{ url("papers") }}'><i class='fa fa-fw fa-flask'></i> Papers</a></li>
-								<li><a href='{{ url("presentations") }}'><i class='fa fa-fw fa-slideshare'></i> Presentations</a></li>
-								<li><a href='{{ url("team") }}'><i class='fa fa-fw fa-puzzle-piece'></i> Team</a></li>
-								<li><a href='{{ url("contact") }}'><i class='fa fa-fw fa-envelope-o'></i> Contact</a></li>
+								<li><a href='https://github.com/CrowdTruth/CrowdTruth/wiki'><i class='fa fa-fw fa-info'></i> Documentation</a></li>
+								<li><a href='https://github.com/CrowdTruth/CrowdTruth/'><i class='fa fa-fw fa-github'></i> Source code</a></li>
+								<li><a href='https://github.com/CrowdTruth/CrowdTruth/wiki/Creating-Templates'><i class='fa fa-fw fa-file-code-o'></i> Templates</a></li>
 								<li class="divider"></li>
-								<li><a href="https://www.vu.nl/en/index.asp" target="_blank"><i class='fa fa-fw fa-university'></i> VU University</a></li>
-								<li><a href="https://www.ibm.com" target="_blank"><i class='fa fa-fw fa-university'></i> IBM</a></li>
+								<li><a href='http://crowdtruth.org'><i class='fa fa-fw fa-newspaper-o'></i> Blog</a></li>
+								<li><a href='http://crowdtruth.org/papers'><i class='fa fa-fw fa-flask'></i> Papers</a></li>
+								<li><a href='http://crowdtruth.org/presentations'><i class='fa fa-fw fa-slideshare'></i> Presentations</a></li>
+								<li><a href='http://crowdtruth.org/partners'><i class='fa fa-fw fa-university'></i> Partners</a></li>
+								<li><a href='http://crowdtruth.org/team'><i class='fa fa-fw fa-puzzle-piece'></i> Team</a></li>
+								<li><a href='http://crowdtruth.org/contact'><i class='fa fa-fw fa-envelope-o'></i> Contact</a></li>
 							</ul>
 						</li>
 					</ul>

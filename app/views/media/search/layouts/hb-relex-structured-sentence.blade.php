@@ -6,40 +6,43 @@
 					Specific Filters
 				</button>
 			</div>
-			<div class='btn-group' style="margin-left:5px;">
+			<div class='btn-group vbColumns' style="margin-left:5px;">
 				<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
 				<button type="button" class="btn btn-default openDefaultColumns hidden">Open default columns</button>
-				<div class="btn-group vbColumns">
-					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 					<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu">
-						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="format"></i>Format</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="domain"></i>Domain</a></li>
-                    	<!-- <li><a href="#" data-vb="show" data-vbSelector="documentType"></i>Document-Type</a></li> -->
-						<li><a href="#" data-vb="show" data-vbSelector="relation"></i>Seed Relation</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="sent_id"></i>ID</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="term_1"></i>Term 1</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="term_1_processed"></i>Term 1 Processed</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="term_2"></i>Term 2</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="term_2_processed"></i>Term 2 Processed</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="sentence"></i>Sentence</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="sentence_processed"></i>Sentence processed</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i># Batches</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i># Jobs</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_cf_judgements"></i># CF judgements</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_amt_judgements"></i># AMT judgements</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_RelEx_jobs"></i># of RelEx jobs</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_FactSpan_jobs"></i># of FactSpan jobs</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_RelDir_jobs"></i># of RelDir jobs</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_children"></i># of children</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="parents"></i>parents</a></li>
-
-						<li><a href="#" data-vb="show" data-vbSelector="sentence_wordcount"></i># Words</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created</a></li>
-					</ul>
-				</div>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li role="presentation" class="dropdown-header">General</li>
+					<li><a href="#" data-vb="show" data-vbSelector="sent_id"></i>ID</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="format"></i>Format</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="domain"></i>Domain</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="title" ></i>File name</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation" class="dropdown-header">Content</li>
+					<li><a href="#" data-vb="show" data-vbSelector="relation"></i>Seed Relation</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="term_1"></i>Term 1</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="term_1_processed"></i>Term 1 Processed</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="term_2"></i>Term 2</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="term_2_processed"></i>Term 2 Processed</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="sentence"></i>Sentence</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="sentence_processed"></i>Sentence processed</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation" class="dropdown-header">Statistics</li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i>Batches</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i>Jobs</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="clarity"></i>Clarity</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_cf_judgements"></i>CF judgements</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_amt_judgements"></i>AMT judgements</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_RelEx_jobs"></i>RelEx jobs</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_FactSpan_jobs"></i>FactSpan jobs</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_RelDir_jobs"></i>RelDir jobs</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_children"></i>Children</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="parents"></i>Parents</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="sentence_wordcount"></i>Words</a></li>
+				</ul>
 			</div>
 
 			<div class='specificFilterContent hidden'>
@@ -128,9 +131,10 @@
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row">Select</th>
 		            <th class="sorting" data-vbIdentifier="format" data-query-key="orderBy[format]" data-toggle="tooltip" data-placement="top" title="Format of the sentence">Format</th>
 		            <th class="sorting" data-vbIdentifier="domain" data-query-key="orderBy[domain]" data-toggle="tooltip" data-placement="top" title="Domain to which this sentence belongs">Domain</th>
+					<th class="sorting" data-vbIdentifier="title" data-query-key="orderBy[title]" data-toggle="tooltip" data-placement="top" title="Upload file name">File Name</th>
 		            <!-- <th class="sorting" data-vbIdentifier="documentType" data-query-key="orderBy[documentType]">Document-Type</th> -->
 		            <th class="sorting" data-vbIdentifier="relation" data-query-key="orderBy[content.relation.noPrefix]" data-toggle="tooltip" data-placement="top" title="Seed Relation used to identify sentence in corpus">Seed Relation</th>
-			    <th class="sorting" data-vbIdentifier="sent_id" data-query-key="orderBy[_id]" data-toggle="tooltip" data-placement="top" title="CrowdTruth unit ID">ID</th>
+					<th class="sorting" data-vbIdentifier="sent_id" data-query-key="orderBy[_id]" data-toggle="tooltip" data-placement="top" title="CrowdTruth unit ID">ID</th>
 		            <th class="sorting" data-vbIdentifier="term_1" data-query-key="orderBy[content.terms.first.text]" data-toggle="tooltip" data-placement="top" title="Subject of the seed relation used to identify the sentence">Term 1</th>
 		            <th class="sorting" data-vbIdentifier="term_1_processed" data-query-key="orderBy[content.terms.first.formatted]" data-toggle="tooltip" data-placement="top" title="Term 1 with processing as it appears in Processed Sentences">Term 1 Processed</th>
 		            <th class="sorting" data-vbIdentifier="term_2" data-query-key="orderBy[content.terms.second.text]" data-toggle="tooltip" data-placement="top" title="Object of the seed relation used to identify the sentence">Term 2</th>
@@ -138,18 +142,20 @@
 		            <th class="sorting" data-vbIdentifier="sentence" data-query-key="orderBy[content.sentence.text]" data-toggle="tooltip" data-placement="top" title="Original sentence from the corpus">Sentence</th>
 		            <th class="sorting" data-vbIdentifier="sentence_processed" data-query-key="orderBy[content.sentence.formatted]" data-toggle="tooltip" data-placement="top" title="Original sentence with extra processing including highlighting of terms">Sentence Processed</th>
 
-		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]" data-toggle="tooltip" data-placement="top" title="Number of batches the sentence was used in"># Batches</th>
-		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[cache.jobs.count]" data-toggle="tooltip" data-placement="top" title="Number of jobs the sentence was used in"># Jobs</th>     
-		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_cf_judgements" data-query-key="orderBy[cache.softwareAgent.cf]" data-toggle="tooltip" data-placement="top" title="Number of judgements the unit got on CrowdFlower"># CF judgements</th>
-		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_amt_judgements" data-query-key="orderBy[cache.softwareAgent.amt]" data-toggle="tooltip" data-placement="top" title="Number of judgements the unit got on AMT"># AMT judgements</th>
-                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_RelEx_jobs" data-query-key="orderBy[cache.jobs.types.RelEx.count]" data-toggle="tooltip" data-placement="top" title="Number of Relation Extraction jobs in which the unit was used"># of RelEx jobs</th>
-                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_FactSpan_jobs" data-query-key="orderBy[cache.jobs.types.FactSpan.count]" data-toggle="tooltip" data-placement="top" title="Number of Factor Span jobs in which the unit was used"># of FactSpan jobs</th>
-                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_RelDir_jobs" data-query-key="orderBy[cache.jobs.types.RelDir.count]" data-toggle="tooltip" data-placement="top" title="Number of Relation Direction jobs in which the unit was used"># of RelDir jobs</th>
-                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_children" data-query-key="orderBy[cache.children.count]" data-toggle="tooltip" data-placement="top" title="The number of units generated from this unit"># of children</th>
-                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="parents"  data-toggle="tooltip" data-placement="top" title="The units from which this media unit was created">parents</th>
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]" data-toggle="tooltip" data-placement="top" title="Number of batches the sentence was used in">Batches</th>
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[cache.jobs.count]" data-toggle="tooltip" data-placement="top" title="Number of jobs the sentence was used in">Jobs</th>     
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="clarity" data-query-key="orderBy[avg_clarity]" data-toggle="tooltip" data-placement="top" title="Clarity of the results">Clarity</th>     
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_cf_judgements" data-query-key="orderBy[cache.softwareAgent.cf]" data-toggle="tooltip" data-placement="top" title="Number of judgements the unit got on CrowdFlower">CF judgements</th>
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_amt_judgements" data-query-key="orderBy[cache.softwareAgent.amt]" data-toggle="tooltip" data-placement="top" title="Number of judgements the unit got on AMT">AMT judgements</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_RelEx_jobs" data-query-key="orderBy[cache.jobs.types.RelEx.count]" data-toggle="tooltip" data-placement="top" title="Number of Relation Extraction jobs in which the unit was used">RelEx jobs</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_FactSpan_jobs" data-query-key="orderBy[cache.jobs.types.FactSpan.count]" data-toggle="tooltip" data-placement="top" title="Number of Factor Span jobs in which the unit was used">FactSpan jobs</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_RelDir_jobs" data-query-key="orderBy[cache.jobs.types.RelDir.count]" data-toggle="tooltip" data-placement="top" title="Number of Relation Direction jobs in which the unit was used">RelDir jobs</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_children" data-query-key="orderBy[cache.children.count]" data-toggle="tooltip" data-placement="top" title="The number of units generated from this unit">Children</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="parents"  data-toggle="tooltip" data-placement="top" title="The units from which this media unit was created">Parents</th>
 
-                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="sentence_wordcount" data-query-key="orderBy[content.properties.sentenceWordCount]" data-toggle="tooltip" data-placement="top" title="Number of words in the sentence"># Words</th>
+                    <th class="sorting whiteSpaceNormal" data-vbIdentifier="sentence_wordcount" data-query-key="orderBy[content.properties.sentenceWordCount]" data-toggle="tooltip" data-placement="top" title="Number of words in the sentence">Words</th>
 		            <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the sentence was loaded into the framework">Created</th>
+				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_by" data-query-key="orderBy[user_id]">Created By</th>
 		        </tr>
 				<tr class="inputFilters">
 					<td data-vbIdentifier="checkbox">
@@ -161,9 +167,9 @@
 					<td data-vbIdentifier="domain">
 						<input class="input-sm form-control" type='text' data-query-key="match[domain]" data-query-operator="like" />
 					</td>
-<!-- 					<td data-vbIdentifier="documentType">
-						<input class="input-sm form-control" type='text' data-query-key="match[documentType]" data-query-operator="like" />
-					</td> -->
+					<td data-vbIdentifier="title">
+						<input class="input-sm form-control" type='text' data-query-key="match[title]" data-query-operator="like" />
+					</td>
 					<td data-vbIdentifier="relation">
 						<input class="input-sm form-control" type='text' data-query-key="match[content.relation.noPrefix]" data-query-operator="like" />
 					</td>
@@ -196,6 +202,10 @@
 					<td data-vbIdentifier="number_of_jobs">
 						<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 						<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					</td>
+					<td data-vbIdentifier="clarity">
+						<input class="input-sm form-control" type='text' data-query-key="match[avg_clarity]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+						<input class="input-sm form-control" type='text' data-query-key="match[avg_clarity]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 					</td>
                     <td data-vbIdentifier="number_of_cf_judgements">
                         <input class="input-sm form-control" type='text' data-query-key="match[cache.softwareAgent.cf]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
@@ -237,6 +247,9 @@
 						    <input type="text" class="input-sm form-control" name="end" data-query-key="match[created_at]" data-query-operator="=<" style="width:49% !important; float:right;" placeholder="End Date" />
 						</div>
 					</td>
+					<td data-vbIdentifier="created_by">
+						<input class="input-sm form-control" type='text' data-query-key="match[user_id]" data-query-operator="like" />	
+					</td>
 				</tr>											        
 	        </thead>
 	        <tbody class='results'>											
@@ -246,6 +259,7 @@
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
 			            <td data-vbIdentifier="format">@{{ this.format }}</td>
 			            <td data-vbIdentifier="domain">@{{ this.domain }}</td>
+			            <td data-vbIdentifier="title">@{{ this.title }}</td>
 			            <td data-vbIdentifier="relation">@{{ this.content.relation.noPrefix }}</td>
 				    <td data-vbIdentifier="sent_id">
 					
@@ -261,6 +275,7 @@
 			            <td data-vbIdentifier="sentence_processed" class="text-left">@{{ highlightTerms ../searchQuery this.content }}</td>
 			            <td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>
 			            <td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>
+			            <td data-vbIdentifier="clarity">@{{ this.avg_clarity }}</td>
 			            <td data-vbIdentifier="number_of_cf_judgements">@{{ this.cache.softwareAgent.cf }}</td>
 			            <td data-vbIdentifier="number_of_amt_judgements">@{{ this.cache.softwareAgent.amt }}</td>
                         <td data-vbIdentifier="number_of_RelEx_jobs">@{{ this.cache.jobs.types.RelEx.count }}</td>
@@ -270,6 +285,7 @@
                         <td data-vbIdentifier="parents">@{{ this.parents }}</td>
                         <td data-vbIdentifier="sentence_wordcount">@{{ this.content.properties.sentenceWordCount }}</td>
                         <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
+					    <td data-vbIdentifier="created_by">@{{ highlightSelf this.user_id }}</td>
 			        </tr>
 			        @{{/each}}
 				</script>

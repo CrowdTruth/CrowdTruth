@@ -28,13 +28,16 @@
 					<div class="panel-heading">
 						<h4>Select Batch</h4>
 					</div>
-					<div class="panel-body">					
-							<div>
+					<div class="panel-body">
+						<div class='row'>
+							<div class='col-xs-12'>
 								<div class='searchStats pull-left'>
 								</div>
 								<div class='cw_pagination pull-right'>
 								</div>
 							</div>
+						</div>
+						<div class='row'>
 								{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController@postFormPart', 'template'), 'method' => 'POST'))}}	
 								<div class="tab-content documentTypesTabs">
 									<div class="tab-pane active ctable-responsive" id="all_tab">
@@ -93,6 +96,7 @@
 								</div>
 								{{ Form::submit('Next', array('class' => 'btn btn-lg btn-primary pull-right')); }}
 								{{ Form::close()}}	
+						</div>
 					</div>
 				</div>
 			</div>
