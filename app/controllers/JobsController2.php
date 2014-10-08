@@ -148,6 +148,7 @@ class JobsController2 extends BaseController {
 
 
 	public function postSubmitFinal($ordersandbox = 'order'){
+
 		$batch = unserialize(Session::get('batch'));
 		if (!$jc = unserialize(Session::get('jobconf'))){
 			$jc = new JobConfiguration;
@@ -163,6 +164,8 @@ class JobsController2 extends BaseController {
 	 	else{
 
 	 		$jcco['type'] =  Input::get('templateType');
+	 		if($jcco['type'] == Null) 
+	    		return Redirect::back()->with('flashError', "form not filled in (type).");	 	
 	 		$jcbase = \MongoDB\Template::where("type", $jcco['type'])->first();
 	 		if(!isset($jcbase)){
 	 			Session::flash('flashError', $e->getMessage());
@@ -170,7 +173,7 @@ class JobsController2 extends BaseController {
 			}
 	 		$jcbaseco = $jcbase;
 	 		if(!isset($jcbaseco['cml'])){
-	 			Session::flash('flashError', "No template in the original job");
+	 			Session::flash('flashError', "No template details in this template");
 				return Redirect::to("jobs2/submit");
 			}
 			
@@ -188,9 +191,10 @@ class JobsController2 extends BaseController {
 			 		$jcco['title'] = Input::get('titleOwn');
 			 	else
 			 		$jcco['title'] =  Input::get('title');
+		if ($jcco['title'] == Null) 
+	    		return Redirect::back()->with('flashError', "form not filled in (title).");	 	
 
-	    if ($jcco['title'] == Null or $jcco['type'] == Null) 
-	    		return Redirect::back()->with('flashError', "form not filled in.");
+	    
 	    
 		
 	   

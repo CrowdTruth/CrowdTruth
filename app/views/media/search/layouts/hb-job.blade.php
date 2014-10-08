@@ -158,18 +158,9 @@
 								</div>
 								<div class="btn-group actionbar">
 								@{{#is this.status 'unordered'}}
-								<a class="btn btn-danger btn-sm" href="/jobs2/deletect/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job only on CT"><i class="fa fa-minus-square"></i></a>
-								<a class="btn btn-danger btn-sm" href="/jobs2/deletepl/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job only on Platform"><i class="fa fa-minus-square-o"></i></a>
-								<a class="btn btn-danger btn-sm" href="/jobs2/delete/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job everywhere (CT and Platform)"><i class="fa fa-remove"></i></a>
-								@{{/is}}
-								@{{#is this.status 'finished'}}
-								<a class="btn btn-danger btn-sm" href="/jobs2/deletect/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job only on CT"><i class="fa fa-minus-square"></i></a>
-								<a class="btn btn-danger btn-sm" href="/jobs2/deletepl/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job only on Platform"><i class="fa fa-minus-square-o"></i></a>
 								<a class="btn btn-danger btn-sm" href="/jobs2/delete/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job everywhere (CT and Platform)"><i class="fa fa-remove"></i></a>
 								@{{/is}}
 								@{{#is this.status 'canceled'}}
-								<a class="btn btn-danger btn-sm" href="/jobs2/deletect/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job only on CT"><i class="fa fa-minus-square"></i></a>
-								<a class="btn btn-danger btn-sm" href="/jobs2/deletepl/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job only on Platform"><i class="fa fa-minus-square-o"></i></a>
 								<a class="btn btn-danger btn-sm" href="/jobs2/delete/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job everywhere (CT and Platform)"><i class="fa fa-remove"></i></a>
 								@{{/is}}
 								</div>
