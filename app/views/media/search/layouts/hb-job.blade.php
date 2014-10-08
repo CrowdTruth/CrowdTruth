@@ -1,44 +1,42 @@
 <div class="tab-pane" id="job_tab">	
 	<div class='row'>
 		<div class='tabOptions col-xs-12'>
-			<div class='btn-group' style="margin-left:5px;">
+			<div class='btn-group vbColumns' style="margin-left:5px;">
 				<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
 				<button type="button" class="btn btn-default openDefaultColumns hidden">Open default columns</button>
-				<div class="btn-group vbColumns">
-					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 					<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu">
-						<li role="presentation" class="dropdown-header">General</li>
-						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="status"></i>Status and actions</a></li>						
-						<li><a href="#" data-vb="show" data-vbSelector="job_id"></i>Job</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="job_type"></i>Type</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="created_at"></i>Created</a></li>	
-						<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
-						<li role="presentation" class="divider"></li>
-						<li role="presentation" class="dropdown-header">Content</li>
-						<li><a href="#" data-vb="show" data-vbSelector="job_title"></i>Title</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="job_description"></i>Description</a></li>
-						<li role="presentation" class="divider"></li>
-						<li role="presentation" class="dropdown-header">Status</li>
-						<li><a href="#" data-vb="show" data-vbSelector="completion"></i>Completion</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="running_time"></i>Run Time</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="total_job_cost"></i>Cost</a></li>
-						<li role="presentation" class="divider"></li>
-						<li role="presentation" class="dropdown-header">Statistics</li>
-						<li><a href="#" data-vb="hide" data-vbSelector="job_size"></i>Units</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="clarity"></i>Clarity</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="units_per_task"></i>units/mTask</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="req_ann_per_unit"></i>Workers/mTask Requested</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="total_ann"></i>Requested Judgements</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="current_no_ann"></i>Judgements</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="req_ann_per_worker"></i>mTasks/Worker limit</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="total_workers"></i>Workers</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="total_spam_workers"></i>Spammers</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="cost_per_task"></i>Cost/mTask</a></li>
-					</ul>
-				</div>	
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li role="presentation" class="dropdown-header">General</li>
+					<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="status"></i>Status and actions</a></li>						
+					<li><a href="#" data-vb="show" data-vbSelector="job_id"></i>Job</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="job_type"></i>Type</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="created_at"></i>Created</a></li>	
+					<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation" class="dropdown-header">Content</li>
+					<li><a href="#" data-vb="show" data-vbSelector="job_title"></i>Title</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="job_description"></i>Description</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation" class="dropdown-header">Status</li>
+					<li><a href="#" data-vb="show" data-vbSelector="completion"></i>Completion</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="running_time"></i>Run Time</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="total_job_cost"></i>Cost</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation" class="dropdown-header">Statistics</li>
+					<li><a href="#" data-vb="hide" data-vbSelector="job_size"></i>Units</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="clarity"></i>Clarity</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="units_per_task"></i>units/mTask</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="req_ann_per_unit"></i>Workers/mTask Requested</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="total_ann"></i>Requested Judgements</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="current_no_ann"></i>Judgements</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="req_ann_per_worker"></i>mTasks/Worker limit</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="total_workers"></i>Workers</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="total_spam_workers"></i>Spammers</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="cost_per_task"></i>Cost/mTask</a></li>
+				</ul>
 			</div>
 		</div>
 	</div>

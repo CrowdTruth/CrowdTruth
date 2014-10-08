@@ -6,46 +6,43 @@
 					Specific Filters
 				</button>
 			</div>
-			<div class='btn-group' style="margin-left:5px;">
+			<div class='btn-group vbColumns' style="margin-left:5px;">
 				<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
 				<button type="button" class="btn btn-default openDefaultColumns hidden">Open default columns</button>
-				<div class="btn-group vbColumns">
-					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 					<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu">
-						<li role="presentation" class="dropdown-header">General</li>
-						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="format"></i>Format</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="domain"></i>Domain</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="title" ></i>File name</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
-						<li role="presentation" class="divider"></li>
-						<li role="presentation" class="dropdown-header">Content</li>
-						<li><a href="#" data-vb="show" data-vbSelector="relation"></i>Seed Relation</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="sent_id"></i>ID</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="term_1"></i>Term 1</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="term_1_processed"></i>Term 1 Processed</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="term_2"></i>Term 2</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="term_2_processed"></i>Term 2 Processed</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="sentence"></i>Sentence</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="sentence_processed"></i>Sentence processed</a></li>
-						<li role="presentation" class="divider"></li>
-						<li role="presentation" class="dropdown-header">Statistics</li>
-						<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i>Batches</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i>Jobs</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="clarity"></i>Clarity</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_cf_judgements"></i>CF judgements</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_amt_judgements"></i>AMT judgements</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_RelEx_jobs"></i>RelEx jobs</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_FactSpan_jobs"></i>FactSpan jobs</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_RelDir_jobs"></i>RelDir jobs</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="number_of_children"></i>Children</a></li>
-                        <li><a href="#" data-vb="hide" data-vbSelector="parents"></i>Parents</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="sentence_wordcount"></i>Words</a></li>
-					</ul>
-				</div>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li role="presentation" class="dropdown-header">General</li>
+					<li><a href="#" data-vb="show" data-vbSelector="sent_id"></i>ID</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="format"></i>Format</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="domain"></i>Domain</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="title" ></i>File name</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation" class="dropdown-header">Content</li>
+					<li><a href="#" data-vb="show" data-vbSelector="relation"></i>Seed Relation</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="term_1"></i>Term 1</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="term_1_processed"></i>Term 1 Processed</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="term_2"></i>Term 2</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="term_2_processed"></i>Term 2 Processed</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="sentence"></i>Sentence</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="sentence_processed"></i>Sentence processed</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation" class="dropdown-header">Statistics</li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i>Batches</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i>Jobs</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="clarity"></i>Clarity</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_cf_judgements"></i>CF judgements</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_amt_judgements"></i>AMT judgements</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_RelEx_jobs"></i>RelEx jobs</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_FactSpan_jobs"></i>FactSpan jobs</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_RelDir_jobs"></i>RelDir jobs</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="number_of_children"></i>Children</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="parents"></i>Parents</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="sentence_wordcount"></i>Words</a></li>
+				</ul>
 			</div>
 
 			<div class='specificFilterContent hidden'>

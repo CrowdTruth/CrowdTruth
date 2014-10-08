@@ -1091,10 +1091,8 @@ function objSort() {
     var t1 = content.terms.first.formatted;
     var t2 = content.terms.second.formatted;
 
-    var term = t1.replace(/[\[\]]/g,'');
-	formattedSentence = formattedSentence.replace(t1, '<span class="highlightTermOne" data-toggle="tooltip" data-placement="top" title="Term 1">' + term + '</span>');
-    var term = t2.replace(/[\[\]]/g,'');
-	formattedSentence = formattedSentence.replace(t2, '<span class="highlightTermTwo" data-toggle="tooltip" data-placement="top" title="Term 2">' + term + '</span>');
+	formattedSentence = formattedSentence.replace(t1, '<span class="highlightTermOne" data-toggle="tooltip" data-placement="top" title="Term 1">' + t1 + '</span>');
+	formattedSentence = formattedSentence.replace(t2, '<span class="highlightTermTwo" data-toggle="tooltip" data-placement="top" title="Term 2">' + t2 + '</span>');
     
 	var relation = content.relation.noPrefix;
     if(relation == "diagnose")

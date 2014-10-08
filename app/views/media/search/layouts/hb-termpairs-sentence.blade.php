@@ -4,27 +4,25 @@
 			<div class='btn-group' style="margin-left:5px;">
 				<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
 				<button type="button" class="btn btn-default openDefaultColumns hidden">Open default columns</button>
-				<div class="btn-group vbColumns">
-					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 					<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu">
-						<li role="presentation" class="dropdown-header">General</li>
-						<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="format"></i>Format</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="domain"></i>Domain</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="title" ></i>File name</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
-						<li role="presentation" class="divider"></li>
-						<li role="presentation" class="dropdown-header">Content</li>
-						<li><a href="#" data-vb="show" data-vbSelector="content_class"></i>Class</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="content_focus"></i>Focus</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="content_candidate"></i>Candidate</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="content_passage1"></i>Passage 1</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="content_passage2"></i>Passage 2</a></li>
-					</ul>
-				</div>
+				</button>
+				<ul class="dropdown-menu vbColumns" role="menu">
+					<li role="presentation" class="dropdown-header">General</li>
+					<li><a href="#" data-vb="show" data-vbSelector="sent_id"></i>ID</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="format"></i>Format</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="domain"></i>Domain</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="title" ></i>File name</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation" class="dropdown-header">Content</li>
+					<li><a href="#" data-vb="show" data-vbSelector="content_class"></i>Class</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="content_focus"></i>Focus</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="content_candidate"></i>Candidate</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="content_passage1"></i>Passage 1</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="content_passage2"></i>Passage 2</a></li>
+				</ul>
 			</div>
 		</div>	
 	</div>
@@ -33,7 +31,8 @@
 	       	<thead data-query-key="match[documentType]" data-query-value="termpairs-sentence">
 		        <tr>
 		            <th data-vbIdentifier="checkbox">Select</th>
-		            <th class="sorting" data-vbIdentifier="format" data-query-key="orderBy[format]" data-toggle="tooltip" data-placement="top" title="Format of the sentence">Format</th>
+					<th class="sorting" data-vbIdentifier="sent_id" data-query-key="orderBy[_id]" data-toggle="tooltip" data-placement="top" title="CrowdTruth unit ID">ID</th>
+					<th class="sorting" data-vbIdentifier="format" data-query-key="orderBy[format]" data-toggle="tooltip" data-placement="top" title="Format of the sentence">Format</th>
 		            <th class="sorting" data-vbIdentifier="domain" data-query-key="orderBy[domain]" data-toggle="tooltip" data-placement="top" title="Domain to which this sentence belongs">Domain</th>
 					<th class="sorting" data-vbIdentifier="title" data-query-key="orderBy[title]" data-toggle="tooltip" data-placement="top" title="Upload file name">File Name</th>
 			    	<th class="sorting" data-vbIdentifier="content_class" data-query-key="orderBy[content.class]">Class</th>
@@ -47,6 +46,9 @@
 				<tr class="inputFilters">
 					<td data-vbIdentifier="checkbox">
 						<input type="checkbox" class="checkAll" />
+					</td>
+					<td data-vbIdentifier="sent_id">
+						<input class="input-sm form-control" type='text' data-query-key="match[_id]" data-query-operator="like" />
 					</td>
 					<td data-vbIdentifier="format">
 						<input class="input-sm form-control" type='text' data-query-key="match[format]" data-query-operator="like" />
@@ -88,6 +90,11 @@
 			        @{{#each documents}}
 			        <tr class="text-center">
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
+						<td data-vbIdentifier="sent_id">
+							<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
+								@{{ this._id }}
+							</a>
+						</td>
 			            <td data-vbIdentifier="format">@{{ this.format }}</td>
 			            <td data-vbIdentifier="domain">@{{ this.domain }}</td>
 			            <td data-vbIdentifier="title">@{{ this.title }}</td>

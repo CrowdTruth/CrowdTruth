@@ -34,8 +34,18 @@
 
 					<div class='tabOptions pull-left'>
 					</div>
-					<a href="{{ URL::to('/jobs/batch') }}" class="btn btn-default" style="margin-left:5px; float:left;">Create Job</a>
-					<a href="{{ URL::to('/jobs2/batch') }}" class="btn btn-default" style="margin-left:5px; float:left;">Create Job 2</a>
+
+					<div class='btn-group' style="margin-left:5px;">
+						<a href="{{ URL::to('/jobs/batch') }}" class="btn btn-default">Create Job</a>
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="{{ URL::to('/jobs2/batch') }}"></i>Create Job (Beta)</a></li>
+						</ul>
+					</div>
+
+
 					<div class="btn-group pull-left" style="margin-left:5px";>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						Actions <span class="caret"></span>

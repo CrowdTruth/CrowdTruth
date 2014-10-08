@@ -76,67 +76,82 @@
 						<div class="lead text-center">
 							Read more about CrowdTruth:
 						</div>
-						<ul>
-						<li class="media" style='padding:10px;'>
-							<i class="fa fa-fw fa-info pull-left" style='font-size:40px;'></i>				  	
-							<a href="https://github.com/CrowdTruth/CrowdTruth/wiki" target="_blank" class="noastyle">
-							<div class="media-body">
-							  <h4 class="media-heading">Documentation</h4>
-							  Information on the usage and inner workings of the CrowdTruth framework
-							</div>
-						</a>
-						  </li>
-						  <li class="media" style='padding:10px;'>
-							<i class="fa fa-fw fa-flask pull-left" style='font-size:40px;'></i>				  	
-							<a href="http://crowdtruth.org/papers" target="_blank" class="noastyle">
-								<div class="media-body">
-								  <h4 class="media-heading">Papers</h4>
-								  Scientific papers on CrowdTruth (harnessing disagreement)
-								</div>
-							</a>
-						  </li>
-						  <li class="media" style='padding:10px;'>
-							<i class="fa fa-fw fa-slideshare pull-left" style='font-size:40px;'></i>				  	
-							<a href="http://crowdtruth.org/presentations" target="_blank" class="noastyle">
-								<div class="media-body">
-								  <h4 class="media-heading">Presentations</h4>
-								  Scientific presentations on CrowdTruth
-								</div>
-							</a>
-						  </li>	
-						 <li class="media" style='padding:10px;'>
-							<i class="fa fa-fw fa-github pull-left" style='font-size:40px;'></i>				  	
-							<a href="https://github.com/CrowdTruth/CrowdTruth/" target="_blank" class="noastyle">
-							<div class="media-body">
-							  <h4 class="media-heading">Source code</h4>
-							  Download the latest version from Github
-							</div>
-						</a>
-						  </li>
-						 <li class="media" style='padding:10px;'>
-							<i class="fa fa-fw fa-file-code-o pull-left" style='font-size:40px;'></i>				  	
-							<a href="https://github.com/CrowdTruth/CrowdTruth/wiki/templates" target="_blank" class="noastyle">
-							<div class="media-body">
-							  <h4 class="media-heading">Example Templates</h4>
-							  Example templates and code snippets to get you started
-							</div>
-						</a>
-						  </li>						  
-						</ul>	
+						<div class='col-xs-12 col-md-6'>
+							<ul class='website'>
+								<li>
+									<i class="fa fa-fw fa-info pull-left" style='font-size:40px;'></i>				  	
+									<a href="https://github.com/CrowdTruth/CrowdTruth/wiki" target="_blank" class="noastyle">
+									<div class="media-body">
+									  <h4 class="media-heading">Documentation</h4>
+									  Information on the usage and inner workings of CrowdTruth
+									</div>
+								</a>
+								  </li>
+								<li>
+									<i class="fa fa-fw fa-github pull-left" style='font-size:40px;'></i>				  	
+									<a href="https://github.com/CrowdTruth/CrowdTruth/" target="_blank" class="noastyle">
+									<div class="media-body">
+									  <h4 class="media-heading">Source code</h4>
+									  Download the latest version from Github
+									</div>
+								</a>
+								  </li>
+								<li>
+									<i class="fa fa-fw fa-file-code-o pull-left" style='font-size:40px;'></i>				  	
+									<a href="https://github.com/CrowdTruth/CrowdTruth/wiki/templates" target="_blank" class="noastyle">
+									<div class="media-body">
+									  <h4 class="media-heading">Example Templates</h4>
+									  Example templates and code snippets to get you started
+									</div>
+								</a>
+								  </li>
+							</ul>
+						</div>
+						<div class='col-xs-12 col-md-6'>
+							<ul class='website'>
+								<li>
+									<i class="fa fa-fw fa-newspaper-o pull-left" style='font-size:40px;'></i>				  	
+									<a href="http://crowdtruth.org" target="_blank" class="noastyle">
+									<div class="media-body">
+									  <h4 class="media-heading">Blog</h4>
+									  Read the latest news on our development blog.
+									</div>
+								</a>
+								  </li>
+								  <li>
+									<i class="fa fa-fw fa-flask pull-left" style='font-size:40px;'></i>				  	
+									<a href="http://crowdtruth.org/papers" target="_blank" class="noastyle">
+										<div class="media-body">
+										  <h4 class="media-heading">Papers</h4>
+										  Scientific papers on CrowdTruth (harnessing disagreement)
+										</div>
+									</a>
+								  </li>
+								 <li>
+									<i class="fa fa-fw fa-slideshare pull-left" style='font-size:40px;'></i>				  	
+									<a href="http://crowdtruth.org/presentations" target="_blank" class="noastyle">
+										<div class="media-body">
+										  <h4 class="media-heading">Presentations</h4>
+										  Scientific presentations on CrowdTruth
+										</div>
+									</a>
+								  </li>	
+							</ul>
+						</div>
 						
 					</div>
 					<hr />
 					<div class='row'>	
 						<div class="col-xs-4 text-center">
-							<a href="http://crowdtruth.org" target="_blank" class="noastyle">
-								<i class="fa fa-fw fa-newspaper-o"></i> Blog
-							</a>
-						</div>
-						<div class="col-xs-4 text-center">
 							<a href="http://crowdtruth.org/team" target="_blank" class="noastyle">
 								<i class="fa fa-fw fa-puzzle-piece"></i> Team
 							</a>
 						</div>						
+						<div class="col-xs-4 text-center">
+							<a href="http://crowdtruth.org/partners" target="_blank" class="noastyle">
+								<i class="fa fa-fw fa-university"></i> Partners
+							</a>
+						</div>
 						<div class="col-xs-4 text-center">
 							<a href="http://crowdtruth.org/contact" target="_blank" class="noastyle">
 								<i class="fa fa-fw fa-envelope-o"></i> Contact
@@ -170,6 +185,8 @@
 }
 .tools {
 	margin: 5px -10px 5px -10px;
+	height:150px;
+	overflow:hidden;
 	text-align:center;
 	padding: 10px 4px 10px 4px;
 	background-color: #f5f3b4;
@@ -188,6 +205,8 @@
 }
 .disabled {
 	margin: 5px -10px 5px -10px;
+	height:150px;
+	overflow:hidden;
 	text-align:center;
 	padding: 10px 4px 10px 4px;
 	background-color: #D6D6D6;
@@ -204,6 +223,13 @@
 }
 .tools h4, .disabled h4 {
 	margin-bottom:5px;
+}
+.website {
+    list-style:none;
+    padding-left:0;
+}
+.website li {
+	margin:20px 0 20px 0;
 }
 </style>
 
