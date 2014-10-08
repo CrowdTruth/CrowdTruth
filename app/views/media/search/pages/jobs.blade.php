@@ -1125,7 +1125,7 @@ $('body').on('click', '.testModal', function(){
 
 $('.select_job').click();
 $('.documentTypesNav').find('#job_nav a').click();
-$('.graphViewButton').click();
+$('.listViewButton').click();
 
 var workerList = localStorage.getItem("jobList");
 if(workerList !=  null) {
