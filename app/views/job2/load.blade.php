@@ -21,9 +21,10 @@
 										$aTypes = array(null => '---');
 										$_format = Session::get('format_t');
 										$_aTypes = \MongoDB\Template::where("format", $_format)->distinct('type')->get();
-									    $_aTypes = array_flatten($_aTypes->toArray());				  
+									    $_aTypes = array_flatten($_aTypes->toArray());		
+
 									    foreach($_aTypes as $key=>$value){
-									    	if(!isset($aTypes[$value]))
+									    	if(!isset($aTypes[$value]) and $value !== "NONE")
 										    	$aTypes[$value] = $value;
 										}	
 									?>

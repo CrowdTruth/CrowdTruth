@@ -62,11 +62,53 @@ class JobsController2 extends BaseController {
 	public function getLoad($id) {
 		$j = \MongoDB\Entity::where("documentType", "job")->where("platformJobId", $id)->first();
 		Session::put('format_t', $j->format);
+		Session::put('jobconf_id_t', $j->jobConf_id);
+		Session::put('job_id_t', $j->_id);
 		return View::make('job2.load');
 	}
 
 	public function postLoadt() {
-		//$batch = Batch::find(Input::get('batch'));
+			$jc_id = Session::get('jobconf_id_t');
+			$j_id = Session::get('job_id_t');
+			$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
+			$j = \MongoDB\Entity::where("_id", $j_id)->first();
+			$jcco = $jc['content'];
+			$jcco['type'] =  Input::get('templateType');
+	 		if($jcco['type'] == Null) 
+	    		return Redirect::back()->with('flashError', "form not filled in (type).");	 	
+	    	// get a selected, newest jcbase
+	    	$maxi = \MongoDB\Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->max('version');
+	 		$jcbase = \MongoDB\Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->where('version', $maxi)->first();
+	 		if(!isset($jcbase)){
+	 			Session::flash('flashError',"template not found");
+				return Redirect::to("jobs2/submit");
+			}
+	 		$jcbaseco = $jcbase;
+	 		if(!isset($jcbaseco['cml'])){
+	 			Session::flash('flashError', "No template details in this template");
+				return Redirect::to("jobs2/submit");
+			}
+	 		$jcco['cml'] = $jcbaseco['cml'];
+	 		if(isset($jcbaseco['css']))
+	 			$jcco['css'] = $jcbaseco['css'];
+	 		if(isset($jcbaseco['instructions']))
+	 			$jcco['instructions'] = $jcbaseco['instructions'];
+	 		if(isset($jcbaseco['js']))
+	 			$jcco['js'] = $jcbaseco['js'];
+	 		$jcco['template_id'] = $jcbaseco['_id'];
+	 		$pos = strpos($jcco['title'], '[[');
+	     	$title = substr($jcco['title'], 0, $pos);
+	     	$rest = substr($jcco['title'], strpos($jcco['title'], '(entity/' ));
+	 		$jcco['title'] = $title . "[[" . $jcco['type'] . $rest;
+	 		$jc['content'] = $jcco;
+	 		$j['type'] = $jcco['type'];
+	 		$jc->save();
+	 		$j->save();
+	 		$platform = App::make('cf2');
+
+	 		//upadte
+			$platform->cfUpdate($j['platformJobId'], $jc);
+
 		return Redirect::to("jobs");
 	}
 
