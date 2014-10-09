@@ -173,6 +173,8 @@
 								@{{/is}}
 								</div>
 								<div class="btn-group actionbar">
+								<a class="btn btn-primary btn-sm" href="/jobs2/save/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Save a template"><i class="fa fa-save"></i></a>
+								<a class="btn btn-primary btn-sm" href="/jobs2/load/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Load a template"><i class="fa fa-link"></i></a>
 								@{{#is this.status 'unordered'}}
 									<a class="btn btn-danger btn-sm" href="/jobs2/delete/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job everywhere (CT and Platform)"><i class="fa fa-remove"></i></a>
 								@{{/is}}

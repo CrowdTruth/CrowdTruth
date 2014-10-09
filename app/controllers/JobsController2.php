@@ -59,6 +59,17 @@ class JobsController2 extends BaseController {
 		return View::make('job2.tabs.submit');
 	}
 
+	public function getLoad($id) {
+		$j = \MongoDB\Entity::where("documentType", "job")->where("platformJobId", $id)->first();
+		Session::put('format_t', $j->format);
+		return View::make('job2.load');
+	}
+
+	public function postLoadt() {
+		//$batch = Batch::find(Input::get('batch'));
+		return Redirect::to("jobs");
+	}
+
 	public function getClearTask(){
 		Session::forget('jobconf');
 		Session::forget('format');
@@ -145,6 +156,13 @@ class JobsController2 extends BaseController {
 		\MongoDB\Temp::truncate();
 		return Redirect::to("jobs");
 	}
+
+	public function getSavetemplate($id){
+		$platform = App::make('cf2');
+		return Redirect::to("save");
+	}
+
+
 
 
 	public function postSubmitFinal($ordersandbox = 'order'){
