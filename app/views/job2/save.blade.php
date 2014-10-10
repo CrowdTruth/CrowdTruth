@@ -17,7 +17,7 @@
 							{{ Form::label('templateType', 'Template type name', 
 									array('class' => 'col-xs-5 control-label')) }}
 									<div class="input-group col-xs-4">		
-									{{ Form::text('templateTypeOwn', Session::get('type_t'), array('class' => 'form-control col-xs-3')) }}
+									{{ Form::text('templateType', Session::get('type_t'), array('class' => 'form-control col-xs-3')) }}
 								</div>
 						
 							{{ Form::label('Overwrite', 'Overwrite?', 

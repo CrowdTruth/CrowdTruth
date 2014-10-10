@@ -70,6 +70,7 @@ class JobsController2 extends BaseController {
 
 	private function findNewestTemplate($type, $format){
 		$maxi = \MongoDB\Template::where("type", $type)->where("format", $format)->max('version');
+		if ($maxi === null){return null;}
 	 	$jcbase = \MongoDB\Template::where("type", $type)->where("format", $format)->where('version', $maxi)->first();
 
 	 	return $jcbase;
@@ -81,7 +82,7 @@ class JobsController2 extends BaseController {
 		$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
 		$j = \MongoDB\Entity::where("_id", $j_id)->first();
 		$overwrite = Input::get('overwrite');
-		$type = Input::get('templateTypeOwn');
+		$type = Input::get('templateType');
 		//dd($overwrite);
 		if($type===null or $type==="")
 			return Redirect::back()->with('flashError', "Type name not filled");	
@@ -92,13 +93,27 @@ class JobsController2 extends BaseController {
 			if($newest !== Null)
 				return Redirect::back()->with('flashError', "The template type name already exists! (change or allow to overwrite)");	 	
 		}
+		if($overwrite==='yes'){
+			$newest = $this->findNewestTemplate($type, $j->format);
+			if($newest === Null){
+				$v = 0;
+			}
+			else
+			{
+				$v =   \MongoDB\Template::where("type", $type)->where("format", $j->format)->max('version')+1;
+			}
+		}
 
 		//save + increasing version
+		// $te = \MongoDB\Template::where("type", $type)->where("format", $j->format);
+		// $tenew = te.copy()
+		// $tenew.set($jc->content['cml'], css, instruct, js, ver = v )
+		// $tenew.save();
 		$load = Input::get('load');
 		if($load === 'yes'){
 
 			//load
-			// this->postLoadt();
+		    $this->postLoadt();
 		}
 		return Redirect::to("jobs");
 	}
