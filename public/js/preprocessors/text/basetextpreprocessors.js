@@ -1,13 +1,22 @@
-function textToType(propId) {
-	htmlText = '' +
-		'Use column: <br>' + 
-		getColumnsSelector(propId + '_usecol') + '<br>' + 
-		'Treat as: <br>' + 
-    	'<select name="' + propId + '_as" id="' + propId + '_as">' +
-    	'  <option value="text"> Text </option>' +
-    	'  <option value="number"> Number </option>' +
-    	' </select>' + 
-		'';
+function textPreprocessor(propId) {
+	htmlText = '' + 
+		'<div class="row">' +
+		'	<label for="column" class="col-md-3 control-label">Column:</label>' + 
+		'	<div class="col-xs-3">' +
+				getColumnsSelector(propId + '_usecol') +
+		'	</div>' +
+		'</div>';
+	return htmlText;
+}
+
+function numberPreprocessor(propId) {
+	htmlText = '' + 
+		'<div class="row">' +
+		'	<label for="column" class="col-md-3 control-label">Column:</label>' + 
+		'	<div class="col-xs-3">' +
+				getColumnsSelector(propId + '_usecol') +
+		'	</div>' +
+		'</div>';
 	return htmlText;
 }
 
@@ -34,36 +43,48 @@ function regexPreprocessor(propId) {
 }
 
 function wordcountPreprocessor(propId) {
-	htmlText = '' + 
-		'Perform word count of column: <br>' + 
-		getColumnsSelector(propId + '_usecol') + '<br>' + 
+	htmlText = '<div class="row">' +
+		'<label for="column" class="col-md-3 control-label">Column:</label>' + 
+		'<div class="col-xs-3">' +
+		getColumnsSelector(propId + '_usecol') + '</div></div>' + 
 		'';
 	return htmlText;
 }
 
 function stringlengthPreprocessor(propId) {
-	htmlText = '' + 
-		'Perform string length of column: <br>' + 
-		getColumnsSelector(propId + '_usecol') + '<br>' + 
+	htmlText = '<div class="row">' +
+		'<label for="column" class="col-md-3 control-label">Column:</label>' + 
+		'<div class="col-xs-3">' +
+		getColumnsSelector(propId + '_usecol') + '</div></div>' + 
 		'';
 	return htmlText;
 }
 
 function termdifferencePreprocessor(propId) {
 	htmlText = '' + 
-		'This function returns the Levenshtein-Distance between the two terms or -1, if one of the argument strings is longer than the limit of 255 characters. <br>' + 
-		getColumnsSelector(propId + '_col1') + ' and ' + getColumnsSelector(propId + '_col2') + '<br>' + 
+		'Compute the Levenshtein-Distance between the terms in the following two columns. Will return -1 if one of the argument strings is longer than the limit of 255 characters. <br><br>' + 
+		'<div class="row">' +
+		'<label for="_col1" class="col-md-3 control-label">First term:</label>' + 
+		'<div class="col-xs-3">' +
+		getColumnsSelector(propId + '_col1') + '</div></div>' + 
+		'<div class="row">' +
+		'<label for="_col2" class="col-md-3 control-label">Second term:</label>' + 
+		'<div class="col-xs-3">' +
+		getColumnsSelector(propId + '_col2') + '</div></div>' + 
 		'';
 	return htmlText;
 }
 
 function replaceTermPreprocessor(propId) {
-	htmlText = '' + 
-		'Replace terms: <br>' + 
-		'In term:<br>' + 
-		getPropertySelector(propId + '_repFrom') + '<br>' + 
-		'Replace term<br>' + 
-		getGroupSelector(propId + '_repBy') + '<br>' + 
+	htmlText = '' +		
+		'<div class="row">' +
+		'<label for="column" class="col-md-3 control-label">In term:</label>' + 
+		'<div class="col-xs-3">' +
+		getPropertySelector(propId + '_repFrom') + '</div></div>' + 
+		'<div class="row">' +
+		'<label for="column" class="col-md-3 control-label">Replace Terms (Group):</label>' + 
+		'<div class="col-xs-3">' +
+		getGroupSelector(propId + '_repBy') + '</div></div>' + 
 		'';
 	return htmlText;
 }

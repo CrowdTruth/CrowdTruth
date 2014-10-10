@@ -1,6 +1,8 @@
 @extends('media.preprocess.relex.layouts.default')
 
 @section('head')
+
+{{ stylesheet_link_tag('bootstrap-select.css') }}
 <script>
 	function previewTable() {
 		formUrl = $("#docPreviewForm").attr("action");
@@ -17,9 +19,6 @@
 	}
 
 	function displayDocumentPreview(data) {
-		console.log('Data: ');
-		console.log(data);
-
 	    var table = $("#docPreviewTable");
 	    table.find("tr").remove();
 	    
@@ -32,8 +31,6 @@
 		    table.append(rowStr);
 		}
 		document.columns = data.headers;
-		console.log('Data - columns: ');
-		console.log(document.columns);
 
 	    for(row in data.content) {
 		    rowStr = "<tr>";
@@ -55,21 +52,29 @@
 	    divStr = '' +
 	        '		<div class="panel panel-default" id="' + propId + '_div">' +
 			'		<div class="panel-heading">' +
-			'			<div class="btn-group pull-right">'+
-			'				<button type="button" class="btn btn-danger btn-sm" name="' + propId + '_close" id="' + propId + '_close"><i class="fa fa-remove"></i></button>' +
+			'			<div class="col-xs-4" style="padding-top:7.5px;">' +
+			'				<i class="fa fa-edit"></i> ' + propName +
 			'			</div>' +
-			'			<i class="fa fa-edit"></i> ' + propName +
+			'			<div class="col-xs-4">' +
+			'				<select class="selectpicker" data-container="body" name="' + propId + '_function" id="' + propId + '_function">' +		
+			'          			<option value="text">Text</option>' + 
+			'          			<option value="number">Number</option>' + 
+			'					<optgroup label="Function">' +
+{{-- Load the available functions --}}
+	        @foreach ($functions as $function)
+			'          			<option value="{{ $function->getName() }}">{{ $function->getName()	 }}</option>' + 
+			@endforeach
+			'					</optgroup>' +
+	        '				</select> ' +
+			'			</div>' +
+			'			<div class="col-xs-4 btn-group">'+
+			'				<a class="text-danger pull-right" style="padding-top:7.5px;" href="#" name="' + propId + '_close" id="' + propId + '_close"><i class="fa fa-remove"></i></a>' +
+			'			</div>' +
+			'			<div class="clearfix"></div>' +
 			'		</div>' +
 	        '		<div class="panel-body">' +
 			'			 <input type="hidden" name="' + propId + '_propName" id="' + propId + '_propName" value="' + propId + '" class="propertyName"/>' +
 	        '            <input type="hidden" name="' + propId + '_propParent" id="' + propId + '_propParent" value="' + parentGroupId + '"/>' +	        
-	        '            ' +
-	        '           <select class="form-control" name="' + propId + '_function" id="' + propId + '_function">' +
-{{-- Load the available functions --}}
-	        @foreach ($functions as $function)
-			'           <option value="{{ $function->getName() }}"> {{ $function->getName()	 }} </option>' + 
-			@endforeach
-	        '           </select> ' +
 	        '			<div id="' + propId + '_params">' +
 	        '			</div>' +
 	        '		</div>' +
@@ -81,7 +86,7 @@
 	Create a new SELECT element listing all columns available. 
 --}}
 	function getColumnsSelector(selectorName) {
-		colsSelect = '<select name="' + selectorName + '" id="' + selectorName + '">';
+		colsSelect = '<select class="form-control" name="' + selectorName + '" id="' + selectorName + '">';
 {{-- Load the available columns --}}
     	for( col in document.columns) {
     		colsSelect += '  <option value="' +col + '">' + document.columns[col] + '</option>';
@@ -96,7 +101,7 @@
 	         inputs.push($(this).val());
 	    });
 
-	    propSelect = '<select name="' + selectorName + '" id="' + selectorName + '">';
+	    propSelect = '<select class="form-control" name="' + selectorName + '" id="' + selectorName + '">';
 		for(idx in inputs) {
 			inputValue = inputs[idx];
 			inputName = inputValue.split("_").join(".");
@@ -112,7 +117,7 @@
 	         inputs.push($(this).val());
 	    });
 
-	    groupSelect = '<select name="' + selectorName + '" id="' + selectorName + '">';
+	    groupSelect = '<select class="form-control" name="' + selectorName + '" id="' + selectorName + '">';
 		for(idx in inputs) {
 			inputValue = inputs[idx];
 			inputName = inputValue.split("_").join(".");
@@ -131,25 +136,28 @@
 	    divStr = '' +
 	        '		<div class="panel panel-default" id="' + groupId + '_div">' +
 			'		<div class="panel-heading">' +
-			'			<div class="btn-group pull-right">'+
-			'				<button type="button" class="btn btn-danger btn-sm" name="' + groupId + '_close" id="' + groupId + '_close"><i class="fa fa-remove"></i></button>' +
-			'			</div>' +
-			'			<i class="fa fa-folder-open-o"></i> ' + groupName +
-			'		</div>' +
-	        '		<div class="panel-body">' +
-	        '			<div class="col-xs-12">' +
-	        '           <input type="hidden" name="' + groupId + '_groupName" id="' + groupId + '_groupName" value="' + groupId + '" class="groupName"/>' +
-	        '           <input type="hidden" name="' + groupId + '_groupParent" id="' + groupId + '_groupParent" value="' + parentGroupId + '"/>' +
-			'			<div class="col-xs-8">' +
-			'				<div class="input-group">' +
-			'					<input class="form-control" type="text" value="" id="' + groupId + '_newName" placeholder="Add new" />' +
-			'					<span class="input-group-btn">' +
-			'						<button type="button" class="btn btn-default" id="' + groupId + '_newProp"><i class="fa fa-edit"></i> Data Property</button>' +
-			'						<button type="button" class="btn btn-default" id="' + groupId + '_newGroup"><i class="fa fa-folder-open-o"></i> Property Group</button>' +
-			'					</span>' +
+			'			<div class="row">' +
+			'				<div class="col-xs-2" style="padding-top:7.5px;">' +
+			'					<i class="fa fa-folder-open"></i> ' + groupName +
 			'				</div>' +
-	        '		</div>' +
-	        '		<div class="panel-body col-xs-12" id="' + groupId + '_props">' +
+			'				<div class="col-xs-8">' +
+	        '  	 			<input type="hidden" name="' + groupId + '_groupName" id="' + groupId + '_groupName" value="' + groupId + '" class="groupName"/>' +
+			'		           	<input type="hidden" name="' + groupId + '_groupParent" id="' + groupId + '_groupParent" value="' + parentGroupId + '"/>' +
+			'					<div class="input-group">' +
+			'						<input class="form-control" type="text" value="" id="' + groupId + '_newName" placeholder="Add new" />' +
+			'						<span class="input-group-btn">' +
+			'							<button type="button" class="btn btn-default" id="' + groupId + '_newProp"><i class="fa fa-edit"></i> Data Property</button>' +
+			'							<button type="button" class="btn btn-default" id="' + groupId + '_newGroup"><i class="fa fa-folder-open"></i> Property Group</button>' +
+			'						</span>' +
+			'					</div>' +
+			'				</div>' +
+			'				<div class="col-xs-2 btn-group">'+
+			'					<a class="text-danger pull-right" style="padding-top:7.5px;" href="#" name="' + groupId + '_close" id="' + groupId + '_close"><i class="fa fa-remove"></i></a>' +
+			'				</div>' +
+			'				<div class="clearfix"></div>' +
+			'			</div>' +
+			'		</div>' +
+	        '		<div class="panel-body" id="' + groupId + '_props">' +
 	        '		</div>' +
 	        '		</div>';
 	    return divStr;
@@ -161,12 +169,18 @@
 	function newPropertyAction(parentGroupId) {
 	  props = parentGroupId + "_props";
 	  propName = $("#" + parentGroupId + "_newName").val();
+	  $("#" + parentGroupId + "_newName").val("");
 	  propId = parentGroupId + "_" + propName;
 	  // Add property div 
 	  $("#" + props).append(getPropertyDiv(parentGroupId, propName));
+	  
+	  	// load selectpicker for new elements	
+		$('.selectpicker').selectpicker('refresh');
+	  
 	  // Add actions to buttons on the div 
 	  $("#" + propId + "_close").click(function(){
-	      $(this).parent().parent().parent().remove();
+	      $(this).closest(".panel").remove();
+		  return false;
 	  });
 	  $("#" + propId + "_function").change(function(){
 		  functionName = $(this).val();
@@ -174,6 +188,7 @@
 	      selectFunction(functionName, propId);
 	  });
 	  $("#" + propId + "_function").change();
+	  return false;
     }
 
 {{--
@@ -182,6 +197,7 @@
 	function newGroupAction(parentGroupId) {
 	  props = parentGroupId + "_props";
 	  groupName = $("#" + parentGroupId + "_newName").val();
+	  $("#" + parentGroupId + "_newName").val("");
 	  // Add group div 
 	  $("#" + props).append(getGroupDiv(parentGroupId, groupName));
 
@@ -195,13 +211,16 @@
 	      newGroupAction(groupId1);
 	  });
 	  $("#" + groupId + "_close").click(function(){
-	      $(this).parent().parent().parent().remove();
+	      $(this).closest(".panel").remove();
+		  return false;
 	  });
 	}
 
 	function selectFunction(functionName, propId) {
 		divName = propId + "_params";
 	    switch(functionName) {
+			case 'text': divHtml = textPreprocessor(propId); break;
+			case 'number': divHtml = numberPreprocessor(propId); break;
   		  @foreach ($functions as $function)
 	    	case '{{ $function->getName() }}': divHtml = {{ $function->getParameterJSFunctionName() }}(propId); break;
 		  @endforeach
@@ -212,7 +231,7 @@
 	function doPreview() {
 		$('#postAction').val('processPreview');
 		formUrl = $("#theForm").attr("action");
-		formData = $("#theForm").serialize();
+		formData = $("#theForm,#docPreviewForm").serialize();
 		$.ajax({
 			type: "POST",
 			url: formUrl,
@@ -295,6 +314,7 @@
 				<select class='form-control' id="separator" name="separator" />
 					<option value=','>Comma</option>
 					<option value=';'>Semicolon</option>
+					<option value=':'>Colon</option>
 					<option value='	'>Tab</option>
 					<option value=' '>Space</option>
 				</select>
@@ -316,11 +336,11 @@
 		Document Preview
 	</div>
 <div style="height: 150px; overflow: auto;">
-	<table class="table table-bordered" name="docPreviewTable" id="docPreviewTable">
+	<table name="docPreviewTable" id="docPreviewTable">
 		<thead>
 			<tr>
-{{--				@foreach ($columns as $column)
-				<th style="width: 10%">{{ $column }}</th> 
+{{--			@foreach ($columns as $column)
+				<th>{{ $column }}</th> 
 				@endforeach --}}
 			</tr>
 		</thead>
@@ -344,28 +364,28 @@
 
 <div class="panel panel-default">
 		<div class="panel-heading">
-			<div class="btn-group pull-right">
-				<input class="btn btn-default btn-sm" type="button" value="Load Configuration">
+			<div class="row">
+				<div class='col-xs-2' style='padding-top:7.5px;'>
+					Content Structure
+					<input type="hidden" name="root_groupName" id="root_groupName" value="root"/>
+				</div>
+				<div class="col-xs-7">
+					<div class="input-group">
+						<input class='form-control' type="text" value="" id="root_newName" placeholder="Add new" />
+						<span class="input-group-btn">
+							<button type="button" class="btn btn-default" id="root_newProp"><i class="fa fa-edit"></i> Data Property</button>
+							<button type="button" class="btn btn-default" id="root_newGroup"><i class="fa fa-folder-open"></i> Property Group</button>
+						</span>
+					</div>
+				</div>
+				<div class="col-xs-3">
+					<input class="btn btn-default pull-right" type="button" value="Load Configuration">
+				</div>
+				<div class="clearfix"></div>
 			</div>
-			Content Structure
-			<input type="hidden" name="root_groupName" id="root_groupName" value="root"/>
 		</div>
 	<div class="panel-body">
-		<div class="row">
-			<div class="col-xs-7">
-				<div class="input-group">
-					<input class='form-control' type="text" value="" id="root_newName" placeholder="Add new" />
-					<span class="input-group-btn">
-						<button type="button" class="btn btn-default" id="root_newProp"><i class="fa fa-edit"></i> Data Property</button>
-						<button type="button" class="btn btn-default" id="root_newGroup"><i class="fa fa-folder-open-o"></i> Property Group</button>
-					</span>
-				</div>
-			</div>
-		</div>
-
-		<div class='panel-body col-xs-12'>
-			<div class="row" id="root_props"></div>
-		</div>
+		<div class="" id="root_props"></div>
 	</div>
 	<div class="panel-footer">
 		<button type='button' class='btn btn-success' onclick="doPreview();"><i class="fa fa-desktop"></i> Preview</button>
@@ -395,10 +415,33 @@
 <!-- STOP preprocess/text/configure -->
 @stop
 
+
+<style>
+.bootstrap-select {
+	margin-bottom:0px !important;
+}
+#docPreviewTable {
+    border-collapse: collapse;
+    border-style: hidden;
+	font-size:12px;
+}
+#docPreviewTable td {
+    border: 1px solid black;
+}
+#docPreviewTable th {
+    border: 1px solid black;
+	text-align: center;
+	background-color: #e8e8e8;
+	padding:5px;
+}
+</style>
+
 @section('end_javascript')
+{{ javascript_include_tag('bootstrap-select.js') }}
 <script>
 	// TODO: Couldn't this be added dynamically? 
 	$(document).ready(function(){
+		$('.selectpicker').selectpicker();
 		$("#root_newProp").click(function(){
 		  newPropertyAction("root");
 		});
