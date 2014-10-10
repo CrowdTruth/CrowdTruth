@@ -1,4 +1,4 @@
-@extends('layouts.default')
+@extends('layouts.default_new')
 @section('content')
 @include('layouts.flashdata')
 <div class="col-xs-10 col-md-offset-1">
