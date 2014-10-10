@@ -155,7 +155,7 @@
 			            	<div id="status@{{@index}}" class="currentstatus status-@{{this.status}}">@{{this.status}}</div>
 							<div class="btn-group actionbar">
 								<a class="btn btn-default btn-sm" href="/jobs2/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o"></i></a>
-								<a class="btn btn-success btn-sm" href="/jobs2/refresh/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Refresh the job settings"><i class="fa fa-refresh"></i></a>
+								<a class="btn btn-default btn-sm" href="/jobs2/refresh/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Refresh the job settings"><i class="fa fa-refresh"></i></a>
 
 								@{{#if this.url}}
 								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link"></i></a>
@@ -173,15 +173,15 @@
 								@{{/is}}
 								</div>
 								<div class="btn-group actionbar">
-									<a class="btn btn-primary btn-sm" href="/jobs2/save/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Save a template"><i class="fa fa-save"></i></a>
+									<a class="btn btn-default btn-sm" href="/jobs2/save/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Save a template"><i class="fa fa-save"></i></a>
 
 									
 
 									@{{#is this.status 'canceled'}}
-										<a class="btn btn-primary btn-sm" href="/jobs2/load/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Load a template"><i class="fa fa-link"></i></a>
+										<a class="btn btn-default btn-sm" href="/jobs2/load/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Load a template"><i class="fa fa-link"></i></a>
 									@{{/is}}
 									@{{#is this.status 'unordered'}}
-										<a class="btn btn-primary btn-sm" href="/jobs2/load/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Load a template"><i class="fa fa-link"></i></a>
+										<a class="btn btn-default btn-sm" href="/jobs2/load/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Load a template"><i class="fa fa-link"></i></a>
 									@{{/is}}
 
 									
