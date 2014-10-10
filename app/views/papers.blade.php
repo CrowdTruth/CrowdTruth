@@ -1,7 +1,7 @@
 @extends('layouts.default_new')
 @section('content')
 			<!-- START /index --> 			
-			<div class="col-xs-8 col-md-offset-2">
+			<div class="col-xs-12 col-md-8 col-md-offset-2">
 				<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')	
 	<div class="page-header text-center" style="margin:10px;">

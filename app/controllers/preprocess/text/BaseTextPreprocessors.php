@@ -11,13 +11,13 @@ namespace Preprocess;
  * 
  */
 // TODO: implement properly and document !
-class TextToTypePreprocessor extends AbstractTextPreprocessor {
+class TextPreprocessor extends AbstractTextPreprocessor {
 	function getName() {
-		return 'Text as type';
+		return 'text';
 	}
 
 	function getParameterJSFunctionName() {
-		return 'textToType';
+		return 'textPreprocessor';
 	}
 
 	function getParameterJSFunction() {
@@ -26,12 +26,34 @@ class TextToTypePreprocessor extends AbstractTextPreprocessor {
 
 	function processItem($params, $data, $entities) {
 		// Validate required parameters are present
-		if(!array_key_exists('usecol', $params) ||
-			!array_key_exists('as', $params)	) {
+		$colName = $params['usecol'];
+
+		// Validate required columns are present
+		if(! array_key_exists($colName, $data)) {
 			return 'N/A';
 		}
+
+		return $data[$colName];
+	}
+}
+
+class NumberPreprocessor extends AbstractTextPreprocessor {
+	function getName() {
+		return 'number';
+	}
+
+	function getParameterJSFunctionName() {
+		return 'numberPreprocessor';
+	}
+
+	function getParameterJSFunction() {
+		return '<script src="/js/preprocessors/text/basetextpreprocessors.js"></script>';
+	}
+
+	function processItem($params, $data, $entities) {
+		// Validate required parameters are present
+
 		$colName = $params['usecol'];
-		$as = $params['as'];
 
 		// Validate required columns are present
 		if(! array_key_exists($colName, $data)) {
@@ -39,21 +61,12 @@ class TextToTypePreprocessor extends AbstractTextPreprocessor {
 		}
 
 		$value = $data[$colName];
-		$item = '';
-		switch($as) {
-			case 'text':
-				$item = $value;
-				break;
-			case 'number':
-				if(str_contains($value, '.')) {
-					$item = (float) $value;
-				} else {
-					$item = (int) $value;
-				}
-				break;
-			default:
-				break;
+		if(str_contains($value, '.')) {
+			$item = (float) $value;
+		} else {
+			$item = (int) $value;
 		}
+
 		return $item;
 	}
 }

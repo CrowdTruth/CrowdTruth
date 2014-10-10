@@ -1,4 +1,4 @@
-@extends('layouts.default')
+@extends('layouts.default_new')
 @section('content')
 @include('layouts.flashdata')
 <div class="col-xs-10 col-md-offset-1">
@@ -17,19 +17,15 @@
 							{{ Form::label('title', 'Select a title from the set of predefined ones or give your own', 
 									array('class' => 'col-xs-6 control-label')) }}
 								<div class="input-group col-xs-3">
-
-
 									<?php 
 										// Get a list of titles and template types which are already in the database
 										// and put them to dropdown
 
 										$aTitles = array(null => '---');
 										$aTypes = array(null => '---');
-
 										$_format = (unserialize(Session::get('batch'))->format);
 										$_aTitles = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct("content.title")->get();
-									    $_aTitles = array_flatten($_aTitles->toArray());
-									    
+									    $_aTitles = array_flatten($_aTitles->toArray());		    
 									    foreach($_aTitles as $key=>$value){
 									    	$pos = strpos($value, '[[');
 									    	if ( $pos > 0) {
@@ -39,13 +35,12 @@
 									    	}
 										}
 
-										$_aTypes = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct('content.TVID')->get();
+										$_aTypes = \MongoDB\Template::where("format", $_format)->distinct('type')->get();
 									    $_aTypes = array_flatten($_aTypes->toArray());
 									    foreach($_aTypes as $key=>$value){
 									    	if(!isset($aTypes[$value]))
 										    	$aTypes[$value] = $value;
-										}
-										
+										}							
 
 										if($phpres = Session::get('templatetype')){
 											if(!isset($aTypes[$phpres]))
@@ -76,7 +71,7 @@
 								</div>	
 							
 							<br/><hr><br/>
-							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own', 
+							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own or null', 
 									array('class' => 'col-xs-6 control-label')) }}
 								<div class="input-group col-xs-3">
 									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
@@ -88,11 +83,7 @@
 
 						
 	<br/><br/>
-							{{ Form::label('description', 'If you will CHANGE this template describe the VARIATION using 1 to 2 words (describe differences)', 
-									array('class' => 'col-xs-6 control-label')) }}
-								<div class="input-group col-xs-5">
-									{{ Form::text('variation', null, array('class' => 'form-control col-xs-2')) }}
-								</div>
+							
 						
 							
 

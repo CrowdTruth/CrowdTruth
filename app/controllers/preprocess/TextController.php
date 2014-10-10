@@ -98,13 +98,14 @@ class TextController extends BaseController {
 		if($separator=='') {
 			$separator = ',';
 		}
+
 		
 		if($postAction=='tableView') {
 			return $this->doPreviewTable($document, $delimiter, $separator, $ignoreHeader);
 		} else {
 			// Prepare processor
 			$inputs = Input::all();		// Same as $_POST
-			$rootProcessor = new RootProcessor($inputs, $this::getAvailableFunctions());
+			$rootProcessor = new RootProcessor($inputs, $this::getAvailableFunctions('extended'));
 			
 			// if preview
 			if($postAction=='processPreview') {
@@ -165,25 +166,37 @@ class TextController extends BaseController {
 		return json_encode($entities, JSON_PRETTY_PRINT);
 	}
 
-	private function getAvailableFunctions() {
+	private function getAvailableFunctions($option = '') {
 		// Each function extends AbstractTextPreprocessor.
 		// see AbstractTextPreprocessor for more details
 
 		// TODO: Load all AbstractTextPreprocessor dynamically (from DB? config file?
-		$processor1 = new \Preprocess\TextToTypePreprocessor;
-		$processor2 = new \Preprocess\RegExpPreprocessor;
-		$processor3 = new \Preprocess\WordCountPreprocessor;
-		$processor4 = new \Preprocess\StringLengthPreprocessor;
-		$processor5 = new \Preprocess\TermDifferencePreprocessor;
-		$processor6 = new \Preprocess\TermReplacePreprocessor;
+		$processorA = new \Preprocess\TextPreprocessor;
+		$processorB = new \Preprocess\NumberPreprocessor;
+
+		$processor1 = new \Preprocess\RegExpPreprocessor;
+		$processor2 = new \Preprocess\WordCountPreprocessor;
+		$processor3 = new \Preprocess\StringLengthPreprocessor;
+		$processor4 = new \Preprocess\TermDifferencePreprocessor;
+		$processor5 = new \Preprocess\TermReplacePreprocessor;
 	
-		return [ $processor1->getName() => $processor1,
-			$processor2->getName() => $processor2,
-			$processor3->getName() => $processor3,
-			$processor4->getName() => $processor4,
-			$processor5->getName() => $processor5,
-			$processor6->getName() => $processor6
-		];
+		if($option == 'extended') {
+				return [ $processorA->getName() => $processorA,
+				$processorB->getName() => $processorB,
+				$processor1->getName() => $processor1,
+				$processor2->getName() => $processor2,
+				$processor3->getName() => $processor3,
+				$processor4->getName() => $processor4,
+				$processor5->getName() => $processor5
+			];
+		} else {
+			return [ $processor1->getName() => $processor1,
+				$processor2->getName() => $processor2,
+				$processor3->getName() => $processor3,
+				$processor4->getName() => $processor4,
+				$processor5->getName() => $processor5
+			];
+		}
 	}
 }
 

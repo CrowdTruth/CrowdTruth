@@ -35,6 +35,7 @@
                         <li><a href="#" data-vb="hide" data-vbSelector="number_of_children"></i># of children</a></li>
                         <li><a href="#" data-vb="hide" data-vbSelector="parents"></i>parents</a></li>
 						<li><a href="#" data-vb="hide" data-vbSelector="created_at"></i>Created At</a></li>
+						<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
 					</ul>
 				</div>
 			</div>
@@ -71,6 +72,7 @@
                     <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_children" data-query-key="orderBy[cache.children.count]" data-toggle="tooltip" data-placement="top" title="The number of units generated from this unit"># of children</th>
                     <th class="sorting whiteSpaceNormal" data-vbIdentifier="parents"  data-toggle="tooltip" data-placement="top" title="The units from which this media unit was created">parents</th>
                     <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="The time at which this image was uploaded to CrowdTruth">Created At</th>
+				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_by" data-query-key="orderBy[user_id]">Created By</th>
 		        </tr>
 			<tr class="inputFilters">
 				<td data-vbIdentifier="checkbox">
@@ -171,6 +173,9 @@
 					    <input type="text" class="input-sm form-control" name="start" data-query-key="match[created_at]" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />
 					    <input type="text" class="input-sm form-control" name="end" data-query-key="match[created_at]" data-query-operator="=<" style="width:49% !important; float:right;" placeholder="End Date" />
 					</div>
+				</td>
+				<td data-vbIdentifier="created_by">
+					<input class="input-sm form-control" type='text' data-query-key="match[user_id]" data-query-operator="like" />	
 				</td>
 			</tr>											        
 	        </thead>
@@ -273,6 +278,7 @@
                         <td data-vbIdentifier="number_of_children">@{{ this.cache.children.count }}</td>
                         <td data-vbIdentifier="parents">@{{ this.parents }}</td>
 					    <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
+					    <td data-vbIdentifier="created_by">@{{ highlightSelf this.user_id }}</td>
 					</tr>
 			        @{{/each}}
 				</script>

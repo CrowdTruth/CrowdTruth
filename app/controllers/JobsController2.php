@@ -59,6 +59,106 @@ class JobsController2 extends BaseController {
 		return View::make('job2.tabs.submit');
 	}
 
+	public function getSave($id) {
+		$j = \MongoDB\Entity::where("documentType", "job")->where("platformJobId", $id)->first();
+		Session::put('format_t', $j->format);
+		Session::put('jobconf_id_t', $j->jobConf_id);
+		Session::put('job_id_t', $j->_id);
+		Session::put('type_t', $j->type);
+		return View::make('job2.save');
+	}
+
+	private function findNewestTemplate($type, $format){
+		$maxi = \MongoDB\Template::where("type", $type)->where("format", $format)->max('version');
+	 	$jcbase = \MongoDB\Template::where("type", $type)->where("format", $format)->where('version', $maxi)->first();
+
+	 	return $jcbase;
+	}
+
+	public function postSavet() {
+		$jc_id = Session::get('jobconf_id_t');
+		$j_id = Session::get('job_id_t');
+		$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
+		$j = \MongoDB\Entity::where("_id", $j_id)->first();
+		$overwrite = Input::get('overwrite');
+		$type = Input::get('templateTypeOwn');
+		//dd($overwrite);
+		if($type===null or $type==="")
+			return Redirect::back()->with('flashError', "Type name not filled");	
+
+		if($overwrite==='no'){
+			
+			$newest = $this->findNewestTemplate($type, $j->format);
+			if($newest !== Null)
+				return Redirect::back()->with('flashError', "The template type name already exists! (change or allow to overwrite)");	 	
+		}
+
+		//save + increasing version
+		$load = Input::get('load');
+		if($load === 'yes'){
+
+			//load
+			// this->postLoadt();
+		}
+		return Redirect::to("jobs");
+	}
+
+	public function getLoad($id) {
+		$j = \MongoDB\Entity::where("documentType", "job")->where("platformJobId", $id)->first();
+		Session::put('format_t', $j->format);
+		Session::put('jobconf_id_t', $j->jobConf_id);
+		Session::put('job_id_t', $j->_id);
+		
+		return View::make('job2.load');
+	}
+
+
+
+	public function postLoadt() {
+			$jc_id = Session::get('jobconf_id_t');
+			$j_id = Session::get('job_id_t');
+			$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
+			$j = \MongoDB\Entity::where("_id", $j_id)->first();
+			$jcco = $jc['content'];
+			$jcco['type'] =  Input::get('templateType');
+	 		if($jcco['type'] == Null) 
+	    		return Redirect::back()->with('flashError', "form not filled in (type).");	 	
+	    	// get a selected, newest jcbase
+	    	$maxi = \MongoDB\Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->max('version');
+	 		$jcbase = \MongoDB\Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->where('version', $maxi)->first();
+	 		if(!isset($jcbase)){
+	 			Session::flash('flashError',"template not found");
+				return Redirect::to("jobs2/submit");
+			}
+	 		$jcbaseco = $jcbase;
+	 		if(!isset($jcbaseco['cml'])){
+	 			Session::flash('flashError', "No template details in this template");
+				return Redirect::to("jobs2/submit");
+			}
+	 		$jcco['cml'] = $jcbaseco['cml'];
+	 		if(isset($jcbaseco['css']))
+	 			$jcco['css'] = $jcbaseco['css'];
+	 		if(isset($jcbaseco['instructions']))
+	 			$jcco['instructions'] = $jcbaseco['instructions'];
+	 		if(isset($jcbaseco['js']))
+	 			$jcco['js'] = $jcbaseco['js'];
+	 		$jcco['template_id'] = $jcbaseco['_id'];
+	 		$pos = strpos($jcco['title'], '[[');
+	     	$title = substr($jcco['title'], 0, $pos);
+	     	$rest = substr($jcco['title'], strpos($jcco['title'], '(entity/' ));
+	 		$jcco['title'] = $title . "[[" . $jcco['type'] . $rest;
+	 		$jc['content'] = $jcco;
+	 		$j['type'] = $jcco['type'];
+	 		$jc->save();
+	 		$j->save();
+	 		$platform = App::make('cf2');
+
+	 		//upadte
+			$platform->cfUpdate($j['platformJobId'], $jc);
+
+		return Redirect::to("jobs");
+	}
+
 	public function getClearTask(){
 		Session::forget('jobconf');
 		Session::forget('format');
@@ -146,8 +246,16 @@ class JobsController2 extends BaseController {
 		return Redirect::to("jobs");
 	}
 
+	public function getSavetemplate($id){
+		$platform = App::make('cf2');
+		return Redirect::to("save");
+	}
+
+
+
 
 	public function postSubmitFinal($ordersandbox = 'order'){
+
 		$batch = unserialize(Session::get('batch'));
 		if (!$jc = unserialize(Session::get('jobconf'))){
 			$jc = new JobConfiguration;
@@ -156,19 +264,28 @@ class JobsController2 extends BaseController {
 		}
 		else
 			$jcco = $jc->content;
-		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 )
+		$own = false;
+		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 ){
 			 	$jcco['type'] = Input::get('templateTypeOwn');
+			    $own = true;}
 	 	else{
 
 	 		$jcco['type'] =  Input::get('templateType');
-	 		$jcbase = \MongoDB\Entity::where("documentType", "jobconf")->where("content.TVID", $jcco['type'])->first();
+	 		if($jcco['type'] == Null) 
+	    		return Redirect::back()->with('flashError', "form not filled in (type).");	 	
+
+	    	// get a selected, newest jcbase
+	    	$maxi = \MongoDB\Template::where("type", $jcco['type'])->where("format", $batch->format)->max('version');
+	 		$jcbase = \MongoDB\Template::where("type", $jcco['type'])->where("format", $batch->format)->where('version', $maxi)->first();
+
+
 	 		if(!isset($jcbase)){
-	 			Session::flash('flashError', $e->getMessage());
+	 			Session::flash('flashError',"template not found");
 				return Redirect::to("jobs2/submit");
 			}
-	 		$jcbaseco = $jcbase->content;
+	 		$jcbaseco = $jcbase;
 	 		if(!isset($jcbaseco['cml'])){
-	 			Session::flash('flashError', "No template in the original job");
+	 			Session::flash('flashError', "No template details in this template");
 				return Redirect::to("jobs2/submit");
 			}
 			
@@ -180,30 +297,29 @@ class JobsController2 extends BaseController {
 	 			$jcco['instructions'] = $jcbaseco['instructions'];
 	 		if(isset($jcbaseco['js']))
 	 			$jcco['js'] = $jcbaseco['js'];
+	 		$jcco['template_id'] = $jcbaseco['_id'];
 		}
 
 	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 0 )
 			 		$jcco['title'] = Input::get('titleOwn');
 			 	else
 			 		$jcco['title'] =  Input::get('title');
+		if ($jcco['title'] == Null) 
+	    		return Redirect::back()->with('flashError', "form not filled in (title).");	 	
 
-	    if ($jcco['title'] == Null or $jcco['type'] == Null) 
-	    		return Redirect::back()->with('flashError', "form not filled in.");
-	    
-		
 
 	    $jcco['platform'] = Array("cf");
 	    $jcco['description'] =  Input::get('description');
-	    $jcco['variation'] =  Input::get('variation');
-	    $jcco['type_id'] =  0;
-	    $jcco['TVID'] = $jcco['type'] ;
-	    if(isset($jcco['variation']) and strlen($jcco['variation'])>0) 
-	    	$jcco['TVID']  = $jcco['TVID']  . "|" . $jcco['variation'];
-	    if($jcco['type_id'] > 0) 
-	    	$jcco['TVID'] = $jcco['TVID'] . "|_" . (string)$jcco['type_id'];
-	    $jcco['title'] = $jcco['title'] . " [[" . $jcco['TVID'] . " (" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ") ]]";
+	    $jcco['title'] = $jcco['title'] . "[[" . $jcco['type'] . "(" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ")]]";
 	    ///////// PUT
 	    $jc->content = $jcco;
+	    if($own){
+		    $_tt = \MongoDB\Template::where('type', $jcco['type'])->where("format", $batch->format)->first();
+		    if(isset($_tt)){
+		    	Session::flash('flashError', "There is already a template of this type. Please rename (or select this template from dropdown list.");
+				return Redirect::to("jobs2/submit");
+			}
+		}
 
 		try{
 			// Save activity
@@ -235,6 +351,7 @@ class JobsController2 extends BaseController {
 			 	$j->activity_id = $activity->_id;
 			 	$j->iamemptyjob = "yes";
 			 	$j->save(); //convert to publish later
+			 	//throw  new Exception("____|____");
 			 	$j->publish(($ordersandbox == 'sandbox' ? true : false));
 			 	$jobs[] = $j;
 			$successmessage = "Created job with jobConf :-)"; 

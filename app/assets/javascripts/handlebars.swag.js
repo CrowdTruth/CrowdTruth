@@ -173,8 +173,29 @@
     }
   });
   
-   Swag.addHelper('formatTime', function(seconds) {
-	return new Date(seconds).toString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+	Swag.addHelper('formatTime', function(seconds) {
+		return new Date(seconds).toString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+	});
+  
+   Swag.addHelper('duration', function(seconds) {
+	
+	if (isNaN(seconds) || seconds < 0) {
+		return ""
+	}
+	
+	var numdays = Math.floor(seconds / 86400);
+	var numhours = Math.floor((seconds % 86400) / 3600);
+	var numminutes = Math.floor(((seconds % 86400) % 3600) / 60);
+	var numseconds = ((seconds % 86400) % 3600) % 60;
+	
+	duration = '';
+	if(numdays > 0) { duration += numdays + "d "; } 
+	if(numhours > 0) { duration += numhours + "h "; }
+	if(numminutes > 0) { duration += numminutes + "m "; }
+	if(duration == '' && numseconds > 0) { duration = '< 1m'; }
+	
+	return duration;
+   
    });
 
   Swag.addHelper('reverse', function(str) {
@@ -657,6 +678,15 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
     }
   });
 
+  Swag.addHelper('toPrice', function(number) {
+    if (!Utils.isUndefined(number)) {
+		number = parseFloat(Utils.result(number));
+		return '$' + number.toFixed(2);
+    } else {
+	  return '-';
+    }
+  });
+  
   Swag.addHelper('toPrecision', function(number, precision) {
     if (!Utils.isUndefined(number)) {
       number = parseFloat(Utils.result(number));
@@ -840,7 +870,7 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
   });
 
   Swag.addHelper('createPercentage', function(value, options) {
-  return value * 100;
+  return Math.round(value * 100);
   });
 
   function replaceStr(str, pos, value){
@@ -1061,10 +1091,8 @@ function objSort() {
     var t1 = content.terms.first.formatted;
     var t2 = content.terms.second.formatted;
 
-    var term = t1.replace(/[\[\]]/g,'');
-	formattedSentence = formattedSentence.replace(t1, '<span class="highlightTermOne" data-toggle="tooltip" data-placement="top" title="Term 1">' + term + '</span>');
-    var term = t2.replace(/[\[\]]/g,'');
-	formattedSentence = formattedSentence.replace(t2, '<span class="highlightTermTwo" data-toggle="tooltip" data-placement="top" title="Term 2">' + term + '</span>');
+	formattedSentence = formattedSentence.replace(t1, '<span class="highlightTermOne" data-toggle="tooltip" data-placement="top" title="Term 1">' + t1 + '</span>');
+	formattedSentence = formattedSentence.replace(t2, '<span class="highlightTermTwo" data-toggle="tooltip" data-placement="top" title="Term 2">' + t2 + '</span>');
     
 	var relation = content.relation.noPrefix;
     if(relation == "diagnose")
