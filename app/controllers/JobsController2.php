@@ -59,13 +59,44 @@ class JobsController2 extends BaseController {
 		return View::make('job2.tabs.submit');
 	}
 
+	public function getSave($id) {
+		$j = \MongoDB\Entity::where("documentType", "job")->where("platformJobId", $id)->first();
+		Session::put('format_t', $j->format);
+		Session::put('jobconf_id_t', $j->jobConf_id);
+		Session::put('job_id_t', $j->_id);
+		Session::put('type_t', $j->type);
+		return View::make('job2.save');
+	}
+
+	public function postSavet() {
+		$jc_id = Session::get('jobconf_id_t');
+		$j_id = Session::get('job_id_t');
+		$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
+		$j = \MongoDB\Entity::where("_id", $j_id)->first();
+		if(Input::get('overwrite'))==='yes'){
+			//check if does not exist
+
+		}
+
+		//save
+
+		if(Input::get('load'))==='yes'){
+
+			//load
+		}
+		return Redirect::to("jobs");
+	}
+
 	public function getLoad($id) {
 		$j = \MongoDB\Entity::where("documentType", "job")->where("platformJobId", $id)->first();
 		Session::put('format_t', $j->format);
 		Session::put('jobconf_id_t', $j->jobConf_id);
 		Session::put('job_id_t', $j->_id);
+		
 		return View::make('job2.load');
 	}
+
+
 
 	public function postLoadt() {
 			$jc_id = Session::get('jobconf_id_t');

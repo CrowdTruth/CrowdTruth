@@ -17,19 +17,15 @@
 							{{ Form::label('title', 'Select a title from the set of predefined ones or give your own', 
 									array('class' => 'col-xs-6 control-label')) }}
 								<div class="input-group col-xs-3">
-
-
 									<?php 
 										// Get a list of titles and template types which are already in the database
 										// and put them to dropdown
 
 										$aTitles = array(null => '---');
 										$aTypes = array(null => '---');
-
 										$_format = (unserialize(Session::get('batch'))->format);
 										$_aTitles = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct("content.title")->get();
-									    $_aTitles = array_flatten($_aTitles->toArray());
-									    
+									    $_aTitles = array_flatten($_aTitles->toArray());		    
 									    foreach($_aTitles as $key=>$value){
 									    	$pos = strpos($value, '[[');
 									    	if ( $pos > 0) {
@@ -41,12 +37,10 @@
 
 										$_aTypes = \MongoDB\Template::where("format", $_format)->distinct('type')->get();
 									    $_aTypes = array_flatten($_aTypes->toArray());
-									    //$aTypes["______NONE______"] ="NONE";
 									    foreach($_aTypes as $key=>$value){
 									    	if(!isset($aTypes[$value]))
 										    	$aTypes[$value] = $value;
-										}
-										
+										}							
 
 										if($phpres = Session::get('templatetype')){
 											if(!isset($aTypes[$phpres]))

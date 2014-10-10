@@ -5,7 +5,7 @@
 	<div class='maincolumn CW_box_style'>
 					
 		<div class='tab'>
-			@include('job2.nav')
+	
 			<div>
 				<div class="panel panel-default">		
 					<div class="panel-heading">
