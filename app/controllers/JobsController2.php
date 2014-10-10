@@ -68,21 +68,37 @@ class JobsController2 extends BaseController {
 		return View::make('job2.save');
 	}
 
+	private function findNewestTemplate($type, $format){
+		$maxi = \MongoDB\Template::where("type", $type)->where("format", $format)->max('version');
+	 	$jcbase = \MongoDB\Template::where("type", $type)->where("format", $format)->where('version', $maxi)->first();
+
+	 	return $jcbase;
+	}
+
 	public function postSavet() {
 		$jc_id = Session::get('jobconf_id_t');
 		$j_id = Session::get('job_id_t');
 		$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
 		$j = \MongoDB\Entity::where("_id", $j_id)->first();
-		if(Input::get('overwrite'))==='yes'){
-			//check if does not exist
+		$overwrite = Input::get('overwrite');
+		$type = Input::get('templateTypeOwn');
+		//dd($overwrite);
+		if($type===null or $type==="")
+			return Redirect::back()->with('flashError', "Type name not filled");	
 
+		if($overwrite==='no'){
+			
+			$newest = $this->findNewestTemplate($type, $j->format);
+			if($newest !== Null)
+				return Redirect::back()->with('flashError', "The template type name already exists! (change or allow to overwrite)");	 	
 		}
 
-		//save
-
-		if(Input::get('load'))==='yes'){
+		//save + increasing version
+		$load = Input::get('load');
+		if($load === 'yes'){
 
 			//load
+			// this->postLoadt();
 		}
 		return Redirect::to("jobs");
 	}
