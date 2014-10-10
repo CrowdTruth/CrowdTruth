@@ -20,7 +20,6 @@
 <div class="col-xs-12">
 	<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')
-
 		<div class='tab'>
 			<div class='row'>
 				<div class='col-xs-12 searchOptions'>
