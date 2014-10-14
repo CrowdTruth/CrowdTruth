@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\View;
+
 use CoffeeScript\compact;
 
 use \MongoDB\Repository as Repository;
@@ -34,12 +36,20 @@ class MediaController extends BaseController {
 	{
 		// TODO: Change default from RELEX to TEXT
 		return Redirect::to('media/preprocess/' . $action);
-	}	
+	}
 
 	public function getKeys($entity, $parent = "") {
+		$blacklist = [ '/withoutSpam/', '/withSpam/', '/withFilter/', '/withoutFilter/' ];
+		$poundSign = '/#/';
+		foreach($blacklist as $pattern) {
+			if(preg_match($pattern, $parent)) {
+				return [];
+			}
+		}
+
 		$keys = [];
 		foreach($entity as $key => $value) {
-			if(! is_numeric($key)) {
+			if(! is_numeric($key) && !preg_match($poundSign, $key)) {
 				if(is_array($entity[$key])) {
 					array_push($keys, $parent.$key);
 					$subKeys = $this->getKeys($entity[$key], $parent.$key.".");
@@ -52,32 +62,41 @@ class MediaController extends BaseController {
 		return $keys;
 	}
 
+	public function getListindex()
+	{
+		$searchComponent = new MediaSearchComponent();
+		$labels = $searchComponent->getKeyLabels();
+		return View::make('media.search.pages.listindex')->with('labels', $labels);
+	}
+
 	public function getRefreshindex()
 	{
-		// TODO: move this to method doPostRefreshIndex
-		//   and create method getRefreshIndex, which shows UI
+		return View::make('media.search.pages.refreshindex');
+	}
+
+	public function postRefreshindex()
+	{
 		$from = Input::get('next', -1);
 		$allIds = Entity::distinct('_id')->get();
 		if($from==-1) {
 			return [
-				'next:' => 0,	// Meaning we should start from 0
-				'last:' => sizeof($allIds)
+				'next' => 0,	// Meaning we should start from 0
+				'last' => sizeof($allIds)
 			 ];
 		} else {
 			$allKeys = [];
-			$batchSize = 10;
+			$batchSize = 100;
 			$lastOne = sizeof($allIds);
 			for($i = $from; $i < ($from + $batchSize) && $i < $lastOne; $i = $i + 1) {
 				$e = Entity::where('_id', $allIds[$i][0])->first();
 				$keys = $this->getKeys($e->attributesToArray());
 				$allKeys = array_unique(array_merge($allKeys, $keys));
 			}
-			// TODO: save $allKeys to database somehow...
 			$searchComponent = new MediaSearchComponent();
 			$searchComponent->store($allKeys);
 			return [
-				'next:' => $i,	// Meaning we should start from 0
-				'last:' => $lastOne
+				'next' => $i,	// Meaning we should start from 0
+				'last' => $lastOne
 			 ];
 		}
 	}
