@@ -68,6 +68,17 @@ class JobsController2 extends BaseController {
 		return View::make('job2.save');
 	}
 
+	public function postSaveovert(){
+		Session::put('overwrite','yes');
+		return $this->postSavet();
+	}
+
+
+	public function getSaveover() {
+		
+		return View::make('job2.saveover');
+	}
+
 	private function findNewestTemplate($type, $format){
 		$maxi = \MongoDB\Template::where("type", $type)->where("format", $format)->max('version');
 		if ($maxi === null){return null;}
@@ -82,16 +93,25 @@ class JobsController2 extends BaseController {
 		$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
 		$jcco = $jc['content'];
 		$j = \MongoDB\Entity::where("_id", $j_id)->first();
-		$overwrite = Input::get('overwrite');
 		$type = Input::get('templateType');
-		//dd($overwrite);
+		$load = Input::get('load');
+		if($type === null){
+			$load = Session::get('load');
+			$type = Session::get('templateType');
+		}
+		else
+		{
+		Session::put('templateType', $type);
+		Session::put('load', $load);
+		}
 		if($type===null or $type==="")
 			return Redirect::back()->with('flashError', "Type name not filled");	
 		$newest = $this->findNewestTemplate($type, $j->format);
-		if($newest !== Null and !(Input::has('overwrite)')) ){
-			View::share('overw', '');
-			return Redirect::back()->with('flashError', "The template type name already exists - allow to overwrite.");
+		if($newest !== Null and !(Session::has('overwrite')) ){
+			return Redirect::to("jobs2/saveover");
 			}	 	
+	    if(Session::has('overwrite'))
+	    	Session::forget('overwrite');
 		if($newest === Null){
 				$v = 0;
 			}else{

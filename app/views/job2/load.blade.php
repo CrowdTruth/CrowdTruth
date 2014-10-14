@@ -31,7 +31,7 @@
 								}	
 							?>				
 						{{ Form::label('templateType', 'Select a template-type ', array('class' => 'col-xs-4 control-label')) }}	
-						{{ Form::select('templateType',  $aTypes, null, array('class' => 'selectpicker',  'data-toggle'=> 'tooltip', 'templateType'=>'')) }}									
+						{{ Form::select('templateType',  $aTypes, null, array('class' => 'selectpicker',   'data-container' =>'body',  'data-toggle'=> 'tooltip', 'templateType'=>'')) }}									
 						</fieldset>
 						<br/><br/>
 						{{ Form::submit('Load', array('class' => 'btn btn-lg btn-primary pull-right', 'style' => 'margin-right:20px')); }}

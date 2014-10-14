@@ -26,10 +26,7 @@
 							
 							{{ Form::Checkbox('load','yes', false) }}
 						
-							<?php 
-							echo "{{ Form::Checkbox('overwrite','yes', false)}} ";
-							//if(isset($overw)) echo "Form::Checkbox('overwrite','yes', false)";
-							?>
+						
 						</fieldset>
 	
 				
