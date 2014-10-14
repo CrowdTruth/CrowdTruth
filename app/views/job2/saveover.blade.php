@@ -15,9 +15,11 @@
 				
 					<br/><br/>
 						{{ Form::submit('Yes', array('class' => 'btn btn-lg btn-primary pull-right', 'style' => 'margin-right:20px')); }}
+						
 						{{ Form::close()}}
-
+						<button class='btn btn-lg btn-default pull-left' style = 'margin-left:20px' onclick="javascript:window.history.back()">Back</button>
 					</div>
+
 				</div>
 			</div>	
 		</div>
