@@ -80,41 +80,43 @@ class JobsController2 extends BaseController {
 		$jc_id = Session::get('jobconf_id_t');
 		$j_id = Session::get('job_id_t');
 		$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
+		$jcco = $jc['content'];
 		$j = \MongoDB\Entity::where("_id", $j_id)->first();
 		$overwrite = Input::get('overwrite');
 		$type = Input::get('templateType');
 		//dd($overwrite);
 		if($type===null or $type==="")
 			return Redirect::back()->with('flashError', "Type name not filled");	
-
-		if($overwrite==='no'){
-			
-			$newest = $this->findNewestTemplate($type, $j->format);
-			if($newest !== Null)
-				return Redirect::back()->with('flashError', "The template type name already exists! (change or allow to overwrite)");	 	
-		}
-		if($overwrite==='yes'){
-			$newest = $this->findNewestTemplate($type, $j->format);
-			if($newest === Null){
+		$newest = $this->findNewestTemplate($type, $j->format);
+		if($newest !== Null and !(Input::has('overwrite)')) ){
+			View::share('overw', '');
+			return Redirect::back()->with('flashError', "The template type name already exists - allow to overwrite.");
+			}	 	
+		if($newest === Null){
 				$v = 0;
-			}
-			else
-			{
+			}else{
 				$v =   \MongoDB\Template::where("type", $type)->where("format", $j->format)->max('version')+1;
-			}
-		}
-
+			}	
 		//save + increasing version
-		// $te = \MongoDB\Template::where("type", $type)->where("format", $j->format);
-		// $tenew = te.copy()
-		// $tenew.set($jc->content['cml'], css, instruct, js, ver = v )
-		// $tenew.save();
+	    $te = new \MongoDB\Template;
+	    $te['cml'] = $jcco['cml'];
+	    $te['format'] = $j->format;
+	 	if(isset($jcco['css']))
+	 			$te['css'] = $jcco['css'];
+ 		if(isset($jcco['instructions']))
+ 			$te['instructions'] = $jcco['instructions'];
+ 		if(isset($jcco['js']))
+ 			$te['js'] = $jcco['js'];
+		$te['version'] = $v;
+ 		$te['type'] = $type;
+ 		$te->save();
+
+
 		$load = Input::get('load');
 		if($load === 'yes'){
-
-			//load
 		    $this->postLoadt();
 		}
+		Session::flash('flashSuccess', "Template saved! :-)");
 		return Redirect::to("jobs");
 	}
 
