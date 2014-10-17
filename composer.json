@@ -9,8 +9,8 @@
 		"crowdtruth/mturk": "*",
 		"sunra/php-simple-html-dom-parser": "v1.5.0",
 		"codesleeve/asset-pipeline": "dev-master",
-        "jenssegers/mongodb": "*",
-		"gloudemans/shoppingcart": "dev-master",
+		"jenssegers/mongodb": "*",
+		"gloudemans/shoppingcart": "~1.2",
 		"league/csv": "5.*"
 		},
 	"autoload": {
@@ -24,10 +24,9 @@
 			"app/lib",
 			"app/softwareComponents"
 		],
-
-		 "psr-4": {
-            "crowdwatson\\": "app/lib/"
-        }
+		"psr-4": {
+			"crowdwatson\\": "app/lib/"
+		}
 	},
 	"scripts": {
 		"post-install-cmd": [
