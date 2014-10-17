@@ -32,13 +32,13 @@
 					<li role="presentation" class="divider"></li>
 					<li role="presentation" class="dropdown-header">Jobs</li>
 					<li><a href="#" data-vb="hide" data-vbSelector="number_of_FactSpan_jobs"></i>FactSpan Jobs</a></li>
-					<li><a href="#" data-vb="hide" data-vbSelector="fact_clarity"></i>FactSpan Clarity 1</a></li>
-					<li><a href="#" data-vb="hide" data-vbSelector="fact_clarity"></i>FactSpan Clarity 2</a></li>
-					<li><a href="#" data-vb="hide" data-vbSelector="fact_top1"></i>FactSpan Top Term 1</a></li>
-					<li><a href="#" data-vb="hide" data-vbSelector="fact_top2"></i>FactSpan Top Term 2</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="fact_clarity1"></i>FactSpan Clarity 1</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="fact_clarity2"></i>FactSpan Clarity 2</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="fact_top1"></i>FactSpan Top Answer 1</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="fact_top2"></i>FactSpan Top Answer 2</a></li>
 					<li><a href="#" data-vb="hide" data-vbSelector="number_of_RelEx_jobs"></i>RelEx Jobs</a></li>
-					<li><a href="#" data-vb="hide" data-vbSelector="relex_clarity"></i>RelEx Clarity</a></li>
-					<li><a href="#" data-vb="hide" data-vbSelector="relex_top"></i>RelEx Top Answer</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="relex_clarity"></i>RelEx Clarity</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="relex_top"></i>RelEx Top Answer</a></li>
 					<li><a href="#" data-vb="hide" data-vbSelector="number_of_RelDir_jobs"></i>RelDir Jobs</a></li>
 					<li><a href="#" data-vb="hide" data-vbSelector="reldir_clarity"></i>RelDir Clarity</a></li>
 					<li><a href="#" data-vb="hide" data-vbSelector="reldir_top"></i>RelDir Top Answer</a></li>
@@ -152,16 +152,16 @@
 		            <th class="sorting" data-vbIdentifier="sentence_processed" data-query-key="orderBy[content.sentence.formatted]" data-toggle="tooltip" data-placement="top" title="Original sentence with extra processing including highlighting of terms">Sentence Processed</th>
 
 		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_FactSpan_jobs" data-query-key="orderBy[cache.jobs.types.FactSpan.count]" data-toggle="tooltip" data-placement="top" title="Number of Factor Span jobs in which the unit was used">FactSpan jobs</th>
-					<th class="sorting whiteSpaceNormal" data-vbIdentifier="fact_clarity1" data-query-key="orderBy[cache.jobs.types.FactSpan.clarity_term1]" data-toggle="tooltip" data-placement="top">FactSpan Clarity</th>     
-					<th class="sorting whiteSpaceNormal" data-vbIdentifier="fact_clarity2" data-query-key="orderBy[cache.jobs.types.FactSpan.clarity_term2]" data-toggle="tooltip" data-placement="top">FactSpan Clarity</th>     
-		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="fact_top1" data-query-key="orderBy[cache.jobs.types.FactSpan.top_answer_term1]" data-toggle="tooltip" data-placement="top">FactSpan Top Term 1</th>     
-		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="fact_top2" data-query-key="orderBy[cache.jobs.types.FactSpan.top_answer_term2]" data-toggle="tooltip" data-placement="top">FactSpan Top Term 2</th>     
+					<th class="sorting whiteSpaceNormal" data-vbIdentifier="fact_clarity1" data-query-key="orderBy[cache.jobs.types.FactSpan.clarity_term1]" data-toggle="tooltip" data-placement="top">FactSpan Clarity 1</th>     
+					<th class="sorting whiteSpaceNormal" data-vbIdentifier="fact_clarity2" data-query-key="orderBy[cache.jobs.types.FactSpan.clarity_term2]" data-toggle="tooltip" data-placement="top">FactSpan Clarity 2</th>     
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="fact_top1" data-query-key="orderBy[cache.jobs.types.FactSpan.top_answer_term1]" data-toggle="tooltip" data-placement="top">FactSpan Top Answer 1</th>     
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="fact_top2" data-query-key="orderBy[cache.jobs.types.FactSpan.top_answer_term2]" data-toggle="tooltip" data-placement="top">FactSpan Top Answer 2</th>     
 		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_RelEx_jobs" data-query-key="orderBy[cache.jobs.types.RelEx.count]" data-toggle="tooltip" data-placement="top" title="Number of Relation Extraction jobs in which the unit was used">RelEx jobs</th>
 					<th class="sorting whiteSpaceNormal" data-vbIdentifier="relex_clarity" data-query-key="orderBy[cache.jobs.types.RelEx.clarity]" data-toggle="tooltip" data-placement="top">RelEx Clarity</th>     
-		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="relex_top" data-query-key="orderBy[cache.jobs.types.RelEx.top_answer]" data-toggle="tooltip" data-placement="top">RelEx Top Term</th>     
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="relex_top" data-query-key="orderBy[cache.jobs.types.RelEx.top_answer]" data-toggle="tooltip" data-placement="top">RelEx Top Answer</th>     
 					<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_RelDir_jobs" data-query-key="orderBy[cache.jobs.types.RelDir.count]" data-toggle="tooltip" data-placement="top" title="Number of Relation Direction jobs in which the unit was used">RelDir jobs</th>
 					<th class="sorting whiteSpaceNormal" data-vbIdentifier="reldir_clarity" data-query-key="orderBy[cache.jobs.types.RelDir.clarity]" data-toggle="tooltip" data-placement="top">RelDir Clarity</th>     
-		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="reldir_top" data-query-key="orderBy[cache.jobs.types.RelDir.top_answer]" data-toggle="tooltip" data-placement="top">RelEx Top Term</th>     
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="reldir_top" data-query-key="orderBy[cache.jobs.types.RelDir.top_answer]" data-toggle="tooltip" data-placement="top">RelEx Top Answer</th>     
 
 		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]" data-toggle="tooltip" data-placement="top" title="Number of batches the sentence was used in">Batches</th>
 		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[cache.jobs.count]" data-toggle="tooltip" data-placement="top" title="Number of jobs the sentence was used in">Jobs</th>     
@@ -226,12 +226,10 @@
                         <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.FactSpan.clarity_term2]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
                     </td>
                     <td data-vbIdentifier="fact_top1">
-                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.FactSpan.top_answer_term1]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.FactSpan.top_answer_term1]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.FactSpan.top_answer_term1]" data-query-operator="like" />
                     </td>
                     <td data-vbIdentifier="fact_top2">
-                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.FactSpan.top_answer_term2]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.FactSpan.top_answer_term2]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.FactSpan.top_answer_term2]" data-query-operator="like" />
                     </td>
 					
 			        <td data-vbIdentifier="number_of_RelEx_jobs">
@@ -243,8 +241,7 @@
                         <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelEx.clarity]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
                     </td>		
 			        <td data-vbIdentifier="relex_top">
-                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelEx.top_answer]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelEx.top_answer]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelEx.top_answer]" data-query-operator="like" />
                     </td>		
 
                     <td data-vbIdentifier="number_of_RelDir_jobs">
@@ -256,8 +253,7 @@
                         <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelDir.top_answer]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
                     </td>
                     <td data-vbIdentifier="reldir_top">
-                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelDir.top_answer]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelDir.top_answer]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+                        <input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.types.RelDir.top_answer]" data-query-operator="like" />
                     </td>
 
 					<td data-vbIdentifier="number_of_batches">
@@ -323,19 +319,20 @@
 			            <td data-vbIdentifier="sentence_processed" class="text-left">@{{ highlightTerms ../searchQuery this.content }}</td>
 						
 						<td data-vbIdentifier="number_of_FactSpan_jobs">@{{ this.cache.jobs.types.FactSpan.count }}</td>
-						<td data-vbIdentifier="fact_clarity1">@{{ this.cache.jobs.types.FactSpan.clarity_term1 }}</td>
-						<td data-vbIdentifier="fact_clarity2">@{{ this.cache.jobs.types.FactSpan.clarity_term2 }}</td>
+						<td data-vbIdentifier="fact_clarity1">@{{ toFixed this.cache.jobs.types.FactSpan.clarity_term1 4 }}</td>
+						<td data-vbIdentifier="fact_clarity2">@{{ toFixed this.cache.jobs.types.FactSpan.clarity_term2 4 }}</td>
 						<td data-vbIdentifier="fact_top1">@{{ this.cache.jobs.types.FactSpan.top_answer_term1 }}</td>
 						<td data-vbIdentifier="fact_top2">@{{ this.cache.jobs.types.FactSpan.top_answer_term2 }}</td>
 						<td data-vbIdentifier="number_of_RelEx_jobs">@{{ this.cache.jobs.types.RelEx.count }}</td>
-						<td data-vbIdentifier="relex_clarity">@{{ this.cache.jobs.types.RelEx.clarity }}</td>
+						<td data-vbIdentifier="relex_clarity">@{{ toFixed this.cache.jobs.types.RelEx.clarity 4 }}</td>
 						<td data-vbIdentifier="relex_top">@{{ this.cache.jobs.types.RelEx.top_answer }}</td>
                         <td data-vbIdentifier="number_of_RelDir_jobs">@{{ this.cache.jobs.types.RelDir.count }}</td>
-                        <td data-vbIdentifier="reldir_clarity">@{{ this.cache.jobs.types.RelDir.clarity }}</td>
+                        <td data-vbIdentifier="reldir_clarity">@{{ toFixed this.cache.jobs.types.RelDir.clarity 4 }}</td>
                         <td data-vbIdentifier="reldir_top">@{{ this.cache.jobs.types.RelDir.top_answer }}</td>
 						
 						
 			            <td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>
+			            <td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>
 			            <td data-vbIdentifier="number_of_cf_judgements">@{{ this.cache.softwareAgent.cf }}</td>
 			            <td data-vbIdentifier="number_of_amt_judgements">@{{ this.cache.softwareAgent.amt }}</td>
                         <td data-vbIdentifier="number_of_children">@{{ this.cache.children.count }}</td>
