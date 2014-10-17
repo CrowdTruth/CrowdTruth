@@ -77,10 +77,11 @@ class MediaController extends BaseController {
 			$mongoDBOnlineData = new \OnlineData;
 			$source = explode("_", $sourceName);
 			$parameters = array();
-			$parameters["set"] = $source[1];
+		//	$parameters["set"] = $source[1];
 			$parameters["metadataPrefix"] = "oai_oi";
-			$parameters["set"] = "beeldengeluid";
+		//	$parameters["set"] = "beeldengeluid";
 			$status_onlinedata = $mongoDBOnlineData->store($format, $domain, $documentType, $parameters, $noOfVideos);
+		//	\Session::flash('flashSuccess', 'Your video description is being pre-processed');
 		} catch (Exception $e){
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}

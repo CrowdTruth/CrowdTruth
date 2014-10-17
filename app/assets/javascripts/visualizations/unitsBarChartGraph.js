@@ -25,6 +25,17 @@ function unitsBarChartGraph(category, categoryName, workerUpdateFunction, jobsUp
             '&project[id]=_id&push[id]=id&push[title]=title&push[domain]=domain&push[format]=format&' +
                 'push[description]=description&push[keyframes]=keyframes&'},
 
+        '#metadatadescription_tab':{ data : "words", info:['domain', 'format', 'title', 'words', 'features', 'description'],
+            tooltip:"Number of words in video description. Click to select/deselect",
+            sendInfo: 'title',
+            labelsInfo:['domain', 'format', 'title', 'words', 'features', 'description'],
+            query : '&project[words]=wordCount' +'&project[domain]=domain' +'&project[format]=format'+
+                '&project[title]=title&project[description]=content.description' +
+                '&project[features]=totalNoOfFeatures'+
+                '&project[id]=_id&push[words]=words&push[id]=id&push[features]=features' +
+                '&push[title]=title&push[domain]=domain&push[format]=format&' +
+                'push[description]=description&'},
+
        '#drawing_tab':{ data : "features", info:['domain', 'format', 'title', 'features', 'author', 'description', 'url'],
             tooltip:"Number of relevant features in the image. Click to select/deselect",
             sendInfo: 'title',

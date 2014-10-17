@@ -50,7 +50,7 @@ class FullvideoStructurer {
 		
 		$command = $ffmpegPath . " -i " . $videoPath . " -vf select=\"gt(scene\,0.5)\" -vsync 2 -s 320x240 -f image2 " . $keyframesPath . $thumbnailName . " -loglevel debug 2>&1 | grep \"select:1\" | cut -d \" \" -f 6 -";
 		$execCommand = exec($command, $output);
-		
+	//	dd($command);
 		$files = scandir($keyframesPath);
 		$keyframes = 0;
 		$keyFrameNames = array();

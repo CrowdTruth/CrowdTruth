@@ -10,7 +10,7 @@
 		"sunra/php-simple-html-dom-parser": "v1.5.0",
 		"codesleeve/asset-pipeline": "dev-master",
         "jenssegers/mongodb": "*",
-		"gloudemans/shoppingcart": "dev-master",
+		"gloudemans/shoppingcart": "~1.2",
 		"league/csv": "5.*"
 		},
 	"autoload": {
