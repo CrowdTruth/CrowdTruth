@@ -179,7 +179,15 @@ class TextController extends BaseController {
 		$processor3 = new \Preprocess\StringLengthPreprocessor;
 		$processor4 = new \Preprocess\TermDifferencePreprocessor;
 		$processor5 = new \Preprocess\TermReplacePreprocessor;
-	
+
+		$processor6 = new \Preprocess\Relex\RelationInSentencePreprocessor;
+		$processor7 = new \Preprocess\Relex\RelationOutsideTermsPreprocessor;
+		$processor8 = new \Preprocess\Relex\RelationBetweenTermsPreprocessor;
+		$processor9 = new \Preprocess\Relex\SemicolonBetweenTermsPreprocessor;
+		$processor10 = new \Preprocess\Relex\CommaSeparatedTermsPreprocessor;
+		$processor11 = new \Preprocess\Relex\ParenthesisAroundTermsPreprocessor;
+		$processor12 = new \Preprocess\Relex\OverlapingTermsPreprocessor;
+		
 		if($option == 'extended') {
 				return [ $processorA->getName() => $processorA,
 				$processorB->getName() => $processorB,
@@ -187,14 +195,28 @@ class TextController extends BaseController {
 				$processor2->getName() => $processor2,
 				$processor3->getName() => $processor3,
 				$processor4->getName() => $processor4,
-				$processor5->getName() => $processor5
+				$processor5->getName() => $processor5,
+				$processor6->getName() => $processor6,
+				$processor7->getName() => $processor7,
+				$processor8->getName() => $processor8,
+				$processor9->getName() => $processor9,
+				$processor10->getName() => $processor10,
+				$processor11->getName() => $processor11,
+				$processor12->getName() => $processor12
 			];
 		} else {
 			return [ $processor1->getName() => $processor1,
 				$processor2->getName() => $processor2,
 				$processor3->getName() => $processor3,
 				$processor4->getName() => $processor4,
-				$processor5->getName() => $processor5
+				$processor5->getName() => $processor5,
+				$processor6->getName() => $processor6,
+				$processor7->getName() => $processor7,
+				$processor8->getName() => $processor8,
+				$processor9->getName() => $processor9,
+				$processor10->getName() => $processor10,
+				$processor11->getName() => $processor11,
+				$processor12->getName() => $processor12
 			];
 		}
 	}
