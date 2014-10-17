@@ -175,7 +175,7 @@
 								<div class="btn-group actionbar">
 									<a class="btn btn-default btn-sm" href="/jobs2/save/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Save a template"><i class="fa fa-save"></i></a>
 
-									
+								
 
 									@{{#is this.status 'canceled'}}
 										<a class="btn btn-default btn-sm" href="/jobs2/load/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Load a template"><i class="fa fa-link"></i></a>
