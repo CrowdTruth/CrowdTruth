@@ -22,7 +22,7 @@
 										// Get a list of titles and template types which are already in the database
 										// and put them to dropdown
 
-										$aTitles = array('default' => '---');
+										$aTitles = array(null => '---');
 										$aTypes = array(null => '---');
 
 										$_format = (unserialize(Session::get('batch'))->format);
