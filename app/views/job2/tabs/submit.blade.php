@@ -1,29 +1,28 @@
-@extends('layouts.default')
+@extends('layouts.default_new')
 @section('content')
 @include('layouts.flashdata')
-<div class="col-xs-10 col-md-offset-1">
+<div class="col-xs-12 col-md-10 col-md-offset-1">
 	<div class='maincolumn CW_box_style'>
 					
 		<div class='tab'>
 			@include('job2.nav')
 			<div>
+				{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
 				<div class="panel panel-default">		
 					<div class="panel-heading">
-						<h4>Provide job and template details</h4>
+						<h4>Provide Job and Template details</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
-							<fieldset>
-							{{ Form::label('title', 'Select a title from the set of predefined ones or give your own', 
-									array('class' => 'col-xs-6 control-label')) }}
-								<div class="input-group col-xs-3">
+						<div class="row" style='margin-top:20px;'>
+							{{ Form::label('title', 'Select a Title give your own', 
+									array('class' => 'col-xs-12 col-sm-4 control-label')) }}
 
-
+								<div class="col-xs-12 col-sm-3">
 									<?php 
 										// Get a list of titles and template types which are already in the database
 										// and put them to dropdown
 
-										$aTitles = array(null => '---');
+										$aTitles = array('default' => '---');
 										$aTypes = array(null => '---');
 
 										$_format = (unserialize(Session::get('batch'))->format);
@@ -63,47 +62,38 @@
 										}
 										
 									?>
-
-									{{ Form::select('title',  $aTitles, $phprest, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
-								</div><div class="input-group col-xs-3">
-									{{ Form::text('titleOwn', null, array('class' => 'form-control col-xs-2')) }}
+									
+									{{ Form::select('title',  $aTitles, $phprest, array('class' => 'selectpicker', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
 								</div>
-							
-								<br/><br/>
-							{{ Form::label('description', 'Describe the job using a few word or keywords', 
-									array('class' => 'col-xs-6 control-label')) }}
-								<div class="input-group col-xs-5">
-									{{ Form::text('description', null, array('class' => 'form-control col-xs-2')) }}
+								<div class="col-xs-12 col-sm-4">
+									{{ Form::text('titleOwn', null, array('class' => 'form-control', 'placeholder' => 'New Title')) }}
+								</div>
+						</div>
+						<div class='row' style='margin-top:40px;'>
+							{{ Form::label('description', 'Describe the Job', 
+									array('class' => 'col-xs-12 col-sm-4 control-label')) }}
+								<div class="col-xs-12 col-sm-7">
+									{{ Form::text('description', null, array('class' => 'form-control', 'placeholder' => 'Keywords')) }}
 								</div>	
 							
-							<br/><hr><br/>
-							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own or null', 
-									array('class' => 'col-xs-6 control-label')) }}
-								<div class="input-group col-xs-3">
-									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
-									</div><div class="input-group col-xs-3">
-									{{ Form::text('templateTypeOwn', null, array('class' => 'form-control col-xs-2')) }}
+						</div>
+						<div class='row' style='margin-top:40px; margin-bottom: 20px;'>
+							{{ Form::label('templateType', 'Select a Template or define a new one', 
+									array('class' => 'col-xs-12 col-sm-4 control-label')) }}
+								<div class="col-xs-12 col-sm-3">
+									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
 								</div>
-						
-							<br/>
-
-						
-	<br/><br/>
-							
-						
-							
-
-							</fieldset>
-	<br/><br/>
-
-						{{ Form::submit('Create Job', array('class' => 'btn btn-lg btn-primary pull-right', 'style' => 'margin-right:20px')); }}
-						{{ Form::close()}}
-
-
-
-
+								<div class="col-xs-12 col-sm-4">
+									{{ Form::text('templateTypeOwn', null, array('class' => 'form-control', 'placeholder' => 'New Template')) }}
+								</div>
+						</div>
+					</div>
+					<div class="panel-footer">
+						{{ Form::submit('Create Job', array('class' => 'btn btn-primary pull-right')); }}
+						<div class='clearfix'></div>
 					</div>
 				</div>
+				{{ Form::close()}}
 			</div>	
 		</div>
 	</div>
