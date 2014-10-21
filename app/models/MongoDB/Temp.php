@@ -666,57 +666,6 @@ class Temp extends Moloquent {
     }
 
 
-public static function createMetadatadescriptionCache() {
-    set_time_limit(5200);
-    \Session::flash('rawArray', 1);
-    $db = \DB::getMongoDB();
-    $db = $db->temp;
-    $result = \MongoDB\Entity::where('documentType', '=', 'metadatadescription')->where('content.description', 'exists', true)->get()->toArray();
-
-    if(count($result) > 0) {
-        foreach($result as &$parent) {
-            $children = \MongoDB\Entity::whereIn('parents', [$parent['_id']])->get(['content.features'])->toArray();
-            $parent['content']['features'] = array();
-            foreach($children as $child) {
-                if(isset($child['content']['features'])) {
-                    foreach($child['content']['features'] as $k => $v) {
-                        if (!array_key_exists($k, $parent['content']['features'])){
-                            $parent['content']['features'][$k] = $v;
-                        }
-                        else {
-                            foreach ($v as $keyC => $valueC) {
-                                $found = false;
-                                foreach ($parent['content']['features'][$k] as $keyP => $valueP) {
-                                    if (strtolower($valueP["label"]) == $valueC["label"] && $valueP["startOffset"] == $valueC["startOffset"] && $valueP["endOffset"] == $valueC["endOffset"]) {
-                                        foreach ($valueC["types"] as $type) {
-                                            array_push($parent['content']['features'][$k][$keyP]["types"], $type);
-                                        }
-                                        $found = true;
-                                    }
-                                }
-                                if ($found == false) {
-                                    array_push($parent['content']['features'][$k], $valueC);
-                                }
-                            }
-                        }
-                    }                                          
-                }
-            }
-        }
-
-        try {
-            \MongoDB\Temp::where('documentType', '=', 'metadatadescription')->forceDelete();
-            $db->batchInsert(
-                $result,
-                array('continueOnError' => true)
-            );             
-        } catch (Exception $e) {
-            // ContinueOnError will still throw an exception on duplication, even though it continues, so we just move on.
-        }
-    }
-    \Session::forget('rawArray');
-}
-
     public static function createImageCache()
     {
         \Session::flash('rawArray', 1);
@@ -873,7 +822,7 @@ public static function createMetadatadescriptionCache() {
         {
             static::createImageCache();
             static::createJobCache();
-            static::createStatisticsForMetadatadescriptionCache();
+        //    static::createStatisticsForMetadatadescriptionCache();
         //    static::createMetadatadescriptionCache();
             return static::createMainSearchFiltersCache();
         }

@@ -1,6 +1,8 @@
 function unitsChartFacade(category, openModal, getSelection, updateSelection) {
     var categoryNameMap  = {'#relex-structured-sentence_tab':'Sentence',
         '#fullvideo_tab':'Video',
+        '#metadatadescription_tab':'Video Description',
+        '#annotatedmetadatadescription_tab':'Annotated Video Description',
         '#job_tab': 'job',
         '#crowdagents_tab':'worker',
         '#all_tab':'unit',
@@ -52,8 +54,12 @@ function unitsChartFacade(category, openModal, getSelection, updateSelection) {
         this.pieChartIds.push({field:'jobs',name:'jobs',divName:"optional1", tooltip:{'prefix' : '', 'suffix':''}});
         this.pieChartIds.push({field:'documentType',name:'document type',divName:"optional2", tooltip:{'prefix' : 'with', 'suffix':'document type'}});
         this.barChartGraph = new unitsBarChartGraph(category, categoryNameMap[category], this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails, getSelection, updateSelection, openModal, modalNameMap[category]);
+    } else if (category == '#metadatadescription_tab'){
+        this.pieChartIds.push({field:'jobs',name:'jobs',divName:"optional1", tooltip:{'prefix' : '', 'suffix':''}});
+        this.pieChartIds.push({field:'source',name:'source', divName:"optional2", tooltip:{'prefix' : 'from', 'suffix':'source'}});
+        this.pieChartIds.push({field:'language',name:'language', divName:"optional3", tooltip:{'prefix' : 'with', 'suffix':'language'}});
+        this.barChartGraph = new unitsBarChartGraph(category, categoryNameMap[category], this.unitsWorkerDetails, this.unitsJobDetails, this.unitsAnnotationDetails, getSelection, updateSelection, openModal, modalNameMap[category]);
     }
-
     this.pieCharts = [];
 
     for (var pieChartIndex in this.pieChartIds){
