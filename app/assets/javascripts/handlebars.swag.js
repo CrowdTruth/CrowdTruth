@@ -929,6 +929,102 @@ function objSort() {
     });
 } //end of objSort() function
 
+Swag.addHelper('highautomatedEvents', function(searchQuery, content, options) {
+  var metadataDescription = content.description;
+  var buffer = [];
+  var position = metadataDescription.length;
+
+  if (content.automatedEvents){
+
+//  content.features.entities.sort(function(a, b) { 
+//     return a["startOffset"] >= b["startOffset"]?1:-1;
+//  });
+  objSort(content.automatedEvents, 'startOffset', 'endOffset');
+
+  console.log(content.automatedEvents);
+
+  for(var i = content.automatedEvents.length - 1; i >= 0; i --) {
+    var entity = content.automatedEvents[i]["label"];
+    var startOffset = content.automatedEvents[i]["startOffset"];
+    var endOffset = content.automatedEvents[i]["endOffset"];
+    console.log(metadataDescription);
+  //  console.log("--" + metadataDescription.substring(0, startOffset) + "--");
+    //metadataDescription = metadataDescription.html().substring(0, startOffset) + '<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" style="background-color:' + color[i] + '">' + entity + '</span>' + metadataDescription.substring(endOffset, metadataDescription.length);
+    //pair = indices[i];
+  //  var extractors = content.features.automatedEvents[i]["extractors"].join();
+        buffer.unshift('<span class="highlightEntity" data-toggle="tooltip" data-placement="top" style="background-color:yellow">',
+                       metadataDescription.substring(startOffset, endOffset),
+                       "</span>",
+                       metadataDescription.substring(endOffset, position));
+        position = startOffset;
+    }
+    buffer.unshift(metadataDescription.substring(0, position));
+    console.log(buffer);
+    metadataDescription = buffer.join("");
+  }
+
+//if(typeof searchQuery)
+    if(searchQuery.match["content.description"])
+    {
+      var highlightedSearchTerm = searchQuery.match["content.description"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+      metadataDescription = metadataDescription.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+         return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+
+    return new Handlebars.SafeString(metadataDescription);
+  });
+
+Swag.addHelper('highcrowdEvents', function(searchQuery, content, options) {
+  var metadataDescription = content.description;
+  var buffer = [];
+  var position = metadataDescription.length;
+
+  if (content.crowdEvents){
+
+//  content.features.entities.sort(function(a, b) { 
+//     return a["startOffset"] >= b["startOffset"]?1:-1;
+//  });
+  objSort(content.crowdEvents, 'startOffset', 'endOffset');
+
+  console.log(content.crowdEvents);
+
+  for(var i = content.crowdEvents.length - 1; i >= 0; i --) {
+    var entity = content.crowdEvents[i]["label"];
+    var startOffset = content.crowdEvents[i]["startOffset"];
+    var endOffset = content.crowdEvents[i]["endOffset"];
+    console.log(metadataDescription);
+  //  console.log("--" + metadataDescription.substring(0, startOffset) + "--");
+    //metadataDescription = metadataDescription.html().substring(0, startOffset) + '<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" style="background-color:' + color[i] + '">' + entity + '</span>' + metadataDescription.substring(endOffset, metadataDescription.length);
+    //pair = indices[i];
+  //  var extractors = content.features.automatedEvents[i]["extractors"].join();
+        buffer.unshift('<span class="highlightEntity" data-toggle="tooltip" data-placement="top" style="background-color:yellow">',
+                       metadataDescription.substring(startOffset, endOffset),
+                       "</span>",
+                       metadataDescription.substring(endOffset, position));
+        position = startOffset;
+    }
+    buffer.unshift(metadataDescription.substring(0, position));
+    console.log(buffer);
+    metadataDescription = buffer.join("");
+  }
+
+//if(typeof searchQuery)
+    if(searchQuery.match["content.description"])
+    {
+      var highlightedSearchTerm = searchQuery.match["content.description"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+      metadataDescription = metadataDescription.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+         return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+
+    return new Handlebars.SafeString(metadataDescription);
+  });
+
 Swag.addHelper('highlightautomatedEvents', function(searchQuery, content, options) {
   var metadataDescription = content.description;
   var buffer = [];
