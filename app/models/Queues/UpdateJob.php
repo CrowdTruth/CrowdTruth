@@ -97,6 +97,8 @@ class UpdateJob {
 					$templateid = 'entity/text/medical/RelDir/Relation_Direction/0';
 				else if($j->type == 'MetaDEvents')
 					$templateid = 'entity/text/cultural/MetaDEvents/MetadataDescription_Events/0';
+				else if($j->type == 'DistributionalDisambiguation')
+					$templateid = 'entity/text/opendomain/termpairs/0';
 				else
 					throw new Exception("Type {$j->type} not recognised. We currently only have FactSpan, RelEx and RelDir.");
 
