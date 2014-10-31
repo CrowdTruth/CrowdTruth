@@ -193,7 +193,8 @@
 								// here we will handle errors and validation messages
 						});
 
-						setTimeout( function(){ location.href = "{{ URL::to('media/upload') }}"; }, 2000);
+						setTimeout( function(){ 
+							location.href = "{{ URL::to('media/upload') }}"; }, 2000);
 
 						// stop the form from submitting the normal way and refreshing the page
 						event.preventDefault();

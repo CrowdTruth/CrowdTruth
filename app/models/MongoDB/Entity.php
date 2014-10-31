@@ -19,10 +19,13 @@ class Entity extends Moloquent {
             "keyframes" => "Key-frames",
             "totalrelevantfeatures" => "Relevant Features",
             "fullvideo" => "Full Video",
-            "metadatadescription" => "Metadata Description",
+            "metadatadescription" => "Video Description",
+            "annotatedmetadatadescription" => "Annotated Video Description",
             "documentType" => "Document Type",
             "painting" => "Painting",
             "drawing" => "Drawing",
+            "termpairs-sentence" => "Term Pairs",
+            "qa-passages-sentence" => "Question & Answer Passages",
             "biographynet-sentence" => "BiographyNet passage",
             "relation" => "Seed Relation"
         ];

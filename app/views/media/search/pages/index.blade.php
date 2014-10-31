@@ -179,6 +179,10 @@
 							@include('media.search.layouts.hb-fullvideo')
 						@endif
 
+						@if(isset($mainSearchFilters['documentTypes']['metadatadescription']))
+							@include('media.search.layouts.hb-metadatadescription')
+						@endif
+
 						@if(isset($mainSearchFilters['documentTypes']['painting']))
 							@include('media.search.layouts.hb-painting')
 						@endif

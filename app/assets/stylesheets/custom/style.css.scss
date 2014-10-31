@@ -470,33 +470,6 @@ tr.tablesorter-filter-row input.disabled {
 	white-space: nowrap !important;
 }
 
-.highlightTermOne {
-	background:#ffe0e0;
-	font-weight:bold;
-	white-space: nowrap;
-}
-
-.highlightTermTwo {
-	background:#e0edff;
-	font-weight:bold;
-	white-space: nowrap;
-}
-
-.highlightedSearchTerm {
-	background:#ffffad;
-	font-weight:bold;
-}
-
-.highlightRelation {
-	background:#bdf9b1;
-	font-weight:bold;
-}
-
-.highlightSemicolon {
-	background:#ff8989;
-	font-weight:bold;
-}
-
 .tooltip-inner {
 	padding:6px 8px;
 	font-weight:bold;
@@ -667,3 +640,21 @@ background-color: #8dbdd8;
   	width: 85%; 
 }
 
+table .list-content-small {
+	font-size:12px
+}
+
+table .double-title {
+	padding: 4px 8px 4px 8px !important;
+}
+
+.presentation div {
+	margin-top:-10px;
+	padding:10px;
+	background-color: #f5f5f5;
+	border: 1px solid #ccc;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	margin-bottom:20px;
+}

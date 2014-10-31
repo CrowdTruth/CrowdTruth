@@ -9,15 +9,26 @@
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="#" data-vb="show" data-vbSelector="metadata_identifier"></i>Identifier</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="metadata_entities"></i>Extracted Entities</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="metadata_topics"></i>Topics</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="video_title"></i>Title</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="metadata_language"></i>Language</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i>Used In # of Batches</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i>Used In # of Jobs</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="description_identifier"></i>Identifier</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="video_description">Video Description</th>
+						<li><a href="#" data-vb="show" data-vbSelector="description_topics"></i>Topics</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="video_title"></i>Title</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="description_language"></i>Language</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="avg_clarity"></i>Avg Clarity</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="words_count"></i>Word Count</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="no_of_machine_features">Total # Machine Features</th>
+						<li><a href="#" data-vb="show" data-vbSelector="no_of_machine_events"># Machine Events</th>
+						<li><a href="#" data-vb="show" data-vbSelector="machine_events">Machine Events</th>
+						<li><a href="#" data-vb="show" data-vbSelector="no_of_people"></i># of People Features</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="people"></i>People Features</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="no_of_location"></i># of Location Features</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="location"></i>Location Features</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="no_of_time"></i># of Time Features</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="time"></i>Time Features</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="number_of_batches"></i>Used In # of Batches</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="number_of_jobs"></i>Used In # of Jobs</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="created_at"></i>Created At</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="created_by"></i>Created By</a></li>
 					</ul>
 				</div>
 			</div>
@@ -25,15 +36,25 @@
 	</div>
 	<div class='ctable-responsive cResults'>
 	    <table class="table table-striped qwe">
-	       	<thead data-query-key="collection=temp&match[documentType]" data-query-value="metadatadescription">
+	       	<thead data-query-key="match[documentType]" data-query-value="metadatadescription">
 		        <tr>
 		            <th data-vbIdentifier="checkbox">Select</th>
-			    	<th class="sorting" data-vbIdentifier="metadata_identifier" data-query-key="orderBy[title]">Identifier</th>
-			    	<th class="sorting" data-vbIdentifier="metadata_entities_description" data-query-key="orderBy[content.description]">Metadata Entities </th>
-			    	<th class="sorting" data-vbIdentifier="metadata_entities" data-query-key="orderBy[content.features.entities.label]">Extracted Entities</th>
-			    	<th class="sorting" data-vbIdentifier="metadata_topics" data-query-key="orderBy[content.features.topics.label]">Topics</th>
+			    	<th class="sorting" data-vbIdentifier="description_identifier" data-query-key="orderBy[title]">Identifier</th>
+			    	<th class="sorting" data-vbIdentifier="video_description" data-query-key="orderBy[content.description]">Video Description </th>
+			    	<th class="sorting" data-vbIdentifier="description_topics" data-query-key="orderBy[content.features.topics]">Topics</th>
 			    	<th class="sorting" data-vbIdentifier="video_title" data-query-key="orderBy[videoTitle]">Title</th>
-		            <th class="sorting" data-vbIdentifier="metadata_language" data-query-key="orderBy[language]">Language</th>
+		            <th class="sorting" data-vbIdentifier="description_language" data-query-key="orderBy[language]">Language</th>			 
+			    	<th class="sorting" data-vbIdentifier="avg_clarity" data-query-key="orderBy[avg_clarity]">Avg Clarity</th>
+			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="words_count" data-query-key="orderBy[wordCount]">Word Count</th>
+			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="no_of_machine_features" data-query-key="orderBy[totalNoOfFeatures]">Total # Machine Features </th>
+			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="no_of_machine_events" data-query-key="orderBy[content.automatedEventsCount]"># Machine Events </th>
+			    	<th class="sorting" data-vbIdentifier="machine_events" data-query-key="orderBy[content.features.automatedEvents.label]">Machine Events</th>
+			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="no_of_people" data-query-key="orderBy[content.peopleCount]"># of People Features</th>
+		            <th class="sorting" data-vbIdentifier="people" data-query-key="orderBy[content.features.people.label]">People Features</th>			 
+			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="no_of_location" data-query-key="orderBy[content.locationCount]"># of Location Features</th>
+		            <th class="sorting" data-vbIdentifier="location" data-query-key="orderBy[content.features.location.label]">Location Features</th>	
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="no_of_time" data-query-key="orderBy[content.timeCount]"># of Time Features</th>
+		            <th class="sorting" data-vbIdentifier="time" data-query-key="orderBy[content.features.time.label]">Time Features</th>	
 					<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]">Used In # of Batches</th>
 				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[cache.jobs.count]">Used In # of Jobs</th>     
 				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;">Created At</th>
@@ -43,23 +64,59 @@
 					<td data-vbIdentifier="checkbox">
 						<input type="checkbox" class="checkAll" />
 					</td>
-					<td data-vbIdentifier="metadata_identifier">
+					<td data-vbIdentifier="description_identifier">
 						<input class="input-sm form-control" type='text' data-query-key="match[title]" data-query-operator="like" />
 					</td>
-					<td data-vbIdentifier="metadata_entities_description">
+					<td data-vbIdentifier="video_description">
 						<input class="input-sm form-control" type='text' data-query-key="match[content.description]" data-query-operator="like" />
 					</td>
-					<td data-vbIdentifier="metadata_entities">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.features.entities]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="metadata_topics">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.features.topics]" data-query-operator="like" />	
+					<td data-vbIdentifier="description_topics">
+						<input class="input-sm form-control" type='text' data-query-key="match[content.features.topics]" data-query-operator="like" />
 					</td>
 					<td data-vbIdentifier="video_title">
-						<input class="input-sm form-control" type='text' data-query-key="match[videoTitle]" data-query-operator="like" />
+						<input class="input-sm form-control" type='text' data-query-key="match[videoTitle]" data-query-operator="like" />	
 					</td>
-					<td data-vbIdentifier="metadata_language">
+					<td data-vbIdentifier="description_language">
 						<input class="input-sm form-control" type='text' data-query-key="match[language]" data-query-operator="like" />
+					</td>
+					<td data-vbIdentifier="avg_clarity">
+						<input class="input-sm form-control" type='text' data-query-key="match[avg_clarity]" data-query-operator="like" />
+					</td>
+					<td data-vbIdentifier="words_count">
+						<input class="input-sm form-control" type='text' data-query-key="match[wordCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+						<input class="input-sm form-control" type='text' data-query-key="match[wordCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					</td>
+					<td data-vbIdentifier="no_of_machine_features">
+						<input class="input-sm form-control" type='text' data-query-key="match[totalNoOfFeatures]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+						<input class="input-sm form-control" type='text' data-query-key="match[totalNoOfFeatures]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					</td>
+					<td data-vbIdentifier="no_of_machine_events">
+						<input class="input-sm form-control" type='text' data-query-key="match[content.automatedEventsCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+						<input class="input-sm form-control" type='text' data-query-key="match[content.automatedEventsCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					</td>
+					<td data-vbIdentifier="machine_events">
+						<input class="input-sm form-control" type='text' data-query-key="match[content.features.automatedEvents.label]" data-query-operator="like" />
+					</td>
+					<td data-vbIdentifier="no_of_people">
+						<input class="input-sm form-control" type='text' data-query-key="match[content.peopleCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+						<input class="input-sm form-control" type='text' data-query-key="match[content.peopleCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					</td>
+					<td data-vbIdentifier="people">
+						<input class="input-sm form-control" type='text' data-query-key="match[content.features.people.label]" data-query-operator="like" />
+					</td>
+					<td data-vbIdentifier="no_of_location">
+						<input class="input-sm form-control" type='text' data-query-key="match[content.features.location.label]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+						<input class="input-sm form-control" type='text' data-query-key="match[content.features.location.label]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					</td>
+					<td data-vbIdentifier="location">
+						<input class="input-sm form-control" type='text' data-query-key="match[content.locationCount]" data-query-operator="like" />
+					</td>
+					<td data-vbIdentifier="no_of_time">
+						<input class="input-sm form-control" type='text' data-query-key="match[content.timeCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+						<input class="input-sm form-control" type='text' data-query-key="match[content.timeCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+					</td>
+					<td data-vbIdentifier="time">
+						<input class="input-sm form-control" type='text' data-query-key="match[content.features.time.label]" data-query-operator="like" />
 					</td>
 					<td data-vbIdentifier="number_of_batches">
 						<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
@@ -85,30 +142,74 @@
 			        @{{#each documents}}
 			        <tr class="text-center">
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
-				    	<td data-vbIdentifier="metadata_identifier"> 
+				    	<td data-vbIdentifier="description_identifier"> 
 							<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualMetadataDescriptionUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
 								@{{ this.title }}
 							</a>
 				    	</td>
-				    	<td data-vbIdentifier="metadata_entities_description">
-			            	@{{ highlightEntitiesDescription @root.searchQuery this.content }}
+				    	<td data-vbIdentifier="video_description">
+				    		@{{ this.content.description}}	
 			            </td>
-			            <td data-vbIdentifier="metadata_entities">
-			            	@{{#if  this.content.features.entities }}
-				            	@{{#eachProperty this.content.features.entities }}
-				            		<b>@{{value.label}}, </b>
-				            	@{{/eachProperty}}   
-			            	@{{/if}}
-			            </td>
-				    	<td data-vbIdentifier="metadata_topics">
+				    	<td data-vbIdentifier="description_topics">
 				    		@{{#if  this.content.features.topics }}
 				            	@{{#eachProperty this.content.features.topics }}
 				            		<b>@{{value.label}} - score: @{{value.score}} </b> (@{{value.wikiLink}}) <br>
 				            	@{{/eachProperty}}   
 			            	@{{/if}}
 			            </td>
-				    	<td data-vbIdentifier="video_title">@{{ this.videoTitle }}</td>
-				    	<td data-vbIdentifier="metadata_language"> @{{ this.language }} </td>
+			            <td data-vbIdentifier="video_title">@{{ this.videoTitle }}</td>
+						<td data-vbIdentifier="description_language"> @{{ this.language }} </td>
+						<td data-vbIdentifier="avg_clarity"> @{{ this.avg_clarity }} </td>
+						@{{#if  this.wordCount }}
+							<td data-vbIdentifier="words_count"> @{{ this.wordCount }} </td>
+						@{{else}}
+							<td data-vbIdentifier="words_count"> 0 </td>
+						@{{/if}}	
+						@{{#if  this.totalNoOfFeatures }}	
+							<td data-vbIdentifier="no_of_machine_features"> @{{ this.totalNoOfFeatures }} </td>
+						@{{else}}	
+							<td data-vbIdentifier="no_of_machine_features"> 0 </td>
+						@{{/if}}
+						@{{#if  this.content.automatedEventsCount }}
+							<td data-vbIdentifier="no_of_machine_events"> @{{ this.content.automatedEventsCount }} </td>
+						@{{else}}
+							<td data-vbIdentifier="no_of_machine_events"> 0 </td>
+						@{{/if}}
+						@{{#if  this.content.features.automatedEvents }}
+							<td data-vbIdentifier="machine_events"> @{{ highlightautomatedEvents @root.searchQuery this.content }} </td>
+				    	@{{ else }}
+			           		<td data-vbIdentifier="machine_events"> @{{ this.content.description }} </td>
+			            @{{/if}}
+			            @{{#if  this.content.peopleCount }}	
+							<td data-vbIdentifier="no_of_people"> @{{ this.content.peopleCount }} </td>
+						@{{else}}
+							<td data-vbIdentifier="no_of_people"> 0 </td>
+						@{{/if}}
+						@{{#if  this.content.features.people }}
+							<td data-vbIdentifier="people"> @{{ highlightPeople @root.searchQuery this.content }} </td>
+			           	@{{ else }}
+			           		<td data-vbIdentifier="people"> @{{ this.content.description }} </td>	
+			            @{{/if}}
+			            @{{#if  this.content.locationCount }}	
+							<td data-vbIdentifier="no_of_location"> @{{ this.content.locationCount }} </td>
+						@{{else}}
+							<td data-vbIdentifier="no_of_location"> 0 </td>
+						@{{/if}}
+						@{{#if  this.content.features.location }} 
+							<td data-vbIdentifier="location"> @{{ highlightLocation @root.searchQuery this.content }} </td>
+			           	@{{ else }}
+			           		<td data-vbIdentifier="location"> @{{ this.content.description }} </td>	
+			            @{{/if}}
+			            @{{#if  this.content.timeCount }}	
+							<td data-vbIdentifier="no_of_time"> @{{ this.content.timeCount }} </td>
+						@{{else}}
+							<td data-vbIdentifier="no_of_time"> 0 </td>
+						@{{/if}}
+						@{{#if  this.content.features.time }}
+							<td data-vbIdentifier="time"> @{{ highlightTime @root.searchQuery this.content }} </td>
+			           	@{{ else }}
+			           		<td data-vbIdentifier="time"> @{{ this.content.description }} </td>	
+			            @{{/if}}	
 				    	<td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>
 					    <td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>
 					    <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
@@ -311,8 +412,6 @@
 			      					</div>
 			    				</div>
 			  				</div>
-
-
 			  				<div class="panel panel-default">
 			    				<div class="panel-heading">
 			      					<a data-toggle="collapse" data-parent="#accordion" href="#collapseSix">
@@ -342,8 +441,6 @@
 			      					</div>
 			    				</div>
 			  				</div>
-
-
 			  				<div class="panel panel-default">
 			    				<div class="panel-heading">
 			      					<a data-toggle="collapse" data-parent="#accordion" href="#collapseSeven">
@@ -479,7 +576,7 @@
 										<div><strong data-toggle="tooltip" data-placement="top" title="@{{#eachProperty this.infoStat.cache.jobs.types }}@{{ key }} <br /> @{{/eachProperty}}"> Used in @{{ this.infoStat.cache.jobs.distinct }} Distinct Job Type(s) </strong></div>
 										<div><strong> Annotated in a total of @{{ this.infoStat.cache.jobs.count }} Job(s) </strong> </div>
 										<div><strong data-toggle="tooltip" data-placement="top" title="#Spam Workers: @{{ this.infoStat.cache.workers.spam }} <br /> #NonSpam Workers: @{{ this.infoStat.cache.workers.nonSpam }} <br /> #PotentialSpam Workers: @{{ this.infoStat.cache.workers.potentialSpam }}"> Annotated by a total of @{{ this.infoStat.cache.workers.count }} Worker(s) </strong> </div>
-										<div><strong data-toggle="tooltip" data-placement="top" title="#Spam WorkerUnits: @{{ this.infoStat.cache.workerUnits.spam }} </br> # NonSpam WorkerUnits: @{{ this.infoStat.cache.workerUnits.nonSpam }}"> Collected a total of @{{ this.infoStat.cache.workerUnits.count }} Annotation(s) </strong> </div>
+										<div><strong data-toggle="tooltip" data-placement="top" title="#Spam WorkerUnits: @{{ this.infoStat.cache.workerunits.spam }} </br> # NonSpam WorkerUnits: @{{ this.infoStat.cache.workerunits.nonSpam }}"> Collected a total of @{{ this.infoStat.cache.workerunits.count }} Annotation(s) </strong> </div>
 										<hr/>
 										<div><strong> Average @{{#addDocumentTypeLabel this.infoStat.documentType}} @{{/addDocumentTypeLabel}} Clarity (across CrowdTruth jobs): @{{ toFixed this.infoStat.avg_clarity 2}} </strong> </div>
 					  					<div><strong> Marked as low-quality in @{{ this.infoStat.cache.filtered.count}} Job(s): </strong></div>
@@ -493,7 +590,7 @@
 											</thead>
 											<tbody>
 												@{{#each this.jobContent}}
-						 							@{{#inArray metrics.filteredUnits.list ../infoStat._id }}
+						 							@{{#inArray metrics.filteredunits.list ../infoStat._id }}
 													<tr>
 													 <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
 													 <td> @{{ jobConf.content.title }} </td>
@@ -508,7 +605,7 @@
 					      			</div>
 					    		</div>
        					   	</div>
-					   	   	<div class="panel panel-default">
+       					   	<div class="panel panel-default">
 					    		<div class="panel-heading">
 					      			<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
 					       				<h4 class="panel-title">
@@ -545,20 +642,20 @@
 						 
 						  <tr>
 						   <td data-toggle="tooltip" data-placement="top" title="Job Title: @{{ jobConf.content.title }}"> @{{#ifarray platformJobId }} @{{/ifarray}} </td>  					  
-		                                   @{{#inArray metrics.filteredUnits.list ../infoStat._id}}
+		                                   @{{#inArray metrics.filteredunits.list ../infoStat._id}}
 							<td> True </td>
 						   @{{else}}
 							<td> False </td>
 						   @{{/inArray}}
 
 						   @{{#each metrics.units.withoutSpam}}
-						   <td> @{{ toFixed max_relation_Cos.avg 2}} </td>
-						   <td> @{{ toFixed no_annotators.avg 2}} </td>
+						   <td> @{{ toFixed avg.max_relation_Cos 2}} </td>
+						   <td> @{{ toFixed avg.no_annotators 2}} </td>
 						   @{{/each}}
-						   <td> @{{ toFixed metrics.aggUnits.mean.max_relation_Cos.avg 2}} </td>
-						   <td> @{{ toFixed metrics.aggUnits.mean.no_annotators.avg 2}} </td>
-						   <td> @{{ toFixed metrics.aggUnits.stddev.max_relation_Cos.avg 2}} </td>
-						   <td> @{{ toFixed metrics.aggUnits.stddev.no_annotators.avg 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.mean.max_relation_Cos 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.mean.no_annotators 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.stddev.max_relation_Cos 2}} </td>
+						   <td> @{{ toFixed metrics.aggUnits.stddev.no_annotators 2}} </td>
 						   <td> 
     							@{{#each results.withoutSpam}}
 							 @{{#each this}} 
@@ -609,8 +706,8 @@
 						</tr> 
 						</thead>
 						<tbody>
-						  @{{#each this.workerUnitContent}}
-						   @{{#each workerUnitType}}
+						  @{{#each this.workerunitContent}}
+						   @{{#each workerunitType}}
 						    <tr>
 						     <td> @{{ ../_id }} </td>  		  
 		                                     <td> @{{ ../valuesWorker.softwareAgent_id}} </td>
@@ -618,13 +715,13 @@
 						     <td> @{{ job_info.jobConf.content.title}} </td>
 						      @{{#each job_info.metrics.workers.withFilter}}
 						       @{{#ifvalue ../../_id value=@key}}
-						       <td> @{{ toFixed worker_cosine.avg 2}} </td>
-						       <td> @{{ toFixed avg_worker_agreement.avg 2}} </td>
-						       <td> @{{ toFixed ann_per_unit.avg 2}} </td>
+						       <td> @{{ toFixed worker_cosine 2}} </td>
+						       <td> @{{ toFixed avg_worker_agreement 2}} </td>
+						       <td> @{{ toFixed ann_per_unit 2}} </td>
 						       @{{/ifvalue}}
 						      @{{/each}}
 						       <td> 
-    							@{{#each workerUnit}}
+    							@{{#each workerunit}}
 							 
 							   <table border="1" bordercolor="#C0C0C0">
 							    <tr> 
@@ -650,6 +747,8 @@
 					      </div>
 					    </div>
 					  </div>
+					  
+
 			</div>
 		   </div>
   	          </div>

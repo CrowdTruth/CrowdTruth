@@ -173,8 +173,29 @@
     }
   });
   
-   Swag.addHelper('formatTime', function(seconds) {
-	return new Date(seconds).toString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+	Swag.addHelper('formatTime', function(seconds) {
+		return new Date(seconds).toString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+	});
+  
+   Swag.addHelper('duration', function(seconds) {
+	
+	if (isNaN(seconds) || seconds < 0) {
+		return ""
+	}
+	
+	var numdays = Math.floor(seconds / 86400);
+	var numhours = Math.floor((seconds % 86400) / 3600);
+	var numminutes = Math.floor(((seconds % 86400) % 3600) / 60);
+	var numseconds = ((seconds % 86400) % 3600) % 60;
+	
+	duration = '';
+	if(numdays > 0) { duration += numdays + "d "; } 
+	if(numhours > 0) { duration += numhours + "h "; }
+	if(numminutes > 0) { duration += numminutes + "m "; }
+	if(duration == '' && numseconds > 0) { duration = '< 1m'; }
+	
+	return duration;
+   
    });
 
   Swag.addHelper('reverse', function(str) {
@@ -657,6 +678,15 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
     }
   });
 
+  Swag.addHelper('toPrice', function(number) {
+    if (!Utils.isUndefined(number)) {
+		number = parseFloat(Utils.result(number));
+		return '$' + number.toFixed(2);
+    } else {
+	  return '-';
+    }
+  });
+  
   Swag.addHelper('toPrecision', function(number, precision) {
     if (!Utils.isUndefined(number)) {
       number = parseFloat(Utils.result(number));
@@ -840,7 +870,7 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
   });
 
   Swag.addHelper('createPercentage', function(value, options) {
-  return value * 100;
+  return Math.round(value * 100);
   });
 
   function replaceStr(str, pos, value){
@@ -899,105 +929,30 @@ function objSort() {
     });
 } //end of objSort() function
 
-  Swag.addHelper('highlightEntitiesDescription', function(searchQuery, content, options) {
-  var color = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc',
-               '#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462','#b3de69','#fccde5','#d9d9d9','#bc80bd'
-               ,'#ccebc5','#ffed6f','#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00'
-               ,'#cab2d6','#6a3d9a','#ffff99','#b15928','#fbb4ae','#b3cde3','#ccebc5','#decbe4','#fed9a6','#ffffcc'];
+Swag.addHelper('highautomatedEvents', function(searchQuery, content, options) {
   var metadataDescription = content.description;
   var buffer = [];
   var position = metadataDescription.length;
 
-  if (content.features.entities){
+  if (content.automatedEvents){
 
 //  content.features.entities.sort(function(a, b) { 
 //     return a["startOffset"] >= b["startOffset"]?1:-1;
 //  });
-  objSort(content.features.entities, 'startOffset', 'endOffset');
+  objSort(content.automatedEvents, 'startOffset', 'endOffset');
 
-  console.log(content.features.entities);
+  console.log(content.automatedEvents);
 
-  for(var i = content.features.entities.length - 1; i >= 0; i --) {
-    var entity = content.features.entities[i]["label"];
-    var startOffset = content.features.entities[i]["startOffset"];
-    var endOffset = content.features.entities[i]["endOffset"];
+  for(var i = content.automatedEvents.length - 1; i >= 0; i --) {
+    var entity = content.automatedEvents[i]["label"];
+    var startOffset = content.automatedEvents[i]["startOffset"];
+    var endOffset = content.automatedEvents[i]["endOffset"];
     console.log(metadataDescription);
   //  console.log("--" + metadataDescription.substring(0, startOffset) + "--");
     //metadataDescription = metadataDescription.html().substring(0, startOffset) + '<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" style="background-color:' + color[i] + '">' + entity + '</span>' + metadataDescription.substring(endOffset, metadataDescription.length);
     //pair = indices[i];
-    var extractors = content.features.entities[i]["extractors"].join();
-        buffer.unshift('<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title=\"' + extractors + '\" style="background-color:' + color[i] + '">',
+  //  var extractors = content.features.automatedEvents[i]["extractors"].join();
+        buffer.unshift('<span class="highlightEntity" data-toggle="tooltip" data-placement="top" style="background-color:yellow">',
                        metadataDescription.substring(startOffset, endOffset),
                        "</span>",
                        metadataDescription.substring(endOffset, position));
@@ -1006,9 +961,6 @@ function objSort() {
     buffer.unshift(metadataDescription.substring(0, position));
     console.log(buffer);
     metadataDescription = buffer.join("");
-//    replace(metadataDescription.substring(parseInt(startOffset), parseInt(endOffset)), 
-//      '<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" 
-//      style="background-color:' + color[i] + '">' + entity + '</span>');
   }
 
 //if(typeof searchQuery)
@@ -1025,17 +977,286 @@ function objSort() {
     return new Handlebars.SafeString(metadataDescription);
   });
 
+Swag.addHelper('highcrowdEvents', function(searchQuery, content, options) {
+  var metadataDescription = content.description;
+  var buffer = [];
+  var position = metadataDescription.length;
 
+  if (content.crowdEvents){
+
+//  content.features.entities.sort(function(a, b) { 
+//     return a["startOffset"] >= b["startOffset"]?1:-1;
+//  });
+  objSort(content.crowdEvents, 'startOffset', 'endOffset');
+
+  console.log(content.crowdEvents);
+
+  for(var i = content.crowdEvents.length - 1; i >= 0; i --) {
+    var entity = content.crowdEvents[i]["label"];
+    var startOffset = content.crowdEvents[i]["startOffset"];
+    var endOffset = content.crowdEvents[i]["endOffset"];
+    console.log(metadataDescription);
+  //  console.log("--" + metadataDescription.substring(0, startOffset) + "--");
+    //metadataDescription = metadataDescription.html().substring(0, startOffset) + '<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" style="background-color:' + color[i] + '">' + entity + '</span>' + metadataDescription.substring(endOffset, metadataDescription.length);
+    //pair = indices[i];
+  //  var extractors = content.features.automatedEvents[i]["extractors"].join();
+        buffer.unshift('<span class="highlightEntity" data-toggle="tooltip" data-placement="top" style="background-color:yellow">',
+                       metadataDescription.substring(startOffset, endOffset),
+                       "</span>",
+                       metadataDescription.substring(endOffset, position));
+        position = startOffset;
+    }
+    buffer.unshift(metadataDescription.substring(0, position));
+    console.log(buffer);
+    metadataDescription = buffer.join("");
+  }
+
+//if(typeof searchQuery)
+    if(searchQuery.match["content.description"])
+    {
+      var highlightedSearchTerm = searchQuery.match["content.description"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+      metadataDescription = metadataDescription.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+         return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+
+    return new Handlebars.SafeString(metadataDescription);
+  });
+
+Swag.addHelper('highlightautomatedEvents', function(searchQuery, content, options) {
+  var metadataDescription = content.description;
+  var buffer = [];
+  var position = metadataDescription.length;
+
+  if (content.features.automatedEvents){
+
+//  content.features.entities.sort(function(a, b) { 
+//     return a["startOffset"] >= b["startOffset"]?1:-1;
+//  });
+  objSort(content.features.automatedEvents, 'startOffset', 'endOffset');
+
+  console.log(content.features.automatedEvents);
+
+  for(var i = content.features.automatedEvents.length - 1; i >= 0; i --) {
+    var entity = content.features.automatedEvents[i]["label"];
+    var startOffset = content.features.automatedEvents[i]["startOffset"];
+    var endOffset = content.features.automatedEvents[i]["endOffset"];
+    console.log(metadataDescription);
+  //  console.log("--" + metadataDescription.substring(0, startOffset) + "--");
+    //metadataDescription = metadataDescription.html().substring(0, startOffset) + '<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" style="background-color:' + color[i] + '">' + entity + '</span>' + metadataDescription.substring(endOffset, metadataDescription.length);
+    //pair = indices[i];
+  //  var extractors = content.features.automatedEvents[i]["extractors"].join();
+        buffer.unshift('<span class="highlightEntity" data-toggle="tooltip" data-placement="top" style="background-color:blue">',
+                       metadataDescription.substring(startOffset, endOffset),
+                       "</span>",
+                       metadataDescription.substring(endOffset, position));
+        position = startOffset;
+    }
+    buffer.unshift(metadataDescription.substring(0, position));
+    console.log(buffer);
+    metadataDescription = buffer.join("");
+  }
+
+//if(typeof searchQuery)
+    if(searchQuery.match["content.description"])
+    {
+      var highlightedSearchTerm = searchQuery.match["content.description"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+      metadataDescription = metadataDescription.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+         return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+
+    return new Handlebars.SafeString(metadataDescription);
+  });
+
+Swag.addHelper('highlightPeople', function(searchQuery, content, options) {
+  var metadataDescription = content.description;
+  var buffer = [];
+  var position = metadataDescription.length;
+
+  if (content.features.people){
+
+//  content.features.entities.sort(function(a, b) { 
+//     return a["startOffset"] >= b["startOffset"]?1:-1;
+//  });
+  objSort(content.features.people, 'startOffset', 'endOffset');
+
+  console.log(content.features.people);
+
+  for(var i = content.features.people.length - 1; i >= 0; i --) {
+    var entity = content.features.people[i]["label"];
+    var startOffset = content.features.people[i]["startOffset"];
+    var endOffset = content.features.people[i]["endOffset"];
+    console.log(metadataDescription);
+  //  console.log("--" + metadataDescription.substring(0, startOffset) + "--");
+    //metadataDescription = metadataDescription.html().substring(0, startOffset) + '<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" style="background-color:' + color[i] + '">' + entity + '</span>' + metadataDescription.substring(endOffset, metadataDescription.length);
+    //pair = indices[i];
+  //  var extractors = content.features.automatedEvents[i]["extractors"].join();
+        buffer.unshift('<span class="highlightEntity" data-toggle="tooltip" data-placement="top" style="background-color:red">',
+                       metadataDescription.substring(startOffset, endOffset),
+                       "</span>",
+                       metadataDescription.substring(endOffset, position));
+        position = startOffset;
+    }
+    buffer.unshift(metadataDescription.substring(0, position));
+    console.log(buffer);
+    metadataDescription = buffer.join("");
+  }
+
+//if(typeof searchQuery)
+    if(searchQuery.match["content.description"])
+    {
+      var highlightedSearchTerm = searchQuery.match["content.description"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+      metadataDescription = metadataDescription.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+         return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+
+    return new Handlebars.SafeString(metadataDescription);
+  });
+
+Swag.addHelper('highlightLocation', function(searchQuery, content, options) {
+  var metadataDescription = content.description;
+  var buffer = [];
+  var position = metadataDescription.length;
+
+  if (content.features.location){
+
+//  content.features.entities.sort(function(a, b) { 
+//     return a["startOffset"] >= b["startOffset"]?1:-1;
+//  });
+  objSort(content.features.location, 'startOffset', 'endOffset');
+
+  console.log(content.features.location);
+
+  for(var i = content.features.location.length - 1; i >= 0; i --) {
+    var entity = content.features.location[i]["label"];
+    var startOffset = content.features.location[i]["startOffset"];
+    var endOffset = content.features.location[i]["endOffset"];
+    console.log(metadataDescription);
+  //  console.log("--" + metadataDescription.substring(0, startOffset) + "--");
+    //metadataDescription = metadataDescription.html().substring(0, startOffset) + '<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" style="background-color:' + color[i] + '">' + entity + '</span>' + metadataDescription.substring(endOffset, metadataDescription.length);
+    //pair = indices[i];
+  //  var extractors = content.features.automatedEvents[i]["extractors"].join();
+        buffer.unshift('<span class="highlightEntity" data-toggle="tooltip" data-placement="top" style="background-color:green">',
+                       metadataDescription.substring(startOffset, endOffset),
+                       "</span>",
+                       metadataDescription.substring(endOffset, position));
+        position = startOffset;
+    }
+    buffer.unshift(metadataDescription.substring(0, position));
+    console.log(buffer);
+    metadataDescription = buffer.join("");
+  }
+
+//if(typeof searchQuery)
+    if(searchQuery.match["content.description"])
+    {
+      var highlightedSearchTerm = searchQuery.match["content.description"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+      metadataDescription = metadataDescription.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+         return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+
+    return new Handlebars.SafeString(metadataDescription);
+  });
+
+Swag.addHelper('highlightTime', function(searchQuery, content, options) {
+  var metadataDescription = content.description;
+  var buffer = [];
+  var position = metadataDescription.length;
+
+  if (content.features.time){
+
+//  content.features.entities.sort(function(a, b) { 
+//     return a["startOffset"] >= b["startOffset"]?1:-1;
+//  });
+  objSort(content.features.time, 'startOffset', 'endOffset');
+
+  console.log(content.features.time);
+
+  for(var i = content.features.time.length - 1; i >= 0; i --) {
+    var entity = content.features.time[i]["label"];
+    var startOffset = content.features.time[i]["startOffset"];
+    var endOffset = content.features.time[i]["endOffset"];
+    console.log(metadataDescription);
+  //  console.log("--" + metadataDescription.substring(0, startOffset) + "--");
+    //metadataDescription = metadataDescription.html().substring(0, startOffset) + '<span class="highlightEntity" data-toggle="tooltip" data-placement="top" title="Term 1" style="background-color:' + color[i] + '">' + entity + '</span>' + metadataDescription.substring(endOffset, metadataDescription.length);
+    //pair = indices[i];
+  //  var extractors = content.features.automatedEvents[i]["extractors"].join();
+        buffer.unshift('<span class="highlightEntity" data-toggle="tooltip" data-placement="top" style="background-color:yellow">',
+                       metadataDescription.substring(startOffset, endOffset),
+                       "</span>",
+                       metadataDescription.substring(endOffset, position));
+        position = startOffset;
+    }
+    buffer.unshift(metadataDescription.substring(0, position));
+    console.log(buffer);
+    metadataDescription = buffer.join("");
+  }
+
+//if(typeof searchQuery)
+    if(searchQuery.match["content.description"])
+    {
+      var highlightedSearchTerm = searchQuery.match["content.description"].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+      metadataDescription = metadataDescription.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+         return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+
+    return new Handlebars.SafeString(metadataDescription);
+  });
+
+  // highlight terms based on tags
+  Swag.addHelper('highlightTagged', function(searchQuery, passage, options) {
+    
+	passage = passage.replace(/{/g, '<span class="highlightTermOne" data-toggle="tooltip" data-placement="top" title="Term 1">').replace(/}/g, '</span>');
+	passage = passage.replace(/\[/g, '<span class="highlightTermTwo" data-toggle="tooltip" data-placement="top" title="Term 2">').replace(/\]/g, '</span>');
+
+	// get search field
+	for(search in searchQuery.match) {
+		if(search != "documentType") {
+			var match = search;
+		}
+	}
+	
+    if(searchQuery.match[match])
+    {
+      var highlightedSearchTerm = searchQuery.match[match].like;
+      var regEx = new RegExp("(?![^<>]*>)" + Utils.escapeRegexp(highlightedSearchTerm, '/'), "ig");
+   //   formattedSentence = formattedSentence.replace(regEx, '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="top" title="Your search term">$1</span>');
+
+      passage = passage.replace(regEx, 
+        function replacer(match, p1, p2, p3, offset, string){
+          // p1 is nondigits, p2 digits, and p3 non-alphanumerics
+          return '<span class="highlightedSearchTerm" data-toggle="tooltip" data-placement="bottom" title="Your search term">' + match + '</span>';
+      });
+    }
+	
+    return new Handlebars.SafeString(passage);
+  });
+
+  
+  // highlight terms
   Swag.addHelper('highlightTerms', function(searchQuery, content, options) {
     var formattedSentence = content.sentence.formatted;
     var t1 = content.terms.first.formatted;
     var t2 = content.terms.second.formatted;
 
-    formattedSentence = formattedSentence.replace(t1, '<span class="highlightTermOne" data-toggle="tooltip" data-placement="top" title="Term 1">' + t1 + '</span>');
-    formattedSentence = formattedSentence.replace(t2, '<span class="highlightTermTwo" data-toggle="tooltip" data-placement="top" title="Term 2">' + t2 + '</span>');
-
-    var relation = content.relation.noPrefix;
-
+	formattedSentence = formattedSentence.replace(t1, '<span class="highlightTermOne" data-toggle="tooltip" data-placement="top" title="Term 1">' + t1 + '</span>');
+	formattedSentence = formattedSentence.replace(t2, '<span class="highlightTermTwo" data-toggle="tooltip" data-placement="top" title="Term 2">' + t2 + '</span>');
+    
+	var relation = content.relation.noPrefix;
     if(relation == "diagnose")
     {
       relation = "diagnos";

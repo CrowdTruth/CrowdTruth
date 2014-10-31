@@ -498,7 +498,7 @@ class apiController extends BaseController
             'results.withSpam.' . $unitID,
             'metrics.units.withoutSpam.' . $unitID,
             'metrics.aggUnits',
-            'metrics.filteredUnits',
+            'metrics.filteredunits',
             'metrics.workers.withFilter',
             'sofwareAgent_id',
             'platformJobId'))->toArray();

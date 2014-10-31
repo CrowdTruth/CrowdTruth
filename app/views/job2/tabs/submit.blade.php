@@ -1,35 +1,32 @@
-@extends('layouts.default')
+@extends('layouts.default_new')
 @section('content')
 @include('layouts.flashdata')
-<div class="col-xs-10 col-md-offset-1">
+<div class="col-xs-12 col-md-10 col-md-offset-1">
 	<div class='maincolumn CW_box_style'>
 					
 		<div class='tab'>
 			@include('job2.nav')
 			<div>
+				{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
 				<div class="panel panel-default">		
 					<div class="panel-heading">
-						<h4>Preview task and submit</h4>
+						<h4>Provide Job and Template details</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
-							<fieldset>
-							{{ Form::label('title', 'Select a title from the set of predefined ones or give your own', 
-									array('class' => 'col-xs-5 control-label')) }}
-								<div class="input-group col-xs-3">
+						<div class="row" style='margin-top:20px;'>
+							{{ Form::label('title', 'Select a Title give your own', 
+									array('class' => 'col-xs-12 col-sm-4 control-label')) }}
 
-
+								<div class="col-xs-12 col-sm-3">
 									<?php 
 										// Get a list of titles and template types which are already in the database
 										// and put them to dropdown
 
 										$aTitles = array(null => '---');
 										$aTypes = array(null => '---');
-
 										$_format = (unserialize(Session::get('batch'))->format);
 										$_aTitles = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct("content.title")->get();
-									    $_aTitles = array_flatten($_aTitles->toArray());
-									    
+									    $_aTitles = array_flatten($_aTitles->toArray());		    
 									    foreach($_aTitles as $key=>$value){
 									    	$pos = strpos($value, '[[');
 									    	if ( $pos > 0) {
@@ -39,13 +36,12 @@
 									    	}
 										}
 
-										$_aTypes = \MongoDB\Entity::where("documentType", "job")->where("format", $_format)->distinct('type')->get();
+										$_aTypes = \MongoDB\Template::where("format", $_format)->distinct('type')->get();
 									    $_aTypes = array_flatten($_aTypes->toArray());
 									    foreach($_aTypes as $key=>$value){
 									    	if(!isset($aTypes[$value]))
 										    	$aTypes[$value] = $value;
-										}
-										
+										}							
 
 										if($phpres = Session::get('templatetype')){
 											if(!isset($aTypes[$phpres]))
@@ -62,45 +58,38 @@
 										}
 										
 									?>
-
-									{{ Form::select('title',  $aTitles, $phprest, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
-								</div><div class="input-group col-xs-3">
-									{{ Form::text('titleOwn', null, array('class' => 'form-control col-xs-2')) }}
+									
+									{{ Form::select('title',  $aTitles, $phprest, array('class' => 'selectpicker', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip', 'title'=>'')) }}
 								</div>
-							
-								
-							
-							<br/><br/>
-							{{ Form::label('templateType', 'Select a template-type from the set of predefined ones or give your own', 
-									array('class' => 'col-xs-5 control-label')) }}
-								<div class="input-group col-xs-3">
-									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
-									</div><div class="input-group col-xs-3">
-									{{ Form::text('templateTypeOwn', null, array('class' => 'form-control col-xs-2')) }}
+								<div class="col-xs-12 col-sm-4">
+									{{ Form::text('titleOwn', null, array('class' => 'form-control', 'placeholder' => 'New Title')) }}
 								</div>
-						
-							<br/>
-
-							<br/><br/>
-							{{ Form::label('description', 'Describe the job using a few word or keywords', 
-									array('class' => 'col-xs-5 control-label')) }}
-								<div class="input-group col-xs-5">
-									{{ Form::text('description', null, array('class' => 'form-control col-xs-2')) }}
-								</div>
-						
+						</div>
+						<div class='row' style='margin-top:40px;'>
+							{{ Form::label('description', 'Describe the Job', 
+									array('class' => 'col-xs-12 col-sm-4 control-label')) }}
+								<div class="col-xs-12 col-sm-7">
+									{{ Form::text('description', null, array('class' => 'form-control', 'placeholder' => 'Keywords')) }}
+								</div>	
 							
-
-							</fieldset>
-	<br/><br/>
-
-						{{ Form::submit('Create Job', array('class' => 'btn btn-lg btn-default pull-right', 'style' => 'margin-right:20px')); }}
-						{{ Form::close()}}
-
-
-
-
+						</div>
+						<div class='row' style='margin-top:40px; margin-bottom: 20px;'>
+							{{ Form::label('templateType', 'Select a Template or define a new one', 
+									array('class' => 'col-xs-12 col-sm-4 control-label')) }}
+								<div class="col-xs-12 col-sm-3">
+									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
+								</div>
+								<div class="col-xs-12 col-sm-4">
+									{{ Form::text('templateTypeOwn', null, array('class' => 'form-control', 'placeholder' => 'New Template')) }}
+								</div>
+						</div>
+					</div>
+					<div class="panel-footer">
+						{{ Form::submit('Create Job', array('class' => 'btn btn-primary pull-right')); }}
+						<div class='clearfix'></div>
 					</div>
 				</div>
+				{{ Form::close()}}
 			</div>	
 		</div>
 	</div>

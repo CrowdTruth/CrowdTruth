@@ -137,7 +137,7 @@ class OnlineData extends Moloquent {
 				if (isset($xmlNode)) {
 				//	$ancestors = array();
 				//	$record["ancestors"] = $ancestors;
-					$content = array("identifier" => $recordId, "datestamp" => (string)$xmlNode->header->datestamp, "specSet" => (string)$xmlNode->header->setSpec);
+					$content = array("identifier" => $recordId, "datestamp" => (string)$xmlNode->header->datestamp, "specSet" => "beeldengeluid");
 					$searchInFile = false;
 					if(file_exists(public_path(). "/json/" . $recordId . ".json")) {
 						$file = file_get_contents(public_path(). "/json/" . $recordId . ".json");
@@ -400,6 +400,11 @@ class OnlineData extends Moloquent {
 				$content["description"] = $value;
 				
 				$entity->content = $content;
+
+				$preprocessed = array();
+				$preprocessed["automatedEntities"] = false;
+				$preprocessed["automatedEvents"] = false;
+				$entity->preprocessed = $preprocessed;
 				$entity->tags = array("unit");
 				$entity->hash = md5(serialize([$entity->content]));				
 				$entity->activity_id = $activity->_id;  
@@ -424,7 +429,7 @@ class OnlineData extends Moloquent {
 		$listOfVideoIdentifiers = array();
 		$this->listRecords($parameters, $noOfVideos, $listOfVideoIdentifiers);
 		
-		dd("done");
+	//	dd("done");
 		$status = array();
 
 		try {

@@ -10,30 +10,4 @@ class PagesController extends BaseController {
 		return View::make('index');
 	}
 
-	public function info()
-	{
-		return View::make('info');
-	}
-
-
-	public function papers()
-	{
-		return View::make('papers');
-	}
-
-	public function team()
-	{
-		return View::make('team');
-	}
-
-	public function apiExamples()
-	{
-		return View::make('api_examples');
-	}
-
-	public function templatesExamples()
-	{
-		return View::make('templates_examples');
-	}
-
 }

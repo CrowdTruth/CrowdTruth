@@ -6,6 +6,7 @@
 {{ stylesheet_link_tag('bootstrap-select.css') }}
 {{ stylesheet_link_tag('bootstrap-dropdown-checkbox.css') }}
 {{ stylesheet_link_tag('bootstrap.datepicker3.css') }}
+{{ stylesheet_link_tag('jobs.css') }}
 
 <style>
 .container {
@@ -33,8 +34,18 @@
 
 					<div class='tabOptions pull-left'>
 					</div>
-					<a href="{{ URL::to('/jobs/batch') }}" class="btn btn-default" style="margin-left:5px; float:left;">Create Job</a>
-					<a href="{{ URL::to('/jobs2/batch') }}" class="btn btn-default" style="margin-left:5px; float:left;">Create Job 2</a>
+
+					<div class='btn-group' style="margin-left:5px;">
+						<a href="{{ URL::to('/jobs/batch') }}" class="btn btn-default">Create Job</a>
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+							<span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="{{ URL::to('/jobs2/batch') }}"></i>Create Job (Beta)</a></li>
+						</ul>
+					</div>
+
+
 					<div class="btn-group pull-left" style="margin-left:5px";>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						Actions <span class="caret"></span>
@@ -407,6 +418,16 @@
 {{ javascript_include_tag('visualization_manifest') }}
 <script>
 $('document').ready(function(){
+
+  // highlight own username
+  Swag.addHelper('highlightSelf', function(user, self, options) {
+    
+	if(user == '{{Auth::user()->_id}}') {
+		user = '<span class="highlightSelf">' + user + '</span>';
+	}
+	
+	return new Handlebars.SafeString(user);
+  });
 
 Swag.registerHelpers();
 
@@ -1104,7 +1125,7 @@ $('body').on('click', '.testModal', function(){
 
 $('.select_job').click();
 $('.documentTypesNav').find('#job_nav a').click();
-$('.graphViewButton').click();
+$('.listViewButton').click();
 
 var workerList = localStorage.getItem("jobList");
 if(workerList !=  null) {

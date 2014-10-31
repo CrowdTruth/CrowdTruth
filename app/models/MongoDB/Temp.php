@@ -57,7 +57,8 @@ class Temp extends Moloquent {
                     }
                 }
 
-                foreach ($children as $child) {  
+                foreach ($children as $child) {
+                    if (!empty($child['content']['features']['initialEntities']))
                     foreach($child['content']['features']['initialEntities'] as $childKey => $childValue) {
                         $found = false;
                         foreach ($parent['content']['statistics']['majvoting'] as $parentKey => $parentValue) {
@@ -182,15 +183,18 @@ class Temp extends Moloquent {
                                         $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelTypePair"][$childValue["label"] . "-" . $tempTypeValue]["relevanceScore"]["value"] = 1 / $parent["content"]["statistics"]["majvoting"][$parentKey]["noExtractorsPerLabel"]["count"];
                                     }
 
+                                    /*
                                     $foundLabelResourcePair = false;
                                     $tempResourceValue = "";
                                     if ($valueType["entityURI"] != null) {
                                         $tempResourceValue = $valueType["entityURI"];
                                     }
-                                    foreach ($parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"] as $parentLabelTypeKey => $parentLabelTypeValue) {
+                                    foreach ($parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"] as $parentLabelResourceKey => $parentLabelResourceValue) {
                             
-                                        if (strtolower($parentLabelTypeKey) == strtolower($childValue["label"] . "-" . $tempResourceValue)) {
-                                            if (!in_array($childValue["provenance"], $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelTypeKey]["extractors"])) {
+                                        if (strtolower($parentLabelResourceKey) == strtolower($childValue["label"] . "-" . $tempResourceValue)) {
+                                            if (!in_array($childValue["provenance"], $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelResourceKey]["extractors"])) {
+                                                //echo $parent["_id"];
+                                                //dd($parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"]);
                                                 $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["count"] += 1;
                                                 array_push($parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["extractors"], $childValue["provenance"]);
                                                 $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["relevanceScore"]["value"] = $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["count"] / $parent["content"]["statistics"]["majvoting"][$parentKey]["noExtractorsPerLabel"]["count"];
@@ -198,7 +202,7 @@ class Temp extends Moloquent {
                                             $foundLabelResourcePair = true;
                                         }
                                         else {
-                                            $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelTypeKey]["relevanceScore"]["value"] = $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelTypeKey]["count"] / $parent["content"]["statistics"]["majvoting"][$parentKey]["noExtractorsPerLabel"]["count"];
+                                            $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelResourceKey]["relevanceScore"]["value"] = $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$parentLabelResourceKey]["count"] / $parent["content"]["statistics"]["majvoting"][$parentKey]["noExtractorsPerLabel"]["count"];
                                         }
 
                                         if ($foundLabelResourcePair == true) {
@@ -214,6 +218,7 @@ class Temp extends Moloquent {
                                         $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["relevanceScore"] = array();
                                         $parent['content']['statistics']['majvoting'][$parentKey]["noExtractorsLabelResourcePair"][$childValue["label"] . "-" . $tempResourceValue]["relevanceScore"]["value"] = 1/$parent["content"]["statistics"]["majvoting"][$parentKey]["noExtractorsPerLabel"]["count"];
                                     }
+                                    */
 
                                     $foundTypeResourcePair = false;
                                     $tempTypeValue = "";
@@ -661,57 +666,6 @@ class Temp extends Moloquent {
     }
 
 
-public static function createMetadatadescriptionCache() {
-    set_time_limit(5200);
-    \Session::flash('rawArray', 1);
-    $db = \DB::getMongoDB();
-    $db = $db->temp;
-    $result = \MongoDB\Entity::where('documentType', '=', 'metadatadescription')->where('content.description', 'exists', true)->get()->toArray();
-
-    if(count($result) > 0) {
-        foreach($result as &$parent) {
-            $children = \MongoDB\Entity::whereIn('parents', [$parent['_id']])->get(['content.features'])->toArray();
-            $parent['content']['features'] = array();
-            foreach($children as $child) {
-                if(isset($child['content']['features'])) {
-                    foreach($child['content']['features'] as $k => $v) {
-                        if (!array_key_exists($k, $parent['content']['features'])){
-                            $parent['content']['features'][$k] = $v;
-                        }
-                        else {
-                            foreach ($v as $keyC => $valueC) {
-                                $found = false;
-                                foreach ($parent['content']['features'][$k] as $keyP => $valueP) {
-                                    if (strtolower($valueP["label"]) == $valueC["label"] && $valueP["startOffset"] == $valueC["startOffset"] && $valueP["endOffset"] == $valueC["endOffset"]) {
-                                        foreach ($valueC["types"] as $type) {
-                                            array_push($parent['content']['features'][$k][$keyP]["types"], $type);
-                                        }
-                                        $found = true;
-                                    }
-                                }
-                                if ($found == false) {
-                                    array_push($parent['content']['features'][$k], $valueC);
-                                }
-                            }
-                        }
-                    }                                          
-                }
-            }
-        }
-
-        try {
-            \MongoDB\Temp::where('documentType', '=', 'metadatadescription')->forceDelete();
-            $db->batchInsert(
-                $result,
-                array('continueOnError' => true)
-            );             
-        } catch (Exception $e) {
-            // ContinueOnError will still throw an exception on duplication, even though it continues, so we just move on.
-        }
-    }
-    \Session::forget('rawArray');
-}
-
     public static function createImageCache()
     {
         \Session::flash('rawArray', 1);
@@ -868,7 +822,7 @@ public static function createMetadatadescriptionCache() {
         {
             static::createImageCache();
             static::createJobCache();
-            static::createStatisticsForMetadatadescriptionCache();
+        //    static::createStatisticsForMetadatadescriptionCache();
         //    static::createMetadatadescriptionCache();
             return static::createMainSearchFiltersCache();
         }
