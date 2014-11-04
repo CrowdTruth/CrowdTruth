@@ -192,7 +192,8 @@ class JobsController2 extends BaseController {
 
 	 		//upadte
 			$platform->cfUpdate($j['platformJobId'], $jc);
-
+			$successmessage = "Job loaded."; 
+			Session::flash('flashSuccess', $successmessage);
 		return Redirect::to("jobs");
 	}
 
