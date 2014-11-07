@@ -71,13 +71,24 @@ class TextSentencePreprocessor {
 		$status['success'] = 'Sentences created successfully';
 		return $status;
 	}
-	
+
+	public function getConfiguration($domain, $documentType) {
+		$avlConfigs = $this->softwareComponent['configurations'];
+		$configKey = $domain.'/'. $documentType;
+		if(array_key_exists($configKey, $avlConfigs)) {
+			return $avlConfigs[$configKey];
+		} else {
+			return null;
+		}
+	}
+
+	/*
+	Unused functions ???
 	public function getType() {}
 	public function performValidation() {
 		// Check file size ?
 		// Validate mime types ?
 	}
-
 	private function getLastDocumentInc($format, $domain, $docType) {
 		$lastMongoURIUsed = Entity::where('format', $format)
 		->where('domain', $domain)
@@ -97,5 +108,5 @@ class TextSentencePreprocessor {
 			$inc = 0;
 		}
 		return $inc;
-	}
+	}*/
 }

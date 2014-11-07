@@ -88,7 +88,7 @@
 	function getColumnsSelector(selectorName) {
 		colsSelect = '<select class="form-control" name="' + selectorName + '" id="' + selectorName + '">';
 {{-- Load the available columns --}}
-    	for( col in document.columns) {
+    	for(col in document.columns) {
     		colsSelect += '  <option value="' +col + '">' + document.columns[col] + '</option>';
     	}
     	colsSelect += '</select>'; 
@@ -164,12 +164,19 @@
 	}
 
 {{--
-	Create a new property DIV as a child of the given parent group. 
+	Launch the addNewProperty function after button has been clicked
 --}}
 	function newPropertyAction(parentGroupId) {
+		propName = $("#" + parentGroupId + "_newName").val();
+		$("#" + parentGroupId + "_newName").val("");
+		return addNewProperty(parentGroupId, propName);
+	}
+
+{{--
+	Create a new property DIV as a child of the given parent group. 
+--}}
+	function addNewProperty(parentGroupId, propName) {
 	  props = parentGroupId + "_props";
-	  propName = $("#" + parentGroupId + "_newName").val();
-	  $("#" + parentGroupId + "_newName").val("");
 	  propId = parentGroupId + "_" + propName;
 	  // Add property div 
 	  $("#" + props).append(getPropertyDiv(parentGroupId, propName));
@@ -192,28 +199,36 @@
     }
 
 {{--
-	Create a new group DIV as a child of the given parent group. 
+	Launch the addNewGroup function after button has been clicked
 --}}
 	function newGroupAction(parentGroupId) {
-	  props = parentGroupId + "_props";
-	  groupName = $("#" + parentGroupId + "_newName").val();
-	  $("#" + parentGroupId + "_newName").val("");
-	  // Add group div 
-	  $("#" + props).append(getGroupDiv(parentGroupId, groupName));
+		groupName = $("#" + parentGroupId + "_newName").val();
+		$("#" + parentGroupId + "_newName").val("");
+		return addNewGroup(parentGroupId, groupName);
+	}
 
-	  // Add actions to buttons on the div
-	  $("#" + groupId + "_newProp").click(function(){
-	      groupId1 = this.id.replace("_newProp",  "");
-	      newPropertyAction(groupId1);
-	  });
-	  $("#" + groupId + "_newGroup").click(function(){
-	      groupId1 = this.id.replace("_newGroup",  "");
-	      newGroupAction(groupId1);
-	  });
-	  $("#" + groupId + "_close").click(function(){
-	      $(this).closest(".panel").remove();
-		  return false;
-	  });
+{{--
+	Create a new group DIV as a child of the given parent group. 
+--}}
+	function addNewGroup(parentGroupId, groupName) {
+		props = parentGroupId + "_props";
+		
+		// Add group div 
+		$("#" + props).append(getGroupDiv(parentGroupId, groupName));
+		
+		// Add actions to buttons on the div
+		$("#" + groupId + "_newProp").click(function(){
+			groupId1 = this.id.replace("_newProp",  "");
+			newPropertyAction(groupId1);
+		});
+		$("#" + groupId + "_newGroup").click(function(){
+			groupId1 = this.id.replace("_newGroup",  "");
+			newGroupAction(groupId1);
+		});
+		$("#" + groupId + "_close").click(function(){
+		    $(this).closest(".panel").remove();
+			return false;
+		});
 	}
 
 	function selectFunction(functionName, propId) {
@@ -228,18 +243,68 @@
     	$('#' + divName).html(divHtml);
 	}
 
-	function doPreview() {
-		$('#postAction').val('processPreview');
+	function makePost(postAction, successFunction) {
+		$('#postAction').val(postAction);
 		formUrl = $("#theForm").attr("action");
 		formData = $("#theForm,#docPreviewForm").serialize();
 		$.ajax({
 			type: "POST",
 			url: formUrl,
 			data: formData,
-			success: function(data) {
-				$("#contentPreview").html(data);
-			}
+			success: successFunction
 		});
+	}
+	
+	function doPreview() {
+		makePost('processPreview', function(data) {
+			$("#contentPreview").html(data);
+		});
+	}
+
+	function saveConfiguration() {
+		makePost('saveConfig', function(data) {
+			console.log('Did save config');
+			console.log('I returned from function');
+			console.log('So all is good.');
+			console.log('Data:');
+			console.log(data);
+		});
+	}
+
+	function loadConfig(config) {
+		// Select 'File settings' as required
+		$('#useHeaders').prop('checked', config["useHeaders"]);
+		$('#delimiter').val(config["delimiter"]);
+		$('#separator').val(config["separator"]);
+				
+		// Add groups as required
+		for (n in config['groups']) {
+			parent = config['groups'][n]['parent'];
+			name = config['groups'][n]['name'];
+			addNewGroup(parent, name);
+		}
+
+		// Add properties as required
+		for (n in config['props']) {
+			parent = config['props'][n]['parent'];
+			name = config['props'][n]['name'];
+			fun = config['props'][n]['function'];
+			params = config['props'][n]['values'];
+			
+			addNewProperty(parent, name);
+			propName = parent + '_' + name;
+
+			// Select function
+			$('#' + propName + '_function').val(fun);
+			$('.selectpicker').selectpicker('refresh');
+			selectFunction(fun, propName);
+
+			// Load function parameters
+			for (key in params) {
+				value = params[key];
+				$('#' + propName + '_' + key).val(value);
+			}
+		}
 	}
 	</script>
 
@@ -337,22 +402,24 @@
 	</div>
 <div style="height: 150px; overflow: auto;">
 	<table name="docPreviewTable" id="docPreviewTable">
+	@if($previewTable!=null)
 		<thead>
 			<tr>
-{{--			@foreach ($columns as $column)
+			@foreach ($previewTable['headers'] as $column)
 				<th>{{ $column }}</th> 
-				@endforeach --}}
+			@endforeach
 			</tr>
 		</thead>
 		<tbody>
-{{--			@foreach ($dataTable as $row)
+			@foreach ($previewTable['content'] as $row)
 			<tr>
 				@foreach ($row as $column)
 				<td>{{ str_limit($column, 30) }}</td>
 				@endforeach
 			</tr>
-			@endforeach --}}
+			@endforeach
 		</tbody>
+	@endif
 	</table>
 </div>
 </div>
@@ -379,7 +446,7 @@
 					</div>
 				</div>
 				<div class="col-xs-3">
-					<input class="btn btn-default pull-right" type="button" value="Load Configuration">
+					<input class="btn btn-default pull-right" type="button" onClick="saveConfiguration();" value="Save configuration">
 				</div>
 				<div class="clearfix"></div>
 			</div>
@@ -448,6 +515,14 @@
 		$("#root_newGroup").click(function(){
 		  newGroupAction("root");
 		});
+
+		@if($configuration!=null)
+			// Load known columns
+			document.columns = {{ json_encode($previewTable['headers']) }};
+			config = {{ json_encode($configuration) }};
+
+			loadConfig(config);
+		@endif
 	});
 </script>
 @stop
