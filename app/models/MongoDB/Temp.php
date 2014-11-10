@@ -790,14 +790,48 @@ class Temp extends Moloquent {
         }
 
         return $distinctFieldValuesAndCount;
-    }    
+    }
+	
+	private static function loadDocumentTypes() {
+		$data = SoftwareComponent::find("fileuploader");
+		$dbDomains = $data->domains;
+		
+		$domains = [];
+		$names = [];
+		$fileTypes = [];
+		$doctypes = [];
+		foreach($dbDomains as $domainKey => $domain) {
+			// $domainKey = $domain['key'];
+		
+			array_push($domains, $domainKey);
+			$names[$domainKey] = $domain['name'];
+		
+			$fileTypeList = '';
+			foreach($domain['file_formats'] as $fileType) {
+				$fileTypeList = $fileTypeList.' '.$fileType;
+			}
+		
+			$fileTypes[$domainKey] = $fileTypeList;
+			$doctypes[$domainKey] = $domain['document_types'];
+		}
+
+		return ['domains' => $domains,
+				'names' => $names,
+				'fileTypes' => $fileTypes,
+				'doctypes' => $doctypes
+				];
+	}
 
     public static function createMainSearchFiltersCache()
     {
         // $mainSearchFilters['media']['formats'] = $this->getDistinctFieldAndCount('format', ['unit']);
         // $mainSearchFilters['media']['domains'] = $this->getDistinctFieldAndCount('domain', ['unit']);
-        $mainSearchFilters['media']['documentTypes'] = static::getDistinctFieldLabelAndCount('documentType', ['unit']);
-        $mainSearchFilters['media']['documentTypes']['all'] = ["count" => \MongoDB\Entity::whereIn('tags', ['unit'])->count(),
+        // $mainSearchFilters['media']['documentTypes'] = static::getDistinctFieldLabelAndCount('documentType', ['unit']);
+        
+		$mainSearchFilters['media']['documentTypes'] = static::loadDocumentTypes();
+		
+		// All units
+		$mainSearchFilters['media']['documentTypes']['all'] = ["count" => \MongoDB\Entity::whereIn('tags', ['unit'])->count(),
                                                                 "label" => "All units"
                                                                 ];
         

@@ -26,11 +26,22 @@
 			<div class='row'>
 				<div class='col-xs-12 searchOptions'>
 				@if(isset($mainSearchFilters['media']['documentTypes']))
-					<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+					<select name="documentType" multiple data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Choose Documents" data-width="auto" data-show-subtext="true">
 						<optgroup label="Media-Type">
 							@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
 								<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
 							@endforeach
+							
+						</optgroup>
+							
+						@foreach($domains as $domain)
+							<optgroup label="{{ $names[$domain] }}">
+							@foreach($doctypes[$domain] as $docType)
+								<option value="document_type_{{ $docType }}" class="{{ $domain }}" data-icon="{{ $fileTypes[$domain] }}" data-subtext="100 Items">{{ $docType }}</option>
+							@endforeach
+							</optgroup>
+						@endforeach
+
 						</optgroup>
 					</select>
 				@endif
@@ -248,7 +259,11 @@ $('document').ready(function(){
 
 Swag.registerHelpers();
 
-$('.selectpicker').selectpicker();
+$('.selectpicker').selectpicker({
+    iconBase: 'fa',
+    tickIcon: 'fa-check'
+});
+
 var xhr;
 var unitsChart;
 var oldTabKey;

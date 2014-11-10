@@ -29,7 +29,7 @@ class MediaController extends BaseController {
 	 * Return the media upload view.
 	 */
 	public function getUpload() {
-		return $this->loadMediaUploadView();
+		return $this->setDocTypes();
 	}
 
 	public function getPreprocess($action = "relex")
@@ -115,7 +115,7 @@ class MediaController extends BaseController {
 			$status_upload = $uploader->store($fileFormat, $domain, $documentType, $domainCreate, 
 					$documentCreate, $files);
 			
-			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
+			$uploadView = $this->setDocTypes()->with(compact('status_upload'));
 			return $uploadView;
 		} catch (Exception $e){
 			dd([$e->getMessage(),Input::all()]);
@@ -155,7 +155,7 @@ class MediaController extends BaseController {
 	 * Load data for the Media Upload View and return the view ready to be sent 
 	 * back to the user.
 	 */
-	private function loadMediaUploadView() {
+	private static function loadMediaUploadView() {
 		// Load properties from file uploader software component.
 		// TODO: replace for $data = new FileUploader ?
 		$data = SoftwareComponent::find("fileuploader");
@@ -175,16 +175,24 @@ class MediaController extends BaseController {
 			foreach($domain['file_formats'] as $fileType) {
 				$fileTypeList = $fileTypeList.' '.$fileType;
 			}
+			
+			// set file type icons
+			$fileTypeListIcons = str_replace('file_format_text', 'fa fa-newspaper-o', $fileTypeList);
+			$fileTypeListIcons = str_replace('file_format_image', 'fa fa-picture-o', $fileTypeListIcons);
+			$fileTypeListIcons = str_replace('file_format_image', 'fa fa-music', $fileTypeListIcons);
+			$fileTypeListIcons = str_replace('file_format_image', 'fa fa-video-camera', $fileTypeListIcons);
 		
 			$fileTypes[$domainKey] = $fileTypeList;
+			$fileTypesIcons[$domainKey] = $fileTypeListIcons;
 			$doctypes[$domainKey] = $domain['document_types'];
 		}
 
-		return View::make('media.pages.upload')
-			->with('domains', $domains)
-			->with('names', $names)
-			->with('fileTypes', $fileTypes)
-			->with('doctypes', $doctypes);
+		return ['domains' => $domains,
+				'names' => $names,
+				'fileTypes' => $fileTypes,
+				'fileTypesIcons' => $fileTypesIcons,
+				'doctypes' => $doctypes
+				];
 	}
 
 	public function getView()
@@ -212,7 +220,24 @@ class MediaController extends BaseController {
 	public function getSearch()
 	{
 		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
-		return View::make('media.search.pages.media', compact('mainSearchFilters'));
+		$data = static::loadMediaUploadView();
+		
+		return View::make('media.search.pages.media')
+				->with('mainSearchFilters', $mainSearchFilters)
+				->with('domains', $data['domains'])
+				->with('names', $data['names'])
+				->with('fileTypes', $data['fileTypesIcons'])
+				->with('doctypes', $data['doctypes']);
+	}
+	
+	public function setDocTypes()
+	{
+		$data = static::loadMediaUploadView();
+		return View::make('media.pages.upload')
+				->with('domains', $data['domains'])
+				->with('names', $data['names'])
+				->with('fileTypes', $data['fileTypes'])
+				->with('doctypes', $data['doctypes']);
 	}
 
 	public function anyBatch()
