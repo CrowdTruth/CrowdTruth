@@ -30,7 +30,9 @@
             {{ Form::input('email', 'email', Input::old('email'), array('class' => 'form-control', 'placeholder' => 'Email', 'required')) }}
             {{ Form::input('password', 'password', '', array('class' => 'form-control', 'placeholder' => 'Password', 'required')) }}
             {{ Form::input('password', 'confirm_password', '', array('class' => 'form-control', 'placeholder' => 'Confirm password', 'required')) }}
-             {{ Form::text('invitation', Input::old('invitation'), array('class' => 'form-control', 'placeholder' => 'Invitation code', 'required')) }}
+			@if(Config::get('config.invitationCode'))
+				{{ Form::text('invitation', Input::old('invitation'), array('class' => 'form-control', 'placeholder' => 'Invitation code', 'required')) }}
+			@endif
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
             <div class='hr-or'></div>
             <a href='{{ URL::to('user/login') }}' class='btn btn-lg btn-success btn-block'>Log in</a>            

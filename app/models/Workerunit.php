@@ -75,6 +75,9 @@ class Workerunit extends Entity {
             case 'BiographyNetConcepts':
                 return $this->createAnnotationVectorBiographyNetConcepts();
                 break;
+			case 'DistributionalDisambiguation':
+                return $this->createAnnotationVectorDistributionalDisambiguation();
+                break;
             
             default:
                //return  $this->createAnnotationVectorFactSpan(); // For Debugging!
@@ -84,6 +87,55 @@ class Workerunit extends Entity {
                 break;
         }        
     }
+	
+	public function createAnnotationVectorDistributionalDisambiguation() {
+        $debug = false;
+
+        if(empty($this->unit_id))
+            return null;
+
+		// create annotation vectors
+		// there is a seperate vector for other answers, because this is an optional field that is shown ONLY when 'none' is selected.
+		// because of this, a value in 'other' can only be 1 if 'none' is 1
+		$relations = [
+			"atypeofb" => 0,
+			"btypeofa" => 0,
+			"sametype" => 0,
+			"aabbrofb" => 0,
+			"babbrofa" => 0,
+			"synonym" => 0,
+			"antonym" => 0,
+			"related" => 0,
+			"none" => 0
+		];
+		$other = [
+			"notrelated" => 0,
+			"ambiguousa" => 0,
+			"ambiguousb" => 0,
+			"notclear" => 0,
+			"other" => 0
+		];
+		
+		// the annotated answers are in one array seperated by '|'
+		$answer = explode('|', $this->content['answer']);
+		
+		// loop through the given answers and add to the relations vector
+		for($i in $relations) {
+			// check if relation is a given answer
+			if(in_array($relations[$i]), $answer) {
+				$relations[$answer[$i]] = 1;
+			}
+		}
+		
+		// repeat for other answers
+		for($i in $other) {
+			if(in_array($other[$i]), $answer) {
+				$other[$answer[$i]] = 1;
+			}
+		}
+        
+        return array('relations' => $answer, 'other' => $other);
+    }
 
     public function createAnnotationVectorMetaDEvents() {
         $debug = false;
@@ -91,7 +143,7 @@ class Workerunit extends Entity {
         if(empty($this->unit_id))
             return null;
 
-        $description = $this->unit->content['description'];
+        $description = $this->content['description'];
         
         // Set annotation vector for the sentence
         $descriptionWords = explode(" ", $description);
