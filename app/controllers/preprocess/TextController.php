@@ -51,7 +51,7 @@ class TextController extends BaseController {
 				$docPreview = array_slice($docPreview, 0, $this->nLines);
 				$docPreview = implode($newLine, $docPreview);
 				
-				$config = $this->processor->getConfiguration($document["domain"], $document["documentType"]);
+				$config = $this->processor->getConfiguration($document["documentType"]);
 				if($config!=null) {
 					$delimiter = $config["delimiter"];
 					$separator = $config["separator"];
@@ -123,7 +123,7 @@ class TextController extends BaseController {
 				"props" => $rootProcessor->getPropertiesConfiguration()
 			];
 			
-			return $this->processor->storeConfiguration($config, $document["domain"], $document["documentType"]);
+			return $this->processor->storeConfiguration($config, $document["documentType"]);
 		} else if($postAction=='tableView') {
 			return $this->doPreviewTable($document, $delimiter, $separator, $ignoreHeader);
 		} else if($postAction=='processPreview' || $postAction=='process') {
