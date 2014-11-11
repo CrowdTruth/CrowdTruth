@@ -67,17 +67,35 @@ class TextSentencePreprocessor {
 		\DB::collection('entities')->insert($entities);
 		\MongoDB\Temp::truncate();
 		
-		$status = [];
-		$status['success'] = 'Sentences created successfully';
-		return $status;
+		return [ 'success' => 'Sentences created successfully' ];
 	}
-	
+
+	public function getConfiguration($domain, $documentType) {
+		$avlConfigs = $this->softwareComponent['configurations'];
+		$configKey = $domain.'/'. $documentType;
+		if(array_key_exists($configKey, $avlConfigs)) {
+			return $avlConfigs[$configKey];
+		} else {
+			return null;
+		}
+	}
+
+	public function storeConfiguration($config, $domain, $documentType) {
+		$configKey = $domain.'/'. $documentType;
+		$avlConfigs = $this->softwareComponent['configurations'];
+		$avlConfigs[$configKey] = $config;
+		$this->softwareComponent['configurations'] = $avlConfigs;
+		$this->softwareComponent->save();
+		return [ 'status' => 'Configuration saved successfully' ];
+	}
+
+	/*
+	Unused functions ???
 	public function getType() {}
 	public function performValidation() {
 		// Check file size ?
 		// Validate mime types ?
 	}
-
 	private function getLastDocumentInc($format, $domain, $docType) {
 		$lastMongoURIUsed = Entity::where('format', $format)
 		->where('domain', $domain)
@@ -97,5 +115,5 @@ class TextSentencePreprocessor {
 			$inc = 0;
 		}
 		return $inc;
-	}
+	}*/
 }

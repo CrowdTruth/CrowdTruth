@@ -28,11 +28,13 @@
 			</div>
 		</div>	
 	</div>
+
 	<div class='ctable-responsive'>		
 	    <table class="table table-striped">
 	        <thead data-query-key="" data-query-value="">
 		        <tr>
 		            <th data-vbIdentifier="checkbox">Select</th>
+
 		            <th class="sorting" data-vbIdentifier="id" data-query-key="orderBy[_id]">ID</th>
 					<th class="sorting" data-vbIdentifier="title" data-query-key="orderBy[title]" data-toggle="tooltip" data-placement="top" title="Upload file name">File Name</th>
 		            <th class="sorting" data-vbIdentifier="format" data-query-key="orderBy[format]">Format</th>
@@ -48,7 +50,8 @@
 
 
                 </tr>
-				<tr class="inputFilters">
+
+                <tr class="inputFilters">
 					<td>
 						<input type="checkbox" class="checkAll" />
 					</td>
@@ -96,6 +99,7 @@
                     <td data-vbIdentifier="parents">
                         <input class="input-sm form-control" type='text' data-query-key="match[parents][]" />
                     </td>
+
 				</tr>											        
 	        </thead>
 	        <tbody class='results'>											
@@ -104,6 +108,7 @@
 			        <tr>
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
 			            <td data-vbIdentifier="id">@{{ this._id }}</td>
+
 			            <td data-vbIdentifier="title">@{{ this.title }}</td>
 			            <td data-vbIdentifier="format">@{{ this.format }}</td>
 			            <td data-vbIdentifier="domain">@{{ this.domain }}</td>
@@ -115,6 +120,7 @@
 			            <td data-vbIdentifier="clarity">@{{ this.avg_clarity }}</td>
                         <td data-vbIdentifier="number_of_children">@{{ this.cache.children.count }}</td>
                         <td data-vbIdentifier="parents">@{{ this.parents }}</td>
+
 			        </tr>
 			        @{{/each}}
 				</script>
@@ -122,3 +128,11 @@
 	    </table>
     </div>											
 </div>
+<script>
+	$("#col_1").change(function() {
+		var searchColumn = this.val();
+		var myId = this.id;
+		$("#" + myId + "_search").attr("data-query-key", "match[" + searchColumn + "]");
+		
+	});
+</script>
