@@ -13,4 +13,5 @@ abstract class AbstractTextPreprocessor {
 	 * @param $entities Entity currently being created (READ ONLY).
 	 */
 	abstract function processItem($params, $data, $entities);
+	abstract function getConfiguration($params);
 }

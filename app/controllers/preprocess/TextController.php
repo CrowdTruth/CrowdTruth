@@ -122,7 +122,8 @@ class TextController extends BaseController {
 				"groups" => $rootProcessor->getGroupsConfiguration(),
 				"props" => $rootProcessor->getPropertiesConfiguration()
 			];
-			return $config;
+			
+			return $this->processor->storeConfiguration($config, $document["domain"], $document["documentType"]);
 		} else if($postAction=='tableView') {
 			return $this->doPreviewTable($document, $delimiter, $separator, $ignoreHeader);
 		} else if($postAction=='processPreview' || $postAction=='process') {
@@ -333,7 +334,7 @@ class RootProcessor {
 			$params[$paramName] = $paramValue;
 		}
 		$processor->setParameters($params);
-	
+
 		return $processor;
 	}
 	
@@ -379,8 +380,13 @@ class PropertyProcessor {
 		return $this->propName.'<br>';
 	}
 	
-	public function getConfiguration() {
-		return [ 'config' => $this->propName ];
+	public function getConfiguration($parentName) {
+		return [ 
+			'parent' => $parentName,
+			'name' => $this->propName,
+			'function' => $this->provider->getName(),
+			'values'=> $this->provider->getConfiguration($this->params)
+		];
 	}
 }
 
@@ -446,10 +452,14 @@ class GroupProcessor {
 	}
 	
 	public function getPropertiesConfiguration($parentGroup) {
-		$groupList = [];
-		foreach($this->props as $prop->getPropertiesConfiguration($parentGroup.'_'.$this->groupName)) {
-			$propElement = $prop;
-			array_push ($groupList, $sGrpElement);
+		$groupList = [ ];
+		foreach($this->props as $prop) {
+			$propElement = $prop->getConfiguration($parentGroup);
+			array_push ($groupList, $propElement);
+		}
+		foreach($this->subGroups as $sGrp) {
+			$sGroupList = $sGrp->getPropertiesConfiguration($this->groupName.'_'.$sGrp->groupName);
+			$groupList = array_merge ($groupList, $sGroupList);
 		}
 		return $groupList;
 	}

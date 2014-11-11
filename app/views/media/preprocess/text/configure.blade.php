@@ -263,11 +263,7 @@
 
 	function saveConfiguration() {
 		makePost('saveConfig', function(data) {
-			console.log('Did save config');
-			console.log('I returned from function');
-			console.log('So all is good.');
-			console.log('Data:');
-			console.log(data);
+			alert(data['status']);
 		});
 	}
 

@@ -10,7 +10,7 @@ namespace Preprocess;
  * run php artisan dump-autoload
  * 
  */
-// TODO: implement properly and document !
+// TODO: properly document !
 class TextPreprocessor extends AbstractTextPreprocessor {
 	function getName() {
 		return 'text';
@@ -35,6 +35,12 @@ class TextPreprocessor extends AbstractTextPreprocessor {
 
 		return $data[$colName];
 	}
+	
+	function getConfiguration($params) {
+		return [
+			"usecol" => $params["usecol"],
+		];
+	}
 }
 
 class NumberPreprocessor extends AbstractTextPreprocessor {
@@ -52,7 +58,6 @@ class NumberPreprocessor extends AbstractTextPreprocessor {
 
 	function processItem($params, $data, $entities) {
 		// Validate required parameters are present
-
 		$colName = $params['usecol'];
 
 		// Validate required columns are present
@@ -68,6 +73,12 @@ class NumberPreprocessor extends AbstractTextPreprocessor {
 		}
 
 		return $item;
+	}
+	
+	function getConfiguration($params) {
+		return [
+			"usecol" => $params["usecol"],
+		];
 	}
 }
 
@@ -125,6 +136,18 @@ class RegExpPreprocessor extends AbstractTextPreprocessor {
 		
 		return $item;
 	}
+	
+	function getConfiguration($params) {
+		return [
+			"usecol" 		=> $params["usecol"],
+			"regex" 		=> $params["regex"],
+			"replace" 		=> $params["replace"],
+			"regex_split" 	=> array_key_exists('regex_split', $params) ? 'on' : 'off',
+			"replace_split" => array_key_exists('replace_split', $params) ? 'on' : 'off',
+			"uppercase" 	=> array_key_exists('uppercase', $params) ? 'on' : 'off',
+			"lowercase" 	=> array_key_exists('lowercase', $params) ? 'on' : 'off'
+		];
+	}
 }
 
 class WordCountPreprocessor extends AbstractTextPreprocessor {
@@ -157,6 +180,12 @@ class WordCountPreprocessor extends AbstractTextPreprocessor {
 		$item = count($words);
 		return $item;
 	}
+
+	function getConfiguration($params) {
+		return [
+			"usecol" => $params["usecol"],
+		];
+	}
 }
 
 class StringLengthPreprocessor extends AbstractTextPreprocessor {
@@ -186,6 +215,12 @@ class StringLengthPreprocessor extends AbstractTextPreprocessor {
 		$value = $data[$colName];
 
 		return strlen($value);
+	}
+
+	function getConfiguration($params) {
+		return [
+			"usecol" => $params["usecol"],
+		];
 	}
 }
 
@@ -223,6 +258,13 @@ class TermDifferencePreprocessor extends AbstractTextPreprocessor {
 		}
 			
 		return $distance;
+	}
+	
+	function getConfiguration($params) {
+		return [
+			"col1" => $params["col1"],
+			"col2" => $params["col2"],
+		];
 	}
 }
 
@@ -278,5 +320,11 @@ class TermReplacePreprocessor extends AbstractTextPreprocessor {
 		}
 		return $value;
 	}
-}
 
+	function getConfiguration($params) {
+		return [
+			"repFrom" => $params["repFrom"],
+			"repBy" => $params["repBy"],
+		];
+	}
+}

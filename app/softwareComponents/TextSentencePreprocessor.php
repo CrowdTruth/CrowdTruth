@@ -67,9 +67,7 @@ class TextSentencePreprocessor {
 		\DB::collection('entities')->insert($entities);
 		\MongoDB\Temp::truncate();
 		
-		$status = [];
-		$status['success'] = 'Sentences created successfully';
-		return $status;
+		return [ 'success' => 'Sentences created successfully' ];
 	}
 
 	public function getConfiguration($domain, $documentType) {
@@ -80,6 +78,15 @@ class TextSentencePreprocessor {
 		} else {
 			return null;
 		}
+	}
+
+	public function storeConfiguration($config, $domain, $documentType) {
+		$configKey = $domain.'/'. $documentType;
+		$avlConfigs = $this->softwareComponent['configurations'];
+		$avlConfigs[$configKey] = $config;
+		$this->softwareComponent['configurations'] = $avlConfigs;
+		$this->softwareComponent->save();
+		return [ 'status' => 'Configuration saved successfully' ];
 	}
 
 	/*

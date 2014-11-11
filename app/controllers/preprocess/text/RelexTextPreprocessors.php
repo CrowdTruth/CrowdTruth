@@ -22,7 +22,7 @@ function simpleStem($relation){
 	return $relation;
 }
 
-// TODO: implement properly and document !
+// TODO: properly document !
 class RelationInSentencePreprocessor extends AbstractTextPreprocessor {
 	function getName() {
 		return 'Relation in sentence';
@@ -48,6 +48,13 @@ class RelationInSentencePreprocessor extends AbstractTextPreprocessor {
 		} else {
 			return 0;
 		}
+	}
+
+	function getConfiguration($params) {
+		return [
+			"relation" => $params["relation"],
+			"sentence" => $params["sentence"],
+		];
 	}
 }
 
@@ -90,6 +97,15 @@ class RelationOutsideTermsPreprocessor extends AbstractTextPreprocessor {
 		}
 		return 0;
 	}
+
+	function getConfiguration($params) {
+		return [
+			"relation" => $params["relation"],
+			"sentence" => $params["sentence"],
+			"startTerm1" => $params["startTerm1"],
+			"startTerm2" => $params["startTerm2"],
+		];
+	}
 }
 
 class RelationBetweenTermsPreprocessor extends AbstractTextPreprocessor {
@@ -127,6 +143,17 @@ class RelationBetweenTermsPreprocessor extends AbstractTextPreprocessor {
 		}
 		return 0;
 	}
+
+	function getConfiguration($params) {
+		return [
+			"relation" => $params["relation"],
+			"sentence" => $params["sentence"],
+			"startTerm1" => $params["startTerm1"],
+			"endTerm1" => $params["endTerm1"],
+			"startTerm2" => $params["startTerm2"],
+			"endTerm2" => $params["endTerm2"],
+		];
+	}
 }
 
 class SemicolonBetweenTermsPreprocessor extends AbstractTextPreprocessor {
@@ -161,6 +188,16 @@ class SemicolonBetweenTermsPreprocessor extends AbstractTextPreprocessor {
 			}
 		}
 		return 0;
+	}
+	
+	function getConfiguration($params) {
+		return [
+			"sentence" => $params["sentence"],
+			"startTerm1" => $params["startTerm1"],
+			"endTerm1" => $params["endTerm1"],
+			"startTerm2" => $params["startTerm2"],
+			"endTerm2" => $params["endTerm2"],
+		];
 	}
 }
 
@@ -222,6 +259,19 @@ class CommaSeparatedTermsPreprocessor extends AbstractTextPreprocessor {
 			dd($relexStructuredSentence);
 		}
 		return 0;
+	}
+
+	function getConfiguration($params) {
+		return [
+			"relation" => $params["relation"],
+			"sentence" => $params["sentence"],
+			"term1" => $params["term1"],
+			"startTerm1" => $params["startTerm1"],
+			"endTerm1" => $params["endTerm1"],
+			"term2" => $params["term2"],
+			"startTerm2" => $params["startTerm2"],
+			"endTerm2" => $params["endTerm2"],
+		];
 	}
 }
 
@@ -285,6 +335,16 @@ class ParenthesisAroundTermsPreprocessor extends AbstractTextPreprocessor {
 		}
 		return 0;
 	}
+	
+	function getConfiguration($params) {
+		return [
+			"sentence" => $params["sentence"],
+			"term1" => $params["term1"],
+			"startTerm1" => $params["startTerm1"],
+			"term2" => $params["term2"],
+			"startTerm2" => $params["startTerm2"],
+		];
+	}
 }
 
 class OverlapingTermsPreprocessor extends AbstractTextPreprocessor {
@@ -322,5 +382,14 @@ class OverlapingTermsPreprocessor extends AbstractTextPreprocessor {
 		} else {
 			return 0;
 		}
+	}
+	
+	function getConfiguration($params) {
+		return [
+			"startTerm1" => $params["startTerm1"],
+			"endTerm1" => $params["endTerm1"],
+			"startTerm2" => $params["startTerm2"],
+			"endTerm2" => $params["endTerm2"],
+		];
 	}
 }
