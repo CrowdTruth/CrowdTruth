@@ -70,9 +70,9 @@ class TextSentencePreprocessor {
 		return [ 'success' => 'Sentences created successfully' ];
 	}
 
-	public function getConfiguration($domain, $documentType) {
+	public function getConfiguration($documentType) {
 		$avlConfigs = $this->softwareComponent['configurations'];
-		$configKey = $domain.'/'. $documentType;
+		$configKey = $documentType;
 		if(array_key_exists($configKey, $avlConfigs)) {
 			return $avlConfigs[$configKey];
 		} else {
@@ -80,40 +80,12 @@ class TextSentencePreprocessor {
 		}
 	}
 
-	public function storeConfiguration($config, $domain, $documentType) {
-		$configKey = $domain.'/'. $documentType;
+	public function storeConfiguration($config, $documentType) {
+		$configKey = $documentType;
 		$avlConfigs = $this->softwareComponent['configurations'];
 		$avlConfigs[$configKey] = $config;
 		$this->softwareComponent['configurations'] = $avlConfigs;
 		$this->softwareComponent->save();
 		return [ 'status' => 'Configuration saved successfully' ];
 	}
-
-	/*
-	Unused functions ???
-	public function getType() {}
-	public function performValidation() {
-		// Check file size ?
-		// Validate mime types ?
-	}
-	private function getLastDocumentInc($format, $domain, $docType) {
-		$lastMongoURIUsed = Entity::where('format', $format)
-		->where('domain', $domain)
-		->where('documentType', $docType)
-		->get(array("_id"));
-	
-		if(count($lastMongoURIUsed) > 0) {
-			$lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
-				return $entity->_id;
-			}, SORT_NATURAL)->toArray();
-	
-			if(end($lastMongoURIUsed)) {
-				$lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
-				$inc = end($lastMongoIDUsed) + 1;
-			}
-		} else {
-			$inc = 0;
-		}
-		return $inc;
-	}*/
 }
