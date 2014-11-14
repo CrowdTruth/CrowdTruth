@@ -17,16 +17,17 @@
 
 @section('content')
 <!-- START search_content -->
-<div class="col-xs-10 col-md-offset-1">
+<div class="col-xs-12 col-md-10 col-md-offset-1">
 	<div class='maincolumn CW_box_style'>
 
 		<div class='tab'>
 			@include('job2.nav')
 			@include('layouts.flashdata')
 			<div>
-				<div class="panel panel-default">		
+				{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postFormPart', 'submit'), 'method' => 'POST'))}}	
+				<div class="panel panel-default">	
 					<div class="panel-heading">
-						<h4>Select Batch</h4>
+						<h4>Choose Batch</h4>
 					</div>
 					<div class="panel-body">
 						<div class='row'>
@@ -38,7 +39,6 @@
 							</div>
 						</div>
 						<div class='row'>
-								{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postFormPart', 'submit'), 'method' => 'POST'))}}	
 								<div class="tab-content documentTypesTabs">
 									<div class="tab-pane active ctable-responsive" id="all_tab">
 										<table class="table table-striped">
@@ -105,13 +105,14 @@
 										Showing @{{ count.from }} to @{{ count.to }} of @{{ count.total}} entries
 									</script>
 								</div>
-								<div class='col-xs-12'>
-									{{ Form::submit('Next', array('class' => 'btn btn-primary pull-right')); }}
-								</div>
-								{{ Form::close()}}	
 						</div>
 					</div>
+					<div class="panel-footer">
+						{{ Form::submit('Select Batch', array('class' => 'btn btn-primary pull-right')); }}
+						<div class='clearfix'></div>
+					</div>
 				</div>
+				{{ Form::close()}}	
 			</div>
 		</div>
 	</div>

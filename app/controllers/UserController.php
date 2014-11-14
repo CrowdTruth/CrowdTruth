@@ -2,8 +2,6 @@
 
 class UserController extends BaseController {
 
-	protected $invitationCode = '$2y$10$3CDexLP1GQ.HMmU8YG0eHOBUJclK.HGXzt56fCQ/D2GSMlUqM8OOe';
-	protected $demoInvitationCode = '$2y$10$gHVt4pkDOMkPuE1YSSdtv.DIm6MuHIB2Xv6VYsCYx6Pkuop7weT96';
 	// Hashed because it might end up on github :-)
 
 	public function __construct() {
@@ -52,10 +50,10 @@ class UserController extends BaseController {
 	public function postRegister(){
 		$role = 'user';
 		// Check if demo account
-		if (Hash::check(Input::get('invitation'), $this->demoInvitationCode)) {
+		if (Hash::check(Input::get('invitation'), Config::get('config.demoInvitationCode'))) {
 			$role = 'demo';
 		// Check if normal account	
-		} elseif (!Hash::check(Input::get('invitation'), $this->invitationCode)){
+		} elseif (!Hash::check(Input::get('invitation'), Config::get('config.invitationCode')) && Config::get('config.invitationCode') != ''){
 			Session::flash('flashError', 'Wrong invite code : )');
 			return Redirect::back()->withInput(Input::except('password', 'confirm_password'));
 		}

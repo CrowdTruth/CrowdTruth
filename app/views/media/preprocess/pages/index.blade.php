@@ -3,7 +3,7 @@
 @section('content')
 @section('pageHeader', 'Pre-process Media')
 
-				<div class="@yield('colWidth', 'col-xs-10 col-md-offset-1')">
+				<div class="@yield('colWidth', 'col-xs-12 col-md-10 col-md-offset-1')">
 					<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')						
 						<div class='row'>
