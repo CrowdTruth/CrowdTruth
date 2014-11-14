@@ -11,8 +11,6 @@ class MediaSearchComponent {
 		$this->softwareComponent = SoftwareComponent::find('mediasearchcomponent');
 	}
 
-<<<<<<< HEAD
-=======
 	public function clear() {
 		$this->softwareComponent['keys'] = [];
 		$this->softwareComponent['keyLabels'] = [];
@@ -23,7 +21,6 @@ class MediaSearchComponent {
 		return $this->softwareComponent['keyLabels'];
 	}
 
->>>>>>> ee3c788900d3ad895bac5871f1bc508916b87b43
 	public function store($keys) {
 		$allKeys = $this->softwareComponent['keys'];
 		$allKeys = array_unique(array_merge($allKeys, $keys));
@@ -37,10 +34,6 @@ class MediaSearchComponent {
 		}
 		$this->softwareComponent['keys'] = $allKeys;
 		$this->softwareComponent['keyLabels'] = $labels;
-<<<<<<< HEAD
-		
-=======
->>>>>>> ee3c788900d3ad895bac5871f1bc508916b87b43
 		$this->softwareComponent->save();
 	}
 }

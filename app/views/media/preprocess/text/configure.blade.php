@@ -4,6 +4,11 @@
 
 {{ stylesheet_link_tag('bootstrap-select.css') }}
 <script>
+{{--
+	Load document preview -- document preview will display a preview of how the file 
+	looks (how many columns it has and how they look like). Document preview is generated
+	by the server and displayed by displayDocumentPreview.
+--}}
 	function previewTable() {
 		formUrl = $("#docPreviewForm").attr("action");
 		formData = $("#docPreviewForm").serialize();
@@ -18,6 +23,9 @@
 		});
 	}
 
+{{--
+	Display the results from previewTable. Generated data is displayed on HTML Document preview table.
+--}}
 	function displayDocumentPreview(data) {
 	    var table = $("#docPreviewTable");
 	    table.find("tr").remove();
@@ -87,7 +95,7 @@
 --}}
 	function getColumnsSelector(selectorName) {
 		colsSelect = '<select class="form-control" name="' + selectorName + '" id="' + selectorName + '">';
-{{-- Load the available columns --}}
+		// Load the available columns
     	for(col in document.columns) {
     		colsSelect += '  <option value="' +col + '">' + document.columns[col] + '</option>';
     	}
@@ -95,6 +103,9 @@
         return colsSelect;
 	}
 
+{{--
+	Create a new SELECT element listing all available properties.
+--}}
 	function getPropertySelector(selectorName) {
 	    inputs = [];
 	    $('.propertyName').each(function(i, obj) {
@@ -111,6 +122,9 @@
 		return propSelect;
 	}
 
+{{--
+	Create a new SELECT element listing all available groups.
+--}}
 	function getGroupSelector(selectorName) {
 	    inputs = [];
 	    $('.groupName').each(function(i, obj) {
@@ -231,6 +245,10 @@
 		});
 	}
 
+{{--
+	Create a DIV containing the HTML code to capture the properties for a given 
+	function. The DIV uses the given propId to label properties fields.
+--}}
 	function selectFunction(functionName, propId) {
 		divName = propId + "_params";
 	    switch(functionName) {
@@ -243,6 +261,10 @@
     	$('#' + divName).html(divHtml);
 	}
 
+{{--
+	Post theForm to perform a given postAction. Once the post action is successfully 
+	completed, the successFunction is called.
+--}}
 	function makePost(postAction, successFunction) {
 		$('#postAction').val(postAction);
 		formUrl = $("#theForm").attr("action");
@@ -254,19 +276,28 @@
 			success: successFunction
 		});
 	}
-	
+
+{{--
+	Perform 'Read file' action.
+--}}
 	function doPreview() {
 		makePost('processPreview', function(data) {
 			$("#contentPreview").html(data);
 		});
 	}
 
+{{--
+	Perform 'save configuration' action.
+--}}
 	function saveConfiguration() {
 		makePost('saveConfig', function(data) {
 			alert(data['status']);
 		});
 	}
 
+{{--
+	Load given configuration -- initialize Content structure as required.
+--}}
 	function loadConfig(config) {
 		// Select 'File settings' as required
 		$('#useHeaders').prop('checked', config["useHeaders"]);
@@ -513,10 +544,9 @@
 		});
 
 		@if($configuration!=null)
-			// Load known columns
+			// Load known columns and configuration if a configuration exists.
 			document.columns = {{ json_encode($previewTable['headers']) }};
 			config = {{ json_encode($configuration) }};
-
 			loadConfig(config);
 		@endif
 	});
