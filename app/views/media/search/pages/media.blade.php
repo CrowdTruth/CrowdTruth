@@ -25,26 +25,25 @@
 		<div class='tab'>
 			<div class='row'>
 				<div class='col-xs-12 searchOptions'>
-				@if(isset($mainSearchFilters['media']['documentTypes']))
-					<select name="documentType" multiple data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Choose Documents" data-width="auto" data-show-subtext="true">
-						<optgroup label="Media-Type">
-							@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
-								<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
+					<select name="documentType" multiple data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Choose Documents" data-width="auto" data-show-subtext="true">					
+						@foreach($uniqueDomains as $domainKey => $domain)
+							@if($domainKey <> 'opendomain')
+								<optgroup label="{{ $domain }}">
+							@endif
+							@foreach($docTypeData as $format)
+								@foreach($format['document_types'] as $docTypeKey => $docType)
+									@if(array_key_exists($domainKey, $docType['domains']))
+										<option value="document_type_{{ $docTypeKey }}" class="{{ $domain }}" data-icon="fa {{ $format['icon'] }}" data-subtext="{{ $docType['domains'][$domainKey]['count'] }} Items">{{ $docType['label'] }}</option>
+									@endif
+								@endforeach
 							@endforeach
-							
-						</optgroup>
-							
-						@foreach($domains as $domain)
-							<optgroup label="{{ $names[$domain] }}">
-							@foreach($doctypes[$domain] as $docType)
-								<option value="document_type_{{ $docType }}" class="{{ $domain }}" data-icon="{{ $fileTypes[$domain] }}" data-subtext="100 Items">{{ $docType }}</option>
-							@endforeach
-							</optgroup>
+							@if($domainKey <> 'opendomain')
+								</optgroup>
+							@endif
 						@endforeach
 
 						</optgroup>
 					</select>
-				@endif
 
 					<div class='tabOptions pull-left'>
 					</div>
@@ -83,22 +82,9 @@
 				</div>
 				<div class='col-xs-12 searchResults'>
 					<ul class="nav nav-tabs documentTypesNav hidden">
-						@if(isset($mainSearchFilters['media']['documentTypes']))
-							@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
-							<li id="{{$key}}_nav">
-								<a href="#{{$key}}_tab" data-toggle="tab">
-									{{$key}}
-								</a>
-							</li>
-							@endforeach
-						@endif
 					</ul>
 					<div class="tab-content documentTypesTabs">
-						@foreach($mainSearchFilters['media']['documentTypes'] as $k => $v)
-							@if(\View::exists('media.search.layouts.hb-' . $k))
-								@include('media.search.layouts.hb-' . $k)
-							@endif
-						@endforeach
+								@include('media.search.layouts.hb-all')
 						
 						@include('media.search.layouts.hb-modalindividualworker')
 						@include('media.search.layouts.hb-modalworkerunits')

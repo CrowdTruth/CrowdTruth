@@ -156,43 +156,37 @@ class MediaController extends BaseController {
 	 * back to the user.
 	 */
 	private static function loadMediaUploadView() {
+	
 		// Load properties from file uploader software component.
-		// TODO: replace for $data = new FileUploader ?
 		$data = SoftwareComponent::find("fileuploader");
-		$dbDomains = $data->domains;
 		
+		$formats = $data->formats;
+		
+		// get all the unique domains so that we can display the document types per domain
 		$domains = [];
-		$names = [];
-		$fileTypes = [];
 		$doctypes = [];
-		foreach($dbDomains as $domainKey => $domain) {
-			// $domainKey = $domain['key'];
-		
-			array_push($domains, $domainKey);
-			$names[$domainKey] = $domain['name'];
-		
-			$fileTypeList = '';
-			foreach($domain['file_formats'] as $fileType) {
-				$fileTypeList = $fileTypeList.' '.$fileType;
-			}
+		foreach($formats as $format) {
+			foreach($format['document_types'] as $doctypeKey => $doctype) {
 			
-			// set file type icons
-			$fileTypeListIcons = str_replace('file_format_text', 'fa fa-newspaper-o', $fileTypeList);
-			$fileTypeListIcons = str_replace('file_format_image', 'fa fa-picture-o', $fileTypeListIcons);
-			$fileTypeListIcons = str_replace('file_format_image', 'fa fa-music', $fileTypeListIcons);
-			$fileTypeListIcons = str_replace('file_format_image', 'fa fa-video-camera', $fileTypeListIcons);
-		
-			$fileTypes[$domainKey] = $fileTypeList;
-			$fileTypesIcons[$domainKey] = $fileTypeListIcons;
-			$doctypes[$domainKey] = $domain['document_types'];
+				// add to list of unique document type names
+				$doctypes[$doctypeKey] = $doctype['label'];
+				foreach($doctype['domains'] as $domainKey => $domain) {
+				
+					// add to list of unique domain names
+					$domains[$domainKey] = $domain['label'];
+				}
+			}
 		}
 
-		return ['domains' => $domains,
-				'names' => $names,
-				'fileTypes' => $fileTypes,
-				'fileTypesIcons' => $fileTypesIcons,
-				'doctypes' => $doctypes
-				];
+		// sort document types and domains
+		asort($domains);
+		asort($doctypes);
+
+		// remove open domain and add it to the beginning of the array
+		unset($domains['opendomain']);
+		$domains = ['opendomain' => 'Open Domain'] + $domains;
+
+		return ['docTypeData' => $formats, 'uniqueDomains' => $domains, 'uniqueDocTypes' => $doctypes];
 	}
 
 	public function getView()
@@ -219,25 +213,18 @@ class MediaController extends BaseController {
 
 	public function getSearch()
 	{
-		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
+		// load domains and document types
 		$data = static::loadMediaUploadView();
 		
-		return View::make('media.search.pages.media')
-				->with('mainSearchFilters', $mainSearchFilters)
-				->with('domains', $data['domains'])
-				->with('names', $data['names'])
-				->with('fileTypes', $data['fileTypesIcons'])
-				->with('doctypes', $data['doctypes']);
+		//$databaseData = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
+				
+		return View::make('media.search.pages.media')->with('docTypeData', $data['docTypeData'])->with('uniqueDomains', $data['uniqueDomains']);
 	}
 	
 	public function setDocTypes()
 	{
 		$data = static::loadMediaUploadView();
-		return View::make('media.pages.upload')
-				->with('domains', $data['domains'])
-				->with('names', $data['names'])
-				->with('fileTypes', $data['fileTypes'])
-				->with('doctypes', $data['doctypes']);
+		return View::make('media.pages.upload')->with('docTypeData', $data['docTypeData'])->with('uniqueDomains', $data['uniqueDomains'])->with('uniqueDocTypes', $data['uniqueDocTypes']);
 	}
 
 	public function anyBatch()
