@@ -1,11 +1,15 @@
 <?php
 
+use Illuminate\Support\Facades\View;
+
 use CoffeeScript\compact;
 
 use \MongoDB\Repository as Repository;
+use \MongoDB\Entity as Entity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDB\SoftwareComponent as SoftwareComponent;
 use \SoftwareComponents\FileUploader as FileUploader;
+use \SoftwareComponents\MediaSearchComponent as MediaSearchComponent;
 
 class MediaController extends BaseController {
 
@@ -32,7 +36,70 @@ class MediaController extends BaseController {
 	{
 		// TODO: Change default from RELEX to TEXT
 		return Redirect::to('media/preprocess/' . $action);
-	}	
+	}
+
+	public function getKeys($entity, $parent = "") {
+		$blacklist = [ '/withoutSpam/', '/withSpam/', '/withFilter/', '/withoutFilter/' ];
+		$poundSign = '/#/';
+		foreach($blacklist as $pattern) {
+			if(preg_match($pattern, $parent)) {
+				return [];
+			}
+		}
+
+		$keys = [];
+		foreach($entity as $key => $value) {
+			if(! is_numeric($key) && !preg_match($poundSign, $key)) {
+				if(is_array($entity[$key])) {
+					array_push($keys, $parent.$key);
+					$subKeys = $this->getKeys($entity[$key], $parent.$key.".");
+					$keys = array_merge($keys, $subKeys);
+				} else {
+					array_push($keys, $parent.$key);
+				}
+			}
+		};
+		return $keys;
+	}
+
+	public function getListindex()
+	{
+		$searchComponent = new MediaSearchComponent();
+		$labels = $searchComponent->getKeyLabels();
+		return View::make('media.search.pages.listindex')->with('labels', $labels);
+	}
+
+	public function getRefreshindex()
+	{
+		return View::make('media.search.pages.refreshindex');
+	}
+
+	public function postRefreshindex()
+	{
+		$from = Input::get('next', -1);
+		$allIds = Entity::distinct('_id')->get();
+		if($from==-1) {
+			return [
+				'next' => 0,	// Meaning we should start from 0
+				'last' => sizeof($allIds)
+			 ];
+		} else {
+			$allKeys = [];
+			$batchSize = 100;
+			$lastOne = sizeof($allIds);
+			for($i = $from; $i < ($from + $batchSize) && $i < $lastOne; $i = $i + 1) {
+				$e = Entity::where('_id', $allIds[$i][0])->first();
+				$keys = $this->getKeys($e->attributesToArray());
+				$allKeys = array_unique(array_merge($allKeys, $keys));
+			}
+			$searchComponent = new MediaSearchComponent();
+			$searchComponent->store($allKeys);
+			return [
+				'next' => $i,	// Meaning we should start from 0
+				'last' => $lastOne
+			 ];
+		}
+	}
 
 	public function postUpload()
 	{
@@ -62,11 +129,6 @@ class MediaController extends BaseController {
 			return Redirect::to('onlinesource/imagegetter');
 		}
 
-		/* Change template to add online source */
-		// if (Input::get("source_name") == "source_template"){
-		// 	return Redirect::to('onlinesource/onlinesourcetemplate')
-		// }
-
 		$onlineDataHelper = new OnlineDataHelper(Input::all());
 		try {
 			$format = $onlineDataHelper->getType();
@@ -95,6 +157,7 @@ class MediaController extends BaseController {
 	 */
 	private function loadMediaUploadView() {
 		// Load properties from file uploader software component.
+		// TODO: replace for $data = new FileUploader ?
 		$data = SoftwareComponent::find("fileuploader");
 		$dbDomains = $data->domains;
 		
@@ -148,15 +211,12 @@ class MediaController extends BaseController {
 
 	public function getSearch()
 	{
-		// $facetedSearch = App::make('FacetedSearch');
 		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
-
-		// dd($mainSearchFilters);
-
 		return View::make('media.search.pages.media', compact('mainSearchFilters'));
 	}
 
-	public function anyBatch(){
+	public function anyBatch()
+	{
 		if(Input::has('batch_description'))
 		{
 			$batchCreator = App::make('BatchCreator');

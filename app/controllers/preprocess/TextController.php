@@ -51,12 +51,25 @@ class TextController extends BaseController {
 				$docPreview = array_slice($docPreview, 0, $this->nLines);
 				$docPreview = implode($newLine, $docPreview);
 				
+				$config = $this->processor->getConfiguration($document["documentType"]);
+				if($config!=null) {
+					$delimiter = $config["delimiter"];
+					$separator = $config["separator"];
+					$ignoreHeader = !$config["useHeaders"];
+					
+					$previewTable = $this->doPreviewTable($document, $delimiter, $separator, $ignoreHeader);
+				} else {
+					$previewTable = null;
+				}
+				
 				return View::make('media.preprocess.text.configure')
 						->with('URI', $URI)
 						->with('docTitle', $document['title'])
 						->with('docPreview', $docPreview)
 						->with('functions', $functions)
-						;
+						->with('configuration', $config)
+						->with('previewTable', $previewTable)
+				;
 			} else {
 				return Redirect::back()->with('flashError', 'Document does not exist: ' . $URI);
 			}
@@ -84,7 +97,6 @@ class TextController extends BaseController {
 		$postAction = Input::get('postAction');
 		
 		// Prepare document
-		// TODO: Validate URI is present
 		$URI = Input::get('URI');
 		$document = $this->repository->find($URI);
 		
@@ -99,10 +111,22 @@ class TextController extends BaseController {
 			$separator = ',';
 		}
 
-		
-		if($postAction=='tableView') {
+		if($postAction=='saveConfig') {
+			$inputs = Input::all();		// Same as $_POST
+			$rootProcessor = new RootProcessor($inputs, $this::getAvailableFunctions('extended'));
+			
+			$config = [
+				"useHeaders" => !$ignoreHeader,
+				"delimiter" => $delimiter,
+				"separator" => $separator,
+				"groups" => $rootProcessor->getGroupsConfiguration(),
+				"props" => $rootProcessor->getPropertiesConfiguration()
+			];
+			
+			return $this->processor->storeConfiguration($config, $document["documentType"]);
+		} else if($postAction=='tableView') {
 			return $this->doPreviewTable($document, $delimiter, $separator, $ignoreHeader);
-		} else {
+		} else if($postAction=='processPreview' || $postAction=='process') {
 			// Prepare processor
 			$inputs = Input::all();		// Same as $_POST
 			$rootProcessor = new RootProcessor($inputs, $this::getAvailableFunctions('extended'));
@@ -113,6 +137,8 @@ class TextController extends BaseController {
 			} else {	// $postAction=='process'
 				return $this->doPreprocess($rootProcessor, $document, $delimiter, $separator, $ignoreHeader);
 			}
+		} else {
+			return [ 'Error' => 'Unknown post action: '.$postAction ];
 		}
 	}
 
@@ -148,7 +174,6 @@ class TextController extends BaseController {
 		}
 		$status = $this->processor->store($document, $entities);
 		
-		// Redirect here ? // TODO: where should this redirect?
 		return $this->getConfigure()
 						->with('status', $status);
 	}
@@ -179,7 +204,15 @@ class TextController extends BaseController {
 		$processor3 = new \Preprocess\StringLengthPreprocessor;
 		$processor4 = new \Preprocess\TermDifferencePreprocessor;
 		$processor5 = new \Preprocess\TermReplacePreprocessor;
-	
+
+		$processor6 = new \Preprocess\Relex\RelationInSentencePreprocessor;
+		$processor7 = new \Preprocess\Relex\RelationOutsideTermsPreprocessor;
+		$processor8 = new \Preprocess\Relex\RelationBetweenTermsPreprocessor;
+		$processor9 = new \Preprocess\Relex\SemicolonBetweenTermsPreprocessor;
+		$processor10 = new \Preprocess\Relex\CommaSeparatedTermsPreprocessor;
+		$processor11 = new \Preprocess\Relex\ParenthesisAroundTermsPreprocessor;
+		$processor12 = new \Preprocess\Relex\OverlapingTermsPreprocessor;
+		
 		if($option == 'extended') {
 				return [ $processorA->getName() => $processorA,
 				$processorB->getName() => $processorB,
@@ -187,14 +220,28 @@ class TextController extends BaseController {
 				$processor2->getName() => $processor2,
 				$processor3->getName() => $processor3,
 				$processor4->getName() => $processor4,
-				$processor5->getName() => $processor5
+				$processor5->getName() => $processor5,
+				$processor6->getName() => $processor6,
+				$processor7->getName() => $processor7,
+				$processor8->getName() => $processor8,
+				$processor9->getName() => $processor9,
+				$processor10->getName() => $processor10,
+				$processor11->getName() => $processor11,
+				$processor12->getName() => $processor12
 			];
 		} else {
 			return [ $processor1->getName() => $processor1,
 				$processor2->getName() => $processor2,
 				$processor3->getName() => $processor3,
 				$processor4->getName() => $processor4,
-				$processor5->getName() => $processor5
+				$processor5->getName() => $processor5,
+				$processor6->getName() => $processor6,
+				$processor7->getName() => $processor7,
+				$processor8->getName() => $processor8,
+				$processor9->getName() => $processor9,
+				$processor10->getName() => $processor10,
+				$processor11->getName() => $processor11,
+				$processor12->getName() => $processor12
 			];
 		}
 	}
@@ -214,8 +261,15 @@ class RootProcessor {
 		$this->processor->call($line, $lineEntity, $lineEntity);
 		return $lineEntity['root'];
 	}
-	
 
+	public function getGroupsConfiguration() {
+		return $this->processor->getGroupsConfiguration('root');
+	}
+
+	public function getPropertiesConfiguration() {
+		return $this->processor->getPropertiesConfiguration('root');
+	}
+	
 	private function buildGroupProcessor($groupName, $parentName, $inputs) {
 		if($parentName=='') {
 			$fullName = $groupName;
@@ -224,7 +278,7 @@ class RootProcessor {
 			$groupName = str_replace($parentName.'_', '', $groupName);
 		}
 		$processor = new GroupProcessor($groupName);
-	
+
 		// Find groups an properties
 		$groups = [];
 		$props  = [];
@@ -280,7 +334,7 @@ class RootProcessor {
 			$params[$paramName] = $paramValue;
 		}
 		$processor->setParameters($params);
-	
+
 		return $processor;
 	}
 	
@@ -324,6 +378,15 @@ class PropertyProcessor {
 	
 	public function asString() {
 		return $this->propName.'<br>';
+	}
+	
+	public function getConfiguration($parentName) {
+		return [ 
+			'parent' => $parentName,
+			'name' => $this->propName,
+			'function' => $this->provider->getName(),
+			'values'=> $this->provider->getConfiguration($this->params)
+		];
 	}
 }
 
@@ -370,5 +433,34 @@ class GroupProcessor {
 		}
 		$strRep = $strRep.'}<br>';
 		return $strRep;
+	}
+	
+	public function getGroupsConfiguration($parentName) {
+		$groupList = [];
+		foreach($this->subGroups as $sGrp) {
+			$sGrpElement = [
+				"parent"=> $parentName,
+				"name"	=> $sGrp->groupName
+			];
+			array_push ($groupList, $sGrpElement);
+		}
+		foreach($this->subGroups as $sGrp) {
+			$sGroupList = $sGrp->getGroupsConfiguration($this->groupName.'_'.$sGrp->groupName);
+			$groupList = array_merge ($groupList, $sGroupList);
+		}
+		return $groupList;
+	}
+	
+	public function getPropertiesConfiguration($parentGroup) {
+		$groupList = [ ];
+		foreach($this->props as $prop) {
+			$propElement = $prop->getConfiguration($parentGroup);
+			array_push ($groupList, $propElement);
+		}
+		foreach($this->subGroups as $sGrp) {
+			$sGroupList = $sGrp->getPropertiesConfiguration($this->groupName.'_'.$sGrp->groupName);
+			$groupList = array_merge ($groupList, $sGroupList);
+		}
+		return $groupList;
 	}
 }

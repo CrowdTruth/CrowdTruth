@@ -34,7 +34,6 @@ class apiController extends BaseController {
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
 
-
     	if(Input::has('match'))
     	{
 			$collection = $this->processFields($collection);

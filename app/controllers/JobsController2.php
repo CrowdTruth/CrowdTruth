@@ -68,8 +68,20 @@ class JobsController2 extends BaseController {
 		return View::make('job2.save');
 	}
 
+	public function postSaveovert(){
+		Session::put('overwrite','yes');
+		return $this->postSavet();
+	}
+
+
+	public function getSaveover() {
+		
+		return View::make('job2.saveover');
+	}
+
 	private function findNewestTemplate($type, $format){
 		$maxi = \MongoDB\Template::where("type", $type)->where("format", $format)->max('version');
+		if ($maxi === null){return null;}
 	 	$jcbase = \MongoDB\Template::where("type", $type)->where("format", $format)->where('version', $maxi)->first();
 
 	 	return $jcbase;
@@ -79,27 +91,52 @@ class JobsController2 extends BaseController {
 		$jc_id = Session::get('jobconf_id_t');
 		$j_id = Session::get('job_id_t');
 		$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
+		$jcco = $jc['content'];
 		$j = \MongoDB\Entity::where("_id", $j_id)->first();
-		$overwrite = Input::get('overwrite');
-		$type = Input::get('templateTypeOwn');
-		//dd($overwrite);
+		$type = Input::get('templateType');
+		$load = Input::get('load');
+		if($type === null){
+			$load = Session::get('load');
+			$type = Session::get('templateType');
+		}
+		else
+		{
+		Session::put('templateType', $type);
+		Session::put('load', $load);
+		}
 		if($type===null or $type==="")
 			return Redirect::back()->with('flashError', "Type name not filled");	
-
-		if($overwrite==='no'){
-			
-			$newest = $this->findNewestTemplate($type, $j->format);
-			if($newest !== Null)
-				return Redirect::back()->with('flashError', "The template type name already exists! (change or allow to overwrite)");	 	
-		}
-
+		$newest = $this->findNewestTemplate($type, $j->format);
+		if($newest !== Null and !(Session::has('overwrite')) ){
+			return Redirect::to("jobs2/saveover");
+			}	 	
+	    if(Session::has('overwrite'))
+	    	Session::forget('overwrite');
+		if($newest === Null){
+				$v = 0;
+			}else{
+				$v =   \MongoDB\Template::where("type", $type)->where("format", $j->format)->max('version')+1;
+			}	
 		//save + increasing version
+	    $te = new \MongoDB\Template;
+	    $te['cml'] = $jcco['cml'];
+	    $te['format'] = $j->format;
+	 	if(isset($jcco['css']))
+	 			$te['css'] = $jcco['css'];
+ 		if(isset($jcco['instructions']))
+ 			$te['instructions'] = $jcco['instructions'];
+ 		if(isset($jcco['js']))
+ 			$te['js'] = $jcco['js'];
+		$te['version'] = $v;
+ 		$te['type'] = $type;
+ 		$te->save();
+
+
 		$load = Input::get('load');
 		if($load === 'yes'){
-
-			//load
-			// this->postLoadt();
+		    $this->postLoadt();
 		}
+		Session::flash('flashSuccess', "Template saved! :-)");
 		return Redirect::to("jobs");
 	}
 
@@ -155,7 +192,8 @@ class JobsController2 extends BaseController {
 
 	 		//upadte
 			$platform->cfUpdate($j['platformJobId'], $jc);
-
+			$successmessage = "Job loaded."; 
+			Session::flash('flashSuccess', $successmessage);
 		return Redirect::to("jobs");
 	}
 

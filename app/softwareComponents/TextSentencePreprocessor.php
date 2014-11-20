@@ -67,35 +67,25 @@ class TextSentencePreprocessor {
 		\DB::collection('entities')->insert($entities);
 		\MongoDB\Temp::truncate();
 		
-		$status = [];
-		$status['success'] = 'Sentences created successfully';
-		return $status;
-	}
-	
-	public function getType() {}
-	public function performValidation() {
-		// Check file size ?
-		// Validate mime types ?
+		return [ 'success' => 'Sentences created successfully' ];
 	}
 
-	private function getLastDocumentInc($format, $domain, $docType) {
-		$lastMongoURIUsed = Entity::where('format', $format)
-		->where('domain', $domain)
-		->where('documentType', $docType)
-		->get(array("_id"));
-	
-		if(count($lastMongoURIUsed) > 0) {
-			$lastMongoURIUsed = $lastMongoURIUsed->sortBy(function($entity) {
-				return $entity->_id;
-			}, SORT_NATURAL)->toArray();
-	
-			if(end($lastMongoURIUsed)) {
-				$lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
-				$inc = end($lastMongoIDUsed) + 1;
-			}
+	public function getConfiguration($documentType) {
+		$avlConfigs = $this->softwareComponent['configurations'];
+		$configKey = $documentType;
+		if(array_key_exists($configKey, $avlConfigs)) {
+			return $avlConfigs[$configKey];
 		} else {
-			$inc = 0;
+			return null;
 		}
-		return $inc;
+	}
+
+	public function storeConfiguration($config, $documentType) {
+		$configKey = $documentType;
+		$avlConfigs = $this->softwareComponent['configurations'];
+		$avlConfigs[$configKey] = $config;
+		$this->softwareComponent['configurations'] = $avlConfigs;
+		$this->softwareComponent->save();
+		return [ 'status' => 'Configuration saved successfully' ];
 	}
 }

@@ -7,6 +7,8 @@
 {{ stylesheet_link_tag('bootstrap-dropdown-checkbox.css') }}
 {{ stylesheet_link_tag('bootstrap.datepicker3.css') }}
 
+{{ javascript_include_tag('jquery-1.10.2.min.js') }}
+
 <style>
 .container {
 	-webkit-transform:translatez(0);-webkit-backface-visibility:hidden;-webkit-perspective:1000;
@@ -44,6 +46,7 @@
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
 							<li><a href="#" class='toSelection'>Save Selection as Batch</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
+							<li><a href="{{ URL::to('media/refreshindex') }}">Refresh search index</a></li>
 						</ul>
 					</div>
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
@@ -80,7 +83,6 @@
 						@endif
 					</ul>
 					<div class="tab-content documentTypesTabs">
-
 						@foreach($mainSearchFilters['media']['documentTypes'] as $k => $v)
 							@if(\View::exists('media.search.layouts.hb-' . $k))
 								@include('media.search.layouts.hb-' . $k)
@@ -91,7 +93,7 @@
 						@include('media.search.layouts.hb-modalworkerunits')
 						@include('media.search.layouts.hb-modalindividualjob')
 
-						<div class='includeGraph hidden'>
+						<div class='includeGraph'>
                             <table>
                                 <tr class="pieDivGraphs">
                                     <td>
