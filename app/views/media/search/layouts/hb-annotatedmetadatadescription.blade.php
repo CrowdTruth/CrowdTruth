@@ -86,7 +86,11 @@
 			        @{{#each documents}}
 			        <tr class="text-center">
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
-				    	<td data-vbIdentifier="metadata_title"> @{{ this.title }} </td>
+				    	<td data-vbIdentifier="metadata_title">
+				    	<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualAnnotatedMetadataDescriptionUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
+								@{{ this.title }}
+							</a>
+				    	</td>
 				    	<td data-vbIdentifier="avg_clarity"> @{{ this.avg_clarity }} </td>
 			            <td data-vbIdentifier="no_of_machine_events"> @{{ this.content.automatedEventsCount }}  </td>
 				    	@{{#if  this.content.automatedEvents }}
@@ -586,9 +590,7 @@
 						<thead> 
 						<tr> 
 						    <th class="header">Worker Id</th>
-						    <th class="header">Platform</th>
 						    <th class="header">Platform Score</th>
-						    <th class="header">Job Title</th>
 						    <th class="header" data-toggle="tooltip" data-placement="top" title="Average Worker Cosine: is the vector cosine similarity between the annotations of a worker and the aggregated annotations of the other workers in a sentence, reflecting how close the relation(s) chosen by the worker are to the opinion of the majority for that sentence.">Avg. Worker Cosine</th>
 						    <th class="header" data-toggle="tooltip" data-placement="top" title="Average Worker Agreement: worker metric based on the average worker-worker agreement between a worker and the rest of workers, weighted by the number of sentences in common.">Avg. Worker Agreement</th>
 						    <th class="header" data-toggle="tooltip" data-placement="top" title="Avg. # Annotations / Unit: indicates the average number of different relations per sentence used by a worker for annotating a set of sentences.">Avg. # Annotation/Unit</th>
@@ -598,11 +600,11 @@
 						<tbody>
 						  @{{#each this.workerunitContent}}
 						   @{{#each workerunitType}}
+						  
 						    <tr>
 						     <td> @{{ ../_id }} </td>  		  
-		                                     <td> @{{ ../valuesWorker.softwareAgent_id}} </td>
+		                    
 						     <td> @{{ ../valuesWorker.cfWorkerTrust}} </td>
-						     <td> @{{ job_info.jobConf.content.title}} </td>
 						      @{{#each job_info.metrics.workers.withFilter}}
 						       @{{#ifvalue ../../_id value=@key}}
 						       <td> @{{ toFixed worker_cosine 2}} </td>
@@ -610,25 +612,9 @@
 						       <td> @{{ toFixed ann_per_unit 2}} </td>
 						       @{{/ifvalue}}
 						      @{{/each}}
-						       <td> 
-    							@{{#each workerunit}}
-							 
-							   <table border="1" bordercolor="#C0C0C0">
-							    <tr> 
-							     @{{#eachProperty this}}
-  								<td> @{{#abrWords key}} @{{/abrWords}} </td>
-							     @{{/eachProperty }}
-							    </tr>
-							    <tr> 
-							     @{{#eachProperty this}}
-  								<td>@{{value}} </td>
-							     @{{/eachProperty }}
-							    </tr>
-							   </table>
-							
-    							 @{{/each}}
-						      </td>
+						       
 						     </tr> 
+						
 						   @{{/each}}
 						  @{{/each}}
 						  	

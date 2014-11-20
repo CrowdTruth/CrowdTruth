@@ -1,4 +1,4 @@
-<div class="tab-pane" id="metadatadescription_tab">	
+<div class="tab-pane" id="bbcnews-synopsis_tab">	
 	<div class='row'>
 		<div class='tabOptions hidden'>
 			<div class='btn-group' style="margin-left:5px;">
@@ -9,28 +9,13 @@
 					<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="#" data-vb="show" data-vbSelector="description_identifier"></i>Identifier</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="video_description">Video Description</th>
-					 	<li><a href="#" data-vb="show" data-vbSelector="a1_cluster"></i># A1 Clusters</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="a2_cluster"></i># A2 Clusters</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="a3_cluster"></i># A3 Clusters</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="b_cluster"></i># B Clusters</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="description_topics"></i>Topics</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="video_title"></i>Title</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="description_language"></i>Language</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="avg_clarity"></i>Avg Clarity</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="words_count"></i>Word Count</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="no_of_machine_features">Total # Machine Features</th>
-						<li><a href="#" data-vb="show" data-vbSelector="no_of_machine_events"># Machine Events</th>
-						<li><a href="#" data-vb="show" data-vbSelector="machine_events">Machine Events</th>
-						<li><a href="#" data-vb="show" data-vbSelector="no_of_people"></i># of People Features</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="people"></i>People Features</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="no_of_location"></i># of Location Features</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="location"></i>Location Features</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="no_of_time"></i># of Time Features</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="time"></i>Time Features</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="no_of_other"></i># of Other Features</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="other"></i>Other Features</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="synopsis_identifier"></i>Identifier</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="synopsis_pid"></i>Synopsis Id</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="synopsis_description">Synopsis Description</th>
+						<li><a href="#" data-vb="show" data-vbSelector="a1_cluster_count"></i>A1 Cluster Count</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="a2_cluster_count"></i>A2 Cluster Count</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="a3_cluster_count"></i>A3 Cluster Count</a></li>
+						<li><a href="#" data-vb="show" data-vbSelector="b_cluster_count"></i>B Cluster Count</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="number_of_batches"></i>Used In # of Batches</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="number_of_jobs"></i>Used In # of Jobs</a></li>
 						<li><a href="#" data-vb="show" data-vbSelector="created_at"></i>Created At</a></li>
@@ -42,32 +27,17 @@
 	</div>
 	<div class='ctable-responsive cResults'>
 	    <table class="table table-striped qwe">
-	       	<thead data-query-key="match[documentType]" data-query-value="metadatadescription">
+	       	<thead data-query-key="match[documentType]" data-query-value="bbcnews-synopsis">
 		        <tr>
 		            <th data-vbIdentifier="checkbox">Select</th>
-			    	<th class="sorting" data-vbIdentifier="description_identifier" data-query-key="orderBy[title]">Identifier</th>
-			    	<th class="sorting" data-vbIdentifier="video_description" data-query-key="orderBy[content.description]">Video Description </th>
-			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="a1_cluster" data-query-key="orderBy[content.countA1]"># A1 Clusters</th>
-				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="a2_cluster" data-query-key="orderBy[content.countA2]"># A2 Clusters</th>     
-				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="a3_cluster" data-query-key="orderBy[content.countA3]"># A3 Clusters</th>
-				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="b_cluster" data-query-key="orderBy[content.countB]"># B Clusters</th>     
-			    	<th class="sorting" data-vbIdentifier="description_topics" data-query-key="orderBy[content.features.topics]">Topics</th>
-			    	<th class="sorting" data-vbIdentifier="video_title" data-query-key="orderBy[videoTitle]">Title</th>
-		            <th class="sorting" data-vbIdentifier="description_language" data-query-key="orderBy[language]">Language</th>			 
-			    	<th class="sorting" data-vbIdentifier="avg_clarity" data-query-key="orderBy[avg_clarity]">Avg Clarity</th>
-			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="words_count" data-query-key="orderBy[wordCount]">Word Count</th>
-			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="no_of_machine_features" data-query-key="orderBy[totalNoOfFeatures]">Total # Machine Features </th>
-			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="no_of_machine_events" data-query-key="orderBy[content.automatedEventsCount]"># Machine Events </th>
-			    	<th class="sorting" data-vbIdentifier="machine_events" data-query-key="orderBy[content.features.automatedEvents.label]">Machine Events</th>
-			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="no_of_people" data-query-key="orderBy[content.peopleCount]"># of People Features</th>
-		            <th class="sorting" data-vbIdentifier="people" data-query-key="orderBy[content.features.people.label]">People Features</th>			 
-			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="no_of_location" data-query-key="orderBy[content.locationCount]"># of Location Features</th>
-		            <th class="sorting" data-vbIdentifier="location" data-query-key="orderBy[content.features.location.label]">Location Features</th>	
-		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="no_of_time" data-query-key="orderBy[content.timeCount]"># of Time Features</th>
-		            <th class="sorting" data-vbIdentifier="time" data-query-key="orderBy[content.features.time.label]">Time Features</th>	
-		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="no_of_other" data-query-key="orderBy[content.otherCount]"># of Other Features</th>
-		            <th class="sorting" data-vbIdentifier="other" data-query-key="orderBy[content.features.other.label]">Other Features</th>					
-					<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]">Used In # of Batches</th>
+			    	<th class="sorting" data-vbIdentifier="synopsis_identifier" data-query-key="orderBy[title]">Identifier</th>
+			    	<th class="sorting" data-vbIdentifier="synopsis_pid" data-query-key="orderBy[content.synopsisId]">Synopsis Id </th>
+			    	<th class="sorting" data-vbIdentifier="synopsis_description" data-query-key="orderBy[content.description]">Synopsis Description</th>
+			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="a1_cluster_count" data-query-key="orderBy[content.countA1]">A1 Cluster Count</th>
+		            <th class="sorting whiteSpaceNormal" data-vbIdentifier="a2_cluster_count" data-query-key="orderBy[content.countA2]">A2 Cluster Count</th>			 
+			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="a3_cluster_count" data-query-key="orderBy[content.countA3]">A3 Cluster Count</th>
+			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="b_cluster_count" data-query-key="orderBy[content.countB]">B Cluster Count</th>
+			    	<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]">Used In # of Batches</th>
 				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[cache.jobs.count]">Used In # of Jobs</th>     
 				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;">Created At</th>
 				    <th class="sorting" data-vbIdentifier="created_by" data-query-key="orderBy[user_id]">Created By</th>
@@ -76,82 +46,30 @@
 					<td data-vbIdentifier="checkbox">
 						<input type="checkbox" class="checkAll" />
 					</td>
-					<td data-vbIdentifier="description_identifier">
+					<td data-vbIdentifier="synopsis_identifier">
 						<input class="input-sm form-control" type='text' data-query-key="match[title]" data-query-operator="like" />
 					</td>
-					<td data-vbIdentifier="video_description">
+					<td data-vbIdentifier="synopsis_pid">
+						<input class="input-sm form-control" type='text' data-query-key="match[content.synopsisId]" data-query-operator="like" />
+					</td>
+					<td data-vbIdentifier="synopsis_description">
 						<input class="input-sm form-control" type='text' data-query-key="match[content.description]" data-query-operator="like" />
 					</td>
-					<td data-vbIdentifier="a1_cluster">
+					<td data-vbIdentifier="a1_cluster_count">
 						<input class="input-sm form-control" type='text' data-query-key="match[content.countA1]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 						<input class="input-sm form-control" type='text' data-query-key="match[content.countA1]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 					</td>
-					<td data-vbIdentifier="a2_cluster">
+					<td data-vbIdentifier="a2_cluster_count">
 						<input class="input-sm form-control" type='text' data-query-key="match[content.countA2]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 						<input class="input-sm form-control" type='text' data-query-key="match[content.countA2]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 					</td>
-					<td data-vbIdentifier="a3_cluster">
+					<td data-vbIdentifier="a3_cluster_count">
 						<input class="input-sm form-control" type='text' data-query-key="match[content.countA3]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 						<input class="input-sm form-control" type='text' data-query-key="match[content.countA3]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 					</td>
-					<td data-vbIdentifier="b_cluster">
+					<td data-vbIdentifier="b_cluster_count">
 						<input class="input-sm form-control" type='text' data-query-key="match[content.countB]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 						<input class="input-sm form-control" type='text' data-query-key="match[content.countB]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-					</td>
-					<td data-vbIdentifier="description_topics">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.features.topics]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="video_title">
-						<input class="input-sm form-control" type='text' data-query-key="match[videoTitle]" data-query-operator="like" />	
-					</td>
-					<td data-vbIdentifier="description_language">
-						<input class="input-sm form-control" type='text' data-query-key="match[language]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="avg_clarity">
-						<input class="input-sm form-control" type='text' data-query-key="match[avg_clarity]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="words_count">
-						<input class="input-sm form-control" type='text' data-query-key="match[wordCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-						<input class="input-sm form-control" type='text' data-query-key="match[wordCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-					</td>
-					<td data-vbIdentifier="no_of_machine_features">
-						<input class="input-sm form-control" type='text' data-query-key="match[totalNoOfFeatures]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-						<input class="input-sm form-control" type='text' data-query-key="match[totalNoOfFeatures]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-					</td>
-					<td data-vbIdentifier="no_of_machine_events">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.automatedEventsCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-						<input class="input-sm form-control" type='text' data-query-key="match[content.automatedEventsCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-					</td>
-					<td data-vbIdentifier="machine_events">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.features.automatedEvents.label]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="no_of_people">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.peopleCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-						<input class="input-sm form-control" type='text' data-query-key="match[content.peopleCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-					</td>
-					<td data-vbIdentifier="people">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.features.people.label]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="no_of_location">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.features.location.label]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-						<input class="input-sm form-control" type='text' data-query-key="match[content.features.location.label]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-					</td>
-					<td data-vbIdentifier="location">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.locationCount]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="no_of_time">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.timeCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-						<input class="input-sm form-control" type='text' data-query-key="match[content.timeCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-					</td>
-					<td data-vbIdentifier="time">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.features.time.label]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="no_of_other">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.otherCount]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-						<input class="input-sm form-control" type='text' data-query-key="match[content.otherCount]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-					</td>
-					<td data-vbIdentifier="other">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.features.time.label]" data-query-operator="like" />
 					</td>
 					<td data-vbIdentifier="number_of_batches">
 						<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
@@ -177,88 +95,17 @@
 			        @{{#each documents}}
 			        <tr class="text-center">
 			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
-				    	<td data-vbIdentifier="description_identifier"> 
-							<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualMetadataDescriptionUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
+				    	<td data-vbIdentifier="synopsis_identifier"> 
+							<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualBBCNewsSynopsisUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
 								@{{ this.title }}
 							</a>
 				    	</td>
-				    	<td data-vbIdentifier="video_description">
-				    		@{{ this.content.description}}	
-			            </td>
-			            <td data-vbIdentifier="a1_cluster">@{{ this.content.countA1 }}</td>
-					    <td data-vbIdentifier="a2_cluster">@{{ this.content.countA2 }}</td>
-					    <td data-vbIdentifier="a3_cluster">@{{ this.content.countA3 }}</td>
-					    <td data-vbIdentifier="b_cluster">@{{ this.content.countB }}</td>
-				    	<td data-vbIdentifier="description_topics">
-				    		@{{#if  this.content.features.topics }}
-				            	@{{#eachProperty this.content.features.topics }}
-				            		<b>@{{value.label}} - score: @{{value.score}} </b> (@{{value.wikiLink}}) <br>
-				            	@{{/eachProperty}}   
-			            	@{{/if}}
-			            </td>
-			            <td data-vbIdentifier="video_title">@{{ this.videoTitle }}</td>
-						<td data-vbIdentifier="description_language"> @{{ this.language }} </td>
-						<td data-vbIdentifier="avg_clarity"> @{{ this.avg_clarity }} </td>
-						@{{#if  this.wordCount }}
-							<td data-vbIdentifier="words_count"> @{{ this.wordCount }} </td>
-						@{{else}}
-							<td data-vbIdentifier="words_count"> 0 </td>
-						@{{/if}}	
-						@{{#if  this.totalNoOfFeatures }}	
-							<td data-vbIdentifier="no_of_machine_features"> @{{ this.totalNoOfFeatures }} </td>
-						@{{else}}	
-							<td data-vbIdentifier="no_of_machine_features"> 0 </td>
-						@{{/if}}
-						@{{#if  this.content.automatedEventsCount }}
-							<td data-vbIdentifier="no_of_machine_events"> @{{ this.content.automatedEventsCount }} </td>
-						@{{else}}
-							<td data-vbIdentifier="no_of_machine_events"> 0 </td>
-						@{{/if}}
-						@{{#if  this.content.features.automatedEvents }}
-							<td data-vbIdentifier="machine_events"> @{{ highlightautomatedEvents @root.searchQuery this.content }} </td>
-				    	@{{ else }}
-			           		<td data-vbIdentifier="machine_events"> @{{ this.content.description }} </td>
-			            @{{/if}}
-			            @{{#if  this.content.peopleCount }}	
-							<td data-vbIdentifier="no_of_people"> @{{ this.content.peopleCount }} </td>
-						@{{else}}
-							<td data-vbIdentifier="no_of_people"> 0 </td>
-						@{{/if}}
-						@{{#if  this.content.features.people }}
-							<td data-vbIdentifier="people"> @{{ highlightPeople @root.searchQuery this.content }} </td>
-			           	@{{ else }}
-			           		<td data-vbIdentifier="people"> @{{ this.content.description }} </td>	
-			            @{{/if}}
-			            @{{#if  this.content.locationCount }}	
-							<td data-vbIdentifier="no_of_location"> @{{ this.content.locationCount }} </td>
-						@{{else}}
-							<td data-vbIdentifier="no_of_location"> 0 </td>
-						@{{/if}}
-						@{{#if  this.content.features.location }} 
-							<td data-vbIdentifier="location"> @{{ highlightLocation @root.searchQuery this.content }} </td>
-			           	@{{ else }}
-			           		<td data-vbIdentifier="location"> @{{ this.content.description }} </td>	
-			            @{{/if}}
-			            @{{#if  this.content.timeCount }}	
-							<td data-vbIdentifier="no_of_time"> @{{ this.content.timeCount }} </td>
-						@{{else}}
-							<td data-vbIdentifier="no_of_time"> 0 </td>
-						@{{/if}}
-						@{{#if  this.content.features.time }}
-							<td data-vbIdentifier="time"> @{{ highlightTime @root.searchQuery this.content }} </td>
-			           	@{{ else }}
-			           		<td data-vbIdentifier="time"> @{{ this.content.description }} </td>	
-			            @{{/if}}	
-			             @{{#if  this.content.otherCount }}	
-							<td data-vbIdentifier="no_of_other"> @{{ this.content.otherCount }} </td>
-						@{{else}}
-							<td data-vbIdentifier="no_of_other"> 0 </td>
-						@{{/if}}
-						@{{#if  this.content.features.other }}
-							<td data-vbIdentifier="other"> @{{ highlightOther @root.searchQuery this.content }} </td>
-			           	@{{ else }}
-			           		<td data-vbIdentifier="other"> @{{ this.content.description }} </td>	
-			            @{{/if}}
+				    	<td data-vbIdentifier="synopsis_pid"> @{{ this.content.synopsisId}}	</td>
+				    	<td data-vbIdentifier="synopsis_description"> @{{ this.content.description}} </td>
+			            <td data-vbIdentifier="a1_cluster_count">@{{ this.content.countA1 }}</td>
+						<td data-vbIdentifier="a2_cluster_count"> @{{ this.content.countA2 }} </td>
+						<td data-vbIdentifier="a3_cluster_count"> @{{ this.content.countA3 }} </td>
+						<td data-vbIdentifier="b_cluster_count"> @{{ this.content.countB }} </td>
 				    	<td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>
 					    <td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>
 					    <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
