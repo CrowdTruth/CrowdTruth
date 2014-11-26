@@ -26,12 +26,13 @@
 			<div class='row'>
 				<div class='col-xs-12 searchOptions'>
 				@if(isset($mainSearchFilters['media']['documentTypes']))
-					<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-						<optgroup label="Media-Type">
-							@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
-								<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
-							@endforeach
-						</optgroup>
+					<select name="documentType" data-query-key="match[documentType]" class="selectpicker pull-left show-tick" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+						@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
+							<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
+							@if($key == 'all')
+								<option data-divider="true"></option>						
+							@endif
+						@endforeach
 					</select>
 				@endif
 
@@ -609,6 +610,7 @@ function getTabFieldsQuery(){
 			}
 
 			tabFieldsQuery += "&" + $(this).attr('data-query-key') + operator + $(this).attr('data-query-value');
+					console.log($(this).attr('data-query-key') + operator + $(this).attr('data-query-value'));
 		}
 
 		if($(this).hasClass('sorting_asc')){
@@ -947,9 +949,8 @@ $('body').on('click', '.testModal', function(){
 	}
 });
 
-$('.select_relex-structured-sentence').click();
-$('.documentTypesNav').find('#relex-structured-sentence_nav a').click();
-$('.graphViewButton').click();
+$('.select_all').click();
+$('.documentTypesNav').find('#all_nav a').click();
 var workerList = localStorage.getItem("unitList");
 if(workerList !=  null) {
     workerList = JSON.parse(workerList);

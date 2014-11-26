@@ -780,12 +780,8 @@ class Temp extends Moloquent {
 
         foreach($distinctFieldValues as $distinctFieldValue)
         {
-            $distinctFieldValuesAndCount[$distinctFieldValue]['label'] = $distinctFieldValue;
-
-            if(isset(\MongoDB\Entity::getKeyLabelMapping()[strtolower($distinctFieldValue)])) {
-                $distinctFieldValuesAndCount[$distinctFieldValue]['label'] = \MongoDB\Entity::getKeyLabelMapping()[$distinctFieldValue];
-            }
-
+			$label = ucfirst(str_replace('-',' ',$distinctFieldValue));
+            $distinctFieldValuesAndCount[$distinctFieldValue]['label'] = $label;
             $distinctFieldValuesAndCount[$distinctFieldValue]['count'] = Entity::where($field, $distinctFieldValue)->count();
         }
 
@@ -798,10 +794,10 @@ class Temp extends Moloquent {
         // $mainSearchFilters['media']['domains'] = $this->getDistinctFieldAndCount('domain', ['unit']);
         $mainSearchFilters['media']['documentTypes'] = static::getDistinctFieldLabelAndCount('documentType', ['unit']);
         $mainSearchFilters['media']['documentTypes']['all'] = ["count" => \MongoDB\Entity::whereIn('tags', ['unit'])->count(),
-                                                                "label" => "All units"
+                                                                "label" => "All Media"
                                                                 ];
         
-        unset($mainSearchFilters['media']['documentTypes']['twrex']);
+        //unset($mainSearchFilters['media']['documentTypes']['twrex']);
 
         $mainSearchFilters['job']['count'] = Entity::where('documentType', 'job')->count();
         $mainSearchFilters['workers']['count'] = \MongoDB\CrowdAgent::all()->count();
