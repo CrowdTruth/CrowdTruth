@@ -23,10 +23,10 @@
 @include('layouts.flashdata')
 
 		<div class='tab'>
-			<div class='row'>
-				<div class='col-xs-12 searchOptions'>
+			<div class='search row'>
+				<div class='col-xs-12'>
 				@if(isset($mainSearchFilters['media']['documentTypes']))
-					<select name="documentType" data-query-key="match[documentType]" class="selectpicker pull-left show-tick" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
 						@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
 							<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
 							@if($key == 'all')
@@ -36,10 +36,10 @@
 					</select>
 				@endif
 
-					<div class='tabOptions pull-left'>
+					<div class='options pull-left'>
 					</div>
 
-					<div class="btn-group pull-left" style="margin-left:5px";>
+					<div class="actions btn-group pull-left" style="margin-left:5px";>
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						Actions <span class="caret"></span>
 						</button>
@@ -50,7 +50,7 @@
 							<li><a href="{{ URL::to('media/refreshindex') }}">Refresh search index</a></li>
 						</ul>
 					</div>
-					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
+					<select name="search_limit" data-query-key="limit" class="limit selectpicker pull-right show-tick">
 						<option value="10">10 Records per page</option>
 						<option value="25">25 Records per page</option>
 						<option value="50">50 Records per page</option>
@@ -64,37 +64,31 @@
 							Switch to Graph View
 						</button>
 					</div>
-				</div>
-				<div class='col-xs-12'>
-					<div class='searchStats pull-left'>
-					</div>
-					<div class='cw_pagination pull-right'>
+					<div class='col-xs-12'>
+						<div class='stats pull-left'>
+							No Items Found
+						</div>
+						<div class='navigation pull-right'>
+						</div>
 					</div>
 				</div>
 				<div class='col-xs-12 searchResults'>
-					<ul class="nav nav-tabs documentTypesNav hidden">
-						@if(isset($mainSearchFilters['media']['documentTypes']))
-							@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
-							<li id="{{$key}}_nav">
-								<a href="#{{$key}}_tab" data-toggle="tab">
-									{{$key}}
-								</a>
-							</li>
-							@endforeach
-						@endif
-					</ul>
 					<div class="tab-content documentTypesTabs">
-						@foreach($mainSearchFilters['media']['documentTypes'] as $k => $v)
-							@if(\View::exists('media.search.layouts.hb-' . $k))
-								@include('media.search.layouts.hb-' . $k)
-							@endif
-						@endforeach
+						@include('media.search.layouts.hb-all')
 						
 						@include('media.search.layouts.hb-modalindividualworker')
 						@include('media.search.layouts.hb-modalworkerunits')
 						@include('media.search.layouts.hb-modalindividualjob')
 
-						<div class='includeGraph'>
+						<div class='status text-center'>
+							<div class='loading'>
+								<i class="fa fa-spinner fa-spin fa-4x"></i><br /><br />Loading
+							</div>
+							<div class='error' style='display:none;'>
+							<i class="fa fa-exclamation-triangle fa-4x"></i><br /><br />Oops! Something has gone wrong.
+							</div>
+						</div>
+						<div class='includeGraph hidden'>
                             <table>
                                 <tr class="pieDivGraphs">
                                     <td>
@@ -258,26 +252,13 @@ var templates = {};
 var defaultColumns = {};
 var lastQueryResult;
 
-// $('.maincolumn').css({"min-height:" : ($(window).height()) +  "px"});
-
-// $(window).scroll(function(){
-//    if ($(window).scrollTop() > 125){
-//     $(".facetedSearchFilters").css({"margin-top": ($(window).scrollTop()) - 125 + "px"});
-//    } else {
-//     $(".facetedSearchFilters").css({"margin-top": 0 + "px"});
-//    }
-// });
-
+// depricated function, needs to be removed
 var getActiveTabKey = function(){
 	return '#' + $('.tab-pane.active').attr('id');
 }
 
 var getSearchLimitValue = function(){
-	return $('.searchOptions').find("[name='search_limit']").val();
-}
-
-var updateReponsiveTableHeight = function() {
-	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 185 + "px");
+	return $('.search .limit').val();
 }
 
 var delay = (function(){
@@ -288,34 +269,12 @@ var delay = (function(){
 	};
 })();
 
-$('.searchOptions').on('change', ".selectpicker", function(){
-	if(!$('.listViewButton').hasClass('hidden'))
-	{
-		$('.listViewButton').click();
-	}
+$('.search .documentType').change(function(){
+	getResults();
+});
 
-	if($(this).attr('name') == "documentType")
-	{
-		if($(this).val() != null)
-		{
-			if($(this).val().length == 1)
-			{
-				$('.documentTypesNav').find('#' + $(this).val()[0] + '_nav a').click();
-			} else {
-				$('.documentTypesNav').find('#' + $(this).val() + '_nav a').click();
-			}
-			getResults();
-			return;
-		}
-	}
 
-	if($(this).attr('name') == "search_limit"){
-		getResults();
-		return;
-	}
-
-	$('.documentTypesNav').find('#all_nav a').click();
-
+$('.search .limit').change(function() {
 	getResults();
 });
 
@@ -506,7 +465,7 @@ $('.listViewButton').click(function() {
 	$('.graphViewButton').removeClass('hidden');
 	$('.includeGraph').addClass('hidden');
 
-	$(getActiveTabKey() + ' tbody.results').show();
+	$('.search .results').show();
 });
 
 $('.graphViewButton').click(function() {
@@ -514,18 +473,14 @@ $('.graphViewButton').click(function() {
 	$('.listViewButton').removeClass('hidden');
 	$('.includeGraph, .specificGraphs').removeClass('hidden');
 
-	$(getActiveTabKey() + ' tbody.results').hide();
-	getResults();
+	$('.search .results').hide();
+
 });
 
 $('body').tooltip({
     selector: '[data-toggle=tooltip]',
     container: 'body',
     html: true
-});
-
-$(window).resize(function() {
-	updateReponsiveTableHeight();
 });
 
 $('.input-daterange').datepicker({
@@ -576,7 +531,7 @@ var updateSelection = function(id) {
         }
     });
 
-    console.dir(selectedRows[activeTabKey]);
+    // console.dir(selectedRows[activeTabKey]);
 }
 
 var getSelection = function() {
@@ -597,34 +552,29 @@ function getTabFieldsQuery(){
 		tabFieldsQuery = getGeneralFilterQueries();
 	}
 
-	$('.searchOptions .specificFilterOptions, ' + activeTabKey).find("[data-query-key]").each(function() {
-		if($(this).hasClass('btn') && !$(this).hasClass('active')){
-			return;
-		}
+	var documentType = $('.search .documentType option:selected').val();
+	var operator = '=';
+	if(documentType == 'all') {
+		tabFieldsQuery += "&match[tags]=unit";
+	} else {
+		tabFieldsQuery += "&" + "match[documentType]" + operator + documentType;
+	}
 
-		if($(this).is('[data-query-value]')){
-			if($(this).is('[data-query-operator]')){
-				var operator = "[" + encodeURIComponent($(this).attr('data-query-operator')) + "]=";
-			} else {
-				var operator = "=";
-			}
-
-			tabFieldsQuery += "&" + $(this).attr('data-query-key') + operator + $(this).attr('data-query-value');
-					console.log($(this).attr('data-query-key') + operator + $(this).attr('data-query-value'));
-		}
-
-		if($(this).hasClass('sorting_asc')){
-			tabFieldsQuery += "&" + $(this).attr('data-query-key') + "=asc";
-		} else if($(this).hasClass('sorting_desc')){
-			tabFieldsQuery += "&" + $(this).attr('data-query-key') + "=desc";
-		}
-	});
+	// filter results
+	// tabFieldsQuery += "&" + $(this).attr('data-query-key') + "=asc";
 
 	// console.log(tabFieldsQuery);
 	return tabFieldsQuery;
 }
 
 function getResults(baseApiURL){
+
+	// hide old results and show loading screen
+	$('.search .results').hide();
+	$('.status .error').hide();
+	$('.status .loading').show();
+	$('.status').show();
+
 	if(baseApiURL == undefined)
 	{
 		var baseApiURL = '{{ URL::to("api/search?noCache") }}';
@@ -634,16 +584,7 @@ function getResults(baseApiURL){
 	var searchLimitQuery = "&limit=" + getSearchLimitValue();
 	var tabFieldsQuery = getTabFieldsQuery();
 
-	if(tabFieldsQuery == '')
-	{
-		$(activeTabKey).find('.results').empty();
-		$(activeTabKey).find('.cw_pagination').empty();
-		return false;
-	}
-
-	console.log(tabFieldsQuery);
-
-	$('.searchStats').text('Processing...');
+	console.log(baseApiURL + tabFieldsQuery + searchLimitQuery);
 
 	abortAjax(xhr);
 
@@ -660,13 +601,16 @@ function getResults(baseApiURL){
 		
 		var template = Handlebars.compile(templates[activeTabKey]);
 		var html = template(data);
-		$('.cw_pagination').empty().prepend($(data.pagination));
-		$('.cw_pagination').find('.pagination').addClass('pagination-sm');
-		$(activeTabKey).find('.results').empty().append(html);
+		$('.navigation').empty().prepend($(data.pagination));
+		$('.navigation').find('.pagination').addClass('pagination-sm');
+		
+		$('.search .results').empty().append(html);
+		$('.search .results').show('slow');
+		
 
 		var searchStats = Handlebars.compile($('.searchStatsTemplate').html());
 		var searchStats = searchStats(data);
-		$('.searchStats').empty().append(searchStats);
+		$('.search .stats').html(searchStats);
 
 		// $(activeTabKey + ' .hb_popover').popover({
 		// 	placement : "left",
@@ -703,10 +647,14 @@ function getResults(baseApiURL){
 		}
 
 		updateSelection();
+		$('.search .loading').hide();
+		$('.status').hide();
 
+	}).fail(function() {
+		$('.status .loading').hide();
+		$('.status .error').show();
+		$('.status').show();
 	});
-
-	updateReponsiveTableHeight();
 }
 
 function abortAjax(xhr) {
@@ -950,7 +898,6 @@ $('body').on('click', '.testModal', function(){
 });
 
 $('.select_all').click();
-$('.documentTypesNav').find('#all_nav a').click();
 var workerList = localStorage.getItem("unitList");
 if(workerList !=  null) {
     workerList = JSON.parse(workerList);
@@ -959,6 +906,10 @@ if(workerList !=  null) {
     }
     localStorage.removeItem("unitList");
 }
+
+
+
+getResults();
 
 });
 
