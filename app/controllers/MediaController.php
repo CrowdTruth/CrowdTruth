@@ -224,7 +224,7 @@ class MediaController extends BaseController {
 	public function setDocTypes()
 	{
 		$data = static::loadMediaUploadView();
-		return View::make('media.pages.upload')->with('docTypeData', $data['docTypeData'])->with('uniqueDomains', $data['uniqueDomains'])->with('uniqueDocTypes', $data['uniqueDocTypes']);
+		return View::make('media.preprocess.text.configure')->with('docTypeData', $data['docTypeData'])->with('uniqueDomains', $data['uniqueDomains'])->with('uniqueDocTypes', $data['uniqueDocTypes']);
 	}
 
 	public function anyBatch()

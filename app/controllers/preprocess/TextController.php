@@ -7,6 +7,8 @@ use CoffeeScript\compact;
 use \MongoDB\Repository as Repository;
 use \MongoDB\Entity as Entity;
 use BaseController, Cart, View, App, Input, Redirect, Session;
+use \MongoDB\SoftwareComponent as SoftwareComponent;
+use \SoftwareComponents\FileUploader as FileUploader;
 use League\Csv\Reader as Reader;
 
 use \SoftwareComponents\TextSentencePreprocessor as TextSentencePreprocessor;
@@ -38,6 +40,44 @@ class TextController extends BaseController {
 		if($separator) return $separator;
 		return $fallback;
 	}
+	
+	/**
+	 * Load data for the Media Upload View and return the view ready to be sent 
+	 * back to the user.
+	 */
+	private static function loadMediaUploadView() {
+	
+		// Load properties from file uploader software component.
+		$data = SoftwareComponent::find("fileuploader");
+		
+		$formats = $data->formats;
+		
+		// get all the unique domains so that we can display the document types per domain
+		$domains = [];
+		$doctypes = [];
+		foreach($formats as $format) {
+			foreach($format['document_types'] as $doctypeKey => $doctype) {
+			
+				// add to list of unique document type names
+				$doctypes[$doctypeKey] = $doctype['label'];
+				foreach($doctype['domains'] as $domainKey => $domain) {
+				
+					// add to list of unique domain names
+					$domains[$domainKey] = $domain['label'];
+				}
+			}
+		}
+
+		// sort document types and domains
+		asort($domains);
+		asort($doctypes);
+
+		// remove open domain and add it to the beginning of the array
+		unset($domains['opendomain']);
+		$domains = ['opendomain' => 'Open Domain'] + $domains;
+
+		return ['docTypeData' => $formats, 'uniqueDomains' => $domains, 'uniqueDocTypes' => $doctypes];
+	}
 
 	public function getConfigure() {
 		if($URI = Input::get('URI')) {
@@ -62,6 +102,8 @@ class TextController extends BaseController {
 					$previewTable = null;
 				}
 				
+				$data = static::loadMediaUploadView();
+				
 				return View::make('media.preprocess.text.configure')
 						->with('URI', $URI)
 						->with('docTitle', $document['title'])
@@ -69,7 +111,8 @@ class TextController extends BaseController {
 						->with('functions', $functions)
 						->with('configuration', $config)
 						->with('previewTable', $previewTable)
-				;
+						->with('docTypeData', $data['docTypeData'])->with('uniqueDomains', $data['uniqueDomains'])->with('uniqueDocTypes', $data['uniqueDocTypes']);
+
 			} else {
 				return Redirect::back()->with('flashError', 'Document does not exist: ' . $URI);
 			}
@@ -173,8 +216,8 @@ class TextController extends BaseController {
 			array_push($entities, $lineEntity);
 		}
 		$status = $this->processor->store($document, $entities);
-		
-		return $this->getConfigure()
+	
+		return $this->getConfigurations()
 						->with('status', $status);
 	}
 

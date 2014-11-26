@@ -57,7 +57,10 @@
 			'			</div>' +
 			'			<div class="col-xs-4">' +
 			'				<select class="selectpicker" data-container="body" name="' + propId + '_function" id="' + propId + '_function">' +		
-			'          			<option value="text">Text</option>' + 
+			'					<option value="text" data-icon="fa-newspaper-o"> Text</option>' +
+			'					<option value="image" data-icon="fa-image"> Image</option>' +
+			'					<option value="sound" data-icon="fa-music"> Sound</option>' +
+			'					<option value="video" data-icon="fa-video-camera"> Video</option>' +
 			'          			<option value="number">Number</option>' + 
 			'					<optgroup label="Function">' +
 {{-- Load the available functions --}}
@@ -182,8 +185,12 @@
 	  $("#" + props).append(getPropertyDiv(parentGroupId, propName));
 	  
 	  	// load selectpicker for new elements	
+		$('.selectpicker').selectpicker({
+			iconBase: 'fa',
+			tickIcon: 'fa-check'
+		});
 		$('.selectpicker').selectpicker('refresh');
-	  
+		
 	  // Add actions to buttons on the div 
 	  $("#" + propId + "_close").click(function(){
 	      $(this).closest(".panel").remove();
@@ -347,10 +354,94 @@
 		Document: <b>{{$docTitle}}</b>
 	</p>
 </div>
+
+<div id='customize_configuration' class="panel panel-default">
+	<div class="panel-heading">
+		<h4><i class="fa fa-gears fa-fw"></i> Customize Configuration</h4>
+	</div>
+	<div class="panel-body">
+
+		<div class="form-horizontal">
+
+			<div class="form-group">
+				<label for="document" class="col-sm-3 control-label">Load Configuration</label>
+				<div class="col-sm-5">
+					<select name="document" id="document" class="selectpicker pull-left show-tick" title="Select a Document" data-show-subtext="true" data-container="body">
+					<option data-hidden="true"></option>
+					@foreach($uniqueDomains as $domainKey => $domain)
+						@if($domainKey <> 'opendomain')
+							<optgroup label="{{ $domain }}">
+						@endif
+						@foreach($docTypeData as $formatKey => $format)
+							@foreach($format['document_types'] as $docTypeKey => $docType)
+								@if(array_key_exists($domainKey, $docType['domains']))
+									<option format="{{ $formatKey }}" doctype="{{ $docTypeKey }}" value="{{ $formatKey }}/{{ $domainKey }}/{{ $docTypeKey }}" domain="{{ $domainKey }}" data-icon="fa {{ $format['icon'] }}" data-subtext="{{ $docType['domains'][$domainKey]['count'] }} Items">{{ $docType['label'] }}</option>
+								@endif
+							@endforeach
+						@endforeach
+						@if($domainKey <> 'opendomain')
+							</optgroup>
+						@endif
+					@endforeach
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="doctype" class="col-sm-3 control-label">Document Type</label>
+				<div class="col-sm-3">
+					<select id="doctype" name="doctype" class="selectpicker pull-left show-tick" title="Select a Document Type" data-container="body">
+						<option data-hidden="true"></option>
+					@foreach($uniqueDocTypes as $doctypeKey => $doctype)
+						<option value="{{ $doctypeKey }}">{{ $doctype }}</option>
+					@endforeach
+					</select>
+				</div>
+
+				<div class="col-sm-4">
+					<input type="text" name="new_doctype" id="new_doctype" class="form-control" placeholder="New Document Type" />
+				</div>
+			</div>
+
+
+			<div class="form-group">
+				<label for="domain" class="col-sm-3 control-label">Domain</label>
+				<div class="col-sm-3">
+					<select id="domain" name="domain" class="selectpicker pull-left show-tick" data-show-subtext="true" data-container="body">
+						<option value='opendomain' data-subtext="(open domain)">None</option>
+						<option data-divider="true"></option>
+					@foreach($uniqueDomains as $domainKey => $domain)
+						@if($domainKey <> 'opendomain')
+							<option value="{{ $domainKey }}">{{ $domain }}</option>
+						@endif
+					@endforeach
+					</select>
+				</div>
+
+				<div class="col-sm-4">
+					<input type="text" name="new_domain" id="new_domain" class="form-control" placeholder="New Domain" />
+				</div>
+			</div>
+			
+			
+		</div>
+	</div>
+	
+	<div class="panel-footer">
+		{{ Form::button('Add Media', array('type' => 'submit', 'value' => 'upload', 'class' => 'btn btn-primary pull-right')) }} 
+		<div class='clearfix'></div>
+	</div>
+
+		{{ Form::close() }}				
+</div>
 	
 {{ Form::open(array('action' => 'preprocess\TextController@postConfigure', 'name' => 'docPreviewForm', 'id' => 'docPreviewForm' )) }}
 {{ Form::hidden('URI', $URI) }}
 {{ Form::hidden('postAction', 'tableView') }}
+
+
+
+
 <div class="panel panel-default">
 	<div class="panel-heading">
 		File settings
@@ -504,7 +595,12 @@
 <script>
 	// TODO: Couldn't this be added dynamically? 
 	$(document).ready(function(){
-		$('.selectpicker').selectpicker();
+		
+		$('.selectpicker').selectpicker({
+			iconBase: 'fa',
+			tickIcon: 'fa-check'
+		});
+		
 		$("#root_newProp").click(function(){
 		  newPropertyAction("root");
 		});
