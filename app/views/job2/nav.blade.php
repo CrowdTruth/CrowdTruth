@@ -33,13 +33,246 @@
 {{ stylesheet_link_tag('bootstrap-select.css') }}
 
 <script>
+
+
 $(document).ready(function(){
+	
+var all = [];
+var options = $('#multiselBatchCol option');
+all = $.map(options ,function(option) {
+ 		return option.value;
+	});
+
+var defValues = [];
+var currentValues = [];
+for (var i = 0; i < all.length; i ++) {
+  	defValues[all[i]] = all[i];
+  	currentValues[all[i]] = all[i];
+  	var str = "";
+ 	for (x in currentValues) {
+    	str += x + " - " + currentValues[x] + ",";
+	}
+	$("#newcolnames").val(str);
+}
+
 	$("#processtabs > li").click(function(event){
 		if($(".jobconf").prop("action").length > 0) {
 			event.preventDefault();
 	       $(".jobconf").prop("action", "/jobs2/form-part/" + $(this).prop('title')).submit();
 		}
 	});
+
+	$('#multiselBatchCol').selectpicker();
+	$('#multiselBatchCol').selectpicker('refresh');
+
+	$('#selectAll').click(function() {
+		$('#multiselBatchCol option').prop("selected", true);
+		$('#multiselBatchCol').selectpicker('refresh');
+
+		for (var i = 0; i < all.length; i ++) {
+
+			var object = $("#" +  all[i] + "_label");
+			if (object.length <= 0) {
+	    		var labelField = $("<label>").text(all[i]).attr("id", all[i] + "_label");
+				var inputField = $("<input>").attr("type", "text").attr("data-toggle", "tooltip").attr("data-placement", "top")
+					.attr("title", "Only numbers, letters and '_' are allowed").attr("name", all[i]).attr("id", all[i]).attr("class", "form-control newNames").attr("value", all[i]).
+			 			bind("focus", function(event) {
+        					if($(this).val() == defValues[$(this).attr("name")]) {
+             					$(this).val("");
+        					}
+    					}).blur(function(){
+        					if($(this).val().length == 0) {
+       				            $(this).val(defValues[$(this).attr("name")]);
+       				            currentValues[this.name] = this.name;
+								var str = "";
+       				            for (x in currentValues) {
+    								str += x + " - " + currentValues[x] + ",";
+								}
+							
+       				        $("#newcolnames").val(str);
+       				            console.log($("#newcolnames").val());
+       				    		//	console.log(currentValues);
+       						}
+    					}).bind("change keyup input",function() { 
+    					// if there is a bad char 
+	    					if (this.value.match(/[^a-zA-Z0-9_]/g)) { // replace it with nothing     
+	    						this.value = this.value.replace(/[^a-zA-Z0-9_]/g, '');     
+	    					} 
+	    					currentValues[this.name] = this.value;
+	    					var str = "";
+       				           for (x in currentValues) {
+    								str += x + " - " + currentValues[x] + ",";
+								}
+							
+       				        $("#newcolnames").val(str);
+       				        console.log($("#newcolnames").val());
+
+	    				//	console.log($("#newcolnames").val(currentValues));
+	    				//	console.log(currentValues);
+    					});
+
+				inputField.appendTo(labelField);
+		 		$('#placeholderNewNames').append(labelField);
+		 	}   	
+		}
+    });
+
+    $('#deselectAll').click(function() {
+		$('#multiselBatchCol option').prop("selected", false);
+		$('#multiselBatchCol').selectpicker('refresh');
+		
+		for (var i = 0; i < all.length; i ++) {
+			var object = $("#" +  all[i] + "_label");
+			if (object.length > 0) {
+    			$( "#" +  all[i] + "_label" ).remove( "#" +  all[i] );
+    			$( "#" +  all[i] + "_label" ).remove();
+    		}
+		}
+    });
+
+	$('#typeNewType').keyup(function() {
+		if ($('#typeNewType').val() != "" && $('#typeNewType').val() != null) {
+			$('#placeholderReqColumns').removeClass('hidden');
+			$('#placeholderAssociateColumns').addClass('hidden');
+			$('#placeholderExtraColumns').addClass('hidden');
+		}
+		else {
+			$('#placeholderReqColumns').addClass('hidden');
+		}
+	});
+
+	$(':input.newNames[type="text"]').click(function() {
+		alert("bla");
+	});
+	
+
+	$('#multiselBatchCol').change(function() {
+		var valuesSelected = [];
+		$('#multiselBatchCol :selected').each(function(i, selected){ 
+          valuesSelected[i] = $(selected).text(); 
+        });
+		
+		for (var i = 0; i < all.length; i ++) {
+			var found = $.inArray(all[i], valuesSelected);
+			if (found > -1) {
+				var object = $("#" +  all[i] + "_label");
+				if (object.length <= 0) {
+	    			var labelField = $("<label>").text(all[i]).attr("id", all[i] + "_label");
+	    			var default_value = all[i];
+			 		var inputField = $("<input>").attr("type", "text").attr("data-toggle", "tooltip").attr("data-placement", "top")
+					.attr("title", "Only numbers, letters and '_' are allowed").attr("name", all[i]).attr("id", all[i]).attr("class", "form-control newNames").attr("value", all[i]).
+			 			bind("focus", function() {
+        					if($(this).val() == default_value) {
+             					$(this).val("");
+        					}
+    					}).blur(function(){
+        					if($(this).val().length == 0) {/*Small update*/
+       				            $(this).val(default_value);
+       				           currentValues[this.name] = this.name;
+       				           var str = "";
+       				           for (x in currentValues) {
+    								str += x + " - " + currentValues[x] + ",";
+								}
+							
+       				        $("#newcolnames").val(str);
+       				        console.log($("#newcolnames").val());
+       				        //console.log(currentValues);
+       						}
+    					}).bind("change keyup input",function() { 
+    					// if there is a bad char 
+	    					if (this.value.match(/[^a-zA-Z0-9_]/g)) { // replace it with nothing     
+	    						this.value = this.value.replace(/[^a-zA-Z0-9_]/g, ''); 
+	    					} 
+	    					currentValues[this.name] = this.value;
+	    					var str = "";
+	    					for (x in currentValues) {
+    								str += x + " - " + currentValues[x] + ",";
+								}
+	    					
+       				        $("#newcolnames").val(str);
+	    					console.log($("#newcolnames").val());
+	    				//	console.log(currentValues);
+    					}); 
+
+			 		inputField.appendTo(labelField);
+
+			 		$('#placeholderNewNames').append(labelField);
+			 	}
+    		}
+			else {
+    			$( "#" +  all[i] + "_label" ).remove( "#" +  all[i] );
+    			$( "#" +  all[i] + "_label" ).remove();
+    		}
+		}
+	});
+
+	$('#chosenTempType').change(function() {
+		if ($('#chosenTempType').val() != "---" && $('#chosenTempType').val() != "" && $('#chosenTempType').val() != null) {
+			$('#placeholderAssociateColumns').removeClass('hidden');
+			$('#placeholderExtraColumns').removeClass('hidden');
+			//alert($('#bcol').val());
+			var stringColNames = $('#bcol').val();
+			var arrayColNames = stringColNames.split(',');
+			var colNames = [];
+			colNames["---"] = "---";
+			for (var val in arrayColNames) {
+				colNames[arrayColNames[val]] = arrayColNames[val];
+			}
+			var dataString = 'templateType=' + $( '#chosenTempType' ).val();
+			var fields = "";
+			var cmlContent = "";
+			$.ajax({
+                    type: "GET",
+                    url : "/jobs2/template",
+                    data : dataString,
+                    success : function(data){
+                        fields = data["fields"];
+                        fieldsArray = fields.split(",");
+                        cmlContent = data["cml"];
+
+                        var el = document.getElementById('assocColumns');
+						while( el.hasChildNodes() ){
+    						el.removeChild(el.lastChild);
+						}
+
+						var hiddenFieldCount = $("<input>").attr("type", "hidden").attr("id", "tempFieldsCount").attr("name", "tempFields").attr("value", fields);
+    					$('#assocColumns').append(hiddenFieldCount);
+
+                        for (var index = 0; index < fieldsArray.length; ++index) {
+    						console.log(fieldsArray[index]);
+    						var placeholderDiv = $("<div>").attr("class", "col-xs-12").attr("id", fieldsArray[index] + "_" + index);
+    						$('#assocColumns').append(placeholderDiv);
+
+    						var label = $("<label>").attr('id', fieldsArray[index]);   
+							label.html(fieldsArray[index]);
+							$('#' + fieldsArray[index] + "_" + index).append(label);
+    						
+    						var select = $('<select />').attr("class", "selectpicker").attr("id", fieldsArray[index] + "_select").attr("name", fieldsArray[index]).attr("data-width", "100%").attr("data-container", "body").attr("data-toggle", "tooltip");
+    						for(var val in colNames) {
+    							if (colNames[val] == label.html()) {
+    								$('<option />', {value: colNames[val], text: colNames[val], selected: true}).appendTo(select);
+    							}
+    							else {
+ 									$('<option />', {value: colNames[val], text: colNames[val]}).appendTo(select);
+ 								}
+							}
+
+							$('#' + fieldsArray[index] + "_" + index).append(select);
+
+							$('#' + fieldsArray[index] + "_select").selectpicker();
+							$('#' + fieldsArray[index] + "_select").selectpicker('refresh');
+
+						}
+                    }
+			});
+		}
+		else {
+			$('#placeholderAssociateColumns').addClass('hidden');
+		}
+	});
+
+
+	
 
 calculate();
 
