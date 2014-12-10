@@ -7,13 +7,14 @@
 		<meta name="description" content="">
 		<meta name="author" content="">
 		<link rel="shortcut icon" href="/favicon.ico" >
-		<title>CrowdTruth</title>
+		<title>CrowdTruth @if ($__env->yieldContent('title')) - @yield('title') @endif</title>
 		<!--<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>-->
 		{{ stylesheet_link_tag('bootstrap.min.css') }}
 		{{ stylesheet_link_tag('bootstrap-theme.min.css') }}
 		{{ stylesheet_link_tag('font-awesome.min.css') }}
 		{{ stylesheet_link_tag('custom/style.css.scss') }}
 		{{ stylesheet_link_tag('highlight.css') }}
+		{{ stylesheet_link_tag('progress-bar.css') }}
 
 @yield('head')
 	</head>

@@ -13,24 +13,6 @@ class Entity extends Moloquent {
     protected static $unguarded = true;
     public static $snakeAttributes = false;
 
-    public static function getKeyLabelMapping() {
-        return [
-            "relex-structured-sentence" => "Relex-structured sentence",
-            "keyframes" => "Key-frames",
-            "totalrelevantfeatures" => "Relevant Features",
-            "fullvideo" => "Full Video",
-            "metadatadescription" => "Video Description",
-            "annotatedmetadatadescription" => "Annotated Video Description",
-            "documentType" => "Document Type",
-            "painting" => "Painting",
-            "drawing" => "Drawing",
-            "termpairs-sentence" => "Term Pairs",
-            "qa-passages-sentence" => "Question & Answer Passages",
-            "biographynet-sentence" => "BiographyNet passage",
-            "relation" => "Seed Relation"
-        ];
-    }
-
     public function __construct()
     {
         $this->filterResults();

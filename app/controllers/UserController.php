@@ -1,8 +1,8 @@
 <?php
 
-class UserController extends BaseController {
+use \MongoDB\Entity as Entity;
 
-	// Hashed because it might end up on github :-)
+class UserController extends BaseController {
 
 	public function __construct() {
 	   $this->beforeFilter('csrf', array('on'=>'post'));
@@ -32,6 +32,12 @@ class UserController extends BaseController {
 		return Redirect::to('');
 	}
 
+	public function getActivity() {
+
+		$activities = \MongoDB\Activity::getActivities();
+		return View::make('user/activity')->with('activities', $activities);
+	}
+	
 	public function postLogin(){
 	    $userdata = array(
 	        'username' => Input::get('username_or_email'),

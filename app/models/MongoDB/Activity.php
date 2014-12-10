@@ -69,6 +69,12 @@ class Activity extends Moloquent {
 		    $collection->index('softwareAgent_id');
 		});
 	}
+	
+		
+	public static function getActivities()
+    {
+		return Activity::where('user_id', Auth::user()->_id)->get();
+    }
 
     public function wasAssociatedWithUserAgent(){
         return $this->hasOne('User', '_id', 'user_id');
