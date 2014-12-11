@@ -30,7 +30,7 @@
 						@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
 							<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
 							@if($key == 'all')
-								<option data-divider="true"></option>						
+								<option data-divider="true"></option>
 							@endif
 						@endforeach
 					</select>
@@ -47,7 +47,10 @@
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
 							<li><a href="#" class='toSelection'>Save Selection as Batch</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
-							<li><a href="{{ URL::to('media/refreshindex') }}">Refresh search index</a></li>
+						<li role="presentation" class="divider"></li>
+						<li role="presentation" class="dropdown-header">Search Index</li>
+							<li><a href="{{ URL::to('media/listindex') }}">View</a></li>
+							<li><a href="{{ URL::to('media/refreshindex') }}">Refresh</a></li>
 						</ul>
 					</div>
 					<select name="search_limit" data-query-key="limit" class="limit selectpicker pull-right show-tick">

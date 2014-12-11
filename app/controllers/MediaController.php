@@ -74,9 +74,13 @@ class MediaController extends BaseController {
 		return View::make('media.search.pages.refreshindex');
 	}
 
+	/**
+	 * refresh search index
+	 */
 	public function postRefreshindex()
 	{	
-		$batchsize = 500;
+		// amount of units to index per iteration
+		$batchsize = 1000;
 		$from = Input::get('next');
 		$count = Entity::whereIn('tags', ['unit'])->count();
 		
@@ -87,6 +91,7 @@ class MediaController extends BaseController {
 		
 		$allIds = Entity::distinct('_id')->where('tags', ['unit'])->skip($from)->take($batchsize)->get();
 			 
+		// get keys for each unit in this batch
 		$allKeys = [];
 		for($i = 0; $i < $batchsize; $i++) {
 			$e = Entity::where('_id', $allIds[$i][0])->first();
@@ -95,7 +100,6 @@ class MediaController extends BaseController {
 		}
 		$searchComponent = new MediaSearchComponent();
 		$searchComponent->store($allKeys);
-
 			 
 		return [
 			'next' => $from + $batchsize,

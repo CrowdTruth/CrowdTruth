@@ -32,7 +32,6 @@
 										</div>
 									</div>
 									<div class="col-xs-12 text-center">
-										{{ link_to_action('MediaController@getListindex', 'View Index', array(), array('class' => 'btn btn-default', 'target' => '_blank')) }}
 										{{ Form::button('Refresh Index', [ 'id' => 'refreshButton', 'class' => 'btn btn-primary' ]) }}
 									</div>
 								</div>
@@ -48,7 +47,8 @@
 	<script>
 		$('#refreshButton').click(function() {
 			doRebuild(0);
-			$(this).attr('disabled',true);
+			$(this).attr('disabled',true).html('<i class="fa fa-spinner fa-spin"></i> Refreshing');
+			$('.progress-bar').css('width', '1%').attr('aria-valuenow', 1).text('1%');
 		});
 	
 		function doRebuild(nextIndex) {
@@ -62,9 +62,11 @@
 				data: formData,
 				success: function(data) {
 					pct = Math.round((data.next / data.last) * 100);
-					$('.progress-bar').css('width', pct+'%').attr('aria-valuenow', pct).text(pct + '%');;
+					$('.progress-bar').css('width', pct+'%').attr('aria-valuenow', pct).text(pct + '%');
 					if(data.next < data.last) {
 						doRebuild(data.next);
+					} else {
+						$('#refreshButton').text('Complete');
 					}
 				}
 			});
