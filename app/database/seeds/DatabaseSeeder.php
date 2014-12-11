@@ -8,7 +8,10 @@ class DatabaseSeeder extends Seeder {
 		// $this->command->info('Initial framework tables seeded!');
 		
 		$this->call('CountersSeeder');
-		$this->command->info('Counters table seeded!');
+		$this->command->info('Counters collection seeded!');
+		
+		$this->call('SoftwareComponentSeeder');
+		$this->command->info('SoftwareComponent collection seeded!');
 	}
 
 }
