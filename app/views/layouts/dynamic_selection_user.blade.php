@@ -9,7 +9,7 @@
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu pull-right" role="menu">
-            <li><a href="{{ URL::to('/user/activitiy') }}"><i class="fa fa-bar-chart fa-fw"></i> My activity</a></li>
+            <li><a href="{{ URL::to('/user/activity') }}"><i class="fa fa-bar-chart fa-fw"></i> My activity</a></li>
             <li><a href="{{ URL::to('/user/logout') }}"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
         </ul> 
     </div>

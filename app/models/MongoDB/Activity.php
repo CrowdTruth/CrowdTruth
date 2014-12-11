@@ -69,11 +69,13 @@ class Activity extends Moloquent {
 		    $collection->index('softwareAgent_id');
 		});
 	}
-	
-		
-	public static function getActivities()
+
+	/**
+     * Get activity for a user ordered by timestamp
+     */
+	public static function getActivitiesForUser($userId)
     {
-		return Activity::where('user_id', Auth::user()->_id)->get();
+        return Activity::where('user_id', $userId)->orderBy('updated_at', 'desc')->get();
     }
 
     public function wasAssociatedWithUserAgent(){
