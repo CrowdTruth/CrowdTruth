@@ -1,30 +1,4 @@
 @extends('layouts.default_new')
-@section('head')
-	<script>
-		function doRebuild(nextIndex) {
-			console.log('	Rebuild from: ' + nextIndex);
-			$('#next').val(nextIndex);
-			formUrl = $("#theForm").attr("action");
-			formData = $("#theForm").serialize();
-
-			$.ajax({
-				type: "POST",
-				url: formUrl,
-				data: formData,
-				success: function(data) {
-					pct = (data.next / data.last) * 100;
-					pct = Math.round(pct * 100) / 100;
-					msg = "Ready " + pct + "%";
-					$("#status_area").html(msg);
-
-					if(data.next < data.last) {
-						doRebuild(data.next);
-					}
-				}
-			});
-		}
-	</script>
-@stop
 
 @section('content')
 @section('pageHeader', 'Search index')
@@ -37,28 +11,29 @@
 
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h4>Rebuild index</h4>
-								{{ link_to_action('MediaController@getListindex', 'View current index') }}
+								<h4>Refresh Index</h4>
 							</div>
 							<div class="panel-body">
 								{{ Form::open([ 'action' => 'MediaController@postRefreshindex', 'name' => 'theForm', 'id' => 'theForm' ]) }}
 								{{ Form::hidden('next', '0', [ 'id' => 'next' ]) }}
 								<div class="form-horizontal">
-									<div class="form-group">
-										<textarea name="status_area" id="status_area"></textarea> 
-									</div>
-
-									<div class="form-group">
-										<div class="col-sm-offset-3 col-sm-5">
-										{{ Form::button('Rebuild', [ 'onClick' => 'doRebuild(0);', 'class' => 'btn btn-info' ]) }}
-										</div>
-									</div>
-									<div class="form-group col-sm-offset-3 col-sm-5">
-										NOTE: Two big assumptions are made to shrink list size:
+									<div class="col-xs-12">
+										Two big assumptions are made to shrink list size:
 										<ul>
 										<li>withoutSpam, withSpam, withFilter, withoutFilter are ignored</li>
 										<li># sign in field name is ignored</li>
 										</ul>
+									</div>
+									<div class="col-xs-12">
+										<div class="progress">
+											<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+												0% Complete
+											</div>
+										</div>
+									</div>
+									<div class="col-xs-12 text-center">
+										{{ link_to_action('MediaController@getListindex', 'View Index', array(), array('class' => 'btn btn-default', 'target' => '_blank')) }}
+										{{ Form::button('Refresh Index', [ 'id' => 'refreshButton', 'class' => 'btn btn-primary' ]) }}
 									</div>
 								</div>
 								{{ Form::close() }}
@@ -67,4 +42,32 @@
 					</div>
 				</div>
 				<!-- STOP upload_content --> 				
+@stop
+
+@section('end_javascript')
+	<script>
+		$('#refreshButton').click(function() {
+			doRebuild(0);
+			$(this).attr('disabled',true);
+		});
+	
+		function doRebuild(nextIndex) {
+			$('#next').val(nextIndex);
+			formUrl = $("#theForm").attr("action");
+			formData = $("#theForm").serialize();
+
+			$.ajax({
+				type: "POST",
+				url: formUrl,
+				data: formData,
+				success: function(data) {
+					pct = Math.round((data.next / data.last) * 100);
+					$('.progress-bar').css('width', pct+'%').attr('aria-valuenow', pct).text(pct + '%');;
+					if(data.next < data.last) {
+						doRebuild(data.next);
+					}
+				}
+			});
+		}
+	</script>
 @stop

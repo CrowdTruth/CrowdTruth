@@ -39,7 +39,8 @@
 							<div class="panel-heading">
 								<h4>Current search index</h4>
 							</div>
-							<div class="panel-body">							
+							<div class="panel-body">
+								@if($labels)
 								<table class='table table-striped table-condensed'>
 									<tbody>
 										<tr>
@@ -55,6 +56,9 @@
 									@endforeach
 									</tbody>
 								</table>
+								@else
+									The index is empty.
+								@endif
 							</div>
 						</div>
 					</div>
