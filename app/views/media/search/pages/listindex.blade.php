@@ -1,30 +1,4 @@
 @extends('layouts.default_new')
-@section('head')
-	<script>
-		function doRebuild(nextIndex) {
-			console.log('	Rebuild from: ' + nextIndex);
-			$('#next').val(nextIndex);
-			formUrl = $("#theForm").attr("action");
-			formData = $("#theForm").serialize();
-
-			$.ajax({
-				type: "POST",
-				url: formUrl,
-				data: formData,
-				success: function(data) {
-					pct = (data.next / data.last) * 100;
-					pct = Math.round(pct * 100) / 100;
-					msg = "Ready " + pct + "%";
-					$("#status_area").html(msg);
-
-					if(data.next < data.last) {
-						doRebuild(data.next);
-					}
-				}
-			});
-		}
-	</script>
-@stop
 
 @section('content')
 @section('pageHeader', 'Search index')
@@ -45,12 +19,14 @@
 									<tbody>
 										<tr>
 											<th>Key</th>
-											<th>Name</th>
+											<th>Label</th>
+											<th>Type</th>
 										</tr>
 									@foreach($labels as $key=>$label)
 										<tr>
 											<td>{{ $key }}</td>
 											<td>{{ $label }}</td>
+											<td>{{ $types[$key] }}</td>
 										</tr>
 
 									@endforeach

@@ -38,6 +38,7 @@ class SoftwareComponentSeeder extends Seeder {
 				function( &$component ) {
 					$component['keys'] = [];
 					$component['keyLabels'] = [];
+					$component['keyTypes'] = [];
 				}
 		);
 		}
