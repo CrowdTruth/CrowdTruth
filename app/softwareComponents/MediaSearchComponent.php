@@ -24,7 +24,8 @@ class MediaSearchComponent {
 		foreach($keys as $key) {
 			if( ! array_key_exists($key, $labels)) {
 				$key2 = str_replace(".", "_", $key);
-				$labels[$key2] = $key;
+				$label = str_replace("_", " ", $key2);
+				$labels[$key2] = ucfirst($label);
 			}
 		}
 		$this->softwareComponent['keys'] = $allKeys;

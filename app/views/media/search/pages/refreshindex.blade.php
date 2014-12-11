@@ -66,7 +66,7 @@
 					if(data.next < data.last) {
 						doRebuild(data.next);
 					} else {
-						$('#refreshButton').text('Complete');
+						window.location="{{ URL::to('media/listindex') }}";
 					}
 				}
 			});
