@@ -35,11 +35,36 @@
 						@endforeach
 					</select>
 				@endif
-
-					<div class='options pull-left'>
+				
+					<div class='columns btn-group pull-left' style="margin-left:5px";>
+						<select class="selectpicker show-tick" multiple title="Select columns" data-live-search="true" style="display: none;">
+							<optgroup data-icon="fa fa-flag" label="Default">
+								<option value="id" class="select_id">ID</option>
+								<option value="format" class="select_format">Format</option>
+								<option value="domain" class="select_domain">Domain</option>
+								<option value="title" class="select_title">File Name</option>
+								<option value="created_at" class="select_created_by">Created At</option>
+								<option value="created_by" class="select_created_at">Created By</option>
+							</optgroup>
+							<optgroup data-icon="fa fa-calendar" label="Time">
+								@foreach($keys['date'] as $key => $label)
+									<option value="{{$key}}" class="select_{{$key}}">{{ $label }}</option>
+								@endforeach
+							</optgroup>
+							<optgroup data-icon="fa fa-bar-chart" label="Numbers">
+								@foreach($keys['int'] as $key => $label)
+									<option value="{{$key}}" class="select_{{$key}}">{{ $label }}</option>
+								@endforeach
+							</optgroup>
+							<optgroup data-icon="fa fa-file-text-o" label="Names">
+								@foreach($keys['string'] as $key => $label)
+									<option value="{{$key}}" class="select_{{$key}}">{{ $label }}</option>
+								@endforeach
+							</optgroup>
+						</select>
 					</div>
 
-					<div class="actions btn-group pull-left" style="margin-left:5px";>
+					<div class="actions btn-group pull-left" style="margin-left:5px">
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						Actions <span class="caret"></span>
 						</button>
@@ -246,7 +271,11 @@ $('document').ready(function(){
 
 Swag.registerHelpers();
 
-$('.selectpicker').selectpicker();
+$('.selectpicker').selectpicker({
+    iconBase: 'fa',
+    tickIcon: 'fa-check'
+});
+
 var xhr;
 var unitsChart;
 var oldTabKey;

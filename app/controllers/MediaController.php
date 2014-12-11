@@ -225,7 +225,39 @@ class MediaController extends BaseController {
 	public function getSearch()
 	{
 		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
-		return View::make('media.search.pages.media', compact('mainSearchFilters'));
+		
+		// include keys
+		$searchComponent = new MediaSearchComponent();
+		$labels = $searchComponent->getKeyLabels();
+		$types = $searchComponent->getKeyTypes();
+		
+		// group keys per type
+		$keys = array(
+			'string' => array(),
+			'int' => array(),
+			'date' => array()
+			);
+			
+		// list with default keys
+		$default = ['_id', 'format', 'domain', 'title', 'created_at', 'created_by'];
+	
+		foreach ($types as $key => $value){
+			if(!in_array($key, $default)) {
+				switch($value) {
+					case 'string':
+						$keys['string'][$key] = $labels[$key];
+						break;
+					case 'int':
+						$keys['int'][$key] = $labels[$key];
+						break;
+					case 'date':
+						$keys['date'][$key] = $labels[$key];
+						break;					
+				}
+			}
+		}
+
+		return View::make('media.search.pages.media')->with('mainSearchFilters', $mainSearchFilters)->with('keys', $keys);
 	}
 
 	public function anyBatch()

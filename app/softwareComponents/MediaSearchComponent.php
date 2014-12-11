@@ -37,7 +37,7 @@ class MediaSearchComponent {
 				// determine type
 				if(strpos($key2, '_count') !== false) {
 					$types[$key2] = 'int'; // integer
-				} else if(strpos($key2, '_at') !== false) {
+				} else if(stripos(strrev($key2), '_at') === 0 || strpos($key2, 'date') !== false ) {
 					$types[$key2] = 'date'; // date
 				} else {
 					$types[$key2] = 'string'; // string
