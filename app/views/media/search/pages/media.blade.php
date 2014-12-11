@@ -37,14 +37,14 @@
 				@endif
 				
 					<div class='columns btn-group pull-left' style="margin-left:5px";>
-						<select class="selectpicker show-tick" multiple title="Select columns" data-live-search="true" style="display: none;">
+						<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" style="display: none;">
 							<optgroup data-icon="fa fa-flag" label="Default">
-								<option value="id" class="select_id">ID</option>
-								<option value="format" class="select_format">Format</option>
-								<option value="domain" class="select_domain">Domain</option>
-								<option value="title" class="select_title">File Name</option>
-								<option value="created_at" class="select_created_by">Created At</option>
-								<option value="created_by" class="select_created_at">Created By</option>
+								<option value="id" class="select_id" selected>ID</option>
+								<option value="format" class="select_format" selected>Format</option>
+								<option value="domain" class="select_domain" selected>Domain</option>
+								<option value="title" class="select_title" selected>Filename</option>
+								<option value="created_at" class="select_created_by" selected>Created At</option>
+								<option value="created_by" class="select_created_at" selected>Created By</option>
 							</optgroup>
 							<optgroup data-icon="fa fa-calendar" label="Time">
 								@foreach($keys['date'] as $key => $label)
@@ -275,7 +275,6 @@ $('.selectpicker').selectpicker({
     iconBase: 'fa',
     tickIcon: 'fa-check'
 });
-
 var xhr;
 var unitsChart;
 var oldTabKey;
