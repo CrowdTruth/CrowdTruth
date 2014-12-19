@@ -42,9 +42,13 @@
 								<option value="id" class="select_id" selected>ID</option>
 								<option value="format" class="select_format" selected>Format</option>
 								<option value="domain" class="select_domain" selected>Domain</option>
+								<option value="documentType" class="select_documentType" selected>Type</option>
 								<option value="title" class="select_title" selected>Filename</option>
 								<option value="created_at" class="select_created_by" selected>Created At</option>
 								<option value="created_by" class="select_created_at" selected>Created By</option>
+								<option value="batches" class="select_batches" selected>Batches</option>
+								<option value="jobs" class="select_jobs" selected>Jobs</option>
+								<option value="clarity" class="select_clarity" selected>Clarity</option>
 							</optgroup>
 							<optgroup data-icon="fa fa-calendar" label="Time">
 								@foreach($keys['date'] as $key => $label)
@@ -102,12 +106,86 @@
 				</div>
 				<div class='col-xs-12 searchResults'>
 					<div class="tab-content documentTypesTabs">
-						@include('media.search.layouts.hb-all')
-						
-						@include('media.search.layouts.hb-modalindividualworker')
-						@include('media.search.layouts.hb-modalworkerunits')
-						@include('media.search.layouts.hb-modalindividualjob')
 
+
+						<div class='ctable-responsive'>		
+							<table class="table table-striped">
+								<thead data-query-key="" data-query-value="">
+									<tr>
+										<th data-vbIdentifier="checkbox">Select</th>
+
+										<th class="sorting" data-vbIdentifier="id" data-query-key="orderBy[_id]">ID</th>
+										<th class="sorting" data-vbIdentifier="title" data-query-key="orderBy[title]" data-toggle="tooltip" data-placement="top" title="Upload file name">File Name</th>
+										<th class="sorting" data-vbIdentifier="format" data-query-key="orderBy[format]">Format</th>
+										<th class="sorting" data-vbIdentifier="domain" data-query-key="orderBy[domain]">Domain</th>
+										<th class="sorting" data-vbIdentifier="documentType" data-query-key="orderBy[documentType]">Document-Type</th>
+										<th class="sorting" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]">Created</th>
+										<th class="sorting" data-vbIdentifier="created" data-query-key="orderBy[user_id]">Created by</th>
+										<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]" data-toggle="tooltip" data-placement="top" title="Number of batches the sentence was used in">Batches</th>
+										<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[cache.jobs.count]" data-toggle="tooltip" data-placement="top" title="Number of jobs the sentence was used in">Jobs</th>     
+										<th class="sorting whiteSpaceNormal" data-vbIdentifier="clarity" data-query-key="orderBy[avg_clarity]" data-toggle="tooltip" data-placement="top" title="Clarity of the results">Clarity</th>     
+										<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_children" data-query-key="orderBy[cache.children.count]" data-toggle="tooltip" data-placement="top" title="The number of units generated from this unit">Children</th>
+										<th class="sorting whiteSpaceNormal" data-vbIdentifier="parents"  data-toggle="tooltip" data-placement="top" title="The units from which this media unit was created">Parents</th>
+
+
+									</tr>
+
+									<tr class="inputFilters">
+										<td>
+											<input type="checkbox" class="checkAll" />
+										</td>
+										<td>
+											<input class="input-sm form-control" type='text' data-query-key="match[_id]" data-query-operator="like" />
+										</td>
+										<td data-vbIdentifier="title">
+											<input class="input-sm form-control" type='text' data-query-key="match[title]" data-query-operator="like" />
+										</td>
+										<td>
+											<input class="input-sm form-control" type='text' data-query-key="match[format]" data-query-operator="like" />
+										</td>
+										<td>
+											<input class="input-sm form-control" type='text' data-query-key="match[domain]" data-query-operator="like" />
+										</td>
+										<td>
+											<input class="input-sm form-control" type='text' data-query-key="match[documentType]" data-query-operator="like" />
+										</td>
+										<td data-vbIdentifier="created_at">
+											<div class="input-daterange">
+												<input type="text" class="input-sm form-control" name="start" data-query-key="match[created_at]" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />
+												<input type="text" class="input-sm form-control" name="end" data-query-key="match[created_at]" data-query-operator="=<" style="width:49% !important; float:right;" placeholder="End Date" />
+											</div>
+										</td>
+										<td>
+											<input class="input-sm form-control" type='text' data-query-key="match[user_id]" data-query-operator="like" />
+										</td>
+										<td data-vbIdentifier="number_of_batches">
+											<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+											<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+										</td>
+										<td data-vbIdentifier="number_of_jobs">
+											<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+											<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+										</td>
+										<td data-vbIdentifier="clarity">
+											<input class="input-sm form-control" type='text' data-query-key="match[avg_clarity]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+											<input class="input-sm form-control" type='text' data-query-key="match[avg_clarity]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+										</td>
+										 <td data-vbIdentifier="number_of_children">
+											<input class="input-sm form-control" type='text' data-query-key="match[cache.children.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+											<input class="input-sm form-control" type='text' data-query-key="match[cache.children.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
+										</td>
+
+										<td data-vbIdentifier="parents">
+											<input class="input-sm form-control" type='text' data-query-key="match[parents][]" />
+										</td>
+
+									</tr>											        
+								</thead>
+								<tbody class='results'>											
+								</tbody>
+							</table>
+						</div>	
+						
 						<div class='status text-center'>
 							<div class='loading'>
 								<i class="fa fa-spinner fa-spin fa-4x"></i><br /><br />Loading
@@ -275,6 +353,7 @@ $('.selectpicker').selectpicker({
     iconBase: 'fa',
     tickIcon: 'fa-check'
 });
+
 var xhr;
 var unitsChart;
 var oldTabKey;
@@ -282,11 +361,6 @@ var selectedRows = [];
 var templates = {};
 var defaultColumns = {};
 var lastQueryResult;
-
-// depricated function, needs to be removed
-var getActiveTabKey = function(){
-	return '#' + $('.tab-pane.active').attr('id');
-}
 
 var getSearchLimitValue = function(){
 	return $('.search .limit').val();
@@ -372,8 +446,7 @@ $('body').on('keyup', '.inputFilters input', function(){
 	var inputFilter = $(this);
 
 	delay(function(){
-		var activeTabKey = getActiveTabKey();
-		selectedRows[activeTabKey] = [];
+		selectedRows = [];
 		inputFilter.attr('data-query-value', inputFilter.val());
 
 		if(inputFilter.val() == "")
@@ -381,23 +454,6 @@ $('body').on('keyup', '.inputFilters input', function(){
 
 	 	getResults();
 	}, 300);
-});
-
-$('body').on('click', '.checkAll', function(){
-	var activeTabKey = getActiveTabKey();
-	if (! $(this).is(':checked')) {
-		$(activeTabKey + ' input[name=rowchk]').each(function(){
-			if ($(this).is(':checked')) {
-				$(this).click();
-			}
-		});
-	} else {
-		$(activeTabKey + ' input[name=rowchk]').each(function(){
-			if (!$(this).is(':checked')) {
-				$(this).click();
-			}
-		});
-	}
 });
 
 $('body').on('click', 'input[name=rowchk]', function(event){
@@ -413,43 +469,9 @@ $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
 	$('.searchOptions .tabOptions > *').appendTo('.tab-pane.active .tabOptions');
 });
 
-$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-	var activeTabKey = getActiveTabKey();
-
-	// if($(this).attr('href') == "#all_tab")
-	// 	return false;
-
-	$(activeTabKey + ' .tabOptions > *').appendTo('.searchOptions .tabOptions');
-
-	if($(this).closest('li').hasClass('active')){
-		// $('.specificFilters').empty().append($('.tab-pane.active .specificFilterOptions'));
-		// $('.cw_specificFilters').removeClass('hidden');
-		if(templates[activeTabKey] == undefined)
-		{
-			getResults();
-		}
-	}
-
-	initializeSpecificFilter();
-});
-
-$('body').on('click', '.specificFilterOptions button', function(){
-	$(this).siblings().removeClass('btn-info active').addClass('btn-default');
-	$(this).removeClass('btn-default').addClass('btn-info active');
-
-	var html = $(this).parent().html();
-	var selector = $(this).parent().attr('id');
-	$('.searchOptions .tabOptions #' + selector).empty().append(html);
-
-	var activeTabKey = getActiveTabKey();
-	selectedRows[activeTabKey] = [];
-	getResults();
-});
-
 $('body').on('click', '.toSelection', function(){
-	var activeTabKey = getActiveTabKey();
 
-	if(typeof selectedRows[activeTabKey] == 'undefined' || selectedRows[activeTabKey].length < 1){
+	if(typeof selectedRows == 'undefined' || selectedRows.length < 1){
 		event.preventDefault();
 		alert('Please make a selection first');
 	} else {
@@ -460,7 +482,7 @@ $('body').on('click', '.toSelection', function(){
 		var form = $('<form action="{{ URL::action("MediaController@anyBatch") }}" method="post"></form>');
 		$('body').append(form);
 
-		$.each(selectedRows[activeTabKey], function(index, value){
+		$.each(selectedRows, function(index, value){
 			form.append($('<input type="checkbox" name="selection[]" value="' + value + '" checked >'))
 		});
 
@@ -535,53 +557,45 @@ $('.input-daterange input').on('changeDate', function(e) {
 });
 
 var updateSelection = function(id) {
-	var activeTabKey = getActiveTabKey();
 
-	if (typeof selectedRows[activeTabKey] == 'undefined') {
-		selectedRows[activeTabKey] = [];
+	if (typeof selectedRows == 'undefined') {
+		selectedRows = [];
 	}
 
 	if(id !== undefined)
 	{
-	    if(jQuery.inArray(id, selectedRows[activeTabKey]) != -1) {
-			selectedRows[activeTabKey] = $.grep(selectedRows[activeTabKey], function(value) {
+	    if(jQuery.inArray(id, selectedRows) != -1) {
+			selectedRows = $.grep(selectedRows, function(value) {
 			  return value != id;
 			});			
 	    } else {
-			selectedRows[activeTabKey].push(id);
+			selectedRows.push(id);
 	    }
 	}
 
     $("input[name=rowchk]").each(function(){
     	var val = $(this).attr('value');
 
-        if(jQuery.inArray(val, selectedRows[activeTabKey]) != -1) {
+        if(jQuery.inArray(val, selectedRows) != -1) {
 			$(this).prop("checked", true);
         } else {
         	$(this).prop("checked", false);
         }
     });
 
-    // console.dir(selectedRows[activeTabKey]);
 }
 
 var getSelection = function() {
-	var activeTabKey = getActiveTabKey();
 
-	if (typeof selectedRows[activeTabKey] != 'undefined') {
-		return selectedRows[activeTabKey];
+	if (typeof selectedRows != 'undefined') {
+		return selectedRows;
 	}
 
 	return [];
 }
 
 function getTabFieldsQuery(){
-	var activeTabKey = getActiveTabKey();
 	var tabFieldsQuery = '';
-
-	if(activeTabKey == "#all_tab"){
-		tabFieldsQuery = getGeneralFilterQueries();
-	}
 
 	var documentType = $('.search .documentType option:selected').val();
 	var operator = '=';
@@ -611,7 +625,6 @@ function getResults(baseApiURL){
 		var baseApiURL = '{{ URL::to("api/search?noCache") }}';
 	}
 
-	var activeTabKey = getActiveTabKey();
 	var searchLimitQuery = "&limit=" + getSearchLimitValue();
 	var tabFieldsQuery = getTabFieldsQuery();
 
@@ -623,18 +636,27 @@ function getResults(baseApiURL){
 		// console.log(data);
 
 		lastQueryResult = data;
-
-		if(templates[activeTabKey] == undefined)
-		{
-			templates[activeTabKey] = $(activeTabKey).find('.template').html();
-			defaultColumns[activeTabKey] = $('.searchOptions').find(".vbColumns").html();
-		}
-		
-		var template = Handlebars.compile(templates[activeTabKey]);
+	
+		var temp = '					<script type="text/x-handlebars-template"><tr><td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>' +
+											'<td data-vbIdentifier="id">@{{ this._id }}</td>' +
+											'<td data-vbIdentifier="title">@{{ this.title }}</td>' +
+											'<td data-vbIdentifier="format">@{{ this.format }}</td>' +
+											'<td data-vbIdentifier="domain">@{{ this.domain }}</td>' +
+											'<td data-vbIdentifier="documentType">@{{ this.documentType }}</td>' +
+											'<td data-vbIdentifier="created_at">@{{ this.created_at }}</td>'	+
+											'<td data-vbIdentifier="user_id">@{{ highlightSelf this.user_id }}</td>' +
+											'<td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>' +
+											'<td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>' +
+											'<td data-vbIdentifier="clarity">@{{ this.avg_clarity }}</td>' +
+											'<td data-vbIdentifier="number_of_children">@{{ this.cache.children.count }}</td>' +
+											'<td data-vbIdentifier="parents">@{{ this.parents }}</td></tr></script>';
+											
+		var template = Handlebars.compile(temp);
 		var html = template(data);
+		console.log(html);
 		$('.navigation').empty().prepend($(data.pagination));
 		$('.navigation').find('.pagination').addClass('pagination-sm');
-		
+		console.log(html);
 		$('.search .results').empty().append(html);
 		$('.search .results').show('slow');
 		
@@ -643,25 +665,10 @@ function getResults(baseApiURL){
 		var searchStats = searchStats(data);
 		$('.search .stats').html(searchStats);
 
-		// $(activeTabKey + ' .hb_popover').popover({
-		// 	placement : "left",
-		// 	html : true,
-		// 	trigger : "hover",
-		// 	title : "default",
-		// 	content : function(){ return $(this).find('.hidden').html() },
- 	// 		container: 'body',
-  //           template: '<div class="popover popover-medium"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'
-		// });
-
-		if(templates[activeTabKey + 'date'] == undefined)
-		{
-			templates[activeTabKey + 'date'] = activeTabKey + 'date';
-		} else {
-			// alert(templates[activeTabKey + 'date']);
-		}
-
-		initializeVisibleColumns();
-		visibleColumns();
+		
+		
+		// initializeVisibleColumns();
+		// visibleColumns();
 
 
 		if($('.graphViewButton').hasClass('hidden')){
