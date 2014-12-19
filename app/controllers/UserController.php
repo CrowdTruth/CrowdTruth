@@ -13,21 +13,21 @@ class UserController extends BaseController {
 		return Redirect::to('user/login');
 	}
 
-	public function getLogin(){
+	public function login(){
 		if(Auth::check())
 			return Redirect::to('/');
 
 		return View::make('user/login');
 	}
 
-	public function getRegister(){
+	public function register(){
 		if(Auth::check())
 			return Redirect::to('/');
 					
 		return View::make('user/register');
 	}
 
-	public function getLogout(){
+	public function logout(){
 		Cart::destroy();
 		Auth::logout();
 		return Redirect::to('');

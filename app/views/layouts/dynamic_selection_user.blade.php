@@ -9,13 +9,18 @@
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu">
-            <li><a href="{{ URL::to('/user/profile') }}"><i class="fa fa-user fa-fw"></i> Profile</a></li>
-			<li><a href="{{ URL::to('/user/activity') }}"><i class="fa fa-bar-chart fa-fw"></i> Activity</a></li>
-            <li><a href="{{ URL::to('/user/settings') }}"><i class="fa fa-gears fa-fw"></i> Settings</a></li>
-            <li><a href="{{ URL::to('/user/logout') }}"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
+            <li role="presentation"><a href="{{ URL::to('/user/profile') }}"><i class="fa fa-user fa-fw"></i> Profile</a></li>
+			<li role="presentation"><a href="{{ URL::to('/user/activity') }}"><i class="fa fa-bar-chart fa-fw"></i> Activity</a></li>
+            <li role="presentation"><a href="{{ URL::to('/user/settings') }}"><i class="fa fa-gears fa-fw"></i> Settings</a></li>
+			<li role="presentation" class="divider"></li>
+			<li role="presentation" class="dropdown-header">Administration</li>
+			<li role="presentation" class="disabled"><a href="{{ URL::to('/users') }}"><i class="fa fa-list-ol fa-fw"></i> Users</a></li>
+			<li role="presentation" class="disabled"><a href="{{ URL::to('/groups') }}"><i class="fa fa-list-ol fa-fw"></i> Groups</a></li>
+			<li role="presentation" class="divider"></li>
+            <li role="presentation"><a href="{{ URL::to('logout') }}"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
         </ul> 
     </div>
     @else
-       {{ link_to('user/login', "Log in", array("class" => "btn btn-primary")) }}
+       {{ link_to('login', "Log in", array("class" => "btn btn-primary")) }}
     @endif
 </div>

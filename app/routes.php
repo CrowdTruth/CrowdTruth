@@ -233,6 +233,10 @@ Route::controller('api/search', '\Api\search\apiController');
 Route::controller('api/actions', '\Api\actions\apiController');
 Route::controller('api/analytics', '\Api\analytics\apiController');
 
+Route::get('login', 'UserController@login');
+Route::get('register', 'UserController@register');
+Route::get('logout', 'UserController@logout');
+
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
 Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));
 
