@@ -1,26 +1,90 @@
 @extends('layouts.default_new')
 @section('title','Activity')
 @section('content')
-			<!-- START /index --> 			
-			<div class="col-xs-12 col-md-8 col-md-offset-2">
-				<div class='maincolumn CW_box_style'>
-					@include('layouts.flashdata')	
-					<div class="page-header text-center" style="margin:10px;">
-						<h2><i class="fa fa-gears"></i> Profile</h2>
+
+<div class="col-xs-12 col-md-10 col-md-offset-1">
+	<div class='maincolumn CW_box_style'>
+
+		<div class='tab'>
+			@include('user.nav')
+			@include('layouts.flashdata')
+			<div>
+
+				{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postFormPart', 'submit'), 'method' => 'POST'))}}
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						Profile settings
 					</div>
-					<div class="row">
-						<div class="col-xs-12">
-							@include('user.nav')
+					<div class="panel-body">
+						<div class="form-group">
+							{{ Form::label('useHeaders', 'Username', [ 'class' => 'col-xs-3 control-label' ]) }}
+							<div class='col-xs-3'>
+								<p class="form-control-static">{{ Auth::User()->_id }}</p>
+							</div>
 						</div>
-						<div class="col-xs-10 col-xs-offset-1"  style="padding-bottom:40px; padding-top:20px">
+						<div class="form-group">
+							{{ Form::label('name', 'Name', [ 'class' => 'col-xs-3 control-label' ]) }}
+							<div class='col-xs-3'>
+								{{ Form::text('name', null, array('class' => 'form-control', 'placeholder' => 'Firstname')) }}
+							</div>
+							<div class='col-xs-4'>
+								{{ Form::text('name', null, array('class' => 'form-control', 'placeholder' => 'Lastname')) }}
+							</div>
 						</div>
+						<div class="form-group">
+							{{ Form::label('email', 'Email', [ 'class' => 'col-xs-3 control-label' ]) }}
+							<div class='col-xs-5'>
+								{{ Form::text('email', null, array('class' => 'form-control', 'placeholder' => 'Email')) }}
+							</div>
+						</div>
+						<div class="form-group">
+							{{ Form::label('email', 'Groups', [ 'class' => 'col-xs-3 control-label' ]) }}
+							<div class='col-xs-3'>
+							</div>
+						</div>
+					</div>
+					<div class="panel-footer">
+						{{ Form::submit('Save', array('class' => 'btn btn-primary pull-right')); }}
+						<div class='clearfix'></div>
 					</div>
 				</div>
+
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						Change Password
+					</div>
+					<div class="panel-body">
+						<div class="form-group">
+							{{ Form::label('name', 'Current Password', [ 'class' => 'col-xs-3 control-label' ]) }}
+							<div class='col-xs-4'>
+								{{ Form::password('name', array('class' => 'form-control', 'placeholder' => 'Current Password')) }}
+							</div>
+						</div>
+						<div class="form-group">
+							{{ Form::label('newpassword', 'New Password', [ 'class' => 'col-xs-3 control-label' ]) }}
+							<div class='col-xs-4'>
+								{{ Form::password('newpassword', array('class' => 'form-control', 'placeholder' => 'New Password')) }}
+							</div>
+						</div>
+						<div class="form-group">
+							{{ Form::label('newpassword', 'Repeat New Password', [ 'class' => 'col-xs-3 control-label' ]) }}
+							<div class='col-xs-4'>
+								{{ Form::password('newpassword', array('class' => 'form-control', 'placeholder' => 'Repeat Password')) }}
+							</div>
+						</div>
+					</div>
+					<div class="panel-footer">
+						{{ Form::submit('Change', array('class' => 'btn btn-primary pull-right')); }}
+						<div class='clearfix'></div>
+					</div>
 				</div>
 			</div>
-			<style type="text/css">
-			.paperlist li {
-				padding-bottom: 10px;
-			}
-			</style>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+.paperlist li {
+	padding-bottom: 10px;
+}
+</style>
 @stop

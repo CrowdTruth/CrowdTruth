@@ -2,25 +2,42 @@
 @section('title','Activity')
 @section('content')
 			<!-- START /index --> 			
-			<div class="col-xs-12 col-md-8 col-md-offset-2">
-				<div class='maincolumn CW_box_style'>
-					@include('layouts.flashdata')	
-					<div class="page-header text-center" style="margin:10px;">
-						<h2><i class="fa fa-user"></i> Profile</h2>
-					</div>
-					<div class="row">
-						<div class="col-xs-12">
-							@include('user.nav')
-						</div>
-						<div class="col-xs-10 col-xs-offset-1"  style="padding-bottom:40px; padding-top:20px">
-						</div>
+<div class="col-xs-12 col-md-10 col-md-offset-1">
+	<div class='maincolumn CW_box_style'>
+
+		<div class='tab'>
+			@include('user.nav')
+			@include('layouts.flashdata')
+			<div class='form-horizontal'>
+				<div class='row'>
+					{{ Form::label('name', 'Username', [ 'class' => 'col-xs-4 control-label' ]) }}
+					<div class='col-xs-8'>
+						<p class="form-control-static">{{ Auth::User()->_id }}</p>
 					</div>
 				</div>
+				<div class='row'>
+					{{ Form::label('name', 'Name', [ 'class' => 'col-xs-4 control-label' ]) }}
+					<div class='col-xs-8'>
+						<p class="form-control-static">{{ Auth::User()->firstname }} {{ Auth::User()->lastname }}</p>
+					</div>
+				</div>
+				<div class='row'>
+					{{ Form::label('name', 'Email', [ 'class' => 'col-xs-4 control-label' ]) }}
+					<div class='col-xs-8'>
+						<p class="form-control-static">{{ Auth::User()->email }}</p>
+					</div>
+				</div>
+				<div class='row'>
+					{{ Form::label('name', 'Groups', [ 'class' => 'col-xs-4 control-label' ]) }}
+					<div class='col-xs-8'>-</div>
 				</div>
 			</div>
-			<style type="text/css">
-			.paperlist li {
-				padding-bottom: 10px;
-			}
-			</style>
+		</div>
+	</div>
+</div>
+<style type="text/css">
+.paperlist li {
+	padding-bottom: 10px;
+}
+</style>
 @stop
