@@ -1,8 +1,9 @@
 <?php
 
-class UserController extends BaseController {
+use \MongoDB\Entity as Entity;
+use \MongoDB\Activity as Activity;
 
-	// Hashed because it might end up on github :-)
+class UserController extends BaseController {
 
 	public function __construct() {
 	   $this->beforeFilter('csrf', array('on'=>'post'));
@@ -31,6 +32,44 @@ class UserController extends BaseController {
 		Auth::logout();
 		return Redirect::to('');
 	}
+	    
+	/**
+     * Display user profile
+     */
+	public function getProfile() {
+		// redirect if user is not logged in
+		if(!Auth::check())
+			return Redirect::to('/');
+
+		//$profile = User::getProfileForUser(Auth::user()->_id);
+        return View::make('user/profile');//->with('profile', $profile);
+    }
+	
+	    
+	/**
+     * Change user settings
+     */
+	public function getSettings() {
+		// redirect if user is not logged in
+		if(!Auth::check())
+			return Redirect::to('/');
+
+		//$profile = User::getProfileForUser(Auth::user()->_id);
+        return View::make('user/settings');//->with('profile', $profile);
+    }
+    
+	/**
+     * Display current user activity
+     */
+	public function getActivity() {
+	
+		// redirect if user is not logged in
+		if(!Auth::check())
+			return Redirect::to('/');
+
+		$activities = Activity::getActivitiesForUser(Auth::user()->_id);
+        return View::make('user/activity')->with('activities', $activities);
+    }
 
 	public function postLogin(){
 	    $userdata = array(
