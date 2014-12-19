@@ -6,7 +6,7 @@
 	<div class='maincolumn CW_box_style'>
 
 		<div class='tab'>
-			@include('user.nav')
+			@include('user.nav', array('user'=>$user))
 			@include('layouts.flashdata')
 			<div class='row'>
 				<div class="col-xs-12"  style="padding-bottom:40px; padding-top:20px">

@@ -6,7 +6,7 @@
 	<div class='maincolumn CW_box_style'>
 
 		<div class='tab'>
-			@include('user.nav')
+			@include('user.nav', array('user'=>$user))
 			@include('layouts.flashdata')
 			<div>
 
@@ -19,22 +19,22 @@
 						<div class="form-group">
 							{{ Form::label('useHeaders', 'Username', [ 'class' => 'col-xs-3 control-label' ]) }}
 							<div class='col-xs-3'>
-								<p class="form-control-static">{{ Auth::User()->_id }}</p>
+								<p class="form-control-static">{{ $user['_id'] }}</p>
 							</div>
 						</div>
 						<div class="form-group">
 							{{ Form::label('name', 'Name', [ 'class' => 'col-xs-3 control-label' ]) }}
 							<div class='col-xs-3'>
-								{{ Form::text('name', null, array('class' => 'form-control', 'placeholder' => 'Firstname')) }}
+								{{ Form::text('name', $user['firstname'], array('class' => 'form-control', 'placeholder' => 'Firstname')) }}
 							</div>
 							<div class='col-xs-4'>
-								{{ Form::text('name', null, array('class' => 'form-control', 'placeholder' => 'Lastname')) }}
+								{{ Form::text('name', $user['lastname'], array('class' => 'form-control', 'placeholder' => 'Lastname')) }}
 							</div>
 						</div>
 						<div class="form-group">
 							{{ Form::label('email', 'Email', [ 'class' => 'col-xs-3 control-label' ]) }}
 							<div class='col-xs-5'>
-								{{ Form::text('email', null, array('class' => 'form-control', 'placeholder' => 'Email')) }}
+								{{ Form::text('email', $user['email'], array('class' => 'form-control', 'placeholder' => 'Email')) }}
 							</div>
 						</div>
 						<div class="form-group">

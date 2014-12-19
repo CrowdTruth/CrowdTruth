@@ -6,32 +6,22 @@
 	<div class='maincolumn CW_box_style'>
 
 		<div class='tab'>
-			@include('user.nav')
+			@include('user.nav', array('user'=>$user))
 			@include('layouts.flashdata')
-			<div class='form-horizontal'>
-				<div class='row'>
-					{{ Form::label('name', 'Username', [ 'class' => 'col-xs-4 control-label' ]) }}
-					<div class='col-xs-8'>
-						<p class="form-control-static">{{ Auth::User()->_id }}</p>
-					</div>
-				</div>
-				<div class='row'>
-					{{ Form::label('name', 'Name', [ 'class' => 'col-xs-4 control-label' ]) }}
-					<div class='col-xs-8'>
-						<p class="form-control-static">{{ Auth::User()->firstname }} {{ Auth::User()->lastname }}</p>
-					</div>
-				</div>
-				<div class='row'>
-					{{ Form::label('name', 'Email', [ 'class' => 'col-xs-4 control-label' ]) }}
-					<div class='col-xs-8'>
-						<p class="form-control-static">{{ Auth::User()->email }}</p>
-					</div>
-				</div>
-				<div class='row'>
-					{{ Form::label('name', 'Groups', [ 'class' => 'col-xs-4 control-label' ]) }}
-					<div class='col-xs-8'>-</div>
-				</div>
-			</div>
+		        <div class="media">
+            <a class="pull-left" href="#">
+                <img class="media-object dp img-circle" src="{{ $user['avatar'] or 'http://crowdtruth.org/wp-content/uploads/2014/09/male.jpg' }}" style="width: 100px;height:100px;">
+            </a>
+            <div class="media-body" style='margin-top:20px;margin-left:20px;'>
+                <h4 class="media-heading">{{ $user['firstname'] }} {{ $user['lastname'] }} <small> Administrator</small></h4>
+                <h5>Researcher at <a href="http://gridle.in">VU University, Amsterdam</a></h5>
+                <hr style="margin:8px auto">
+
+                <div class="label label-default">Linked In</div>
+                <div class="label label-info">Twitter</div>
+            </div>
+			<div style='height:200px;'></div>
+        </div>
 		</div>
 	</div>
 </div>

@@ -10,7 +10,11 @@ class UserController extends BaseController {
 	}
 
 	public function getIndex(){
-		return Redirect::to('user/login');
+		return Redirect::to('login');
+	}
+	
+	public function getShow() {
+		return Redirect::to('login');
 	}
 
 	public function login(){
@@ -36,39 +40,39 @@ class UserController extends BaseController {
 	/**
      * Display user profile
      */
-	public function getProfile() {
+	public function getProfile(User $user) {
 		// redirect if user is not logged in
 		if(!Auth::check())
 			return Redirect::to('/');
-
+		
 		//$profile = User::getProfileForUser(Auth::user()->_id);
-        return View::make('user/profile');//->with('profile', $profile);
+        return View::make('user/profile', ['user' => $user]);//->with('profile', $profile);
     }
 	
 	    
 	/**
      * Change user settings
      */
-	public function getSettings() {
+	public function getSettings(User $user) {
 		// redirect if user is not logged in
 		if(!Auth::check())
 			return Redirect::to('/');
 
 		//$profile = User::getProfileForUser(Auth::user()->_id);
-        return View::make('user/settings');//->with('profile', $profile);
+        return View::make('user/settings', ['user' => $user]);//->with('profile', $profile);
     }
     
 	/**
      * Display current user activity
      */
-	public function getActivity() {
+	public function getActivity(User $user) {
 	
 		// redirect if user is not logged in
 		if(!Auth::check())
 			return Redirect::to('/');
 
-		$activities = Activity::getActivitiesForUser(Auth::user()->_id);
-        return View::make('user/activity')->with('activities', $activities);
+		$activities = Activity::getActivitiesForUser($user['_id']);
+        return View::make('user/activity')->with('activities', $activities)->with('user',$user);
     }
 
 	public function postLogin(){

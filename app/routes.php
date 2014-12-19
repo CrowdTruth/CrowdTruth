@@ -236,7 +236,11 @@ Route::controller('api/analytics', '\Api\analytics\apiController');
 Route::get('login', 'UserController@login');
 Route::get('register', 'UserController@register');
 Route::get('logout', 'UserController@logout');
-
+Route::get('user/{user}', 'UserController@getProfile');
+Route::get('user/{user}/activity', 'UserController@getActivity');
+Route::get('user/{user}/settings', 'UserController@getSettings');
+Route::model('user', 'User');
+  
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
 Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));
 
