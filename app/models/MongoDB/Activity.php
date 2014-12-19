@@ -70,6 +70,14 @@ class Activity extends Moloquent {
 		});
 	}
 
+	/**
+     * Get activity for a user ordered by timestamp
+     */
+	public static function getActivitiesForUser($userId)
+    {
+        return Activity::where('user_id', $userId)->orderBy('updated_at', 'desc')->get();
+    }
+
     public function wasAssociatedWithUserAgent(){
         return $this->hasOne('User', '_id', 'user_id');
     }
