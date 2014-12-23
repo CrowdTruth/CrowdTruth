@@ -69,6 +69,14 @@ class User extends Moloquent implements UserInterface {
 		{
 		    $collection->unique('email');
 		});    	
+    }
+
+	/**
+     * Get list of all users
+     */
+	public static function getUserlist()
+    {
+        return User::orderBy('_id', 'asc')->get();
     }	
 
     public function associatedActivities(){

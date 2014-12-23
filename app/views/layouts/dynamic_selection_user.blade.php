@@ -15,7 +15,7 @@
 			<li role="presentation" class="divider"></li>
 			<li role="presentation" class="dropdown-header">Administration</li>
 			<li role="presentation"><a href="{{ URL::to('/users') }}"><i class="fa fa-list-ol fa-fw"></i> Users</a></li>
-			<li role="presentation" class="disabled"><a href="{{ URL::to('/groups') }}"><i class="fa fa-list-ol fa-fw"></i> Groups</a></li>
+			<li role="presentation" class="disabled"><a href="#"><i class="fa fa-list-ol fa-fw"></i> Groups</a></li>
 			<li role="presentation" class="divider"></li>
             <li role="presentation"><a href="{{ URL::to('logout') }}"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
         </ul> 

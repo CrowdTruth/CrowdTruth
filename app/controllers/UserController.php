@@ -45,11 +45,21 @@ class UserController extends BaseController {
 		if(!Auth::check())
 			return Redirect::to('/');
 		
-		//$profile = User::getProfileForUser(Auth::user()->_id);
-        return View::make('user/profile', ['user' => $user]);//->with('profile', $profile);
+		return View::make('user/profile', ['user' => $user]);
     }
 	
 	    
+	/**
+     * Display list of all users
+     */
+	public function getUserlist() {
+		// TODO check if user has admin permissions
+		
+		$userlist = User::getUserlist();
+        return View::make('user/userlist', ['userlist' => $userlist]);
+    }
+
+	
 	/**
      * Change user settings
      */
@@ -58,7 +68,6 @@ class UserController extends BaseController {
 		if(!Auth::check())
 			return Redirect::to('/');
 
-		//$profile = User::getProfileForUser(Auth::user()->_id);
         return View::make('user/settings', ['user' => $user]);//->with('profile', $profile);
     }
     

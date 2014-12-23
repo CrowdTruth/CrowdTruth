@@ -29,9 +29,4 @@
 		</div>
 	</div>
 </div>
-<style type="text/css">
-.paperlist li {
-	padding-bottom: 10px;
-}
-</style>
 @stop

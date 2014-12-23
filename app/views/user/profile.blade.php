@@ -1,5 +1,5 @@
 @extends('layouts.default_new')
-@section('title','Activity')
+@section('title','Profile')
 @section('content')
 			<!-- START /index --> 			
 <div class="col-xs-12 col-md-10 col-md-offset-1">
@@ -25,9 +25,4 @@
 		</div>
 	</div>
 </div>
-<style type="text/css">
-.paperlist li {
-	padding-bottom: 10px;
-}
-</style>
 @stop

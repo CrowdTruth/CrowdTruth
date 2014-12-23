@@ -1,5 +1,5 @@
 @extends('layouts.default_new')
-@section('title','Activity')
+@section('title','Profile Settings')
 @section('content')
 
 <div class="col-xs-12 col-md-10 col-md-offset-1">
@@ -48,6 +48,36 @@
 						<div class='clearfix'></div>
 					</div>
 				</div>
+				
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						Groups
+					</div>
+					<div class="panel-body">
+						<div class="form-group">
+							{{ Form::label('name', 'IBM', [ 'class' => 'col-xs-4 control-label' ]) }}
+							<div class='col-xs-2'>
+								{{ Form::select('role',  ['Administrator','Member','Guest'], null, array('class' => 'selectpicker', 'data-container' =>'body',  'data-toggle'=> 'tooltip')) }}
+							</div>
+							<div class='col-xs-2'>
+								<p class="form-control-static"><a class="btn btn-danger btn-sm" href="#" data-toggle="tooltip" data-placement="top" title="Leave Group"><i class="fa fa-remove"></i></a></p>
+							</div>
+						</div>
+						<div class="form-group">
+							{{ Form::label('name', 'BiographyNet', [ 'class' => 'col-xs-4 control-label' ]) }}
+							<div class='col-xs-2'>
+								{{ Form::select('role',  ['Administrator','Member','Guest'], null, array('class' => 'selectpicker', 'data-container' =>'body',  'data-toggle'=> 'tooltip')) }}
+							</div>
+							<div class='col-xs-2'>
+								<p class="form-control-static"><a class="btn btn-danger btn-sm" href="#" data-toggle="tooltip" data-placement="top" title="Leave Group"><i class="fa fa-remove"></i></a></p>
+							</div>
+						</div>
+					</div>
+					<div class="panel-footer">
+						{{ Form::submit('Save', array('class' => 'btn btn-primary pull-right')); }}
+						<div class='clearfix'></div>
+					</div>
+				</div>
 
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -82,9 +112,13 @@
 		</div>
 	</div>
 </div>
-<style type="text/css">
-.paperlist li {
-	padding-bottom: 10px;
-}
-</style>
 @stop
+@section('end_javascript')
+{{ javascript_include_tag('bootstrap-select.js') }}
+<script>
+$(document).ready(function() {
+$('.selectpicker').selectpicker();
+});
+</script>
+}
+@endsection

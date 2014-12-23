@@ -236,6 +236,7 @@ Route::controller('api/analytics', '\Api\analytics\apiController');
 Route::get('login', 'UserController@login');
 Route::get('register', 'UserController@register');
 Route::get('logout', 'UserController@logout');
+Route::get('users', 'UserController@getUserlist');
 Route::get('user/{user}', 'UserController@getProfile');
 Route::get('user/{user}/activity', 'UserController@getActivity');
 Route::get('user/{user}/settings', 'UserController@getSettings');
