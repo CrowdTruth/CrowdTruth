@@ -28,7 +28,7 @@ return array(
 	|
 	*/
 
-	'model' => 'User',
+	'model' => '\MongoDB\UserAgent',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -59,13 +59,9 @@ return array(
 	*/
 
 	'reminder' => array(
-
 		'email' => 'emails.auth.reminder',
-
 		'table' => 'password_reminders',
-
 		'expire' => 60,
-
 	),
 
 );

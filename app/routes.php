@@ -240,7 +240,7 @@ Route::get('users', 'UserController@getUserlist');
 Route::get('user/{user}', 'UserController@getProfile');
 Route::get('user/{user}/activity', 'UserController@getActivity');
 Route::get('user/{user}/settings', 'UserController@getSettings');
-Route::model('user', 'User');
+Route::model('user', '\MongoDB\UserAgent');
   
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
 Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));

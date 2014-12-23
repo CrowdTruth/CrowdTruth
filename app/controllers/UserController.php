@@ -2,6 +2,7 @@
 
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
+use \MongoDB\UserAgent as UserAgent;
 
 class UserController extends BaseController {
 
@@ -40,10 +41,11 @@ class UserController extends BaseController {
 	/**
      * Display user profile
      */
-	public function getProfile(User $user) {
+	public function getProfile(UserAgent $user) {
 		// redirect if user is not logged in
-		if(!Auth::check())
+		if(!Auth::check()) {
 			return Redirect::to('/');
+		}
 		
 		return View::make('user/profile', ['user' => $user]);
     }
@@ -63,7 +65,7 @@ class UserController extends BaseController {
 	/**
      * Change user settings
      */
-	public function getSettings(User $user) {
+	public function getSettings(UserAgent $user) {
 		// redirect if user is not logged in
 		if(!Auth::check())
 			return Redirect::to('/');
@@ -74,7 +76,7 @@ class UserController extends BaseController {
 	/**
      * Display current user activity
      */
-	public function getActivity(User $user) {
+	public function getActivity(UserAgent $user) {
 	
 		// redirect if user is not logged in
 		if(!Auth::check())
@@ -91,7 +93,7 @@ class UserController extends BaseController {
 	        'password' => Input::get('password'),
 	    );
 
-	    if($user = User::where('_id', '=', strtolower($userdata['username']))->orWhere('email', '=', strtolower($userdata['email']))->first())
+	    if($user = UserAgent::where('_id', '=', strtolower($userdata['username']))->orWhere('email', '=', strtolower($userdata['email']))->first())
 	    	if(Auth::attempt(array('email' => $user['email'], 'password' => $userdata['password'])))
 	    		return Redirect::intended('/');
 
@@ -143,7 +145,7 @@ class UserController extends BaseController {
 
 	    unset($userdata['confirm_password']);
 	    $userdata['password'] = Hash::make($userdata['password']);
-	    $user = new User($userdata); 
+	    $user = new UserAgent($userdata); 
 
 	    try {
 		    $this->createCrowdWatsonUserAgent();
@@ -157,9 +159,9 @@ class UserController extends BaseController {
 	}
 
 	public function createCrowdWatsonUserAgent(){
-		if(!User::find('crowdwatson'))
+		if(!UserAgent::find('crowdwatson'))
 		{
-			$softwareAgent = new User;
+			$softwareAgent = new UserAgent;
 			$softwareAgent->_id = "crowdwatson";
 			$softwareAgent->firstname = "Crowd";
 			$softwareAgent->lastname = "Watson";
