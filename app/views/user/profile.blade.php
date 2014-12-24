@@ -70,15 +70,17 @@
 				?>
 				<br>
 				<?php 
-				/*if ( ! Sentry::check())
+				if ( ! Sentry::check())
+				// if ( ! Auth::check())
 				{
 					echo 'user not logged in...';
 				}
 				else
 				{
 					echo 'User is logged in...';
-				}*/
+				}
 				?>
+				<br>
 				<?php
 				// Create the group
 				/*
@@ -106,15 +108,16 @@
 					$groupPermissions = $group->getPermissions();
 					// echo print_r($groupPermissions, true);
 				} catch (Cartalyst\Sentry\Groups\GroupNotFoundException $e) {
-					echo 'Group was not found.';
+					echo 'Group was not found.<br>';
 				}
 
 				try {
-					$user = Sentry::findUserByLogin('carlosm');
+					// $user = Sentry::findUserByLogin('carlosm');
+					$user = Auth::user();
 					// echo $user->_id;
 
 					// Find the group using the group id
-					$group = Sentry::findGroupByName('Moderator');
+					// $group = Sentry::findGroupByName('Moderator');
 					//echo print_r($group, true);
 				
 					// Assign the group to the user
@@ -123,12 +126,13 @@
 					//echo print_r($user, true);
 					
 					$groups = $user->getGroups();
-					// echo print_r($groups, true);
+					echo '<br>user in groups:';
+					echo print_r($groups, true);
 					
 					// Get the user permissions
 					// $permissions = $user->getPermissions();
 					$permissions = $user->getMergedPermissions();
-					// echo print_r($permissions, true);
+					echo print_r($permissions, true);
 					
 					// if($user->hasAccess('admin')) {
 					if ($user->hasAnyAccess([ 'admin', 'foo' ])) {

@@ -49,29 +49,37 @@
 					</div>
 				</div>
 				
+				<?php 
+				// TODO: pass this in from Controller
+				$groups = \MongoDB\PermissionHandler::getUserGroups();
+				?>
+
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						Groups
 					</div>
 					<div class="panel-body">
+					@foreach($groups as $group)
 						<div class="form-group">
-							{{ Form::label('name', 'IBM', [ 'class' => 'col-xs-4 control-label' ]) }}
+							{{ Form::label('name', $group['name'], [ 'class' => 'col-xs-4 control-label' ]) }}
 							<div class='col-xs-2'>
-								{{ Form::select('role',  ['Administrator','Member','Guest'], null, array('class' => 'selectpicker', 'data-container' =>'body',  'data-toggle'=> 'tooltip')) }}
+								{{ Form::select('role',  [ 'admin' => 'Administrator', 'member' => 'Member', 'guest' => 'Guest'], $group['role'], 
+									[ 'class' => 'selectpicker', 'data-container' =>'body',  'data-toggle'=> 'tooltip' ]) }}
 							</div>
 							<div class='col-xs-2'>
 								<p class="form-control-static"><a class="btn btn-danger btn-sm" href="#" data-toggle="tooltip" data-placement="top" title="Leave Group"><i class="fa fa-remove"></i></a></p>
 							</div>
-						</div>
-						<div class="form-group">
-							{{ Form::label('name', 'BiographyNet', [ 'class' => 'col-xs-4 control-label' ]) }}
-							<div class='col-xs-2'>
-								{{ Form::select('role',  ['Administrator','Member','Guest'], null, array('class' => 'selectpicker', 'data-container' =>'body',  'data-toggle'=> 'tooltip')) }}
+							
+							<div class='col-xs-4'>
+								On this group, user can:
+								<ul>
+									<li>Is group admin? {{ \MongoDB\PermissionHandler::checkGroup($group['name'], \MongoDB\Permissions::GROUP_ADMIN)?'Yes':'No' }}</li>
+									<li>Can read?       {{ \MongoDB\PermissionHandler::checkGroup($group['name'], \MongoDB\Permissions::GROUP_READ)?'Yes':'No' }}</li>
+									<li>Can write?      {{ \MongoDB\PermissionHandler::checkGroup($group['name'], \MongoDB\Permissions::GROUP_WRITE)?'Yes':'No' }}</li>
+								</ul>
 							</div>
-							<div class='col-xs-2'>
-								<p class="form-control-static"><a class="btn btn-danger btn-sm" href="#" data-toggle="tooltip" data-placement="top" title="Leave Group"><i class="fa fa-remove"></i></a></p>
-							</div>
 						</div>
+					@endforeach
 					</div>
 					<div class="panel-footer">
 						{{ Form::submit('Save', array('class' => 'btn btn-primary pull-right')); }}

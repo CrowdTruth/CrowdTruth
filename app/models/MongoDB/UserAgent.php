@@ -6,7 +6,6 @@ use Jenssegers\Mongodb\Sentry\User as SentryUser;
 use Schema;
 
 use Illuminate\Auth\UserInterface;
-// use Illuminate\Auth\Reminders\RemindableInterface;
 
 class UserAgent extends SentryUser implements UserInterface {
 

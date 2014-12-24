@@ -3,6 +3,8 @@
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 use \MongoDB\UserAgent as UserAgent;
+use \MongoDB\PermissionHandler as PermissionHandler;
+use \MongoDB\Permissions as Permissions;
 
 class UserController extends BaseController {
 
@@ -47,21 +49,24 @@ class UserController extends BaseController {
 			return Redirect::to('/');
 		}
 		
-		return View::make('user/profile', ['user' => $user]);
+		return View::make('user.profile')
+			->with('user', $user);
     }
-	
 	    
 	/**
      * Display list of all users
      */
 	public function getUserlist() {
-		// TODO check if user has admin permissions
-		
-		$userlist = User::getUserlist();
-        return View::make('user/userlist', ['userlist' => $userlist]);
+		if(PermissionHandler::checkAdmin(Permissions::USERS_MODIFY)) {
+			$userlist = User::getUserlist();
+			return View::make('user.userlist')
+				->with('userlist', $userlist);
+		} else {
+			return Redirect::back()
+				->with('flashError', 'You do not have permissions to access this feature');
+		}
     }
 
-	
 	/**
      * Change user settings
      */
@@ -70,7 +75,8 @@ class UserController extends BaseController {
 		if(!Auth::check())
 			return Redirect::to('/');
 
-        return View::make('user/settings', ['user' => $user]);//->with('profile', $profile);
+		return View::make('user.settings')
+			->with('user', $user);//->with('profile', $profile);
     }
     
 	/**
@@ -83,7 +89,9 @@ class UserController extends BaseController {
 			return Redirect::to('/');
 
 		$activities = Activity::getActivitiesForUser($user['_id']);
-        return View::make('user/activity')->with('activities', $activities)->with('user',$user);
+        return View::make('user.activity')
+        	->with('activities', $activities)
+        	->with('user',$user);
     }
 
 	public function postLogin(){
@@ -109,7 +117,8 @@ class UserController extends BaseController {
 		// Check if normal account	
 		} elseif (!Hash::check(Input::get('invitation'), Config::get('config.invitationCode')) && Config::get('config.invitationCode') != ''){
 			Session::flash('flashError', 'Wrong invite code : )');
-			return Redirect::back()->withInput(Input::except('password', 'confirm_password'));
+			return Redirect::back()
+				->withInput(Input::except('password', 'confirm_password'));
 		}
 
 	    $userdata = array(

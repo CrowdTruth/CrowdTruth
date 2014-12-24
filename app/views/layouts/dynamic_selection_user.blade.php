@@ -14,7 +14,10 @@
             <li role="presentation"><a href="{{ URL::to('/user/' . Auth::user()->_id . '/settings') }}"><i class="fa fa-gears fa-fw"></i> Settings</a></li>
 			<li role="presentation" class="divider"></li>
 			<li role="presentation" class="dropdown-header">Administration</li>
+{{-- //TODO: Do not show if user has no permissions --}}
+{{--		@if(\MongoDB\PermissionHandler::checkAdmin(\MongoDB\Permissions::USERS_MODIFY)) --}}
 			<li role="presentation"><a href="{{ URL::to('/users') }}"><i class="fa fa-list-ol fa-fw"></i> Users</a></li>
+{{--		@endif	--}}
 			<li role="presentation" class="disabled"><a href="#"><i class="fa fa-list-ol fa-fw"></i> Groups</a></li>
 			<li role="presentation" class="divider"></li>
             <li role="presentation"><a href="{{ URL::to('logout') }}"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
