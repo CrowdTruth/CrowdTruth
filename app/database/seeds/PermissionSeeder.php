@@ -1,52 +1,40 @@
 <?php
 
+use \MongoDB\UserAgent as UserAgent;
+use \MongoDB\Security\Permissions as Permissions;
+use \MongoDB\Security\PermissionHandler as PermissionHandler;
+use \MongoDB\Security\GroupHandler as GroupHandler;
+use \MongoDB\Security\Roles as Roles;
+
+/**
+ * Create root user and basic permission structure in the database.
+ */
 class PermissionSeeder extends Seeder {
 
 	/**
 	 * Create root user and basic permission structure in the database.
+	 * For detailed documentation on permission structure, see
+	 * PermissionHandler class.
 	 *
 	 * @return void
 	 */
 	public function run()
 	{
 		Eloquent::unguard();
-		
-		User::create([
+
+		// Create admin user with admin permisions
+		/*Sentry::getUserProvider()->create([
 			'_id' => 'admin',
-			'password' => Hash::make('admin'),
-		]);
+			'password' => 'admin',
+			'email' => 'admin@crowdtruth.org',
+			'firstname' => 'Admin',
+			'lastname' => 'Crowdtruth'
+		]);*/
 		
-		// Developer note:
-		// Package 'Sentry' does not support 'roles', so we will construct this artificially
-		// Sentry does have 'Groups' (which here I refer to as 'Sentry-groups') but they 
-		// are not analogous to our intention of Groups, (which here I refer to as 'Groups').
-		// For this reason we adopt the following convention:
-		// 
-		// Sentry-groups will be named as: <group>:role
-		// Permissions within a group will be named <group>.permission
-		// EG1:
-		// User Lora is added to group CrowdTruth with an administrator role.
-		// Thus she is added to sentry-group crowdtruth:admin
-		// which gives her permissions:
-		//		crowdtruth.read       = 1
-		//		crowdtruth.write      = 1
-		//      crowdtruth.groupadmin = 1
-		//      
 		Sentry::createGroup([
 			'name'        => 'admin:admin',
 			'permissions' => [
-				'group.create' => 1,	// Allowed to create
-				'group.modify' => 1,	// Allowed to modify
-				'users.modify' => 1,	// Allowed to manage users
-			],
-		]);
-		
-		Sentry::createGroup([
-			'name'        => 'admin:member',
-			'permissions' => [
-				'group.create' => 1,	// Allowed to create
-				'group.modify' => 0,	// But not to modify groups
-				'users.modify' => 0,	// or users
+				Permissions::ALLOW_ALL => 1,	// Allowed everything !
 			],
 		]);
 		
@@ -55,17 +43,14 @@ class PermissionSeeder extends Seeder {
 		$root->addGroup($adminGroup);
 
 		// DEBUG:
-		Sentry::createGroup([
-			'name'        => 'crowdtruth:admin',
-			'permissions' => [
-				'crowdtruth.admin' => 1,
-				'crowdtruth.write' => 1,
-				'crowdtruth.read'  => 1,
-			],
-		]);
+		GroupHandler::createGroup('crowdtruth');
 
 		$carlos = Sentry::findUserByLogin('carlosm');
-		$ctGroup = Sentry::findGroupByName('crowdtruth:admin');
-		$carlos->addGroup($ctGroup);
+		$benjamin = Sentry::findUserByLogin('benjamin');
+		$arne = Sentry::findUserByLogin('arne');
+		
+		GroupHandler::grantUser($carlos, 'crowdtruth', Roles::GROUP_ADMIN);
+		GroupHandler::grantUser($benjamin, 'crowdtruth', Roles::GROUP_MEMBER);
+		GroupHandler::grantUser($arne, 'crowdtruth', Roles::GROUP_GUEST);
 	}
 }

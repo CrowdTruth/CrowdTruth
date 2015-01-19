@@ -74,6 +74,14 @@ class UserAgent extends SentryUser implements UserInterface {
 		});
     }
 
+    /**
+     * Get list of all users
+     */
+    public static function getUserlist()
+    {
+    	return UserAgent::orderBy('_id', 'asc')->get();
+    }
+    
     public function associatedActivities(){
     	return $this->hasMany('\MongoDB\Activity', 'user_id', '_id');
     }

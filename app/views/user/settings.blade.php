@@ -9,7 +9,6 @@
 			@include('user.nav', array('user'=>$user))
 			@include('layouts.flashdata')
 			<div>
-
 				{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postFormPart', 'submit'), 'method' => 'POST'))}}
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -40,6 +39,9 @@
 						<div class="form-group">
 							{{ Form::label('email', 'Groups', [ 'class' => 'col-xs-3 control-label' ]) }}
 							<div class='col-xs-3'>
+								@foreach($groups as $group)
+									{{ link_to('group/'.$group['name'], $group['name']) }} <small>({{ $group['role'] }})</small>
+								@endforeach
 							</div>
 						</div>
 					</div>
@@ -49,44 +51,6 @@
 					</div>
 				</div>
 				
-				<?php 
-				// TODO: pass this in from Controller
-				$groups = \MongoDB\PermissionHandler::getUserGroups();
-				?>
-
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						Groups
-					</div>
-					<div class="panel-body">
-					@foreach($groups as $group)
-						<div class="form-group">
-							{{ Form::label('name', $group['name'], [ 'class' => 'col-xs-4 control-label' ]) }}
-							<div class='col-xs-2'>
-								{{ Form::select('role',  [ 'admin' => 'Administrator', 'member' => 'Member', 'guest' => 'Guest'], $group['role'], 
-									[ 'class' => 'selectpicker', 'data-container' =>'body',  'data-toggle'=> 'tooltip' ]) }}
-							</div>
-							<div class='col-xs-2'>
-								<p class="form-control-static"><a class="btn btn-danger btn-sm" href="#" data-toggle="tooltip" data-placement="top" title="Leave Group"><i class="fa fa-remove"></i></a></p>
-							</div>
-							
-							<div class='col-xs-4'>
-								On this group, user can:
-								<ul>
-									<li>Is group admin? {{ \MongoDB\PermissionHandler::checkGroup($group['name'], \MongoDB\Permissions::GROUP_ADMIN)?'Yes':'No' }}</li>
-									<li>Can read?       {{ \MongoDB\PermissionHandler::checkGroup($group['name'], \MongoDB\Permissions::GROUP_READ)?'Yes':'No' }}</li>
-									<li>Can write?      {{ \MongoDB\PermissionHandler::checkGroup($group['name'], \MongoDB\Permissions::GROUP_WRITE)?'Yes':'No' }}</li>
-								</ul>
-							</div>
-						</div>
-					@endforeach
-					</div>
-					<div class="panel-footer">
-						{{ Form::submit('Save', array('class' => 'btn btn-primary pull-right')); }}
-						<div class='clearfix'></div>
-					</div>
-				</div>
-
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						Change Password
@@ -116,6 +80,7 @@
 						<div class='clearfix'></div>
 					</div>
 				</div>
+				{{ Form::close() }}
 			</div>
 		</div>
 	</div>
@@ -128,5 +93,4 @@ $(document).ready(function() {
 $('.selectpicker').selectpicker();
 });
 </script>
-}
 @endsection

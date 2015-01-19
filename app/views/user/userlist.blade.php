@@ -17,16 +17,23 @@
 							<th>Name</th>
 							<th>Username</th>
 							<th>Email</th>
-							<th>Role</th>
-							<th>Groups</th>
+							<th>Groups(role)</th>
 						</tr>
+
+						<?php use \MongoDB\Security\GroupHandler as GroupHandler; ?>
+						<?php use \MongoDB\Security\PermissionHandler as PermissionHandler; ?>
+						<?php use \MongoDB\Security\Permissions as Permissions; ?>
+						
 						@foreach ($userlist as $user)
 						<tr class='text-left' >
-							<td>{{ link_to('user/' . $user['_id'], $user['firstname'] . ' ' . $user['lastname']) }}</td>
-							<td>{{ link_to('user/' . $user['_id'], $user['_id']) }}</td>
+							<td>{{ $user['firstname'] }} {{ $user['lastname'] }}</td>
+							<td>{{ $viewProfiles?link_to('user/' . $user['_id'], $user['_id']):$user['_id'] }}</td>
 							<td>{{ $user['email'] }}</td>
-							<td><small>Administrator</small></td>
-							<td>{{ link_to('group/ibm', 'IBM') }}, {{ link_to('group/biographynet', 'BiographyNet') }}</td>
+							<td>
+							@foreach (GroupHandler::getUserGroups($user) as $group)
+								{{ (PermissionHandler::checkGroup(Auth::user(), $group['name'], Permissions::GROUP_READ))?link_to('group/'.$group['name'], $group['name']):$group['name'] }} <small>({{ $group['role'] }})</small>
+							@endforeach
+							</td>
 						</tr>
 						@endforeach
 					</table>

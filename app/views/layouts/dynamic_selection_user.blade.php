@@ -15,7 +15,7 @@
 			<li role="presentation" class="divider"></li>
 			<li role="presentation" class="dropdown-header">Administration</li>
 {{-- //TODO: Do not show if user has no permissions --}}
-{{--		@if(\MongoDB\PermissionHandler::checkAdmin(\MongoDB\Permissions::USERS_MODIFY)) --}}
+{{--		@if(\MongoDB\PermissionHandler::checkAdmin(\Auth::user(), \MongoDB\Permissions::USERS_MODIFY)) --}}
 			<li role="presentation"><a href="{{ URL::to('/users') }}"><i class="fa fa-list-ol fa-fw"></i> Users</a></li>
 {{--		@endif	--}}
 			<li role="presentation" class="disabled"><a href="#"><i class="fa fa-list-ol fa-fw"></i> Groups</a></li>

@@ -128,10 +128,12 @@
 					$groups = $user->getGroups();
 					echo '<br>user in groups:';
 					echo print_r($groups, true);
+					echo '<hr>';
 					
 					// Get the user permissions
 					// $permissions = $user->getPermissions();
 					$permissions = $user->getMergedPermissions();
+					echo '<br>User merged permissions:';
 					echo print_r($permissions, true);
 					
 					// if($user->hasAccess('admin')) {
