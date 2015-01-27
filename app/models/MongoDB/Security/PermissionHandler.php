@@ -2,6 +2,8 @@
 namespace MongoDB\Security;
 
 /**
+ * Class for handling permissions in the platform.
+ * 
  * Developer notes:
  * Package 'Cartalyst/Sentry' does not support 'roles', so we will construct this artificially
  * Sentry does have 'Groups' (which here we refer to as 'Sentry-groups') but they 
@@ -41,12 +43,31 @@ namespace MongoDB\Security;
  *      crowdtruth.groupadmin = 0
  */
 class PermissionHandler {
-	// Permission is a constant from Admin permissions
+	/**
+	 * Checks if the given UserAgent has permissions the appropriate administrator permission.
+	 * This call is limited to permissions on the administrator group.
+	 * 
+	 * Developer note: This is because these permissions are in their own Sentry-group.
+	 * 
+	 * @param $user UserAgent object identifying the user for which permissions are evaluated.
+	 * @param $permission Permission constant defining the permission being consulted
+	 * 			(e.g. Permissions::ALLOW_ALL.)
+	 * @return boolean true if the user has the required permission, false otherwise.
+	 */
 	public static function checkAdmin($user, $permission) {
 		return $user->hasAccess($permission);
 	}
 	
-	// Permission is a constant from group permissions
+	/**
+	 * Checks if the given UserAgent has the appropriate group permission. Note that 
+	 * administrators with Permissions::ALLOW_ALL permission are always allowed to perform 
+	 * actions.
+	 * 
+	 * @param $user UserAgent object identifying the user for which permissions are evaluated.
+	 * @param $group Name of the CT-group being verified.
+	 * @param $permission a constant from group permissions (e.g. Permissions::GROUP_READ)
+	 * @return boolean true if the user has the required permission, false otherwise.
+	 */
 	public static function checkGroup($user, $group, $permission) {
 		$sentryPermission = str_replace('#', $group, $permission);
 		return $user->hasAccess($sentryPermission) or $user->hasAccess(Permissions::ALLOW_ALL);

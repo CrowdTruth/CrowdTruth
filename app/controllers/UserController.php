@@ -89,8 +89,13 @@ class UserController extends BaseController {
 			
 			$belongGroups = [];
 			foreach ($usergroups as $group) {
-				$group['canview'] = true;			// Can logged user view info for this group ?
-				$group['assignrole'] = true;		// Can logged user assign roles for this group
+				// Can logged user assign roles for this group ?
+				$canAssign = PermissionHandler::checkGroup($thisUser, $group['name'], Permissions::GROUP_ADMIN);
+				// Can logged user view info for this group ?
+				$canView   = PermissionHandler::checkGroup($thisUser, $group['name'], Permissions::GROUP_READ);
+				
+				$group['canview'] = $canView;
+				$group['assignrole'] = $canAssign;
 				array_push($belongGroups, $group);
 			}
 			
@@ -106,9 +111,18 @@ class UserController extends BaseController {
 			->with('usergroups', $userGroupInfo);
 	}
 
+	/**
+	 * Perform actions triggered from the user list page (/users). Actions performed:
+	 * addGroup    - Adds a given user to a given CT-group
+	 * assignRole  - Assigns the given role to a given user on the given CT-group.
+	 * removeGroup - Removes the given user from the given CT-group.
+	 * 
+	 * Browser is redirected to calling page (hopefully /users), with a flashError or 
+	 * flashSuccess message indicating the result.
+	 */
 	public function groupActions() {
 		$thisUser = Auth::user();
-
+		
 		$targetUserName = Input::get('usedId');
 		$groupName = Input::get('group');
 		$targetUser = UserAgent::find($targetUserName);

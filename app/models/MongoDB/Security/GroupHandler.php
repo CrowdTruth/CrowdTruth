@@ -3,8 +3,25 @@ namespace MongoDB\Security;
 
 use \Sentry as Sentry;
 
+/**
+ * Class for handling Groups. Group creation, assigning and removing permissions
+ * and listing user groups are functions of this class.
+ */
 class GroupHandler {
-	// Creates a new CT-group -- all required sentryGroups are created for the CT-group
+	/**
+	 * Creates a new CT-group -- all required sentryGroups are created for the CT-group.
+	 * When a new CT-group is created, roles for the CT-group are created as follows, 
+	 * with their corresponding permissions:
+	 * 
+	 *  - Roles::GROUP_ADMIN, with Permissions::GROUP_ADMIN, Permissions::GROUP_WRITE and 
+	 *  	Permissions::GROUP_READ;
+	 *  - Roles::GROUP_MEMBER, with Permissions::GROUP_WRITE, and Permissions::GROUP_READ;
+	 *  - Roles::GROUP_GUEST, with Permissions::GROUP_READ,
+	 * 
+	 * Default invitation codes are also created for the CT-group.
+	 * 
+	 * @param $groupName Name of the CT-group to be created.
+	 */
 	public static function createGroup($groupName) {
 		Sentry::createGroup([
 			'name'        => str_replace('#', $groupName, Roles::GROUP_ADMIN),
@@ -35,23 +52,43 @@ class GroupHandler {
 		]);
 	}
 	
+	/**
+	 * Grants users permissions for the given role on the given group.
+	 * 
+	 * @param $user UserAgent instance for the user to be assigned permissions.
+	 * @param $groupName name of the CT-group the user is being assigned to.
+	 * @param $role Role constant defining the role assigned to the user.
+	 */
 	public static function grantUser($user, $groupName, $role) {
+		// Remove from other Sentry-groups on the same CT-group
 		GroupHandler::revokeUser($user, $groupName);
 		
 		$sentryGroup = Sentry::findGroupByName(str_replace('#', $groupName, $role));
 		$user->addGroup($sentryGroup);
 	}
 	
+	/**
+	 * Revoke all permissions to the given user on a given group.
+	 * 
+	 * @param $user UserAgent instance of the user whos permissions are to be revoked.
+	 * @param $groupName Group name of CT-group where permissions are to be revoked.
+	 */
 	public static function revokeUser($user, $groupName) {
-		// Remove from other Sentry-groups on the same CT-group
-		$user->removeGroup(Sentry::findGroupByName(str_replace('#', $groupName, Roles::GROUP_ADMIN)));
-		$user->removeGroup(Sentry::findGroupByName(str_replace('#', $groupName, Roles::GROUP_MEMBER)));
-		$user->removeGroup(Sentry::findGroupByName(str_replace('#', $groupName, Roles::GROUP_GUEST)));
+		foreach(Roles::$GROUP_ROLES as $role) {
+			$user->removeGroup(Sentry::findGroupByName(str_replace('#', $groupName, $role)));
+		}
 	}
 	
+	/**
+	 * Generate a list of CT-groups a given user belongs to.
+	 * 
+	 * @param $user UserAgent of the user whose groups should be listed.
+	 * @return List of containing the name and role of CT-groups the user belongs to.
+	 */
 	public static function getUserGroups($user) {
 		$sentryGroups = $user->getGroups();
 		
+		// List Sentry-groups and build list of CT-groups
 		$ctGroups = [];
 		foreach ($sentryGroups as $sentryGroup) {
 			$parts = explode(':', $sentryGroup->name);

@@ -17,7 +17,7 @@
 							<th>Name</th>
 							<th>Username</th>
 							<th>Email</th>
-							<th>Projects (permissions)</th>
+							<th>Groups (permissions)</th>
 						</tr>
 						
 						<?php use \MongoDB\Security\Roles as Roles; ?>
