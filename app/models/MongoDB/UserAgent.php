@@ -54,55 +54,55 @@ class UserAgent extends SentryUser implements UserInterface {
 		return $this->email;
 	}
 
-    public static function boot()
-    {
-        parent::boot();
+	public static function boot()
+	{
+		parent::boot();
 
-        static::saving(function($activity)
-        {
-            if(!Schema::hasCollection('useragents'))
-            {
-                static::createSchema();
-            }
-        });
-    }
+		static::saving(function($activity)
+		{
+			if(!Schema::hasCollection('useragents'))
+			{
+				static::createSchema();
+			}
+		});
+	}
 
-    public static function createSchema() {
+	public static function createSchema() {
 		Schema::create('useragents', function($collection)
 		{
-		    $collection->unique('email');
+			$collection->unique('email');
 		});
-    }
+	}
 
-    /**
-     * Get list of all users
-     */
-    public static function getUserlist()
-    {
-    	return UserAgent::orderBy('_id', 'asc')->get();
-    }
-    
-    public function associatedActivities(){
-    	return $this->hasMany('\MongoDB\Activity', 'user_id', '_id');
-    }
+	/**
+	 * Get list of all users
+	 */
+	public static function getUserlist()
+	{
+		return UserAgent::orderBy('_id', 'asc')->get();
+	}
+	
+	public function associatedActivities(){
+		return $this->hasMany('\MongoDB\Activity', 'user_id', '_id');
+	}
 
-    public function associatedEntities(){
-    	return $this->hasMany('\MongoDB\Entity', 'user_id', '_id');
-    }
+	public function associatedEntities(){
+		return $this->hasMany('\MongoDB\Entity', 'user_id', '_id');
+	}
 
 	public function getRememberToken()
 	{
-	    return $this->remember_token;
+		return $this->remember_token;
 	}
 
 	public function setRememberToken($value)
 	{
-	    $this->remember_token = $value;
+		$this->remember_token = $value;
 	}
 
 	public function getRememberTokenName()
 	{
-	    return 'remember_token';
+		return 'remember_token';
 	}
 	
 	// Override Jenssegers\Mongodb\Sentry\User

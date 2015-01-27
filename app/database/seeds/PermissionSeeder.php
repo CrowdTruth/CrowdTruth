@@ -23,13 +23,13 @@ class PermissionSeeder extends Seeder {
 		Eloquent::unguard();
 
 		// Create admin user with admin permisions
-		/*Sentry::getUserProvider()->create([
+		Sentry::getUserProvider()->create([
 			'_id' => 'admin',
 			'password' => 'admin',
 			'email' => 'admin@crowdtruth.org',
 			'firstname' => 'Admin',
 			'lastname' => 'Crowdtruth'
-		]);*/
+		]);
 		
 		Sentry::createGroup([
 			'name'        => 'admin:admin',
@@ -43,14 +43,17 @@ class PermissionSeeder extends Seeder {
 		$root->addGroup($adminGroup);
 
 		// DEBUG:
-		GroupHandler::createGroup('crowdtruth');
+		GroupHandler::createGroup('crowdwatson');
+		GroupHandler::createGroup('nlesc');
 
 		$carlos = Sentry::findUserByLogin('carlosm');
 		$benjamin = Sentry::findUserByLogin('benjamin');
-		$arne = Sentry::findUserByLogin('arne');
+		$arne = Sentry::findUserByLogin('harriette');
 		
-		GroupHandler::grantUser($carlos, 'crowdtruth', Roles::GROUP_ADMIN);
-		GroupHandler::grantUser($benjamin, 'crowdtruth', Roles::GROUP_MEMBER);
-		GroupHandler::grantUser($arne, 'crowdtruth', Roles::GROUP_GUEST);
+		GroupHandler::grantUser($carlos, 'crowdwatson', Roles::GROUP_ADMIN);
+		GroupHandler::grantUser($benjamin, 'crowdwatson', Roles::GROUP_MEMBER);
+		GroupHandler::grantUser($arne, 'crowdwatson', Roles::GROUP_GUEST);
+		
+		GroupHandler::grantUser($carlos, 'nlesc', Roles::GROUP_ADMIN);
 	}
 }

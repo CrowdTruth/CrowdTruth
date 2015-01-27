@@ -65,12 +65,87 @@ class UserController extends BaseController {
 		// Logged in user can view other user's profiles
 		$viewProfiles = PermissionHandler::checkAdmin(Auth::user(), Permissions::ALLOW_ALL);
 		
-		$myGroup = 'crowdtruth';
+		$thisUser = Auth::user();
+		
+		// List of groups this user can invite people to
+		$groupsManaged = [];
+		// For each group logged in user belongs to
+		foreach(GroupHandler::getUserGroups($thisUser) as $group) {
+			// Check if user has admin permission..
+			if(PermissionHandler::checkGroup($thisUser, $group['name'], Permissions::GROUP_ADMIN)) {
+				array_push($groupsManaged, $group['name']);
+			}
+		}
+		
+		$userGroupInfo = [];
+		foreach ($userlist as $user) {
+			// List of groups $user belongs to
+			$usergroups = GroupHandler::getUserGroups($user);
+			$usergroupnames = array_column($usergroups, 'name');
+			
+			// List of groups logged in user can invite $user to join
+			// and that $user is not already a member of.
+			$inviteGroups = array_diff($groupsManaged, $usergroupnames);
+			
+			$belongGroups = [];
+			foreach ($usergroups as $group) {
+				$group['canview'] = true;			// Can logged user view info for this group ?
+				$group['assignrole'] = true;		// Can logged user assign roles for this group
+				array_push($belongGroups, $group);
+			}
+			
+			$userGroupInfo[$user['_id']] = [
+				'groups' => $belongGroups,
+				'tojoin' => $inviteGroups
+			];
+		}
 		
 		return View::make('user.userlist')
 			->with('userlist', $userlist)
 			->with('viewProfiles', $viewProfiles)
-			->with('myGroup', $myGroup);
+			->with('usergroups', $userGroupInfo);
+	}
+
+	public function groupActions() {
+		$thisUser = Auth::user();
+
+		$targetUserName = Input::get('usedId');
+		$groupName = Input::get('group');
+		$targetUser = UserAgent::find($targetUserName);
+		
+		if(!$targetUser) {
+			return Redirect::back()
+			->with('flashError', 'User does not exist: '.$targetUserName);
+		}
+		
+		$isAdmin = PermissionHandler::checkGroup($thisUser, $groupName, Permissions::GROUP_ADMIN);
+		if(!$isAdmin) {
+			return Redirect::back()
+			->with('flashError', 'You do not have permission to perform selected action');
+		}
+		
+		$action = Input::get('action');
+		if($action=='addGroup') {
+			$userRole = GroupHandler::grantUser($targetUser, $groupName, Roles::GROUP_GUEST);
+			
+			return Redirect::back()
+				->with('flashSuccess', 'User '.$targetUserName.' added to group '.$groupName);
+		} elseif($action=='assignRole') {
+			$roleName = Input::get('role');
+			$role = Roles::getRoleByName($roleName);
+			$userRole = GroupHandler::grantUser($targetUser, $groupName, $role);
+			
+			return Redirect::back()
+				->with('flashSuccess', 'User '.$targetUserName.' assigned role '.$roleName.' on group '.$groupName);
+		} elseif($action=='removeGroup') {
+			GroupHandler::revokeUser($targetUser, $groupName);
+			
+			return Redirect::back()
+				->with('flashSuccess', 'User '.$targetUserName.' removed from group '.$groupName);
+		} else {
+			return Redirect::back()
+				->with('flashError', 'Invalid action selected: '.$action);
+		}
 	}
 
 	/**
@@ -106,17 +181,17 @@ class UserController extends BaseController {
 	
 	public function getGroupDetails($groupname) {
 		$sentryGroups = [];
-		foreach(Roles::$GROUP_ROLES as $role) {
+		foreach(Roles::$GROUP_ROLE_NAMES as $role) {
 			$sentryGroups[$role] = Sentry::findGroupByName($groupname.':'.$role);
 		}
 		
 		$groupUsers = [];
-		foreach(Roles::$GROUP_ROLES as $role) {
+		foreach(Roles::$GROUP_ROLE_NAMES as $role) {
 			$groupUsers[$role] = $sentryGroups[$role]['user_agent_ids'];
 		}
 		
 		$groupInviteCodes = [];
-		foreach(Roles::$GROUP_ROLES as $role) {
+		foreach(Roles::$GROUP_ROLE_NAMES as $role) {
 			$groupInviteCodes[$role] = $sentryGroups[$role]['invite_code'];
 		}
 		
@@ -127,27 +202,6 @@ class UserController extends BaseController {
 			->with('groupUsers', $groupUsers)
 			->with('inviteCodes', $groupInviteCodes)
 			->with('canEditGroup', $canEditGroup);
-	}
-	
-	// Ajax call...
-	public function addUserToGroup() {
-		$userName = Input::get('newUserName');
-		$groupName = Input::get('groupName');
-		
-		$user = UserAgent::find($userName);
-		if($user) {
-			$userRole = GroupHandler::grantUser($user, $groupName, Roles::GROUP_GUEST);
-			return [
-				'status' => 'ok',
-				'user' => $userName,
-				'role' => 'guest'
-			];			
-		} else {
-			return [
-				'status' => 'error',
-				'message' => 'User not found',
-			];
-		}
 	}
 
 	public function postLogin(){

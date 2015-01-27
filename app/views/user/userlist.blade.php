@@ -1,7 +1,7 @@
 @extends('layouts.default_new')
 @section('title','Userlist')
 @section('content')
-			<!-- START /index --> 			
+
 <div class="col-xs-12 col-md-10 col-md-offset-1">
 	<div class='maincolumn CW_box_style'>
 
@@ -17,12 +17,10 @@
 							<th>Name</th>
 							<th>Username</th>
 							<th>Email</th>
-							<th>Groups(role)</th>
+							<th>Projects (permissions)</th>
 						</tr>
-
-						<?php use \MongoDB\Security\GroupHandler as GroupHandler; ?>
-						<?php use \MongoDB\Security\PermissionHandler as PermissionHandler; ?>
-						<?php use \MongoDB\Security\Permissions as Permissions; ?>
+						
+						<?php use \MongoDB\Security\Roles as Roles; ?>
 						
 						@foreach ($userlist as $user)
 						<tr class='text-left' >
@@ -30,9 +28,62 @@
 							<td>{{ $viewProfiles?link_to('user/' . $user['_id'], $user['_id']):$user['_id'] }}</td>
 							<td>{{ $user['email'] }}</td>
 							<td>
-							@foreach (GroupHandler::getUserGroups($user) as $group)
-								{{ (PermissionHandler::checkGroup(Auth::user(), $group['name'], Permissions::GROUP_READ))?link_to('group/'.$group['name'], $group['name']):$group['name'] }} <small>({{ $group['role'] }})</small>
-							@endforeach
+								<ul class="list-group">
+								@foreach($usergroups[$user['_id']]['groups'] as $grInfo)
+									<li class="list-group-item">
+									@if($grInfo['canview'])
+										{{ link_to('group/'.$grInfo['name'], $grInfo['name']) }}
+									@else
+										{{ $grInfo['name'] }}
+									@endif
+									
+									@if($grInfo['assignrole'])
+										<div class="btn-group">
+											<button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+												{{ Roles::getRoleLabel($grInfo['role']) }}<span class="caret"></span>
+											</button>
+											<ul class="dropdown-menu" role="menu">
+											@foreach(Roles::$GROUP_ROLE_NAMES as $role)
+													<li>{{ link_to_action('UserController@groupActions', Roles::getRoleLabel($role), [ 
+														'action' => 'assignRole',
+														'usedId' => $user['_id'],
+														'group'  => $grInfo['name'],
+														'role'   => $role
+													]) }}</li>
+											@endforeach
+											</ul>
+											{{ link_to_action('UserController@groupActions', '', [ 
+												'action' => 'removeGroup',
+												'usedId' => $user['_id'],
+												'group'  => $grInfo['name']
+											], [ 'class' => 'fa fa-close', 'style' => 'color:red' ]) }}
+										</div>
+									@else
+										<span class="badge">{{ $grInfo['role'] }}</span>
+									@endif
+									</li>
+								@endforeach
+								@if(count($usergroups[$user['_id']]['tojoin'])>0)
+									<li class="list-group-item">
+										<div class="btn-group">
+											<button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+												Add user to project<span class="caret"></span>
+											</button>
+											<ul class="dropdown-menu" role="menu">
+											@foreach($usergroups[$user['_id']]['tojoin'] as $grInfo)
+												<li>{{ link_to_action('UserController@groupActions', $grInfo, [ 
+													'action' => 'addGroup',
+													'usedId' => $user['_id'],
+													'group'  => $grInfo
+												]) }}
+												</li>
+												
+											@endforeach
+											</ul>
+										</div>
+									</li>
+								@endif
+								</ul>
 							</td>
 						</tr>
 						@endforeach

@@ -72,8 +72,7 @@ Route::get('user/{user}/settings', 'UserController@getSettings');
 Route::model('user', '\MongoDB\UserAgent');
  
 Route::get('group/{groupname}', 'UserController@getGroupDetails');
-Route::get('group/action/adduser', 'UserController@addUserToGroup');
-Route::post('group/action/adduser', 'UserController@addUserToGroup');
+Route::get('group-actions', 'UserController@groupActions');
 
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
 Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));

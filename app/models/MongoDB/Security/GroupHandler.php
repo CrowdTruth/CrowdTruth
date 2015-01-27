@@ -36,8 +36,17 @@ class GroupHandler {
 	}
 	
 	public static function grantUser($user, $groupName, $role) {
+		GroupHandler::revokeUser($user, $groupName);
+		
 		$sentryGroup = Sentry::findGroupByName(str_replace('#', $groupName, $role));
 		$user->addGroup($sentryGroup);
+	}
+	
+	public static function revokeUser($user, $groupName) {
+		// Remove from other Sentry-groups on the same CT-group
+		$user->removeGroup(Sentry::findGroupByName(str_replace('#', $groupName, Roles::GROUP_ADMIN)));
+		$user->removeGroup(Sentry::findGroupByName(str_replace('#', $groupName, Roles::GROUP_MEMBER)));
+		$user->removeGroup(Sentry::findGroupByName(str_replace('#', $groupName, Roles::GROUP_GUEST)));
 	}
 	
 	public static function getUserGroups($user) {
@@ -47,8 +56,8 @@ class GroupHandler {
 		foreach ($sentryGroups as $sentryGroup) {
 			$parts = explode(':', $sentryGroup->name);
 			array_push($ctGroups, [
-			'name' => $parts[0],
-			'role' => $parts[1]
+				'name' => $parts[0],
+				'role' => $parts[1]
 			]);
 		}
 		return $ctGroups;
