@@ -239,7 +239,7 @@ class MediaController extends BaseController {
 			);
 			
 		// list with default keys
-		$default = ['_id', 'format', 'domain', 'documentType', 'title', 'created_at', 'created_by', 'batches', 'jobs', 'clarity'];
+		$default = ['_id', 'format', 'domain', 'documentType', 'title', 'created_at', 'user_id'];
 	
 		foreach ($types as $key => $value){
 			if(!in_array($key, $default)) {

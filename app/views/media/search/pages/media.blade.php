@@ -39,16 +39,13 @@
 					<div class='btn-group pull-left' style="margin-left:5px";>
 						<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" style="display: none;">
 							<optgroup data-icon="fa fa-flag" label="Default">
-								<option value="id" class="select_id" selected>ID</option>
+								<option value="_id" class="select_id" selected>ID</option>
 								<option value="format" class="select_format" selected>Format</option>
 								<option value="domain" class="select_domain" selected>Domain</option>
 								<option value="documentType" class="select_documentType" selected>Type</option>
 								<option value="title" class="select_title" selected>Filename</option>
 								<option value="created_at" class="select_created_by" selected>Created At</option>
-								<option value="created_by" class="select_created_at" selected>Created By</option>
-								<option value="batches" class="select_batches" selected>Batches</option>
-								<option value="jobs" class="select_jobs" selected>Jobs</option>
-								<option value="clarity" class="select_clarity" selected>Clarity</option>
+								<option value="user_id" class="select_user_id" selected>User id</option>
 							</optgroup>
 							<optgroup data-icon="fa fa-calendar" label="Time">
 								@foreach($keys['date'] as $key => $label)
@@ -111,100 +108,14 @@
 						<div class='ctable-responsive'>		
 							<table class="table table-striped">
 								<thead data-query-key="" data-query-value="">
-									<tr>
-										<th data-vbIdentifier="checkbox">Select</th>
-
-										<th class="sorting" data-vbIdentifier="id" data-query-key="orderBy[_id]">ID</th>
-										<th class="sorting" data-vbIdentifier="title" data-query-key="orderBy[title]" data-toggle="tooltip" data-placement="top" title="Upload file name">File Name</th>
-										<th class="sorting" data-vbIdentifier="format" data-query-key="orderBy[format]">Format</th>
-										<th class="sorting" data-vbIdentifier="domain" data-query-key="orderBy[domain]">Domain</th>
-										<th class="sorting" data-vbIdentifier="documentType" data-query-key="orderBy[documentType]">Type</th>
-										<th class="sorting" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]">Created</th>
-										<th class="sorting" data-vbIdentifier="created" data-query-key="orderBy[user_id]">Created by</th>
-										<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]" data-toggle="tooltip" data-placement="top" title="Number of batches the sentence was used in">Batches</th>
-										<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[cache.jobs.count]" data-toggle="tooltip" data-placement="top" title="Number of jobs the sentence was used in">Jobs</th>     
-										<th class="sorting whiteSpaceNormal" data-vbIdentifier="clarity" data-query-key="orderBy[avg_clarity]" data-toggle="tooltip" data-placement="top" title="Clarity of the results">Clarity</th>     
-										<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_children" data-query-key="orderBy[cache.children.count]" data-toggle="tooltip" data-placement="top" title="The number of units generated from this unit">Children</th>
-										<th class="sorting whiteSpaceNormal" data-vbIdentifier="parents"  data-toggle="tooltip" data-placement="top" title="The units from which this media unit was created">Parents</th>
-
-
+									<tr class='identifiers'>
 									</tr>
-
 									<tr class="inputFilters">
-										<td>
-											<input type="checkbox" class="checkAll" />
-										</td>
-										<td>
-											<input class="input-sm form-control" type='text' data-query-key="match[_id]" data-query-operator="like" />
-										</td>
-										<td data-vbIdentifier="title">
-											<input class="input-sm form-control" type='text' data-query-key="match[title]" data-query-operator="like" />
-										</td>
-										<td>
-											<input class="input-sm form-control" type='text' data-query-key="match[format]" data-query-operator="like" />
-										</td>
-										<td>
-											<input class="input-sm form-control" type='text' data-query-key="match[domain]" data-query-operator="like" />
-										</td>
-										<td>
-											<input class="input-sm form-control" type='text' data-query-key="match[documentType]" data-query-operator="like" />
-										</td>
-										<td data-vbIdentifier="created_at">
-											<div class="input-daterange">
-												<input type="text" class="input-sm form-control" name="start" data-query-key="match[created_at]" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />
-												<input type="text" class="input-sm form-control" name="end" data-query-key="match[created_at]" data-query-operator="=<" style="width:49% !important; float:right;" placeholder="End Date" />
-											</div>
-										</td>
-										<td>
-											<input class="input-sm form-control" type='text' data-query-key="match[user_id]" data-query-operator="like" />
-										</td>
-										<td data-vbIdentifier="number_of_batches">
-											<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-											<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-										</td>
-										<td data-vbIdentifier="number_of_jobs">
-											<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-											<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-										</td>
-										<td data-vbIdentifier="clarity">
-											<input class="input-sm form-control" type='text' data-query-key="match[avg_clarity]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-											<input class="input-sm form-control" type='text' data-query-key="match[avg_clarity]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-										</td>
-										 <td data-vbIdentifier="number_of_children">
-											<input class="input-sm form-control" type='text' data-query-key="match[cache.children.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-											<input class="input-sm form-control" type='text' data-query-key="match[cache.children.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-										</td>
-
-										<td data-vbIdentifier="parents">
-											<input class="input-sm form-control" type='text' data-query-key="match[parents][]" />
-										</td>
-
 									</tr>											        
 								</thead>
 								<tbody class='results'>
 								</tbody>
-								<script class='template' type="text/x-handlebars-template">
-									@{{#each documents}}
-									<tr>
-										<td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
-										<td data-vbIdentifier="id">@{{ this._id }}</td>
-
-										<td data-vbIdentifier="title">@{{ this.title }}</td>
-										<td data-vbIdentifier="format">@{{ this.format }}</td>
-										<td data-vbIdentifier="domain">@{{ this.domain }}</td>
-										<td data-vbIdentifier="documentType">@{{ this.documentType }}</td>
-										<td data-vbIdentifier="created_at">@{{ this.created_at }}</td>	
-										<td data-vbIdentifier="user_id">@{{ highlightSelf this.user_id }}</td>
-										<td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>
-										<td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>
-										<td data-vbIdentifier="clarity">@{{ this.avg_clarity }}</td>
-										<td data-vbIdentifier="number_of_children">@{{ this.cache.children.count }}</td>
-										<td data-vbIdentifier="parents">@{{ this.parents }}</td>
-
-									</tr>
-									@{{/each}}
-								</script>						
-											</table>
+							</table>
 						</div>	
 						
 						<div class='status text-center'>
@@ -446,23 +357,6 @@ var getGeneralFilterQueries = function() {
 	return generalFilterQuery;
 }
 
-$('.searchOptions .tabOptions').on('click', "[data-vbSelector]", function(){
-	if($(this).attr('data-vb') == "show")
-	{
-		$(this).attr('data-vb', 'hide');
-		$(this).find('.fa').remove();
-		$(this).prepend('<i class="fa fa-circle-o fa-fw"></i>');
-	}
-	else
-	{
-		$(this).attr('data-vb', 'show');
-		$(this).find('.fa').remove();
-		$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
-	}
-
-	visibleColumns();
-});
-
 $('body').on('keyup', '.inputFilters input', function(){
 	var inputFilter = $(this);
 
@@ -670,11 +564,10 @@ function getResults(baseApiURL){
 	abortAjax(xhr);
 
 	xhr = $.getJSON(baseApiURL + tabFieldsQuery + searchLimitQuery, function(data) {
-		// console.log(data);
 
 		lastQueryResult = data;
 	
-		var template = Handlebars.compile($('.template').html());
+		var template = Handlebars.compile(dynamicTemplate());
 		var html = template(data);
 		$('.navigation').empty().prepend($(data.pagination));
 		$('.navigation').find('.pagination').addClass('pagination-sm');
@@ -717,25 +610,55 @@ function abortAjax(xhr) {
 	}
 }
 
-// show columns that have been selected
-var visibleColumns = function(){
-	$('.columns option').each(function() {
+$('.inputFilters').on('click', '.filterChange', function() {
+	$(this).parents('.filter').children('.filterField').remove();
+});
 
-		console.log($(this).value());
-		var vbSelector = $("[" + "data-vbIdentifier='" + $(this).attr('data-vbSelector') + "']");
+// refresh columns in table
+var refreshColumns = function() {
 
-		if($(this).attr('data-vb') == "show")
-		{
-			vbSelector.removeClass('hidden');
-		}
-		else
-		{
-			vbSelector.addClass('hidden');
-		}
-	});
+	// create identifiers and filters
+	var identifiers = '<th data-vbIdentifier="checkbox">Select</th>';
+	var filters = '<td><input type="checkbox" class="checkAll" /></td>';
 
-	// initializeFixedThead();
+	var columns = $('.columns').val();
+	for(var i = 0; i < columns.length; i++) {
+		identifiers += '<th class="sorting" data-vbIdentifier="' + columns[i] + '" data-query-key="orderBy[' + columns[i] + ']">' + $('.columns option[value=' + columns[i] + ']').text() + '</th>';	
+		filters += '<td><input class="input-sm form-control" type="text" data-query-key="match[' + columns[i] + ']" data-query-operator="like" placeholder="Filter" /></td>';		
+	}
+
+	// update identifiers and filters
+	$('.identifiers').html(identifiers);
+	$('.inputFilters').html(filters);
+	
 }
+
+// create template based on selected columns
+var dynamicTemplate = function() {
+
+	var template = '@{{#each documents}}<tr><td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>';
+
+	var columns = $('.columns').val();
+	for(var i = 0; i < columns.length; i++) {
+		template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
+	}
+	template += '</tr>@{{/each}}';
+	return template;
+}
+
+// on adding or removal of a column, refresh the table identifiers and filters
+$('.columns').on('change', function(){
+	refreshColumns();
+	
+	
+	// update results
+	var template = Handlebars.compile(dynamicTemplate());
+	var html = template(lastQueryResult);
+	$('.search .results').empty().append(html);
+	$('.search .results').show('slow');
+});
+
+
 
 var fixedThead;
 
@@ -920,9 +843,8 @@ if(workerList !=  null) {
     localStorage.removeItem("unitList");
 }
 
-
-
 getResults();
+refreshColumns();
 
 });
 
