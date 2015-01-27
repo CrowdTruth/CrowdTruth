@@ -36,7 +36,7 @@
 					</select>
 				@endif
 				
-					<div class='columns btn-group pull-left' style="margin-left:5px";>
+					<div class='btn-group pull-left' style="margin-left:5px";>
 						<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" style="display: none;">
 							<optgroup data-icon="fa fa-flag" label="Default">
 								<option value="id" class="select_id" selected>ID</option>
@@ -118,7 +118,7 @@
 										<th class="sorting" data-vbIdentifier="title" data-query-key="orderBy[title]" data-toggle="tooltip" data-placement="top" title="Upload file name">File Name</th>
 										<th class="sorting" data-vbIdentifier="format" data-query-key="orderBy[format]">Format</th>
 										<th class="sorting" data-vbIdentifier="domain" data-query-key="orderBy[domain]">Domain</th>
-										<th class="sorting" data-vbIdentifier="documentType" data-query-key="orderBy[documentType]">Document-Type</th>
+										<th class="sorting" data-vbIdentifier="documentType" data-query-key="orderBy[documentType]">Type</th>
 										<th class="sorting" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]">Created</th>
 										<th class="sorting" data-vbIdentifier="created" data-query-key="orderBy[user_id]">Created by</th>
 										<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]" data-toggle="tooltip" data-placement="top" title="Number of batches the sentence was used in">Batches</th>
@@ -181,9 +181,30 @@
 
 									</tr>											        
 								</thead>
-								<tbody class='results'>											
+								<tbody class='results'>
 								</tbody>
-							</table>
+								<script class='template' type="text/x-handlebars-template">
+									@{{#each documents}}
+									<tr>
+										<td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
+										<td data-vbIdentifier="id">@{{ this._id }}</td>
+
+										<td data-vbIdentifier="title">@{{ this.title }}</td>
+										<td data-vbIdentifier="format">@{{ this.format }}</td>
+										<td data-vbIdentifier="domain">@{{ this.domain }}</td>
+										<td data-vbIdentifier="documentType">@{{ this.documentType }}</td>
+										<td data-vbIdentifier="created_at">@{{ this.created_at }}</td>	
+										<td data-vbIdentifier="user_id">@{{ highlightSelf this.user_id }}</td>
+										<td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>
+										<td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>
+										<td data-vbIdentifier="clarity">@{{ this.avg_clarity }}</td>
+										<td data-vbIdentifier="number_of_children">@{{ this.cache.children.count }}</td>
+										<td data-vbIdentifier="parents">@{{ this.parents }}</td>
+
+									</tr>
+									@{{/each}}
+								</script>						
+											</table>
 						</div>	
 						
 						<div class='status text-center'>
@@ -491,7 +512,7 @@ $('body').on('click', '.toSelection', function(){
 	}
 });
 
-$('.tab-pane').on('click', "th", function(){
+$('.searchResults').on('click', "th", function(){
 	if($(this).hasClass('sorting')){
 		$(this).removeClass().addClass('sorting_asc');
 	} else if($(this).hasClass('sorting_asc')){
@@ -605,9 +626,25 @@ function getTabFieldsQuery(){
 		tabFieldsQuery += "&" + "match[documentType]" + operator + documentType;
 	}
 
-	// filter results
-	// tabFieldsQuery += "&" + $(this).attr('data-query-key') + "=asc";
-
+	// go through sorting
+	$('.sorting, .sorting_asc, .sorting_desc').each(function() {
+	console.log($(this).text());
+		if($(this).is('[data-query-value]')){
+			if($(this).is('[data-query-operator]')){
+				var operator = "[" + encodeURIComponent($(this).attr('data-query-operator')) + "]=";
+			} else {
+				var operator = "=";
+			}
+			tabFieldsQuery += "&" + $(this).attr('data-query-key') + operator + $(this).attr('data-query-value');
+		}
+		if($(this).hasClass('sorting_asc')){
+			tabFieldsQuery += "&" + $(this).attr('data-query-key') + "=asc";
+		} else if($(this).hasClass('sorting_desc')){
+			tabFieldsQuery += "&" + $(this).attr('data-query-key') + "=desc";
+		}
+	});
+	
+	
 	// console.log(tabFieldsQuery);
 	return tabFieldsQuery;
 }
@@ -637,26 +674,10 @@ function getResults(baseApiURL){
 
 		lastQueryResult = data;
 	
-		var temp = '					<script type="text/x-handlebars-template"><tr><td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>' +
-											'<td data-vbIdentifier="id">@{{ this._id }}</td>' +
-											'<td data-vbIdentifier="title">@{{ this.title }}</td>' +
-											'<td data-vbIdentifier="format">@{{ this.format }}</td>' +
-											'<td data-vbIdentifier="domain">@{{ this.domain }}</td>' +
-											'<td data-vbIdentifier="documentType">@{{ this.documentType }}</td>' +
-											'<td data-vbIdentifier="created_at">@{{ this.created_at }}</td>'	+
-											'<td data-vbIdentifier="user_id">@{{ highlightSelf this.user_id }}</td>' +
-											'<td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>' +
-											'<td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>' +
-											'<td data-vbIdentifier="clarity">@{{ this.avg_clarity }}</td>' +
-											'<td data-vbIdentifier="number_of_children">@{{ this.cache.children.count }}</td>' +
-											'<td data-vbIdentifier="parents">@{{ this.parents }}</td></tr></script>';
-											
-		var template = Handlebars.compile(temp);
+		var template = Handlebars.compile($('.template').html());
 		var html = template(data);
-		console.log(html);
 		$('.navigation').empty().prepend($(data.pagination));
 		$('.navigation').find('.pagination').addClass('pagination-sm');
-		console.log(html);
 		$('.search .results').empty().append(html);
 		$('.search .results').show('slow');
 		
@@ -666,11 +687,6 @@ function getResults(baseApiURL){
 		$('.search .stats').html(searchStats);
 
 		
-		
-		// initializeVisibleColumns();
-		// visibleColumns();
-
-
 		if($('.graphViewButton').hasClass('hidden')){
             var selectedCategory = activeTabKey;
 			$(activeTabKey + ' .checkAll').removeAttr('checked');
@@ -701,52 +717,12 @@ function abortAjax(xhr) {
 	}
 }
 
-var initializeVisibleColumns = function(){
-	if($('.searchOptions .tabOptions').find(".vbColumns").length){
-		$('.searchOptions .tabOptions').find("[data-vbSelector]").each(function() {
-			if($(this).attr('data-vb') == "show")
-			{
-				$(this).find('.fa').remove();
-				$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
-			}
-			else
-			{
-				$(this).find('.fa').remove();
-				$(this).prepend('<i class="fa fa-circle-o fa-fw"></i>');
-			}
-		});
-	}
-
-	$('.searchOptions .openAllColumns').off().on("click", function() {
-		$(this).addClass('hidden');
-		$('.searchOptions .openDefaultColumns').removeClass('hidden');
-
-		$('.searchOptions .tabOptions').find("[data-vbSelector]").each(function() {
-			if($(this).attr('data-vb') == "hide")
-			{
-				$(this).click();
-			}
-		});
-	});
-
-	$('.searchOptions .openDefaultColumns').off().on("click", function() {
-		$(this).addClass('hidden');
-		$('.searchOptions .openAllColumns').removeClass('hidden');
-
-		$('.searchOptions .tabOptions').find(".vbColumns").empty();
-		$('.searchOptions .tabOptions').find(".vbColumns").append(defaultColumns[getActiveTabKey()]);
-
-		initializeVisibleColumns();
-		visibleColumns();
-	});
-}
-
+// show columns that have been selected
 var visibleColumns = function(){
-	var activeTabKey = getActiveTabKey();
+	$('.columns option').each(function() {
 
-	$('.searchOptions .tabOptions').find("[data-vbSelector]").each(function() {
-
-		var vbSelector = $(activeTabKey).find($("[" + "data-vbIdentifier='" + $(this).attr('data-vbSelector') + "']"));
+		console.log($(this).value());
+		var vbSelector = $("[" + "data-vbIdentifier='" + $(this).attr('data-vbSelector') + "']");
 
 		if($(this).attr('data-vb') == "show")
 		{
@@ -909,7 +885,6 @@ var openStaticModal = function(modalAnchor , activeTabKey){
 		        data : postData,
 		        success:function(data, textStatus, jqXHR)
 		        {
-	            	console.log(data);
 	            	alert(data.message);
 
 		        },
@@ -969,7 +944,6 @@ function jobactions(job, action, index){
 		        success:function(data, textStatus, jqXHR)
 					{
 
-						console.log(data);
 
 						if(data.status=='ok'){
 							$('#'+action+index).hide();
