@@ -11,8 +11,22 @@ class MediaSearchComponent {
 	
 	// clear all data
 	public function clear() {
-		$this->softwareComponent['keys'] = [];
+		$this->softwareComponent->keys = [];
 		$this->softwareComponent->save();
+	}
+	
+	/**
+	 * from the list of formats select the lowest granularity
+	 */
+	public function prioritizeFormat($formats) {
+		if(in_array('string', $formats)) { $format = 'string'; }
+		else if(in_array('number', $formats)) { $format = 'number'; }
+		else if(in_array('time', $formats)) { $format = 'time'; }
+		else if(in_array('image', $formats)) { $format = 'image'; }
+		else if(in_array('video', $formats)) { $format = 'video'; }
+		else if(in_array('sound', $formats)) { $format = 'sound'; }
+		else { $format = 'error'; }
+		return $format;
 	}
 	
 	// get all keys
@@ -23,28 +37,27 @@ class MediaSearchComponent {
 	// create new index of keys in the database
 	public function store($keys) {
 		$allKeys = $this->softwareComponent['keys'];
-		$allKeys = array_unique(array_merge($allKeys, $keys));
-		$labels = $this->softwareComponent['keyLabels'];
-		$types = $this->softwareComponent['keyTypes'];
-		foreach($keys as $key) {
-			if( ! array_key_exists($key, $labels)) {
-				$key2 = str_replace(".", "_", $key);
-				$label = str_replace("_", " ", $key2);
-				$labels[$key2] = ucfirst($label);
-				
-				// determine type
-				if(strpos($key2, '_count') !== false) {
-					$types[$key2] = 'int'; // integer
-				} else if(stripos(strrev($key2), '_at') === 0 || strpos($key2, 'date') !== false ) {
-					$types[$key2] = 'date'; // date
+		$allKeys = [];
+		// loop through keys to update formats
+		foreach($keys as $k => $v) {
+			// if format is something else then the current format, prioritize it
+			if(array_key_exists($k,$allKeys)) {
+				if($allKeys[$k]['format'] != $keys[$k]['format']) {
+					$format = $this->prioritizeFormat([$allKeys[$k]['format'],$keys[$k]['format']]);
 				} else {
-					$types[$key2] = 'string'; // string
+					$format = $keys[$k]['format'];
 				}
+				//$this->softwareComponent['keys'][$k]['format'] = $format;
+				//$this->softwareComponent->save();
+			} else {
+				$key = $this->softwareComponent->keys;
+				$key[$k] = $v;
+				$this->softwareComponent->keys = $key;
+				
+				// $this->softwareComponent['keys'] = ['aa'];
+				
 			}
 		}
-		$this->softwareComponent['keys'] = $allKeys;
-		$this->softwareComponent['keyTypes'] = $types;
-		$this->softwareComponent['keyLabels'] = $labels;
-		$this->softwareComponent->save();
+		$this->softwareComponent->save();		
 	}
 }

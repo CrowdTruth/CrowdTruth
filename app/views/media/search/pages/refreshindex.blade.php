@@ -18,6 +18,7 @@
 								{{ Form::hidden('next', '0', [ 'id' => 'next' ]) }}
 								<div class="form-horizontal">
 									<div class="col-xs-12">
+										<p>The platform keeps a search index list. On this page you can rebuild this list by indexing all properties in the database. Doing so will delete the existing search index.</p>
 										Two big assumptions are made to shrink list size:
 										<ul>
 										<li>withoutSpam, withSpam, withFilter, withoutFilter are ignored</li>

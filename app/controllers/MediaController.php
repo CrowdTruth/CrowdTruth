@@ -38,6 +38,9 @@ class MediaController extends BaseController {
 		return Redirect::to('media/preprocess/' . $action);
 	}
 
+	/**
+	 * map properties to keys with formats
+	 */
 	public function getKeys($entity, $parent = "") {
 		$blacklist = [ '/withoutSpam/', '/withSpam/', '/withFilter/', '/withoutFilter/' ];
 		$poundSign = '/#/';
@@ -48,32 +51,75 @@ class MediaController extends BaseController {
 		}
 
 		$keys = [];
+		// loop through all properties
 		foreach($entity as $key => $value) {
+			// exclude keys that are numbers
 			if(! is_numeric($key) && !preg_match($poundSign, $key)) {
+				// if the property has children
 				if(is_array($entity[$key])) {
-					array_push($keys, $parent.$key);
+					$subkey = str_replace('.', '_', $parent.$key);
+					$keys[$subkey] = ['key' => $parent.$key, 'label' => $this->getLabel($parent.$key), 'format' => ['array']];
+					// get properties of children
 					$subKeys = $this->getKeys($entity[$key], $parent.$key.".");
 					$keys = array_merge($keys, $subKeys);
 				} else {
-					array_push($keys, $parent.$key);
+					$keys[$key] = ['key' => $key, 'label' => $this->getLabel($key), 'format' => [$this->getFormat($value)]];
 				}
 			}
 		};
 		return $keys;
 	}
 
+	/**
+	 * trace format of a value
+	 */
+	public function getFormat($value) {
+		
+		if(preg_match('/^.*\.(jpg|jpeg|png|gif)$/i',$value)) {
+			$format = 'image';
+		} else if(is_numeric($value)) {
+			$format = 'number';
+		} else {
+			$format = 'string';
+		}
+			
+		
+		/*
+			sound
+			image
+			video
+			time
+			number
+			string
+
+			*/
+							
+		
+		return $format;
+	}
+	
+	/**
+	 * create a fancy label based on a key
+	 */
+	public function getLabel($label) {
+		$label = str_replace(".", "_", $label);
+		$label = str_replace("_", " ", $label);
+		$label = ucfirst($label);
+		return $label;
+	}
+
 	public function getListindex()
 	{
 		$searchComponent = new MediaSearchComponent();
 		$keys = $searchComponent->getKeys();
-		return View::make('media.search.pages.listindex')->with('labels', $keys)->with('types', $keys);
+		return View::make('media.search.pages.listindex')->with('keys', $keys);
 	}
 
 	public function getRefreshindex()
 	{
 		return View::make('media.search.pages.refreshindex');
 	}
-
+	
 	/**
 	 * refresh search index
 	 */
@@ -82,9 +128,9 @@ class MediaController extends BaseController {
 		$searchComponent = new MediaSearchComponent();
 		
 		// amount of units to index per iteration
-		$batchsize = 10;
+		$batchsize = 500;
 		$from = Input::get('next');
-		$count = Entity::whereIn('tags', ['unit'])->count();
+		$unitCount = Entity::whereIn('tags', ['unit'])->count();
 		
 		// reset index on start
 		if($from == 0) {
@@ -92,28 +138,33 @@ class MediaController extends BaseController {
 		}
 		
 		// reduce last batch to remaining units
-		if($from + $batchsize > $count) {
-			$batchsize = $count - $from;
+		if($from + $batchsize > $unitCount) {
+			$batchsize = $unitCount - $from;
 		}
 		
-		$allIds = Entity::distinct('_id')->where('tags', ['unit'])->skip($from)->take($batchsize)->get();
+		// all units in this range
+		$units = Entity::distinct('_id')->where('tags', ['unit'])->skip($from)->take($batchsize)->get();
 			 
 		// get keys for each unit in this batch
 		$allKeys = [];
 		for($i = 0; $i < $batchsize; $i++) {
-			$e = Entity::where('_id', $allIds[$i][0])->first();
-			$keys = $this->getKeys($e->attributesToArray());
+			// get data of unit
+			$unit = Entity::where('_id', $units[$i][0])->first();
 			
-			// loop through keys to get the values
+			// map all properties into keys with formats
+			$keys = $this->getKeys($unit->attributesToArray());
 			
-			$allKeys = array_unique(array_merge($allKeys, $keys));
+			// merge keys with set of keys and get the right format (e.g. if it occurs both at string and int we treat all of them as a string
+			foreach($keys as $k => $v) {
+				$allKeys[$k] = ['key' => $k, 'label' => $keys[$k]['label'], 'format' => $searchComponent->prioritizeFormat($keys[$k]['format'])];
+			}
 		}
 		$searchComponent->store($allKeys);
 			 
 		return [
-			'log' => $e->attributesToArray(),
+			'log' => $allKeys,
 			'next' => $from + $batchsize,
-			'last' => $count
+			'last' => $unitCount
 		 ];
 	}
 
@@ -231,34 +282,14 @@ class MediaController extends BaseController {
 		
 		// include keys
 		$searchComponent = new MediaSearchComponent();
-		$labels = $searchComponent->getKeys();
-		$types = $searchComponent->getKeys();
+		$keys = $searchComponent->getKeys();
 		
 		// group keys per type
-		$keys = array(
-			'string' => array(),
-			'int' => array(),
-			'date' => array()
-			);
+		$keys = ['_id' => ['label' => 'ID','format' => 'sound']];
 			
 		// list with default keys
 		$default = ['_id', 'format', 'domain', 'documentType', 'title', 'created_at', 'user_id'];
 	
-		foreach ($types as $key => $value){
-			if(!in_array($key, $default)) {
-				switch($value) {
-					case 'string':
-						$keys['string'][$key] = $labels[$key];
-						break;
-					case 'int':
-						$keys['int'][$key] = $labels[$key];
-						break;
-					case 'date':
-						$keys['date'][$key] = $labels[$key];
-						break;					
-				}
-			}
-		}
 
 		return View::make('media.search.pages.media')->with('mainSearchFilters', $mainSearchFilters)->with('keys', $keys);
 	}

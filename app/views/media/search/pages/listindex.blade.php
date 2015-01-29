@@ -14,19 +14,19 @@
 								<h4>Current search index</h4>
 							</div>
 							<div class="panel-body">
-								@if($labels)
+								@if($keys)
 								<table class='table table-striped table-condensed'>
 									<tbody>
 										<tr>
 											<th>Key</th>
 											<th>Label</th>
-											<th>Type</th>
+											<th>Format</th>
 										</tr>
-									@foreach($labels as $key=>$label)
+									@foreach($keys as $key=>$label)
 										<tr>
 											<td>{{ $key }}</td>
-											<td>{{ $label }}</td>
-											<td>{{ $types[$key] }}</td>
+											<td>{{ $keys[$key]['label'] }}</td>
+											<td>{{ $keys[$key]['format'] }}</td>
 										</tr>
 
 									@endforeach

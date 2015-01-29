@@ -38,7 +38,7 @@
 				
 					<div class='btn-group pull-left' style="margin-left:5px";>
 						<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" style="display: none;">
-							<optgroup data-icon="fa fa-flag" label="Default">
+							<optgroup data-icon="fa fa-flag" label="Selected">
 								<option value="_id" class="select_id" selected>ID</option>
 								<option value="format" class="select_format" selected>Format</option>
 								<option value="domain" class="select_domain" selected>Domain</option>
@@ -47,19 +47,9 @@
 								<option value="created_at" class="select_created_by" selected>Created At</option>
 								<option value="user_id" class="select_user_id" selected>User id</option>
 							</optgroup>
-							<optgroup data-icon="fa fa-calendar" label="Time">
-								@foreach($keys['date'] as $key => $label)
-									<option value="{{$key}}" class="select_{{$key}}">{{ $label }}</option>
-								@endforeach
-							</optgroup>
-							<optgroup data-icon="fa fa-bar-chart" label="Numbers">
-								@foreach($keys['int'] as $key => $label)
-									<option value="{{$key}}" class="select_{{$key}}">{{ $label }}</option>
-								@endforeach
-							</optgroup>
-							<optgroup data-icon="fa fa-file-text-o" label="Names">
-								@foreach($keys['string'] as $key => $label)
-									<option value="{{$key}}" class="select_{{$key}}">{{ $label }}</option>
+							<optgroup label="Properties">
+								@foreach($keys as $id => $key)
+									<option data-icon="fa fa-file-text-o" value="{{$id}}" class="select_{{$id}}">{{ $key['format'] . $key['label'] }}</option>
 								@endforeach
 							</optgroup>
 						</select>
