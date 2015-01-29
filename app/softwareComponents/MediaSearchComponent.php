@@ -8,21 +8,19 @@ class MediaSearchComponent {
 	public function __construct() {
 		$this->softwareComponent = SoftwareComponent::find('mediasearchcomponent');
 	}
+	
+	// clear all data
 	public function clear() {
 		$this->softwareComponent['keys'] = [];
-		$this->softwareComponent['keyLabels'] = [];
-		$this->softwareComponent['keyTypes'] = [];
 		$this->softwareComponent->save();
 	}
 	
-	public function getKeyLabels() {
-		return $this->softwareComponent['keyLabels'];
+	// get all keys
+	public function getKeys() {
+		return $this->softwareComponent['keys'];
 	}
-	
-	public function getKeyTypes() {
-		return $this->softwareComponent['keyTypes'];
-	}
-	
+
+	// create new index of keys in the database
 	public function store($keys) {
 		$allKeys = $this->softwareComponent['keys'];
 		$allKeys = array_unique(array_merge($allKeys, $keys));

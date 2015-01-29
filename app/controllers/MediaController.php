@@ -65,9 +65,8 @@ class MediaController extends BaseController {
 	public function getListindex()
 	{
 		$searchComponent = new MediaSearchComponent();
-		$labels = $searchComponent->getKeyLabels();
-		$types = $searchComponent->getKeyTypes();
-		return View::make('media.search.pages.listindex')->with('labels', $labels)->with('types', $types);
+		$keys = $searchComponent->getKeys();
+		return View::make('media.search.pages.listindex')->with('labels', $keys)->with('types', $keys);
 	}
 
 	public function getRefreshindex()
@@ -83,7 +82,7 @@ class MediaController extends BaseController {
 		$searchComponent = new MediaSearchComponent();
 		
 		// amount of units to index per iteration
-		$batchsize = 1000;
+		$batchsize = 10;
 		$from = Input::get('next');
 		$count = Entity::whereIn('tags', ['unit'])->count();
 		
@@ -104,11 +103,15 @@ class MediaController extends BaseController {
 		for($i = 0; $i < $batchsize; $i++) {
 			$e = Entity::where('_id', $allIds[$i][0])->first();
 			$keys = $this->getKeys($e->attributesToArray());
+			
+			// loop through keys to get the values
+			
 			$allKeys = array_unique(array_merge($allKeys, $keys));
 		}
 		$searchComponent->store($allKeys);
 			 
 		return [
+			'log' => $e->attributesToArray(),
 			'next' => $from + $batchsize,
 			'last' => $count
 		 ];
@@ -228,8 +231,8 @@ class MediaController extends BaseController {
 		
 		// include keys
 		$searchComponent = new MediaSearchComponent();
-		$labels = $searchComponent->getKeyLabels();
-		$types = $searchComponent->getKeyTypes();
+		$labels = $searchComponent->getKeys();
+		$types = $searchComponent->getKeys();
 		
 		// group keys per type
 		$keys = array(
