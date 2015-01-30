@@ -2,7 +2,7 @@
 
 namespace MongoDB;
 
-use Moloquent, URL, File, Exception, Auth, User;
+use Moloquent, URL, File, Exception, Auth;
 
 class SoftwareAgent extends Moloquent {
 

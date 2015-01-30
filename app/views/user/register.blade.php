@@ -17,7 +17,7 @@
     <div class="child">
         <div class="register well">
         	@include('layouts.flashdata')
-            {{ Form::open(array('url' => 'user/register', 'class' => 'form', 'role' => 'form')) }}
+            {{ Form::open(array('url' => 'register', 'class' => 'form', 'role' => 'form')) }}
             <div class="row">
                 <div class="col-xs-6">
                          {{ Form::text('firstname', Input::old('firstname'), array('class' => 'form-control', 'placeholder' => 'First name', 'required', 'autofocus')) }}
@@ -35,7 +35,7 @@
 			@endif
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
             <div class='hr-or'></div>
-            <a href='{{ URL::to('user/login') }}' class='btn btn-lg btn-success btn-block'>Log in</a>            
+            <a href='{{ URL::to('login') }}' class='btn btn-lg btn-success btn-block'>Log in</a>            
             </form>
         </div>
 

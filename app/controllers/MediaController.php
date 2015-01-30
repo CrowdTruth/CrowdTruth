@@ -22,7 +22,7 @@ class MediaController extends BaseController {
 
 	public function getIndex()
 	{
-        return Redirect::to('media/upload');
+		return Redirect::to('media/upload');
 	}
 
 	/**
@@ -82,7 +82,7 @@ class MediaController extends BaseController {
 			return [
 				'next' => 0,	// Meaning we should start from 0
 				'last' => sizeof($allIds)
-			 ];
+			];
 		} else {
 			$allKeys = [];
 			$batchSize = 100;
@@ -97,7 +97,7 @@ class MediaController extends BaseController {
 			return [
 				'next' => $i,	// Meaning we should start from 0
 				'last' => $lastOne
-			 ];
+			];
 		}
 	}
 

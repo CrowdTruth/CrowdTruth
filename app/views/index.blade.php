@@ -34,7 +34,7 @@
 								</div>
 							</div>
 							<div class="col-xs-4">
-								<div class='disabled'>
+								<div class='home-disabled'>
 								
 										<i class="fa fa-desktop" style='font-size:400%;'></i>
 										<h4>Create Template</h4>
@@ -203,7 +203,7 @@
 .tools:hover {
 	border: 1px solid #bfbd05;
 }
-.disabled {
+.home-disabled {
 	margin: 5px -10px 5px -10px;
 	height:150px;
 	overflow:hidden;
@@ -218,10 +218,10 @@
 	border-radius: 3px;
 	box-shadow: 0 1px 0 #fff;
 }
-.tools div, .disabled div {
+.tools div, .home-disabled div {
 	font-size:13px;
 }
-.tools h4, .disabled h4 {
+.tools h4, .home-disabled h4 {
 	margin-bottom:5px;
 }
 .website {

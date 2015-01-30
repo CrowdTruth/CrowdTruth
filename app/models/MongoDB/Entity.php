@@ -2,7 +2,7 @@
 
 namespace MongoDB;
 
-use Moloquent, Schema, Cache, Input, Exception, Auth, User, Session;
+use Moloquent, Schema, Cache, Input, Exception, Auth, Session;
 
 use \Counter as Counter;
 
@@ -169,7 +169,7 @@ class Entity extends Moloquent {
     }
 
     public function wasAttributedToUserAgent(){
-        return $this->hasOne('User', '_id', 'user_id');
+        return $this->hasOne('\MongoDB\UserAgent', '_id', 'user_id');
     }
 
     public function wasAttributedToCrowdAgent(){

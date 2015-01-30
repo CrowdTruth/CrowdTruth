@@ -22,7 +22,7 @@
             <input class="form-control" name="password" placeholder="Password" type="password" required />
             <button class="btn btn-lg btn-primary btn-block" type="submit">Log in</button>
             <div class='hr-or'></div>
-            <a href='{{ URL::to('user/register') }}' class='btn btn-lg btn-success btn-block'>Register</a>
+            <a href='{{ URL::to('register') }}' class='btn btn-lg btn-success btn-block'>Register</a>
             </form>
         </div>
 

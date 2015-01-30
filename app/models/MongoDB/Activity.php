@@ -2,7 +2,7 @@
 
 namespace MongoDB;
 
-use Moloquent, Schema, Auth, Exception, User, Input;
+use Moloquent, Schema, Auth, Exception, Input;
 
 use \Counter as Counter;
 
@@ -70,8 +70,16 @@ class Activity extends Moloquent {
 		});
 	}
 
+	/**
+     * Get activity for a user ordered by timestamp
+     */
+	public static function getActivitiesForUser($userId)
+    {
+        return Activity::where('user_id', $userId)->orderBy('updated_at', 'desc')->get();
+    }
+
     public function wasAssociatedWithUserAgent(){
-        return $this->hasOne('User', '_id', 'user_id');
+        return $this->hasOne('\MongoDB\UserAgent', '_id', 'user_id');
     }
 
     public function wasAssociatedWithCrowdAgent(){
