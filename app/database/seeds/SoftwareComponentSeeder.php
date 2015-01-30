@@ -37,8 +37,15 @@ class SoftwareComponentSeeder extends Seeder {
 				'Searches through media',
 				function( &$component ) {
 					$component['keys'] = [];
-					$component['keyLabels'] = [];
-					$component['keyTypes'] = [];
+					// add icons for formats in the database
+					$component['formats'] = [
+						'string' => '', // do not show icons for string values
+						'number' => 'fa-bar-chart',
+						'time' => 'fa-calendar',
+						'image' => 'fa-picture-o',
+						'video' => 'fa-film',
+						'sound' => 'fa-music'
+						];
 				}
 		);
 		}

@@ -39,17 +39,11 @@
 					<div class='btn-group pull-left' style="margin-left:5px";>
 						<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" style="display: none;">
 							<optgroup data-icon="fa fa-flag" label="Selected">
-								<option value="_id" class="select_id" selected>ID</option>
-								<option value="format" class="select_format" selected>Format</option>
-								<option value="domain" class="select_domain" selected>Domain</option>
-								<option value="documentType" class="select_documentType" selected>Type</option>
-								<option value="title" class="select_title" selected>Filename</option>
-								<option value="created_at" class="select_created_by" selected>Created At</option>
-								<option value="user_id" class="select_user_id" selected>User id</option>
+
 							</optgroup>
 							<optgroup label="Properties">
 								@foreach($keys as $id => $key)
-									<option data-icon="fa fa-file-text-o" value="{{$id}}" class="select_{{$id}}">{{ $key['format'] . $key['label'] }}</option>
+									<option data-icon="{{ $formats[$key['format']] }}" value="{{$key['key']}}" format="{{$key['format']}}" class="select_{{$key['key']}}">{{ $key['label'] }}</option>
 								@endforeach
 							</optgroup>
 						</select>
@@ -613,8 +607,11 @@ var refreshColumns = function() {
 
 	var columns = $('.columns').val();
 	for(var i = 0; i < columns.length; i++) {
-		identifiers += '<th class="sorting" data-vbIdentifier="' + columns[i] + '" data-query-key="orderBy[' + columns[i] + ']">' + $('.columns option[value=' + columns[i] + ']').text() + '</th>';	
-		filters += '<td><input class="input-sm form-control" type="text" data-query-key="match[' + columns[i] + ']" data-query-operator="like" placeholder="Filter" /></td>';		
+		identifiers += '<th class="sorting" data-vbIdentifier="' + columns[i] + '" data-query-key="orderBy[' + columns[i] + ']">' + $('.columns option[value="' + columns[i] + '"]').text() + '</th>';	
+		
+		// change filter based on format
+		filters += '<td><input class="input-sm form-control" type="text" data-query-key="match[' + columns[i] + ']" data-query-operator="like" placeholder="Filter" /></td>';
+		
 	}
 
 	// update identifiers and filters
@@ -630,9 +627,19 @@ var dynamicTemplate = function() {
 
 	var columns = $('.columns').val();
 	for(var i = 0; i < columns.length; i++) {
-		template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
+		switch($('.columns option[value="' + columns[i] + '"]').attr('format')) {
+			case 'image':
+				template += '<td data-vbIdentifier="id"><img style="max-width:100px; max-height:100px;border:0px;" src="@{{ this.' + columns[i] + ' }}" /></td>';
+			break;
+			case 'video':
+				template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video>';
+			break;
+			default:
+				template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
+		}	
 	}
 	template += '</tr>@{{/each}}';
+	console.log(template);
 	return template;
 }
 

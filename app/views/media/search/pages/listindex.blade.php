@@ -11,22 +11,28 @@
 
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h4>Current search index</h4>
+								<h4>Current search index <a class='btn btn-primary pull-right' href="{{ URL::to('media/refreshindex') }}">Rebuild Index</a></h4>
 							</div>
 							<div class="panel-body">
 								@if($keys)
 								<table class='table table-striped table-condensed'>
-									<tbody>
+									<thead>
 										<tr>
-											<th>Key</th>
-											<th>Label</th>
-											<th>Format</th>
+											<th></th>
+											<th>Index</th>
+											<th>Document Types</th>
 										</tr>
+									</thead>
+									<tbody>
 									@foreach($keys as $key=>$label)
 										<tr>
-											<td>{{ $key }}</td>
-											<td>{{ $keys[$key]['label'] }}</td>
-											<td>{{ $keys[$key]['format'] }}</td>
+											<td><i class="fa {{ $formats[$keys[$key]['format']] }}"></i></td>
+											<td class='text-left'>{{ $keys[$key]['label'] }}</td>
+											<td>
+											@foreach ($keys[$key]['documents'] as $document)
+												<span class="label label-default">{{ $document }}</span>
+											@endforeach
+											</td>
 										</tr>
 
 									@endforeach

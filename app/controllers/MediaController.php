@@ -41,7 +41,7 @@ class MediaController extends BaseController {
 	/**
 	 * map properties to keys with formats
 	 */
-	public function getKeys($entity, $parent = "") {
+	public function getKeys($entity, $parent = "", $type = "") {
 		$blacklist = [ '/withoutSpam/', '/withSpam/', '/withFilter/', '/withoutFilter/' ];
 		$poundSign = '/#/';
 		foreach($blacklist as $pattern) {
@@ -49,7 +49,11 @@ class MediaController extends BaseController {
 				return [];
 			}
 		}
-
+		
+		if($parent == "") {
+			$type = $entity['documentType'];
+		}
+		
 		$keys = [];
 		// loop through all properties
 		foreach($entity as $key => $value) {
@@ -57,13 +61,16 @@ class MediaController extends BaseController {
 			if(! is_numeric($key) && !preg_match($poundSign, $key)) {
 				// if the property has children
 				if(is_array($entity[$key])) {
-					$subkey = str_replace('.', '_', $parent.$key);
-					$keys[$subkey] = ['key' => $parent.$key, 'label' => $this->getLabel($parent.$key), 'format' => ['array']];
 					// get properties of children
-					$subKeys = $this->getKeys($entity[$key], $parent.$key.".");
+					$subKeys = $this->getKeys($entity[$key], $parent.$key.".", $type);
 					$keys = array_merge($keys, $subKeys);
 				} else {
-					$keys[$key] = ['key' => $key, 'label' => $this->getLabel($key), 'format' => [$this->getFormat($value)]];
+					if($parent != "") { // this has a parent
+						$subkey = str_replace('.', '_', $parent.$key);
+						$keys[$subkey] = ['key' => $parent.$key, 'label' => $this->getLabel($parent.$key), 'format' => $this->getFormat($value), 'document' => $type];
+					} else {
+						$keys[$key] = ['key' => $key, 'label' => $this->getLabel($key), 'format' => $this->getFormat($value), 'document' => $type];
+					}
 				}
 			}
 		};
@@ -75,8 +82,14 @@ class MediaController extends BaseController {
 	 */
 	public function getFormat($value) {
 		
-		if(preg_match('/^.*\.(jpg|jpeg|png|gif)$/i',$value)) {
+		if(preg_match('/^.*\.(mp3|ogg|wmv)$/i',$value)) {
+			$format = 'sound';
+		} else if(preg_match('/^(http\:\/\/lh6\.ggpht\.com.*|.*\.(jpg|jpeg|png|gif))$/i',$value)) {
 			$format = 'image';
+		} else if(preg_match('/^.*\.(avi|mpeg|mpg|mp4)$/i',$value)) {
+			$format = 'video';
+		} else if(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}.*$/i',$value)) {
+			$format = 'time';
 		} else if(is_numeric($value)) {
 			$format = 'number';
 		} else {
@@ -102,7 +115,7 @@ class MediaController extends BaseController {
 	 * create a fancy label based on a key
 	 */
 	public function getLabel($label) {
-		$label = str_replace(".", "_", $label);
+		$label = str_replace(".", " > ", $label);
 		$label = str_replace("_", " ", $label);
 		$label = ucfirst($label);
 		return $label;
@@ -112,7 +125,8 @@ class MediaController extends BaseController {
 	{
 		$searchComponent = new MediaSearchComponent();
 		$keys = $searchComponent->getKeys();
-		return View::make('media.search.pages.listindex')->with('keys', $keys);
+		$formats = $searchComponent->getFormats();
+		return View::make('media.search.pages.listindex')->with('keys', $keys)->with('formats',$formats);
 	}
 
 	public function getRefreshindex()
@@ -128,7 +142,7 @@ class MediaController extends BaseController {
 		$searchComponent = new MediaSearchComponent();
 		
 		// amount of units to index per iteration
-		$batchsize = 500;
+		$batchsize = 100;
 		$from = Input::get('next');
 		$unitCount = Entity::whereIn('tags', ['unit'])->count();
 		
@@ -156,13 +170,28 @@ class MediaController extends BaseController {
 			
 			// merge keys with set of keys and get the right format (e.g. if it occurs both at string and int we treat all of them as a string
 			foreach($keys as $k => $v) {
-				$allKeys[$k] = ['key' => $k, 'label' => $keys[$k]['label'], 'format' => $searchComponent->prioritizeFormat($keys[$k]['format'])];
+				
+				if(!array_key_exists($k,$allKeys)) {
+					$allKeys[$k] = [
+					'key' => $keys[$k]['key'],
+					'label' => $keys[$k]['label'],
+					'format' => $keys[$k]['format'],
+					'documents' => []
+					];
+				} else {
+					$keys[$k]['format'] = $searchComponent->prioritizeFormat([$allKeys[$k]['format'],$keys[$k]['format']]);
+				}
+				
+				// add document type if its not in the list yet
+				if(!in_array($keys[$k]['document'], $allKeys[$k]['documents'])) {
+					array_push($allKeys[$k]['documents'],$keys[$k]['document']);
+				}
+				
 			}
 		}
 		$searchComponent->store($allKeys);
 			 
 		return [
-			'log' => $allKeys,
 			'next' => $from + $batchsize,
 			'last' => $unitCount
 		 ];
@@ -282,16 +311,14 @@ class MediaController extends BaseController {
 		
 		// include keys
 		$searchComponent = new MediaSearchComponent();
-		$keys = $searchComponent->getKeys();
-		
-		// group keys per type
-		$keys = ['_id' => ['label' => 'ID','format' => 'sound']];
-			
+				
 		// list with default keys
 		$default = ['_id', 'format', 'domain', 'documentType', 'title', 'created_at', 'user_id'];
 	
-
-		return View::make('media.search.pages.media')->with('mainSearchFilters', $mainSearchFilters)->with('keys', $keys);
+		$keys = $searchComponent->getKeys();
+		$formats = $searchComponent->getFormats();
+		
+		return View::make('media.search.pages.media')->with('mainSearchFilters', $mainSearchFilters)->with('keys', $keys)->with('formats',$formats);
 	}
 
 	public function anyBatch()

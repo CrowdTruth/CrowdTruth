@@ -25,13 +25,18 @@ class MediaSearchComponent {
 		else if(in_array('image', $formats)) { $format = 'image'; }
 		else if(in_array('video', $formats)) { $format = 'video'; }
 		else if(in_array('sound', $formats)) { $format = 'sound'; }
-		else { $format = 'error'; }
+		else { $format = 'video'; }
 		return $format;
 	}
 	
 	// get all keys
 	public function getKeys() {
 		return $this->softwareComponent['keys'];
+	}	
+	
+	// get all formats
+	public function getFormats() {
+		return $this->softwareComponent['formats'];
 	}
 
 	// create new index of keys in the database
@@ -47,7 +52,13 @@ class MediaSearchComponent {
 				} else {
 					$format = $keys[$k]['format'];
 				}
-				//$this->softwareComponent['keys'][$k]['format'] = $format;
+				$this->softwareComponent['keys'][$k]['format'] = $format;
+				foreach($documents as $doc) {
+					if(!in_array($this->softwareComponent['keys'][$k]['documents'], $doc)) {
+						array_push($this->softwareComponent['keys'][$k]['documents'],$doc);
+					}				
+				}
+				
 				//$this->softwareComponent->save();
 			} else {
 				$key = $this->softwareComponent->keys;

@@ -62,7 +62,6 @@
 				url: formUrl,
 				data: formData,
 				success: function(data) {
-					console.log(data.log);
 					pct = Math.round((data.next / data.last) * 100);
 					$('.progress-bar').css('width', pct+'%').attr('aria-valuenow', pct).text(pct + '%');
 					if(data.next < data.last) {
