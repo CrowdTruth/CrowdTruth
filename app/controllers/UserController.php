@@ -112,57 +112,6 @@ class UserController extends BaseController {
 	}
 
 	/**
-	 * Perform actions triggered from the user list page (/users). Actions performed:
-	 * addGroup    - Adds a given user to a given CT-group
-	 * assignRole  - Assigns the given role to a given user on the given CT-group.
-	 * removeGroup - Removes the given user from the given CT-group.
-	 * 
-	 * Browser is redirected to calling page (hopefully /users), with a flashError or 
-	 * flashSuccess message indicating the result.
-	 */
-	public function groupActions() {
-		$thisUser = Auth::user();
-		
-		$targetUserName = Input::get('usedId');
-		$groupName = Input::get('group');
-		$targetUser = UserAgent::find($targetUserName);
-		
-		if(!$targetUser) {
-			return Redirect::back()
-			->with('flashError', 'User does not exist: '.$targetUserName);
-		}
-		
-		$isAdmin = PermissionHandler::checkGroup($thisUser, $groupName, Permissions::GROUP_ADMIN);
-		if(!$isAdmin) {
-			return Redirect::back()
-			->with('flashError', 'You do not have permission to perform selected action');
-		}
-		
-		$action = Input::get('action');
-		if($action=='addGroup') {
-			$userRole = GroupHandler::grantUser($targetUser, $groupName, Roles::GROUP_GUEST);
-			
-			return Redirect::back()
-				->with('flashSuccess', 'User '.$targetUserName.' added to group '.$groupName);
-		} elseif($action=='assignRole') {
-			$roleName = Input::get('role');
-			$role = Roles::getRoleByName($roleName);
-			$userRole = GroupHandler::grantUser($targetUser, $groupName, $role);
-			
-			return Redirect::back()
-				->with('flashSuccess', 'User '.$targetUserName.' assigned role '.$roleName.' on group '.$groupName);
-		} elseif($action=='removeGroup') {
-			GroupHandler::revokeUser($targetUser, $groupName);
-			
-			return Redirect::back()
-				->with('flashSuccess', 'User '.$targetUserName.' removed from group '.$groupName);
-		} else {
-			return Redirect::back()
-				->with('flashError', 'Invalid action selected: '.$action);
-		}
-	}
-
-	/**
 	 * Change user settings
 	 */
 	public function getSettings(UserAgent $user) {
@@ -191,31 +140,6 @@ class UserController extends BaseController {
 		return View::make('user.activity')
 			->with('activities', $activities)
 			->with('user',$user);
-	}
-	
-	public function getGroupDetails($groupname) {
-		$sentryGroups = [];
-		foreach(Roles::$GROUP_ROLE_NAMES as $role) {
-			$sentryGroups[$role] = Sentry::findGroupByName($groupname.':'.$role);
-		}
-		
-		$groupUsers = [];
-		foreach(Roles::$GROUP_ROLE_NAMES as $role) {
-			$groupUsers[$role] = $sentryGroups[$role]['user_agent_ids'];
-		}
-		
-		$groupInviteCodes = [];
-		foreach(Roles::$GROUP_ROLE_NAMES as $role) {
-			$groupInviteCodes[$role] = $sentryGroups[$role]['invite_code'];
-		}
-		
-		$canEditGroup = PermissionHandler::checkGroup(Auth::user(), $groupname, Permissions::GROUP_ADMIN);
-		
-		return View::make('user.group')
-			->with('groupName', $groupname)
-			->with('groupUsers', $groupUsers)
-			->with('inviteCodes', $groupInviteCodes)
-			->with('canEditGroup', $canEditGroup);
 	}
 
 	public function postLogin(){

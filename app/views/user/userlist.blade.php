@@ -44,7 +44,7 @@
 											</button>
 											<ul class="dropdown-menu" role="menu">
 											@foreach(Roles::$GROUP_ROLE_NAMES as $role)
-													<li>{{ link_to_action('UserController@groupActions', Roles::getRoleLabel($role), [ 
+													<li>{{ link_to_action('GroupController@groupActions', Roles::getRoleLabel($role), [ 
 														'action' => 'assignRole',
 														'usedId' => $user['_id'],
 														'group'  => $grInfo['name'],
@@ -52,14 +52,14 @@
 													]) }}</li>
 											@endforeach
 											</ul>
-											{{ link_to_action('UserController@groupActions', '', [ 
+											{{ link_to_action('GroupController@groupActions', '', [ 
 												'action' => 'removeGroup',
 												'usedId' => $user['_id'],
 												'group'  => $grInfo['name']
 											], [ 'class' => 'fa fa-close', 'style' => 'color:red' ]) }}
 										</div>
 									@else
-										<span class="badge">{{ $grInfo['role'] }}</span>
+										<span class="badge">{{ Roles::getRoleLabel($grInfo['role']) }}</span>
 									@endif
 									</li>
 								@endforeach
@@ -71,7 +71,7 @@
 											</button>
 											<ul class="dropdown-menu" role="menu">
 											@foreach($usergroups[$user['_id']]['tojoin'] as $grInfo)
-												<li>{{ link_to_action('UserController@groupActions', $grInfo, [ 
+												<li>{{ link_to_action('GroupController@groupActions', $grInfo, [ 
 													'action' => 'addGroup',
 													'usedId' => $user['_id'],
 													'group'  => $grInfo

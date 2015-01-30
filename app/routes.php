@@ -38,20 +38,20 @@ Route::get('/urlsurls', function()
 	foreach($results2 as $result)
 	{
 		echo $result['content']['url'] . PHP_EOL;
-	    echo $result['_id'] . PHP_EOL;
+		echo $result['_id'] . PHP_EOL;
 	}
-    echo PHP_EOL . PHP_EOL . "[";
+	echo PHP_EOL . PHP_EOL . "[";
 	$results = \MongoDB\Entity::whereIn('documentType', ['painting','drawing'])->get();
 	foreach($results as $result)
 	{	
 		echo $result . ",". PHP_EOL;
 
 	}
-    echo "]";
+	echo "]";
 
 	exit;
 
-    return Redirect::to('home');
+	return Redirect::to('home');
 });
 
 // define routes
@@ -70,9 +70,13 @@ Route::get('user/{user}', 'UserController@getProfile');
 Route::get('user/{user}/activity', 'UserController@getActivity');
 Route::get('user/{user}/settings', 'UserController@getSettings');
 Route::model('user', '\MongoDB\UserAgent');
- 
-Route::get('group/{groupname}', 'UserController@getGroupDetails');
-Route::get('group-actions', 'UserController@groupActions');
+
+Route::get('groups/', 'GroupController@getGroupList');
+Route::get('group/{groupname}', 'GroupController@getGroupDetails');
+Route::post('group/{groupname}/invitations', 'GroupController@updateInviteCodes');
+Route::post('group/{groupname}/credentials', 'GroupController@updateAccountCredentials');
+
+Route::get('group-actions', 'GroupController@groupActions');
 
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
 Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));

@@ -8,6 +8,11 @@ use \Sentry as Sentry;
  * and listing user groups are functions of this class.
  */
 class GroupHandler {
+	// Group role permissions
+	const CF_USER  = 'cfUsername';
+	const CF_PASS = 'cfPassword';
+	
+	
 	/**
 	 * Creates a new CT-group -- all required sentryGroups are created for the CT-group.
 	 * When a new CT-group is created, roles for the CT-group are created as follows, 
@@ -20,9 +25,12 @@ class GroupHandler {
 	 * 
 	 * Default invitation codes are also created for the CT-group.
 	 * 
+	 * Account credentials for CrowdFlower are also stored as part of the CT-group information.
+	 * 
 	 * @param $groupName Name of the CT-group to be created.
 	 */
 	public static function createGroup($groupName) {
+		// CT-Group credentials are stored in the Admin Sentry-group
 		Sentry::createGroup([
 			'name'        => str_replace('#', $groupName, Roles::GROUP_ADMIN),
 			'permissions' => [
@@ -30,7 +38,11 @@ class GroupHandler {
 				str_replace('#', $groupName, Permissions::GROUP_WRITE) => 1,
 				str_replace('#', $groupName, Permissions::GROUP_READ)  => 1,
 			],
-			'invite_code' => $groupName.'_invitation'
+			'invite_code' => $groupName.'_invitation',
+			'credentials' => [ 
+				GroupHandler::CF_USER => '',
+				GroupHandler::CF_PASS => '' 
+			],
 		]);
 		Sentry::createGroup([
 			'name'        => str_replace('#', $groupName, Roles::GROUP_MEMBER),
@@ -98,5 +110,52 @@ class GroupHandler {
 			]);
 		}
 		return $ctGroups;
+	}
+	
+	/**
+	 * List the names of all existing CT-groups.
+	 * 
+	 * Return a list of existing CT-groups.
+	 * 
+	 * @return List of CT-group names.
+	 */
+	public static function listGroups() {
+		$sentryGroups = Sentry::findAllGroups();
+		$ctGroups = [];
+
+		foreach ($sentryGroups as $sentryGroup) {
+			$parts = explode(':', $sentryGroup->name);
+			array_push($ctGroups, $parts[0]);
+		}
+		return array_unique($ctGroups);
+	}
+	
+	/**
+	 * Retrieve the external account credentials for a given group
+	 * 
+	 * @param $groupName Name of the desired group.
+	 * @return An array with credentials information for the desired group.
+	 */
+	public static function getCredentials($groupName) {
+		$sentryAdminGroup = Sentry::findGroupByName(str_replace('#', $groupName, Roles::GROUP_ADMIN));
+		return $sentryAdminGroup['credentials'];
+	}
+	
+	/**
+	 * Update the external account credentials of a given group.
+	 * 
+	 * @param $groupName Name of the desired group.
+	 * @param $newValues An array of key/value pairs containing the account's
+	 * 		credentials to be updated (e.g. GroupHandler::CF_USER, for CrowdFlower username, 
+	 * 		GroupHandler::CF_PASS for CrowdFlower password) and the value to be set.
+	 */
+	public static function changeCredentials($groupName, $newValues) {
+		$sentryAdminGroup = Sentry::findGroupByName(str_replace('#', $groupName, Roles::GROUP_ADMIN));
+		$credentials = $sentryAdminGroup['credentials'];
+		foreach ($newValues as $key => $value) {
+			$credentials[$key] = $value;
+		}
+		$sentryAdminGroup['credentials'] = $credentials;
+		$sentryAdminGroup->save();
 	}
 }
