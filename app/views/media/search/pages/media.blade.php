@@ -37,16 +37,10 @@
 				@endif
 				
 					<div class='btn-group pull-left' style="margin-left:5px";>
-						<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" style="display: none;">
-							<optgroup data-icon="fa fa-flag" label="Selected">
-
-							</optgroup>
-							<optgroup label="Properties">
-								@foreach($keys as $id => $key)
-									<option data-icon="{{ $formats[$key['format']] }}" value="{{$key['key']}}" format="{{$key['format']}}" class="select_{{$key['key']}}">{{ $key['label'] }}</option>
-								@endforeach
-							</optgroup>
-						</select>
+						{{ Form::open([ 'action' => 'MediaController@postKeys', 'name' => 'theForm', 'id' => 'theForm' ]) }}
+							<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" style="display: none;">
+							</select>
+						{{ Form::close() }}
 					</div>
 
 					<div class="actions btn-group pull-left" style="margin-left:5px">
@@ -291,6 +285,7 @@ var delay = (function(){
 })();
 
 $('.search .documentType').change(function(){
+	getColumns();
 	getResults();
 });
 
@@ -331,6 +326,7 @@ var getGeneralFilterQueries = function() {
 		if($(this).is('[data-query-key]')){
 			if($(this).val())
 			{
+				console.log($(this).val());
 				$(this).find("option:selected").each(function() {
 					generalFilterQuery += "&" + $(this).parent().attr('data-query-key') + "=" + $(this).val();
 			    });
@@ -343,7 +339,7 @@ var getGeneralFilterQueries = function() {
 
 $('body').on('keyup', '.inputFilters input', function(){
 	var inputFilter = $(this);
-
+	console.log(inputFilter.val());
 	delay(function(){
 		selectedRows = [];
 		inputFilter.attr('data-query-value', inputFilter.val());
@@ -503,10 +499,21 @@ function getTabFieldsQuery(){
 	} else {
 		tabFieldsQuery += "&" + "match[documentType]" + operator + documentType;
 	}
+	
+	// find filter values
+	$('.inputFilters').find("[data-query-key]").each(function() {
+		if($(this).is('[data-query-value]')){
+			if($(this).is('[data-query-operator]')){
+				var operator = "[" + encodeURIComponent($(this).attr('data-query-operator')) + "]=";
+			} else {
+				var operator = "=";
+			}
+			tabFieldsQuery += "&" + $(this).attr('data-query-key') + operator + $(this).attr('data-query-value');
+		}
+	});
 
 	// go through sorting
 	$('.sorting, .sorting_asc, .sorting_desc').each(function() {
-	console.log($(this).text());
 		if($(this).is('[data-query-value]')){
 			if($(this).is('[data-query-operator]')){
 				var operator = "[" + encodeURIComponent($(this).attr('data-query-operator')) + "]=";
@@ -522,9 +529,32 @@ function getTabFieldsQuery(){
 		}
 	});
 	
-	
 	// console.log(tabFieldsQuery);
 	return tabFieldsQuery;
+}
+
+// function to get columns available for selected document types
+function getColumns(docTypes) {						
+			$.ajax({
+				type: "POST",
+				url: $("#theForm").attr("action"),
+				data: docTypes,
+				success: function(data) {
+					var columnList = '<optgroup data-icon="fa fa-flag" class="columnSelected" label="Selected">';
+					for(key in data.keys) {
+						if(data.default.indexOf(key)>=0) {
+							columnList += '<option data-icon="' + key + '" value="' + key + '" format="' + key + '" class="select_' + key + '" selected>' + key + '</option>';
+						}
+					}
+					columnList += '</optgroup>';
+					console.log(columnList);
+					$('select.columns').html(columnList);
+					
+					$('.selectpicker').selectpicker('refresh');
+					getResults();
+					refreshColumns();
+				}
+			});
 }
 
 function getResults(baseApiURL){
@@ -607,13 +637,39 @@ var refreshColumns = function() {
 
 	var columns = $('.columns').val();
 	for(var i = 0; i < columns.length; i++) {
-		identifiers += '<th class="sorting" data-vbIdentifier="' + columns[i] + '" data-query-key="orderBy[' + columns[i] + ']">' + $('.columns option[value="' + columns[i] + '"]').text() + '</th>';	
+
+		var $column = $('.columns option[value="' + columns[i] + '"]');
+	
+		// move selected to selected group
+		if(!$column.parent().hasClass('columnSelected')) {
+			$column.appendTo('.columns .columnSelected');
+		}
+		
+
+		identifiers += '<th class="sorting" data-vbIdentifier="' + columns[i] + '" data-query-key="orderBy[' + columns[i] + ']">' + $column.text() + '</th>';	
 		
 		// change filter based on format
-		filters += '<td><input class="input-sm form-control" type="text" data-query-key="match[' + columns[i] + ']" data-query-operator="like" placeholder="Filter" /></td>';
-		
+		if($column.attr('format') == 'number') {
+			filters += '<td data-vbIdentifier="' + columns[i] + '" style="width: 100px;">' +
+			'<input class="input-sm form-control" type="text" data-query-key="match[' + $column.val() + ']" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />' +
+			'<input class="input-sm form-control" type="text" data-query-key="match[' + $column.val() + ']" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" /></td>';
+		} else if($column.attr('format') == 'time') {
+			filters += '<td data-vbIdentifier="created_at" style="width: 200px;"><div class="input-daterange">' +
+				'<input type="text" class="input-sm form-control" name="start" data-query-key="match[created_at]" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />' +
+				'<input type="text" class="input-sm form-control" name="end" data-query-key="match[created_at]" data-query-operator="=<" style="width:49% !important; float:right;" placeholder="End Date" />' +
+				'</div></td>';		
+		} else { // default filter is string matching
+			filters += '<td><input class="input-sm form-control" type="text" data-query-key="match[' + columns[i] + ']" data-query-operator="like" placeholder="Filter" /></td>';
+		}		
 	}
 
+	// for each option in the selected list, check if it is still selectedCategory
+	$('.columnSelected option:not(:selected)').prependTo('.columns .columnNotSelected');
+	
+	// refresh possible changes in column list
+	$('.selectpicker').selectpicker('refresh');
+
+	
 	// update identifiers and filters
 	$('.identifiers').html(identifiers);
 	$('.inputFilters').html(filters);
@@ -639,7 +695,6 @@ var dynamicTemplate = function() {
 		}	
 	}
 	template += '</tr>@{{/each}}';
-	console.log(template);
 	return template;
 }
 
@@ -840,8 +895,7 @@ if(workerList !=  null) {
     localStorage.removeItem("unitList");
 }
 
-getResults();
-refreshColumns();
+getColumns();
 
 });
 

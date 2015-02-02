@@ -128,6 +128,30 @@ class MediaController extends BaseController {
 		$formats = $searchComponent->getFormats();
 		return View::make('media.search.pages.listindex')->with('keys', $keys)->with('formats',$formats);
 	}
+	
+	
+	/**
+	 * get keys for (a set of) document types
+	 */
+	public function postKeys()
+	{
+		$searchComponent = new MediaSearchComponent();
+		
+		$keys = $searchComponent->getKeys();
+		asort($keys);
+		$formats = $searchComponent->getFormats();
+		
+		// default columns
+		$default = ['_id','documentType','title','created_at','user_id']; // default visible columns
+		
+		return [
+			'keys' => $keys,
+			'formats' => $formats,
+			'default' => $default
+			];
+
+
+	}
 
 	public function getRefreshindex()
 	{
@@ -311,15 +335,10 @@ class MediaController extends BaseController {
 		
 		// include keys
 		$searchComponent = new MediaSearchComponent();
-				
-		// list with default keys
-		$default = ['_id', 'format', 'domain', 'documentType', 'title', 'created_at', 'user_id'];
-	
-		$keys = $searchComponent->getKeys();
-		$formats = $searchComponent->getFormats();
 		
-		return View::make('media.search.pages.media')->with('mainSearchFilters', $mainSearchFilters)->with('keys', $keys)->with('formats',$formats);
+		return View::make('media.search.pages.media')->with('mainSearchFilters', $mainSearchFilters);
 	}
+
 
 	public function anyBatch()
 	{
