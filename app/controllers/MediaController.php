@@ -134,10 +134,11 @@ class MediaController extends BaseController {
 	 * get keys for (a set of) document types
 	 */
 	public function postKeys()
-	{
+	{	
+		$documents = explode("|", Input::get('documents'));
 		$searchComponent = new MediaSearchComponent();
 		
-		$keys = $searchComponent->getKeys();
+		$keys = $searchComponent->getKeys($documents);
 		asort($keys);
 		$formats = $searchComponent->getFormats();
 		
@@ -145,6 +146,7 @@ class MediaController extends BaseController {
 		$default = ['_id','documentType','title','created_at','user_id']; // default visible columns
 		
 		return [
+			'log' => $documents,
 			'keys' => $keys,
 			'formats' => $formats,
 			'default' => $default

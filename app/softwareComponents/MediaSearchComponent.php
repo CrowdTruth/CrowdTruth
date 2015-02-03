@@ -30,8 +30,25 @@ class MediaSearchComponent {
 	}
 	
 	// get all keys
-	public function getKeys() {
-		return $this->softwareComponent['keys'];
+	public function getKeys($documents = Array('all')) {
+		$keys = $this->softwareComponent['keys'];
+		
+		// remove keys that are not in these docTypes
+		if($documents[0] != 'all') {
+			foreach($keys as $key => $value) {
+				$exists = false;
+				foreach($documents as $document) {
+					if(in_array($document, $keys[$key]['documents'])) {
+						$exists = true;
+					}
+				}
+				if($exists == false) {
+					unset($keys[$key]);
+				}
+			}
+		}
+		
+		return $keys;
 	}	
 	
 	// get all formats

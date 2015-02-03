@@ -26,7 +26,7 @@
 			<div class='search row'>
 				<div class='col-xs-12'>
 				@if(isset($mainSearchFilters['media']['documentTypes']))
-					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" multiple title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
 						@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
 							<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
 							@if($key == 'all')
@@ -38,7 +38,7 @@
 				
 					<div class='btn-group pull-left' style="margin-left:5px";>
 						{{ Form::open([ 'action' => 'MediaController@postKeys', 'name' => 'theForm', 'id' => 'theForm' ]) }}
-							<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" style="display: none;">
+							<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" data-selected-text-format="count>3" style="display: none;">
 							</select>
 						{{ Form::close() }}
 					</div>
@@ -285,8 +285,7 @@ var delay = (function(){
 })();
 
 $('.search .documentType').change(function(){
-	getColumns();
-	getResults();
+	getColumns($(this).val());
 });
 
 
@@ -326,7 +325,6 @@ var getGeneralFilterQueries = function() {
 		if($(this).is('[data-query-key]')){
 			if($(this).val())
 			{
-				console.log($(this).val());
 				$(this).find("option:selected").each(function() {
 					generalFilterQuery += "&" + $(this).parent().attr('data-query-key') + "=" + $(this).val();
 			    });
@@ -339,7 +337,6 @@ var getGeneralFilterQueries = function() {
 
 $('body').on('keyup', '.inputFilters input', function(){
 	var inputFilter = $(this);
-	console.log(inputFilter.val());
 	delay(function(){
 		selectedRows = [];
 		inputFilter.attr('data-query-value', inputFilter.val());
@@ -438,9 +435,7 @@ $('.input-daterange').datepicker({
 });
 
 $('.input-daterange input').on('changeDate', function(e) {
-	// alert($(this).val());
 	var date = $(this).val();
-	console.log('test' + date);
 
 	if(date == "") {
 		$(this).removeAttr('data-query-value');
@@ -529,25 +524,38 @@ function getTabFieldsQuery(){
 		}
 	});
 	
-	// console.log(tabFieldsQuery);
 	return tabFieldsQuery;
 }
 
 // function to get columns available for selected document types
-function getColumns(docTypes) {						
+function getColumns(docTypes) {
+
+			formData = 'documents=' + docTypes.join('|');
 			$.ajax({
 				type: "POST",
 				url: $("#theForm").attr("action"),
-				data: docTypes,
+				data: formData,
 				success: function(data) {
+					console.log(data.log);
+					// create select list with default options
 					var columnList = '<optgroup data-icon="fa fa-flag" class="columnSelected" label="Selected">';
 					for(key in data.keys) {
 						if(data.default.indexOf(key)>=0) {
-							columnList += '<option data-icon="' + key + '" value="' + key + '" format="' + key + '" class="select_' + key + '" selected>' + key + '</option>';
+							columnList += '<option data-icon="' + data.formats[data.keys[key]['format']] + ' fa-fw" value="' + data.keys[key]['key'] + '" format="' + data.keys[key]['format'] + '" class="select_' + key + '" selected>' + data.keys[key]['label'] + '</option>';
 						}
 					}
 					columnList += '</optgroup>';
-					console.log(columnList);
+
+					// list with other options
+					columnList += '<optgroup class="columnNotSelected" label="Available">';
+					for(key in data.keys) {
+						if(data.default.indexOf(key)==-1) {
+							columnList += '<option data-icon="' + data.formats[data.keys[key]['format']] + ' fa-fw" value="' + data.keys[key]['key'] + '" format="' + data.keys[key]['format'] + '" class="select_' + key + '">' + data.keys[key]['label'] + '</option>';
+						}
+					}
+					columnList += '</optgroup>';
+					
+
 					$('select.columns').html(columnList);
 					
 					$('.selectpicker').selectpicker('refresh');
@@ -895,7 +903,7 @@ if(workerList !=  null) {
     localStorage.removeItem("unitList");
 }
 
-getColumns();
+//getColumns();
 
 });
 
