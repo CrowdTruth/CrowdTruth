@@ -27,16 +27,17 @@ class GroupController extends BaseController {
 		$groups = GroupHandler::listGroups();
 		$groupInfo = [];
 		foreach ($groups as $group) {
-			$canView   = PermissionHandler::checkGroup($thisUser, $group, Permissions::GROUP_READ);
+			$canView = PermissionHandler::checkGroup($thisUser, $group, Permissions::GROUP_READ);
 			
 			array_push($groupInfo, [
 				'name' => $group,
 				'canview' => $canView
 			]);
 		}
-		
+		$isAdmin = PermissionHandler::checkAdmin($thisUser, Permissions::ALLOW_ALL);
 		return View::make('user.grouplist')
-			->with('groupInfo', $groupInfo);
+			->with('groupInfo', $groupInfo)
+			->with('isAdmin', $isAdmin);
 	}
 
 	/**
@@ -48,22 +49,13 @@ class GroupController extends BaseController {
 	 * Browser is redirected to calling page (hopefully /users), with a flashError or 
 	 * flashSuccess message indicating the result.
 	 */
-	public function groupActions() {
-		$thisUser = Auth::user();
-		
+	public function groupActions($groupName) {
 		$targetUserName = Input::get('usedId');
-		$groupName = Input::get('group');
 		$targetUser = UserAgent::find($targetUserName);
 		
 		if(!$targetUser) {
 			return Redirect::back()
 			->with('flashError', 'User does not exist: '.$targetUserName);
-		}
-		
-		$isAdmin = PermissionHandler::checkGroup($thisUser, $groupName, Permissions::GROUP_ADMIN);
-		if(!$isAdmin) {
-			return Redirect::back()
-			->with('flashError', 'You do not have permission to perform selected action');
 		}
 		
 		$action = Input::get('action');
@@ -103,7 +95,9 @@ class GroupController extends BaseController {
 		
 		$groupUsers = [];
 		foreach(Roles::$GROUP_ROLE_NAMES as $role) {
-			$groupUsers[$role] = $sentryGroups[$role]['user_agent_ids'];
+			// List userts with $role in this group -- make [] when none
+			$users = $sentryGroups[$role]['user_agent_ids'];
+			$groupUsers[$role] = is_null($users)?[]:$users;
 		}
 		
 		$groupInviteCodes = [];
@@ -112,7 +106,6 @@ class GroupController extends BaseController {
 		}
 		
 		$canEditGroup = PermissionHandler::checkGroup(Auth::user(), $groupname, Permissions::GROUP_ADMIN);
-		
 		$credentials = GroupHandler::getCredentials($groupname);
 		
 		return View::make('user.group')
@@ -128,14 +121,6 @@ class GroupController extends BaseController {
 	 * Permissions::GROUP_ADMIN on the specified group is required to perform this action.
 	 */
 	public function updateInviteCodes($groupName) {
-		$thisUser = Auth::user();
-		// Check permissions
-		$isAdmin = PermissionHandler::checkGroup($thisUser, $groupName, Permissions::GROUP_ADMIN);
-		if(!$isAdmin) {
-			return Redirect::back()
-				->with('flashError', 'You do not have permission to perform selected action');
-		}
-		
 		$codes = [
 			Roles::GROUP_ADMIN => Input::get('adminsICode'),
 			Roles::GROUP_MEMBER => Input::get('membersICode'),
@@ -157,14 +142,6 @@ class GroupController extends BaseController {
 	 * Permissions::GROUP_ADMIN on the specified group is required to perform this action.
 	 */
 	public function updateAccountCredentials($groupName) {
-		$thisUser = Auth::user();
-		// Check permissions
-		$isAdmin = PermissionHandler::checkGroup($thisUser, $groupName, Permissions::GROUP_ADMIN);
-		if(!$isAdmin) {
-			return Redirect::back()
-			->with('flashError', 'You do not have permission to perform selected action');
-		}
-		
 		$cfUser = Input::get('cfUsername');
 		$cfPass = Input::get('cfPassword');
 		
@@ -177,5 +154,20 @@ class GroupController extends BaseController {
 		
 		return Redirect::back()
 			->with('flashSuccess', 'Invitation code successfully updated.');
+	}
+	
+	/**
+	 * Handle POST requests to create a new group. 
+	 */
+	public function createGroup() {
+		$groupName = Input::get('addGrp');
+		try{
+			GroupHandler::createGroup($groupName);
+			return Redirect::back()
+				->with('flashSuccess', 'Group <b>'.$groupName.'</b> succesfully created!');			
+		} catch(\Cartalyst\Sentry\Groups\GroupExistsException $e) {
+			return Redirect::back()
+			->with('flashError', 'Group <b>'.$groupName.'</b> already exists!');
+		}
 	}
 }

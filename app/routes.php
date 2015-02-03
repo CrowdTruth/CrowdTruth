@@ -1,4 +1,5 @@
 <?php
+use \MongoDB\Security\Permissions as Permissions;
 
 Route::group(array('before' => 'auth'), function()
 {
@@ -18,7 +19,8 @@ Route::group(array('before' => 'auth'), function()
 
 Route::get('/', function()
 {
-    return Redirect::to('home');
+	Session::reflash();
+	return Redirect::to('home');
 });
 
 Route::get('/urlsurls', function()
@@ -64,6 +66,7 @@ Route::controller('api/analytics', '\Api\analytics\apiController');
 
 Route::get('login', 'UserController@login');
 Route::get('register', 'UserController@register');
+Route::post('register', 'UserController@postRegister');
 Route::get('logout', 'UserController@logout');
 Route::get('users', 'UserController@getUserlist');
 Route::get('user/{user}', 'UserController@getProfile');
@@ -72,11 +75,15 @@ Route::get('user/{user}/settings', 'UserController@getSettings');
 Route::model('user', '\MongoDB\UserAgent');
 
 Route::get('groups/', 'GroupController@getGroupList');
+Route::post('groups/create', [ 'before' => 'adminPermission', 'uses' => 'GroupController@createGroup' ]);
 Route::get('group/{groupname}', 'GroupController@getGroupDetails');
-Route::post('group/{groupname}/invitations', 'GroupController@updateInviteCodes');
-Route::post('group/{groupname}/credentials', 'GroupController@updateAccountCredentials');
 
-Route::get('group-actions', 'GroupController@groupActions');
+Route::group([ 'before' => 'permission:'.Permissions::GROUP_ADMIN ], function()
+{
+	Route::post('group/{groupname}/invitations', 'GroupController@updateInviteCodes');
+	Route::post('group/{groupname}/credentials', 'GroupController@updateAccountCredentials');
+	Route::get('group/{groupname}/actions', 'GroupController@groupActions');
+});
 
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
 Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));

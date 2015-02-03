@@ -24,6 +24,11 @@ class UserAgent extends SentryUser implements UserInterface {
 	 */
 	protected $hidden = array('password');
 
+	public function __construct()
+	{
+		$this->setHasher(new \Cartalyst\Sentry\Hashing\NativeHasher);
+	}
+	
 	/**
 	 * Get the unique identifier for the user.
 	 *
@@ -52,26 +57,6 @@ class UserAgent extends SentryUser implements UserInterface {
 	public function getReminderEmail()
 	{
 		return $this->email;
-	}
-
-	public static function boot()
-	{
-		parent::boot();
-
-		static::saving(function($activity)
-		{
-			if(!Schema::hasCollection('useragents'))
-			{
-				static::createSchema();
-			}
-		});
-	}
-
-	public static function createSchema() {
-		Schema::create('useragents', function($collection)
-		{
-			$collection->unique('email');
-		});
 	}
 
 	/**

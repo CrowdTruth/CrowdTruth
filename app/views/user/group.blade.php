@@ -17,7 +17,7 @@
 			<div>
 				<div class="panel panel-default">
 					<div class="panel-heading">
-						Members (only informative list -- maybe we can even remove it).
+						Members
 					</div>
 					<div class="panel-body" id="userRolePanel">
 						<ul class="list-group">

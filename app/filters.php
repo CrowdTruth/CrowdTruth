@@ -80,3 +80,27 @@ Route::filter('csrf', function()
 		throw new Illuminate\Session\TokenMismatchException;
 	}
 });
+
+use \MongoDB\Security\PermissionHandler as PermissionHandler;
+use \MongoDB\Security\Permissions as Permissions;
+
+Route::filter('permission', function($route, $request, $permission) {
+	$thisUser = Auth::user();
+	$groupName = Route::input('groupname');	// Passed in as route parameter
+	// Check permissions
+	$hasPermission = PermissionHandler::checkGroup($thisUser, $groupName, $permission);
+	if(!$hasPermission) {
+		return Redirect::back()
+			->with('flashError', 'You do not have permission to perform selected action');
+	}
+});
+
+Route::filter('adminPermission', function() {
+	$thisUser = Auth::user();
+	// Check permissions
+	$isAdmin = PermissionHandler::checkAdmin($thisUser, Permissions::ALLOW_ALL);
+	if(!$isAdmin) {
+		return Redirect::back()
+			->with('flashError', 'You do not have permission to perform selected action');
+	}
+});
