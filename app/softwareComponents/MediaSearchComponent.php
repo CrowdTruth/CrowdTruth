@@ -12,6 +12,14 @@ class MediaSearchComponent {
 	// clear all data
 	public function clear() {
 		$this->softwareComponent->keys = [];
+		$this->softwareComponent->formats = [
+						'string' => 'fa-file-text-o',
+						'number' => 'fa-bar-chart',
+						'time' => 'fa-calendar',
+						'image' => 'fa-picture-o',
+						'video' => 'fa-film',
+						'sound' => 'fa-music'
+						];
 		$this->softwareComponent->save();
 	}
 	
@@ -58,34 +66,35 @@ class MediaSearchComponent {
 
 	// create new index of keys in the database
 	public function store($keys) {
+		
 		$allKeys = $this->softwareComponent['keys'];
-		$allKeys = [];
+		
 		// loop through keys to update formats
 		foreach($keys as $k => $v) {
-			// if format is something else then the current format, prioritize it
+		
+			// update data if key already exists
 			if(array_key_exists($k,$allKeys)) {
+				
+				// prioritize formats
 				if($allKeys[$k]['format'] != $keys[$k]['format']) {
-					$format = $this->prioritizeFormat([$allKeys[$k]['format'],$keys[$k]['format']]);
+					$format = $this->prioritizeFormat([$allKeys[$k]['format'], $keys[$k]['format']]);
 				} else {
 					$format = $keys[$k]['format'];
 				}
-				$this->softwareComponent['keys'][$k]['format'] = $format;
-				foreach($documents as $doc) {
-					if(!in_array($this->softwareComponent['keys'][$k]['documents'], $doc)) {
-						array_push($this->softwareComponent['keys'][$k]['documents'],$doc);
+				$allKeys[$k]['format'] = $format;
+				
+				// add unique documents
+				foreach($keys[$k]['documents'] as $doc) {
+					if(!in_array($doc, $allKeys[$k]['documents'])) {
+						array_push($allKeys[$k]['documents'], $doc);
 					}				
 				}
-				
-				//$this->softwareComponent->save();
 			} else {
-				$key = $this->softwareComponent->keys;
-				$key[$k] = $v;
-				$this->softwareComponent->keys = $key;
-				
-				// $this->softwareComponent['keys'] = ['aa'];
-				
+				// add new key
+				$allKeys[$k] = $v;				
 			}
 		}
+		$this->softwareComponent['keys'] = $allKeys;
 		$this->softwareComponent->save();		
 	}
 }

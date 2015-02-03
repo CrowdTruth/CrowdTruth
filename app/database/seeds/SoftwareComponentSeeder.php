@@ -39,7 +39,7 @@ class SoftwareComponentSeeder extends Seeder {
 					$component['keys'] = [];
 					// add icons for formats in the database
 					$component['formats'] = [
-						'string' => '', // do not show icons for string values
+						'string' => 'fa-file-text-o', // do not show icons for string values
 						'number' => 'fa-bar-chart',
 						'time' => 'fa-calendar',
 						'image' => 'fa-picture-o',

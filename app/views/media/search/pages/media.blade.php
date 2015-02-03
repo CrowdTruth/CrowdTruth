@@ -285,6 +285,9 @@ var delay = (function(){
 })();
 
 $('.search .documentType').change(function(){
+	//if nothing is selected anymore, select All
+	console.log($(this).val().length);
+	
 	getColumns($(this).val());
 });
 
@@ -487,12 +490,14 @@ var getSelection = function() {
 function getTabFieldsQuery(){
 	var tabFieldsQuery = '';
 
-	var documentType = $('.search .documentType option:selected').val();
+	var documentType = $('.search .documentType').val();
+	
 	var operator = '=';
-	if(documentType == 'all') {
+	if(documentType[0] == 'all') {
 		tabFieldsQuery += "&match[tags]=unit";
 	} else {
-		tabFieldsQuery += "&" + "match[documentType]" + operator + documentType;
+		// needs to use all doctypes
+		tabFieldsQuery += "&" + "match[documentType]" + operator + documentType[0];
 	}
 	
 	// find filter values
@@ -536,7 +541,7 @@ function getColumns(docTypes) {
 				url: $("#theForm").attr("action"),
 				data: formData,
 				success: function(data) {
-					console.log(data.log);
+
 					// create select list with default options
 					var columnList = '<optgroup data-icon="fa fa-flag" class="columnSelected" label="Selected">';
 					for(key in data.keys) {
@@ -662,9 +667,9 @@ var refreshColumns = function() {
 			'<input class="input-sm form-control" type="text" data-query-key="match[' + $column.val() + ']" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />' +
 			'<input class="input-sm form-control" type="text" data-query-key="match[' + $column.val() + ']" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" /></td>';
 		} else if($column.attr('format') == 'time') {
-			filters += '<td data-vbIdentifier="created_at" style="width: 200px;"><div class="input-daterange">' +
-				'<input type="text" class="input-sm form-control" name="start" data-query-key="match[created_at]" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />' +
-				'<input type="text" class="input-sm form-control" name="end" data-query-key="match[created_at]" data-query-operator="=<" style="width:49% !important; float:right;" placeholder="End Date" />' +
+			filters += '<td data-vbIdentifier="' + columns[i] + '" style="width: 200px;"><div class="input-daterange">' +
+				'<input type="text" class="input-sm form-control" name="start" data-query-key="match[' + columns[i] + ']" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />' +
+				'<input type="text" class="input-sm form-control" name="end" data-query-key="match[' + columns[i] + ']" data-query-operator="=<" style="width:49% !important; float:right;" placeholder="End Date" />' +
 				'</div></td>';		
 		} else { // default filter is string matching
 			filters += '<td><input class="input-sm form-control" type="text" data-query-key="match[' + columns[i] + ']" data-query-operator="like" placeholder="Filter" /></td>';

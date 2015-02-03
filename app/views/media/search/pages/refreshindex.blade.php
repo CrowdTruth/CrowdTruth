@@ -18,12 +18,14 @@
 								{{ Form::hidden('next', '0', [ 'id' => 'next' ]) }}
 								<div class="form-horizontal">
 									<div class="col-xs-12">
-										<p>The platform keeps a search index list. On this page you can rebuild this list by indexing all properties in the database. Doing so will delete the existing search index.</p>
-										Two big assumptions are made to shrink list size:
+										<p>The platform keeps a search index list. On this page you can rebuild this list by indexing all properties in the database.
+										Based on the values of the properties, the catagories sound, image, video, time, number or string is assigned to the property index.</p>
+										The following properties are ignored:
 										<ul>
-										<li>withoutSpam, withSpam, withFilter, withoutFilter are ignored</li>
-										<li># sign in field name is ignored</li>
+										<li>withoutSpam, withSpam, withFilter, withoutFilter</li>
+										<li># sign in field name</li>
 										</ul>
+										<p><strong>Warning: This process will delete the current search index</strong></p>
 									</div>
 									<div class="col-xs-12">
 										<div class="progress">
@@ -62,6 +64,7 @@
 				url: formUrl,
 				data: formData,
 				success: function(data) {
+					console.dir(data.log);
 					pct = Math.round((data.next / data.last) * 100);
 					$('.progress-bar').css('width', pct+'%').attr('aria-valuenow', pct).text(pct + '%');
 					if(data.next < data.last) {

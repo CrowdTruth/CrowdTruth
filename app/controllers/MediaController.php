@@ -94,20 +94,8 @@ class MediaController extends BaseController {
 			$format = 'number';
 		} else {
 			$format = 'string';
-		}
-			
-		
-		/*
-			sound
-			image
-			video
-			time
-			number
-			string
+		}		
 
-			*/
-							
-		
 		return $format;
 	}
 	
@@ -168,7 +156,7 @@ class MediaController extends BaseController {
 		$searchComponent = new MediaSearchComponent();
 		
 		// amount of units to index per iteration
-		$batchsize = 100;
+		$batchsize = 500;
 		$from = Input::get('next');
 		$unitCount = Entity::whereIn('tags', ['unit'])->count();
 		
@@ -185,9 +173,10 @@ class MediaController extends BaseController {
 		// all units in this range
 		$units = Entity::distinct('_id')->where('tags', ['unit'])->skip($from)->take($batchsize)->get();
 			 
+		 
 		// get keys for each unit in this batch
 		$allKeys = [];
-		for($i = 0; $i < $batchsize; $i++) {
+		for($i = $from; $i < $from + $batchsize; $i++) {
 			// get data of unit
 			$unit = Entity::where('_id', $units[$i][0])->first();
 			
@@ -202,22 +191,24 @@ class MediaController extends BaseController {
 					'key' => $keys[$k]['key'],
 					'label' => $keys[$k]['label'],
 					'format' => $keys[$k]['format'],
-					'documents' => []
+					'documents' => [$keys[$k]['document']]
 					];
 				} else {
-					$keys[$k]['format'] = $searchComponent->prioritizeFormat([$allKeys[$k]['format'],$keys[$k]['format']]);
+					$allKeys[$k]['format'] = $searchComponent->prioritizeFormat([$allKeys[$k]['format'],$keys[$k]['format']]);
+					
+					// add document type if its not in the list yet
+					if(!in_array($keys[$k]['document'], $allKeys[$k]['documents'])) {
+						array_push($allKeys[$k]['documents'], $keys[$k]['document']);
+					}
+
 				}
-				
-				// add document type if its not in the list yet
-				if(!in_array($keys[$k]['document'], $allKeys[$k]['documents'])) {
-					array_push($allKeys[$k]['documents'],$keys[$k]['document']);
-				}
-				
+
 			}
 		}
 		$searchComponent->store($allKeys);
 			 
 		return [
+			'log' => $from . ' to ' . ($from + $batchsize) . ' of ' . $unitCount,
 			'next' => $from + $batchsize,
 			'last' => $unitCount
 		 ];
