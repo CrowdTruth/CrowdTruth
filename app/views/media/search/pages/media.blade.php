@@ -284,12 +284,28 @@ var delay = (function(){
 	};
 })();
 
+
+
+// document type selection
+var lastDocuments = [];
 $('.search .documentType').change(function(){
-	//if nothing is selected anymore, select All
-	console.log($(this).val().length);
+
+	var documents = $(this).val();
+	//if nothing is selected, select All
+	if(!documents) {
+		$('.search .documentType option[value=all]').attr('selected',true);
+		documents = ['all'];
+	} else if(documents.length > 1 && documents[0] == 'all' && lastDocuments[0] == 'all') { // unselect 'all' if any other document type is selected
+		$('.search .documentType option[value=all]').attr('selected',false);
+	} else if(documents.length > 1 && documents[0] == 'all' && lastDocuments[0] != 'all') { // unselect all other document types if 'all' is selected
+		$('.search .documentType option[value!=all]').attr('selected',false);
+	}
+	$('.search .documentType').selectpicker('refresh');
 	
-	getColumns($(this).val());
+	lastDocuments = documents;
+	getColumns(documents);
 });
+
 
 
 $('.search .limit').change(function() {
@@ -563,7 +579,7 @@ function getColumns(docTypes) {
 
 					$('select.columns').html(columnList);
 					
-					$('.selectpicker').selectpicker('refresh');
+					$('select.columns').selectpicker('refresh');
 					getResults();
 					refreshColumns();
 				}
