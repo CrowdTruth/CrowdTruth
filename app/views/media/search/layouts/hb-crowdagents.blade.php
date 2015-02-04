@@ -1,34 +1,35 @@
 <div class="tab-pane" id="crowdagents_tab">	
 	<div class='row'>
 		<div class='tabOptions col-xs-12'>
-			<div class='btn-group' style="margin-left:5px;">
+			<div class='btn-group vbColumns' style="margin-left:5px;">
 				<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
 				<button type="button" class="btn btn-default openDefaultColumns hidden">Open default columns</button>
-				<div class="btn-group vbColumns">
-					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 					<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu">
-						<li><a href="#" data-vb="show" data-vbSelector="actions"></i>Actions</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="worker_id"></i>Worker ID</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="worker_platform"></i>Platform</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="worker_location"></i>Country</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="active_since"></i>Active Since</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="last_seen"></i>Last Seen</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="no_diff_media_types"></i># Media Types</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="no_diff_job_types"></i># Job Types</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="no_jobs"></i># Jobs </a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="no_diff_media_domains"></i># Media Domains</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="no_diff_media_formats"></i># Media Formats</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="total_workerunits"></i># Judgments</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="no_jobs_identified_spammer"></i># Jobs Spammed</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="flagged"></i>Blocked</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="internal_worker_avg_agr"></i>Avg. Agreement</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="internal_worker_avg_cos"></i>Avg. Cosine</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="platform_worker_quality"></i>Platform Worker Quality</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="no_sent_messages"></i># Sent Messages</a></li>
-					</ul>
-				</div>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li role="presentation" class="dropdown-header">General</li>
+					<li><a href="#" data-vb="show" data-vbSelector="actions"></i>Actions</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="worker_id"></i>Worker ID</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="worker_platform"></i>Platform</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="worker_location"></i>Country</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="active_since"></i>Active Since</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="last_seen"></i>Last Seen</a></li>
+					<li role="presentation" class="divider"></li>
+					<li role="presentation" class="dropdown-header">Statistics</li>
+					<li><a href="#" data-vb="hide" data-vbSelector="no_diff_media_types"></i>Media Types</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="no_diff_job_types"></i>Job Types</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="no_jobs"></i>Jobs </a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="no_diff_media_domains"></i>Media Domains</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="no_diff_media_formats"></i>Media Formats</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="total_workerunits"></i>Judgments</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="no_jobs_identified_spammer"></i>Jobs Spammed</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="flagged"></i>Blocked</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="internal_worker_avg_agr"></i>Avg. Agreement</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="internal_worker_avg_cos"></i>Avg. Cosine</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="platform_worker_quality"></i>Platform Worker Quality</a></li>
+					<li><a href="#" data-vb="hide" data-vbSelector="no_sent_messages"></i>Sent Messages</a></li>
+				</ul>
 			</div>
 		</div>
 	</div>

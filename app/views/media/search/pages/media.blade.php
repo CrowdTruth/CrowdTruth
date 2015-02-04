@@ -187,6 +187,9 @@
 							<i class="fa fa-exclamation-triangle fa-4x"></i><br /><br />Oops! Something has gone wrong.
 							</div>
 						</div>
+						
+						@include('media.search.layouts.hb-modalworkerunits')
+						
 						<div class='includeGraph hidden'>
                             <table>
                                 <tr class="pieDivGraphs">
@@ -826,16 +829,20 @@ var dynamicTemplate = function() {
 
 	var columns = $('.columns').val();
 	for(var i = 0; i < columns.length; i++) {
-		switch($('.columns option[value="' + columns[i] + '"]').attr('format')) {
-			case 'image':
-				template += '<td data-vbIdentifier="id"><img style="max-width:100px; max-height:100px;border:0px;" src="@{{ this.' + columns[i] + ' }}" /></td>';
-			break;
-			case 'video':
-				template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video>';
-			break;
-			default:
-				template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
-		}	
+		if(columns[i] == '_id') {
+			template += '<td data-vbIdentifier="sent_id"><a class="testModal" id="@{{ this._id }}" data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to("api/analytics/unit?") }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">@{{ this._id }}</a></td>';				
+		} else {
+			switch($('.columns option[value="' + columns[i] + '"]').attr('format')) {
+				case 'image':
+					template += '<td data-vbIdentifier="id"><img style="max-width:100px; max-height:100px;border:0px;" src="@{{ this.' + columns[i] + ' }}" /></td>';
+				break;
+				case 'video':
+					template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video>';
+				break;
+				default:
+					template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
+			}
+		}
 	}
 	template += '</tr>@{{/each}}';
 	return template;
@@ -886,7 +893,6 @@ var openModal = function(modalAnchor , activeTabKey){
     }
 
 
-    activeTabKey =  '#' + $('.tab-pane.active').attr('id');
     var modalTarget = modalAnchor.attr('data-target');
     //alert(modalTarget);
 
@@ -895,9 +901,8 @@ var openModal = function(modalAnchor , activeTabKey){
     var query = modalAnchor.attr('data-modal-query');
     console.log(baseApiURL + query);
     $.getJSON(baseApiURL + query, function(data) {
-        console.dir(activeTabKey);
 
-        var template = Handlebars.compile($(modalTarget + ' .template').html());
+        var template = Handlebars.compile(dynamicTemplate());
 
         var html = template(data);
 
