@@ -26,7 +26,7 @@
 			<div class='search row'>
 				<div class='col-xs-12'>
 				@if(isset($mainSearchFilters['media']['documentTypes']))
-					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" multiple title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" multiple data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
 						@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
 							<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
 							@if($key == 'all')
@@ -42,6 +42,89 @@
 							</select>
 						{{ Form::close() }}
 					</div>
+					
+					<div class="btn-group pull-left specificFilterButton" style="margin-left:5px;">
+						<button type="button" class="btn btn-default specificFilter" data-original-title="" title="">
+							Specific Filters
+						</button>
+					</div>
+			
+					<div class='specificFilterContent hidden'>
+						<table class='table table-striped table-condensed specificFilterOptions'>
+							<tbody>
+								<tr>
+									<td>Relation In Sentence</td>
+									<td class="text-right">
+										<div class="btn-group" id='relationInSentence'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationInSentence]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationInSentence]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Relation Outside Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='relationOutsideTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationOutsideTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationOutsideTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Relation Between Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='relationBetweenTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationBetweenTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationBetweenTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Semicolon Between Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='semicolonBetweenTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.semicolonBetweenTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.semicolonBetweenTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Comma-separated Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='commaSeparatedTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.commaSeparatedTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.commaSeparatedTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Parenthesis Around Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='parenthesisAroundTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.parenthesisAroundTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.parenthesisAroundTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Overlapping Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='overlappingTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.overlappingTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.overlappingTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>				
 
 					<div class="actions btn-group pull-left" style="margin-left:5px">
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -297,10 +380,23 @@ $('.search .documentType').change(function(){
 		documents = ['all'];
 	} else if(documents.length > 1 && documents[0] == 'all' && lastDocuments[0] == 'all') { // unselect 'all' if any other document type is selected
 		$('.search .documentType option[value=all]').attr('selected',false);
+		delete(documents[0]);
+		documents.sort();
 	} else if(documents.length > 1 && documents[0] == 'all' && lastDocuments[0] != 'all') { // unselect all other document types if 'all' is selected
 		$('.search .documentType option[value!=all]').attr('selected',false);
+		documents = ['all'];
 	}
 	$('.search .documentType').selectpicker('refresh');
+	
+	console.log(documents);
+	
+	// if document type is relex, show the relex specific filters
+	if(documents[0] == 'relex-structured-sentence') {
+		$('.specificFilterButton').show();
+		initializeSpecificFilter();
+	} else {
+		$('.specificFilterButton').hide();
+	}
 	
 	lastDocuments = documents;
 	getColumns(documents);
@@ -312,13 +408,14 @@ $('.search .limit').change(function() {
 	getResults();
 });
 
+// create popover button for relex specific filters
 var initializeSpecificFilter = function() {
-	$(".searchOptions .specificFilter").popover({
+	$(".specificFilter").popover({
 	    trigger: "manual",
 	    html: true,
 	    'animation' : false,
 	    'containter' : 'body',
-	    'content' : function(){ return $('.searchOptions .specificFilterContent').html() },
+	    'content' : function(){ return $('.specificFilterContent').html() },
 	    'placement' : 'bottom',
 	     template: '<div class="popover tssPopover"><div class="arrow"></div><div class="popover-content"></div></div>'
 	}).on("mouseenter", function () {
@@ -402,6 +499,17 @@ $('body').on('click', '.toSelection', function(){
 	}
 });
 
+// toggle relex specific options on click
+$('body').on('click', '.specificFilterOptions button', function(){
+	$(this).siblings().removeClass('btn-info active').addClass('btn-default');
+	$(this).removeClass('btn-default').addClass('btn-info active');
+	var html = $(this).parent().html();
+	var selector = $(this).parent().attr('id');
+	$('.specificFilterContent #' + selector).empty().append(html);
+	getResults();
+});
+
+
 $('.searchResults').on('click', "th", function(){
 	if($(this).hasClass('sorting')){
 		$(this).removeClass().addClass('sorting_asc');
@@ -438,7 +546,7 @@ $('.graphViewButton').click(function() {
 	$('.includeGraph, .specificGraphs').removeClass('hidden');
 
 	$('.search .results').hide();
-
+	getResults();
 });
 
 $('body').tooltip({
@@ -517,7 +625,12 @@ function getTabFieldsQuery(){
 	}
 	
 	// find filter values
-	$('.inputFilters').find("[data-query-key]").each(function() {
+	$('.inputFilters, .specificFilterContent').find("[data-query-key]").each(function() {
+	
+		if($(this).hasClass('btn') && !$(this).hasClass('active')){
+			return;
+		}
+	
 		if($(this).is('[data-query-value]')){
 			if($(this).is('[data-query-operator]')){
 				var operator = "[" + encodeURIComponent($(this).attr('data-query-operator')) + "]=";
@@ -623,20 +736,21 @@ function getResults(baseApiURL){
 		$('.search .stats').html(searchStats);
 
 		
-		if($('.graphViewButton').hasClass('hidden')){
-            var selectedCategory = activeTabKey;
-			$(activeTabKey + ' .checkAll').removeAttr('checked');
-            if(!(oldTabKey == activeTabKey))
-            {
-                unitsChart = new unitsChartFacade(selectedCategory, openModal, getSelection, updateSelection);
-                unitsChart.init(getTabFieldsQuery(),"");
-                oldTabKey = activeTabKey;
-            } else {
-                unitsChart.init(getTabFieldsQuery(),"");
-            }
+		if($('.graphViewButton').hasClass('hidden')) {
+			$('.searchResults .checkAll').removeAttr('checked');
+			$('.search .results').hide();
+						
+			// spoof category to support visualizations		
+			var category = '#' + $('.search .documentType').val()[0] + '_tab';
+			var availableVis = ['#relex-structured-sentence_tab','#fullvideo_tab','#metadatadescription_tab','#annotatedmetadatadescription_tab','#all_tab','#drawing_tab','#painting_tab'];
+			if(availableVis.indexOf(category)>=0) { // do not update if there is no visualization for this document type	
+				unitsChart = new unitsChartFacade(category, openModal, getSelection, updateSelection);
+				unitsChart.init(getTabFieldsQuery(),"");
+			}
+		} else {
+			updateSelection();
 		}
-
-		updateSelection();
+		
 		$('.search .loading').hide();
 		$('.status').hide();
 
@@ -770,8 +884,9 @@ var openModal = function(modalAnchor , activeTabKey){
     {
         var baseApiURL = modalAnchor.attr('data-api-target');
     }
-    console.log(modalAnchor);
-    //var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
+
+
+    activeTabKey =  '#' + $('.tab-pane.active').attr('id');
     var modalTarget = modalAnchor.attr('data-target');
     //alert(modalTarget);
 
@@ -923,8 +1038,6 @@ if(workerList !=  null) {
     }
     localStorage.removeItem("unitList");
 }
-
-//getColumns();
 
 });
 
