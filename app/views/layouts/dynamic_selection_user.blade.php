@@ -13,9 +13,8 @@
 			<li role="presentation"><a href="{{ URL::to('/user/' . Auth::user()->_id . '/activity') }}"><i class="fa fa-bar-chart fa-fw"></i> Activity</a></li>
 			<li role="presentation"><a href="{{ URL::to('/user/' . Auth::user()->_id . '/settings') }}"><i class="fa fa-gears fa-fw"></i> Settings</a></li>
 			<li role="presentation" class="divider"></li>
-			<li role="presentation" class="dropdown-header">Listing</li>
-			<li role="presentation"><a href="{{ URL::to('/users') }}"><i class="fa fa-list-ol fa-fw"></i> Users</a></li>
-			<li role="presentation"><a href="{{ URL::to('/groups') }}"><i class="fa fa-list-ol fa-fw"></i> Groups</a></li>
+			<li role="presentation"><a href="{{ URL::to('/users') }}"><i class="fa fa-list-ol fa-fw"></i> Userlist</a></li>
+			<li role="presentation"><a href="{{ URL::to('/projects') }}"><i class="fa fa-folder-open fa-fw"></i> Projects</a></li>
 			<li role="presentation" class="divider"></li>
 			<li role="presentation"><a href="{{ URL::to('logout') }}"><i class="fa fa-sign-out fa-fw"></i> Log out</a></li>
 		</ul>

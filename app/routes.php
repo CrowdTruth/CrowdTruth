@@ -71,12 +71,13 @@ Route::get('user/{user}/activity', 'UserController@getActivity');
 Route::get('user/{user}/settings', 'UserController@getSettings');
 Route::model('user', '\MongoDB\UserAgent');
 
-Route::get('groups/', 'GroupController@getGroupList');
-Route::get('group/{groupname}', 'GroupController@getGroupDetails');
-Route::post('group/{groupname}/invitations', 'GroupController@updateInviteCodes');
-Route::post('group/{groupname}/credentials', 'GroupController@updateAccountCredentials');
+Route::get('projects/', 'GroupController@getGroupList');
+Route::get('projects/create', 'GroupController@createProject');
+Route::get('project/{groupname}', 'GroupController@getGroupDetails');
+Route::post('project/{groupname}/invitations', 'GroupController@updateInviteCodes');
+Route::post('project/{groupname}/credentials', 'GroupController@updateAccountCredentials');
 
-Route::get('group-actions', 'GroupController@groupActions');
+Route::get('project-actions', 'GroupController@groupActions');
 
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));
 Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));

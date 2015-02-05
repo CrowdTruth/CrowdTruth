@@ -5,7 +5,7 @@
 <div class="col-xs-12 col-md-10 col-md-offset-1">
 	<div class='maincolumn CW_box_style'>
 		<div class='tab'>
-			@include('user.nav', array('user'=>$user))
+			@include('users.nav', array('user'=>$user))
 			@include('layouts.flashdata')
 			<div class="media">
 	            <a class="pull-left" href="#">

@@ -6,10 +6,10 @@
 	<div class='maincolumn CW_box_style'>
 
 		<div class='tab'>
-			@include('user.nav', array('user'=>$user))
+			@include('users.nav', array('user'=>$user))
 			@include('layouts.flashdata')
 			<div>
-				{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postFormPart', 'submit'), 'method' => 'POST'))}}
+				{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('UserController@postProfile', 'submit'), 'method' => 'POST'))}}
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						Profile settings
