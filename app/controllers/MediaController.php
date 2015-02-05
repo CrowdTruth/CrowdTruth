@@ -152,31 +152,6 @@ class MediaController extends BaseController {
 	 * refresh search index
 	 */
 	public function postRefreshindex()
-<<<<<<< HEAD
-	{
-		$from = Input::get('next', -1);
-		$allIds = Entity::distinct('_id')->get();
-		if($from==-1) {
-			return [
-				'next' => 0,	// Meaning we should start from 0
-				'last' => sizeof($allIds)
-			];
-		} else {
-			$allKeys = [];
-			$batchSize = 100;
-			$lastOne = sizeof($allIds);
-			for($i = $from; $i < ($from + $batchSize) && $i < $lastOne; $i = $i + 1) {
-				$e = Entity::where('_id', $allIds[$i][0])->first();
-				$keys = $this->getKeys($e->attributesToArray());
-				$allKeys = array_unique(array_merge($allKeys, $keys));
-			}
-			$searchComponent = new MediaSearchComponent();
-			$searchComponent->store($allKeys);
-			return [
-				'next' => $i,	// Meaning we should start from 0
-				'last' => $lastOne
-			];
-=======
 	{	
 		$searchComponent = new MediaSearchComponent();
 		
@@ -229,7 +204,6 @@ class MediaController extends BaseController {
 				}
 
 			}
->>>>>>> origin/media-view
 		}
 		$searchComponent->store($allKeys);
 			 
