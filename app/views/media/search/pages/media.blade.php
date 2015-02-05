@@ -189,6 +189,17 @@
 						</div>
 						
 						@include('media.search.layouts.hb-modalworkerunits')
+						@include('media.search.layouts.hb-modalindividualworker')
+						@include('media.search.layouts.hb-modalindividualjob')
+
+						{{-- load all modal templates --}}
+						@include('media.search.layouts.hb-modalindividualunit')
+						@include('media.search.layouts.hb-modalindividualannotatedmetadata')
+						@include('media.search.layouts.hb-modalindividualfullvideo')
+						@include('media.search.layouts.hb-modalindividualmetadata')
+						@include('media.search.layouts.hb-modalindividualrelex')
+						@include('media.search.layouts.hb-modalvideokeyframes')
+						@include('media.search.layouts.hb-modalvideosegments')
 						
 						<div class='includeGraph hidden'>
                             <table>
@@ -343,6 +354,31 @@ $('document').ready(function(){
 	return new Handlebars.SafeString(user);
   });
 
+  
+  
+	// set the unit modal based on the document type. only available in some specific cases
+  Swag.addHelper('unitModal', function(id, documentType) {
+
+	var useModal;
+	
+	switch(documentType) {
+		case 'fullvideo' :
+			useModal = '<a class="testModal" id="' + id + '" data-modal-query="unit=' + id + '" data-api-target="{{ URL::to("api/analytics/unit?") }}" data-target="#modalIndividualFullvideo" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">' + id + '</a>';
+		break;
+		case 'metadatadescription' :
+			useModal = '<a class="testModal" id="' + id + '" data-modal-query="unit=' + id + '" data-api-target="{{ URL::to("api/analytics/unit?") }}" data-target="#modalIndividualMetadata" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">' + id + '</a>';
+		break;
+		case 'relex-structured-sentence' :
+			useModal = '<a class="testModal" id="' + id + '" data-modal-query="unit=' + id + '" data-api-target="{{ URL::to("api/analytics/unit?") }}" data-target="#modalIndividualRelex" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">' + id + '</a>';
+		break;
+		default:
+			useModal = id;
+	}
+	
+    return new Handlebars.SafeString(useModal);
+  });
+  
+  
 Swag.registerHelpers();
 
 $('.selectpicker').selectpicker({
@@ -391,8 +427,7 @@ $('.search .documentType').change(function(){
 	}
 	$('.search .documentType').selectpicker('refresh');
 	
-	console.log(documents);
-	
+
 	// if document type is relex, show the relex specific filters
 	if(documents[0] == 'relex-structured-sentence') {
 		$('.specificFilterButton').show();
@@ -830,17 +865,26 @@ var dynamicTemplate = function() {
 	var columns = $('.columns').val();
 	for(var i = 0; i < columns.length; i++) {
 		if(columns[i] == '_id') {
-			template += '<td data-vbIdentifier="sent_id"><a class="testModal" id="@{{ this._id }}" data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to("api/analytics/unit?") }}" data-target="#modalIndividualUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">@{{ this._id }}</a></td>';				
+			// for the ID the best modal is applied through handlebars to show the invidial unit
+			template += '<td data-vbIdentifier="id">@{{ unitModal this._id this.documentType }}</td>';
 		} else {
-			switch($('.columns option[value="' + columns[i] + '"]').attr('format')) {
-				case 'image':
-					template += '<td data-vbIdentifier="id"><img style="max-width:100px; max-height:100px;border:0px;" src="@{{ this.' + columns[i] + ' }}" /></td>';
-				break;
-				case 'video':
-					template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video>';
-				break;
-				default:
-					template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
+			// fallback support for video keyframes and video segments
+			if(columns[i] == 'keyframes.count') {
+				template += '<td data-vbIdentifier="number_of_video_keyframes" id="keyframe_@{{ @index }}"><a class="testModal" data-modal-query="&only[]=content.storage_url&only[]=content.timestamp&match[documentType]=keyframe&match[parents][]=@{{ this._id }}" data-api-target="{{ URL::to("api/search?noCache") }}" data-target="#modalVideoKeyframes" data-toggle="tooltip" data-placement="top" title="Click to see the keyframes">@{{ this.keyframes.count }}</a></td>';
+			} else if(columns[i] == 'segments.count') { 
+				template += '<td data-vbIdentifier="number_of_video_segments" id="segment_@{{ @index }}"><a class="testModal" data-modal-query="&only[]=content.storage_url&only[]=content.duration&match[documentType]=videosegment&only[]=content.start_time&only[]=content.end_time&match[parents][]=@{{ this._id }}" data-api-target="{{ URL::to("api/search?noCache") }}" data-target="#modalVideoSegments" data-toggle="tooltip" data-placement="top" title="Click to see the video segments">@{{ this.segments.count }}</a></td>';
+			} else {
+				// change field based on format of the data
+				switch($('.columns option[value="' + columns[i] + '"]').attr('format')) {
+					case 'image':
+						template += '<td data-vbIdentifier="id"><img style="max-width:100px; max-height:100px;border:0px;" src="@{{ this.' + columns[i] + ' }}" /></td>';
+					break;
+					case 'video':
+						template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video>';
+					break;
+					default:
+						template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
+				}
 			}
 		}
 	}
@@ -894,15 +938,14 @@ var openModal = function(modalAnchor , activeTabKey){
 
 
     var modalTarget = modalAnchor.attr('data-target');
-    //alert(modalTarget);
 
     $('#activeTabModal').remove();
 
     var query = modalAnchor.attr('data-modal-query');
-    console.log(baseApiURL + query);
+
     $.getJSON(baseApiURL + query, function(data) {
 
-        var template = Handlebars.compile(dynamicTemplate());
+        var template = Handlebars.compile($(modalTarget + ' .template').html());
 
         var html = template(data);
 
@@ -1043,6 +1086,7 @@ if(workerList !=  null) {
     }
     localStorage.removeItem("unitList");
 }
+
 
 });
 
