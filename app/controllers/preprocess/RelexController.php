@@ -29,19 +29,16 @@ class RelexController extends BaseController {
 
 	public function getActions()
 	{
-		// TODO: format=text so pre-processing is applicable to ANY text document.
-		// TODO:   Rename class from RelexController to TEXT-CONTROLLER or something like that
-		// $entities = \MongoDB\Entity::where('documentType', 'relex')->get();
-		// TODO: Select document types dynamically
-		$entities = \MongoDB\Entity::whereIn('documentType', [ 'relex', 'csvesult', 'article', 'biographynet', 
-				'termpairs', 'qa-passages' ])->get();
+		// get all uploaded documents
+		// TODO: change to select by actual type
+		$entities = \MongoDB\Entity::where('activity_id', 'LIKE', '%fileuploader%')->get();
 
 		if(count($entities) > 0)
 		{
 			return View::make('media.preprocess.relex.pages.actions', compact('entities'));
 		}
 
-		return Redirect::to('media/upload')->with('flashNotice', 'You have not uploaded any "relex" documents yet');
+		return Redirect::to('media/upload')->with('flashNotice', 'You have not uploaded any documents yet');
 	}
 
 	public function getPreview()

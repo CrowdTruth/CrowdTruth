@@ -23,22 +23,110 @@
 @include('layouts.flashdata')
 
 		<div class='tab'>
-			<div class='row'>
-				<div class='col-xs-12 searchOptions'>
+			<div class='search row'>
+				<div class='col-xs-12'>
 				@if(isset($mainSearchFilters['media']['documentTypes']))
-					<select name="documentType" data-query-key="match[documentType][]" class="selectpicker pull-left show-tick" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-						<optgroup label="Media-Type">
-							@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
-								<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
-							@endforeach
-						</optgroup>
+					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" multiple data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+						@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
+							<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
+							@if($key == 'all')
+								<option data-divider="true"></option>
+							@endif
+						@endforeach
 					</select>
 				@endif
-
-					<div class='tabOptions pull-left'>
+				
+					<div class='btn-group pull-left' style="margin-left:5px";>
+						{{ Form::open([ 'action' => 'MediaController@postKeys', 'name' => 'theForm', 'id' => 'theForm' ]) }}
+							<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" data-selected-text-format="count>3" style="display: none;">
+							</select>
+						{{ Form::close() }}
 					</div>
+					
+					<div class="btn-group pull-left specificFilterButton" style="margin-left:5px;">
+						<button type="button" class="btn btn-default specificFilter" data-original-title="" title="">
+							Specific Filters
+						</button>
+					</div>
+			
+					<div class='specificFilterContent hidden'>
+						<table class='table table-striped table-condensed specificFilterOptions'>
+							<tbody>
+								<tr>
+									<td>Relation In Sentence</td>
+									<td class="text-right">
+										<div class="btn-group" id='relationInSentence'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationInSentence]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationInSentence]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Relation Outside Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='relationOutsideTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationOutsideTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationOutsideTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Relation Between Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='relationBetweenTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationBetweenTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.relationBetweenTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Semicolon Between Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='semicolonBetweenTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.semicolonBetweenTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.semicolonBetweenTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Comma-separated Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='commaSeparatedTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.commaSeparatedTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.commaSeparatedTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Parenthesis Around Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='parenthesisAroundTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.parenthesisAroundTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.parenthesisAroundTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+								<tr>
+									<td>Overlapping Terms</td>
+									<td class="text-right">
+										<div class="btn-group" id='overlappingTerms'>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.overlappingTerms]" data-query-value="1"><i class="fa fa-check"></i></button>
+										  <button type="button" class="btn btn-sm btn-default" data-query-key="match[content.properties.overlappingTerms]" data-query-value="0"><i class="fa fa-minus"></i></button>
+										  <button type="button" class="btn btn-sm btn-info active relexNone">Not Applied</button>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>				
 
-					<div class="btn-group pull-left" style="margin-left:5px";>
+					<div class="actions btn-group pull-left" style="margin-left:5px">
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 						Actions <span class="caret"></span>
 						</button>
@@ -46,10 +134,13 @@
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
 							<li><a href="#" class='toSelection'>Save Selection as Batch</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
-							<li><a href="{{ URL::to('media/refreshindex') }}">Refresh search index</a></li>
+						<li role="presentation" class="divider"></li>
+						<li role="presentation" class="dropdown-header">Search Index</li>
+							<li><a href="{{ URL::to('media/listindex') }}">View</a></li>
+							<li><a href="{{ URL::to('media/refreshindex') }}">Refresh</a></li>
 						</ul>
 					</div>
-					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
+					<select name="search_limit" data-query-key="limit" class="limit selectpicker pull-right show-tick">
 						<option value="10">10 Records per page</option>
 						<option value="25">25 Records per page</option>
 						<option value="50">50 Records per page</option>
@@ -63,37 +154,54 @@
 							Switch to Graph View
 						</button>
 					</div>
-				</div>
-				<div class='col-xs-12'>
-					<div class='searchStats pull-left'>
-					</div>
-					<div class='cw_pagination pull-right'>
+					<div class='col-xs-12'>
+						<div class='stats pull-left'>
+							No Items Found
+						</div>
+						<div class='navigation pull-right'>
+						</div>
 					</div>
 				</div>
 				<div class='col-xs-12 searchResults'>
-					<ul class="nav nav-tabs documentTypesNav hidden">
-						@if(isset($mainSearchFilters['media']['documentTypes']))
-							@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
-							<li id="{{$key}}_nav">
-								<a href="#{{$key}}_tab" data-toggle="tab">
-									{{$key}}
-								</a>
-							</li>
-							@endforeach
-						@endif
-					</ul>
 					<div class="tab-content documentTypesTabs">
-						@foreach($mainSearchFilters['media']['documentTypes'] as $k => $v)
-							@if(\View::exists('media.search.layouts.hb-' . $k))
-								@include('media.search.layouts.hb-' . $k)
-							@endif
-						@endforeach
+
+
+						<div class='ctable-responsive'>		
+							<table class="table table-striped">
+								<thead data-query-key="" data-query-value="">
+									<tr class='identifiers'>
+									</tr>
+									<tr class="inputFilters">
+									</tr>											        
+								</thead>
+								<tbody class='results'>
+								</tbody>
+							</table>
+						</div>	
 						
-						@include('media.search.layouts.hb-modalindividualworker')
+						<div class='status text-center'>
+							<div class='loading'>
+								<i class="fa fa-spinner fa-spin fa-4x"></i><br /><br />Loading
+							</div>
+							<div class='error' style='display:none;'>
+							<i class="fa fa-exclamation-triangle fa-4x"></i><br /><br />Oops! Something has gone wrong.
+							</div>
+						</div>
+						
 						@include('media.search.layouts.hb-modalworkerunits')
+						@include('media.search.layouts.hb-modalindividualworker')
 						@include('media.search.layouts.hb-modalindividualjob')
 
-						<div class='includeGraph'>
+						{{-- load all modal templates --}}
+						@include('media.search.layouts.hb-modalindividualunit')
+						@include('media.search.layouts.hb-modalindividualannotatedmetadata')
+						@include('media.search.layouts.hb-modalindividualfullvideo')
+						@include('media.search.layouts.hb-modalindividualmetadata')
+						@include('media.search.layouts.hb-modalindividualrelex')
+						@include('media.search.layouts.hb-modalvideokeyframes')
+						@include('media.search.layouts.hb-modalvideosegments')
+						
+						<div class='includeGraph hidden'>
                             <table>
                                 <tr class="pieDivGraphs">
                                     <td>
@@ -246,9 +354,38 @@ $('document').ready(function(){
 	return new Handlebars.SafeString(user);
   });
 
+  
+  
+	// set the unit modal based on the document type. only available in some specific cases
+  Swag.addHelper('unitModal', function(id, documentType) {
+
+	var useModal;
+	
+	switch(documentType) {
+		case 'fullvideo' :
+			useModal = '<a class="testModal" id="' + id + '" data-modal-query="unit=' + id + '" data-api-target="{{ URL::to("api/analytics/unit?") }}" data-target="#modalIndividualFullvideo" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">' + id + '</a>';
+		break;
+		case 'metadatadescription' :
+			useModal = '<a class="testModal" id="' + id + '" data-modal-query="unit=' + id + '" data-api-target="{{ URL::to("api/analytics/unit?") }}" data-target="#modalIndividualMetadata" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">' + id + '</a>';
+		break;
+		case 'relex-structured-sentence' :
+			useModal = '<a class="testModal" id="' + id + '" data-modal-query="unit=' + id + '" data-api-target="{{ URL::to("api/analytics/unit?") }}" data-target="#modalIndividualRelex" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">' + id + '</a>';
+		break;
+		default:
+			useModal = id;
+	}
+	
+    return new Handlebars.SafeString(useModal);
+  });
+  
+  
 Swag.registerHelpers();
 
-$('.selectpicker').selectpicker();
+$('.selectpicker').selectpicker({
+    iconBase: 'fa',
+    tickIcon: 'fa-check'
+});
+
 var xhr;
 var unitsChart;
 var oldTabKey;
@@ -257,26 +394,8 @@ var templates = {};
 var defaultColumns = {};
 var lastQueryResult;
 
-// $('.maincolumn').css({"min-height:" : ($(window).height()) +  "px"});
-
-// $(window).scroll(function(){
-//    if ($(window).scrollTop() > 125){
-//     $(".facetedSearchFilters").css({"margin-top": ($(window).scrollTop()) - 125 + "px"});
-//    } else {
-//     $(".facetedSearchFilters").css({"margin-top": 0 + "px"});
-//    }
-// });
-
-var getActiveTabKey = function(){
-	return '#' + $('.tab-pane.active').attr('id');
-}
-
 var getSearchLimitValue = function(){
-	return $('.searchOptions').find("[name='search_limit']").val();
-}
-
-var updateReponsiveTableHeight = function() {
-	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 185 + "px");
+	return $('.search .limit').val();
 }
 
 var delay = (function(){
@@ -287,44 +406,54 @@ var delay = (function(){
 	};
 })();
 
-$('.searchOptions').on('change', ".selectpicker", function(){
-	if(!$('.listViewButton').hasClass('hidden'))
-	{
-		$('.listViewButton').click();
+
+
+// document type selection
+var lastDocuments = [];
+$('.search .documentType').change(function(){
+
+	var documents = $(this).val();
+	//if nothing is selected, select All
+	if(!documents) {
+		$('.search .documentType option[value=all]').attr('selected',true);
+		documents = ['all'];
+	} else if(documents.length > 1 && documents[0] == 'all' && lastDocuments[0] == 'all') { // unselect 'all' if any other document type is selected
+		$('.search .documentType option[value=all]').attr('selected',false);
+		delete(documents[0]);
+		documents.sort();
+	} else if(documents.length > 1 && documents[0] == 'all' && lastDocuments[0] != 'all') { // unselect all other document types if 'all' is selected
+		$('.search .documentType option[value!=all]').attr('selected',false);
+		documents = ['all'];
 	}
+	$('.search .documentType').selectpicker('refresh');
+	
 
-	if($(this).attr('name') == "documentType")
-	{
-		if($(this).val() != null)
-		{
-			if($(this).val().length == 1)
-			{
-				$('.documentTypesNav').find('#' + $(this).val()[0] + '_nav a').click();
-			} else {
-				$('.documentTypesNav').find('#' + $(this).val() + '_nav a').click();
-			}
-			getResults();
-			return;
-		}
+	// if document type is relex, show the relex specific filters
+	if(documents[0] == 'relex-structured-sentence') {
+		$('.specificFilterButton').show();
+		initializeSpecificFilter();
+	} else {
+		$('.specificFilterButton').hide();
 	}
+	
+	lastDocuments = documents;
+	getColumns(documents);
+});
 
-	if($(this).attr('name') == "search_limit"){
-		getResults();
-		return;
-	}
 
-	$('.documentTypesNav').find('#all_nav a').click();
 
+$('.search .limit').change(function() {
 	getResults();
 });
 
+// create popover button for relex specific filters
 var initializeSpecificFilter = function() {
-	$(".searchOptions .specificFilter").popover({
+	$(".specificFilter").popover({
 	    trigger: "manual",
 	    html: true,
 	    'animation' : false,
 	    'containter' : 'body',
-	    'content' : function(){ return $('.searchOptions .specificFilterContent').html() },
+	    'content' : function(){ return $('.specificFilterContent').html() },
 	    'placement' : 'bottom',
 	     template: '<div class="popover tssPopover"><div class="arrow"></div><div class="popover-content"></div></div>'
 	}).on("mouseenter", function () {
@@ -360,29 +489,10 @@ var getGeneralFilterQueries = function() {
 	return generalFilterQuery;
 }
 
-$('.searchOptions .tabOptions').on('click', "[data-vbSelector]", function(){
-	if($(this).attr('data-vb') == "show")
-	{
-		$(this).attr('data-vb', 'hide');
-		$(this).find('.fa').remove();
-		$(this).prepend('<i class="fa fa-circle-o fa-fw"></i>');
-	}
-	else
-	{
-		$(this).attr('data-vb', 'show');
-		$(this).find('.fa').remove();
-		$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
-	}
-
-	visibleColumns();
-});
-
 $('body').on('keyup', '.inputFilters input', function(){
 	var inputFilter = $(this);
-
 	delay(function(){
-		var activeTabKey = getActiveTabKey();
-		selectedRows[activeTabKey] = [];
+		selectedRows = [];
 		inputFilter.attr('data-query-value', inputFilter.val());
 
 		if(inputFilter.val() == "")
@@ -390,23 +500,6 @@ $('body').on('keyup', '.inputFilters input', function(){
 
 	 	getResults();
 	}, 300);
-});
-
-$('body').on('click', '.checkAll', function(){
-	var activeTabKey = getActiveTabKey();
-	if (! $(this).is(':checked')) {
-		$(activeTabKey + ' input[name=rowchk]').each(function(){
-			if ($(this).is(':checked')) {
-				$(this).click();
-			}
-		});
-	} else {
-		$(activeTabKey + ' input[name=rowchk]').each(function(){
-			if (!$(this).is(':checked')) {
-				$(this).click();
-			}
-		});
-	}
 });
 
 $('body').on('click', 'input[name=rowchk]', function(event){
@@ -422,43 +515,9 @@ $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
 	$('.searchOptions .tabOptions > *').appendTo('.tab-pane.active .tabOptions');
 });
 
-$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-	var activeTabKey = getActiveTabKey();
-
-	// if($(this).attr('href') == "#all_tab")
-	// 	return false;
-
-	$(activeTabKey + ' .tabOptions > *').appendTo('.searchOptions .tabOptions');
-
-	if($(this).closest('li').hasClass('active')){
-		// $('.specificFilters').empty().append($('.tab-pane.active .specificFilterOptions'));
-		// $('.cw_specificFilters').removeClass('hidden');
-		if(templates[activeTabKey] == undefined)
-		{
-			getResults();
-		}
-	}
-
-	initializeSpecificFilter();
-});
-
-$('body').on('click', '.specificFilterOptions button', function(){
-	$(this).siblings().removeClass('btn-info active').addClass('btn-default');
-	$(this).removeClass('btn-default').addClass('btn-info active');
-
-	var html = $(this).parent().html();
-	var selector = $(this).parent().attr('id');
-	$('.searchOptions .tabOptions #' + selector).empty().append(html);
-
-	var activeTabKey = getActiveTabKey();
-	selectedRows[activeTabKey] = [];
-	getResults();
-});
-
 $('body').on('click', '.toSelection', function(){
-	var activeTabKey = getActiveTabKey();
 
-	if(typeof selectedRows[activeTabKey] == 'undefined' || selectedRows[activeTabKey].length < 1){
+	if(typeof selectedRows == 'undefined' || selectedRows.length < 1){
 		event.preventDefault();
 		alert('Please make a selection first');
 	} else {
@@ -469,7 +528,7 @@ $('body').on('click', '.toSelection', function(){
 		var form = $('<form action="{{ URL::action("MediaController@anyBatch") }}" method="post"></form>');
 		$('body').append(form);
 
-		$.each(selectedRows[activeTabKey], function(index, value){
+		$.each(selectedRows, function(index, value){
 			form.append($('<input type="checkbox" name="selection[]" value="' + value + '" checked >'))
 		});
 
@@ -478,7 +537,18 @@ $('body').on('click', '.toSelection', function(){
 	}
 });
 
-$('.tab-pane').on('click', "th", function(){
+// toggle relex specific options on click
+$('body').on('click', '.specificFilterOptions button', function(){
+	$(this).siblings().removeClass('btn-info active').addClass('btn-default');
+	$(this).removeClass('btn-default').addClass('btn-info active');
+	var html = $(this).parent().html();
+	var selector = $(this).parent().attr('id');
+	$('.specificFilterContent #' + selector).empty().append(html);
+	getResults();
+});
+
+
+$('.searchResults').on('click', "th", function(){
 	if($(this).hasClass('sorting')){
 		$(this).removeClass().addClass('sorting_asc');
 	} else if($(this).hasClass('sorting_asc')){
@@ -505,7 +575,7 @@ $('.listViewButton').click(function() {
 	$('.graphViewButton').removeClass('hidden');
 	$('.includeGraph').addClass('hidden');
 
-	$(getActiveTabKey() + ' tbody.results').show();
+	$('.search .results').show();
 });
 
 $('.graphViewButton').click(function() {
@@ -513,7 +583,7 @@ $('.graphViewButton').click(function() {
 	$('.listViewButton').removeClass('hidden');
 	$('.includeGraph, .specificGraphs').removeClass('hidden');
 
-	$(getActiveTabKey() + ' tbody.results').hide();
+	$('.search .results').hide();
 	getResults();
 });
 
@@ -523,10 +593,6 @@ $('body').tooltip({
     html: true
 });
 
-$(window).resize(function() {
-	updateReponsiveTableHeight();
-});
-
 $('.input-daterange').datepicker({
 	format: "yyyy-mm-dd",
 	clearBtn: true,
@@ -534,9 +600,7 @@ $('.input-daterange').datepicker({
 });
 
 $('.input-daterange input').on('changeDate', function(e) {
-	// alert($(this).val());
 	var date = $(this).val();
-	console.log('test' + date);
 
 	if(date == "") {
 		$(this).removeAttr('data-query-value');
@@ -548,163 +612,191 @@ $('.input-daterange input').on('changeDate', function(e) {
 });
 
 var updateSelection = function(id) {
-	var activeTabKey = getActiveTabKey();
 
-	if (typeof selectedRows[activeTabKey] == 'undefined') {
-		selectedRows[activeTabKey] = [];
+	if (typeof selectedRows == 'undefined') {
+		selectedRows = [];
 	}
 
 	if(id !== undefined)
 	{
-	    if(jQuery.inArray(id, selectedRows[activeTabKey]) != -1) {
-			selectedRows[activeTabKey] = $.grep(selectedRows[activeTabKey], function(value) {
+	    if(jQuery.inArray(id, selectedRows) != -1) {
+			selectedRows = $.grep(selectedRows, function(value) {
 			  return value != id;
 			});			
 	    } else {
-			selectedRows[activeTabKey].push(id);
+			selectedRows.push(id);
 	    }
 	}
 
     $("input[name=rowchk]").each(function(){
     	var val = $(this).attr('value');
 
-        if(jQuery.inArray(val, selectedRows[activeTabKey]) != -1) {
+        if(jQuery.inArray(val, selectedRows) != -1) {
 			$(this).prop("checked", true);
         } else {
         	$(this).prop("checked", false);
         }
     });
 
-    console.dir(selectedRows[activeTabKey]);
 }
 
 var getSelection = function() {
-	var activeTabKey = getActiveTabKey();
 
-	if (typeof selectedRows[activeTabKey] != 'undefined') {
-		return selectedRows[activeTabKey];
+	if (typeof selectedRows != 'undefined') {
+		return selectedRows;
 	}
 
 	return [];
 }
 
 function getTabFieldsQuery(){
-	var activeTabKey = getActiveTabKey();
 	var tabFieldsQuery = '';
 
-	if(activeTabKey == "#all_tab"){
-		tabFieldsQuery = getGeneralFilterQueries();
+	var documentType = $('.search .documentType').val();
+	
+	var operator = '=';
+	if(documentType[0] == 'all') {
+		tabFieldsQuery += "&match[tags]=unit";
+	} else {
+		// needs to use all doctypes
+		tabFieldsQuery += "&" + "match[documentType]" + operator + documentType[0];
 	}
-
-	$('.searchOptions .specificFilterOptions, ' + activeTabKey).find("[data-query-key]").each(function() {
+	
+	// find filter values
+	$('.inputFilters, .specificFilterContent').find("[data-query-key]").each(function() {
+	
 		if($(this).hasClass('btn') && !$(this).hasClass('active')){
 			return;
 		}
-
+	
 		if($(this).is('[data-query-value]')){
 			if($(this).is('[data-query-operator]')){
 				var operator = "[" + encodeURIComponent($(this).attr('data-query-operator')) + "]=";
 			} else {
 				var operator = "=";
 			}
-
 			tabFieldsQuery += "&" + $(this).attr('data-query-key') + operator + $(this).attr('data-query-value');
 		}
+	});
 
+	// go through sorting
+	$('.sorting, .sorting_asc, .sorting_desc').each(function() {
+		if($(this).is('[data-query-value]')){
+			if($(this).is('[data-query-operator]')){
+				var operator = "[" + encodeURIComponent($(this).attr('data-query-operator')) + "]=";
+			} else {
+				var operator = "=";
+			}
+			tabFieldsQuery += "&" + $(this).attr('data-query-key') + operator + $(this).attr('data-query-value');
+		}
 		if($(this).hasClass('sorting_asc')){
 			tabFieldsQuery += "&" + $(this).attr('data-query-key') + "=asc";
 		} else if($(this).hasClass('sorting_desc')){
 			tabFieldsQuery += "&" + $(this).attr('data-query-key') + "=desc";
 		}
 	});
-
-	// console.log(tabFieldsQuery);
+	
 	return tabFieldsQuery;
 }
 
+// function to get columns available for selected document types
+function getColumns(docTypes) {
+
+			formData = 'documents=' + docTypes.join('|');
+			$.ajax({
+				type: "POST",
+				url: $("#theForm").attr("action"),
+				data: formData,
+				success: function(data) {
+
+					// create select list with default options
+					var columnList = '<optgroup data-icon="fa fa-flag" class="columnSelected" label="Selected">';
+					for(key in data.keys) {
+						if(data.default.indexOf(key)>=0) {
+							columnList += '<option data-icon="' + data.formats[data.keys[key]['format']] + ' fa-fw" value="' + data.keys[key]['key'] + '" format="' + data.keys[key]['format'] + '" class="select_' + key + '" selected>' + data.keys[key]['label'] + '</option>';
+						}
+					}
+					columnList += '</optgroup>';
+
+					// list with other options
+					columnList += '<optgroup class="columnNotSelected" label="Available">';
+					for(key in data.keys) {
+						if(data.default.indexOf(key)==-1) {
+							columnList += '<option data-icon="' + data.formats[data.keys[key]['format']] + ' fa-fw" value="' + data.keys[key]['key'] + '" format="' + data.keys[key]['format'] + '" class="select_' + key + '">' + data.keys[key]['label'] + '</option>';
+						}
+					}
+					columnList += '</optgroup>';
+					
+
+					$('select.columns').html(columnList);
+					
+					$('select.columns').selectpicker('refresh');
+					getResults();
+					refreshColumns();
+				}
+			});
+}
+
 function getResults(baseApiURL){
+
+	// hide old results and show loading screen
+	$('.search .results').hide();
+	$('.status .error').hide();
+	$('.status .loading').show();
+	$('.status').show();
+
 	if(baseApiURL == undefined)
 	{
 		var baseApiURL = '{{ URL::to("api/search?noCache") }}';
 	}
 
-	var activeTabKey = getActiveTabKey();
 	var searchLimitQuery = "&limit=" + getSearchLimitValue();
 	var tabFieldsQuery = getTabFieldsQuery();
 
-	if(tabFieldsQuery == '')
-	{
-		$(activeTabKey).find('.results').empty();
-		$(activeTabKey).find('.cw_pagination').empty();
-		return false;
-	}
-
-	console.log(tabFieldsQuery);
-
-	$('.searchStats').text('Processing...');
+	console.log(baseApiURL + tabFieldsQuery + searchLimitQuery);
 
 	abortAjax(xhr);
 
 	xhr = $.getJSON(baseApiURL + tabFieldsQuery + searchLimitQuery, function(data) {
-		// console.log(data);
 
 		lastQueryResult = data;
-
-		if(templates[activeTabKey] == undefined)
-		{
-			templates[activeTabKey] = $(activeTabKey).find('.template').html();
-			defaultColumns[activeTabKey] = $('.searchOptions').find(".vbColumns").html();
-		}
-		
-		var template = Handlebars.compile(templates[activeTabKey]);
+	
+		var template = Handlebars.compile(dynamicTemplate());
 		var html = template(data);
-		$('.cw_pagination').empty().prepend($(data.pagination));
-		$('.cw_pagination').find('.pagination').addClass('pagination-sm');
-		$(activeTabKey).find('.results').empty().append(html);
+		$('.navigation').empty().prepend($(data.pagination));
+		$('.navigation').find('.pagination').addClass('pagination-sm');
+		$('.search .results').empty().append(html);
+		$('.search .results').show('slow');
+		
 
 		var searchStats = Handlebars.compile($('.searchStatsTemplate').html());
 		var searchStats = searchStats(data);
-		$('.searchStats').empty().append(searchStats);
+		$('.search .stats').html(searchStats);
 
-		// $(activeTabKey + ' .hb_popover').popover({
-		// 	placement : "left",
-		// 	html : true,
-		// 	trigger : "hover",
-		// 	title : "default",
-		// 	content : function(){ return $(this).find('.hidden').html() },
- 	// 		container: 'body',
-  //           template: '<div class="popover popover-medium"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'
-		// });
-
-		if(templates[activeTabKey + 'date'] == undefined)
-		{
-			templates[activeTabKey + 'date'] = activeTabKey + 'date';
+		
+		if($('.graphViewButton').hasClass('hidden')) {
+			$('.searchResults .checkAll').removeAttr('checked');
+			$('.search .results').hide();
+						
+			// spoof category to support visualizations		
+			var category = '#' + $('.search .documentType').val()[0] + '_tab';
+			var availableVis = ['#relex-structured-sentence_tab','#fullvideo_tab','#metadatadescription_tab','#annotatedmetadatadescription_tab','#all_tab','#drawing_tab','#painting_tab'];
+			if(availableVis.indexOf(category)>=0) { // do not update if there is no visualization for this document type	
+				unitsChart = new unitsChartFacade(category, openModal, getSelection, updateSelection);
+				unitsChart.init(getTabFieldsQuery(),"");
+			}
 		} else {
-			// alert(templates[activeTabKey + 'date']);
+			updateSelection();
 		}
+		
+		$('.search .loading').hide();
+		$('.status').hide();
 
-		initializeVisibleColumns();
-		visibleColumns();
-
-
-		if($('.graphViewButton').hasClass('hidden')){
-            var selectedCategory = activeTabKey;
-			$(activeTabKey + ' .checkAll').removeAttr('checked');
-            if(!(oldTabKey == activeTabKey))
-            {
-                unitsChart = new unitsChartFacade(selectedCategory, openModal, getSelection, updateSelection);
-                unitsChart.init(getTabFieldsQuery(),"");
-                oldTabKey = activeTabKey;
-            } else {
-                unitsChart.init(getTabFieldsQuery(),"");
-            }
-		}
-
-		updateSelection();
-
+	}).fail(function() {
+		$('.status .loading').hide();
+		$('.status .error').show();
+		$('.status').show();
 	});
-
-	updateReponsiveTableHeight();
 }
 
 function abortAjax(xhr) {
@@ -713,65 +805,106 @@ function abortAjax(xhr) {
 	}
 }
 
-var initializeVisibleColumns = function(){
-	if($('.searchOptions .tabOptions').find(".vbColumns").length){
-		$('.searchOptions .tabOptions').find("[data-vbSelector]").each(function() {
-			if($(this).attr('data-vb') == "show")
-			{
-				$(this).find('.fa').remove();
-				$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
-			}
-			else
-			{
-				$(this).find('.fa').remove();
-				$(this).prepend('<i class="fa fa-circle-o fa-fw"></i>');
-			}
-		});
+$('.inputFilters').on('click', '.filterChange', function() {
+	$(this).parents('.filter').children('.filterField').remove();
+});
+
+// refresh columns in table
+var refreshColumns = function() {
+
+	// create identifiers and filters
+	var identifiers = '<th data-vbIdentifier="checkbox">Select</th>';
+	var filters = '<td><input type="checkbox" class="checkAll" /></td>';
+
+	var columns = $('.columns').val();
+	for(var i = 0; i < columns.length; i++) {
+
+		var $column = $('.columns option[value="' + columns[i] + '"]');
+	
+		// move selected to selected group
+		if(!$column.parent().hasClass('columnSelected')) {
+			$column.appendTo('.columns .columnSelected');
+		}
+		
+
+		identifiers += '<th class="sorting" data-vbIdentifier="' + columns[i] + '" data-query-key="orderBy[' + columns[i] + ']">' + $column.text() + '</th>';	
+		
+		// change filter based on format
+		if($column.attr('format') == 'number') {
+			filters += '<td data-vbIdentifier="' + columns[i] + '" style="width: 100px;">' +
+			'<input class="input-sm form-control" type="text" data-query-key="match[' + $column.val() + ']" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />' +
+			'<input class="input-sm form-control" type="text" data-query-key="match[' + $column.val() + ']" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" /></td>';
+		} else if($column.attr('format') == 'time') {
+			filters += '<td data-vbIdentifier="' + columns[i] + '" style="width: 200px;"><div class="input-daterange">' +
+				'<input type="text" class="input-sm form-control" name="start" data-query-key="match[' + columns[i] + ']" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />' +
+				'<input type="text" class="input-sm form-control" name="end" data-query-key="match[' + columns[i] + ']" data-query-operator="=<" style="width:49% !important; float:right;" placeholder="End Date" />' +
+				'</div></td>';		
+		} else { // default filter is string matching
+			filters += '<td><input class="input-sm form-control" type="text" data-query-key="match[' + columns[i] + ']" data-query-operator="like" placeholder="Filter" /></td>';
+		}		
 	}
 
-	$('.searchOptions .openAllColumns').off().on("click", function() {
-		$(this).addClass('hidden');
-		$('.searchOptions .openDefaultColumns').removeClass('hidden');
+	// for each option in the selected list, check if it is still selectedCategory
+	$('.columnSelected option:not(:selected)').prependTo('.columns .columnNotSelected');
+	
+	// refresh possible changes in column list
+	$('.selectpicker').selectpicker('refresh');
 
-		$('.searchOptions .tabOptions').find("[data-vbSelector]").each(function() {
-			if($(this).attr('data-vb') == "hide")
-			{
-				$(this).click();
+	
+	// update identifiers and filters
+	$('.identifiers').html(identifiers);
+	$('.inputFilters').html(filters);
+	
+}
+
+// create template based on selected columns
+var dynamicTemplate = function() {
+
+	var template = '@{{#each documents}}<tr><td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>';
+
+	var columns = $('.columns').val();
+	for(var i = 0; i < columns.length; i++) {
+		if(columns[i] == '_id') {
+			// for the ID the best modal is applied through handlebars to show the invidial unit
+			template += '<td data-vbIdentifier="id">@{{ unitModal this._id this.documentType }}</td>';
+		} else {
+			// fallback support for video keyframes and video segments
+			if(columns[i] == 'keyframes.count') {
+				template += '<td data-vbIdentifier="number_of_video_keyframes" id="keyframe_@{{ @index }}"><a class="testModal" data-modal-query="&only[]=content.storage_url&only[]=content.timestamp&match[documentType]=keyframe&match[parents][]=@{{ this._id }}" data-api-target="{{ URL::to("api/search?noCache") }}" data-target="#modalVideoKeyframes" data-toggle="tooltip" data-placement="top" title="Click to see the keyframes">@{{ this.keyframes.count }}</a></td>';
+			} else if(columns[i] == 'segments.count') { 
+				template += '<td data-vbIdentifier="number_of_video_segments" id="segment_@{{ @index }}"><a class="testModal" data-modal-query="&only[]=content.storage_url&only[]=content.duration&match[documentType]=videosegment&only[]=content.start_time&only[]=content.end_time&match[parents][]=@{{ this._id }}" data-api-target="{{ URL::to("api/search?noCache") }}" data-target="#modalVideoSegments" data-toggle="tooltip" data-placement="top" title="Click to see the video segments">@{{ this.segments.count }}</a></td>';
+			} else {
+				// change field based on format of the data
+				switch($('.columns option[value="' + columns[i] + '"]').attr('format')) {
+					case 'image':
+						template += '<td data-vbIdentifier="id"><img style="max-width:100px; max-height:100px;border:0px;" src="@{{ this.' + columns[i] + ' }}" /></td>';
+					break;
+					case 'video':
+						template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video>';
+					break;
+					default:
+						template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
+				}
 			}
-		});
-	});
-
-	$('.searchOptions .openDefaultColumns').off().on("click", function() {
-		$(this).addClass('hidden');
-		$('.searchOptions .openAllColumns').removeClass('hidden');
-
-		$('.searchOptions .tabOptions').find(".vbColumns").empty();
-		$('.searchOptions .tabOptions').find(".vbColumns").append(defaultColumns[getActiveTabKey()]);
-
-		initializeVisibleColumns();
-		visibleColumns();
-	});
+		}
+	}
+	template += '</tr>@{{/each}}';
+	return template;
 }
 
-var visibleColumns = function(){
-	var activeTabKey = getActiveTabKey();
+// on adding or removal of a column, refresh the table identifiers and filters
+$('.columns').on('change', function(){
+	refreshColumns();
+	
+	
+	// update results
+	var template = Handlebars.compile(dynamicTemplate());
+	var html = template(lastQueryResult);
+	$('.search .results').empty().append(html);
+	$('.search .results').show('slow');
+});
 
-	$('.searchOptions .tabOptions').find("[data-vbSelector]").each(function() {
 
-		var vbSelector = $(activeTabKey).find($("[" + "data-vbIdentifier='" + $(this).attr('data-vbSelector') + "']"));
-
-		if($(this).attr('data-vb') == "show")
-		{
-			vbSelector.removeClass('hidden');
-		}
-		else
-		{
-			vbSelector.addClass('hidden');
-		}
-	});
-
-	// initializeFixedThead();
-}
 
 var fixedThead;
 
@@ -802,17 +935,15 @@ var openModal = function(modalAnchor , activeTabKey){
     {
         var baseApiURL = modalAnchor.attr('data-api-target');
     }
-    console.log(modalAnchor);
-    //var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
+
+
     var modalTarget = modalAnchor.attr('data-target');
-    //alert(modalTarget);
 
     $('#activeTabModal').remove();
 
     var query = modalAnchor.attr('data-modal-query');
-    console.log(baseApiURL + query);
+
     $.getJSON(baseApiURL + query, function(data) {
-        console.dir(activeTabKey);
 
         var template = Handlebars.compile($(modalTarget + ' .template').html());
 
@@ -921,7 +1052,6 @@ var openStaticModal = function(modalAnchor , activeTabKey){
 		        data : postData,
 		        success:function(data, textStatus, jqXHR)
 		        {
-	            	console.log(data);
 	            	alert(data.message);
 
 		        },
@@ -947,9 +1077,7 @@ $('body').on('click', '.testModal', function(){
 	}
 });
 
-$('.select_relex-structured-sentence').click();
-$('.documentTypesNav').find('#relex-structured-sentence_nav a').click();
-$('.graphViewButton').click();
+$('.select_all').click();
 var workerList = localStorage.getItem("unitList");
 if(workerList !=  null) {
     workerList = JSON.parse(workerList);
@@ -958,6 +1086,7 @@ if(workerList !=  null) {
     }
     localStorage.removeItem("unitList");
 }
+
 
 });
 
@@ -979,7 +1108,6 @@ function jobactions(job, action, index){
 		        success:function(data, textStatus, jqXHR)
 					{
 
-						console.log(data);
 
 						if(data.status=='ok'){
 							$('#'+action+index).hide();

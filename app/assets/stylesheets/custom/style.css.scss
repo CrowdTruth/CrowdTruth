@@ -347,7 +347,6 @@ tr.tablesorter-filter-row input.disabled {
 }
 
 .documentTypesTabs {
-	.tab-pane {
 		thead {
 
 			th {
@@ -371,7 +370,6 @@ tr.tablesorter-filter-row input.disabled {
 		.table {
 			background:#FFF;
 		}
-	}
 }
 
 .tssPopover {
@@ -418,7 +416,7 @@ tr.tablesorter-filter-row input.disabled {
 	white-space: nowrap;
 }
 
-.cw_pagination {
+.search .navigation {
 	min-height:40px;
 
 	.pagination {
@@ -443,7 +441,7 @@ tr.tablesorter-filter-row input.disabled {
 	}
 }
 
-.searchStats {
+.search .stats {
 	line-height:25px;
 	font-weight:bold;
 }
@@ -657,4 +655,10 @@ table .double-title {
 	-moz-border-radius: 4px;
 	border-radius: 4px;
 	margin-bottom:20px;
+}
+
+.status {
+	margin: 100px 0 100px 0;
+	font-size: 16px;
+	letter-spacing: 1px;
 }

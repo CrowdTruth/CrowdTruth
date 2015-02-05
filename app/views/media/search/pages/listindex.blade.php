@@ -1,30 +1,4 @@
 @extends('layouts.default_new')
-@section('head')
-	<script>
-		function doRebuild(nextIndex) {
-			console.log('	Rebuild from: ' + nextIndex);
-			$('#next').val(nextIndex);
-			formUrl = $("#theForm").attr("action");
-			formData = $("#theForm").serialize();
-
-			$.ajax({
-				type: "POST",
-				url: formUrl,
-				data: formData,
-				success: function(data) {
-					pct = (data.next / data.last) * 100;
-					pct = Math.round(pct * 100) / 100;
-					msg = "Ready " + pct + "%";
-					$("#status_area").html(msg);
-
-					if(data.next < data.last) {
-						doRebuild(data.next);
-					}
-				}
-			});
-		}
-	</script>
-@stop
 
 @section('content')
 @section('pageHeader', 'Search index')
@@ -37,24 +11,36 @@
 
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h4>Current search index</h4>
+								<h4>Current search index <a class='btn btn-primary pull-right' href="{{ URL::to('media/refreshindex') }}">Rebuild Index</a></h4>
 							</div>
-							<div class="panel-body">							
+							<div class="panel-body">
+								@if($keys)
 								<table class='table table-striped table-condensed'>
-									<tbody>
+									<thead>
 										<tr>
-											<th>Key</th>
-											<th>Name</th>
+											<th></th>
+											<th>Index</th>
+											<th>Document Types</th>
 										</tr>
-									@foreach($labels as $key=>$label)
+									</thead>
+									<tbody>
+									@foreach($keys as $key=>$label)
 										<tr>
-											<td>{{ $key }}</td>
-											<td>{{ $label }}</td>
+											<td><i class="fa {{ $formats[$keys[$key]['format']] }}"></i></td>
+											<td class='text-left'>{{ $keys[$key]['label'] }}</td>
+											<td>
+											@foreach ($keys[$key]['documents'] as $document)
+												<span class="label label-default">{{ $document }}</span>
+											@endforeach
+											</td>
 										</tr>
 
 									@endforeach
 									</tbody>
 								</table>
+								@else
+									The index is empty.
+								@endif
 							</div>
 						</div>
 					</div>

@@ -42,6 +42,19 @@ class UserController extends BaseController {
 		Auth::logout();
 		return Redirect::to('');
 	}
+	    
+	/**
+     * Display current user activity
+     */
+	public function getActivity() {
+	
+		// redirect if user is not logged in
+		if(!Auth::check())
+			return Redirect::to('/');
+
+		$activities = Activity::getActivitiesForUser(Auth::user()->_id);
+        return View::make('user/activity')->with('activities', $activities);
+    }
 
 	/**
 	 * Display user profile

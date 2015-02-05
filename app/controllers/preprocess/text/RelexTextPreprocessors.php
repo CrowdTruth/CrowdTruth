@@ -3,10 +3,23 @@ namespace Preprocess\Relex;
 
 use Preprocess\AbstractTextPreprocessor as AbstractTextPreprocessor;
 
+/**
+ * Remove the prefix of a RelEx relation term. For instance:
+ * relex-cause yields cause.
+ * 
+ * @param $relation the RelEx relation.
+ */
 function removePrefix($relation) {
 	return explode("-", $relation)[1];
 }
 
+/**
+ * Extract the simple stem from a RelEx relation term. For instance:
+ * relex-cause yields caus
+ * 
+ * @param $relation the RelEx relation.
+ * @return The short stem form: 'caus', 'locat' or 'diagnos'
+ */
 function simpleStem($relation){
 	$relation = removePrefix($relation);
 	
@@ -22,27 +35,42 @@ function simpleStem($relation){
 	return $relation;
 }
 
-// TODO: properly document !
+/**
+ * This preprocessor is used to determine if a relation term can be 
+ * found within a given sentence.
+ */
 class RelationInSentencePreprocessor extends AbstractTextPreprocessor {
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getName() {
 		return 'Relation in sentence';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunctionName() {
 		return 'relationInSentence';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunction() {
 		return '<script src="/js/preprocessors/text/relextextpreprocessors.js"></script>';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function processItem($params, $data, $entities) {
 		$relation = $data[$params['relation']];
 		$sentence = $data[$params['sentence']];
 		
 		$relation =  simpleStem($relation);
 		$sentence = strtolower($sentence);
-				
+
 		if(stripos($sentence, $relation)) {
 			return 1;
 		} else {
@@ -50,6 +78,9 @@ class RelationInSentencePreprocessor extends AbstractTextPreprocessor {
 		}
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getConfiguration($params) {
 		return [
 			"relation" => $params["relation"],
@@ -58,19 +89,36 @@ class RelationInSentencePreprocessor extends AbstractTextPreprocessor {
 	}
 }
 
+/**
+ * This preprocessor can be used to determine if a given relation term 
+ * is present in a given sentence but it is not located between a given pair
+ * of reference terms.
+ */
 class RelationOutsideTermsPreprocessor extends AbstractTextPreprocessor {
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getName() {
 		return 'Relation outside terms';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunctionName() {
 		return 'relationOutsideTerms';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunction() {
 		return '<script src="/js/preprocessors/text/relextextpreprocessors.js"></script>';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function processItem($params, $data, $entities) {
 		$relation = $data[$params['relation']];
 		$sentence = $data[$params['sentence']];
@@ -98,6 +146,9 @@ class RelationOutsideTermsPreprocessor extends AbstractTextPreprocessor {
 		return 0;
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getConfiguration($params) {
 		return [
 			"relation" => $params["relation"],
@@ -108,19 +159,36 @@ class RelationOutsideTermsPreprocessor extends AbstractTextPreprocessor {
 	}
 }
 
+/**
+ * This preprocessor can be used to determine if a given relation term
+ * is present in a given sentence and it is located between a given pair
+ * of reference terms.
+ */
 class RelationBetweenTermsPreprocessor extends AbstractTextPreprocessor {
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getName() {
 		return 'Relation between terms';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunctionName() {
 		return 'relationBetweenTerms';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunction() {
 		return '<script src="/js/preprocessors/text/relextextpreprocessors.js"></script>';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function processItem($params, $data, $entities) {
 		$relation = $data[$params['relation']];
 		$sentence = $data[$params['sentence']];
@@ -144,6 +212,9 @@ class RelationBetweenTermsPreprocessor extends AbstractTextPreprocessor {
 		return 0;
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getConfiguration($params) {
 		return [
 			"relation" => $params["relation"],
@@ -156,19 +227,35 @@ class RelationBetweenTermsPreprocessor extends AbstractTextPreprocessor {
 	}
 }
 
+/**
+ * This preprocessor can be used to determine if the semicolon ';' character is 
+ * located between two given reference terms.
+ */
 class SemicolonBetweenTermsPreprocessor extends AbstractTextPreprocessor {
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getName() {
 		return 'Semicolon between terms';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunctionName() {
 		return 'hasSemicolon';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunction() {
 		return '<script src="/js/preprocessors/text/relextextpreprocessors.js"></script>';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function processItem($params, $data, $entities) {
 		$sentence = $data[$params['sentence']];
 		$startTerm1 = $data[$params['startTerm1']];
@@ -190,6 +277,9 @@ class SemicolonBetweenTermsPreprocessor extends AbstractTextPreprocessor {
 		return 0;
 	}
 	
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getConfiguration($params) {
 		return [
 			"sentence" => $params["sentence"],
@@ -201,19 +291,35 @@ class SemicolonBetweenTermsPreprocessor extends AbstractTextPreprocessor {
 	}
 }
 
+/**
+ * This preprocessor can be used to determine if the comma ',' character is used as 
+ * divider for the given pair of terms.
+ */
 class CommaSeparatedTermsPreprocessor extends AbstractTextPreprocessor {
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getName() {
 		return 'Comma separated terms';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunctionName() {
 		return 'hasComma';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunction() {
 		return '<script src="/js/preprocessors/text/relextextpreprocessors.js"></script>';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function processItem($params, $data, $entities) {
 		$relation = $data[$params['relation']];
 		$sentence = $data[$params['sentence']];
@@ -261,6 +367,9 @@ class CommaSeparatedTermsPreprocessor extends AbstractTextPreprocessor {
 		return 0;
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getConfiguration($params) {
 		return [
 			"relation" => $params["relation"],
@@ -275,19 +384,35 @@ class CommaSeparatedTermsPreprocessor extends AbstractTextPreprocessor {
 	}
 }
 
+/**
+ * This preprocessor is used to determine if a given pair of reference terms
+ * are surounded by parenthesis in a given sentence.
+ */
 class ParenthesisAroundTermsPreprocessor extends AbstractTextPreprocessor {
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getName() {
 		return 'Parenthesis around terms';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunctionName() {
 		return 'hasParenthesis';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunction() {
 		return '<script src="/js/preprocessors/text/relextextpreprocessors.js"></script>';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function processItem($params, $data, $entities) {
 		$sentence = $data[$params['sentence']];
 		$term1 = $data[$params['term1']];
@@ -336,6 +461,9 @@ class ParenthesisAroundTermsPreprocessor extends AbstractTextPreprocessor {
 		return 0;
 	}
 	
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getConfiguration($params) {
 		return [
 			"sentence" => $params["sentence"],
@@ -347,19 +475,35 @@ class ParenthesisAroundTermsPreprocessor extends AbstractTextPreprocessor {
 	}
 }
 
+/**
+ * This preprocessor is used to determine whether two given reference terms
+ * overlap within a given sentence.
+ */
 class OverlapingTermsPreprocessor extends AbstractTextPreprocessor {
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getName() {
 		return 'Overlapping terms';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunctionName() {
 		return 'hasOverlappingTerms';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getParameterJSFunction() {
 		return '<script src="/js/preprocessors/text/relextextpreprocessors.js"></script>';
 	}
 
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function processItem($params, $data, $entities) {
 		$startTerm1 = $data[$params['startTerm1']];
 		$endTerm1 = $data[$params['endTerm1']];
@@ -384,6 +528,9 @@ class OverlapingTermsPreprocessor extends AbstractTextPreprocessor {
 		}
 	}
 	
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
 	function getConfiguration($params) {
 		return [
 			"startTerm1" => $params["startTerm1"],

@@ -1,121 +1,4 @@
-<div class="tab-pane" id="annotatedmetadatadescription_tab">	
-	<div class='row'>
-		<div class='tabOptions hidden'>
-			<div class='btn-group' style="margin-left:5px;">
-				<button type="button" class="btn btn-default openAllColumns">Open all columns</button>
-				<button type="button" class="btn btn-default openDefaultColumns hidden">Open default columns</button>
-				<div class="btn-group vbColumns">
-					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-					<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu">
-						<li><a href="#" data-vb="show" data-vbSelector="metadata_title"></i>Title</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="avg_clarity"></i>Avg Clarity</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="no_of_machine_events"># Machine Events</th>
-						<li><a href="#" data-vb="show" data-vbSelector="machine_events">Machine Events</th>
-						<li><a href="#" data-vb="show" data-vbSelector="no_of_crowd_events"># Crowd Events</th>
-						<li><a href="#" data-vb="show" data-vbSelector="crowd_events">Crowd Events</th>
-						<li><a href="#" data-vb="hide" data-vbSelector="number_of_jobs"></i>Used In # of Jobs</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="number_of_batches"></i>Used In # of Batches</a></li>
-						<li><a href="#" data-vb="show" data-vbSelector="created_at"></i>Created At</a></li>
-						<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
-					</ul>
-				</div>
-			</div>
-		</div>	
-	</div>
-	<div class='ctable-responsive cResults'>
-	    <table class="table table-striped qwe">
-	       	<thead data-query-key="match[documentType]" data-query-value="annotatedmetadatadescription">
-		        <tr>
-		            <th data-vbIdentifier="checkbox">Select</th>
-			    	<th class="sorting" data-vbIdentifier="metadata_title" data-query-key="orderBy[title]">Title</th>
-			    	<th class="sorting" data-vbIdentifier="avg_clarity" data-query-key="orderBy[avg_clarity]">Avg Clarity </th>
-			    	<th class="sorting" data-vbIdentifier="no_of_machine_events" data-query-key="orderBy[content.automatedEventsCount]"># Machine Events</th>
-			    	<th class="sorting" data-vbIdentifier="machine_events" data-query-key="orderBy[content.automatedEvents.label]">Machine Events</th>
-			    	<th class="sorting" data-vbIdentifier="no_of_crowd_events" data-query-key="orderBy[content.noCrowdEvents]"># Crowd Events</th>
-		            <th class="sorting" data-vbIdentifier="crowd_events" data-query-key="orderBy[content.crowdEvents.label]">Crowd Events</th>
-					<th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_jobs" data-query-key="orderBy[cache.jobs.count]">Used In # of Jobs</th>
-				    <th class="sorting whiteSpaceNormal" data-vbIdentifier="number_of_batches" data-query-key="orderBy[cache.batches.count]">Used In # of Batches</th>     
-				    <th class="sorting whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;">Created At</th>
-				    <th class="sorting" data-vbIdentifier="created_by" data-query-key="orderBy[user_id]">Created By</th>
-		        </tr>
-				<tr class="inputFilters">
-					<td data-vbIdentifier="checkbox">
-						<input type="checkbox" class="checkAll" />
-					</td>
-					<td data-vbIdentifier="metadata_title">
-						<input class="input-sm form-control" type='text' data-query-key="match[title]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="avg_clarity">
-						<input class="input-sm form-control" type='text' data-query-key="match[avg_clarity]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="no_of_machine_events">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.automatedEventsCount]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="machine_events">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.automatedEvents.label]" data-query-operator="like" />	
-					</td>
-					<td data-vbIdentifier="no_of_crowd_events">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.noCrowdEvents]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="crowd_events">
-						<input class="input-sm form-control" type='text' data-query-key="match[content.crowdEvents.label]" data-query-operator="like" />
-					</td>
-					<td data-vbIdentifier="number_of_jobs">
-						<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-						<input class="input-sm form-control" type='text' data-query-key="match[cache.jobs.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-					</td>
-					<td data-vbIdentifier="number_of_batches">
-						<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
-						<input class="input-sm form-control" type='text' data-query-key="match[cache.batches.count]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
-					</td>
-					<td data-vbIdentifier="created_at">
-						<div class="input-daterange">
-						    <input type="text" class="input-sm form-control" name="start" data-query-key="match[created_at]" data-query-operator=">=" style="width:49% !important; float:left;" placeholder="Start Date" />
-						    <input type="text" class="input-sm form-control" name="end" data-query-key="match[created_at]" data-query-operator="=<" style="width:49% !important; float:right;" placeholder="End Date" />
-						</div>
-					</td>
-					<td data-vbIdentifier="created_by">
-						<input class="input-sm form-control" type='text' data-query-key="match[user_id]" data-query-operator="like" />	
-					</td>
-				</tr>											        
-	        </thead>
-	        <tbody class='results'>								
-				<script class='template' type="text/x-handlebars-template">
-			        @{{#each documents}}
-			        <tr class="text-center">
-			            <td data-vbIdentifier="checkbox"><input type="checkbox" id="@{{ this._id }}" name="rowchk" value="@{{ this._id }}"></td>
-				    	<td data-vbIdentifier="metadata_title">
-				    	<a class='testModal' id='@{{ this._id }}' data-modal-query="unit=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/unit?') }}" data-target="#modalIndividualAnnotatedMetadataDescriptionUnit" data-toggle="tooltip" data-placement="top" title="Click to see the individual unit page">
-								@{{ this.title }}
-							</a>
-				    	</td>
-				    	<td data-vbIdentifier="avg_clarity"> @{{ this.avg_clarity }} </td>
-			            <td data-vbIdentifier="no_of_machine_events"> @{{ this.content.automatedEventsCount }}  </td>
-				    	@{{#if  this.content.automatedEvents }}
-							<td data-vbIdentifier="machine_events"> @{{ highautomatedEvents @root.searchQuery this.content }} </td>
-				    	@{{ else }}
-			           		<td data-vbIdentifier="machine_events"> @{{ this.content.description }} </td>
-			            @{{/if}}
-			            <td data-vbIdentifier="no_of_crowd_events"> @{{ this.content.noCrowdEvents }}  </td>
-			            @{{#if  this.content.crowdEvents }}
-							<td data-vbIdentifier="crowd_events"> @{{ highcrowdEvents @root.searchQuery this.content }} </td>
-				    	@{{ else }}
-			           		<td data-vbIdentifier="crowd_events"> @{{ this.content.description }} </td>
-			            @{{/if}}
-				    	<td data-vbIdentifier="number_of_batches">@{{ this.cache.batches.count }}</td>
-					    <td data-vbIdentifier="number_of_jobs">@{{ this.cache.jobs.count }}</td>
-					    <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
-					    <td data-vbIdentifier="created_by">@{{ this.user_id }}</td>
-				</tr>
-			        @{{/each}}
-				</script>
-	        </tbody>
-	    </table>
-	</div>
-
-<div class='hidden' id='modalIndividualAnnotatedMetadataDescriptionUnit'>
+<div class='hidden' id='modalIndividualAnnotatedMetadata'>
 	<script class='template' type="text/x-handlebars-template">
 		<!-- Modal -->
 		<div class="modal fade bs-example-modal-lg" id="activeTabModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabelMetadataDescriptionUnit" aria-hidden="true">
@@ -590,7 +473,9 @@
 						<thead> 
 						<tr> 
 						    <th class="header">Worker Id</th>
+						    <th class="header">Platform</th>
 						    <th class="header">Platform Score</th>
+						    <th class="header">Job Title</th>
 						    <th class="header" data-toggle="tooltip" data-placement="top" title="Average Worker Cosine: is the vector cosine similarity between the annotations of a worker and the aggregated annotations of the other workers in a sentence, reflecting how close the relation(s) chosen by the worker are to the opinion of the majority for that sentence.">Avg. Worker Cosine</th>
 						    <th class="header" data-toggle="tooltip" data-placement="top" title="Average Worker Agreement: worker metric based on the average worker-worker agreement between a worker and the rest of workers, weighted by the number of sentences in common.">Avg. Worker Agreement</th>
 						    <th class="header" data-toggle="tooltip" data-placement="top" title="Avg. # Annotations / Unit: indicates the average number of different relations per sentence used by a worker for annotating a set of sentences.">Avg. # Annotation/Unit</th>
@@ -600,11 +485,11 @@
 						<tbody>
 						  @{{#each this.workerunitContent}}
 						   @{{#each workerunitType}}
-						  
 						    <tr>
 						     <td> @{{ ../_id }} </td>  		  
-		                    
+		                                     <td> @{{ ../valuesWorker.softwareAgent_id}} </td>
 						     <td> @{{ ../valuesWorker.cfWorkerTrust}} </td>
+						     <td> @{{ job_info.jobConf.content.title}} </td>
 						      @{{#each job_info.metrics.workers.withFilter}}
 						       @{{#ifvalue ../../_id value=@key}}
 						       <td> @{{ toFixed worker_cosine 2}} </td>
@@ -612,9 +497,25 @@
 						       <td> @{{ toFixed ann_per_unit 2}} </td>
 						       @{{/ifvalue}}
 						      @{{/each}}
-						       
+						       <td> 
+    							@{{#each workerunit}}
+							 
+							   <table border="1" bordercolor="#C0C0C0">
+							    <tr> 
+							     @{{#eachProperty this}}
+  								<td> @{{#abrWords key}} @{{/abrWords}} </td>
+							     @{{/eachProperty }}
+							    </tr>
+							    <tr> 
+							     @{{#eachProperty this}}
+  								<td>@{{value}} </td>
+							     @{{/eachProperty }}
+							    </tr>
+							   </table>
+							
+    							 @{{/each}}
+						      </td>
 						     </tr> 
-						
 						   @{{/each}}
 						  @{{/each}}
 						  	
@@ -633,4 +534,3 @@
 		</script>
 
 	</div>	    											
-</div>

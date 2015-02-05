@@ -38,7 +38,10 @@ class MediaController extends BaseController {
 		return Redirect::to('media/preprocess/' . $action);
 	}
 
-	public function getKeys($entity, $parent = "") {
+	/**
+	 * map properties to keys with formats
+	 */
+	public function getKeys($entity, $parent = "", $type = "") {
 		$blacklist = [ '/withoutSpam/', '/withSpam/', '/withFilter/', '/withoutFilter/' ];
 		$poundSign = '/#/';
 		foreach($blacklist as $pattern) {
@@ -46,35 +49,110 @@ class MediaController extends BaseController {
 				return [];
 			}
 		}
-
+		
+		if($parent == "") {
+			$type = $entity['documentType'];
+		}
+		
 		$keys = [];
+		// loop through all properties
 		foreach($entity as $key => $value) {
+			// exclude keys that are numbers
 			if(! is_numeric($key) && !preg_match($poundSign, $key)) {
+				// if the property has children
 				if(is_array($entity[$key])) {
-					array_push($keys, $parent.$key);
-					$subKeys = $this->getKeys($entity[$key], $parent.$key.".");
+					// get properties of children
+					$subKeys = $this->getKeys($entity[$key], $parent.$key.".", $type);
 					$keys = array_merge($keys, $subKeys);
 				} else {
-					array_push($keys, $parent.$key);
+					if($parent != "") { // this has a parent
+						$subkey = str_replace('.', '_', $parent.$key);
+						$keys[$subkey] = ['key' => $parent.$key, 'label' => $this->getLabel($parent.$key), 'format' => $this->getFormat($value), 'document' => $type];
+					} else {
+						$keys[$key] = ['key' => $key, 'label' => $this->getLabel($key), 'format' => $this->getFormat($value), 'document' => $type];
+					}
 				}
 			}
 		};
 		return $keys;
 	}
 
+	/**
+	 * trace format of a value
+	 */
+	public function getFormat($value) {
+		
+		if(preg_match('/^.*\.(mp3|ogg|wmv)$/i',$value)) {
+			$format = 'sound';
+		} else if(preg_match('/^(http\:\/\/lh6\.ggpht\.com.*|.*\.(jpg|jpeg|png|gif))$/i',$value)) {
+			$format = 'image';
+		} else if(preg_match('/^.*\.(avi|mpeg|mpg|mp4)$/i',$value)) {
+			$format = 'video';
+		} else if(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}.*$/i',$value)) {
+			$format = 'time';
+		} else if(is_numeric($value)) {
+			$format = 'number';
+		} else {
+			$format = 'string';
+		}		
+
+		return $format;
+	}
+	
+	/**
+	 * create a fancy label based on a key
+	 */
+	public function getLabel($label) {
+		$label = str_replace(".", " > ", $label);
+		$label = str_replace("_", " ", $label);
+		$label = ucfirst($label);
+		return $label;
+	}
+
 	public function getListindex()
 	{
 		$searchComponent = new MediaSearchComponent();
-		$labels = $searchComponent->getKeyLabels();
-		return View::make('media.search.pages.listindex')->with('labels', $labels);
+		$keys = $searchComponent->getKeys();
+		$formats = $searchComponent->getFormats();
+		return View::make('media.search.pages.listindex')->with('keys', $keys)->with('formats',$formats);
+	}
+	
+	
+	/**
+	 * get keys for (a set of) document types
+	 */
+	public function postKeys()
+	{	
+		$documents = explode("|", Input::get('documents'));
+		$searchComponent = new MediaSearchComponent();
+		
+		$keys = $searchComponent->getKeys($documents);
+		asort($keys);
+		$formats = $searchComponent->getFormats();
+		
+		// default columns
+		$default = ['_id','documentType','title','created_at','user_id']; // default visible columns
+		
+		return [
+			'log' => $documents,
+			'keys' => $keys,
+			'formats' => $formats,
+			'default' => $default
+			];
+
+
 	}
 
 	public function getRefreshindex()
 	{
 		return View::make('media.search.pages.refreshindex');
 	}
-
+	
+	/**
+	 * refresh search index
+	 */
 	public function postRefreshindex()
+<<<<<<< HEAD
 	{
 		$from = Input::get('next', -1);
 		$allIds = Entity::distinct('_id')->get();
@@ -98,7 +176,68 @@ class MediaController extends BaseController {
 				'next' => $i,	// Meaning we should start from 0
 				'last' => $lastOne
 			];
+=======
+	{	
+		$searchComponent = new MediaSearchComponent();
+		
+		// amount of units to index per iteration
+		$batchsize = 500;
+		$from = Input::get('next');
+		$unitCount = Entity::whereIn('tags', ['unit'])->count();
+		
+		// reset index on start
+		if($from == 0) {
+			$searchComponent->clear();
 		}
+		
+		// reduce last batch to remaining units
+		if($from + $batchsize > $unitCount) {
+			$batchsize = $unitCount - $from;
+		}
+		
+		// all units in this range
+		$units = Entity::distinct('_id')->where('tags', ['unit'])->skip($from)->take($batchsize)->get();
+			 
+		 
+		// get keys for each unit in this batch
+		$allKeys = [];
+		for($i = $from; $i < $from + $batchsize; $i++) {
+			// get data of unit
+			$unit = Entity::where('_id', $units[$i][0])->first();
+			
+			// map all properties into keys with formats
+			$keys = $this->getKeys($unit->attributesToArray());
+			
+			// merge keys with set of keys and get the right format (e.g. if it occurs both at string and int we treat all of them as a string
+			foreach($keys as $k => $v) {
+				
+				if(!array_key_exists($k,$allKeys)) {
+					$allKeys[$k] = [
+					'key' => $keys[$k]['key'],
+					'label' => $keys[$k]['label'],
+					'format' => $keys[$k]['format'],
+					'documents' => [$keys[$k]['document']]
+					];
+				} else {
+					$allKeys[$k]['format'] = $searchComponent->prioritizeFormat([$allKeys[$k]['format'],$keys[$k]['format']]);
+					
+					// add document type if its not in the list yet
+					if(!in_array($keys[$k]['document'], $allKeys[$k]['documents'])) {
+						array_push($allKeys[$k]['documents'], $keys[$k]['document']);
+					}
+
+				}
+
+			}
+>>>>>>> origin/media-view
+		}
+		$searchComponent->store($allKeys);
+			 
+		return [
+			'log' => $from . ' to ' . ($from + $batchsize) . ' of ' . $unitCount,
+			'next' => $from + $batchsize,
+			'last' => $unitCount
+		 ];
 	}
 
 	public function postUpload()
@@ -212,8 +351,13 @@ class MediaController extends BaseController {
 	public function getSearch()
 	{
 		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
-		return View::make('media.search.pages.media', compact('mainSearchFilters'));
+		
+		// include keys
+		$searchComponent = new MediaSearchComponent();
+		
+		return View::make('media.search.pages.media')->with('mainSearchFilters', $mainSearchFilters);
 	}
+
 
 	public function anyBatch()
 	{
