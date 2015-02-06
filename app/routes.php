@@ -76,13 +76,13 @@ Route::model('user', '\MongoDB\UserAgent');
 
 Route::get('projects/', 'ProjectController@getGroupList');
 Route::post('projects/create', [ 'before' => 'adminPermission', 'uses' => 'ProjectController@createGroup' ]);
-Route::get('project/{groupname}', 'ProjectController@getGroupDetails');
+Route::get('project/{projectname}', 'ProjectController@getGroupDetails');
 
-Route::group([ 'before' => 'permission:'.Permissions::GROUP_ADMIN ], function()
+Route::group([ 'before' => 'permission:'.Permissions::PROJECT_ADMIN ], function()
 {
-	Route::post('project/{groupname}/invitations', 'ProjectController@updateInviteCodes');
-	Route::post('project/{groupname}/credentials', 'ProjectController@updateAccountCredentials');
-	Route::get('project/{groupname}/actions', 'ProjectController@groupActions');
+	Route::post('project/{projectname}/invitations', 'ProjectController@updateInviteCodes');
+	Route::post('project/{projectname}/credentials', 'ProjectController@updateAccountCredentials');
+	Route::get('project/{projectname}/actions', 'ProjectController@groupActions');
 });
 
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));

@@ -11,7 +11,6 @@ use \File as File;
 class FileUploader {
 	protected $softwareComponent;
 	
-	
 	protected $validationRules = [
 			'text' => ['file' => 'mimes:txt|max:900000'],
 			'images' => ['file' => 'mimes:png|jpg|max:2000'],
@@ -44,14 +43,15 @@ class FileUploader {
 	/**
 	 * Store a new file to the database. Construct all entity information for such file.
 	 * 
-	 * @param unknown_type $fileFormat
-	 * @param unknown_type $domain
-	 * @param unknown_type $documentType
-	 * @param unknown_type $domainCreate
-	 * @param unknown_type $documentCreate
-	 * @param unknown_type $files
+	 * @param $fileFormat
+	 * @param $domain
+	 * @param $documentType
+	 * @param $project			The name of the Project who owns the file data.
+	 * @param $domainCreate
+	 * @param $documentCreate
+	 * @param $files
 	 */
-	public function store($fileFormat, $domain, $documentType, $domainCreate, $documentCreate, $files) {
+	public function store($fileFormat, $domain, $documentType, $project, $domainCreate, $documentCreate, $files) {
 		$format = $this->getType($fileFormat);
 		$validatedFiles = $this->performValidation($files, $format);
 		
@@ -122,6 +122,8 @@ class FileUploader {
 				$entity->content = File::get($file->getRealPath());
 				$entity->hash = md5(serialize([$entity->content]));
 				$entity->activity_id = $activity->_id;
+				$entity->project = $project;
+				$entity->tags = [ "unit" ];
 				$entity->save();
 		
 				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";

@@ -1,4 +1,4 @@
-@extends('media.preprocess.relex.layouts.default')
+@extends('media.preprocess.layouts.default')
 
 @section('head')
 

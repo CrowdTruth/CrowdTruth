@@ -8,23 +8,23 @@ class Roles {
 	// System administrator permisions
 	const PLATFORM_ADMIN = 'SYS_ADMIN';
 	
-	// Group role permissions
-	const GROUP_ADMIN  = '#:admin';
-	const GROUP_MEMBER = '#:member';
-	const GROUP_GUEST  = '#:guest';
+	// Project role permissions
+	const PROJECT_ADMIN  = '#:admin';
+	const PROJECT_MEMBER = '#:member';
+	const PROJECT_GUEST  = '#:guest';
 	
 	// Names of group roles
-	public static $GROUP_ROLE_NAMES = [ 'admin', 'member', 'guest' ];
+	public static $PROJECT_ROLE_NAMES = [ 'admin', 'member', 'guest' ];
 	
 	// Name -> Role mapping
-	public static $GROUP_ROLES = [ 
-			'admin' => Roles::GROUP_ADMIN,
-			'member'=> Roles::GROUP_MEMBER, 
-			'guest' => Roles::GROUP_GUEST
+	public static $PROJECT_ROLES = [ 
+			'admin' => Roles::PROJECT_ADMIN,
+			'member'=> Roles::PROJECT_MEMBER, 
+			'guest' => Roles::PROJECT_GUEST
 	];
 	
 	// User friendly labels
-	public static $GROUP_ROLES_LABELS = [
+	public static $PROJECT_ROLES_LABELS = [
 			'admin' => 'Full access',
 			'member'=> 'Read/write',
 			'guest' => 'Read'
@@ -35,10 +35,10 @@ class Roles {
 	 * 
 	 * @param $rolename Name of the role to be used: 'admin', 'member', 'guest'
 	 * 
-	 * @return a Role constant: Roles::GROUP_ADMIN, Roles::GROUP_MEMBER, Roles::GROUP_GUEST
+	 * @return a Role constant: Roles::PROJECT_ADMIN, Roles::PROJECT_MEMBER, Roles::PROJECT_GUEST
 	 */
 	public static function getRoleByName($rolename) {
-		return Roles::$GROUP_ROLES[$rolename];
+		return Roles::$PROJECT_ROLES[$rolename];
 	}
 	
 	/**
@@ -49,6 +49,6 @@ class Roles {
 	 * @return The user friendly name of the role: 'Full access', 'Read/write', 'Read'
 	 */
 	public static function getRoleLabel($rolename) {
-		return Roles::$GROUP_ROLES_LABELS[$rolename];
+		return Roles::$PROJECT_ROLES_LABELS[$rolename];
 	}
 }

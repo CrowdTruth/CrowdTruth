@@ -42,7 +42,7 @@
 												{{ Roles::getRoleLabel($grInfo['role']) }}<span class="caret"></span>
 											</button>
 											<ul class="dropdown-menu" role="menu">
-											@foreach(Roles::$GROUP_ROLE_NAMES as $role)
+											@foreach(Roles::$PROJECT_ROLE_NAMES as $role)
 													<li>{{ link_to(action('ProjectController@groupActions', 
 														[ $grInfo['name'], // Group name
 														'action' => 'assignRole',
