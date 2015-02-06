@@ -28,6 +28,24 @@
 							</td>
 						</tr>
 						@endforeach
+						
+						@if($isAdmin)
+						<tr class='text-left' >
+							<td>
+								{{ Form::open([ 'action' => 'GroupController@createGroup', 'class' => 'form-horizontal jobconf' ] ) }}
+								<div class="form-group">
+									{{ Form::label('addGrp', 'Add group', [ 'class' => 'col-xs-3 control-label' ]) }}
+									<div class='col-xs-3'>
+										{{ Form::text('addGrp', '', [ 'class' => 'form-control', 'placeholder' => 'Username' ] ) }}
+									</div>
+									<div class='col-xs-3'>
+										{{ Form::submit('Create', [ 'class' => 'btn btn-primary pull-right' ]); }}
+									</div>
+								</div>
+								{{ Form::close() }}
+							</td>
+						</tr>
+						@endif
 					</table>
 				</div>
 			</div>

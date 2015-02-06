@@ -11,7 +11,7 @@ class GroupHandler {
 	// Group role permissions
 	const CF_USER  = 'cfUsername';
 	const CF_PASS = 'cfPassword';
-	
+	const ADMIN_USER = 'admin';
 	
 	/**
 	 * Creates a new CT-group -- all required sentryGroups are created for the CT-group.
@@ -38,7 +38,7 @@ class GroupHandler {
 				str_replace('#', $groupName, Permissions::GROUP_WRITE) => 1,
 				str_replace('#', $groupName, Permissions::GROUP_READ)  => 1,
 			],
-			'invite_code' => $groupName.'_invitation',
+			'invite_code' => $groupName.'_invitation_admin',
 			'credentials' => [ 
 				GroupHandler::CF_USER => '',
 				GroupHandler::CF_PASS => '' 
@@ -51,7 +51,7 @@ class GroupHandler {
 				str_replace('#', $groupName, Permissions::GROUP_WRITE) => 1,
 				str_replace('#', $groupName, Permissions::GROUP_READ)  => 1,
 			],
-			'invite_code' => $groupName.'_invitation'
+			'invite_code' => $groupName.'_invitation_member'
 		]);
 		Sentry::createGroup([
 			'name'        => str_replace('#', $groupName, Roles::GROUP_GUEST),
@@ -60,8 +60,11 @@ class GroupHandler {
 				str_replace('#', $groupName, Permissions::GROUP_WRITE) => 0,
 				str_replace('#', $groupName, Permissions::GROUP_READ)  => 1,
 			],
-			'invite_code' => $groupName.'_invitation'
+			'invite_code' => $groupName.'_invitation_guest'
 		]);
+		
+		// Assign user admin to group admin role.
+		GroupHandler::grantUser(Sentry::findUserByLogin(GroupHandler::ADMIN_USER), $groupName, Roles::GROUP_ADMIN);
 	}
 	
 	/**

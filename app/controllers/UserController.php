@@ -95,6 +95,11 @@ class UserController extends BaseController {
 				// Can logged user view info for this group ?
 				$canView   = PermissionHandler::checkGroup($thisUser, $group['name'], Permissions::GROUP_READ);
 				
+				// User cannot change his own permissions
+				if($user['_id']==$thisUser['_id']) {
+					$canAssign = false;
+				}
+				
 				$group['canview'] = $canView;
 				$group['assignrole'] = $canAssign;
 				array_push($belongGroups, $group);
@@ -158,41 +163,38 @@ class UserController extends BaseController {
 		return Redirect::back();
 	}
 
-	public function postRegister(){
-		$role = 'user';
+	public function postRegister() {
 		// Check if demo account
-		if (Hash::check(Input::get('invitation'), Config::get('config.demoInvitationCode'))) {
+		/* if (Hash::check(Input::get('invitation'), Config::get('config.demoInvitationCode'))) {
 			$role = 'demo';
 		// Check if normal account	
 		} elseif (!Hash::check(Input::get('invitation'), Config::get('config.invitationCode')) && Config::get('config.invitationCode') != ''){
 			Session::flash('flashError', 'Wrong invite code : )');
 			return Redirect::back()
 				->withInput(Input::except('password', 'confirm_password'));
-		}
+		} */
 
-		$userdata = array(
+		$userdata = [
 			'_id' => strtolower(Input::get('username')),
 			'firstname' => ucfirst(strtolower(Input::get('firstname'))),
 			'lastname' => ucfirst(strtolower(Input::get('lastname'))),
 			'email' => strtolower(Input::get('email')),
 			'password' => Input::get('password'),
 			'confirm_password' => Input::get('confirm_password'),
-			'role' => $role
-		);
+		];
 
-		$rules = array(
+		$rules = [
 			'_id' => 'required|min:3|unique:useragents',
 			'firstname' => 'required|min:3',
 			'lastname' => 'required|min:1',
 			'email' => 'required|email|unique:useragents',
 			'password' => 'required|min:5',
 			'confirm_password' => 'required|same:password'
-		);
+		];
 
 		$validation = Validator::make($userdata, $rules);
 
 		if($validation->fails()){
-
 			$msg = '<ul>';
 			foreach ($validation->messages()->all() as $message)
 				$msg .= "<li>$message</li>";
@@ -200,33 +202,18 @@ class UserController extends BaseController {
 			Session::flash('flashError', "$msg</ul>");
 			return Redirect::back()->withInput(Input::except('password', 'confirm_password'));
 		}
-
-		unset($userdata['confirm_password']);
-		$userdata['password'] = Hash::make($userdata['password']);
-		$user = new UserAgent($userdata); 
-
-		try {
-			$this->createCrowdWatsonUserAgent();
-			$user->save();
-		} catch (Exception $e) {
-			return Redirect::back()->with('flashError', $e->getMessage())->withInput(Input::except('password', 'confirm_password'));
-		}
-
+		
+		$user = Sentry::register($userdata);
 		Auth::login($user);
+		
+		// Assign to groups ?
+		$iCode = Input::get('invitation');
+		$sentryGroup = \Jenssegers\Mongodb\Sentry\Group::where('invite_code', '=', $iCode)->first();
+		if(!is_null($sentryGroup)) {
+			$user->addGroup($sentryGroup);
+			Session::flash('flashSuccess', 'You have joined group: <b>'.$sentryGroup['name'].'</b>');
+		}
+		
 		return Redirect::to('/');
 	}
-
-	public function createCrowdWatsonUserAgent(){
-		if(!UserAgent::find('crowdwatson'))
-		{
-			$softwareAgent = new UserAgent;
-			$softwareAgent->_id = "crowdwatson";
-			$softwareAgent->firstname = "Crowd";
-			$softwareAgent->lastname = "Watson";
-			$softwareAgent->email = "crowdwatson@gmail.com";
-			$softwareAgent->save();
-		}
-	}
 }
-
-?>

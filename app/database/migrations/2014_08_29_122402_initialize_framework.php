@@ -12,9 +12,11 @@ class InitializeFramework extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('softwarecomponents', function($collection) { 
-			// Nothing special here... 
+		Schema::create('softwarecomponents', function($collection) {});
+		Schema::create('useragents', function($collection) {
+			$collection->unique('email');
 		});
+		Schema::create('groups', function($collection) {});
 	}
 
 	/**
@@ -24,7 +26,8 @@ class InitializeFramework extends Migration {
 	 */
 	public function down()
 	{
-		//
 		Schema::drop('softwarecomponents');
+		Schema::drop('useragents');
+		Schema::drop('groups');
 	}
 }

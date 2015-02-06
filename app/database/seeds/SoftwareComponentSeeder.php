@@ -15,12 +15,13 @@ class SoftwareComponentSeeder extends Seeder {
 		
 		$this->command->info('Create software components');
 		
-		// Initialize file uploader
+		// Initialize text sentence preprocessor
 		$this->createIfNotExist(
 				'textsentencepreprocessor',
-				'Process data',
+				'This component is used for transforming text files',
 				function( &$component ) { 
 					$txtPreprocessor['domains'] = [];
+					$txtPreprocessor['configurations'] = [];
 				}
 		);
 		
@@ -32,9 +33,10 @@ class SoftwareComponentSeeder extends Seeder {
 				}
 		);
 		
+		// Initialize media search component
 		$this->createIfNotExist(
 				'mediasearchcomponent',
-				'Searches through media',
+				'This component is used for searching media in MongoDB',
 				function( &$component ) {
 					$component['keys'] = [];
 					// add icons for formats in the database
@@ -45,10 +47,10 @@ class SoftwareComponentSeeder extends Seeder {
 						'image' => 'fa-picture-o',
 						'video' => 'fa-film',
 						'sound' => 'fa-music'
-						];
+					];
 				}
 		);
-		}
+	}
 
 	/**
 	 * Creates a new software component, if it does not already exist in the SoftwareComponents 
