@@ -84,6 +84,19 @@ Route::filter('csrf', function()
 use \MongoDB\Security\PermissionHandler as PermissionHandler;
 use \MongoDB\Security\Permissions as Permissions;
 
+/**
+ * Require routes to have a particular Permissions for a given groupname.
+ * 
+ * NOTES: 
+ * 
+ * $groupname needs to be passed as a route parameter:
+ * 
+ * 		'group/{groupname}/invitations'
+ * 
+ * $permission needs to be passed in as a filter parameter
+ * 
+ * 		'before' => 'permission:'.Permissions::GROUP_ADMIN
+ */
 Route::filter('permission', function($route, $request, $permission) {
 	$thisUser = Auth::user();
 	$groupName = Route::input('groupname');	// Passed in as route parameter
@@ -95,6 +108,9 @@ Route::filter('permission', function($route, $request, $permission) {
 	}
 });
 
+/**
+ * Require routes to have admin permissions.
+ */
 Route::filter('adminPermission', function() {
 	$thisUser = Auth::user();
 	// Check permissions
