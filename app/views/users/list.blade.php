@@ -15,18 +15,16 @@
 					<table class="table table-striped" style='width:100%'>
 						<tr>
 							<th>Name</th>
-							<th>Username</th>
 							<th>Email</th>
-							<th>Groups (permissions)</th>
+							<th>Projects</th>
 						</tr>
 						
 						<?php use \MongoDB\Security\Roles as Roles; ?>
 						
 						@foreach ($userlist as $user)
 						<tr class='text-left' >
-							<td>{{ $user['firstname'] }} {{ $user['lastname'] }}</td>
-							<td>{{ $viewProfiles?link_to('user/' . $user['_id'], $user['_id']):$user['_id'] }}</td>
-							<td>{{ $user['email'] }}</td>
+							<td>{{ link_to('user/' . $user['_id'], $user['firstname'] . ' ' . $user['lastname']) }} <small>{{ $user['_id'] }}</small></td>
+							<td>{{ HTML::obfuscate($user['email']) }}</td>
 							<td>
 								<ul class="list-group">
 								@foreach($usergroups[$user['_id']]['groups'] as $grInfo)

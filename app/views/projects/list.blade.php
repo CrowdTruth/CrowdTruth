@@ -7,14 +7,15 @@
 
 		<div class='tab'>
 			<div class='title'>
-				<h2>Group list</h2>
+				<h2>Projects</h2>
 			</div>
 			@include('layouts.flashdata')
 			<div class='row'>
 				<div class="col-xs-12"  style="padding-bottom:40px; padding-top:20px">
 					<table class="table table-striped" style='width:100%'>
 						<tr>
-							<th>Group</th>
+							<th>Project</th>
+							<th>Members</th>
 						</tr>
 						
 						@foreach($groupInfo as $grInfo)

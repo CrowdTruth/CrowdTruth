@@ -27,14 +27,14 @@ class UserController extends BaseController {
 		if(Auth::check())
 			return Redirect::to('/');
 
-		return View::make('user/login');
+		return View::make('users.login');
 	}
 
 	public function register(){
 		if(Auth::check())
 			return Redirect::to('/');
 					
-		return View::make('user/register');
+		return View::make('users.register');
 	}
 
 	public function logout(){
@@ -45,6 +45,19 @@ class UserController extends BaseController {
 	    
 
 	/**
+	 * Change user profile
+	 */
+	public function postProfile(UserAgent $user) {
+		// redirect if user is not logged in
+		if(!Auth::check()) {
+			return Redirect::to('/');
+		}
+		
+		return View::make('users.profile')
+			->with('user', $user);
+	}
+	
+	/**
 	 * Display user profile
 	 */
 	public function getProfile(UserAgent $user) {
@@ -53,7 +66,7 @@ class UserController extends BaseController {
 			return Redirect::to('/');
 		}
 		
-		return View::make('user.profile')
+		return View::make('users.profile')
 			->with('user', $user);
 	}
 
@@ -111,7 +124,7 @@ class UserController extends BaseController {
 			];
 		}
 		
-		return View::make('user.userlist')
+		return View::make('users.list')
 			->with('userlist', $userlist)
 			->with('viewProfiles', $viewProfiles)
 			->with('usergroups', $userGroupInfo);
@@ -127,7 +140,7 @@ class UserController extends BaseController {
 		}
 		
 		$groups = GroupHandler::getUserGroups($user);
-		return View::make('user.settings')
+		return View::make('users.settings')
 			->with('user', $user)
 			->with('groups',$groups);
 	}
@@ -143,7 +156,7 @@ class UserController extends BaseController {
 		}
 
 		$activities = Activity::getActivitiesForUser($user['_id']);
-		return View::make('user.activity')
+		return View::make('users.activity')
 			->with('activities', $activities)
 			->with('user',$user);
 	}

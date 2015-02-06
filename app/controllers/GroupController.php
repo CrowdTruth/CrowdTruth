@@ -21,6 +21,16 @@ class GroupController extends BaseController {
 	/**
 	 * Display list of all groups.
 	 */
+	public function createProject(){
+		if(!Auth::check())
+			return Redirect::to('/');
+
+		return View::make('projects.create');
+	}
+	
+	/**
+	 * Display list of all groups.
+	 */
 	public function getGroupList() {
 		$thisUser = Auth::user();
 
@@ -108,7 +118,7 @@ class GroupController extends BaseController {
 		$canEditGroup = PermissionHandler::checkGroup(Auth::user(), $groupname, Permissions::GROUP_ADMIN);
 		$credentials = GroupHandler::getCredentials($groupname);
 		
-		return View::make('user.group')
+		return View::make('projects.profile')
 			->with('groupName', $groupname)
 			->with('groupUsers', $groupUsers)
 			->with('inviteCodes', $groupInviteCodes)
