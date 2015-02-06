@@ -7,8 +7,7 @@
 
 		<div class='tab'>
 			<div class='title'>
-				<h2 class='pull-left'>Projects</h2>
-				<a href="{{ URL::to('/projects/create') }}" class='btn btn-primary pull-right'>New Project</a>
+				<h2>Projects</h2>
 			</div>
 			@include('layouts.flashdata')
 			<div class='row'>

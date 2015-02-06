@@ -72,7 +72,6 @@ Route::get('user/{user}/settings', 'UserController@getSettings');
 Route::model('user', '\MongoDB\UserAgent');
 
 Route::get('projects/', 'GroupController@getGroupList');
-Route::get('projects/create', 'GroupController@createProject');
 Route::get('project/{groupname}', 'GroupController@getGroupDetails');
 Route::post('project/{groupname}/invitations', 'GroupController@updateInviteCodes');
 Route::post('project/{groupname}/credentials', 'GroupController@updateAccountCredentials');
