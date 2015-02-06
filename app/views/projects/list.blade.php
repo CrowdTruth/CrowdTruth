@@ -33,7 +33,7 @@
 						@if($isAdmin)
 						<tr class='text-left' >
 							<td>
-								{{ Form::open([ 'action' => 'GroupController@createGroup', 'class' => 'form-horizontal jobconf' ] ) }}
+								{{ Form::open([ 'action' => 'ProjectController@createGroup', 'class' => 'form-horizontal jobconf' ] ) }}
 								<div class="form-group">
 									{{ Form::label('addGrp', 'Add group', [ 'class' => 'col-xs-3 control-label' ]) }}
 									<div class='col-xs-3'>

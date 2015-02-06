@@ -74,15 +74,15 @@ Route::get('user/{user}/activity', 'UserController@getActivity');
 Route::get('user/{user}/settings', 'UserController@getSettings');
 Route::model('user', '\MongoDB\UserAgent');
 
-Route::get('projects/', 'GroupController@getGroupList');
-Route::post('projects/create', [ 'before' => 'adminPermission', 'uses' => 'GroupController@createGroup' ]);
-Route::get('project/{groupname}', 'GroupController@getGroupDetails');
+Route::get('projects/', 'ProjectController@getGroupList');
+Route::post('projects/create', [ 'before' => 'adminPermission', 'uses' => 'ProjectController@createGroup' ]);
+Route::get('project/{groupname}', 'ProjectController@getGroupDetails');
 
 Route::group([ 'before' => 'permission:'.Permissions::GROUP_ADMIN ], function()
 {
-	Route::post('project/{groupname}/invitations', 'GroupController@updateInviteCodes');
-	Route::post('project/{groupname}/credentials', 'GroupController@updateAccountCredentials');
-	Route::get('project/{groupname}/actions', 'GroupController@groupActions');
+	Route::post('project/{groupname}/invitations', 'ProjectController@updateInviteCodes');
+	Route::post('project/{groupname}/credentials', 'ProjectController@updateAccountCredentials');
+	Route::get('project/{groupname}/actions', 'ProjectController@groupActions');
 });
 
 Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index', 'show')));

@@ -30,7 +30,8 @@
 								@foreach($usergroups[$user['_id']]['groups'] as $grInfo)
 									<li class="list-group-item">
 									@if($grInfo['canview'])
-										{{ link_to('group/'.$grInfo['name'], $grInfo['name']) }}
+										{{ link_to(action('ProjectController@getGroupDetails', 
+												[ $grInfo['name']  ]), $grInfo['name']) }}
 									@else
 										{{ $grInfo['name'] }}
 									@endif
@@ -42,7 +43,7 @@
 											</button>
 											<ul class="dropdown-menu" role="menu">
 											@foreach(Roles::$GROUP_ROLE_NAMES as $role)
-													<li>{{ link_to(action('GroupController@groupActions', 
+													<li>{{ link_to(action('ProjectController@groupActions', 
 														[ $grInfo['name'], // Group name
 														'action' => 'assignRole',
 														'usedId' => $user['_id'],
@@ -50,7 +51,7 @@
 													 Roles::getRoleLabel($role)) }}</li>
 											@endforeach
 											</ul>
-											{{ link_to(action('GroupController@groupActions', 
+											{{ link_to(action('ProjectController@groupActions', 
 														[ $grInfo['name'], // Group name
 														'action' => 'removeGroup',
 														'usedId' => $user['_id'] ]),
@@ -69,7 +70,7 @@
 											</button>
 											<ul class="dropdown-menu" role="menu">
 											@foreach($usergroups[$user['_id']]['tojoin'] as $grInfo)
-												<li>{{ link_to(action('GroupController@groupActions', 
+												<li>{{ link_to(action('ProjectController@groupActions', 
 														[ $grInfo, // Group name
 														'action' => 'addGroup',
 														'usedId' => $user['_id'] ]),

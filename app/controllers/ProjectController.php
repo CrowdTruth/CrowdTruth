@@ -12,7 +12,7 @@ use \MongoDB\Security\Roles as Roles;
 /**
  * Controll actions related to Group management.
  */
-class GroupController extends BaseController {
+class ProjectController extends BaseController {
 
 	public function __construct() {
 		$this->beforeFilter('csrf', array('on'=>'post'));
@@ -45,7 +45,7 @@ class GroupController extends BaseController {
 			]);
 		}
 		$isAdmin = PermissionHandler::checkAdmin($thisUser, Permissions::ALLOW_ALL);
-		return View::make('user.grouplist')
+		return View::make('projects.list')
 			->with('groupInfo', $groupInfo)
 			->with('isAdmin', $isAdmin);
 	}

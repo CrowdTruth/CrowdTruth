@@ -31,7 +31,7 @@
 				</div>
 				
 				@if($canEditGroup)
-				{{ Form::open([ 'action' => [ 'GroupController@updateInviteCodes', $groupName ], 'class' => 'form-horizontal jobconf' ] ) }}
+				{{ Form::open([ 'action' => [ 'ProjectController@updateInviteCodes', $groupName ], 'class' => 'form-horizontal jobconf' ] ) }}
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						Invitation codes
@@ -64,7 +64,7 @@
 				{{ Form::close() }}
 				@endif
 				
-				{{ Form::open([ 'action' => [ 'GroupController@updateAccountCredentials', $groupName ], 'class' => 'form-horizontal jobconf' ] ) }}
+				{{ Form::open([ 'action' => [ 'ProjectController@updateAccountCredentials', $groupName ], 'class' => 'form-horizontal jobconf' ] ) }}
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						Crowdflower account
