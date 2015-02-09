@@ -66,8 +66,9 @@ class UserController extends BaseController {
 			return Redirect::to('/');
 		}
 		
-		return View::make('users.profile')
-			->with('user', $user);
+		$projects = ProjectHandler::getUserGroups($user);
+		
+		return View::make('users.profile')->with('user', $user)->with('projects', $projects);
 	}
 
 	/**

@@ -9,11 +9,11 @@
 <div class="col-xs-12 col-md-10 col-md-offset-1">
 	<div class='maincolumn CW_box_style'>
 		<div class='tab'>
-			<div class='title'>
-				<h2>Group: {{ $groupName }}</h2>
-			</div>
-		
+			@include('projects.nav', array('project'=>$project))
 			@include('layouts.flashdata')
+			<div class='title'>
+				<h2>Project: {{ $project }}</h2>
+			</div>
 			<div>
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -21,8 +21,8 @@
 					</div>
 					<div class="panel-body" id="userRolePanel">
 						<ul class="list-group">
-						@foreach($groupUsers as $role => $users)
-							@foreach($users as $user)
+						@foreach($users as $role => $usergroup)
+							@foreach($usergroup as $user)
 							<li class="list-group-item">{{ $user }} ({{ $role }})</li>
 							@endforeach
 						@endforeach
@@ -31,7 +31,7 @@
 				</div>
 				
 				@if($canEditGroup)
-				{{ Form::open([ 'action' => [ 'ProjectController@updateInviteCodes', $groupName ], 'class' => 'form-horizontal jobconf' ] ) }}
+				{{ Form::open([ 'action' => [ 'ProjectController@updateInviteCodes', $project ], 'class' => 'form-horizontal jobconf' ] ) }}
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						Invitation codes
@@ -64,7 +64,7 @@
 				{{ Form::close() }}
 				@endif
 				
-				{{ Form::open([ 'action' => [ 'ProjectController@updateAccountCredentials', $groupName ], 'class' => 'form-horizontal jobconf' ] ) }}
+				{{ Form::open([ 'action' => [ 'ProjectController@updateAccountCredentials', $project ], 'class' => 'form-horizontal jobconf' ] ) }}
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						Crowdflower account

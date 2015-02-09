@@ -68,6 +68,7 @@ Route::get('login', 'UserController@login');
 Route::get('register', 'UserController@register');
 Route::post('register', 'UserController@postRegister');
 Route::get('logout', 'UserController@logout');
+
 Route::get('users', 'UserController@getUserlist');
 Route::get('user/{user}', 'UserController@getProfile');
 Route::get('user/{user}/activity', 'UserController@getActivity');
@@ -75,8 +76,9 @@ Route::get('user/{user}/settings', 'UserController@getSettings');
 Route::model('user', '\MongoDB\UserAgent');
 
 Route::get('projects/', 'ProjectController@getGroupList');
+Route::get('project/{projectname}', 'ProjectController@getProfile');
+Route::get('project/{projectname}/settings', 'ProjectController@getSettings');
 Route::post('projects/create', [ 'before' => 'adminPermission', 'uses' => 'ProjectController@createGroup' ]);
-Route::get('project/{projectname}', 'ProjectController@getGroupDetails');
 
 Route::group([ 'before' => 'permission:'.Permissions::PROJECT_ADMIN ], function()
 {

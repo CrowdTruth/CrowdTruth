@@ -104,15 +104,15 @@ class ProjectHandler {
 		$sentryGroups = $user->getGroups();
 		
 		// List Sentry-groups and build list of Projects
-		$project = [];
+		$projects = [];
 		foreach ($sentryGroups as $sentryGroup) {
 			$parts = explode(':', $sentryGroup->name);
-			array_push($project, [
+			array_push($projects, [
 				'name' => $parts[0],
 				'role' => $parts[1]
 			]);
 		}
-		return $project;
+		return $projects;
 	}
 	
 	/**

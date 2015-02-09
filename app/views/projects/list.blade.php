@@ -15,33 +15,35 @@
 					<table class="table table-striped" style='width:100%'>
 						<tr>
 							<th>Project</th>
-							<th>Members</th>
+							<th class='text-center'>Members</th>
 						</tr>
 						
-						@foreach($groupInfo as $grInfo)
-						<tr class='text-left' >
-							<td>
-							@if($grInfo['canview'])
-								{{ link_to(action('ProjectController@getGroupDetails', 
-												[ $grInfo['name']  ]), $grInfo['name']) }}
+						@foreach($projects as $project)
+						<tr>
+							<td class='text-left'>
+							@if($project['canview'])
+								{{ link_to(action('ProjectController@getProfile', 
+												[ $project['name']  ]), $project['name']) }}
 							@else
-								{{ $grInfo['name'] }}
+								{{ $project['name'] }}
 							@endif
+							</td>
+							<td class='text-center'>
+							{{ $project['users'] }}
 							</td>
 						</tr>
 						@endforeach
 						
 						@if($isAdmin)
 						<tr class='text-left' >
-							<td>
+							<td colspan='2'>
 								{{ Form::open([ 'action' => 'ProjectController@createGroup', 'class' => 'form-horizontal jobconf' ] ) }}
 								<div class="form-group">
-									{{ Form::label('addGrp', 'Add group', [ 'class' => 'col-xs-3 control-label' ]) }}
-									<div class='col-xs-3'>
-										{{ Form::text('addGrp', '', [ 'class' => 'form-control', 'placeholder' => 'Username' ] ) }}
+									<div class='col-xs-4'>
+										{{ Form::text('addGrp', '', [ 'class' => 'form-control', 'placeholder' => 'Project Name' ] ) }}
 									</div>
-									<div class='col-xs-3'>
-										{{ Form::submit('Create', [ 'class' => 'btn btn-primary pull-right' ]); }}
+									<div class='col-xs-2'>
+										{{ Form::submit('Create Project', [ 'class' => 'btn btn-primary pull-right' ]); }}
 									</div>
 								</div>
 								{{ Form::close() }}

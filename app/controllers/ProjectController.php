@@ -35,18 +35,26 @@ class ProjectController extends BaseController {
 		$thisUser = Auth::user();
 
 		$groups = ProjectHandler::listGroups();
-		$groupInfo = [];
+		$projects = [];
 		foreach ($groups as $group) {
 			$canView = PermissionHandler::checkGroup($thisUser, $group, Permissions::PROJECT_READ);
 			
-			array_push($groupInfo, [
+			$users = 0;
+			foreach(Roles::$PROJECT_ROLE_NAMES as $role) {
+				// List userts with $role in this group -- make [] when none
+				$projectRole = Sentry::findGroupByName($group.':'.$role);
+				$users += sizeOf($projectRole['user_agent_ids']);
+			}
+			
+			array_push($projects, [
 				'name' => $group,
-				'canview' => $canView
+				'canview' => $canView,
+				'users' => $users
 			]);
 		}
 		$isAdmin = PermissionHandler::checkAdmin($thisUser, Permissions::ALLOW_ALL);
 		return View::make('projects.list')
-			->with('groupInfo', $groupInfo)
+			->with('projects', $projects)
 			->with('isAdmin', $isAdmin);
 	}
 
@@ -97,7 +105,7 @@ class ProjectController extends BaseController {
 	 * 
 	 * @param $groupname Name of the group to be displayed.
 	 */
-	public function getGroupDetails($groupname) {
+	public function getProfile($groupname) {
 		$sentryGroups = [];
 		foreach(Roles::$PROJECT_ROLE_NAMES as $role) {
 			$sentryGroups[$role] = Sentry::findGroupByName($groupname.':'.$role);
@@ -119,8 +127,42 @@ class ProjectController extends BaseController {
 		$credentials = ProjectHandler::getCredentials($groupname);
 		
 		return View::make('projects.profile')
-			->with('groupName', $groupname)
-			->with('groupUsers', $groupUsers)
+			->with('project', $groupname)
+			->with('users', $groupUsers)
+			->with('inviteCodes', $groupInviteCodes)
+			->with('canEditGroup', $canEditGroup)
+			->with('credentials', $credentials);
+	}
+	
+	/**
+	 * Display view with details for a specified group.
+	 * 
+	 * @param $groupname Name of the group to be displayed.
+	 */
+	public function getSettings($groupname) {
+		$sentryGroups = [];
+		foreach(Roles::$PROJECT_ROLE_NAMES as $role) {
+			$sentryGroups[$role] = Sentry::findGroupByName($groupname.':'.$role);
+		}
+		
+		$groupUsers = [];
+		foreach(Roles::$PROJECT_ROLE_NAMES as $role) {
+			// List userts with $role in this group -- make [] when none
+			$users = $sentryGroups[$role]['user_agent_ids'];
+			$groupUsers[$role] = is_null($users)?[]:$users;
+		}
+		
+		$groupInviteCodes = [];
+		foreach(Roles::$PROJECT_ROLE_NAMES as $role) {
+			$groupInviteCodes[$role] = $sentryGroups[$role]['invite_code'];
+		}
+		
+		$canEditGroup = PermissionHandler::checkGroup(Auth::user(), $groupname, Permissions::PROJECT_ADMIN);
+		$credentials = ProjectHandler::getCredentials($groupname);
+		
+		return View::make('projects.settings')
+			->with('project', $groupname)
+			->with('users', $groupUsers)
 			->with('inviteCodes', $groupInviteCodes)
 			->with('canEditGroup', $canEditGroup)
 			->with('credentials', $credentials);
