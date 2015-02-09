@@ -4,7 +4,7 @@ use \Auth as Auth;
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 use \MongoDB\UserAgent as UserAgent;
-use \MongoDB\Security\GroupHandler as GroupHandler;
+use \MongoDB\Security\ProjectHandler as ProjectHandler;
 use \MongoDB\Security\PermissionHandler as PermissionHandler;
 use \MongoDB\Security\Permissions as Permissions;
 use \MongoDB\Security\Roles as Roles;
@@ -84,9 +84,9 @@ class UserController extends BaseController {
 		// List of groups this user can invite people to
 		$groupsManaged = [];
 		// For each group logged in user belongs to
-		foreach(GroupHandler::getUserGroups($thisUser) as $group) {
+		foreach(ProjectHandler::getUserGroups($thisUser) as $group) {
 			// Check if user has admin permission..
-			if(PermissionHandler::checkGroup($thisUser, $group['name'], Permissions::GROUP_ADMIN)) {
+			if(PermissionHandler::checkGroup($thisUser, $group['name'], Permissions::PROJECT_ADMIN)) {
 				array_push($groupsManaged, $group['name']);
 			}
 		}
@@ -94,7 +94,7 @@ class UserController extends BaseController {
 		$userGroupInfo = [];
 		foreach ($userlist as $user) {
 			// List of groups $user belongs to
-			$usergroups = GroupHandler::getUserGroups($user);
+			$usergroups = ProjectHandler::getUserGroups($user);
 			$usergroupnames = array_column($usergroups, 'name');
 			
 			// List of groups logged in user can invite $user to join
@@ -104,9 +104,9 @@ class UserController extends BaseController {
 			$belongGroups = [];
 			foreach ($usergroups as $group) {
 				// Can logged user assign roles for this group ?
-				$canAssign = PermissionHandler::checkGroup($thisUser, $group['name'], Permissions::GROUP_ADMIN);
+				$canAssign = PermissionHandler::checkGroup($thisUser, $group['name'], Permissions::PROJECT_ADMIN);
 				// Can logged user view info for this group ?
-				$canView   = PermissionHandler::checkGroup($thisUser, $group['name'], Permissions::GROUP_READ);
+				$canView   = PermissionHandler::checkGroup($thisUser, $group['name'], Permissions::PROJECT_READ);
 				
 				// User cannot change his own permissions
 				if($user['_id']==$thisUser['_id']) {
@@ -139,7 +139,7 @@ class UserController extends BaseController {
 			return Redirect::to('/');
 		}
 		
-		$groups = GroupHandler::getUserGroups($user);
+		$groups = ProjectHandler::getUserGroups($user);
 		return View::make('users.settings')
 			->with('user', $user)
 			->with('groups',$groups);

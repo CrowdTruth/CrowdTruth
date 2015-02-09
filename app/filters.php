@@ -85,21 +85,26 @@ use \MongoDB\Security\PermissionHandler as PermissionHandler;
 use \MongoDB\Security\Permissions as Permissions;
 
 /**
- * Require routes to have a particular Permissions for a given groupname.
+ * Require routes to have a particular Permissions for a given projectname.
  * 
  * NOTES: 
  * 
- * $groupname needs to be passed as a route parameter:
+ * $projectname needs to be passed as a route parameter:
  * 
- * 		'group/{groupname}/invitations'
+ * 		'project/{projectname}/invitations'
+ * 
+ * Alternatively it should be passed in as a GET/POST parameter 
  * 
  * $permission needs to be passed in as a filter parameter
  * 
- * 		'before' => 'permission:'.Permissions::GROUP_ADMIN
+ * 		'before' => 'permission:'.Permissions::PROJECT_ADMIN
  */
 Route::filter('permission', function($route, $request, $permission) {
 	$thisUser = Auth::user();
-	$groupName = Route::input('groupname');	// Passed in as route parameter
+	$groupName = Route::input('projectname');	// Passed in as route parameter
+	if(is_null($groupName)) {
+		$groupName = Input::get('projectname');	// Passed in as parameter parameter
+	}
 	// Check permissions
 	$hasPermission = PermissionHandler::checkGroup($thisUser, $groupName, $permission);
 	if(!$hasPermission) {

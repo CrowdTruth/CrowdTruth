@@ -14,6 +14,10 @@ use \MongoDB\Security\Roles as Roles;
 use \SoftwareComponents\FileUploader as FileUploader;
 use \SoftwareComponents\MediaSearchComponent as MediaSearchComponent;
 
+use \MongoDB\Security\ProjectHandler as ProjectHandler;
+use \MongoDB\Security\Permissions as Permissions;
+
+
 class MediaController extends BaseController {
 
 	protected $repository;
@@ -21,6 +25,7 @@ class MediaController extends BaseController {
 	public function __construct(Repository $repository)
 	{
 		$this->repository = $repository;
+		$this->beforeFilter('permission:'.Permissions::PROJECT_WRITE, [ 'only' => 'postUpload']);
 	}
 
 	public function getIndex()
@@ -35,10 +40,8 @@ class MediaController extends BaseController {
 		return $this->loadMediaUploadView();
 	}
 
-	public function getPreprocess($action = "relex")
-	{
-		// TODO: Change default from RELEX to TEXT
-		return Redirect::to('media/preprocess/' . $action);
+	public function getPreprocess() {
+		return Redirect::to('media/preprocess/text')	;
 	}
 
 	/**
@@ -141,9 +144,7 @@ class MediaController extends BaseController {
 			'keys' => $keys,
 			'formats' => $formats,
 			'default' => $default
-			];
-
-
+		];
 	}
 
 	public function getRefreshindex()
@@ -346,9 +347,10 @@ class MediaController extends BaseController {
 			$domainCreate = Input::get('domain_create');
 			$documentCreate = Input::get('document_create');
 			$files = Input::file('files');
+			$project = Input::get('projectname');
 			
 			$uploader = new FileUploader();
-			$status_upload = $uploader->store($fileFormat, $domain, $documentType, $domainCreate, 
+			$status_upload = $uploader->store($fileFormat, $domain, $documentType, $project, $domainCreate, 
 					$documentCreate, $files);
 			
 			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
@@ -415,12 +417,15 @@ class MediaController extends BaseController {
 			$fileTypes[$domainKey] = $fileTypeList;
 			$doctypes[$domainKey] = $domain['document_types'];
 		}
-
+		$userprojects = ProjectHandler::getUserGroups(Auth::user());
+		$userprojects = array_column($userprojects, 'name');
+		
 		return View::make('media.pages.upload')
 			->with('domains', $domains)
 			->with('names', $names)
 			->with('fileTypes', $fileTypes)
-			->with('doctypes', $doctypes);
+			->with('doctypes', $doctypes)
+			->with('projects', $userprojects);
 	}
 
 	public function getView()

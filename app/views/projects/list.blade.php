@@ -22,7 +22,8 @@
 						<tr class='text-left' >
 							<td>
 							@if($grInfo['canview'])
-								{{ link_to('group/'.$grInfo['name'], $grInfo['name']) }}
+								{{ link_to(action('ProjectController@getGroupDetails', 
+												[ $grInfo['name']  ]), $grInfo['name']) }}
 							@else
 								{{ $grInfo['name'] }}
 							@endif

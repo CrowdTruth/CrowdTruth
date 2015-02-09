@@ -1,4 +1,4 @@
-@extends('preprocess.relex.layouts.default')
+@extends('preprocess.layouts.default')
 
 @section('colWidth', 'col-xs-12')
 @section('relexContent')

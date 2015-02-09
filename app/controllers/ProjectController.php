@@ -4,7 +4,7 @@ use \Auth as Auth;
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 use \MongoDB\UserAgent as UserAgent;
-use \MongoDB\Security\GroupHandler as GroupHandler;
+use \MongoDB\Security\ProjectHandler as ProjectHandler;
 use \MongoDB\Security\PermissionHandler as PermissionHandler;
 use \MongoDB\Security\Permissions as Permissions;
 use \MongoDB\Security\Roles as Roles;
@@ -34,10 +34,10 @@ class ProjectController extends BaseController {
 	public function getGroupList() {
 		$thisUser = Auth::user();
 
-		$groups = GroupHandler::listGroups();
+		$groups = ProjectHandler::listGroups();
 		$groupInfo = [];
 		foreach ($groups as $group) {
-			$canView = PermissionHandler::checkGroup($thisUser, $group, Permissions::GROUP_READ);
+			$canView = PermissionHandler::checkGroup($thisUser, $group, Permissions::PROJECT_READ);
 			
 			array_push($groupInfo, [
 				'name' => $group,
@@ -70,19 +70,19 @@ class ProjectController extends BaseController {
 		
 		$action = Input::get('action');
 		if($action=='addGroup') {
-			$userRole = GroupHandler::grantUser($targetUser, $groupName, Roles::GROUP_GUEST);
+			$userRole = ProjectHandler::grantUser($targetUser, $groupName, Roles::PROJECT_GUEST);
 			
 			return Redirect::back()
 				->with('flashSuccess', 'User '.$targetUserName.' added to group '.$groupName);
 		} elseif($action=='assignRole') {
 			$roleName = Input::get('role');
 			$role = Roles::getRoleByName($roleName);
-			$userRole = GroupHandler::grantUser($targetUser, $groupName, $role);
+			$userRole = ProjectHandler::grantUser($targetUser, $groupName, $role);
 			
 			return Redirect::back()
 				->with('flashSuccess', 'User '.$targetUserName.' assigned role '.$roleName.' on group '.$groupName);
 		} elseif($action=='removeGroup') {
-			GroupHandler::revokeUser($targetUser, $groupName);
+			ProjectHandler::revokeUser($targetUser, $groupName);
 			
 			return Redirect::back()
 				->with('flashSuccess', 'User '.$targetUserName.' removed from group '.$groupName);
@@ -99,24 +99,24 @@ class ProjectController extends BaseController {
 	 */
 	public function getGroupDetails($groupname) {
 		$sentryGroups = [];
-		foreach(Roles::$GROUP_ROLE_NAMES as $role) {
+		foreach(Roles::$PROJECT_ROLE_NAMES as $role) {
 			$sentryGroups[$role] = Sentry::findGroupByName($groupname.':'.$role);
 		}
 		
 		$groupUsers = [];
-		foreach(Roles::$GROUP_ROLE_NAMES as $role) {
+		foreach(Roles::$PROJECT_ROLE_NAMES as $role) {
 			// List userts with $role in this group -- make [] when none
 			$users = $sentryGroups[$role]['user_agent_ids'];
 			$groupUsers[$role] = is_null($users)?[]:$users;
 		}
 		
 		$groupInviteCodes = [];
-		foreach(Roles::$GROUP_ROLE_NAMES as $role) {
+		foreach(Roles::$PROJECT_ROLE_NAMES as $role) {
 			$groupInviteCodes[$role] = $sentryGroups[$role]['invite_code'];
 		}
 		
-		$canEditGroup = PermissionHandler::checkGroup(Auth::user(), $groupname, Permissions::GROUP_ADMIN);
-		$credentials = GroupHandler::getCredentials($groupname);
+		$canEditGroup = PermissionHandler::checkGroup(Auth::user(), $groupname, Permissions::PROJECT_ADMIN);
+		$credentials = ProjectHandler::getCredentials($groupname);
 		
 		return View::make('projects.profile')
 			->with('groupName', $groupname)
@@ -128,16 +128,16 @@ class ProjectController extends BaseController {
 
 	/**
 	 * Process POST requests for changing group invitation codes on a specified group.
-	 * Permissions::GROUP_ADMIN on the specified group is required to perform this action.
+	 * Permissions::PROJECT_ADMIN on the specified group is required to perform this action.
 	 */
 	public function updateInviteCodes($groupName) {
 		$codes = [
-			Roles::GROUP_ADMIN => Input::get('adminsICode'),
-			Roles::GROUP_MEMBER => Input::get('membersICode'),
-			Roles::GROUP_GUEST => Input::get('guestsICode')
+			Roles::PROJECT_ADMIN => Input::get('adminsICode'),
+			Roles::PROJECT_MEMBER => Input::get('membersICode'),
+			Roles::PROJECT_GUEST => Input::get('guestsICode')
 		];
 		
-		foreach(Roles::$GROUP_ROLES as $role) {
+		foreach(Roles::$PROJECT_ROLES as $role) {
 			$sentryGroup = Sentry::findGroupByName(str_replace('#', $groupName, $role));
 			$sentryGroup['invite_code'] = $codes[$role];
 			$sentryGroup->save();
@@ -149,18 +149,18 @@ class ProjectController extends BaseController {
 	
 	/**
 	 * Perform the POST action for changing account credentials for a given group.
-	 * Permissions::GROUP_ADMIN on the specified group is required to perform this action.
+	 * Permissions::PROJECT_ADMIN on the specified group is required to perform this action.
 	 */
 	public function updateAccountCredentials($groupName) {
 		$cfUser = Input::get('cfUsername');
 		$cfPass = Input::get('cfPassword');
 		
 		$newValues = [
-			GroupHandler::CF_USER => $cfUser,
-			GroupHandler::CF_PASS => $cfPass
+			ProjectHandler::CF_USER => $cfUser,
+			ProjectHandler::CF_PASS => $cfPass
 		];
 		
-		GroupHandler::changeCredentials($groupName, $newValues);
+		ProjectHandler::changeCredentials($groupName, $newValues);
 		
 		return Redirect::back()
 			->with('flashSuccess', 'Invitation code successfully updated.');
@@ -172,7 +172,7 @@ class ProjectController extends BaseController {
 	public function createGroup() {
 		$groupName = Input::get('addGrp');
 		try{
-			GroupHandler::createGroup($groupName);
+			ProjectHandler::createGroup($groupName);
 			return Redirect::back()
 				->with('flashSuccess', 'Group <b>'.$groupName.'</b> succesfully created!');			
 		} catch(\Cartalyst\Sentry\Groups\GroupExistsException $e) {

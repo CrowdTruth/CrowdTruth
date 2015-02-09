@@ -3,11 +3,13 @@
 namespace preprocess;
 
 use CoffeeScript\compact;
+use BaseController, Cart, View, App, Input, Redirect, Session;
+use League\Csv\Reader as Reader;
 
 use \MongoDB\Repository as Repository;
 use \MongoDB\Entity as Entity;
-use BaseController, Cart, View, App, Input, Redirect, Session;
-use League\Csv\Reader as Reader;
+use \MongoDB\Security\PermissionHandler as PermissionHandler;
+use \MongoDB\Security\Permissions as Permissions;
 
 use \SoftwareComponents\TextSentencePreprocessor as TextSentencePreprocessor;
 
@@ -20,6 +22,8 @@ class TextController extends BaseController {
 		$this->repository = $repository;
 		$this->processor = $processor;
 		$this->nLines = 5;
+		
+		//$this->beforeFilter('permission:'.Permissions::PROJECT_WRITE, [ 'only' => 'postConfigure']);
 	}
 
 	private function getSeparator($csvstring) {
@@ -38,7 +42,22 @@ class TextController extends BaseController {
 		if($separator) return $separator;
 		return $fallback;
 	}
-
+	
+	public function getIndex() {
+		$entities = Entity::where('activity_id', 'LIKE', '%fileuploader%')->get();
+		
+		$thisUser = \Auth::user();
+		foreach ($entities as $ent) {
+			$hasPermission = PermissionHandler::checkGroup($thisUser, $ent['project'], Permissions::PROJECT_WRITE);
+			$ent['canWrite'] = $hasPermission;
+		}
+		
+		if(count($entities) > 0) {
+			return View::make('media.preprocess.text.pages.actions', compact('entities'));
+		}
+		return Redirect::to('media/upload')->with('flashNotice', 'You have not uploaded any documents yet');
+	}
+	
 	public function getConfigure() {
 		if($URI = Input::get('URI')) {
 			if($document = $this->repository->find($URI)) {
@@ -62,7 +81,7 @@ class TextController extends BaseController {
 					$previewTable = null;
 				}
 				
-				return View::make('media.preprocess.text.configure')
+				return View::make('media.preprocess.text.pages.configure')
 						->with('URI', $URI)
 						->with('docTitle', $document['title'])
 						->with('docPreview', $docPreview)

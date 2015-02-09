@@ -112,6 +112,22 @@
 									</div>
 
 									<div class="form-group">
+										<label for="category" class="col-sm-3 control-label">Upload to project:</label>
+										<div class="col-sm-5">
+										@if(count($projects)==1)
+											{{ $projects[0] }}
+											{{ Form::hidden('projectname', $projects[0]) }}
+										@else
+											<select name="projectname" class="form-control">
+											@foreach($projects as $project)
+												<option value="{{ $project }}">{{ $project }}</option>
+											@endforeach
+											</select>
+										@endif
+										</div>
+									</div>
+
+									<div class="form-group">
 										<div class="col-sm-offset-3 col-sm-5">
 										{{ Form::button('Submit', array('type' => 'submit', 'value' => 'upload', 'class' => 'btn btn-info')) }} 
 										</div>

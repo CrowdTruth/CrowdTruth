@@ -3,7 +3,7 @@
 use \MongoDB\UserAgent as UserAgent;
 use \MongoDB\Security\Permissions as Permissions;
 use \MongoDB\Security\PermissionHandler as PermissionHandler;
-use \MongoDB\Security\GroupHandler as GroupHandler;
+use \MongoDB\Security\ProjectHandler as ProjectHandler;
 use \MongoDB\Security\Roles as Roles;
 
 /**
@@ -24,7 +24,7 @@ class PermissionSeeder extends Seeder {
 		
 		// Create admin user with admin permisions
 		Sentry::getUserProvider()->create([
-			'_id' => GroupHandler::ADMIN_USER,
+			'_id' => ProjectHandler::ADMIN_USER,
 			'password' => 'admin',
 			'email' => 'admin@crowdtruth.org',
 			'firstname' => 'Admin',
@@ -32,7 +32,7 @@ class PermissionSeeder extends Seeder {
 		]);
 		
 		// Create the admin group with special permission Permissions::ALLOW_ALL
-		GroupHandler::createGroup('admin');
+		ProjectHandler::createGroup('admin');
 		$adminGroup = Sentry::findGroupByName('admin:admin');
 		$permissions = $adminGroup->permissions;
 		$permissions[Permissions::ALLOW_ALL] = 1;	// Allowed everything !
@@ -40,7 +40,7 @@ class PermissionSeeder extends Seeder {
 		$adminGroup->save();
 		
 		// Assign user admin to group admin.
-		$root = Sentry::findUserByLogin(GroupHandler::ADMIN_USER);
+		$root = Sentry::findUserByLogin(ProjectHandler::ADMIN_USER);
 		$root->addGroup($adminGroup);
 	}
 }
