@@ -7,7 +7,10 @@ use CoffeeScript\compact;
 use \MongoDB\Repository as Repository;
 use \MongoDB\Entity as Entity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
+use \MongoDB\UserAgent as UserAgent;
 use \MongoDB\SoftwareComponent as SoftwareComponent;
+use \MongoDB\Security\GroupHandler as GroupHandler;
+use \MongoDB\Security\Roles as Roles;
 use \SoftwareComponents\FileUploader as FileUploader;
 use \SoftwareComponents\MediaSearchComponent as MediaSearchComponent;
 
@@ -180,9 +183,11 @@ class MediaController extends BaseController {
 		
 		// all units in this range
 		$units = Entity::distinct('_id')->where('tags', ['unit'])->skip($from)->take($batchsize)->get();
+
+		// get list of existing projects
+		$projects = GroupHandler::listGroups();
 			 
-		 
-		// get keys for each unit in this batch
+		// for each unit get the keys and check if the project exists
 		$allKeys = [];
 		for($i = $from; $i < $from + $batchsize; $i++) {
 			// get data of unit
@@ -195,7 +200,7 @@ class MediaController extends BaseController {
 			}
 	
 			switch($unit['documentType']) {
-				case 'annotatedmedatadadescription':
+				case 'annotatedmetadatadescription':
 					$unit['project'] = 'soundandvision';
 				break;
 				case 'biographynet-sentence':
@@ -238,14 +243,26 @@ class MediaController extends BaseController {
 					$unit['project'] = 'ibmdisdis';
 				break;
 			}
+
+			// add the project if it doesnt exist yet
+			if(!in_array($unit['project'], $projects)) {
+				GroupHandler::createGroup($unit['project']);
+				// add the project to the temporary list
+				array_push($projects, $unit['project']);
+			}
 			
-			// update workerunit
+			// add the user to the project if it has no access yet
+			if(!GroupHandler::inGroup($unit['user_id'], $unit['project'])) {
+				$user = UserAgent::find($unit['user_id']);
+				GroupHandler::grantUser($user, $unit['project'], Roles::GROUP_MEMBER);
+			}
+
 			
 			$unit->save();
 		}
 			 
 		return [
-			'log' => 'test',
+			'log' => $projects,
 			'next' => $from + $batchsize,
 			'last' => $unitCount
 		 ];
