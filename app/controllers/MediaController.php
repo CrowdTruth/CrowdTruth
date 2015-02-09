@@ -131,7 +131,7 @@ class MediaController extends BaseController {
 		$formats = $searchComponent->getFormats();
 		
 		// default columns
-		$default = ['_id','documentType','title','created_at','user_id']; // default visible columns
+		$default = ['_id','documentType','title','created_at','project','user_id']; // default visible columns
 		
 		return [
 			'log' => $documents,
@@ -147,6 +147,111 @@ class MediaController extends BaseController {
 	{
 		return View::make('media.search.pages.refreshindex');
 	}
+	
+	// update db page
+	public function getUpdatedb()
+	{
+		return View::make('media.search.pages.updatedb');
+	}
+
+
+	
+	/**
+	 * update units to new data structure
+	 */
+	public function postUpdatedb()
+	{	
+		$searchComponent = new MediaSearchComponent();
+		
+		// amount of units to index per iteration
+		$batchsize = 500;
+		$from = Input::get('next');
+		$unitCount = Entity::whereIn('tags', ['unit'])->count();
+		
+		// reset index on start
+		if($from == 0) {
+			$searchComponent->clear();
+		}
+		
+		// reduce last batch to remaining units
+		if($from + $batchsize > $unitCount) {
+			$batchsize = $unitCount - $from;
+		}
+		
+		// all units in this range
+		$units = Entity::distinct('_id')->where('tags', ['unit'])->skip($from)->take($batchsize)->get();
+			 
+		 
+		// get keys for each unit in this batch
+		$allKeys = [];
+		for($i = $from; $i < $from + $batchsize; $i++) {
+			// get data of unit
+			$unit = Entity::where('_id', $units[$i][0])->first();
+	
+	
+			$id = explode('/', $unit['_id']);
+			if(sizeof($id) == 5) {
+				$user['_id'] = $id[0] . '/' . $id[3] . '/' . $id[4];
+			}
+	
+			switch($unit['documentType']) {
+				case 'annotatedmedatadadescription':
+					$unit['project'] = 'soundandvision';
+				break;
+				case 'biographynet-sentence':
+					$unit['project'] = 'biographynet';
+				break;
+				case 'drawing':
+					$unit['project'] = 'rijksmuseum';
+				break;
+				case 'enrichedvideo':
+					$unit['project'] = 'soundandvision';
+				break;
+				case 'enrichedvideov2':
+					$unit['project'] = 'soundandvision';
+				break;
+				case 'enrichedvideov3':
+					$unit['project'] = 'soundandvision';
+				break;
+				case 'fullvideo':
+					$unit['project'] = 'soundandvision';
+				break;
+				case 'metadatadescription':
+					$unit['project'] = 'soundandvision';
+				break;
+				case 'metadatadescription-event':
+					$unit['project'] = 'soundandvision';
+				break;
+				case 'painting':
+					$unit['project'] = 'rijksmuseum';
+				break;
+				case 'relex':
+					$unit['project'] = 'ibmrelex';
+				break;
+				case 'relex-sentence':
+					$unit['project'] = 'ibmrelex';
+				break;
+				case 'relex-structured-sentence':
+					$unit['project'] = 'ibmrelex';
+				break;
+				case 'termpairs-sentence':
+					$unit['project'] = 'ibmdisdis';
+				break;
+			}
+			
+			// update workerunit
+			
+			$unit->save();
+		}
+			 
+		return [
+			'log' => 'test',
+			'next' => $from + $batchsize,
+			'last' => $unitCount
+		 ];
+	}
+
+
 	
 	/**
 	 * refresh search index
@@ -213,6 +318,7 @@ class MediaController extends BaseController {
 			'last' => $unitCount
 		 ];
 	}
+
 
 	public function postUpload()
 	{

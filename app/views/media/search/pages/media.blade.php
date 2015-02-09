@@ -25,13 +25,15 @@
 		<div class='tab'>
 			<div class='search row'>
 				<div class='col-xs-12'>
-				@if(isset($mainSearchFilters['media']['documentTypes']))
+				@if(isset($mainSearchFilters['media']['categories']))
 					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" multiple data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-						@foreach($mainSearchFilters['media']['documentTypes'] as $key => $value)
-							<option value="{{$key}}" class="select_{{$key}}" data-subtext="{{ $value['count'] }} Items">{{ $value['label'] }}</option>
-							@if($key == 'all')
-								<option data-divider="true"></option>
-							@endif
+						<option value="all" class="select_all" data-subtext="{{ $mainSearchFilters['media']['all']['count'] }} Items">{{ $mainSearchFilters['media']['all']['label'] }}</option>
+						@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
+							<optgroup label="{{ $project }}">
+								@foreach($documentTypes as $key => $doctype)
+									<option value="{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>
+								@endforeach
+							</optgroup>
 						@endforeach
 					</select>
 				@endif
@@ -135,9 +137,10 @@
 							<li><a href="#" class='toSelection'>Save Selection as Batch</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
 						<li role="presentation" class="divider"></li>
-						<li role="presentation" class="dropdown-header">Search Index</li>
-							<li><a href="{{ URL::to('media/listindex') }}">View</a></li>
-							<li><a href="{{ URL::to('media/refreshindex') }}">Refresh</a></li>
+						<li role="presentation" class="dropdown-header">Database Tools</li>
+							<li><a href="{{ URL::to('media/listindex') }}">View search index</a></li>
+							<li><a href="{{ URL::to('media/refreshindex') }}">Refresh search index</a></li>
+							<li><a href="{{ URL::to('media/updatedb') }}">Update entities</a></li>
 						</ul>
 					</div>
 					<select name="search_limit" data-query-key="limit" class="limit selectpicker pull-right show-tick">
