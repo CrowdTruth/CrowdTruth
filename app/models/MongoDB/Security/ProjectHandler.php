@@ -134,6 +134,23 @@ class ProjectHandler {
 	}
 	
 	/**
+	 * Check if a user is in a group
+	 */
+	public static function inGroup($userName, $groupName) {
+
+		$user = Sentry::findUserByID($userName);
+		$group = Sentry::findGroupByName(str_replace('#', $groupName, Roles::PROJECT_MEMBER));
+
+		// Check if the user is in the group
+		if ($user->inGroup($group)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	
+	/**
 	 * Retrieve the external account credentials for a given group
 	 * 
 	 * @param $projectName Name of the desired group.
