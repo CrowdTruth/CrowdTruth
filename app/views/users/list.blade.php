@@ -30,7 +30,7 @@
 								@foreach($usergroups[$user['_id']]['groups'] as $grInfo)
 									<li class="list-group-item">
 									@if($grInfo['canview'])
-										{{ link_to(action('ProjectController@getGroupDetails', 
+										{{ link_to(action('ProjectController@getProfile', 
 												[ $grInfo['name']  ]), $grInfo['name']) }}
 									@else
 										{{ $grInfo['name'] }}

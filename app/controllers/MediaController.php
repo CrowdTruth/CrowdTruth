@@ -88,7 +88,7 @@ class MediaController extends BaseController {
 		
 		if(preg_match('/^.*\.(mp3|ogg|wmv)$/i',$value)) {
 			$format = 'sound';
-		} else if(preg_match('/^(http\:\/\/lh6\.ggpht\.com.*|.*\.(jpg|jpeg|png|gif))$/i',$value)) {
+		} else if(preg_match('/^(http\:\/\/.*\.ggpht\.com.*|.*\.(jpg|jpeg|png|gif))$/i',$value)) {
 			$format = 'image';
 		} else if(preg_match('/^.*\.(avi|mpeg|mpg|mp4)$/i',$value)) {
 			$format = 'video';
@@ -129,7 +129,7 @@ class MediaController extends BaseController {
 	{	
 		$documents = explode("|", Input::get('documents'));
 		$searchComponent = new MediaSearchComponent();
-		
+
 		$keys = $searchComponent->getKeys($documents);
 		asort($keys);
 		$formats = $searchComponent->getFormats();
