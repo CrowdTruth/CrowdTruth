@@ -48,7 +48,7 @@ class TextController extends BaseController {
 		
 		$thisUser = \Auth::user();
 		foreach ($entities as $ent) {
-			$hasPermission = PermissionHandler::checkGroup($thisUser, $ent['project'], Permissions::PROJECT_WRITE);
+			$hasPermission = PermissionHandler::checkProject($thisUser, $ent['project'], Permissions::PROJECT_WRITE);
 			$ent['canWrite'] = $hasPermission;
 		}
 		

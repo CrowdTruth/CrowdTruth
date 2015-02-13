@@ -13,6 +13,7 @@ use \SoftwareComponents\FileUploader as FileUploader;
 use \SoftwareComponents\MediaSearchComponent as MediaSearchComponent;
 
 use \MongoDB\Security\ProjectHandler as ProjectHandler;
+use \MongoDB\Security\PermissionHandler as PermissionHandler;
 use \MongoDB\Security\Permissions as Permissions;
 use \MongoDB\Security\Roles as Roles;
 
@@ -419,7 +420,7 @@ class MediaController extends BaseController {
 			$fileTypes[$domainKey] = $fileTypeList;
 			$doctypes[$domainKey] = $domain['document_types'];
 		}
-		$userprojects = ProjectHandler::getUserGroups(Auth::user());
+		$userprojects = ProjectHandler::getUserProjects(Auth::user());
 		$userprojects = array_column($userprojects, 'name');
 		
 		return View::make('media.pages.upload')
@@ -457,16 +458,16 @@ class MediaController extends BaseController {
 		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
 		
 		// get projects of a user
-		$user = UserAgent::find(Auth::user()->_id);
-		$projects = ProjectHandler::getUserGroups($user);
-		
+		$user = Auth::user();
 		foreach($mainSearchFilters['media']['categories'] as $key => $value) {
-			if(array_key_exists($key, $projects)) {
+			// $key is the name of a project
+			if(! PermissionHandler::checkProject($user, $key, Permissions::PROJECT_READ)) {
 				unset($mainSearchFilters['media']['categories'][$key]);
 			}
 		}
 		
-		return View::make('media.search.pages.media')->with('mainSearchFilters', $mainSearchFilters);
+		return View::make('media.search.pages.media')
+			->with('mainSearchFilters', $mainSearchFilters);
 	}
 
 

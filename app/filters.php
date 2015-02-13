@@ -106,7 +106,7 @@ Route::filter('permission', function($route, $request, $permission) {
 		$groupName = Input::get('projectname');	// Passed in as parameter parameter
 	}
 	// Check permissions
-	$hasPermission = PermissionHandler::checkGroup($thisUser, $groupName, $permission);
+	$hasPermission = PermissionHandler::checkProject($thisUser, $groupName, $permission);
 	if(!$hasPermission) {
 		return Redirect::back()
 			->with('flashError', 'You do not have permission to perform selected action');

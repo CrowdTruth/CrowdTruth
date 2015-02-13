@@ -59,17 +59,17 @@ class PermissionHandler {
 	}
 	
 	/**
-	 * Checks if the given UserAgent has the appropriate group permission. Note that 
+	 * Checks if the given UserAgent has the appropriate project permission. Note that 
 	 * administrators with Permissions::ALLOW_ALL permission are always allowed to perform 
 	 * actions.
 	 * 
 	 * @param $user UserAgent object identifying the user for which permissions are evaluated.
-	 * @param $group Name of the CT-group being verified.
-	 * @param $permission a constant from group permissions (e.g. Permissions::PROJECT_READ)
+	 * @param $project Name of the project being verified.
+	 * @param $permission a constant from project permissions (e.g. Permissions::PROJECT_READ)
 	 * @return boolean true if the user has the required permission, false otherwise.
 	 */
-	public static function checkGroup($user, $group, $permission) {
-		$sentryPermission = str_replace('#', $group, $permission);
+	public static function checkProject($user, $project, $permission) {
+		$sentryPermission = str_replace('#', $project, $permission);
 		return $user->hasAccess($sentryPermission) or $user->hasAccess(Permissions::ALLOW_ALL);
 	}
 }

@@ -37,7 +37,7 @@ class ProjectController extends BaseController {
 		$groups = ProjectHandler::listGroups();
 		$projects = [];
 		foreach ($groups as $group) {
-			$canView = PermissionHandler::checkGroup($thisUser, $group, Permissions::PROJECT_READ);
+			$canView = PermissionHandler::checkProject($thisUser, $group, Permissions::PROJECT_READ);
 			
 			$users = 0;
 			foreach(Roles::$PROJECT_ROLE_NAMES as $role) {
@@ -123,7 +123,7 @@ class ProjectController extends BaseController {
 			$groupInviteCodes[$role] = $sentryGroups[$role]['invite_code'];
 		}
 		
-		$canEditGroup = PermissionHandler::checkGroup(Auth::user(), $groupname, Permissions::PROJECT_ADMIN);
+		$canEditGroup = PermissionHandler::checkProject(Auth::user(), $groupname, Permissions::PROJECT_ADMIN);
 		$credentials = ProjectHandler::getCredentials($groupname);
 		
 		return View::make('projects.profile')
@@ -157,7 +157,7 @@ class ProjectController extends BaseController {
 			$groupInviteCodes[$role] = $sentryGroups[$role]['invite_code'];
 		}
 		
-		$canEditGroup = PermissionHandler::checkGroup(Auth::user(), $groupname, Permissions::PROJECT_ADMIN);
+		$canEditGroup = PermissionHandler::checkProject(Auth::user(), $groupname, Permissions::PROJECT_ADMIN);
 		$credentials = ProjectHandler::getCredentials($groupname);
 		
 		return View::make('projects.settings')
