@@ -166,7 +166,7 @@ class MediaController extends BaseController {
 		$searchComponent = new MediaSearchComponent();
 		
 		// amount of units to index per iteration
-		$batchsize = 500;
+		$batchsize = 50;
 		$from = Input::get('next');
 		$unitCount = Entity::whereIn('tags', ['unit'])->count();
 		
@@ -191,13 +191,7 @@ class MediaController extends BaseController {
 		for($i = $from; $i < $from + $batchsize; $i++) {
 			// get data of unit
 			$unit = Entity::where('_id', $units[$i][0])->first();
-	
-	
-			$id = explode('/', $unit['_id']);
-			if(sizeof($id) == 5) {
-				$user['_id'] = $id[0] . '/' . $id[3] . '/' . $id[4];
-			}
-	
+
 			switch($unit['documentType']) {
 				case 'annotatedmetadatadescription':
 					$unit['project'] = 'soundandvision';
@@ -256,12 +250,22 @@ class MediaController extends BaseController {
 				ProjectHandler::grantUser($user, $unit['project'], Roles::PROJECT_MEMBER);
 			}
 
-			
-			$unit->save();
+			$id = explode('/', $unit['_id']);
+			if(sizeof($id) == 5) {			
+				$entity = new Entity;
+				
+				// copy properties
+				
+				$entity['documentType'] = $unit['documentType'];
+				$entity['test'] = 'new';
+				$entity->_id = 'entity/' . $entity->documentType . '/' . $id[4];
+				$entity->save();
+			}
+
 		}
 			 
 		return [
-			'log' => $projects,
+			'log' => 'test',
 			'next' => $from + $batchsize,
 			'last' => $unitCount
 		 ];
@@ -452,8 +456,15 @@ class MediaController extends BaseController {
 	{
 		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
 		
-		// include keys
-		$searchComponent = new MediaSearchComponent();
+		// get projects of a user
+		$user = UserAgent::find(Auth::user()->_id);
+		$projects = ProjectHandler::getUserGroups($user);
+		
+		foreach($mainSearchFilters['media']['categories'] as $key => $value) {
+			if(array_key_exists($key, $projects)) {
+				unset($mainSearchFilters['media']['categories'][$key]);
+			}
+		}
 		
 		return View::make('media.search.pages.media')->with('mainSearchFilters', $mainSearchFilters);
 	}

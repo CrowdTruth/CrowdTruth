@@ -51,7 +51,9 @@ class Entity extends Moloquent {
                 }
             }            
 
-            $entity->_id = static::generateIncrementedBaseURI($entity);
+			if(!empty($entity->_id)) {
+				$entity->_id = static::generateIncrementedBaseURI($entity);
+			}
 
             if (Auth::check())
             {
@@ -64,8 +66,6 @@ class Entity extends Moloquent {
 
         static::saving(function($entity)
         {
-            $entity->format = strtolower($entity->format);            
-            $entity->domain = strtolower($entity->domain);
             $entity->documentType = strtolower($entity->documentType);
 
             static::validateEntity($entity);         
@@ -87,15 +87,12 @@ class Entity extends Moloquent {
 
     public static function generateIncrementedBaseURI($entity)
     {
-        $seqName = 'entity/' . $entity->format . '/' . $entity->domain . '/' . $entity->documentType;
+        $seqName = 'entity/' . $entity->documentType;
         $id = Counter::getNextId($seqName);
         return $seqName.'/'.$id;
     }     
   
     public static function validateEntity($entity){
-        if(($entity->format == "text" || $entity->format == "image" || $entity->format == "video") == FALSE){
-            throw new Exception("Entity has a wrong value \"{$entity->format}\" for the format field");
-        }
 
         // TODO: Can we remove this constraint? IF we want to be able to extend to multiple domains, then maybe we have to ?
 /*        if(($entity->domain == "medical" || $entity->domain == "news" || $entity->domain == "cultural" || $entity->domain == "art") == FALSE){
