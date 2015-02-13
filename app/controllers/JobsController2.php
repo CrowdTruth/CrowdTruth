@@ -27,6 +27,174 @@ class JobsController2 extends BaseController {
 		return View::make('job2.tabs.batch')->with('batches', $batches)->with('selectedbatchid', '');
 	}
 
+	public function getTemplate() {
+        $templateType = Input::get( 'templateType' );
+        $template = \MongoDB\Template::where("type", $templateType)->first();
+        // everything that is between {{ }}
+        $simpleRegEx = "/{{([^.}}]*)}}/";
+
+        preg_match_all($simpleRegEx, $template["cml"], $matchesCol, PREG_OFFSET_CAPTURE);
+        //print_r($matchesCol);
+        $matches = array();
+        foreach ($matchesCol[1] as $simpleMatch) {
+        	//print_r($simpleMatch);
+        	if (strpos($simpleMatch[0], "|") === false) {
+        		$newMatch = array();
+				$newMatch["label"] = str_replace(" ", "", $simpleMatch[0]);
+				$newMatch["startLabel"] = $simpleMatch[1];
+				$found = false;
+				foreach ($matches as $match) {
+					if ($match["label"] == $newMatch["label"]) {
+						$found = true;
+					}
+				}
+				if ($found == false) {
+					array_push($matches, $newMatch);
+				}
+        	}
+        	else {
+        		$posLabel = str_replace(" ", "", $simpleMatch[0]);
+        		$posLabelArray = explode("|", $posLabel);
+        		$newMatch = array();
+        		$newMatch["label"] = $posLabelArray[0];
+        		$newMatch["startLabel"] = $simpleMatch[1];
+        		$found = false;
+        		foreach ($matches as $match) {
+					if ($match["label"] == $newMatch["label"]) {
+						$found = true;
+					}
+				}
+				if ($found == false) {
+					array_push($matches, $newMatch);
+				}
+        	}
+        }
+
+    //    print_r($matches);
+
+        // for any other statement between {% %}
+        $statements = "/{%\s*.*%}/";
+        preg_match_all($statements, $template["cml"], $matchesStat, PREG_OFFSET_CAPTURE);
+    //    print_r($matchesStat);
+
+        $statementsForWithoutData = "/{%.*\([0-9]+\.{2}[0-9]+\).*%}/";
+        preg_match_all($statementsForWithoutData, $template["cml"], $matchesStatWOData, PREG_OFFSET_CAPTURE);
+
+        foreach ($matchesStatWOData[0] as $keyWO => $matcheStatWOData) {
+        	foreach ($matchesStat[0] as $key => $matchStat) {
+        		if ($matcheStatWOData[0] == $matchStat[0]) {
+        			unset($matchesStat[0][$key]);
+        		}
+        	}
+        }
+
+		// {% for opt in clusters_a3 %}
+
+		$unusedArguments = array();
+
+       	foreach ($matchesStat[0] as $key => $matchStat) {
+       		if (strpos($matchStat[0], "endfor") !== false) {
+       			continue;
+       		}
+       		else {
+       			if (strpos($matchStat[0], "for") !== false) {
+	       			$expl1 = explode("for", $matchStat[0]);
+
+	       			$explarg1 = explode("in", $expl1[1]);
+
+
+	       			$firstArg = str_replace(' ', '', $explarg1[0]);
+
+	       			$explarg2 = explode("%}", $explarg1[1]);
+	       			$secondArg = str_replace(' ', '', $explarg2[0]);
+
+	       			
+	       			if (!in_array($firstArg, $unusedArguments)) {
+	       				array_push($unusedArguments, $firstArg);
+	       			}
+
+	       			// first argument should not be in the results
+	       			// for the second one, we need to check whether it exists in the unusedArguments
+
+	       			if (in_array($secondArg, $unusedArguments)) {
+	       				continue;
+	       			}
+
+	       			$found = false;
+	        		foreach ($matches as $match) {
+						if ($match["label"] == $secondArg) {
+							$found = true;
+						}
+					}
+					if ($found == false) {
+						$newMatch = array();
+						$newMatch["label"] = $secondArg;
+						$newMatch["startLabel"] = $matchStat[1];
+						array_push($matches, $newMatch);
+					}
+       			}
+       			else {
+	       			if (strpos($matchStat[0], "assign") !== false) {
+		       			$expl1 = explode("=", $matchStat[0]);
+		       			$variableArr = explode("{% assign", $expl1[0]);
+		       			$var1 = str_replace(' ', '', $variableArr[1]); 
+
+		       			$expl2 = explode("}}", $expl1[1]);
+		       			$var2 = str_replace('{', '', $expl2[0]); 
+		       			$var2 = str_replace(' ', '', $var2); 
+
+		       			if (!in_array($var1, $unusedArguments)) {
+	       					array_push($unusedArguments, $var1);
+	       				}
+
+		       			// first argument should not be in the results
+		       			// for the second one, we need to check whether it exists in the unusedArguments
+
+		       			if (in_array($var2, $unusedArguments)) {
+		       				continue;
+		       			}
+
+		       			$found = false;
+		        		foreach ($matches as $match) {
+							if ($match["label"] == $var2) {
+								$found = true;
+							}
+						}
+						if ($found == false) {
+							$newMatch = array();
+							$newMatch["label"] = $var2;
+							$newMatch["startLabel"] = $matchStat[1];
+							array_push($matches, $newMatch);
+						}
+		       		}
+		       	}
+       		}
+        }
+
+        foreach ($matches as $key => $match) {
+        	if (in_array($match["label"], $unusedArguments)) {
+        		unset($matches[$key]);
+        	}
+        	if (strpos($match["label"], ".") !== false) {
+        		unset($matches[$key]);
+        	}
+        }
+
+        $result = array();
+        foreach ($matches as $key => $match) {
+        	$result[$key] = $match["label"];
+        }
+        $result = implode(",", $result);
+
+        $obj = new stdClass();
+		$obj->fields = $result;
+		$obj->cml = $template["cml"];
+
+    //    dd($template["cml"]);
+    //    $matches = json_encode($matches);
+        return Response::json( $obj );
+    }
+
 
 	public function getPlatform() {
 		$jc = unserialize(Session::get('jobconf'));
@@ -208,19 +376,21 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getDuplicate($entity, $format, $domain, $docType, $incr){
-			Session::forget('batch');
+		Session::forget('batch');
 
 		$job = Job::id("entity/$format/$domain/$docType/$incr")->first();
+
 		if(!is_null($job)){
 				$jc = $job->JobConfiguration->replicate();
 			unset($jc->activity_id);
 			$jc->parents= array($job->JobConfiguration->_id);
 			Session::put('jobconf', serialize($jc));
-			//Session::put('batch', serialize($job->batch));
+		//	Session::put('batch', serialize($job->batch));
 			Session::put('format', $job->batch->format);
 			if(isset($jc->content['TVID']))
-                           Session::put('templatetype', $jc->content['TVID']);
+                Session::put('templateType', $jc->content['TVID']);
 			Session::put('title', $jc->content['title']);
+			Session::put('templateType', $jc->content['type']);
 			return Redirect::to("jobs2/batchd");
 		} else {
 			Session::flash('flashError',"Job $id not found.");
@@ -295,6 +465,11 @@ class JobsController2 extends BaseController {
 	public function postSubmitFinal($ordersandbox = 'order'){
 
 		$batch = unserialize(Session::get('batch'));
+
+		$batchColumnsNewTemplate = array();
+		$batchColumnsExtraChosenTemplate = array();
+		$associationsTemplBatch = array();
+		$ownTemplate = false;
 		if (!$jc = unserialize(Session::get('jobconf'))){
 			$jc = new JobConfiguration;
 			$jc->documentType = "jobconf";
@@ -303,14 +478,33 @@ class JobsController2 extends BaseController {
 		else
 			$jcco = $jc->content;
 		$own = false;
-		if (Input::has('templateTypeOwn') and strlen(Input::get('templateTypeOwn')) > 0 ){
-			 	$jcco['type'] = Input::get('templateTypeOwn');
-			    $own = true;}
-	 	else{
+		if (Input::has('templateTypeOwn') && strlen(Input::get('templateTypeOwn')) > 0 ){
+			$jcco['type'] = Input::get('templateTypeOwn');
+			$batchColumns = Input::get('batchColumns');
+			$newNamesForBatchColumns = Input::get('newcolnames');
+		//	dd($newNamesForBatchColumns);
+			$newNamesForBatchColumnsArray = explode(",", $newNamesForBatchColumns);
+			array_pop($newNamesForBatchColumnsArray);
+			
+	 		if($batchColumns == Null) {
+	 			return Redirect::back()->with('flashError', "You did not choose the batch columns");
+	 		}
+	 		else {
+	 			foreach ($newNamesForBatchColumnsArray as $value) {
+	 				$oldNewArray = explode(" - ", $value);
+	 				if (in_array($oldNewArray[0], $batchColumns)) {
+	 					$batchColumnsNewTemplate[$oldNewArray[0]] = $oldNewArray[1];
+	 				}
+	 			}
+	 	//		dd($batchColumnsNewTemplate);
+	 		}	    		
+	 		$ownTemplate = true;
+			$own = true;
+		} else {
 
 	 		$jcco['type'] =  Input::get('templateType');
 	 		if($jcco['type'] == Null) 
-	    		return Redirect::back()->with('flashError', "form not filled in (type).");	 	
+	    		return Redirect::back()->with('flashError', "You did not fill in the type of the template");	 	
 
 	    	// get a selected, newest jcbase
 	    	$maxi = \MongoDB\Template::where("type", $jcco['type'])->where("format", $batch->format)->max('version');
@@ -326,6 +520,21 @@ class JobsController2 extends BaseController {
 	 			Session::flash('flashError', "No template details in this template");
 				return Redirect::to("jobs2/submit");
 			}
+
+			//if(Input::get('addMoreColumns') != null)
+			$batchColumnsExtraChosenTemplate = Input::get('addMoreColumns');
+
+			$fieldsInChosenTemplate = Input::get('tempFields');
+			$arrayFields = explode(",", $fieldsInChosenTemplate);
+
+			foreach ($arrayFields as $field) {
+				$association =  Input::get($field);
+			//	dd($association);
+				array_push($associationsTemplBatch, $field . " - " . $association);
+	 			if($association == Null || $association == "---") 
+	    			return Redirect::back()->with('flashError', "You did not fill in all the associations for the template fields");
+			}
+
 			
 	 		$jcco['cml'] = $jcbaseco['cml'];
 
@@ -338,12 +547,12 @@ class JobsController2 extends BaseController {
 	 		$jcco['template_id'] = $jcbaseco['_id'];
 		}
 
-	    if (Input::has('titleOwn') and strlen(Input::get('titleOwn')) > 0 )
+	    if (Input::has('titleOwn') && strlen(Input::get('titleOwn')) > 0 )
 			 		$jcco['title'] = Input::get('titleOwn');
 			 	else
 			 		$jcco['title'] =  Input::get('title');
 		if ($jcco['title'] == Null) 
-	    		return Redirect::back()->with('flashError', "form not filled in (title).");	 	
+	    		return Redirect::back()->with('flashError', "You did not fill in the title of the template");	 	
 
 
 	    $jcco['platform'] = Array("cf");
@@ -388,7 +597,15 @@ class JobsController2 extends BaseController {
 			 	$j->softwareAgent_id = "cf2"; // $platformstring;
 			 	$j->activity_id = $activity->_id;
 			 	$j->iamemptyjob = "yes";
+			 	$extraInfoBatch = array();
+			 	$extraInfoBatch["batchColumnsNewTemplate"] = $batchColumnsNewTemplate;
+			 	$extraInfoBatch["batchColumnsExtraChosenTemplate"] = $batchColumnsExtraChosenTemplate;
+			 	$extraInfoBatch["associationsTemplBatch"] = $associationsTemplBatch;
+			 	$extraInfoBatch["ownTemplate"] = $ownTemplate;
+			 	$j->extraInfoBatch = $extraInfoBatch;
+			 //	dd($j);
 			 	$j->save(); //convert to publish later
+
 			 	//throw  new Exception("____|____");
 			 	$j->publish(($ordersandbox == 'sandbox' ? true : false));
 			 	$jobs[] = $j;

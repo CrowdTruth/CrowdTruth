@@ -24,7 +24,7 @@ class Workerunit extends Entity {
 
         static::creating(function ( $workerunit )
         {
-            
+        //    dd($workerunit);
             // Inherit type, domain and format
             if(empty($workerunit->type) or empty($workerunit->domain) or empty($workerunit->format)){
                 $j = Job::where('_id', $workerunit->job_id)->first();
@@ -75,20 +75,21 @@ class Workerunit extends Entity {
             case 'BiographyNetConcepts':
                 return $this->createAnnotationVectorBiographyNetConcepts();
                 break;
-			case 'DistributionalDisambiguation':
-                return $this->createAnnotationVectorDistributionalDisambiguation();
-                break;
+		//	case 'DistributionalDisambiguation':
+        //        return $this->createAnnotationVectorDistributionalDisambiguation();
+        //        break;
             
             default:
                //return  $this->createAnnotationVectorFactSpan(); // For Debugging!
                 Log::debug("TYPE {$this->type} UNKNOWN: {$this->_id}");
+                //dd("here");
                 return null;
                 //throw new Exception("TYPE {$this->type} UNKNOWN: {$this->_id}");
                 break;
         }        
     }
 	
-	public function createAnnotationVectorDistributionalDisambiguation() {
+/*	public function createAnnotationVectorDistributionalDisambiguation() {
         $debug = false;
 
         if(empty($this->unit_id))
@@ -136,7 +137,7 @@ class Workerunit extends Entity {
         
         return array('relations' => $answer, 'other' => $other);
     }
-
+*/
     public function createAnnotationVectorMetaDEvents() {
         $debug = false;
 
