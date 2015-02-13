@@ -134,6 +134,7 @@
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
+							<li><a href="{{ URL::to('media/importresults') }}">Import Results</a></li>
 							<li><a href="#" class='toSelection'>Save Selection as Batch</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
 						<li role="presentation" class="divider"></li>

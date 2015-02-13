@@ -11,6 +11,7 @@ use \MongoDB\UserAgent as UserAgent;
 use \MongoDB\SoftwareComponent as SoftwareComponent;
 use \SoftwareComponents\FileUploader as FileUploader;
 use \SoftwareComponents\MediaSearchComponent as MediaSearchComponent;
+use \SoftwareComponents\ResultImporter as ResultImporter;
 
 use \MongoDB\Security\ProjectHandler as ProjectHandler;
 use \MongoDB\Security\Permissions as Permissions;
@@ -39,7 +40,7 @@ class MediaController extends BaseController {
 	}
 
 	public function getPreprocess() {
-		return Redirect::to('media/preprocess/text')	;
+		return Redirect::to('media/preprocess/text');
 	}
 
 	/**
@@ -113,6 +114,9 @@ class MediaController extends BaseController {
 		return $label;
 	}
 
+	/**
+	 * page with current index
+	 */
 	public function getListindex()
 	{
 		$searchComponent = new MediaSearchComponent();
@@ -120,6 +124,48 @@ class MediaController extends BaseController {
 		$formats = $searchComponent->getFormats();
 		return View::make('media.search.pages.listindex')->with('keys', $keys)->with('formats',$formats);
 	}
+	
+	/**
+	 * page to add results
+	 */
+	public function getImportresults()
+	{
+		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
+		$projects = ProjectHandler::getUserGroups(Auth::user());
+		$projects = array_column($projects, 'name');
+		
+		return View::make('media.search.pages.importresults')->with('mainSearchFilters', $mainSearchFilters)->with('projects', $projects);;
+	}
+	
+	
+	
+	/**
+	 * function to add results
+	 */
+	public function postImportresults()
+	{
+		try {
+			$fileFormat = Input::get('file_format');
+			$domain = Input::get('domain_type');
+			$documentType = Input::get('document_type');
+			$domainCreate = Input::get('domain_create');
+			$documentCreate = Input::get('document_create');
+			$files = Input::file('files');
+			$project = Input::get('projectname');
+			
+			$uploader = new FileUploader();
+			$status_upload = $uploader->store($fileFormat, $domain, $documentType, $project, $domainCreate, 
+					$documentCreate, $files);
+			
+			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
+			return $uploadView;
+		} catch (Exception $e){
+			dd([$e->getMessage(),Input::all()]);
+			return Redirect::back()->with('flashError', $e->getMessage());
+		}
+	}
+	
+	
 	
 	
 	/**
