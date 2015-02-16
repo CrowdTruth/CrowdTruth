@@ -3,185 +3,240 @@ namespace SoftwareComponents;
 
 use \MongoDB\Activity as Activity;
 use \MongoDB\Entity as Entity;
+use \MongoDB\CrowdAgent as CrowdAgent;
+use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDB\SoftwareComponent as SoftwareComponent;
 
 use \Validator as Validator;
 use \File as File;
+use \MongoDate;
 
 class ResultImporter {
 	protected $softwareComponent;
 	
-	protected $validationRules = [
-			'text' => ['file' => 'mimes:txt|max:900000'],
-			'images' => ['file' => 'mimes:png|jpg|max:2000'],
-			'videos' => ['file' => 'mimes:mp4|avi|max:2000']
-	];
-	
-	protected $extraAllowedMimeTypes = [
-			'text' => [
-					'text/plain',
-					'text/anytext',
-					'application/txt',
-					'application/octet-stream',
-					'text/x-c',
-					'text/x-asm',
-					'text/x-pascal',
-					'text/x-c++'
-			],
-			'images' => [
-					'text/plain' // To be added
-			],
-			'videos' => [
-					'text/plain' // To be added
-			]
-	];
-
 	public function __construct() {
-		$this->softwareComponent = SoftwareComponent::find('fileuploader');
+		if(!SoftwareAgent::find('resultimporter'))
+		{
+			$softwareAgent = new SoftwareAgent;
+			$softwareAgent->_id = "resultimporter";
+			$softwareAgent->label = "This component adds existing results from a file";
+			$softwareAgent->save();
+		}
+		
+		if(!SoftwareComponent::find('resultimporter'))
+		{
+			$SoftwareComponent = new SoftwareComponent;
+			$SoftwareComponent->_id = "resultimporter";
+			$SoftwareComponent->label = "This component adds existing results from a file";
+			$SoftwareComponent->save();
+		}
 	}
 
 	/**
-	 * Store a new file to the database. Construct all entity information for such file.
-	 * 
-	 * @param $fileFormat
-	 * @param $domain
-	 * @param $documentType
-	 * @param $project			The name of the Project who owns the file data.
-	 * @param $domainCreate
-	 * @param $documentCreate
-	 * @param $files
+	 *	Create result importer activity
 	 */
-	public function store($fileFormat, $domain, $documentType, $project, $domainCreate, $documentCreate, $files) {
-		$format = $this->getType($fileFormat);
-		$validatedFiles = $this->performValidation($files, $format);
-		
-		$newDomain = false;
-		$newDocType = false;
-		if($domain == 'domain_type_other') {
-			// Add new domain to DB
-			$domain = $domainCreate;
-			$domain = str_replace(' ', '', $domain);
-			$domain = strtolower($domain);
-			$domain = 'domain_type_'.$domain;
-			$newDomain = true;
+	public function createActivity()
+	{
+		$activity = new Activity;
+		$activity->softwareAgent_id = "resultimporter";
+		$activity->save();
+
+		return $activity;
+	}
+	
+	
+	/**
+	 *	Translate csv file into array
+	 */
+	public function readCSV($file)
+	{
+		$data = [];
+		$handle = fopen($file, 'r');
+		while (($line = fgetcsv($handle)) !== FALSE) {
+			array_push($data, $line);
 		}
-			
-		if($documentType == 'document_type_other') {
-			// Add new doc_type to DB
-			$documentType = $documentCreate;
-			$newDocType;
-		}
-			
-		if($newDomain || $newDocType) {
-			if($newDomain) {
-				// newDomain and new DocType
-				$domainName = $domainCreate;
-				$upDomains = $this->softwareComponent->domains;
-				$upDomains[$domain] = [
-					"name" => $domainName,
-					"file_formats" => [	$fileFormat ],
-					"document_types" => [ $documentType ]
-				];
-				$this->softwareComponent->domains = $upDomains;
-			} else if($newDocType) {
-				// Only docType is new -- domain already existed...
-				$docTypes = $this->softwareComponent->domains[$domain]["document_types"];
-				array_push($docTypes, $documentType);
-				$this->softwareComponent->domains[$domain]["document_types"] = $docTypes;
-			}
-			$this->softwareComponent->save();
-		}
+		fclose($handle);
 		
-		$domain = str_replace("domain_type_", "", $domain);
-		$documentType = str_replace("document_type_", "", $documentType);
+		return $data;
+	}
+	
+	
+	/**
+	 *	Create job entity
+	 */
+	public function createJob($config, $activity)
+	{
 		
-		$status = [];
+		$entity = new Entity;
+		$entity->_id = $entity->_id;
+		$entity->domain = "cultural";
+		$entity->format = "text";
+		$entity->documentType = "job";
+		$entity->type = "VideoDescrHighlighting_";
+		$entity->workerUnitsCount = 450;
+		$entity->batch_id = "entity/video/cultural/batch/1";
+		$entity->completion = 1;
+		$entity->expectedWorkerUnitsCount = 450;
+		$entity->finishedAt = new MongoDate;
+		$entity->jobConf_id = $config;
+		//$entity->platformJobId = $jobId;
+		$entity->projectedCost = 12.00;
+		$entity->realCost = 11.97;
+		$entity->runningTimeInSeconds = 190714;
+		$entity->softwareAgent_id = "cf";
+		$entity->startedAt = new MongoDate;
+		$entity->status = "finished";
+		$entity->template = "text/VideoDescr/VideoDescrHighlighting_v2_";
+		$entity->unitsCount = 30;
+		$entity->workersCount = 72;
+		$entity->activity_id = $activity;  
+		$entity->save();
 		
-		try {
-			$activity = new Activity;
-			$activity->softwareAgent_id = "fileuploader";
-			$activity->save();
-		} catch (Exception $e) {
-			// Something went wrong with creating the Activity
-			$activity->forceDelete();
-			$status['error'] = $e->getMessage();
-			return $status;
-		}
+		return $entity;
+
+	}
+
+	/**
+	 *	Create job configuration
+	 */
+	public function createJobconf($activity)
+	{
+
+		$entity = new Entity;
+		$entity->domain = "cultural";
+		$entity->format = "text";
+		$entity->documentType = "jobconf";
+		$entity->tags = array("VideoDescrHighlighting_");
+		$entity->type = "VideoDescrHighlighting_";
+				
+		$content = array();
+		$content["type"] = "VideoDescrHighlighting_v2_";
+		$content["platform"] = array('cf');
+		$content["expirationInMinutes"] = 3;
+		$content["reward"] = 0.02;
+		$content["workerunitsPerUnit"] = 15;
+		$content["workerunitsPerWorker"] = 10;
+		$content["unitsPerTask"] = 7;
+		$content["title"] = "Tag events and event-related concepts (Dutch language required)";
+		$content["description"] = "N/A";
+		$content["keywords"] = "event tagging, event-related concepts tagging, text annotation";
+		$content["instructions"] = "Perform the two steps in the following TEXT: \n\n STEP1: Highlight the PHRASES (i.e. SINGLE or MULTIPLE-word phrases) that refer to EVENTS, event LOCATION, event TIME, event PARTICIPANTS, or OTHER event-related concepts. \n\n OBS: Please do not highlight time concepts that clearly represent SHOTS timings (e.g. 00:54). \n\n STEP2.: Select a corresponding TYPE for each selected PHRASE in STEP 1: Event, Location, Time, Participants, Other. \n\n To highlight a SINGLE word click on it in text. \n\n To highlight a MULTIPLE-WORD PHRASE drag your cursor across the range of words in the text you want to select. \n\n You can remove highlighted PHRASES by clicking on the [X] button in STEP2.";
+		$entity->content = $content;
+		$entity->hash = md5(serialize([$entity->content]));             
+		$entity->activity_id = $activity;  
+		$entity->save();
 		
-		$files = $validatedFiles['passed'];
-		foreach($files as $file){
-			$title = $file->getClientOriginalName();
+		return $entity;
+	}
+
+	/**
+	 * Create crowd agent
+	 */
+	public function createCrowdAgent($workerId, $country, $region, $city, $cfWorkerTrust) {
+		$agent = new CrowdAgent;
+		$agent->_id= "crowdagent/cf/$workerId";
+		$agent->softwareAgent_id= "cf";
+		$agent->platformAgentId = $workerId;
+		$agent->city = $city;
+		$agent->country = $country;
+		$agent->region = $region;
+		$agent->cfWorkerTrust = $cfWorkerTrust;
+		$agent->save();
+	  //  dd($agent);           
+	}
+	
+	/**
+	 * Create worker unit
+	 */
+	public function createWorkerUnit($activityId, $unitId, $acceptTime, $channel, $trust, $content, $agentId, $annVector, $jobId, $annId, $submitTime, $conceptType) 
+	{
+		$status = array();
 
 			try {
 				$entity = new Entity;
 				$entity->_id = $entity->_id;
-				$entity->title = strtolower($title);
-				$entity->domain = $domain;
+				$entity->domain = "cultural";
 				$entity->format = "text";
-				$entity->documentType = $documentType;
-				$entity->content = File::get($file->getRealPath());
-				$entity->hash = md5(serialize([$entity->content]));
-				$entity->activity_id = $activity->_id;
-				$entity->project = $project;
-				$entity->tags = [ "unit" ];
+				$entity->documentType = "workerunit";
+				$entity->activity_id = $activityId; 
+				$entity->acceptTime = $acceptTime;
+				$entity->cfChannel = $channel;
+				$entity->type = "VideoDescrHighlighting_v2_" . $conceptType;
+				$entity->cfTrust = $trust;
+				$entity->content = $content;
+				$entity->crowdAgent_id = $agentId;
+				$annType = array();
+				$annType[$conceptType] = $annVector;
+				$entity->annotationVector = $annType;
+				$entity->job_id = $jobId;
+				$entity->platformWorkerUnitId = $annId;
+				$entity->softwareAgent_id = "cf";
+				$entity->spam = false;
+				$entity->submitTime = $submitTime;
+				$entity->unit_id = $unitId;
 				$entity->save();
-		
-				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
+				
+			//    $status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
 			} catch (Exception $e) {
-				// Something went wrong with creating the Entity
-				$activity->forceDelete();
+						// Something went wrong with creating the Entity
+			   
 				$entity->forceDelete();
-				$status['error'][$title] = $e->getMessage();
+				$status['error']["smth"] = $e->getMessage();
 			}
-		}
-		
+	   // }
+
 		return $status;
 	}
-
+	 
+	 
 	/**
-	 * Validate that input format is of a know file format: file_format_text,
-	 * file_format_image or file_format_video.
-	 * 
-	 * @param $format   Text representation of the file format.
-	 * @throws Exception if file is of an unknown format type.
+	 * Create worker unit
 	 */
-	private function getType($format){
-		switch ($format) {
-			case 'file_format_text':
-				return 'text';
-			case 'file_format_image':
-				return 'image';
-			case 'file_format_video':
-				return 'video';
+	public function process($file, $settings)
+	{
+	
+		$status = array();
+
+		try {
+		
+			// Create activity
+			$activity = $this->createActivity();
+			
+			// read file content and put it into an array
+			$data = $this->readCSV($file);
+
+			
+			// Create job configuration
+			$jobconfig = $this->createJobconf($activity->id);
+			
+			// Create job
+			$job = $this->createJob($jobconfig->_id, $activity->id);
+
+
+		} catch (Exception $e) {
+			$status['error'] = $e->getMessage();
+			$activity->forceDelete();   
+			$jobconfig->forceDelete();   
+			$job->forceDelete();
+			
+			return $status;
 		}
-		throw new \Exception('Invalid "Type of File" selected');
-	}
-
-	/**
-	 * Perform Mime types and size validations.
-	 * 
-	 * @param $files  Files to be validated
-	 * @param $format Format of files to be validated (different rules apply to different formats)
-	 * @return An array with two lists: one of valid ('passed') and one of invalid ('failed') files.
-	 */
-	private function performValidation($files, $format) {
-		$validatedFiles = [];
-		foreach($files as $fileKey => $file){
-			$validator = Validator::make(array('file' => $file), $this->validationRules[$format]);
-
-			if($validator->passes()){
-				$validatedFiles['passed'][$fileKey] = $file;
-			} else {
-				// Sometimes the Validator fails because it does not recognize all MimeTypes
-				// To solve this we check the MimeTypes in the uploaded files against our own list of allowed MimeTypes (extraAllowedMimeTypes)
-				if(in_array($file->getMimeType(), $this->extraAllowedMimeTypes[$format])){
-					$validatedFiles['passed'][$fileKey] = $file;
-				} else {
-					$validatedFiles['failed'][$fileKey] = $file;
-				}
+	
+		// for all judgments, add a workerunit
+		for ($i = 1; $i < count($data); $i ++) {
+			
+			$crowdagent = CrowdAgent::where('_id', "crowdagent/cf/" . $data[$i][7])->first();
+			if(!$crowdagent) {
+				$this->createCrowdAgent($data[$i][7], $data[$i][8], $data[$i][9], $data[$i][10], $data[$i][6]);
 			}
-		}
 
-		return $validatedFiles;
+			$this->createWorkerUnit($activity->id, $judgments[$j]["unit_data"]["_id"], $judgments[$j]["started_at"], 
+			$judgments[$j]["external_type"], $judgments[$j]["worker_trust"], $judgments[$j]["data"], $workerId, 
+			$annUnits[$units_id[$i]][$judgments[$j]["worker_id"]]["event"], $jobs["event"]["job_id"], $judgments[$j]["id"], 
+			$judgments[$j]["created_at"], "event");
+			   
+			}
+		   
+		}
 	}
 }

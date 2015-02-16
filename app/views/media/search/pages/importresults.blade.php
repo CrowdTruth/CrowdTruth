@@ -45,62 +45,95 @@
 						</div>
 					@endif
 
+					
+					{{ Form::open(array('action' => 'MediaController@postImportresults', 'files' => 'true')) }}
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h4><i class="fa fa-upload fa-fw"></i>Select CSV result file</h4>
+								<h4><i class="fa fa-file-text-o fa-fw"></i> Select CSV result file</h4>
 							</div>
 							<div class="panel-body">							
-
-								{{ Form::open(array('action' => 'MediaController@postImportresults', 'files' => 'true')) }}
 								<div class="form-horizontal">
-								
+							
 									<div class="form-group">
 										<label for="category" class="col-sm-3 control-label">Choose File(s)</label>
 										<div class="col-sm-6">
-											<input type="file" name="files[]" class="btn uploadInput" multiple />
-											<!-- <p class='uploadHelpText'>Allowed filetypes are: txt</p> -->
+											<input type="file" name="file" class="btn uploadInput" />
+											<p class='help-block'>Select a CSV file with the full results of a CrowdFlower job.</p>
 										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h4><i class="fa fa-sign-in fa-fw"></i> Input data</h4>
+							</div>
+							<div class="panel-body">							
+								<div class="form-horizontal">
+								
+									<div class="form-group">
+										<div class='col-xs-12'>Select the type of the original input of the job that is included in the result file. If the original input data does not yet exist in the platform, it will be added.</div>
 									</div>
 								
 									<div class="form-group">
-										<label for="domain_type" class="col-sm-3 control-label">Type of Results</label>
+										<label for="domain_type" class="col-sm-3 control-label">Input Type</label>
 										<div class="col-sm-5">
 											@if(isset($mainSearchFilters['media']['categories']))
-												<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-													<option value="new" class="select_new">New Type</option>
+												<select disabled name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+													<option value="sound" class="select_sound" data-subtext="5 Items">Sounds</option>
 													@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
 														<optgroup label="{{ $project }}">
 															@foreach($documentTypes as $key => $doctype)
-																<option value="{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>
+																{{--<option value="{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>--}}
 															@endforeach
 														</optgroup>
 													@endforeach
 												</select>
 											@endif
+											
 										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+									
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h4><i class="fa fa-sign-out fa-fw"></i> Output data</h4>
+							</div>
+							<div class="panel-body">							
+								<div class="form-horizontal">
+								
+									<div class="form-group">
+										<div class='col-xs-12'>Select the type of the results, this will decide the answer vector on which the CrowdTruth metrics are used. For both the type of input and results, you can either select an existing document type, or create a new one. Though, both the input and results must be saved into the same project.</div>
 									</div>
 									
 									<div class="form-group">
-										<label for="domain_type" class="col-sm-3 control-label">Project</label>
+										<label for="domain_type" class="col-sm-3 control-label">Output Type</label>
 										<div class="col-sm-5">
-											<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-												@foreach($projects as $project)
-													<option value="{{ $project }}" class="select_{{ $project }}">{{ $project }}</option>
-												@endforeach
-											</select>	
+											@if(isset($mainSearchFilters['media']['categories']))
+												<select disabled name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+													<option value="sound" class="select_sound" data-subtext="100 Items">Sound Keywords</option>
+													@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
+														<optgroup label="{{ $project }}">
+															@foreach($documentTypes as $key => $doctype)
+																{{--<option value="{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>--}}
+															@endforeach
+														</optgroup>
+													@endforeach
+												</select>
+											@endif
+
 										</div>
-									</div>
-	
-									<div class="form-group" id="button">
-										<div class="col-sm-offset-3 col-sm-5">
-										{{ Form::button('Submit', array('type' => 'submit', 'value' => 'onlinedata', 'class' => 'btn btn-info')) }} 										
-										</div>
-									</div>
-									
+									</div>								
 								</div>
-								{{ Form::close() }}
+							</div>
+							<div class='panel-footer'>
+								{{ Form::button('Add results', array('type' => 'submit', 'value' => 'onlinedata', 'class' => 'btn btn-primary')) }} 										
 							</div>
 						</div>
+					{{ Form::close() }}
 					</div>
 				</div>
 				<!-- STOP upload_content --> 				

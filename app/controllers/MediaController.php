@@ -145,22 +145,27 @@ class MediaController extends BaseController {
 	public function postImportresults()
 	{
 		try {
-			$fileFormat = Input::get('file_format');
-			$domain = Input::get('domain_type');
-			$documentType = Input::get('document_type');
-			$domainCreate = Input::get('domain_create');
-			$documentCreate = Input::get('document_create');
-			$files = Input::file('files');
-			$project = Input::get('projectname');
 			
-			$uploader = new FileUploader();
-			$status_upload = $uploader->store($fileFormat, $domain, $documentType, $project, $domainCreate, 
-					$documentCreate, $files);
+			$files = Input::file('file');
 			
-			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
-			return $uploadView;
+			$settings = [];
+			$settings['inputType'] = 'sound';
+			//$inputFormat = 'text';
+			//$inputDomain = 'medical';
+			
+			$settings['outputType'] = 'sound-keywords';
+			//$outputFormat = 'text';
+			//$outputDomain = 'medical2';
+			
+			$settings['project'] = 'test';
+
+
+			$importer = new ResultImporter();
+			
+			$status = $importer->process($files, $settings);
+			
+			return Redirect::back()->with('flashSuccess', $status);
 		} catch (Exception $e){
-			dd([$e->getMessage(),Input::all()]);
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}
 	}
