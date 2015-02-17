@@ -157,14 +157,19 @@ class MediaController extends BaseController {
 			//$outputFormat = 'text';
 			//$outputDomain = 'medical2';
 			
-			$settings['project'] = 'test';
+			$settings['project'] = 'soundproject';
 
-
+			// process file
 			$importer = new ResultImporter();
-			
 			$status = $importer->process($files, $settings);
 			
-			return Redirect::back()->with('flashSuccess', $status);
+			Session::flash('flashSuccess', $status['success']);
+			if($status['notice']) {
+				Session::flash('flashNotice', $status['notice']);
+			}
+			
+			return View::make('media.search.pages.importresults');
+			
 		} catch (Exception $e){
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}

@@ -12,47 +12,20 @@
 				<!-- START upload_content --> 
 				<div class="col-xs-10 col-sm-offset-1">
 					<div class='maincolumn CW_box_style'>
-	@include('layouts.flashdata')	
+	@include('layouts.flashdata')
 	@include('media.layouts.nav_new')	
-
-					@if (isset($status_upload['error']))
-						<div class="panel panel-danger">
-							<div class="panel-heading">
-								<h4><i class="fa fa-exclamation-triangle fa-fw"></i>Error</h4>
-							</div>
-							<div class="panel-body CW_messages">
-								<ul class="list-group">
-						@foreach ($status_upload['error'] as $status_message)
-							<li class="list-group-item"><span class='message'> {{ $status_message }} </li>
-						@endforeach
-								</ul>
-							</div>
-						</div>
-					@endif
-
-					@if(isset($status_upload['success']))
-						<div class="panel panel-success">
-							<div class="panel-heading">
-								<h4><i class="fa fa-check fa-fw"></i>Success</h4>
-							</div>
-							<div class="panel-body CW_messages">
-								<ul class="list-group">
-						@foreach ($status_upload['success'] as $status_message)
-							<li class="list-group-item"><span class='message'> {{ $status_message }} </li>
-						@endforeach
-								</ul>
-							</div>
-						</div>
-					@endif
-
-					
+				
 					{{ Form::open(array('action' => 'MediaController@postImportresults', 'files' => 'true')) }}
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h4><i class="fa fa-file-text-o fa-fw"></i> Select CSV result file</h4>
+								<h4><i class="fa fa-file-text-o fa-fw"></i> Input file</h4>
 							</div>
 							<div class="panel-body">							
 								<div class="form-horizontal">
+							
+									<div class="form-group">
+										<div class='col-xs-12'>On this page you can add crowdsourcing results from a csv file. This will recreate the original input data, crowdsourcing job and output data as if it was ran on CrowdTruth. Additionally, the result file is saved in the system so that it can be re-used.</div>
+									</div>
 							
 									<div class="form-group">
 										<label for="category" class="col-sm-3 control-label">Choose File(s)</label>
@@ -67,7 +40,7 @@
 						
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h4><i class="fa fa-sign-in fa-fw"></i> Input data</h4>
+								<h4><i class="fa fa-sign-in fa-fw"></i> Input Data</h4>
 							</div>
 							<div class="panel-body">							
 								<div class="form-horizontal">
@@ -100,7 +73,7 @@
 									
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h4><i class="fa fa-sign-out fa-fw"></i> Output data</h4>
+								<h4><i class="fa fa-sign-out fa-fw"></i> Output Data</h4>
 							</div>
 							<div class="panel-body">							
 								<div class="form-horizontal">
