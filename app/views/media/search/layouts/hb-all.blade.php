@@ -233,11 +233,3 @@
 	    </table>
     </div>											
 </div>
-<script>
-	$("#col_1").change(function() {
-		var searchColumn = this.val();
-		var myId = this.id;
-		$("#" + myId + "_search").attr("data-query-key", "match[" + searchColumn + "]");
-		
-	});
-</script>

@@ -63,6 +63,7 @@ class ResultImporter {
 	
 	/**
 	 *	Create job entity
+	 * 	Note: the job does not get a platformJobId because this is unknown
 	 */
 	public function createJob($config, $activity)
 	{
@@ -79,13 +80,12 @@ class ResultImporter {
 		$entity->expectedWorkerUnitsCount = 450;
 		$entity->finishedAt = new MongoDate;
 		$entity->jobConf_id = $config;
-		//$entity->platformJobId = $jobId;
 		$entity->projectedCost = 12.00;
 		$entity->realCost = 11.97;
 		$entity->runningTimeInSeconds = 190714;
 		$entity->softwareAgent_id = "cf";
 		$entity->startedAt = new MongoDate;
-		$entity->status = "finished";
+		$entity->status = "imported";
 		$entity->template = "text/VideoDescr/VideoDescrHighlighting_v2_";
 		$entity->unitsCount = 30;
 		$entity->workersCount = 72;

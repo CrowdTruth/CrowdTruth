@@ -79,11 +79,6 @@
 				</div>
 				<div class='col-xs-12 searchResults'>				
 					<ul class="nav nav-tabs documentTypesNav hidden">
-						<li id="all_nav">
-							<a href="#all_tab" data-toggle="tab">
-								All
-							</a>
-						</li>
 						<li id="job_nav">
 							<a href="#job_tab" data-toggle="tab">
 								Jobs
@@ -91,12 +86,8 @@
 						</li>
 					</ul>    								
 					<div class="tab-content documentTypesTabs">
-						@include('media.search.layouts.hb-all')
-
-						@if(isset($mainSearchFilters['job']))
-							@include('media.search.layouts.hb-job')
-						@endif
-
+						@include('media.search.layouts.hb-job')
+	
 						@include('media.search.layouts.hb-modalindividualworker')
 						@include('media.search.layouts.hb-modalworkerunits')
 						@include('media.search.layouts.hb-modalindividualunit')
@@ -814,7 +805,6 @@ function getResults(baseApiURL){
 		return false;
 	}
 
-
 	$('.searchStats').text('Processing...');
 
 	abortAjax(xhr);
@@ -831,7 +821,9 @@ function getResults(baseApiURL){
 		}
 
 		var template = Handlebars.compile(templates[activeTabKey]);
+
 		var html = template(data);
+
 		$('.cw_pagination').empty().prepend($(data.pagination));
 		$('.cw_pagination').find('.pagination').addClass('pagination-sm');
 		$(activeTabKey).find('.results').empty().append(html);
