@@ -10,7 +10,7 @@
 				      </div>
 				      <div class="modal-body" >
 					<div><strong>Platform Name: </strong> @{{ this.infoStat.softwareAgent_id }} </div>
-					<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{#ifarray this.infoStat.platformJobId }} @{{/ifarray}} </div>
+					<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{#if this.platformJobId }}@{{#ifarray this.infoStat.platformJobId }} @{{/ifarray}} @{{/if}}</div>
 					<div><strong>Creation Date: </strong> @{{ this.infoStat.startedAt }} </div>
 					<div><strong>Finish Date: </strong> @{{ this.infoStat.finishedAt }} </div>
 					<div><strong>Type: </strong> @{{ this.infoStat.type }} </div>
@@ -38,7 +38,7 @@
 					    <div id="collapseOne" class="panel-collapse collapse in">
 					      <div class="panel-body">
 						<div><strong>Platform Name: </strong> @{{ this.infoStat.softwareAgent_id }} </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{#ifarray this.infoStat.platformJobId }} @{{/ifarray}} </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{#if this.platformJobId }} @{{#ifarray this.infoStat.platformJobId }} @{{/ifarray}} @{{/if}} </div>
 						<div><strong>Running Time: </strong> @{{#formatTime this.infoStat.runningTimeInSeconds }}@{{/formatTime}} </div>
 						<div><strong>Creation Date: </strong> @{{ this.infoStat.startedAt }} </div>
 						<div><strong>Finish Date: </strong> @{{ this.infoStat.finishedAt }} </div>
