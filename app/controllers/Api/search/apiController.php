@@ -40,14 +40,17 @@ class apiController extends BaseController {
 
 		// Filter data for projects for which the authenticated user has permissions.
 		if(Input::has('authkey')) {
-			return 'auth key not yet implemented on API.';
+			$user = \MongoDB\UserAgent::where('api_key', Input::get('authkey'))->first();
+			if(is_null($user)) {
+				return [ 'error' => 'Invalid auth key: '.Input::get('authkey') ];
+			}
 		} elseif(Auth::check()) {
 			$user = Auth::user();
-			$projects = ProjectHandler::getUserProjects($user, Permissions::PROJECT_READ);
-			$projectNames = array_column($projects, 'name');
 		} else {
-			return 'Not logged in -> no data';
+			return [ 'error' => 'Authentication required. Please supply authkey.' ];
 		}
+		$projects = ProjectHandler::getUserProjects($user, Permissions::PROJECT_READ);
+		$projectNames = array_column($projects, 'name');
 		$collection = $collection->whereIn('project', $projectNames);
 
 		if(Input::has('match'))
@@ -124,7 +127,7 @@ class apiController extends BaseController {
 					{
 						$csvRow[str_replace('.', '_', $column)] = "";
 					}
-				}				
+				}
 
 				$writer->insertOne($csvRow);
 			}
@@ -166,7 +169,7 @@ class apiController extends BaseController {
 				$collection->update($data, array('upsert' => true));
 			}
 
-			return $collection->get();			
+			return $collection->get();
 		}
 	}
 
@@ -194,7 +197,7 @@ class apiController extends BaseController {
 				}
 
 				return Response::json($original);
-			}			
+			}
 		}
 	}
 
@@ -248,12 +251,12 @@ class apiController extends BaseController {
 				if(is_numeric($value))
 				{
 					$value = (int) $value;
-				}					
+				}
 
 				$collection = $collection->whereIn($field, array($value));
 			}
 		}
 
-		return $collection;		
+		return $collection;
 	}
 }
