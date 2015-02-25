@@ -78,7 +78,7 @@ class apiController extends BaseController {
 
 			$sortingColumnName = $sortingColumnName == "_id" ? "natural" : $sortingColumnName;
 
-			$iTotalDisplayRecords = new \MongoDB\Entity;
+			$iTotalDisplayRecords = new Entity;
 			$iTotalDisplayRecords = $this->processFields($iTotalDisplayRecords);
 			$iTotalDisplayRecords = $iTotalDisplayRecords->count();
 		
@@ -86,7 +86,7 @@ class apiController extends BaseController {
 
 			if($input = Input::get('field'))
 			{
-				$iTotalRecords = new \MongoDB\Entity;
+				$iTotalRecords = new Entity;
 
 				if(isset($input['format']))
 				{
