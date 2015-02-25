@@ -1,9 +1,4 @@
 <?php
-
-namespace MongoDB;
-use \Moloquent;
-use \Job;
-
 class CrowdAgent extends Moloquent {
 
 	protected $collection = 'crowdagents';
@@ -53,7 +48,7 @@ class CrowdAgent extends Moloquent {
 
 
                 // take all distinct batches
-                $distinctBatchIds = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('batch_id')->get(['_id']);
+                $distinctBatchIds = Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('batch_id')->get(['_id']);
 
 
                 $cache["mediaTypes"] = [
@@ -65,9 +60,9 @@ class CrowdAgent extends Moloquent {
                
                 
                 foreach($distinctBatchIds as $distinctBatchId) {
-                    $batchParents = array_flatten(\MongoDB\Entity::where('_id', '=', $distinctBatchId[0])->lists('parents'));
+                    $batchParents = array_flatten(Entity::where('_id', '=', $distinctBatchId[0])->lists('parents'));
                     //print_r($batchParents[0]);
-                    $batchParentsType = \MongoDB\Entity::where('_id', '=', $batchParents[0])->distinct('documentType')->get(['documentType']);
+                    $batchParentsType = Entity::where('_id', '=', $batchParents[0])->distinct('documentType')->get(['documentType']);
                     //print_r(array_flatten($batchParentsType->toArray())[0]);
                     if(isset($cache["mediaTypes"]["types"][array_flatten($batchParentsType->toArray())[0]])) {
                         $cache["mediaTypes"]["types"][array_flatten($batchParentsType->toArray())[0]] = $cache["mediaTypes"][array_flatten($batchParentsType->toArray())[0]] + 1;
@@ -122,18 +117,18 @@ class CrowdAgent extends Moloquent {
 
 
                     foreach($distinctMediaFormats as $distinctMediaFormat) {
-                        $distinctMediaFormatAndCount = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('format', $distinctMediaFormat)->count();
+                        $distinctMediaFormatAndCount = Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('format', $distinctMediaFormat)->count();
                         $cache["mediaFormats"]["formats"][$distinctMediaFormat] = $distinctMediaFormatAndCount;
                     }           
 
 
                     foreach($distinctMediaDomains as $distinctMediaDomain) {
-                        $distinctMediaDomainAndCount = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('domain', $distinctMediaDomain)->count();
+                        $distinctMediaDomainAndCount = Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('domain', $distinctMediaDomain)->count();
                         $cache["mediaDomains"]["domains"][$distinctMediaDomain] = $distinctMediaDomainAndCount;
                     }                                                   
                 }
 
-                $jobsAsSpammer = \MongoDB\Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereIn('metrics.spammers.list', [$this->_id])->lists('platformJobId');
+                $jobsAsSpammer = Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereIn('metrics.spammers.list', [$this->_id])->lists('platformJobId');
                 $cache["spammer"]["count"] = count($jobsAsSpammer);
                 $cache["spammer"]["jobs"] = array_flatten($jobsAsSpammer);
 
@@ -193,7 +188,7 @@ class CrowdAgent extends Moloquent {
         	$countthese = array_diff($countthese, array('type')); // UNITs have no type, so remove this from the array.
         	$total = array('count' => count(array_unique($unitids)));
         	foreach(array_unique($unitids) as $unitid){
-        		if($a = \MongoDB\Entity::id($unitid)->first()){
+        		if($a = Entity::id($unitid)->first()){
             		foreach($countthese as $x){
             			if(isset($total[$x][$a->$x])) $total[$x][$a->$x]++;
             			else $total[$x][$a->$x] = 1;
@@ -209,7 +204,7 @@ class CrowdAgent extends Moloquent {
 
 	// TODO: Can be removed.
 	public function hasGeneratedWorkerunits(){
-		return $this->hasMany('\MongoDB\Entity', 'crowdAgent_id', '_id');
+		return $this->hasMany('Entity', 'crowdAgent_id', '_id');
 	}
 
 	public function workerunits(){

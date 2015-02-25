@@ -1,12 +1,6 @@
 <?php
 namespace SoftwareComponents;
 
-use \MongoDB\Activity as Activity;
-use \MongoDB\Entity as Entity;
-use \MongoDB\CrowdAgent as CrowdAgent;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
-use \MongoDB\SoftwareComponent as SoftwareComponent;
-
 use \Validator as Validator;
 use \File as File;
 use \MongoDate;
@@ -68,14 +62,14 @@ class ResultImporter {
 	public function createJob($config, $activity)
 	{
 		
-		$entity = new Entity;
+		$entity = new Job;
 		$entity->_id = $entity->_id;
-		$entity->domain = "cultural";
+		$entity->domain = "sound";
 		$entity->format = "text";
 		$entity->documentType = "job";
-		$entity->type = "VideoDescrHighlighting_";
+		$entity->type = "sound";
 		$entity->workerUnitsCount = 450;
-		$entity->batch_id = "entity/video/cultural/batch/1";
+		$entity->batch_id = "entity/sound/sound/batch/1";
 		$entity->completion = 1;
 		$entity->expectedWorkerUnitsCount = 450;
 		$entity->finishedAt = new MongoDate;
@@ -86,10 +80,10 @@ class ResultImporter {
 		$entity->softwareAgent_id = "cf";
 		$entity->startedAt = new MongoDate;
 		$entity->status = "imported";
-		$entity->template = "text/VideoDescr/VideoDescrHighlighting_v2_";
+		$entity->template = "text/sound/sound_annotation";
 		$entity->unitsCount = 30;
 		$entity->workersCount = 72;
-		$entity->activity_id = $activity;  
+		$entity->activity_id = $activity;
 		$entity->save();
 		
 		array_push($this->status['success'], "Job created (" . $entity->_id . ")");
@@ -111,12 +105,17 @@ class ResultImporter {
 		// check if file already exists
 		if($entity)
 		{
+			// throw exception for now, as we dont want readding processed files
+			throw new \Exception("This file already exists");
+		
+			// do not delete this on rollback
+			$entity->_existing = true;
 			array_push($this->status['notice'], "Existing file found (" . $entity->_id . ")");
 		} else {
 			$entity = new Entity;
 			$entity->_id = $entity->_id;
 			$entity->title = strtolower($file->getClientOriginalName());
-			$entity->domain = 'none';
+			$entity->domain = 'sound';
 			$entity->format = "text";
 			$entity->documentType = 'file';
 			$entity->content = $content;
@@ -125,6 +124,7 @@ class ResultImporter {
 			$entity->project = $project;
 			$entity->tags = [ "unit" ];
 			$entity->save();
+			
 			array_push($this->status['success'], "File created (" . $entity->_id . ")");
 		}
 		return $entity;
@@ -138,13 +138,21 @@ class ResultImporter {
 		$hash = md5(serialize([$content]));
 		
 		$entity = Entity::withTrashed()->where('hash', $hash)->first();
+		
 		// check if unit already exists
 		if($entity) {
-			$this->duplicateUnits++;
+			// check if already in this job
+			if(!array_key_exists($entity->_id, $this->units)) {
+				$this->duplicateUnits++;
+				// do not delete this on rollback
+				$entity->_existing = true;
+				
+				$this->units[$entity->_id] = $entity;
+			}
 		} else {
 			$entity = new Entity;
 			$entity->_id = $entity->_id;
-			$entity->domain = 'none';
+			$entity->domain = 'sound';
 			$entity->format = "text";
 			$entity->documentType = $docType;
 			$entity->parents = [$parent];
@@ -154,6 +162,8 @@ class ResultImporter {
 			$entity->project = $project;
 			$entity->tags = [ "unit" ];
 			$entity->save();
+			
+			$this->units[$entity->_id] = $entity;
 		}
 		return $entity;
 	}
@@ -163,34 +173,36 @@ class ResultImporter {
 	/**
 	 *	Create job configuration
 	 */
-	public function createJobconf($activity)
+	public function createJobconf($activity, $settings)
 	{
 		$content = array();
 		$content["type"] = "virtual";
 		$content["platform"] = array('cf');
 		$content["expirationInMinutes"] = 3;
 		$content["reward"] = 0.02;
-		$content["workerunitsPerUnit"] = 15;
-		$content["workerunitsPerWorker"] = 10;
-		$content["unitsPerTask"] = 7;
-		$content["title"] = "Tag events and event-related concepts (Dutch language required)";
+		$content["workerunitsPerUnit"] = $settings['judgmentsPerUnit'];
+		$content["workerunitsPerWorker"] = 6;
+		$content["unitsPerTask"] = 3;
+		$content["title"] = "Annotate the sounds";
 		$content["description"] = "N/A";
-		$content["keywords"] = "event tagging, event-related concepts tagging, text annotation";
-		$content["instructions"] = "Perform the two steps in the following TEXT: \n\n STEP1: Highlight the PHRASES (i.e. SINGLE or MULTIPLE-word phrases) that refer to EVENTS, event LOCATION, event TIME, event PARTICIPANTS, or OTHER event-related concepts. \n\n OBS: Please do not highlight time concepts that clearly represent SHOTS timings (e.g. 00:54). \n\n STEP2.: Select a corresponding TYPE for each selected PHRASE in STEP 1: Event, Location, Time, Participants, Other. \n\n To highlight a SINGLE word click on it in text. \n\n To highlight a MULTIPLE-WORD PHRASE drag your cursor across the range of words in the text you want to select. \n\n You can remove highlighted PHRASES by clicking on the [X] button in STEP2.";
+		$content["keywords"] = "sound annotation";
+		$content["instructions"] = "";
 
 		$hash = md5(serialize([$content]));
 		
 		$entity = Entity::withTrashed()->where('hash', $hash)->first();
 		// check if file already exists
 		if($entity) {
+			// do not delete this on rollback
+			$entity->_existing = true;
 			array_push($this->status['notice'], "Existing job configuration found (" . $entity->_id . ")");
 		} else {
 			$entity = new Entity;
-			$entity->domain = "cultural";
+			$entity->domain = "sound";
 			$entity->format = "text";
 			$entity->documentType = "jobconf";
-			$entity->tags = array("VideoDescrHighlighting_");
-			$entity->type = "VideoDescrHighlighting_";
+			$entity->tags = array("sound");
+			$entity->type = "sound";
 			$entity->content = $content;
 			$entity->hash = $hash;
 			$entity->activity_id = $activity;  
@@ -207,9 +219,14 @@ class ResultImporter {
 	 */
 	public function createCrowdAgent($workerId, $country, $region, $city, $cfWorkerTrust)
 	{
-		$crowdagent = CrowdAgent::where('_id', "crowdagent/cf/" . $workerId)->first();
-		if(!$crowdagent) {
-			$this->duplicateCrowdAgents++;
+		$agent = CrowdAgent::where('_id', "crowdagent/cf/" . $workerId)->first();
+		if($agent) {
+			// do not delete this on rollback
+			if(!array_key_exists($agent->_id, $this->crowdAgents)) {
+				$this->duplicateCrowdAgents++;
+				$agent->_existing = true;			
+				$this->crowdAgents[$agent->_id] = $agent;
+			}
 		} else {
 			$agent = new CrowdAgent;
 			$agent->_id= "crowdagent/cf/$workerId";
@@ -220,8 +237,11 @@ class ResultImporter {
 			$agent->region = $region;
 			$agent->cfWorkerTrust = $cfWorkerTrust;
 			$agent->save();
+			
+			$this->crowdAgents[$agent->_id] = $agent;
 		}
-		$this->newCrowdAgents++;
+		
+		return $agent;
 	}
 	
 	/**
@@ -229,39 +249,40 @@ class ResultImporter {
 	 */
 	public function createWorkerUnit($activityId, $unitId, $acceptTime, $channel, $trust, $content, $agentId, $annVector, $jobId, $annId, $submitTime) 
 	{
-
-			try {
-				$entity = new Entity;
-				$entity->_id = $entity->_id;
-				$entity->domain = "cultural";
-				$entity->format = "text";
-				$entity->documentType = "workerunit";
-				$entity->activity_id = $activityId; 
-				$entity->acceptTime = $acceptTime;
-				$entity->cfChannel = $channel;
-				$entity->type = "VideoDescrHighlighting_v2_";
-				$entity->cfTrust = $trust;
-				$entity->content = $content;
-				$entity->crowdAgent_id = $agentId;
-				//$entity->annotationVector = "";
-				$entity->job_id = $jobId;
-				$entity->platformWorkerUnitId = $annId;
-				$entity->softwareAgent_id = "cf";
-				$entity->spam = false;
-				$entity->submitTime = $submitTime;
-				$entity->unit_id = $unitId;
-				$entity->save();
-				
-			//    $status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
-			} catch (Exception $e) {
-						// Something went wrong with creating the Entity
-			   
-				$entity->forceDelete();
-				$status['error']["smth"] = $e->getMessage();
+		$entity = Entity::where('platformWorkerUnitId', $annId)->first();
+		if($entity) {
+			// do not delete this on rollback
+			if(!array_key_exists($entity->_id, $this->workerUnits)) {
+				$this->duplicateWorkerUnits++;
+				$entity->_existing = true;
+				$this->workerUnits[$entity->_id] = $entity;
 			}
-	   // }
-
-		return $status;
+		} else {
+			$entity = new Entity;
+			$entity->_id = $entity->_id;
+			$entity->domain = "sounds";
+			$entity->format = "text";
+			$entity->documentType = "workerunit";
+			$entity->activity_id = $activityId; 
+			$entity->acceptTime = $acceptTime;
+			$entity->cfChannel = $channel;
+			$entity->type = "sounds";
+			$entity->cfTrust = $trust;
+			$entity->content = $content;
+			$entity->crowdAgent_id = $agentId;
+			$entity->annotationVector = $annVector;
+			$entity->job_id = $jobId;
+			$entity->platformWorkerUnitId = $annId;
+			$entity->softwareAgent_id = "cf";
+			$entity->spam = false;
+			$entity->submitTime = $submitTime;
+			$entity->unit_id = $unitId;
+			$entity->save();
+			
+			$this->workerUnits[$entity->_id] = $entity;
+		}
+	
+		return $entity;
 	}
 	 
 	 
@@ -269,12 +290,19 @@ class ResultImporter {
 	 * Create worker unit
 	 */
 	public function process($file, $settings)
-	{
-	
-		$this->status = ['notice' => [], 'success' => []];
+	{	
+		$this->status = ['notice' => [], 'success' => [], 'error' => []];
 
 		try {
-
+			
+			// keep a list of all unique units, crowdAgents and workerUnits so that we can rollback only the unique ones on error
+			$this->units = [];
+			$this->crowdAgents = [];
+			$this->workerUnits = [];
+			$this->duplicateUnits = 0;
+			$this->duplicateCrowdAgents = 0;
+			$this->duplicateWorkerUnits = 0;
+		
 			// read file content and put it into an array
 			$data = $this->readCSV($file);
 		
@@ -284,71 +312,160 @@ class ResultImporter {
 			// Create input file
 			$inputFile = $this->createInputFile($file, $activity->id, $settings['project']);
 			
+			$unitCount = count(array_unique(array_column($data, 42))) - 1;
+			$settings['judgmentsPerUnit'] = 30;
+			
 			// Create job configuration
-			$jobconfig = $this->createJobconf($activity->id);
+			$jobconfig = $this->createJobconf($activity->id, $settings);
 			
 			// Create job
 			$job = $this->createJob($jobconfig->_id, $activity->id);
+		
+			// temp for sounds, create annotation vector for each unit			
+			$annVector = [];
+			for ($i = 1; $i < count($data); $i ++) {
+		
+				// for each keywords
+				$keywords = explode(',', $data[$i][35]);
+				foreach($keywords as $keyword) {
+					$keyword = trim(strtolower(str_replace('.', '', $keyword)));
+					if($keyword != "") {
+						// add keyword to list of keywords for this unit
+						if(!isset($annVector[$data[$i][0]][$keyword])) {
+							$annVector[$data[$i][0]][$keyword] = 0;
+						}
+					}
+				}
+			}
 
-			// variables to log status
-			$this->newUnits = 0;
-			$this->duplicateUnits = 0;
-			$this->newWorkerUnits = 0;
-			$this->duplicateWorkerUnits = 0;
-			$this->newCrowdAgents = 0;
-			$this->duplicateCrowdAgents = 0;
-			$units = array_unique(array_column($data, 7));
-			$crowdagents = array_unique(array_column($data, 7));
-			
 			// loop through all the judgments and add workerUnits, media units and CrowdAgents.
 			for ($i = 1; $i < count($data); $i ++) {
 				
 				// try to add unit
-				$content = "";
+				$content = ['id' => $data[$i][42], 'preview-hq-mp3' => $data[$i][46]];
 				$unit = $this->createUnit($settings['inputType'], $inputFile->_id, $content, $activity->_id, $settings['project']);
-
+				
 				// Create CrowdAgent
 				$crowdAgent = $this->createCrowdAgent($data[$i][7], $data[$i][8], $data[$i][9], $data[$i][10], $data[$i][6]);
 				
 				// Create workerUnit
-				$content = "";
-				$workerUnit = $this->createWorkerUnit($activity->_id, $unit->_id, $data[$i][3], $data[$i][5], $data[$i][6], $content, $crowdAgent->_id, $annVector, $job->_id, $data[$i][2], $data[$i][1]);
+				$content = ['keywords' => trim(strtolower(str_replace('.', '', $data[$i][35])))];
+				$vector = $annVector[$data[$i][0]];
 				
 				
+				// for each keywords
+				$keywords = explode(',', $content['keywords']);
+				foreach($keywords as $keyword) {
+					$keyword = trim($keyword);
+					if($keyword != "") {
+						$vector[$keyword]++;
+					}
+				}
+
+				$workerUnit = $this->createWorkerUnit($activity->_id, $unit->_id, $data[$i][3], $data[$i][5], $data[$i][6], $content, $crowdAgent->_id, ['keywords' => $vector], $job->_id, $data[$i][2], $data[$i][1]);
+			}	
+			
+
+			
+			// aggregate all results	
+			$result = array();
+			$annotations = Entity::where("documentType", "=", "workerunit")->where("job_id", "=", $job->_id)->get();
+			$count = 0;
+			foreach($annotations as $workerUnit){
+			   $uid = $workerUnit->unit_id; // to prevent mongoException: zero length key not allowed. Could also 'continue;'
+			   if(empty($uid)) $uid = 'unknown';
+				   else $count++;
+
+			   if(!isset($result[$uid]))
+				   $result[$uid] = $workerUnit->annotationVector;
+			   else {
+				   foreach($workerUnit->annotationVector as $key=>$val){
+					   if(is_array($val)){ // term1 -> [k] -> 1
+						   foreach($val as $k=>$v){
+							   //if(isset($result[$uid][$key][$k]))
+								   $result[$uid][$key][$k]+=$v;
+							   //else $result[$uid][$key][$k]=$v; // THIS SHOULDN'T HAPPEN
+						   }
+					   } else {            // [key] -> 1
+						   //if(isset($result[$uid][$key]))
+							   $result[$uid][$key]+=$val;
+						   //else $result[$uid][$key]=$val; // THIS SHOULDN'T HAPPEN
+					   }
+				   }
+			   }
 			}
 
+			if(!isset($job->results)){
+			   $job->results = array('withSpam' => $result);
+			} else {
+			   $r = $job->results;
+			   $r['withSpam'] = $result;
+			   $job->results = $r;
+			}
+			$job->update();
 			
+			// metrics		
+			//exec('C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe ' . base_path()  . '/app/lib/generateMetrics.py '.$job->_id.' '.$template, $output, $error);
+			//$job->JobConfiguration->replicate();
+			//dd($job->jobConfiguration->content['workerunitsPerUnit']);
+//			\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+	
+			// update worker cache
+			foreach ($this->crowdAgents as $worker) {
+				set_time_limit(30);
+				\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($worker)));
+			}
+			
+			// update units
+//			foreach ($this->units as $unit) {
+//				set_time_limit(30);
+//				\Queue::push('Queues\UpdateUnits', array('unit' => serialize($unit)));
+//			}
+
 			
 			// Notice that units already existed in the database
-			if($this->duplicateUnits > 0) { array_push($this->status['notice'], "Existing input media found for " . $this->duplicateUnits . " units"); }
-			if($this->duplicateCrowdAgents > 0) { array_push($this->status['notice'], "Existing CrowdAgents " . $this->duplicateUnits . " units"); }
+			if($this->duplicateUnits > 0) { array_push($this->status['notice'], "Existing media units found (" . $this->duplicateUnits . ")"); }
+			if($this->duplicateCrowdAgents > 0) { array_push($this->status['notice'], "Existing crowd agents found (" . $this->duplicateCrowdAgents . ")"); }
+			if($this->duplicateWorkerUnits > 0) { array_push($this->status['notice'], "Existing judgements found (" . $this->duplicateWorkerUnits . ")"); }
 
+
+
+			
 			// Job's done!
 			array_push($this->status['success'], "Import finished successfully (" . $activity->_id . ")");
+
+			return $this->status;
 			
 		} catch (Exception $e) {
-
+		
 			$activity->forceDelete();
-			$inputFile->forceDelete();
-			$jobconfig->forceDelete();
+			
+			if(!$inputFile->_existing) {
+				$inputFile->forceDelete();
+			}
+			
+			if(!$jobconfig->_existing) {
+				$jobconfig->forceDelete();
+			}
 			$job->forceDelete();
 			
-			return $e;
-		}
-		
-		return $this->status;
-	
-		// for all judgments, add a workerunit
-		for ($i = 1; $i < count($data); $i ++) {
+			foreach($this->units as $unit) {
+				if(!$unit->_existing) {
+					$jobconfig->forceDelete();
+				}
+			}
 			
-
-
-			$this->createWorkerUnit($activity->id, $judgments[$j]["unit_data"]["_id"], $judgments[$j]["started_at"], 
-			$judgments[$j]["external_type"], $judgments[$j]["worker_trust"], $judgments[$j]["data"], $workerId, 
-			$annUnits[$units_id[$i]][$judgments[$j]["worker_id"]]["event"], $jobs["event"]["job_id"], $judgments[$j]["id"], 
-			$judgments[$j]["created_at"], "event");
-			   
-		   
+			foreach($this->crowdAgents as $crowdAgent) {
+				if(!$crowdAgent->_existing) {
+					$crowdAgent->forceDelete();
+				}
+			}
+			
+			foreach($this->workerUnits as $workerUnit) {
+				$workerUnit->forceDelete();
+			}
+			
+			return $e;
 		}
 	}
 }

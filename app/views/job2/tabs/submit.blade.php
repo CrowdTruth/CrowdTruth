@@ -27,7 +27,7 @@
 										$_format = (unserialize(Session::get('batch'))->format);
 										$batchUnits = (unserialize(Session::get('batch'))->parents);
 
-										$batchUnitContent = \MongoDB\Entity::where("_id", $batchUnits[0])->get()->first();
+										$batchUnitContent = Entity::where("_id", $batchUnits[0])->get()->first();
 
 										$unitAttributes = array();
 										$c = array_change_key_case(array_dot($batchUnitContent['content']), CASE_LOWER);
@@ -38,7 +38,7 @@
 										}
 									//	dd($unitAttributes);
 
-										$_aTitles = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct("content.title")->get();
+										$_aTitles = Entity::where("documentType", "jobconf")->where("format", $_format)->distinct("content.title")->get();
 									    $_aTitles = array_flatten($_aTitles->toArray());	
 								    
 									    foreach($_aTitles as $key=>$value){
@@ -50,7 +50,7 @@
 									    	}
 										}
 
-										$_aTypes = \MongoDB\Template::where("format", $_format)->distinct('type')->get();
+										$_aTypes = Template::where("format", $_format)->distinct('type')->get();
 									    $_aTypes = array_flatten($_aTypes->toArray());
 									    foreach($_aTypes as $key=>$value){
 									    	if(!isset($aTypes[$value]))

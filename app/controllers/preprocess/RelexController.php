@@ -2,7 +2,6 @@
 
 namespace preprocess;
 
-use \MongoDB\Repository as Repository;
 use \preprocess\RelexStructurer as RelexStructurer;
 use BaseController, Cart, View, App, Input, Redirect, Session;
 
@@ -31,7 +30,7 @@ class RelexController extends BaseController {
 	{
 		// get all uploaded documents
 		// TODO: change to select by actual type
-		$entities = \MongoDB\Entity::where('activity_id', 'LIKE', '%fileuploader%')->get();
+		$entities = Entity::where('activity_id', 'LIKE', '%fileuploader%')->get();
 
 		if(count($entities) > 0)
 		{

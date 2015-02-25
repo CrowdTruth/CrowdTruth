@@ -1,11 +1,5 @@
 <?php
 
-namespace MongoDB;
-
-use Moloquent, Schema, Cache, Input, Exception, Auth, Session;
-
-use \Counter as Counter;
-
 class Entity extends Moloquent {
 
     protected $collection = 'entities';
@@ -74,7 +68,7 @@ class Entity extends Moloquent {
         static::saved(function($entity)
         {
 
-            \MongoDB\Temp::truncate();
+            Temp::truncate();
 
             Cache::flush();
         });
@@ -143,39 +137,39 @@ class Entity extends Moloquent {
     }    
 
     public function wasGeneratedBy(){
-        return $this->hasOne('\MongoDB\Activity', '_id', 'activity_id');
+        return $this->hasOne('Activity', '_id', 'activity_id');
     }
 
     public function wasDerivedFrom(){
-        return $this->hasMany('\MongoDB\Entity', '_id', 'parents');
+        return $this->hasMany('Entity', '_id', 'parents');
     }
 
     public function wasAttributedToUserAgent(){
-        return $this->hasOne('\MongoDB\UserAgent', '_id', 'user_id');
+        return $this->hasOne('UserAgent', '_id', 'user_id');
     }
 
     public function wasAttributedToCrowdAgent(){
-        return $this->hasOne('\MongoDB\CrowdAgent', '_id', 'crowdagent_id');
+        return $this->hasOne('CrowdAgent', '_id', 'crowdagent_id');
     }
 
     public function hasConfiguration(){
-        return $this->hasOne('\MongoDB\Entity', '_id', 'jobConf_id');
+        return $this->hasOne('Entity', '_id', 'jobConf_id');
     }
 
     public function hasJob(){
-        return $this->hasOne('\MongoDB\Entity', '_id', 'job_id');
+        return $this->hasOne('Entity', '_id', 'job_id');
     }
 
     public function hasChildren(){
-        return $this->hasOne('\MongoDB\Entity', '_id', 'parents');
+        return $this->hasOne('Entity', '_id', 'parents');
     }
 
     public function hasUnit(){
-        return $this->hasOne('\MongoDB\Entity', '_id', 'unit_id');
+        return $this->hasOne('Entity', '_id', 'unit_id');
     }
 
     public function workerunits(){
-        return $this->hasMany('\MongoDB\Entity', 'unit_id', '_id');
+        return $this->hasMany('Entity', 'unit_id', '_id');
     }
 
     public function getWasDerivedFromAttribute()

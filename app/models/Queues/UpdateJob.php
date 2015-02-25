@@ -1,7 +1,6 @@
 <?php
 namespace Queues;
 
-use \MongoDB\Activity;
 use Exception;
 
 class UpdateJob {
@@ -100,14 +99,15 @@ class UpdateJob {
 				else if($j->type == 'DistributionalDisambiguation')
 					$templateid = 'entity/text/opendomain/termpairs/0';
 				else
-					throw new Exception("Type {$j->type} not recognised. We currently only have FactSpan, RelEx and RelDir.");
+					$templateid = 'entity/text/medical/FactSpan/Factor_Span/0';
 
-				/*if(!($template = \MongoDB\Entity::id($templateid)))
+				/*if(!($template = Entity::id($templateid)))
 					throw new Exception("Template of type {$j->type} not found in database.");*/
 
 				set_time_limit(3600); // One hour.
 				$apppath = app_path();
-				$command = "/usr/bin/python2.7 $apppath/lib/generateMetrics.py '{$j->_id }' '$templateid'";
+				//$command = "/usr/bin/python2.7 $apppath/lib/generateMetrics.py '{$j->_id }' '$templateid'";
+				$command = "C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe $apppath/lib/generateMetrics.py {$j->_id } $templateid";
 				\Log::debug("Command: $command");
 				exec($command, $output, $return_var);
 				\Log::debug("Metrics done.");

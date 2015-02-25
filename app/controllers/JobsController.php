@@ -19,7 +19,7 @@ class JobsController extends BaseController {
 
     public function getIndex()
     {
-        $mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
+        $mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
 
         return View::make('media.search.pages.jobs', compact('mainSearchFilters'));
     }
@@ -30,7 +30,7 @@ class JobsController extends BaseController {
 
 	public function getWorkers(){
 		$c = 0;
-		foreach (\MongoDB\CrowdAgent::where('softwareAgent_id', 'cf')->get() as $w) {
+		foreach (CrowdAgent::where('softwareAgent_id', 'cf')->get() as $w) {
 			$w->platformAgentId = (string) $w->platformAgentId;
 			$w->save();
 			$c++;
@@ -41,7 +41,7 @@ class JobsController extends BaseController {
 
 	public function getA(){
 		//Queue::push('Queues\UpdateUnits', array("entity/text/medical/relex-structured-sentence/1078"));
-		$ca = \MongoDB\CrowdAgent::where("_id", "crowdagent/cf/14781069")->first();
+		$ca = CrowdAgent::where("_id", "crowdagent/cf/14781069")->first();
 		Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($ca)));
 	}
 
@@ -114,7 +114,7 @@ class JobsController extends BaseController {
 
 			$found = false;
 			//foreach (MongoDB\Entity::where('documentType', 'relex-structured-sentence')->get() as $unit) {
-			$unit = MongoDB\Entity::where('documentType', 'relex-structured-sentence')
+			$unit = Entity::where('documentType', 'relex-structured-sentence')
 			->where('content.sentence.text', $sentence)
 			->where('content.terms.first.text', $term1)
 			->where('content.terms.second.text', $term2)->first(); 
@@ -211,10 +211,10 @@ class JobsController extends BaseController {
 
 //test
 	public function getUpdateca(){
-		/*$ca = \MongoDB\CrowdAgent::id('crowdagent/cf/19822336')->first();
+		/*$ca = CrowdAgent::id('crowdagent/cf/19822336')->first();
 		$ca->updateStats2();*/
 
-		foreach(MongoDB\CrowdAgent::get() as $ca){
+		foreach(CrowdAgent::get() as $ca){
 			//$ca->updateStats2();
 			$ca->blocked = false;
 			//$ca->messagesRecieved = array('count'=>0, 'messages'=>[]);
@@ -269,7 +269,7 @@ public function getVector(){
 		$term2 = $c['term2'];
 
 		$found = false;
-		foreach (MongoDB\Entity::where('documentType', 'relex-structured-sentence')->get() as $unit) {
+		foreach (Entity::where('documentType', 'relex-structured-sentence')->get() as $unit) {
 			if($unit['content']['sentence']['formatted'] == $sentence and
 				$unit['content']['terms']['first']['formatted'] == $term1 and
 				$unit['content']['terms']['second']['formatted'] == $term2){
@@ -397,7 +397,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 		$id = "$entity/$format/$domain/$docType/$incr";
 
-		$unit = MongoDB\Entity::id($id)->first();
+		$unit = Entity::id($id)->first();
 		echo "<h1>{$unit->_id}</h1>\n";
 		echo "-Sentence:{$unit->content['sentence']['formatted']}<br>\n";
 		echo "-Term1:{$unit->content['terms']['first']['formatted']}<br>\n";
@@ -464,7 +464,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 	}
 
 	public function getUpdatecrowdagent(){
-		foreach (MongoDB\CrowdAgent::get() as $worker) {
+		foreach (CrowdAgent::get() as $worker) {
 			set_time_limit(30);
 			Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($worker)));
 		}
@@ -874,7 +874,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 		try{
 
 			// Save activity
-			$activity = new MongoDB\Activity;
+			$activity = new Activity;
 			$activity->label = "Job is uploaded to crowdsourcing platform.";
 			$activity->softwareAgent_id = 'jobcreator'; // JOB softwareAgent_id = $platform. Does this need to be the same?
 			$activity->save();

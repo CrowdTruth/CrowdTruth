@@ -6,10 +6,8 @@ use CoffeeScript\compact;
 use BaseController, Cart, View, App, Input, Redirect, Session;
 use League\Csv\Reader as Reader;
 
-use \MongoDB\Repository as Repository;
-use \MongoDB\Entity as Entity;
-use \MongoDB\Security\PermissionHandler as PermissionHandler;
-use \MongoDB\Security\Permissions as Permissions;
+use \Security\PermissionHandler as PermissionHandler;
+use \Security\Permissions as Permissions;
 
 use \SoftwareComponents\TextSentencePreprocessor as TextSentencePreprocessor;
 

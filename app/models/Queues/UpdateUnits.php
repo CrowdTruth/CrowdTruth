@@ -1,8 +1,6 @@
 <?php
 namespace Queues;
 
-use \Job;
-use \Workerunit;
 class UpdateUnits {
 
 	/**
@@ -26,9 +24,9 @@ class UpdateUnits {
         {
         	set_time_limit(30);
 
-        	$unit = \MongoDB\Entity::id($id)->first();
+        	$unit = Entity::id($id)->first();
         //    dd($id);
-            $batch['count'] = count(\MongoDB\Entity::where('documentType', 'batch')->where('parents', 'all', array($unit->_id))->get()->toArray());
+            $batch['count'] = count(Entity::where('documentType', 'batch')->where('parents', 'all', array($unit->_id))->get()->toArray());
 
             $workerunit = array('count'=>0, 'spam'=>0, 'nonSpam'=>0);
             $workerlist = $workersspam = $workersnonspam = $joblist = array();
@@ -67,14 +65,14 @@ class UpdateUnits {
             $jobs['distinct'] = count($jobs['types']);
 
             $platformField = array();
-            $platformField['cf'] = count(\MongoDB\Entity::where('unit_id', $unit->_id)->where('softwareAgent_id','cf' )->get()->toArray());
-            $platformField['amt'] = count(\MongoDB\Entity::where('unit_id', $unit->_id)->where('softwareAgent_id','amt' )->get()->toArray());
+            $platformField['cf'] = count(Entity::where('unit_id', $unit->_id)->where('softwareAgent_id','cf' )->get()->toArray());
+            $platformField['amt'] = count(Entity::where('unit_id', $unit->_id)->where('softwareAgent_id','amt' )->get()->toArray());
             //filtered
             $filteredField = array();
             $filteredField['job_ids'] = array_flatten(Job::where('metrics.filteredUnits.list','all', array($unit['_id']))->get(['_id'])->toArray());
             $filteredField['count'] = count($filteredField['job_ids']);
 
-            $derivatives = \MongoDB\Entity::whereIn('parents', array($unit->_id))->lists('_id');
+            $derivatives = Entity::whereIn('parents', array($unit->_id))->lists('_id');
 
             $children["count"] = count($derivatives);
             $children["list"] = $derivatives;
@@ -87,7 +85,7 @@ class UpdateUnits {
                 			"batches" => $batch,
                             "children" => $children];
             $unit->update();
-	    $avg_clarity = \MongoDB\Entity::where('metrics.units.withoutSpam.'.$unit->_id, 'exists', 'true')->avg('metrics.units.withoutSpam.'.$unit->id.'.max_relation_Cos.avg');
+	    $avg_clarity = Entity::where('metrics.units.withoutSpam.'.$unit->_id, 'exists', 'true')->avg('metrics.units.withoutSpam.'.$unit->id.'.max_relation_Cos.avg');
 	    if (!isset($avg_clarity)) $avg_clarity = 0;
         	$unit->avg_clarity = $avg_clarity;
         	$unit->update();

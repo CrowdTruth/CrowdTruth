@@ -4,18 +4,13 @@ use Illuminate\Support\Facades\View;
 
 use CoffeeScript\compact;
 
-use \MongoDB\Repository as Repository;
-use \MongoDB\Entity as Entity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
-use \MongoDB\UserAgent as UserAgent;
-use \MongoDB\SoftwareComponent as SoftwareComponent;
 use \SoftwareComponents\FileUploader as FileUploader;
 use \SoftwareComponents\MediaSearchComponent as MediaSearchComponent;
 use \SoftwareComponents\ResultImporter as ResultImporter;
 
-use \MongoDB\Security\ProjectHandler as ProjectHandler;
-use \MongoDB\Security\Permissions as Permissions;
-use \MongoDB\Security\Roles as Roles;
+use \Security\ProjectHandler as ProjectHandler;
+use \Security\Permissions as Permissions;
+use \Security\Roles as Roles;
 
 class MediaController extends BaseController {
 
@@ -130,7 +125,7 @@ class MediaController extends BaseController {
 	 */
 	public function getImportresults()
 	{
-		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
+		$mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
 		$projects = ProjectHandler::getUserGroups(Auth::user());
 		$projects = array_column($projects, 'name');
 		
@@ -144,7 +139,6 @@ class MediaController extends BaseController {
 	 */
 	public function postImportresults()
 	{
-		try {
 			
 			$files = Input::file('file');
 			
@@ -163,16 +157,17 @@ class MediaController extends BaseController {
 			$importer = new ResultImporter();
 			$status = $importer->process($files, $settings);
 			
-			Session::flash('flashSuccess', $status['success']);
-			if($status['notice']) {
-				Session::flash('flashNotice', $status['notice']);
+			// flash appropriate message
+			if(!$status['error']) {
+				Session::flash('flashSuccess', $status['success']);
+				if($status['notice']) {
+					Session::flash('flashNotice', $status['notice']);
+				}
+			} else {
+				Session::flash('flashError', $status['error']);
 			}
 			
 			return View::make('media.search.pages.importresults');
-			
-		} catch (Exception $e){
-			return Redirect::back()->with('flashError', $e->getMessage());
-		}
 	}
 	
 	
@@ -449,7 +444,6 @@ class MediaController extends BaseController {
 	 */
 	private function loadMediaUploadView() {
 		// Load properties from file uploader software component.
-		// TODO: replace for $data = new FileUploader ?
 		$data = SoftwareComponent::find("fileuploader");
 		$dbDomains = $data->domains;
 		
@@ -506,7 +500,7 @@ class MediaController extends BaseController {
 
 	public function getSearch()
 	{
-		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
+		$mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
 		
 		// include keys
 		$searchComponent = new MediaSearchComponent();

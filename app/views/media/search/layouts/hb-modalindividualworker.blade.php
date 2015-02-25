@@ -118,7 +118,7 @@
 						 <tbody>
 						  @{{#each this.jobContent}} 
 						  <tr>
-						    <td> @{{#ifarray platformJobId }} @{{/ifarray}} </td>
+						    <td> @{{ this.platformJobId }} </td>
 							@{{#each metrics.workers.withFilter}}
 							<td> @{{ toFixed avg_worker_agreement 2 }} </td>
 							<td> @{{ toFixed ann_per_unit 2 }} </td>

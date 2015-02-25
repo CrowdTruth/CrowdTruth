@@ -1,10 +1,9 @@
 <?php
 
-use \MongoDB\UserAgent as UserAgent;
-use \MongoDB\Security\Permissions as Permissions;
-use \MongoDB\Security\PermissionHandler as PermissionHandler;
-use \MongoDB\Security\ProjectHandler as ProjectHandler;
-use \MongoDB\Security\Roles as Roles;
+use \Security\Permissions as Permissions;
+use \Security\PermissionHandler as PermissionHandler;
+use \Security\ProjectHandler as ProjectHandler;
+use \Security\Roles as Roles;
 
 /**
  * Create root user and basic permission structure in the database.

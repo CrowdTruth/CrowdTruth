@@ -1,10 +1,6 @@
 <?php
 namespace SoftwareComponents;
 
-use \MongoDB\Activity as Activity;
-use \MongoDB\Entity as Entity;
-use \MongoDB\SoftwareComponent as SoftwareComponent;
-
 use \Validator as Validator;
 use \File as File;
 

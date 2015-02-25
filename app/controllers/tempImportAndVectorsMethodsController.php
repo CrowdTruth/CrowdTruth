@@ -72,8 +72,8 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		foreach (\Job::get() as $q)
 			$q->forceDelete();
 */
-		\MongoDB\Activity::truncate();
-		$activity = new \MongoDB\Activity;
+		Activity::truncate();
+		$activity = new Activity;
 		$activity->label = "Imported jobs from CSV file.";
 		//$activity->used = $job->_id;
 		$activity->softwareAgent_id = 'importer';
@@ -121,7 +121,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 		//dd($turk->getAssignmentsForHIT($id));
 		//echo json_encode($hit, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 							// Create activity: annotate
-							$activity = new \MongoDB\Activity;
+							$activity = new Activity;
 							$activity->label = "Imported job from AMT.";
 							$activity->softwareAgent_id = 'amt';
 							$activity->save();
@@ -285,7 +285,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 			$term2 = substr($input1, strpos(substr($input1, 2), '[') + 2);
 
 
-			$unit = \MongoDB\Entity::where('content.terms.first.formatted', $term1)
+			$unit = Entity::where('content.terms.first.formatted', $term1)
 			->where('content.terms.second.formatted', $term2)
 			->where('content.sentence.formatted', $sentence)
 			->first();
@@ -345,7 +345,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 			$term1 = "[PREGNANCY]";
 			$term2 = "[TE]";*/
 
-			$unit = \MongoDB\Entity::where('content.terms.first.formatted', $term1)
+			$unit = Entity::where('content.terms.first.formatted', $term1)
 			->where('content.terms.second.formatted', $term2)
 			->where('content.sentence.formatted', $sentence)
 			->first();
@@ -403,7 +403,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 			$term1 = "[PREGNANCY]";
 			$term2 = "[TE]";*/
 
-			$unit = \MongoDB\Entity::where('content.terms.first.formatted', $term1)
+			$unit = Entity::where('content.terms.first.formatted', $term1)
 			->where('content.terms.second.formatted', $term2)
 			->where('content.sentence.formatted', $sentence)
 			->first();
@@ -412,7 +412,7 @@ class tempImportAndVectorsMethodsController extends BaseController {
 
 /*			if(!$unit){
 				$hi = 0;
-				$units = \MongoDB\Entity::where('content.terms.first.formatted', $term1)
+				$units = Entity::where('content.terms.first.formatted', $term1)
 						->where('content.terms.second.formatted', $term2)
 						->get();
 

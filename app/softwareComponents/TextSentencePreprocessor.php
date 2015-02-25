@@ -1,9 +1,6 @@
 <?php
 namespace SoftwareComponents;
 
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareComponent as SoftwareComponent;
 use \MongoDate as MongoDate;
 use Auth;
 
@@ -106,7 +103,7 @@ class TextSentencePreprocessor {
 		}
 		
 		\DB::collection('entities')->insert($fullEntities);
-		\MongoDB\Temp::truncate();
+		Temp::truncate();
 		
 		return [ 'success' => 'Sentences created successfully' ];
 	}

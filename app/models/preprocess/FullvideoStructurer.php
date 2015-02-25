@@ -2,9 +2,6 @@
 
 namespace Preprocess;
 
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
 use URL, Session, Exception;
 
 class FullvideoStructurer {
@@ -256,9 +253,9 @@ class FullvideoStructurer {
 	}
 
 	public function createKeyframesExtractionSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('keyframeextraction'))
+		if(!SoftwareAgent::find('keyframeextraction'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "keyframeextraction";
 			$softwareAgent->label = "This component (pre)processes video documents by extracting the key frames";
 			$softwareAgent->save();
@@ -266,9 +263,9 @@ class FullvideoStructurer {
 	}
 
 	public function createVideoSegmentingSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('videosegmenting'))
+		if(!SoftwareAgent::find('videosegmenting'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "videosegmenting";
 			$softwareAgent->label = "This component (pre)processes video documents by splitting the video into segments";
 			$softwareAgent->save();

@@ -883,6 +883,9 @@ var dynamicTemplate = function() {
 					case 'image':
 						template += '<td data-vbIdentifier="id"><img style="max-width:100px; max-height:100px;border:0px;" src="@{{ this.' + columns[i] + ' }}" /></td>';
 					break;
+					case 'sound':
+						template += '<td data-vbIdentifier="id"><audio class="audio" src="@{{ this.' + columns[i] + ' }}" preload="none" controls="controls">Please update your browser to the latest version in order to complete this task.</audio>';
+					break;
 					case 'video':
 						template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video>';
 					break;

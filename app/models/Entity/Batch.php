@@ -1,15 +1,16 @@
 <?php
 
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-//use Moloquent, Schema, URL, File, Exception, Session;
+use MongoDB\Entity;
 
-class BatchCreator extends Moloquent {
+class Batch extends Entity {
+	
+	protected $attributes = array('documentType' => 'batch');
+
 
 	public function store(array $input){
 
 		try {
-			$this->createBatchCreatorSoftwareAgent();
+			$this->createBatchSoftwareAgent();
 		} catch (Exception $e) {
 			$status['error']['FileUpload'] = $e->getMessage();
 			return $status;
@@ -56,13 +57,30 @@ class BatchCreator extends Moloquent {
 		return $entity;
 	}
 
-	public function createBatchCreatorSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('batchcreator'))
+	public function createBatchSoftwareAgent(){
+		if(!SoftwareAgent::find('batchcreator'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "batchcreator";
 			$softwareAgent->label = "This component is used for creating batches with units etc.";
 			$softwareAgent->save();
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+?>

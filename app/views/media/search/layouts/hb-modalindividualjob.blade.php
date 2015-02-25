@@ -180,7 +180,7 @@
 						  @{{type @key}}
 						  <tr>
 						    <td> @{{ @key }} </td>
-						    @{{#inArray @root.infoStat.metrics.filteredUnits.list @key }}
+						    @{{#inArray @root.infoStat.metrics.filteredunits.list @key }}
 						    <td> True </td>
 						    @{{else}}
 						    <td> False </td>

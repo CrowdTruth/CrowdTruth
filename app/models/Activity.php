@@ -1,14 +1,7 @@
 <?php
+class Activity extends Moloquent {
 
-namespace MongoDB;
-
-use Moloquent, Schema, Auth, Exception, Input;
-
-use \Counter as Counter;
-
-class Template extends Moloquent {
-
-	protected $collection = 'templates';
+	protected $collection = 'activities';
 	protected $softDelete = true;
 	protected static $unguarded = true;
     public static $snakeAttributes = false;
@@ -33,56 +26,60 @@ class Template extends Moloquent {
     {
         parent::boot();
 
-        static::saving(function($template)
+        static::saving(function($activity)
         {
-            if(!Schema::hasCollection('templates'))
+            if(!Schema::hasCollection('activities'))
             {
                 static::createSchema();
             }
 
-            if(is_null($template->_id))
+            if(is_null($activity->_id))
             {
-               $template->_id = static::generateIncrementedBaseURI($template);
+               $activity->_id = static::generateIncrementedBaseURI($activity);
             }
 
             if (Auth::check())
             {
-                $template->user_id = Auth::user()->_id;
+                $activity->user_id = Auth::user()->_id;
             } else 
             {
-                $template->user_id = "crowdwatson";
+                $activity->user_id = "crowdwatson";
             }                
         });
     }
 
-    public static function generateIncrementedBaseURI($template) {
-    	$seqName = 'template' . '/' . $template->format;
+    public static function generateIncrementedBaseURI($activity) {
+    	$seqName = 'activity' . '/' . $activity->softwareAgent_id;
     	$id = Counter::getNextId($seqName);
         return $seqName.'/'.$id;
     }
 
 	public static function createSchema() {
-		Schema::create('template', function($collection)
+		Schema::create('activities', function($collection)
 		{
-            $collection->index('hash');
-            $collection->index('format');
-
-            $collection->index('version');
-            $collection->index('type');    
-            $collection->index('activity_id');
-            $collection->index('user_id');
+		    $collection->index('type');
+		    $collection->index('user_id');
+		    $collection->index('softwareAgent_id');
 		});
 	}
 
+	/**
+     * Get activity for a user ordered by timestamp
+     */
+	public static function getActivitiesForUser($userId)
+    {
+        return Activity::where('user_id', $userId)->orderBy('updated_at', 'desc')->get();
+    }
+
     public function wasAssociatedWithUserAgent(){
-        return $this->hasOne('\MongoDB\UserAgent', '_id', 'user_id');
+        return $this->hasOne('UserAgent', '_id', 'user_id');
     }
 
     public function wasAssociatedWithCrowdAgent(){
-        return $this->hasOne('\MongoDB\CrowdAgent', '_id', 'crowdAgent_id');
+        return $this->hasOne('CrowdAgent', '_id', 'crowdAgent_id');
     }    
 
     public function wasAssociatedWithSoftwareAgent(){
-        return $this->hasOne('\MongoDB\SoftwareAgent', '_id', 'softwareAgent_id');
+        return $this->hasOne('SoftwareAgent', '_id', 'softwareAgent_id');
     }
 }

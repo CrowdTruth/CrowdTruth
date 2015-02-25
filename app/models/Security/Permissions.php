@@ -1,5 +1,5 @@
 <?php
-namespace MongoDB\Security;
+namespace Security;
 
 /**
  * This class defines a list of constants used to identify the permissions used 

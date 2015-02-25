@@ -1,9 +1,4 @@
 <?php
-
-namespace MongoDB;
-
-use Moloquent, Schema, Auth, Exception, User, Input;
-
 class SoftwareComponent extends Moloquent {
 	protected $collection = 'softwarecomponents';
 	protected static $unguarded = true;

@@ -1,10 +1,4 @@
 <?php 
-
-namespace MongoDB;
-
-use Exception;
-
-
 class Repository {
 
 	protected $entity;
@@ -114,7 +108,7 @@ class Repository {
 		    case 'users':
 		        return new UserAgent;
 		    case 'temp':
-		        return new \MongoDB\Temp;
+		        return new Temp;
 		}
 
 		throw new Exception('Collection / Model does not exist');

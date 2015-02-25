@@ -1,8 +1,5 @@
 <?php
 
-use \MongoDB\Entity;
-use \MongoDB\Activity;
-
 class JobConfiguration extends Entity {
 	protected $guarded = array();
 	protected $attributes = array('documentType' => 'jobconf');

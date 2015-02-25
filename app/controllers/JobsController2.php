@@ -4,7 +4,7 @@ use Sunra\PhpSimple\HtmlDomParser;
 class JobsController2 extends BaseController {
 
     public function getIndex(){
-        $mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
+        $mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
         return View::make('media.search.pages.jobs2', compact('mainSearchFilters'));
     }
 	
@@ -29,7 +29,7 @@ class JobsController2 extends BaseController {
 
 	public function getTemplate() {
         $templateType = Input::get( 'templateType' );
-        $template = \MongoDB\Template::where("type", $templateType)->first();
+        $template = Template::where("type", $templateType)->first();
         // everything that is between {{ }}
         $simpleRegEx = "/{{([^.}}]*)}}/";
 
@@ -228,7 +228,7 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getSave($id) {
-		$j = \MongoDB\Entity::where("documentType", "job")->where("platformJobId", $id)->first();
+		$j = Entity::where("documentType", "job")->where("platformJobId", $id)->first();
 		Session::put('format_t', $j->format);
 		Session::put('jobconf_id_t', $j->jobConf_id);
 		Session::put('job_id_t', $j->_id);
@@ -248,9 +248,9 @@ class JobsController2 extends BaseController {
 	}
 
 	private function findNewestTemplate($type, $format){
-		$maxi = \MongoDB\Template::where("type", $type)->where("format", $format)->max('version');
+		$maxi = Template::where("type", $type)->where("format", $format)->max('version');
 		if ($maxi === null){return null;}
-	 	$jcbase = \MongoDB\Template::where("type", $type)->where("format", $format)->where('version', $maxi)->first();
+	 	$jcbase = Template::where("type", $type)->where("format", $format)->where('version', $maxi)->first();
 
 	 	return $jcbase;
 	}
@@ -258,9 +258,9 @@ class JobsController2 extends BaseController {
 	public function postSavet() {
 		$jc_id = Session::get('jobconf_id_t');
 		$j_id = Session::get('job_id_t');
-		$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
+		$jc = Entity::where("_id", $jc_id)->first();
 		$jcco = $jc['content'];
-		$j = \MongoDB\Entity::where("_id", $j_id)->first();
+		$j = Entity::where("_id", $j_id)->first();
 		$type = Input::get('templateType');
 		$load = Input::get('load');
 		if($type === null){
@@ -283,10 +283,10 @@ class JobsController2 extends BaseController {
 		if($newest === Null){
 				$v = 0;
 			}else{
-				$v =   \MongoDB\Template::where("type", $type)->where("format", $j->format)->max('version')+1;
+				$v =   Template::where("type", $type)->where("format", $j->format)->max('version')+1;
 			}	
 		//save + increasing version
-	    $te = new \MongoDB\Template;
+	    $te = new Template;
 	    $te['cml'] = $jcco['cml'];
 	    $te['format'] = $j->format;
 	 	if(isset($jcco['css']))
@@ -309,7 +309,7 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getLoad($id) {
-		$j = \MongoDB\Entity::where("documentType", "job")->where("platformJobId", $id)->first();
+		$j = Entity::where("documentType", "job")->where("platformJobId", $id)->first();
 		Session::put('format_t', $j->format);
 		Session::put('jobconf_id_t', $j->jobConf_id);
 		Session::put('job_id_t', $j->_id);
@@ -322,15 +322,15 @@ class JobsController2 extends BaseController {
 	public function postLoadt() {
 			$jc_id = Session::get('jobconf_id_t');
 			$j_id = Session::get('job_id_t');
-			$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
-			$j = \MongoDB\Entity::where("_id", $j_id)->first();
+			$jc = Entity::where("_id", $jc_id)->first();
+			$j = Entity::where("_id", $j_id)->first();
 			$jcco = $jc['content'];
 			$jcco['type'] =  Input::get('templateType');
 	 		if($jcco['type'] == Null) 
 	    		return Redirect::back()->with('flashError', "form not filled in (type).");	 	
 	    	// get a selected, newest jcbase
-	    	$maxi = \MongoDB\Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->max('version');
-	 		$jcbase = \MongoDB\Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->where('version', $maxi)->first();
+	    	$maxi = Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->max('version');
+	 		$jcbase = Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->where('version', $maxi)->first();
 	 		if(!isset($jcbase)){
 	 			Session::flash('flashError',"template not found");
 				return Redirect::to("jobs2/submit");
@@ -434,7 +434,7 @@ class JobsController2 extends BaseController {
 		$platform = App::make('cf2');
 		//dd($id);
 		$platform->deleteJob($id);
-		\MongoDB\Temp::truncate();
+		Temp::truncate();
 		return Redirect::to("jobs");
 	}
 
@@ -442,7 +442,7 @@ class JobsController2 extends BaseController {
 		$platform = App::make('cf2');
 		//dd($id);
 		$platform->deleteJobCT($id);
-		\MongoDB\Temp::truncate();
+		Temp::truncate();
 		return Redirect::to("jobs");
 	}
 
@@ -450,7 +450,7 @@ class JobsController2 extends BaseController {
 		$platform = App::make('cf2');
 		//dd($id);
 		$platform->deleteJobPL($id);
-		\MongoDB\Temp::truncate();
+		Temp::truncate();
 		return Redirect::to("jobs");
 	}
 
@@ -507,8 +507,8 @@ class JobsController2 extends BaseController {
 	    		return Redirect::back()->with('flashError', "You did not fill in the type of the template");	 	
 
 	    	// get a selected, newest jcbase
-	    	$maxi = \MongoDB\Template::where("type", $jcco['type'])->where("format", $batch->format)->max('version');
-	 		$jcbase = \MongoDB\Template::where("type", $jcco['type'])->where("format", $batch->format)->where('version', $maxi)->first();
+	    	$maxi = Template::where("type", $jcco['type'])->where("format", $batch->format)->max('version');
+	 		$jcbase = Template::where("type", $jcco['type'])->where("format", $batch->format)->where('version', $maxi)->first();
 
 
 	 		if(!isset($jcbase)){
@@ -561,7 +561,7 @@ class JobsController2 extends BaseController {
 	    ///////// PUT
 	    $jc->content = $jcco;
 	    if($own){
-		    $_tt = \MongoDB\Template::where('type', $jcco['type'])->where("format", $batch->format)->first();
+		    $_tt = Template::where('type', $jcco['type'])->where("format", $batch->format)->first();
 		    if(isset($_tt)){
 		    	Session::flash('flashError', "There is already a template of this type. Please rename (or select this template from dropdown list.");
 				return Redirect::to("jobs2/submit");
