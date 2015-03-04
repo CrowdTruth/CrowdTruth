@@ -1,6 +1,8 @@
 <?php
-use MongoDB\Entity;
-
+/*
+ * Main class for creating and managing batches
+ * A workerunit is a type of entity and contains the raw annotations one worker makes for one unit
+*/
 class Workerunit extends Entity {
 
 	protected $attributes = array(  'format' => 'text', 

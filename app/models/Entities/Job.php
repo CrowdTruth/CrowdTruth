@@ -1,6 +1,8 @@
 <?php
-namespace MongoDB;
-
+/*
+ * Main class for creating and managing jobs
+ * A job is a type of entity
+*/
 class Job extends Entity { 
     
 	protected $attributes = array('documentType' => 'job');

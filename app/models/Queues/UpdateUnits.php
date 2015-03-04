@@ -1,6 +1,8 @@
 <?php
 namespace Queues;
 
+use Job, Entity, Workerunit;
+
 class UpdateUnits {
 
 	/**
@@ -9,18 +11,7 @@ class UpdateUnits {
 	public function fire($job, $data){
 
 
-		// TODO: some error handling
-
-
-        $jobIdsPerType = array();
-        foreach(Job::get() as $j){
-        	if (isset($jobIdsPerType[$j->type]))
-        		array_push($jobIdsPerType[$j->type], $j->_id);
-        	else
-        		$jobIdsPerType[$j->type] = [$j->_id];
-        }
-
-        foreach($data as $id)
+		foreach($data as $id)
         {
         	set_time_limit(30);
 
@@ -52,18 +43,6 @@ class UpdateUnits {
             $workers['nonSpam'] = count(array_unique($workersnonspam));
             $workers['potentialSpam'] = count(array_intersect($workersspam, $workersnonspam));
 
-            // Jobs
-            $jobs['count'] = count(array_unique($joblist));
-
-            foreach (array_keys($jobIdsPerType) as $type){
-                $jobs['types'] = array();
-                $count = count(array_intersect(array_unique($joblist), $jobIdsPerType[$type]));
-                if($count != 0) 
-                    $jobs["types"][$type] = $count;
-            }
-            
-            $jobs['distinct'] = count($jobs['types']);
-
             $platformField = array();
             $platformField['cf'] = count(Entity::where('unit_id', $unit->_id)->where('softwareAgent_id','cf' )->get()->toArray());
             $platformField['amt'] = count(Entity::where('unit_id', $unit->_id)->where('softwareAgent_id','amt' )->get()->toArray());
@@ -77,7 +56,7 @@ class UpdateUnits {
             $children["count"] = count($derivatives);
             $children["list"] = $derivatives;
 
-            $unit->cache = ["jobs" => $jobs,
+            $unit->cache = ["job" => "test",
                 			"workers" => $workers,
                             "softwareAgent" => $platformField,
                 			"workerunits" => $workerunit,

@@ -2,8 +2,11 @@
 namespace SoftwareComponents;
 
 use \Validator as Validator;
-use \File as File;
 use \MongoDate;
+
+use \Entities\File as File;
+
+use SoftwareAgent, Activity, Entity, Job, JobConfiguration, Media, Batch;
 
 class ResultImporter {
 	protected $softwareComponent;
@@ -15,14 +18,6 @@ class ResultImporter {
 			$softwareAgent->_id = "resultimporter";
 			$softwareAgent->label = "This component adds existing results from a file";
 			$softwareAgent->save();
-		}
-		
-		if(!SoftwareComponent::find('resultimporter'))
-		{
-			$SoftwareComponent = new SoftwareComponent;
-			$SoftwareComponent->_id = "resultimporter";
-			$SoftwareComponent->label = "This component adds existing results from a file";
-			$SoftwareComponent->save();
 		}
 	}
 
@@ -54,82 +49,6 @@ class ResultImporter {
 		return $data;
 	}
 	
-	
-	/**
-	 *	Create job entity
-	 * 	Note: the job does not get a platformJobId because this is unknown
-	 */
-	public function createJob($config, $activity)
-	{
-		
-		$entity = new Job;
-		$entity->_id = $entity->_id;
-		$entity->domain = "sound";
-		$entity->format = "text";
-		$entity->documentType = "job";
-		$entity->type = "sound";
-		$entity->workerUnitsCount = 450;
-		$entity->batch_id = "entity/sound/sound/batch/1";
-		$entity->completion = 1;
-		$entity->expectedWorkerUnitsCount = 450;
-		$entity->finishedAt = new MongoDate;
-		$entity->jobConf_id = $config;
-		$entity->projectedCost = 12.00;
-		$entity->realCost = 11.97;
-		$entity->runningTimeInSeconds = 190714;
-		$entity->softwareAgent_id = "cf";
-		$entity->startedAt = new MongoDate;
-		$entity->status = "imported";
-		$entity->template = "text/sound/sound_annotation";
-		$entity->unitsCount = 30;
-		$entity->workersCount = 72;
-		$entity->activity_id = $activity;
-		$entity->save();
-		
-		array_push($this->status['success'], "Job created (" . $entity->_id . ")");
-		
-		return $entity;
-
-	}
-
-	
-	/**
-	 *	Create input file entity
-	 */
-	public function createInputFile($file, $activity, $project)
-	{
-		$content = File::get($file->getRealPath());
-		$hash = md5(serialize([$content]));
-		
-		$entity = Entity::withTrashed()->where('hash', $hash)->first();
-		// check if file already exists
-		if($entity)
-		{
-			// throw exception for now, as we dont want readding processed files
-			throw new \Exception("This file already exists");
-		
-			// do not delete this on rollback
-			$entity->_existing = true;
-			array_push($this->status['notice'], "Existing file found (" . $entity->_id . ")");
-		} else {
-			$entity = new Entity;
-			$entity->_id = $entity->_id;
-			$entity->title = strtolower($file->getClientOriginalName());
-			$entity->domain = 'sound';
-			$entity->format = "text";
-			$entity->documentType = 'file';
-			$entity->content = $content;
-			$entity->hash = $hash;
-			$entity->activity_id = $activity;
-			$entity->project = $project;
-			$entity->tags = [ "unit" ];
-			$entity->save();
-			
-			array_push($this->status['success'], "File created (" . $entity->_id . ")");
-		}
-		return $entity;
-	}
-
 	/**
 	 *	Create unit
 	 */
@@ -168,6 +87,20 @@ class ResultImporter {
 		return $entity;
 	}
 	
+	/**
+	 *	Create batch
+	 */
+	public function createBatch($settings)
+	{
+			
+		// check if unit already exists
+		$batch = new Batch();
+		$batch = $batch->store($settings);
+		
+		array_push($this->status['success'], "Batch created (" . $batch->_id . ")");
+		
+		return $batch;
+	}
 	
 	
 	/**
@@ -190,7 +123,7 @@ class ResultImporter {
 
 		$hash = md5(serialize([$content]));
 		
-		$entity = Entity::withTrashed()->where('hash', $hash)->first();
+		$entity = JobConfiguration::withTrashed()->where('hash', $hash)->first();
 		// check if file already exists
 		if($entity) {
 			// do not delete this on rollback
@@ -214,6 +147,45 @@ class ResultImporter {
 		return $entity;
 	}
 
+
+		
+	/**
+	 *	Create job entity
+	 * 	Note: the job does not get a platformJobId because this is unknown
+	 */
+	public function createJob($config, $activity, $batch)
+	{
+		
+		$entity = new Job;
+		$entity->_id = $entity->_id;
+		$entity->domain = "sound";
+		$entity->format = "text";
+		$entity->type = "sound";
+		$entity->workerUnitsCount = 450;
+		$entity->batch_id = $batch;
+		$entity->completion = 1;
+		$entity->expectedWorkerUnitsCount = 450;
+		$entity->finishedAt = new MongoDate;
+		$entity->jobConf_id = $config;
+		$entity->projectedCost = 12.00;
+		$entity->realCost = 11.97;
+		$entity->runningTimeInSeconds = 190714;
+		$entity->softwareAgent_id = "cf";
+		$entity->startedAt = new MongoDate;
+		$entity->status = "imported";
+		$entity->template = "text/sound/sound_annotation";
+		$entity->unitsCount = 30;
+		$entity->workersCount = 72;
+		$entity->activity_id = $activity;
+		$entity->save();
+		
+		array_push($this->status['success'], "Job created (" . $entity->_id . ")");
+		
+		return $entity;
+
+	}
+	
+	
 	/**
 	 * Create crowd agent
 	 */
@@ -289,11 +261,15 @@ class ResultImporter {
 	/**
 	 * Create worker unit
 	 */
-	public function process($file, $settings)
+	public function process($document, $settings)
 	{	
 		$this->status = ['notice' => [], 'success' => [], 'error' => []];
 
 		try {
+		
+			$settings['batch_title'] = "Imported results";
+			$settings['batch_description'] = "This batch is created from uploaded results.";
+			$settings['units'] = [];
 			
 			// keep a list of all unique units, crowdAgents and workerUnits so that we can rollback only the unique ones on error
 			$this->units = [];
@@ -303,24 +279,44 @@ class ResultImporter {
 			$this->duplicateCrowdAgents = 0;
 			$this->duplicateWorkerUnits = 0;
 		
-			// read file content and put it into an array
-			$data = $this->readCSV($file);
+			// read document content and put it into an array
+			$data = $this->readCSV($document);
 		
 			// Create activity
 			$activity = $this->createActivity();
 			
 			// Create input file
-			$inputFile = $this->createInputFile($file, $activity->id, $settings['project']);
-			
+			$file = File::store($document, $settings['project'], $activity);
+dd($file->existing);
+			// log status
+			if($file->exists) {
+				array_push($this->status['notice'], "Existing file found (" . $file->_id . ")");
+			} else {
+				array_push($this->status['success'], "File created (" . $file->_id . ")");
+			}
+
+			/*	
+			// Create Units
+			$units = array_keys(array_unique(array_column($data, 0)));
+			for ($i = 1; $i < count($units); $i ++) {
+				$content = ['id' => $data[$units[$i]][42], 'preview-hq-mp3' => $data[$units[$i]][46]];
+				$unit = $this->createUnit($settings['inputType'], $inputFile->_id, $content, $activity->_id, $settings['project']);
+				array_push($settings['units'], $unit->_id);
+			}
+
+			// Create Batch
+			$batch = $this->createBatch($settings);
+
 			$unitCount = count(array_unique(array_column($data, 42))) - 1;
 			$settings['judgmentsPerUnit'] = 30;
 			
 			// Create job configuration
 			$jobconfig = $this->createJobconf($activity->id, $settings);
-			
-			// Create job
-			$job = $this->createJob($jobconfig->_id, $activity->id);
 		
+			// Create job
+			$job = $this->createJob($jobconfig->_id, $activity->id, $batch->_id);
+		
+			
 			// temp for sounds, create annotation vector for each unit			
 			$annVector = [];
 			for ($i = 1; $i < count($data); $i ++) {
@@ -340,11 +336,11 @@ class ResultImporter {
 
 			// loop through all the judgments and add workerUnits, media units and CrowdAgents.
 			for ($i = 1; $i < count($data); $i ++) {
-				
-				// try to add unit
+			
+				// Get unit id
 				$content = ['id' => $data[$i][42], 'preview-hq-mp3' => $data[$i][46]];
 				$unit = $this->createUnit($settings['inputType'], $inputFile->_id, $content, $activity->_id, $settings['project']);
-				
+			
 				// Create CrowdAgent
 				$crowdAgent = $this->createCrowdAgent($data[$i][7], $data[$i][8], $data[$i][9], $data[$i][10], $data[$i][6]);
 				
@@ -428,7 +424,7 @@ class ResultImporter {
 			if($this->duplicateCrowdAgents > 0) { array_push($this->status['notice'], "Existing crowd agents found (" . $this->duplicateCrowdAgents . ")"); }
 			if($this->duplicateWorkerUnits > 0) { array_push($this->status['notice'], "Existing judgements found (" . $this->duplicateWorkerUnits . ")"); }
 
-
+			*/
 
 			
 			// Job's done!
@@ -440,10 +436,10 @@ class ResultImporter {
 		
 			$activity->forceDelete();
 			
-			if(!$inputFile->_existing) {
-				$inputFile->forceDelete();
+			if(!$file->isExisting()) {
+				$file->forceDelete();
 			}
-			
+			/*
 			if(!$jobconfig->_existing) {
 				$jobconfig->forceDelete();
 			}
@@ -464,7 +460,7 @@ class ResultImporter {
 			foreach($this->workerUnits as $workerUnit) {
 				$workerUnit->forceDelete();
 			}
-			
+			*/
 			return $e;
 		}
 	}

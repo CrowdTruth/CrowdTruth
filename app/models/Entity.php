@@ -61,8 +61,6 @@ class Entity extends Moloquent {
             $entity->format = strtolower($entity->format);            
             $entity->domain = strtolower($entity->domain);
             $entity->documentType = strtolower($entity->documentType);
-
-            static::validateEntity($entity);         
         });
 
         static::saved(function($entity)
@@ -86,17 +84,6 @@ class Entity extends Moloquent {
         return $seqName.'/'.$id;
     }     
   
-    public static function validateEntity($entity){
-        if(($entity->format == "text" || $entity->format == "image" || $entity->format == "video") == FALSE){
-            throw new Exception("Entity has a wrong value \"{$entity->format}\" for the format field");
-        }
-
-        // TODO: Can we remove this constraint? IF we want to be able to extend to multiple domains, then maybe we have to ?
-/*        if(($entity->domain == "medical" || $entity->domain == "news" || $entity->domain == "cultural" || $entity->domain == "art") == FALSE){
-            throw new Exception("Entity has a wrong value \"{$entity->domain}\" for the domain field");
-        } */
-    }
-
     public static function createSchema(){
         Schema::create('entities', function($collection)
         {

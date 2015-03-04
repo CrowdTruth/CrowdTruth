@@ -3,6 +3,8 @@ namespace SoftwareComponents;
 
 use \MongoDate as MongoDate;
 use Auth;
+use \SoftwareComponent as SoftwareComponent;
+use \Entity as Entity;
 
 /**
  * Software component for input file preprocessing.

@@ -5,6 +5,8 @@ namespace preprocess;
 use CoffeeScript\compact;
 use BaseController, Cart, View, App, Input, Redirect, Session;
 use League\Csv\Reader as Reader;
+use \Repository as Repository;
+use \Entity as Entity;
 
 use \Security\PermissionHandler as PermissionHandler;
 use \Security\Permissions as Permissions;

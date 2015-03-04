@@ -152,6 +152,9 @@ class MediaController extends BaseController {
 			//$outputDomain = 'medical2';
 			
 			$settings['project'] = 'soundproject';
+			$settings['documentType'] = 'sound';
+			$settings['domain'] = 'opendomain';
+			$settings['format'] = 'text';
 
 			// process file
 			$importer = new ResultImporter();
@@ -513,8 +516,8 @@ class MediaController extends BaseController {
 	{
 		if(Input::has('batch_description'))
 		{
-			$batchCreator = App::make('BatchCreator');
-			$status = $batchCreator->store(Input::all());
+			$batch = new Batch;
+			$status = $batch->store(Input::all());
 			return Redirect::to('media/search');
 		}
 

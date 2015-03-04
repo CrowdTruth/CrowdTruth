@@ -1,4 +1,7 @@
 <?php
+/**
+ * This model keeps track of the activities, for the purpose of data provenance
+ */
 class Activity extends Moloquent {
 
 	protected $collection = 'activities';

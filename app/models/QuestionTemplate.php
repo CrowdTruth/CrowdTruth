@@ -1,9 +1,5 @@
 <?php
 
-//use mongo\text\sentence;
-use MongoDB\Entity;
-use MongoDB\Activity;
-
 class QuestionTemplate extends Entity {
 
 	protected $attributes = array('documentType' => 'questiontemplate', 

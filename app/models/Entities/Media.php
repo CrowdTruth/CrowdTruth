@@ -1,47 +1,23 @@
 <?php
 
-namespace MongoDB;
-
-
-
 /**
 *   The Media class is used to create media entities. This can be both raw and structured documents.
 */
 
 class Media extends Entity { 
     
-	protected $attributes = array('documentType' => 'job');
-
-    /**
-    *   Override the standard query to include documenttype.
-    */
-    public function newQuery($excludeDeleted = true)
-    {
-        $query = parent::newQuery($excludeDeleted = true);
-        $query->where('documentType', 'job');
-        return $query;
-    }
-
 	public static function boot ()
     {
         parent::boot();
-
-        static::saving(function( $job )
-        {
-            \Log::debug('Clearing jobCache and mainSearchFilters.');
-            Temp::whereIn('_id', ['mainSearchFilters', 'jobCache', $job->_id])->forceDelete();
-        });
-
-
 
         static::creating(function ( $job )
         {
 
 		try {
-            if(!SoftwareAgent::find('jobcreator')){
+            if(!SoftwareAgent::find('mediacreator')){
                 $softwareAgent = new SoftwareAgent;
-                $softwareAgent->_id = 'jobcreator';
-                $softwareAgent->label = "Job creation";
+                $softwareAgent->_id = 'mediacreator';
+                $softwareAgent->label = "Media creation";
             }
 
 			if(!isset($job->projectedCost) and !isset($job->iamemptyjob)){

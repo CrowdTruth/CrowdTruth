@@ -1,7 +1,8 @@
 <?php
-
-use MongoDB\Entity;
-
+/*
+ * Main class for creating and managing batches
+ * A batch is a type of entity
+*/
 class Batch extends Entity {
 	
 	protected $attributes = array('documentType' => 'batch');
@@ -32,6 +33,7 @@ class Batch extends Entity {
 			
 
 			$entity = new Entity;
+			$entity->_id = $entity->_id;
 			$entity->title = $input['batch_title'];
 			// $entity->extension = $file->getClientOriginalExtension();
 			$entity->format = $input['format'];	
@@ -67,20 +69,6 @@ class Batch extends Entity {
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ?>
