@@ -3,6 +3,14 @@
  * Main class for creating and managing jobs
  * A job is a type of entity
 */
+
+namespace Entities;
+
+use \Entity as Entity;
+use \SoftwareAgent as SoftwareAgent;
+use \Activity as Activity;
+use \Temp as Temp;
+
 class Job extends Entity { 
     
 	protected $attributes = array('documentType' => 'job');
@@ -72,7 +80,7 @@ class Job extends Entity {
 			$job->forceDelete();
 			throw $e;
 		}
-             Log::debug("Saved entity {$job->_id} with activity {$job->activity_id}.");
+             \Log::debug("Saved entity {$job->_id} with activity {$job->activity_id}.");
         });
 
      } 
@@ -190,19 +198,19 @@ class Job extends Entity {
 	}
 
     public function jobConfiguration(){
-        return $this->hasOne('JobConfiguration', '_id', 'jobConf_id');
+        return $this->hasOne('\Entities\JobConfiguration', '_id', 'jobConf_id');
     }
 
     public function questionTemplate(){
-        return $this->hasOne('QuestionTemplate', '_id', 'questionTemplate_id');
+        return $this->hasOne('\Entities\QuestionTemplate', '_id', 'questionTemplate_id');
     }
 
     public function batch(){
-        return $this->hasOne('Batch', '_id', 'batch_id');
+        return $this->hasOne('\Entities\Batch', '_id', 'batch_id');
     }
 
     public function workerunits(){
-        return $this->hasMany('Workerunit', 'job_id', '_id');
+        return $this->hasMany('\Entities\Workerunit', 'job_id', '_id');
     }
 
 

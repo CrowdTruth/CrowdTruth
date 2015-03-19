@@ -3,6 +3,16 @@ namespace Queues;
 
 use Exception;
 
+use \Entity as Entity;
+use \SoftwareAgent as SoftwareAgent;
+use \Activity as Activity;
+
+use \Entities\File as File;
+use \Entities\Media as Media;
+use \Entities\Batch as Batch;
+use \Entities\Job as Job;
+use \Entities\Workerunit as Workerunit;
+
 class UpdateJob {
 
 

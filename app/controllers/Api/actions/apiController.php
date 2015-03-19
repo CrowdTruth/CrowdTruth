@@ -6,7 +6,7 @@ use \URL as URL;
 use \Response as Response;
 use \Auth as Auth;
 
-use \Entity\Job;
+use \Entity as Entity;
 use \Exception;
 
 class apiController extends BaseController {

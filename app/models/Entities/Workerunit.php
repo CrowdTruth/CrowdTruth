@@ -3,6 +3,13 @@
  * Main class for creating and managing batches
  * A workerunit is a type of entity and contains the raw annotations one worker makes for one unit
 */
+
+namespace Entities;
+
+use \Entity as Entity;
+use \SoftwareAgent as SoftwareAgent;
+use \Activity as Activity;
+
 class Workerunit extends Entity {
 
 	protected $attributes = array(  'format' => 'text', 
@@ -722,11 +729,11 @@ class Workerunit extends Entity {
 	}
 
 	public function job(){
-		return $this->belongsTo('Job', '_id', 'job_id');
+		return $this->belongsTo('\Entities\Job', '_id', 'job_id');
 	}
 
     public function unit(){
-        return $this->hasOne('MongoDB\Entity', '_id', 'unit_id');
+        return $this->hasOne('\Entities\Unit', '_id', 'unit_id');
     }
 
 

@@ -12,8 +12,6 @@ use \Activity as Activity;
 
 class File extends Entity { 
     
-	protected $existing = false;
-	
 	// Function to store a new file
 	public static function store($document, $project, $activity = false)
 	{
@@ -28,12 +26,8 @@ class File extends Entity {
 		} else {
 			try {
 
-				// Create the SoftwareAgent
-				if(!SoftwareAgent::find('filecreator')){
-					$softwareAgent = new SoftwareAgent;
-					$softwareAgent->_id = 'filecreator';
-					$softwareAgent->label = "File creation";
-				}
+				// Create the SoftwareAgent if it doesnt exist
+				SoftwareAgent::store('filecreator', 'File creation');
 				
 				if(!isset($activity)){
 					$activity = new Activity;
@@ -76,10 +70,6 @@ class File extends Entity {
 		$content = self::getContent($document);
 		$hash = md5(serialize([$content]));
 		return $hash;
-	}
-	
-	public function isExisting() {
-		return $this->existing;
 	}
 }
 ?>

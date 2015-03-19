@@ -5,8 +5,10 @@ use \Input as Input;
 use \URL as URL;
 use \Auth as Auth;
 use \Response as Response;
+use \Repository as Repository;
+use \Entity as Entity;
+use \CrowdAgent as CrowdAgent;
 
-use \Entity\Job;
 use \Exception;
 
 class apiController extends BaseController
@@ -247,9 +249,14 @@ class apiController extends BaseController
         //remove the scope when the db is fixed
         $scope = array();
         $aggregateOperators = $this->processAggregateInput(Input::all());
-        if (array_key_exists('unit_id', $aggregateOperators['$match'])){
+		if(array_key_exists('crowdAgent_id',$aggregateOperators['$match'])) {
+			ksort($aggregateOperators['$match']['crowdAgent_id']['$nin']);
+		}
+		
+		if (array_key_exists('unit_id', $aggregateOperators['$match'])){
             $scope = $aggregateOperators['$match']['unit_id']['$nin'];
         }
+		
         $sales = $db->command(array(
             "mapreduce" => "entities",
             "map" => $map,
@@ -312,8 +319,13 @@ class apiController extends BaseController
         }");
         $scope = array();
         $aggregateOperators = $this->processAggregateInput(Input::all());
+		
+		if(array_key_exists('unit_id',$aggregateOperators['$match'])) {
+			ksort($aggregateOperators['$match']['unit_id']['$nin']);
+		}
+		
         if (array_key_exists('unit_id', $aggregateOperators['$match'])){
-            $scope = $aggregateOperators['$match']['unit_id']['$nin'];
+		    $scope = $aggregateOperators['$match']['unit_id']['$nin'];
         }
 
         $sales = $db->command(array(

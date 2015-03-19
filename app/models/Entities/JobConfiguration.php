@@ -4,6 +4,13 @@
  * A job configuration is a type of entity
  * Configurations are reusable across jobs
 */
+
+namespace Entities;
+
+use \Entity as Entity;
+use \SoftwareAgent as SoftwareAgent;
+use \Activity as Activity;
+
 class JobConfiguration extends Entity {
 	protected $guarded = array();
 	protected $attributes = array('documentType' => 'jobconf');

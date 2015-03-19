@@ -3,72 +3,56 @@
  * Main class for creating and managing batches
  * A batch is a type of entity
 */
+
+namespace Entities;
+
+use \Entity as Entity;
+use \Queue as Queue;
+use \SoftwareAgent as SoftwareAgent;
+use \Activity as Activity;
+
 class Batch extends Entity {
 	
 	protected $attributes = array('documentType' => 'batch');
 
-
-	public function store(array $input){
-
-		try {
-			$this->createBatchSoftwareAgent();
-		} catch (Exception $e) {
-			$status['error']['FileUpload'] = $e->getMessage();
-			return $status;
-		}
-
-		try {
-			$activity = new Activity;
-			$activity->softwareAgent_id = "batchcreator";
-			$activity->save();
-
-		} catch (Exception $e) {
-			// Something went wrong with creating the Activity
-			$activity->forceDelete();
-			Session::flash('flashError', $e->getMessage());
-			return false;
-		}
+	public static function store($settings, $activity = false)
+	{
 
 		try {
 			
+			// Create the SoftwareAgent if it doesnt exist
+			SoftwareAgent::store('batchcreator', 'Batch creation');
 
-			$entity = new Entity;
-			$entity->_id = $entity->_id;
-			$entity->title = $input['batch_title'];
-			// $entity->extension = $file->getClientOriginalExtension();
-			$entity->format = $input['format'];	
-			$entity->domain = $input['domain'];	
-			$entity->documentType = "batch";
-			$entity->parents = $input['units'];
-			$entity->content = $input['batch_description'];
-			$entity->hash = md5(serialize($entity->parents));
-			$entity->activity_id = $activity->_id;
-			$entity->save();
+			if(!isset($activity)){
+				$activity = new Activity;
+				$activity->label = "Batch added to the platform";
+				$activity->softwareAgent_id = 'mediacreator';
+				$activity->save();
+			}
 
-			Queue::push('Queues\UpdateUnits', $input['units']);
-			
-			Session::flash("flashSuccess", $input['batch_title'] . " batch was successfully created. (URI: {$entity->_id})");
+			$batch = new Batch;
+			$batch->_id = $batch->_id;
+			$batch->title = $settings['batch_title'];
+			$batch->format = $settings['format'];	
+			$batch->domain = $settings['domain'];	
+			$batch->documentType = "batch";
+			$batch->parents = $settings['units'];
+			$batch->content = $settings['batch_description'];
+			$batch->hash = md5(serialize($batch->parents));
+			$batch->activity_id = $activity->_id;
+			$batch->save();
+
+			Queue::push('Queues\UpdateUnits', $settings['units']);
+			return $batch;
+
 		} catch (Exception $e) {
-			// Something went wrong with creating the Entity
+
+			// Something went wrong with creating the Batch
 			$activity->forceDelete();			
-			$entity->forceDelete();
-			Session::flash('flashError', $e->getMessage());
+			$batch->forceDelete();
 			return false;
-		}
-
-		return $entity;
-	}
-
-	public function createBatchSoftwareAgent(){
-		if(!SoftwareAgent::find('batchcreator'))
-		{
-			$softwareAgent = new SoftwareAgent;
-			$softwareAgent->_id = "batchcreator";
-			$softwareAgent->label = "This component is used for creating batches with units etc.";
-			$softwareAgent->save();
 		}
 	}
 }
-
 
 ?>

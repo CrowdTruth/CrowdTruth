@@ -5,8 +5,12 @@ use \Validator as Validator;
 use \MongoDate;
 
 use \Entities\File as File;
+use \Entities\Unit as Unit;
+use \Entities\Batch as Batch;
+use \Entities\Job as Job;
+use \Entities\JobConfiguration as JobConfiguration;
 
-use SoftwareAgent, Activity, Entity, Job, JobConfiguration, Media, Batch;
+use SoftwareAgent, CrowdAgent, Activity, Entity;
 
 class ResultImporter {
 	protected $softwareComponent;
@@ -47,59 +51,6 @@ class ResultImporter {
 		fclose($handle);
 		
 		return $data;
-	}
-	
-	/**
-	 *	Create unit
-	 */
-	public function createUnit($docType, $parent, $content, $activity, $project)
-	{
-		$hash = md5(serialize([$content]));
-		
-		$entity = Entity::withTrashed()->where('hash', $hash)->first();
-		
-		// check if unit already exists
-		if($entity) {
-			// check if already in this job
-			if(!array_key_exists($entity->_id, $this->units)) {
-				$this->duplicateUnits++;
-				// do not delete this on rollback
-				$entity->_existing = true;
-				
-				$this->units[$entity->_id] = $entity;
-			}
-		} else {
-			$entity = new Entity;
-			$entity->_id = $entity->_id;
-			$entity->domain = 'sound';
-			$entity->format = "text";
-			$entity->documentType = $docType;
-			$entity->parents = [$parent];
-			$entity->content = $content;
-			$entity->hash = $hash;
-			$entity->activity_id = $activity;
-			$entity->project = $project;
-			$entity->tags = [ "unit" ];
-			$entity->save();
-			
-			$this->units[$entity->_id] = $entity;
-		}
-		return $entity;
-	}
-	
-	/**
-	 *	Create batch
-	 */
-	public function createBatch($settings)
-	{
-			
-		// check if unit already exists
-		$batch = new Batch();
-		$batch = $batch->store($settings);
-		
-		array_push($this->status['success'], "Batch created (" . $batch->_id . ")");
-		
-		return $batch;
 	}
 	
 	
@@ -158,15 +109,17 @@ class ResultImporter {
 		
 		$entity = new Job;
 		$entity->_id = $entity->_id;
+		$entity->batch_id = $batch->_id;
 		$entity->domain = "sound";
 		$entity->format = "text";
 		$entity->type = "sound";
+		$entity->documentType = "job";
 		$entity->workerUnitsCount = 450;
-		$entity->batch_id = $batch;
 		$entity->completion = 1;
 		$entity->expectedWorkerUnitsCount = 450;
 		$entity->finishedAt = new MongoDate;
 		$entity->jobConf_id = $config;
+		$entity->platformJobId = 1234;
 		$entity->projectedCost = 12.00;
 		$entity->realCost = 11.97;
 		$entity->runningTimeInSeconds = 190714;
@@ -267,12 +220,10 @@ class ResultImporter {
 
 		try {
 		
-			$settings['batch_title'] = "Imported results";
-			$settings['batch_description'] = "This batch is created from uploaded results.";
 			$settings['units'] = [];
 			
 			// keep a list of all unique units, crowdAgents and workerUnits so that we can rollback only the unique ones on error
-			$this->units = [];
+			$units = [];
 			$this->crowdAgents = [];
 			$this->workerUnits = [];
 			$this->duplicateUnits = 0;
@@ -287,7 +238,7 @@ class ResultImporter {
 			
 			// Create input file
 			$file = File::store($document, $settings['project'], $activity);
-dd($file->existing);
+
 			// log status
 			if($file->exists) {
 				array_push($this->status['notice'], "Existing file found (" . $file->_id . ")");
@@ -295,34 +246,43 @@ dd($file->existing);
 				array_push($this->status['success'], "File created (" . $file->_id . ")");
 			}
 
-			/*	
+			// temporary mapping of CF unit ids to CrowdTruth unit ids
+			$unitMap = [];
+			
 			// Create Units
-			$units = array_keys(array_unique(array_column($data, 0)));
-			for ($i = 1; $i < count($units); $i ++) {
-				$content = ['id' => $data[$units[$i]][42], 'preview-hq-mp3' => $data[$units[$i]][46]];
-				$unit = $this->createUnit($settings['inputType'], $inputFile->_id, $content, $activity->_id, $settings['project']);
-				array_push($settings['units'], $unit->_id);
+			$unitIds = array_keys(array_unique(array_column($data, 0)));
+			for ($i = 1; $i < count($unitIds); $i ++) {
+				$content = ['id' => $data[$unitIds[$i]][array_search('id',$data[0])], 'preview-hq-mp3' => $data[$unitIds[$i]][array_search('preview-hq-mp3',$data[0])]];
+				$unit = Unit::store($settings['inputType'], $file->_id, $content, $settings['project'], $activity);
+				$units[$unit->_id] = $unit;
+				$unitMap[$data[$unitIds[$i]][0]] = $unit->_id;
 			}
 
-			// Create Batch
-			$batch = $this->createBatch($settings);
 
-			$unitCount = count(array_unique(array_column($data, 42))) - 1;
-			$settings['judgmentsPerUnit'] = 30;
-			
+			// Create Batch
+			$settings['units'] = array_keys($units);
+			$settings['batch_title'] = "Imported batch";
+			$settings['batch_description'] = "Batch added via result importer";
+					
+			$batch = Batch::store($settings, $activity);
+
 			// Create job configuration
+			$unitCount = count(array_unique(array_column($data, array_search('id',$data[0])))) - 1;
+			$settings['judgmentsPerUnit'] = 10;
+
 			$jobconfig = $this->createJobconf($activity->id, $settings);
 		
 			// Create job
-			$job = $this->createJob($jobconfig->_id, $activity->id, $batch->_id);
+			$job = $this->createJob($jobconfig->_id, $activity->_id, $batch);
 		
-			
+		
 			// temp for sounds, create annotation vector for each unit			
 			$annVector = [];
+			$result = [];
 			for ($i = 1; $i < count($data); $i ++) {
 		
 				// for each keywords
-				$keywords = explode(',', $data[$i][35]);
+				$keywords = explode(',', $data[$i][array_search('keywords',$data[0])]);
 				foreach($keywords as $keyword) {
 					$keyword = trim(strtolower(str_replace('.', '', $keyword)));
 					if($keyword != "") {
@@ -332,20 +292,21 @@ dd($file->existing);
 						}
 					}
 				}
+				$result[$unitMap[$data[$i][0]]] = ['keywords' => $annVector[$data[$i][0]]];
 			}
 
 			// loop through all the judgments and add workerUnits, media units and CrowdAgents.
 			for ($i = 1; $i < count($data); $i ++) {
 			
 				// Get unit id
-				$content = ['id' => $data[$i][42], 'preview-hq-mp3' => $data[$i][46]];
-				$unit = $this->createUnit($settings['inputType'], $inputFile->_id, $content, $activity->_id, $settings['project']);
+				$content = ['id' => $data[$i][array_search('id',$data[0])], 'preview-hq-mp3' => $data[$i][array_search('preview-hq-mp3',$data[0])]];
+				$unit = Unit::store($settings['inputType'], $file->_id, $content, $settings['project'], $activity);
 			
 				// Create CrowdAgent
 				$crowdAgent = $this->createCrowdAgent($data[$i][7], $data[$i][8], $data[$i][9], $data[$i][10], $data[$i][6]);
 				
 				// Create workerUnit
-				$content = ['keywords' => trim(strtolower(str_replace('.', '', $data[$i][35])))];
+				$content = ['keywords' => trim(strtolower(str_replace('.', '', $data[$i][array_search('keywords',$data[0])])))];
 				$vector = $annVector[$data[$i][0]];
 				
 				
@@ -362,7 +323,7 @@ dd($file->existing);
 			}	
 			
 
-			
+			/*
 			// aggregate all results	
 			$result = array();
 			$annotations = Entity::where("documentType", "=", "workerunit")->where("job_id", "=", $job->_id)->get();
@@ -390,6 +351,7 @@ dd($file->existing);
 				   }
 			   }
 			}
+			*/
 
 			if(!isset($job->results)){
 			   $job->results = array('withSpam' => $result);
@@ -401,30 +363,35 @@ dd($file->existing);
 			$job->update();
 			
 			// metrics		
-			//exec('C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe ' . base_path()  . '/app/lib/generateMetrics.py '.$job->_id.' '.$template, $output, $error);
-			//$job->JobConfiguration->replicate();
-			//dd($job->jobConfiguration->content['workerunitsPerUnit']);
-//			\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+			$template = 'entity/text/medical/FactSpan/Factor_Span/0';
+			exec('C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe ' . base_path()  . '/app/lib/generateMetrics.py '.$job->_id.' '.$template, $output, $error);
+			$job->JobConfiguration->replicate();
+			
+			// save metrics in the job
+			$response = json_decode($output[0],true);
+			$job->metrics = $response['metrics'];
+			$r = $job->results;
+			$r['withoutSpam'] = $response['results']['withoutSpam'];
+			$job->results = $r;
+			$job->save();
+			
+			\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 	
 			// update worker cache
 			foreach ($this->crowdAgents as $worker) {
-				set_time_limit(30);
+				set_time_limit(60);
 				\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($worker)));
 			}
 			
 			// update units
-//			foreach ($this->units as $unit) {
-//				set_time_limit(30);
-//				\Queue::push('Queues\UpdateUnits', array('unit' => serialize($unit)));
-//			}
-
+			\Queue::push('Queues\UpdateUnits', $settings['units']);
 			
 			// Notice that units already existed in the database
-			if($this->duplicateUnits > 0) { array_push($this->status['notice'], "Existing media units found (" . $this->duplicateUnits . ")"); }
+			if($this->duplicateUnits > 0) { array_push($this->status['notice'], "Existing units found (" . $this->duplicateUnits . ")"); }
 			if($this->duplicateCrowdAgents > 0) { array_push($this->status['notice'], "Existing crowd agents found (" . $this->duplicateCrowdAgents . ")"); }
 			if($this->duplicateWorkerUnits > 0) { array_push($this->status['notice'], "Existing judgements found (" . $this->duplicateWorkerUnits . ")"); }
 
-			*/
+
 
 			
 			// Job's done!
@@ -436,17 +403,17 @@ dd($file->existing);
 		
 			$activity->forceDelete();
 			
-			if(!$file->isExisting()) {
+			if(!$file->exists) {
 				$file->forceDelete();
 			}
-			/*
-			if(!$jobconfig->_existing) {
+			
+			if(!$jobconfig->_existing){
 				$jobconfig->forceDelete();
 			}
 			$job->forceDelete();
 			
 			foreach($this->units as $unit) {
-				if(!$unit->_existing) {
+				if(!$unit->exists) {
 					$jobconfig->forceDelete();
 				}
 			}
@@ -460,7 +427,7 @@ dd($file->existing);
 			foreach($this->workerUnits as $workerUnit) {
 				$workerUnit->forceDelete();
 			}
-			*/
+			
 			return $e;
 		}
 	}

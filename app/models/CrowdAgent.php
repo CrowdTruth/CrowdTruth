@@ -1,4 +1,9 @@
 <?php
+
+use \Entities\Job as Job;
+use \Entities\Workerunit as Workerunit;
+use \Entity as Entity;
+
 class CrowdAgent extends Moloquent {
 
 	protected $collection = 'crowdagents';
@@ -13,7 +18,7 @@ class CrowdAgent extends Moloquent {
 	
     // TODO: optimize
     public function updateStats2() {
-      
+
         // take all the jobs for that worker
         if($crowdAgentJobs = Job::where('metrics.workers.withFilter.' . $this->_id, 'exists', true)->get(['_id'])) {
             //if there is at least one job with that worker
@@ -34,7 +39,7 @@ class CrowdAgent extends Moloquent {
                     $unitids[] = $a->unit_id;
        
                 }
-
+ 
                // $this->WorkerunitStats = array('count'=>$total['count'], 'spam'=>$spam, 'nonspam'=>$nonspam);
                 $distinctWorkerunitTypes = array_unique($types); // These actually are the Workerunit types
                 $distinctMediaFormats = array_unique($formats);
@@ -50,7 +55,7 @@ class CrowdAgent extends Moloquent {
                 // take all distinct batches
                 $distinctBatchIds = Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('batch_id')->get(['_id']);
 
-
+				/*
                 $cache["mediaTypes"] = [
                     //  "distinct" => count($distinctMediaTypes),
                         "count" => count($distinctWorkerunitTypes), //,
@@ -73,7 +78,7 @@ class CrowdAgent extends Moloquent {
                     }
                 }
                 $cache["mediaTypes"]["distinct"] = sizeof(array_keys($cache["mediaTypes"]["types"]));
-                
+                */
 
 
                 if(count($distinctWorkerunitTypes) > 0) {
@@ -101,6 +106,7 @@ class CrowdAgent extends Moloquent {
                 }
 
 
+				/*
                 if(count($distinctMediaFormats) > 0) {
                     $cache["mediaFormats"] = [
                         "distinct" => count($distinctMediaFormats),
@@ -128,7 +134,9 @@ class CrowdAgent extends Moloquent {
                     }                                                   
                 }
 
-                $jobsAsSpammer = Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereIn('metrics.spammers.list', [$this->_id])->lists('platformJobId');
+				*/
+				
+                $jobsAsSpammer = Job::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereIn('metrics.spammers.list', [$this->_id])->lists('platformJobId');
                 $cache["spammer"]["count"] = count($jobsAsSpammer);
                 $cache["spammer"]["jobs"] = array_flatten($jobsAsSpammer);
 
@@ -208,7 +216,7 @@ class CrowdAgent extends Moloquent {
 	}
 
 	public function workerunits(){
-		return $this->hasMany('Workerunit', 'crowdAgent_id', '_id');
+		return $this->hasMany('\Entities\Workerunit', 'crowdAgent_id', '_id');
 	}
 
 

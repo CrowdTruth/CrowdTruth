@@ -1,7 +1,15 @@
 <?php
 namespace Queues;
 
-use Job, Entity, Workerunit;
+use \Entity as Entity;
+use \SoftwareAgent as SoftwareAgent;
+use \Activity as Activity;
+
+use \Entities\File as File;
+use \Entities\Unit as Unit;
+use \Entities\Batch as Batch;
+use \Entities\Job as Job;
+use \Entities\Workerunit as Workerunit;
 
 class UpdateUnits {
 
@@ -10,14 +18,15 @@ class UpdateUnits {
 	*/
 	public function fire($job, $data){
 
-
 		foreach($data as $id)
         {
-        	set_time_limit(30);
-
+		
+	
+        	set_time_limit(600);
+			
         	$unit = Entity::id($id)->first();
-        //    dd($id);
-            $batch['count'] = count(Entity::where('documentType', 'batch')->where('parents', 'all', array($unit->_id))->get()->toArray());
+			
+            $batches = count(Batch::whereIn('parents', [$unit->_id])->get()->toArray());
 
             $workerunit = array('count'=>0, 'spam'=>0, 'nonSpam'=>0);
             $workerlist = $workersspam = $workersnonspam = $joblist = array();
@@ -61,21 +70,23 @@ class UpdateUnits {
                             "softwareAgent" => $platformField,
                 			"workerunits" => $workerunit,
                             "filtered" => $filteredField,
-                			"batches" => $batch,
+                			"batches" => $batches,
                             "children" => $children];
-            $unit->update();
-	    $avg_clarity = Entity::where('metrics.units.withoutSpam.'.$unit->_id, 'exists', 'true')->avg('metrics.units.withoutSpam.'.$unit->id.'.max_relation_Cos.avg');
-	    if (!isset($avg_clarity)) $avg_clarity = 0;
-        	$unit->avg_clarity = $avg_clarity;
-        	$unit->update();
+
+			$avg_clarity = Entity::where('metrics.units.withoutSpam.'.$unit->_id, 'exists', 'true')->avg('metrics.units.withoutSpam.'.$unit->id.'.avg.max_relation_Cos');
+			if (!isset($avg_clarity)) {
+				$avg_clarity = 0;
+			}
+			
+			$unit->avg_clarity = $avg_clarity;
+			$unit->update();
 
             \Log::debug("Updated unit {$unit->_id}.");
+			
         }
-
+		
 		$job->delete(); // the Queue job...
+		
 	}
-
-
 }
-
 ?>
