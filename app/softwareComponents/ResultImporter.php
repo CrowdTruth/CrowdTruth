@@ -104,7 +104,7 @@ class ResultImporter {
 	 *	Create job entity
 	 * 	Note: the job does not get a platformJobId because this is unknown
 	 */
-	public function createJob($config, $activity, $batch)
+	public function createJob($config, $activity, $batch, $jobid)
 	{
 		
 		$entity = new Job;
@@ -114,12 +114,11 @@ class ResultImporter {
 		$entity->format = "text";
 		$entity->type = "sound";
 		$entity->documentType = "job";
-		$entity->workerUnitsCount = 450;
 		$entity->completion = 1;
 		$entity->expectedWorkerUnitsCount = 450;
 		$entity->finishedAt = new MongoDate;
 		$entity->jobConf_id = $config;
-		$entity->platformJobId = 1234;
+		$entity->platformJobId = $jobid;
 		$entity->projectedCost = 12.00;
 		$entity->realCost = 11.97;
 		$entity->runningTimeInSeconds = 190714;
@@ -127,8 +126,6 @@ class ResultImporter {
 		$entity->startedAt = new MongoDate;
 		$entity->status = "imported";
 		$entity->template = "text/sound/sound_annotation";
-		$entity->unitsCount = 30;
-		$entity->workersCount = 72;
 		$entity->activity_id = $activity;
 		$entity->save();
 		
@@ -216,6 +213,9 @@ class ResultImporter {
 	 */
 	public function process($document, $settings)
 	{	
+		// increase memory usage to support larger files with up to 10k judgments
+		ini_set('memory_limit','256M');
+		
 		$this->status = ['notice' => [], 'success' => [], 'error' => []];
 
 		try {
@@ -240,7 +240,7 @@ class ResultImporter {
 			$file = File::store($document, $settings['project'], $activity);
 
 			// log status
-			if($file->exists) {
+			if($file->exists()) {
 				array_push($this->status['notice'], "Existing file found (" . $file->_id . ")");
 			} else {
 				array_push($this->status['success'], "File created (" . $file->_id . ")");
@@ -273,7 +273,7 @@ class ResultImporter {
 			$jobconfig = $this->createJobconf($activity->id, $settings);
 		
 			// Create job
-			$job = $this->createJob($jobconfig->_id, $activity->_id, $batch);
+			$job = $this->createJob($jobconfig->_id, $activity->_id, $batch, $settings['filename']);
 		
 		
 			// temp for sounds, create annotation vector for each unit			
@@ -351,7 +351,7 @@ class ResultImporter {
 				   }
 			   }
 			}
-			*/
+			
 
 			if(!isset($job->results)){
 			   $job->results = array('withSpam' => $result);
@@ -364,7 +364,7 @@ class ResultImporter {
 			
 			// metrics
 			$template = 'entity/text/medical/FactSpan/Factor_Span/0';
-			exec('C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe ' . base_path()  . '/app/lib/generateMetrics.py '.$job->_id.' '.$template, $output, $error);
+			exec('C:\Users\Benjamin\AppData\Local\Enthought\Canopy\User\python.exe ' . base_path()  . '/app/lib/generateMetrics.py '.$job->_id.' '.$template, $output, $error);
 			$job->JobConfiguration->replicate();
 			
 			// save metrics in the job
@@ -374,17 +374,26 @@ class ResultImporter {
 			$r['withoutSpam'] = $response['results']['withoutSpam'];
 			$job->results = $r;
 			$job->save();
+			*/
 			
-			//\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+			// update job cache
+			\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 	
+			
+			// update workerunits
+			foreach ($this->workerUnits as $workerunit) {
+				set_time_limit(60);
+				\Queue::push('Queues\UpdateWorkerunits', array('workerunit' => serialize($workerunit)));
+			}
+
 			// update worker cache
 			foreach ($this->crowdAgents as $worker) {
 				set_time_limit(60);
-				//\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($worker)));
+				\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($worker)));
 			}
 			
 			// update units
-			//\Queue::push('Queues\UpdateUnits', $settings['units']);
+			\Queue::push('Queues\UpdateUnits', $settings['units']);
 			
 			// Notice that units already existed in the database
 			if($this->duplicateUnits > 0) { array_push($this->status['notice'], "Existing units found (" . $this->duplicateUnits . ")"); }
@@ -403,7 +412,7 @@ class ResultImporter {
 		
 			$activity->forceDelete();
 			
-			if(!$file->exists) {
+			if(!$file->exists()) {
 				$file->forceDelete();
 			}
 			
@@ -413,7 +422,7 @@ class ResultImporter {
 			$job->forceDelete();
 			
 			foreach($this->units as $unit) {
-				if(!$unit->exists) {
+				if(!$unit->exists()) {
 					$jobconfig->forceDelete();
 				}
 			}

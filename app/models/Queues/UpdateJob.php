@@ -117,7 +117,7 @@ class UpdateJob {
 				set_time_limit(3600); // One hour.
 				$apppath = app_path();
 				//$command = "/usr/bin/python2.7 $apppath/lib/generateMetrics.py '{$j->_id }' '$templateid'";
-				$command = "C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe $apppath/lib/generateMetrics.py {$j->_id } $templateid";
+				$command = "C:\Users\Benjamin\AppData\Local\Enthought\Canopy\User\python.exe $apppath/lib/generateMetrics.py {$j->_id } $templateid";
 				\Log::debug("Command: $command");
 				exec($command, $output, $return_var);
 				\Log::debug("Metrics done.");
@@ -129,6 +129,12 @@ class UpdateJob {
 				if(!$response or !isset($response['metrics']))
 					throw new Exception("Incorrect response from generateMetrics.py.");
 
+					
+				// update list of spammers
+				foreach($response['metrics']['spammers']['list'] as $spammer) {
+					$response['metrics']['workers']['withoutFilter'][$spammer]['spam'] = 1;
+				}			
+					
 				$j->metrics = $response['metrics'];
 				$r = $j->results;
 				$r['withoutSpam'] = $response['results']['withoutSpam'];
@@ -136,7 +142,7 @@ class UpdateJob {
 				
 				//\Log::debug(end($output));
 				//$j->latestMetrics = .25;
-				
+			
 				$this->createMetricActivity($j->_id);
 				$j->save();
 

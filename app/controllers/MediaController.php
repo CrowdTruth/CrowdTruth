@@ -144,6 +144,7 @@ class MediaController extends BaseController {
 			
 			$settings = [];
 			$settings['inputType'] = 'sound';
+			$settings['filename'] = basename($files->getClientOriginalName(), '.csv');
 			//$inputFormat = 'text';
 			//$inputDomain = 'medical';
 			

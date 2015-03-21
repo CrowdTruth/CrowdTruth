@@ -41,6 +41,8 @@ class Worker:
             #update this to be computed per term
             if WorkerMetricsEnum.no_of_units == metric_key:
                     metric_value = len(self.unit_vectors)
+            elif WorkerMetricsEnum.spam == metric_key:
+                    metric_value = 0
             elif WorkerMetricsEnum.ann_per_unit == metric_key:
                     metric_value = self.get_ann_per_unit()
             elif WorkerMetricsEnum.avg_worker_agreement == metric_key:

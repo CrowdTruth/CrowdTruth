@@ -236,7 +236,7 @@
 						    <th class="header" rowspan="2">Platform</th>
 						    <th class="header" rowspan="2">Platform Quality</th>
 						    <th class="header" colspan="2">Worker Metrics Across all Jobs</th>
-						    <th class="header" colspan="4">Worker Metrics Across Job</th>
+						    <th class="header" colspan="5">Worker Metrics Across Job</th>
 						</tr> 
 						<tr>
 						    <th> Avg. Worker Agreement </th>
@@ -245,10 +245,11 @@
 						    <th> Worker Cosine </th>	
 						    <th> # Ann / Unit </th>
 						    <th> # Ann Units </th>
+						    <th> Spammer </th>
 						  </tr>
 						</thead>
 						<tbody>
-						 @{{#each this.infoStat.metrics.workers.withFilter}} 
+						 @{{#each this.infoStat.metrics.workers.withoutFilter}} 
 						 @{{type @key}}
 						 <tr>
 						  <td> @{{ @key }} </td>
@@ -263,7 +264,8 @@
 						   <td> @{{ toFixed avg_worker_agreement 2 }} </td>
 						   <td> @{{ toFixed worker_cosine 2 }} </td>
 						   <td> @{{ toFixed ann_per_unit 2 }} </td>
-						   <td> @{{ toFixed no_of_units 2 }} </td>
+						   <td> @{{ toFixed no_of_units }} </td>
+						   <td> @{{ spam }} </td>
 						  </tr>
 						  @{{/each}}  	
 						 </tbody>
