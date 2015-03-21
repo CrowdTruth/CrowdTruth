@@ -884,10 +884,13 @@ var dynamicTemplate = function() {
 						template += '<td data-vbIdentifier="id"><img style="max-width:100px; max-height:100px;border:0px;" src="@{{ this.' + columns[i] + ' }}" /></td>';
 					break;
 					case 'sound':
-						template += '<td data-vbIdentifier="id"><audio class="audio" src="@{{ this.' + columns[i] + ' }}" preload="none" controls="controls">Please update your browser to the latest version in order to complete this task.</audio>';
+						template += '<td data-vbIdentifier="id"><audio class="audio" src="@{{ this.' + columns[i] + ' }}" preload="none" controls="controls">Please update your browser to the latest version in order to complete this task.</audio></td>';
 					break;
 					case 'video':
-						template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video>';
+						template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video></td>';
+					break;
+					case 'number':
+						template += '<td data-vbIdentifier="id">@{{ toFixed this.' + columns[i] + ' 2 }}</td>';
 					break;
 					default:
 						template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';

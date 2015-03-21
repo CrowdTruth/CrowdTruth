@@ -362,7 +362,7 @@ class ResultImporter {
 			}
 			$job->update();
 			
-			// metrics		
+			// metrics
 			$template = 'entity/text/medical/FactSpan/Factor_Span/0';
 			exec('C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe ' . base_path()  . '/app/lib/generateMetrics.py '.$job->_id.' '.$template, $output, $error);
 			$job->JobConfiguration->replicate();
@@ -375,16 +375,16 @@ class ResultImporter {
 			$job->results = $r;
 			$job->save();
 			
-			\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+			//\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 	
 			// update worker cache
 			foreach ($this->crowdAgents as $worker) {
 				set_time_limit(60);
-				\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($worker)));
+				//\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($worker)));
 			}
 			
 			// update units
-			\Queue::push('Queues\UpdateUnits', $settings['units']);
+			//\Queue::push('Queues\UpdateUnits', $settings['units']);
 			
 			// Notice that units already existed in the database
 			if($this->duplicateUnits > 0) { array_push($this->status['notice'], "Existing units found (" . $this->duplicateUnits . ")"); }

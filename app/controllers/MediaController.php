@@ -189,7 +189,7 @@ class MediaController extends BaseController {
 		$formats = $searchComponent->getFormats();
 		
 		// default columns
-		$default = ['_id','documentType','title','created_at','project','user_id']; // default visible columns
+		$default = ['_id','documentType','title','created_at','project','user_id','avg_clarity']; // default visible columns
 		
 		return [
 			'log' => $documents,
