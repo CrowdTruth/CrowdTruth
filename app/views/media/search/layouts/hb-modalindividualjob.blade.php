@@ -163,12 +163,13 @@
 						  <tr>
 						     <th class="header" rowspan="2">Unit Format</th>
     						     <th class="header" rowspan="2">Filtered</th>
-						     <th class="header" colspan="6">Unit Metrics</th>
+						     <th class="header" colspan="7">Unit Metrics</th>
 						     <th class="header" rowspan="2">Annotation Vector</th>
 						  </tr>
 						  <tr>
 						    <th> # Workers </th>	
 						    <th> Max Rel Cos </th>	
+						    <th> Vector Length </th>	
 						    <th> Norm Magnitude </th>
 						    <th> Magnitude </th>
 						    <th> Norm Rel Magnitude All </th>
@@ -187,6 +188,7 @@
 						    @{{/inArray}}
 						    <td> @{{ toFixed avg.no_annotators 2}} </td>
 						    <td> @{{ toFixed avg.max_relation_Cos 2}} </td>
+						    <td> @{{ avg.vector_size }} </td>
 						    <td> @{{ toFixed avg.norm_magnitude 2}} </td>
 						    <td> @{{ toFixed avg.magnitude 2}} </td>
 						    <td> @{{ toFixed avg.norm_relation_magnitude_all 2}} </td>

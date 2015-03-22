@@ -13,7 +13,7 @@ use \Activity as Activity;
 class File extends Entity { 
     
 	// Function to store a new file
-	public static function store($document, $project, $activity = false)
+	public static function store($document, $settings, $activity = false)
 	{
 		
 		$hash = self::getHash($document);
@@ -40,11 +40,11 @@ class File extends Entity {
 				$file = new File;
 				$file->_id = $file->_id;
 				$file->activity_id = $activity->_id;
-				$file->project = $project;
+				$file->project = $settings['project'];
 				
 				$file->title = strtolower($document->getClientOriginalName());
-				$file->domain = 'sound';
-				$file->format = "text";
+				$file->domain = $settings['domain'];
+				$file->format = $settings['format'];
 				$file->documentType = 'file';
 				$file->content = $file::getContent($document);
 				$file->hash = $hash;

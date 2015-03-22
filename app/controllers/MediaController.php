@@ -143,7 +143,7 @@ class MediaController extends BaseController {
 			$files = Input::file('file');
 			
 			$settings = [];
-			$settings['inputType'] = 'sound';
+			$type = explode('-', Input::get('documentType'));
 			$settings['filename'] = basename($files->getClientOriginalName(), '.csv');
 			//$inputFormat = 'text';
 			//$inputDomain = 'medical';
@@ -152,8 +152,18 @@ class MediaController extends BaseController {
 			//$outputFormat = 'text';
 			//$outputDomain = 'medical2';
 			
-			$settings['project'] = 'soundproject';
-			$settings['documentType'] = 'sound';
+			if(Input::get('input-project') != "") {
+				$settings['project'] = Input::get('input-project');
+			} else {
+				$settings['project'] = $type[0];			
+			}
+			if(Input::get('input-type') != "") {
+				$settings['documentType'] = Input::get('input-type');
+				$settings['inputType'] = Input::get('input-type');
+			} else {
+				$settings['documentType'] = $type[1];
+				$settings['inputType'] = $type[1];				
+			}
 			$settings['domain'] = 'opendomain';
 			$settings['format'] = 'text';
 

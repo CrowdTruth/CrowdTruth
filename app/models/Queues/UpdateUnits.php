@@ -65,7 +65,7 @@ class UpdateUnits {
             $children["count"] = count($derivatives);
             $children["list"] = $derivatives;
 
-            $unit->cache = ["job" => "test",
+            $unit->cache = ["jobs" => 1, # this needs to be fixed
                 			"workers" => $workers,
                             "softwareAgent" => $platformField,
                 			"workerunits" => $workerunit,

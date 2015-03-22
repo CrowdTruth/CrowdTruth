@@ -13,7 +13,7 @@ use \Activity as Activity;
 class Unit extends Entity { 
 
 	// Function to store a new unit unit
-	public static function store($docType, $parent, $content, $project, $activity = false)
+	public static function store($settings, $parent, $content, $activity = false)
 	{
 		
 		$hash = self::getHash($content);
@@ -38,14 +38,14 @@ class Unit extends Entity {
 				// create a new unit
 				$unit = new unit;
 				$unit->_id = $unit->_id;
-				$unit->domain = 'sound';
-				$unit->format = "text";
-				$unit->documentType = $docType;
+				$unit->domain = $settings['domain'];
+				$unit->format = $settings['format'];
+				$unit->documentType = $settings['documentType'];
 				$unit->parents = [$parent];
 				$unit->content = $content;
 				$unit->hash = $hash;
 				$unit->activity_id = $activity->_id;
-				$unit->project = $project;
+				$unit->project = $settings['project'];
 				$unit->tags = [ "unit" ];
 				$unit->save();
 

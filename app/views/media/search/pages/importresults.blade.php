@@ -31,7 +31,7 @@
 										<label for="category" class="col-sm-3 control-label">Choose File(s)</label>
 										<div class="col-sm-6">
 											<input type="file" name="file" class="btn uploadInput" />
-											<p class='help-block'>Select a CSV file with the full results of a CrowdFlower job.</p>
+											<p class='help-block'>Select a CSV file with the full results of an AMT or CrowdFlower job.</p>
 										</div>
 									</div>
 								</div>
@@ -51,20 +51,28 @@
 								
 									<div class="form-group">
 										<label for="domain_type" class="col-sm-3 control-label">Input Type</label>
-										<div class="col-sm-5">
+										<div class="col-sm-9">
 											@if(isset($mainSearchFilters['media']['categories']))
-												<select disabled name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-													<option value="sound" class="select_sound" data-subtext="5 Items">Sounds</option>
+												<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
 													@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
 														<optgroup label="{{ $project }}">
 															@foreach($documentTypes as $key => $doctype)
-																{{--<option value="{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>--}}
+																<option value="{{ $project }}-{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>
 															@endforeach
 														</optgroup>
 													@endforeach
 												</select>
 											@endif
-											
+										</div>
+									</div>
+									
+									<div class="form-group">
+										<label for="domain_type" class="col-sm-3 control-label">Custom</label>
+										<div class='col-sm-3'>
+											<input type='text' class='form-control' name='input-project' placeholder='Project' />
+										</div>
+										<div class='col-sm-3'>
+											<input type='text' class='form-control' name='input-type' placeholder='Type' />
 										</div>
 									</div>
 								</div>
@@ -87,7 +95,7 @@
 										<div class="col-sm-5">
 											@if(isset($mainSearchFilters['media']['categories']))
 												<select disabled name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-													<option value="sound" class="select_sound" data-subtext="100 Items">Sound Keywords</option>
+													<option value="sound" class="select_sound" data-subtext="">Disabled</option>
 													@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
 														<optgroup label="{{ $project }}">
 															@foreach($documentTypes as $key => $doctype)
