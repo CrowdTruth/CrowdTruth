@@ -278,11 +278,12 @@ class apiController extends BaseController
                             var key =  this['crowdAgent_id'];
 
                             var annVects = this.annotationVector;
+							var contr = this.contradiction;
                             for (iterMTasks in annVects){
                                     var annVector = annVects[iterMTasks];
                                     var unit_id = this['unit_id'] +  '/' + iterMTasks;
                                     if (units_to_remove.indexOf(unit_id) == -1) {
-                                        var value = { 'workerunits' : [{  unit_id:unit_id , vector:annVector, count:1}]};
+                                        var value = { 'workerunits' : [{  unit_id:unit_id , vector:annVector, count:1, contradiction:contr}]};
                                         emit(key, value);
                                     }
                                 }
@@ -295,6 +296,7 @@ class apiController extends BaseController
                 workerunits = units[iterUnit]['workerunits'];
                 for (iterWorker in workerunits) {
                     unit_id = workerunits[iterWorker]['unit_id'];
+                    contradiction = workerunits[iterWorker]['contradiction'];
                     if(unit_id in uniqueUnits) {
                        for (annKey in workerunits[iterWorker]['vector']) {
                           uniqueUnits[unit_id][annKey] += workerunits[iterWorker]['vector'][annKey];
@@ -310,6 +312,7 @@ class apiController extends BaseController
             for (unit_id in uniqueUnits) {
                 var unitInfo = {};
                 unitInfo['unit_id'] = unit_id;
+                unitInfo['contradiction'] = contradiction;
                 unitInfo['vector'] = uniqueUnits[unit_id];
                 unitInfo['count'] = freqUnits[unit_id];
                 result.workerunits.push(unitInfo);

@@ -191,6 +191,7 @@ class ResultImporter {
 			$entity->type = $settings['documentType'];
 			$entity->cfTrust = $trust;
 			$entity->content = $content;
+			$entity->contradiction = $settings['contradiction'];
 			$entity->crowdAgent_id = $agentId;
 			$entity->annotationVector = $annVector;
 			$entity->job_id = $jobId;
@@ -467,8 +468,6 @@ class ResultImporter {
 				// Prepare workerUnit
 				if($settings['documentType'] == 'sound') {
 					$content = ['keywords' => trim(strtolower(str_replace('.', '', $data[$i][array_search('keywords',$data[0])])))];
-				} else {
-					$content = "";
 				}
 				
 				
@@ -495,22 +494,22 @@ class ResultImporter {
 
 					$join = $question.':'.$answer;
 					
-					$conflict = 0;
+					$settings['contradiction'] = 0;
 					
 					// check for conflicting answers
 					if($justification == "" && ($join == 'Subjective:Yes' || $join == 'Subjective:No' || $join == 'Subjective:Other' || $join == 'YesNo:Yes' || $join == 'YesNo:No' || $join == 'YesNo:Other' || $join == 'NotYesNo:Yes' || $join == 'NotYesNo:No' || $join == 'NotYesNo:Other')) {
 						$missingJustification = 1;
-						$conflict = 1;
+						$settings['contradiction'] = 1;
 						$trust = 0;
 					}
 					if($justification != "" && ($join == 'Subjective:Noanswer' || $join == 'Subjective:Unanswerable' || $join == 'YesNo:Noanswer' || $join == 'YesNo:Unanswerable' || $join == 'NotYesNo:Noanswer' || $join == 'NotYesNo:Unanswerable' || $join == 'Unanswerable:Noanswer' || $join == 'Unanswerable:Unanswerable')) {
 						$conflictingJustification = 1;
-						$conflict = 1;
+						$settings['contradiction'] = 1;
 						$trust = 0;
 					}
 					if($join == 'Subjective:Unanswerable' || $join == 'YesNo:Other' || $join == 'YesNo:Unanswerable' || $join == 'NotYesNo:Yes' || $join == 'NotYesNo:No' || $join == 'NotYesNo:Unanswerable' || $join == 'Unanswerable:Noanswer' || $join == 'Unanswerable:Yes' || $join == 'Unanswerable:No' || $join == 'Unanswerable:Other') {
 						$conflictingCombination = 1;
-						$conflict = 1;
+						$settings['contradiction'] = 1;
 						$trust = 0;
 					}
 					

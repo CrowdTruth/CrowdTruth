@@ -15,7 +15,7 @@
 	@include('layouts.flashdata')
 	@include('media.layouts.nav_new')	
 				
-					{{ Form::open(array('action' => 'MediaController@postImportresults', 'files' => 'true')) }}
+					{{ Form::open(array('action' => 'MediaController@postImportresults', 'files' => 'true', 'enctype' => 'multipart/form-data')) }}
 						<div class="panel panel-default">
 							<div class="panel-heading">
 								<h4><i class="fa fa-file-text-o fa-fw"></i> Input file</h4>

@@ -104,9 +104,11 @@ class Task:
         #create worker objects
         for worker_info in response['results']:
             worker_id = worker_info['_id']
+            contradictions = 0
             unit_vectors = {}
             unit_freq = {}
             for unit in worker_info['value']['workerunits']:
+                contradictions += unit['contradiction']
                 unit_id = unit['unit_id']
                 unit_vector = unit['vector']
                 for annotation in annotations_to_filter:
@@ -114,7 +116,7 @@ class Task:
                 unit_vectors[unit_id] = unit_vector
                 unit_freq[unit_id] = unit['count']
 
-            workers[worker_id] = Worker(worker_id, unit_vectors, unit_freq)
+            workers[worker_id] = Worker(worker_id, unit_vectors, unit_freq, contradictions)
 
         return workers
 
@@ -303,7 +305,7 @@ class Task:
         filtered_workers_metrics = {}
         for worker_id in unfiltered_workers:
             if worker_id not in filtered_workers:
-                filtered_workers[worker_id] = Worker(worker_id, {}, {})
+                filtered_workers[worker_id] = Worker(worker_id, {}, {}, {})
             worker = filtered_workers[worker_id]
             #compute all the metrics, if it is computationally intense, define in the template the metrics to be computed
             worker_result = worker.get_metrics(filtered_workers, unfiltered_units_for_worker, WorkerMetricsEnum.__members__.values())

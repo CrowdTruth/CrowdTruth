@@ -5,6 +5,7 @@ class WorkerMetricsEnum(Enum):
     no_of_units = "# Sents"
     worker_cosine = "Cos"
     spam = "Spam"
+    contradiction = "Contradiction"
     #worker_agreement = "Agreement between workers"
     avg_worker_agreement = "Avg. Agreement"
     ann_per_unit = "annots/Sent"

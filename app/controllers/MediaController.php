@@ -139,7 +139,6 @@ class MediaController extends BaseController {
 	 */
 	public function postImportresults()
 	{
-			
 			$files = Input::file('file');
 			
 			$settings = [];

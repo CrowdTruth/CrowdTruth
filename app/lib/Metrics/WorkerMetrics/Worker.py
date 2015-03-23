@@ -10,10 +10,11 @@ from ..UnitMetrics.Unit import *
 
 class Worker:
 
-    def __init__(self, crowd_agent_id,  unit_vectors, unit_freq):
+    def __init__(self, crowd_agent_id,  unit_vectors, unit_freq, contradictions):
         self.crowd_agent_id = crowd_agent_id
         self.unit_vectors = unit_vectors
         self.unit_freq = unit_freq
+        self.contradictions = contradictions
         self.worker_metrics = {}
         self.worker_agreement = {}
 
@@ -43,6 +44,8 @@ class Worker:
                     metric_value = len(self.unit_vectors)
             elif WorkerMetricsEnum.spam == metric_key:
                     metric_value = 0
+            elif WorkerMetricsEnum.contradiction == metric_key:
+                    metric_value = self.contradictions
             elif WorkerMetricsEnum.ann_per_unit == metric_key:
                     metric_value = self.get_ann_per_unit()
             elif WorkerMetricsEnum.avg_worker_agreement == metric_key:
