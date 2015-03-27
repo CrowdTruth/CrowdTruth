@@ -1,5 +1,4 @@
 <?php
-
 namespace Api\search;
 
 use \BaseController as BaseController;
@@ -10,18 +9,12 @@ use \Response as Response;
 use \Auth as Auth;
 use \MongoDB\Repository as Repository;
 use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
-use \MongoDB\CrowdAgent as CrowdAgent;
 use \MongoDB\Security\ProjectHandler as ProjectHandler;
 use \MongoDB\Security\Permissions as Permissions;
 
-
-use League\Csv\Reader as Reader;
 use League\Csv\Writer as Writer;
 
 class apiController extends BaseController {
-
 	protected $repository;
 
 	public function __construct(Repository $repository){
@@ -30,7 +23,7 @@ class apiController extends BaseController {
 
 	protected $operators = array(
 		'=' , '<', '>', '<=', '>=', '<>', 'like'
-	);	
+	);
 	
 	public function getIndex()
 	{
@@ -76,7 +69,7 @@ class apiController extends BaseController {
 		$documents = $collection->toArray()['data'];
 
 		if(array_key_exists('tocsv', Input::all()))
-		{	
+		{
 			set_time_limit(1200);
 			$writer = new Writer(new \SplTempFileObject);
 			$writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
@@ -138,19 +131,19 @@ class apiController extends BaseController {
 		}
 
 		return Response::json([
-			"count" => $count,
-			"pagination" => $pagination,
-			"searchQuery" => Input::except('page'),
-			"documents" => $documents
+				"count" => $count,
+				"pagination" => $pagination,
+				"searchQuery" => Input::except('page'),
+				"documents" => $documents
 			]);
 	}
 
 	public function recur_ksort(&$array) {
-	   foreach ($array as &$value) {
-		  if (is_array($value)) $this->recur_ksort($value);
-	   }
-	   return ksort($array);
-	}	
+		foreach ($array as &$value) {
+			if (is_array($value)) $this->recur_ksort($value);
+		}
+		return ksort($array);
+	}
 
 	public function anyPost()
 	{
@@ -241,7 +234,7 @@ class apiController extends BaseController {
 						else
 						{
 							$collection = $collection->where($field, $operator, $subvalue);
-						}		
+						}
 					}
 				}
 

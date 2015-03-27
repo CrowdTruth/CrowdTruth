@@ -73,6 +73,7 @@ class TextSentencePreprocessor {
 		$docType = $document['documentType'].'-sentence';
 		$title = $document['title'];
 		$parentId = $document['_id'];
+		$project = $document['project'];
 		$activityId = $activity->_id;
 		if (Auth::check()) {
 			$userId = Auth::user()->_id;
@@ -97,14 +98,13 @@ class TextSentencePreprocessor {
 				"hash" => md5(serialize($entitiy)),
 				"activity_id" => $activityId,
 				"user_id" => $userId,
+				"project" => $project,
 				"updated_at" => new MongoDate(time()),
 				"created_at" => new MongoDate(time())
 			];
 			$inc++;
-			
 			array_push($fullEntities, $fullEntity);
 		}
-		
 		\DB::collection('entities')->insert($fullEntities);
 		\MongoDB\Temp::truncate();
 		
