@@ -274,6 +274,7 @@ class apiController extends BaseController
         $db = \DB::getMongoDB();
         $db->execute('loadServerScripts');
 
+		// 
         $map = new \MongoCode("function() {
                             var key =  this['crowdAgent_id'];
 
@@ -291,20 +292,22 @@ class apiController extends BaseController
 
         $reduce = new \MongoCode("function(key, units) {
             var uniqueUnits = {};
+            var contradictions = {};
             var freqUnits = {};
             for (iterUnit in units) {
                 workerunits = units[iterUnit]['workerunits'];
                 for (iterWorker in workerunits) {
                     unit_id = workerunits[iterWorker]['unit_id'];
-                    contradiction = workerunits[iterWorker]['contradiction'];
                     if(unit_id in uniqueUnits) {
                        for (annKey in workerunits[iterWorker]['vector']) {
                           uniqueUnits[unit_id][annKey] += workerunits[iterWorker]['vector'][annKey];
-                       }
+						}
                        freqUnits[unit_id] += workerunits[iterWorker]['count'];
-                    } else {
+					   contradictions[unit_id] = workerunits[iterWorker]['contradiction'];
+					} else {
                         uniqueUnits[unit_id] = workerunits[iterWorker]['vector'];
                         freqUnits[unit_id] = workerunits[iterWorker]['count'];
+						contradictions[unit_id] = workerunits[iterWorker]['contradiction'];
                     }
                 }
             }
@@ -312,7 +315,7 @@ class apiController extends BaseController
             for (unit_id in uniqueUnits) {
                 var unitInfo = {};
                 unitInfo['unit_id'] = unit_id;
-                unitInfo['contradiction'] = contradiction;
+                unitInfo['contradiction'] = contradictions[unit_id];
                 unitInfo['vector'] = uniqueUnits[unit_id];
                 unitInfo['count'] = freqUnits[unit_id];
                 result.workerunits.push(unitInfo);

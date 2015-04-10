@@ -13,7 +13,7 @@ use \Activity as Activity;
 class Unit extends Entity { 
 
 	// Function to store a new unit unit
-	public static function store($settings, $parent, $content, $activity = false)
+	public static function store($settings, $parent, $content, $platform_id = false, $activity = false)
 	{
 		
 		$hash = self::getHash($content);
@@ -44,6 +44,9 @@ class Unit extends Entity {
 				$unit->parents = [$parent];
 				$unit->content = $content;
 				$unit->hash = $hash;
+				if(isset($platform_id)) {
+					$unit->platformId = $platform_id;
+				}
 				$unit->activity_id = $activity->_id;
 				$unit->project = $settings['project'];
 				$unit->tags = [ "unit" ];

@@ -292,8 +292,13 @@ class ResultImporter {
 				
 				// Sounds
 				if($settings['documentType'] == 'sound') {
-					$content = ['id' => $data[$unitIds[$i]][array_search('id',$data[0])], 'preview-hq-mp3' => $data[$unitIds[$i]][array_search('preview-hq-mp3',$data[0])]];
+					$content = [
+					'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
+					'preview-hq-mp3' => $data[$unitIds[$i]][array_search('preview-hq-mp3',$data[0])]
+					];
 				}
+
+				$platform_id = $data[$unitIds[$i]][0];
 				
 				// Passage Alignment
 				if($settings['documentType'] == 'passage_alignment') {
@@ -329,7 +334,7 @@ class ResultImporter {
 						
 				}
 				
-				$unit = Unit::store($settings, $file->_id, $content, $activity);
+				$unit = Unit::store($settings, $file->_id, $content, $platform_id, $activity);
 				$units[$unit->_id] = $unit;
 				$unitMap[$data[$unitIds[$i]][0]] = $unit->_id;
 
@@ -345,7 +350,7 @@ class ResultImporter {
 			// Create job configuration
 			$unitCount = count(array_unique(array_column($data, 0))) - 1;
 			// Get number of judgments per unit
-			$settings['judgmentsPerUnit'] = round((count($data)-1)/($unitCount-1));
+			$settings['judgmentsPerUnit'] = round((count($data)-1)/($unitCount));
 
 			$jobconfig = $this->createJobconf($activity->id, $settings);
 		
@@ -378,31 +383,28 @@ class ResultImporter {
 			
 			// Passage Justification
 			if($settings['documentType'] == 'passage_justification') {
-				$questionTypes = ['Subjective','YesNo','NotYesNo','Unanswerable'];
-				$answers = ['Noanswer','Yes','No','Other','Unanswerable'];
+				$questionTypes = ['Subjective' => 0,'YesNo' => 0,'NotYesNo' => 0,'Unanswerable' => 0];
+				$answers = ['Noanswer' => 0,'Yes' => 0,'No' => 0,'Other' => 0,'Unanswerable' => 0];
 				
 				
 				for ($i = 1; $i < count($data); $i ++) {
 				
 				
 					// add answer possibilities to hit
-					foreach($questionTypes as $q) {
-						foreach($answers as $a) {
-							$annVector[$data[$i][0]][$q.':'.$a] = 0;
-						}
-					}
-					
+					$annVector[$data[$i][0]]['question'] = $questionTypes;
+					$annVector[$data[$i][0]]['answer'] = $answers;
+
 					// add existing passages to vector
 					for($k = 1; $k <= 6; $k++) {
 						if($data[$i][array_search('Input.id'.$k,$data[0])] != "") {
-							$annVector[$data[$i][0]]['passage'.$data[$i][array_search('Input.id'.$k,$data[0])]] = 0;
+							$annVector[$data[$i][0]]['justification']['p'.$data[$i][array_search('Input.id'.$k,$data[0])]] = 0;
 						}
 					}
 				}
 			}
 
 			// Sounds
-			if($settings['documentType'] == 'sounds') {
+			if($settings['documentType'] == 'sound') {
 				for ($i = 1; $i < count($data); $i ++) {
 					// for each keywords
 					$keywords = explode(',', $data[$i][array_search('keywords',$data[0])]);
@@ -422,7 +424,7 @@ class ResultImporter {
 			// loop through all the judgments and add workerUnits, media units and CrowdAgents.
 			for ($i = 1; $i < count($data); $i ++) {
 			
-				// Get unit id
+				// Sounds
 				if($settings['documentType'] == 'sound') {
 					$content = ['id' => $data[$i][array_search('id',$data[0])], 'preview-hq-mp3' => $data[$i][array_search('preview-hq-mp3',$data[0])]];
 				}
@@ -472,7 +474,8 @@ class ResultImporter {
 				
 				
 				$vector = $annVector[$data[$i][0]];
-				
+				$settings['contradiction'] = 0;
+									
 				if($settings['documentType'] == 'passage_alignment') {
 					for ($j = 0; $j < 30; $j ++) {
 						// for each passage get the tags
@@ -484,6 +487,7 @@ class ResultImporter {
 							$vector[$key]++;
 						}
 					}
+					$annotationVector = ['terms' => $vector];
 				}
 				
 				if($settings['documentType'] == 'passage_justification') {
@@ -493,9 +497,7 @@ class ResultImporter {
 					$justification = $data[$i][array_search('Answer.Justifying',$data[0])];
 
 					$join = $question.':'.$answer;
-					
-					$settings['contradiction'] = 0;
-					
+									
 					// check for conflicting answers
 					if($justification == "" && ($join == 'Subjective:Yes' || $join == 'Subjective:No' || $join == 'Subjective:Other' || $join == 'YesNo:Yes' || $join == 'YesNo:No' || $join == 'YesNo:Other' || $join == 'NotYesNo:Yes' || $join == 'NotYesNo:No' || $join == 'NotYesNo:Other')) {
 						$missingJustification = 1;
@@ -514,19 +516,19 @@ class ResultImporter {
 					}
 					
 					// add answer as combination of two questions
-					//if($conflict == 0) {
-						$vector[$join] = 1;
+						$vector['question'][$question] = 1;
+						$vector['answer'][$answer] = 1;
 
 						// add justifying passages
 						if($justification != "") {
 							$justify = explode('|', $justification);
 							foreach($justify as $j) {
-								$vector['passage'.$j] = 1;
+								$vector['justification']['p'.$j] = 1;
 							}
 						}
-					//}
+						$annotationVector = $vector;
 				}
-				
+							
 				// sound fix
 				if($settings['documentType'] == 'sound') {
 					// for each keywords
@@ -537,13 +539,14 @@ class ResultImporter {
 							$vector[$keyword]++;
 						}
 					}
+					$annotationVector = ['keywords' => $vector];
 				}
 
 				// Create CrowdAgent
 				$crowdAgent = $this->createCrowdAgent($data[$i][$column['worker']], $data[$i][$column['country']], $data[$i][$column['region']], $data[$i][$column['city']], $trust, $settings);
 				
 				// Create WorkerUnit
-				$workerUnit = $this->createWorkerUnit($activity->_id, $unit->_id, $data[$i][$column['start_time']], $data[$i][$column['channel']], $trust, $content, $crowdAgent->_id, ['keywords' => $vector], $job->_id, $data[$i][$column['id']], $data[$i][$column['submit_time']], $settings);
+				$workerUnit = $this->createWorkerUnit($activity->_id, $unit->_id, $data[$i][$column['start_time']], $data[$i][$column['channel']], $trust, $content, $crowdAgent->_id, $annotationVector, $job->_id, $data[$i][$column['id']], $data[$i][$column['submit_time']], $settings);
 			}	
 			
 
@@ -586,9 +589,14 @@ class ResultImporter {
 			}
 			$job->update();
 			
+			
+			$job_id = 'entity/text/opendomain/job/94';
+			
+			$job = Job::where('_id', $job_id)->first();
+			
 			// metrics
 			$template = 'entity/text/medical/FactSpan/Factor_Span/0';
-			exec('C:\Users\Benjamin\AppData\Local\Enthought\Canopy\User\python.exe ' . base_path()  . '/app/lib/generateMetrics.py '.$job->_id.' '.$template, $output, $error);
+			exec('C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe ' . base_path()  . '/app/lib/generateMetrics.py '.$job->_id.' '.$template, $output, $error);
 			$job->JobConfiguration->replicate();
 			
 			// save metrics in the job
@@ -599,6 +607,7 @@ class ResultImporter {
 			$job->results = $r;
 			$job->save();
 			*/
+			
 			
 			// update job cache
 			\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
@@ -628,8 +637,9 @@ class ResultImporter {
 
 			
 			// Job's done!
-			array_push($this->status['success'], "Import finished successfully (" . $activity->_id . ")");
-
+			array_push($this->status['success'], "Successfully imported " . $settings['filename'] . "");
+			array_push($this->status['success'], "Logged activities as " . $activity->_id . "");
+			
 			return $this->status;
 			
 		} catch (Exception $e) {

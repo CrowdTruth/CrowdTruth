@@ -117,7 +117,7 @@ class UpdateJob {
 				set_time_limit(3600); // One hour.
 				$apppath = app_path();
 				//$command = "/usr/bin/python2.7 $apppath/lib/generateMetrics.py '{$j->_id }' '$templateid'";
-				$command = "C:\Users\Benjamin\AppData\Local\Enthought\Canopy\User\python.exe $apppath/lib/generateMetrics.py {$j->_id } $templateid";
+				$command = "C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe $apppath/lib/generateMetrics.py {$j->_id } $templateid";
 				\Log::debug("Command: $command");
 				exec($command, $output, $return_var);
 				\Log::debug("Metrics done.");
