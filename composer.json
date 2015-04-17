@@ -12,7 +12,7 @@
 		"jenssegers/mongodb": "*",
 		"gloudemans/shoppingcart": "~1.2",
 		"league/csv": "5.*",
-		"jenssegers/mongodb-sentry": "dev-master"
+		"jenssegers/mongodb-sentry": "v1.0.1"
 	},
 	"autoload": {
 		"classmap": [
