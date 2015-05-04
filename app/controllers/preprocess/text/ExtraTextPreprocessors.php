@@ -4,7 +4,8 @@ namespace Preprocess\Extra;
 use Preprocess\AbstractTextPreprocessor as AbstractTextPreprocessor;
 
 /**
- * This TextPreprocessor is used to convert the input in column 'usecol' to plain text.
+ * This TextPreprocessor is used to convert the input in column 'usecol' from plain text
+ * to a JSON structure.
  */
 class JsonTextPreprocessor extends AbstractTextPreprocessor {
 	/**

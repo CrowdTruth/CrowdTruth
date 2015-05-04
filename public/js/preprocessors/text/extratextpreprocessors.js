@@ -1,5 +1,5 @@
 /**
- * Generate DIV for displaying 'As Text' processor inputs.
+ * Generate DIV for displaying 'json' processor inputs.
  */
 function jsonPreprocessor(propId) {
 	htmlText = '' + 
