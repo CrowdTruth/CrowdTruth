@@ -2,7 +2,7 @@
 
 namespace MongoDB;
 
-use Moloquent, Schema, Cache, Input, Exception, Auth, User, Session;
+use Moloquent, Schema, Cache, Input, Exception, Auth, Session;
 
 use \Counter as Counter;
 
@@ -12,24 +12,6 @@ class Entity extends Moloquent {
     protected $softDelete = true;
     protected static $unguarded = true;
     public static $snakeAttributes = false;
-
-    public static function getKeyLabelMapping() {
-        return [
-            "relex-structured-sentence" => "Relex-structured sentence",
-            "keyframes" => "Key-frames",
-            "totalrelevantfeatures" => "Relevant Features",
-            "fullvideo" => "Full Video",
-            "metadatadescription" => "Video Description",
-            "annotatedmetadatadescription" => "Annotated Video Description",
-            "documentType" => "Document Type",
-            "painting" => "Painting",
-            "drawing" => "Drawing",
-            "termpairs-sentence" => "Term Pairs",
-            "qa-passages-sentence" => "Question & Answer Passages",
-            "biographynet-sentence" => "BiographyNet passage",
-            "relation" => "Seed Relation"
-        ];
-    }
 
     public function __construct()
     {
@@ -69,7 +51,9 @@ class Entity extends Moloquent {
                 }
             }            
 
-            $entity->_id = static::generateIncrementedBaseURI($entity);
+			if(!empty($entity->_id)) {
+				$entity->_id = static::generateIncrementedBaseURI($entity);
+			}
 
             if (Auth::check())
             {
@@ -82,8 +66,6 @@ class Entity extends Moloquent {
 
         static::saving(function($entity)
         {
-            $entity->format = strtolower($entity->format);            
-            $entity->domain = strtolower($entity->domain);
             $entity->documentType = strtolower($entity->documentType);
 
             static::validateEntity($entity);         
@@ -105,15 +87,12 @@ class Entity extends Moloquent {
 
     public static function generateIncrementedBaseURI($entity)
     {
-        $seqName = 'entity/' . $entity->format . '/' . $entity->domain . '/' . $entity->documentType;
+        $seqName = 'entity/' . $entity->documentType;
         $id = Counter::getNextId($seqName);
         return $seqName.'/'.$id;
     }     
   
     public static function validateEntity($entity){
-        if(($entity->format == "text" || $entity->format == "image" || $entity->format == "video") == FALSE){
-            throw new Exception("Entity has a wrong value \"{$entity->format}\" for the format field");
-        }
 
         // TODO: Can we remove this constraint? IF we want to be able to extend to multiple domains, then maybe we have to ?
 /*        if(($entity->domain == "medical" || $entity->domain == "news" || $entity->domain == "cultural" || $entity->domain == "art") == FALSE){
@@ -169,7 +148,7 @@ class Entity extends Moloquent {
     }
 
     public function wasAttributedToUserAgent(){
-        return $this->hasOne('User', '_id', 'user_id');
+        return $this->hasOne('\MongoDB\UserAgent', '_id', 'user_id');
     }
 
     public function wasAttributedToCrowdAgent(){

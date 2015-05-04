@@ -765,48 +765,42 @@ class Temp extends Moloquent {
         \Session::forget('rawArray');
     }
 
-    public static function getDistinctFieldLabelAndCount($field, $tags = null)
+	// get list of projects and document types
+    public static function getCategories()
     {
-        if($tags == null)
-        {
-            $distinctFieldValues = array_flatten(Entity::distinct($field)->get()->toArray());
-        }
-        else
-        {
-            $distinctFieldValues = array_flatten(Entity::whereIn('tags', $tags)->distinct($field)->get()->toArray());
-        }
-
-        $distinctFieldValuesAndCount = array();
-
-        foreach($distinctFieldValues as $distinctFieldValue)
-        {
-            $distinctFieldValuesAndCount[$distinctFieldValue]['label'] = $distinctFieldValue;
-
-            if(isset(\MongoDB\Entity::getKeyLabelMapping()[strtolower($distinctFieldValue)])) {
-                $distinctFieldValuesAndCount[$distinctFieldValue]['label'] = \MongoDB\Entity::getKeyLabelMapping()[$distinctFieldValue];
-            }
-
-            $distinctFieldValuesAndCount[$distinctFieldValue]['count'] = Entity::where($field, $distinctFieldValue)->count();
-        }
-
-        return $distinctFieldValuesAndCount;
+		// get projects
+		$projects = array_flatten(Entity::whereIn('tags', ['unit'])->distinct('project')->get()->toArray());
+        
+		$categories = [];
+		
+		// for each project, get the document types and their count
+		foreach($projects as $project) {
+			$types = array_flatten(Entity::whereIn('tags', ['unit'])->where('project',$project)->distinct('documentType')->get()->toArray());
+			
+			foreach($types as $type) {
+				$categories[$project][$type]['label'] = ucfirst(str_replace('-',' ',$type));
+				$categories[$project][$type]['count'] = Entity::where('project', $project)->where('documentType', $type)->count();
+			}
+		}
+		
+        return $categories;
     }    
 
     public static function createMainSearchFiltersCache()
     {
         // $mainSearchFilters['media']['formats'] = $this->getDistinctFieldAndCount('format', ['unit']);
         // $mainSearchFilters['media']['domains'] = $this->getDistinctFieldAndCount('domain', ['unit']);
-        $mainSearchFilters['media']['documentTypes'] = static::getDistinctFieldLabelAndCount('documentType', ['unit']);
-        $mainSearchFilters['media']['documentTypes']['all'] = ["count" => \MongoDB\Entity::whereIn('tags', ['unit'])->count(),
-                                                                "label" => "All units"
+        $mainSearchFilters['media']['categories'] = static::getCategories();
+        $mainSearchFilters['media']['all'] = ["count" => \MongoDB\Entity::whereIn('tags', ['unit'])->count(),
+                                                                "label" => "All Media"
                                                                 ];
         
-        unset($mainSearchFilters['media']['documentTypes']['twrex']);
+        //unset($mainSearchFilters['media']['documentTypes']['twrex']);
 
         $mainSearchFilters['job']['count'] = Entity::where('documentType', 'job')->count();
         $mainSearchFilters['workers']['count'] = \MongoDB\CrowdAgent::all()->count();
 
-        ksort($mainSearchFilters['media']['documentTypes']);
+        ksort($mainSearchFilters['media']['categories']);
 
         $entity = new \MongoDB\Temp;
         $entity->_id = "mainSearchFilters";

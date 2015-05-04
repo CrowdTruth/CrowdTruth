@@ -11,8 +11,9 @@
 		"codesleeve/asset-pipeline": "dev-master",
 		"jenssegers/mongodb": "*",
 		"gloudemans/shoppingcart": "~1.2",
-		"league/csv": "5.*"
-		},
+		"league/csv": "5.*",
+		"jenssegers/mongodb-sentry": "dev-master"
+	},
 	"autoload": {
 		"classmap": [
 			"app/commands",

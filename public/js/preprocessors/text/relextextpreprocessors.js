@@ -1,17 +1,6 @@
-/*
-function textPreprocessor(propId) {
-	htmlText = '' + 
-		'<div class="row">' +
-		'	<label for="column" class="col-md-3 control-label">Column:</label>' + 
-		'	<div class="col-xs-3">' +
-				getColumnsSelector(propId + '_usecol') +
-		'	</div>' +
-		'</div>';
-	htmlText = 'DO THIS FUNCTION!' + htmlText;
-	return htmlText;
-}
-*/
-
+/**
+ * Generate DIV for displaying 'Relation in sentence' processor inputs.
+ */
 function relationInSentence(propId) {
 	htmlText = '' + 
 	'<div class="row">' +
@@ -29,6 +18,9 @@ function relationInSentence(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'Relation outside terms' processor inputs.
+ */
 function relationOutsideTerms(propId) {
 	htmlText = '' + 
 	'<div class="row">' +
@@ -58,6 +50,9 @@ function relationOutsideTerms(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'Relation between terms' processor inputs.
+ */
 function relationBetweenTerms(propId) {
 	htmlText = '' + 
 	'<div class="row">' +
@@ -99,6 +94,9 @@ function relationBetweenTerms(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'Has semicolon' processor inputs.
+ */
 function hasSemicolon(propId) {
 	htmlText = '' + 
 	'<div class="row">' +
@@ -134,6 +132,9 @@ function hasSemicolon(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'Has comma' processor inputs.
+ */
 function hasComma(propId) {
 	htmlText = '' + 
 	'<div class="row">' +
@@ -187,6 +188,9 @@ function hasComma(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'Has parenthesis' processor inputs.
+ */
 function hasParenthesis(propId) {
 	htmlText = '' + 
 	'<div class="row">' +
@@ -222,6 +226,9 @@ function hasParenthesis(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'Has overlapping terms' processor inputs.
+ */
 function hasOverlappingTerms(propId) {
 	htmlText = '' + 
 	'<div class="row">' +

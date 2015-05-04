@@ -1,120 +1,233 @@
 <?php
 
+use \Auth as Auth;
+use \MongoDB\Entity as Entity;
+use \MongoDB\Activity as Activity;
+use \MongoDB\UserAgent as UserAgent;
+use \MongoDB\Security\ProjectHandler as ProjectHandler;
+use \MongoDB\Security\PermissionHandler as PermissionHandler;
+use \MongoDB\Security\Permissions as Permissions;
+use \MongoDB\Security\Roles as Roles;
+
 class UserController extends BaseController {
 
-	// Hashed because it might end up on github :-)
-
 	public function __construct() {
-	   $this->beforeFilter('csrf', array('on'=>'post'));
+		$this->beforeFilter('csrf', array('on'=>'post'));
 	}
 
 	public function getIndex(){
-		return Redirect::to('user/login');
+		return Redirect::to('login');
+	}
+	
+	public function getShow() {
+		return Redirect::to('login');
 	}
 
-	public function getLogin(){
+	public function login(){
 		if(Auth::check())
 			return Redirect::to('/');
 
-		return View::make('user/login');
+		return View::make('users.login');
 	}
 
-	public function getRegister(){
+	public function register(){
 		if(Auth::check())
 			return Redirect::to('/');
 					
-		return View::make('user/register');
+		return View::make('users.register');
 	}
 
-	public function getLogout(){
+	public function logout(){
 		Cart::destroy();
 		Auth::logout();
 		return Redirect::to('');
 	}
+	    
 
-	public function postLogin(){
-	    $userdata = array(
-	        'username' => Input::get('username_or_email'),
-	        'email' => Input::get('username_or_email'),
-	        'password' => Input::get('password'),
-	    );
-
-	    if($user = User::where('_id', '=', strtolower($userdata['username']))->orWhere('email', '=', strtolower($userdata['email']))->first())
-	    	if(Auth::attempt(array('email' => $user['email'], 'password' => $userdata['password'])))
-	    		return Redirect::intended('/');
-
-    	Session::flash('flashError', 'Invalid credentials');
-    	return Redirect::back();
+	/**
+	 * Change user profile
+	 */
+	public function postProfile(UserAgent $user) {
+		// redirect if user is not logged in
+		if(!Auth::check()) {
+			return Redirect::to('/');
+		}
+		
+		return View::make('users.profile')
+			->with('user', $user);
+	}
+	
+	/**
+	 * Display user profile
+	 */
+	public function getProfile(UserAgent $user) {
+		// redirect if user is not logged in
+		if(!Auth::check()) {
+			return Redirect::to('/');
+		}
+		
+		$projects = ProjectHandler::getUserProjects($user);
+		
+		return View::make('users.profile')->with('user', $user)->with('projects', $projects);
 	}
 
-	public function postRegister(){
-		$role = 'user';
+	/**
+	 * Display list of all users
+	 */
+	public function getUserlist() {
+		$userlist = UserAgent::getUserlist();
+		
+		// Logged in user can view other user's profiles
+		$viewProfiles = PermissionHandler::checkAdmin(Auth::user(), Permissions::ALLOW_ALL);
+		
+		$thisUser = Auth::user();
+		
+		// List of groups this user can invite people to
+		$groupsManaged = [];
+		// For each group logged in user belongs to
+		foreach(ProjectHandler::getUserProjects($thisUser) as $group) {
+			// Check if user has admin permission..
+			if(PermissionHandler::checkProject($thisUser, $group['name'], Permissions::PROJECT_ADMIN)) {
+				array_push($groupsManaged, $group['name']);
+			}
+		}
+		
+		$userGroupInfo = [];
+		foreach ($userlist as $user) {
+			// List of groups $user belongs to
+			$usergroups = ProjectHandler::getUserProjects($user);
+			$usergroupnames = array_column($usergroups, 'name');
+			
+			// List of groups logged in user can invite $user to join
+			// and that $user is not already a member of.
+			$inviteGroups = array_diff($groupsManaged, $usergroupnames);
+			
+			$belongGroups = [];
+			foreach ($usergroups as $group) {
+				// Can logged user assign roles for this group ?
+				$canAssign = PermissionHandler::checkProject($thisUser, $group['name'], Permissions::PROJECT_ADMIN);
+				// Can logged user view info for this group ?
+				$canView   = PermissionHandler::checkProject($thisUser, $group['name'], Permissions::PROJECT_READ);
+				
+				// User cannot change his own permissions
+				if($user['_id']==$thisUser['_id']) {
+					$canAssign = false;
+				}
+				
+				$group['canview'] = $canView;
+				$group['assignrole'] = $canAssign;
+				array_push($belongGroups, $group);
+			}
+			
+			$userGroupInfo[$user['_id']] = [
+				'groups' => $belongGroups,
+				'tojoin' => $inviteGroups
+			];
+		}
+		
+		return View::make('users.list')
+			->with('userlist', $userlist)
+			->with('viewProfiles', $viewProfiles)
+			->with('usergroups', $userGroupInfo);
+	}
+
+	/**
+	 * Change user settings
+	 */
+	public function getSettings(UserAgent $user) {
+		// redirect if user is not logged in
+		if(!Auth::check()) {
+			return Redirect::to('/');
+		}
+		
+		$groups = ProjectHandler::getUserProjects($user);
+		return View::make('users.settings')
+			->with('user', $user)
+			->with('groups',$groups);
+	}
+
+	/**
+	 * Display current user activity
+	 */
+	public function getActivity(UserAgent $user) {
+	
+		// redirect if user is not logged in
+		if(!Auth::check()) {
+			return Redirect::to('/');
+		}
+
+		$activities = Activity::getActivitiesForUser($user['_id']);
+		return View::make('users.activity')
+			->with('activities', $activities)
+			->with('user',$user);
+	}
+
+	public function postLogin(){
+		$userdata = array(
+			'username' => Input::get('username_or_email'),
+			'email' => Input::get('username_or_email'),
+			'password' => Input::get('password'),
+		);
+
+		if($user = UserAgent::where('_id', '=', strtolower($userdata['username']))->orWhere('email', '=', strtolower($userdata['email']))->first())
+			if(Auth::attempt(array('email' => $user['email'], 'password' => $userdata['password'])))
+				return Redirect::intended('/');
+
+		Session::flash('flashError', 'Invalid credentials');
+		return Redirect::back();
+	}
+
+	public function postRegister() {
 		// Check if demo account
-		if (Hash::check(Input::get('invitation'), Config::get('config.demoInvitationCode'))) {
+		/* if (Hash::check(Input::get('invitation'), Config::get('config.demoInvitationCode'))) {
 			$role = 'demo';
 		// Check if normal account	
 		} elseif (!Hash::check(Input::get('invitation'), Config::get('config.invitationCode')) && Config::get('config.invitationCode') != ''){
 			Session::flash('flashError', 'Wrong invite code : )');
-			return Redirect::back()->withInput(Input::except('password', 'confirm_password'));
-		}
+			return Redirect::back()
+				->withInput(Input::except('password', 'confirm_password'));
+		} */
 
-	    $userdata = array(
-	    	'_id' => strtolower(Input::get('username')),
-	        'firstname' => ucfirst(strtolower(Input::get('firstname'))),
-	        'lastname' => ucfirst(strtolower(Input::get('lastname'))),
-	        'email' => strtolower(Input::get('email')),
-	        'password' => Input::get('password'),
-	        'confirm_password' => Input::get('confirm_password'),
-	        'role' => $role
-	    );
+		$userdata = [
+			'_id' => strtolower(Input::get('username')),
+			'firstname' => ucfirst(strtolower(Input::get('firstname'))),
+			'lastname' => ucfirst(strtolower(Input::get('lastname'))),
+			'email' => strtolower(Input::get('email')),
+			'password' => Input::get('password'),
+			'confirm_password' => Input::get('confirm_password'),
+		];
 
-        $rules = array(
-        	'_id' => 'required|min:3|unique:useragents',        	
-            'firstname' => 'required|min:3',
-            'lastname' => 'required|min:1',
-            'email' => 'required|email|unique:useragents',
-            'password' => 'required|min:5',
-            'confirm_password' => 'required|same:password'
-        );
+		$rules = [
+			'_id' => 'required|min:3|unique:useragents',
+			'firstname' => 'required|min:3',
+			'lastname' => 'required|min:1',
+			'email' => 'required|email|unique:useragents',
+			'password' => 'required|min:5',
+			'confirm_password' => 'required|same:password'
+		];
 
-	    $validation = Validator::make($userdata, $rules);
+		$validation = Validator::make($userdata, $rules);
 
-	    if($validation->fails()){
-
-	    	$msg = '<ul>';
+		if($validation->fails()){
+			$msg = '<ul>';
 			foreach ($validation->messages()->all() as $message)
 				$msg .= "<li>$message</li>";
 
-	    	Session::flash('flashError', "$msg</ul>");
-	        return Redirect::back()->withInput(Input::except('password', 'confirm_password'));
-	    }
-
-	    unset($userdata['confirm_password']);
-	    $userdata['password'] = Hash::make($userdata['password']);
-	    $user = new User($userdata); 
-
-	    try {
-		    $this->createCrowdWatsonUserAgent();
-		    $user->save();
-	    } catch (Exception $e) {
-	    	return Redirect::back()->with('flashError', $e->getMessage())->withInput(Input::except('password', 'confirm_password'));
-	    }
-
-	    Auth::login($user);
-	    return Redirect::to('/');
-	}
-
-	public function createCrowdWatsonUserAgent(){
-		if(!User::find('crowdwatson'))
-		{
-			$softwareAgent = new User;
-			$softwareAgent->_id = "crowdwatson";
-			$softwareAgent->firstname = "Crowd";
-			$softwareAgent->lastname = "Watson";
-			$softwareAgent->email = "crowdwatson@gmail.com";
-			$softwareAgent->save();
+			Session::flash('flashError', "$msg</ul>");
+			return Redirect::back()->withInput(Input::except('password', 'confirm_password'));
 		}
+		
+		$user = Sentry::register($userdata);
+		Auth::login($user);
+		
+		// Assign to groups ?
+		$iCode = Input::get('invitation');
+		$sentryGroup = \Jenssegers\Mongodb\Sentry\Group::where('invite_code', '=', $iCode)->first();
+		if(!is_null($sentryGroup)) {
+			$user->addGroup($sentryGroup);
+			Session::flash('flashSuccess', 'You have joined group: <b>'.$sentryGroup['name'].'</b>');
+		}
+		
+		return Redirect::to('/');
 	}
 }
-
-?>

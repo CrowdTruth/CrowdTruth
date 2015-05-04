@@ -43,7 +43,7 @@
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
 						</ul>
 					</div>
-                    <div ><button style="margin-left:5px"; id="introJS" type="button" class="btn btn-warning" >Info Tour</button></div>
+                    <div class='btn-group pull-left'><button style="margin-left:5px"; id="introJS" type="button" class="btn btn-warning" >Info Tour</button></div>
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
 						<option value="10">10 Records per page</option>
 						<option value="25">25 Records per page</option>
@@ -81,11 +81,9 @@
 						@endif
 					</ul>
 					<div class="tab-content documentTypesTabs">
-						@include('media.search.layouts.hb-all')
-
-						@if(isset($mainSearchFilters['workers']))
-							@include('media.search.layouts.hb-crowdagents')
-						@endif
+				
+						@include('media.search.layouts.hb-crowdagents')
+						
 
 						@include('media.search.layouts.hb-modalindividualjob')
 						@include('media.search.layouts.hb-modalworkerunits')
@@ -250,16 +248,12 @@ var lastQueryResult;
 // });
 
 
-var getActiveTabKey = function(){
-	return '#' + $('.tab-pane.active').attr('id');
-}
-
 var getSearchLimitValue = function(){
 	return $('.searchOptions').find("[name='search_limit']").val();
 }
 
 var updateReponsiveTableHeight = function() {
-	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 185 + "px");
+	$('#crowdagents_tab .ctable-responsive').css('max-height', $(window).height() - 185 + "px");
 }
 
 var delay = (function(){
@@ -359,8 +353,6 @@ $('body').on('keyup', '.inputFilters input', function(){
 	var inputFilter = $(this);
 
 	delay(function(){
-		var activeTabKey = getActiveTabKey();
-		selectedRows[activeTabKey] = [];
 		inputFilter.attr('data-query-value', inputFilter.val());
 
 		if(inputFilter.val() == "")
@@ -371,15 +363,14 @@ $('body').on('keyup', '.inputFilters input', function(){
 });
 
 $('body').on('click', '.checkAll', function(){
-	var activeTabKey = getActiveTabKey();
 	if (! $(this).is(':checked')) {
-		$(activeTabKey + ' input[name=rowchk]').each(function(){
+		$('#crowdagents_tab input[name=rowchk]').each(function(){
 			if ($(this).is(':checked')) {
 				$(this).click();
 			}
 		});
 	} else {
-		$(activeTabKey + ' input[name=rowchk]').each(function(){
+		$('#crowdagents_tab input[name=rowchk]').each(function(){
 			if (!$(this).is(':checked')) {
 				$(this).click();
 			}
@@ -401,17 +392,16 @@ $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
 });
 
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-	var activeTabKey = getActiveTabKey();
 
 	if($(this).attr('href') == "#all_tab")
 		return false;
 
-	$(activeTabKey + ' .tabOptions > *').appendTo('.searchOptions .tabOptions');
+	$('#crowdagents_tab .tabOptions > *').appendTo('.searchOptions .tabOptions');
 
 	if($(this).closest('li').hasClass('active')){
 		// $('.specificFilters').empty().append($('.tab-pane.active .specificFilterOptions'));
 		// $('.cw_specificFilters').removeClass('hidden');
-		if(templates[activeTabKey] == undefined)
+		if(templates == undefined)
 		{
 			getResults();
 		}
@@ -428,15 +418,13 @@ $('body').on('click', '.specificFilterOptions button', function(){
 	var selector = $(this).parent().attr('id');
 	$('.searchOptions .tabOptions #' + selector).empty().append(html);
 
-	var activeTabKey = getActiveTabKey();
-	selectedRows[activeTabKey] = [];
+	selectedRows = [];
 	getResults();
 });
 
 $('body').on('click', '.toSelection', function(){
-	var activeTabKey = getActiveTabKey();
 
-	if(typeof selectedRows[activeTabKey] == 'undefined' || selectedRows[activeTabKey].length < 1){
+	if(typeof selectedRows == 'undefined' || selectedRows.length < 1){
 		event.preventDefault();
 		alert('Please make a selection first');
 	} else {
@@ -447,7 +435,7 @@ $('body').on('click', '.toSelection', function(){
 		var form = $('<form action="{{ URL::action("MediaController@anyBatch") }}" method="post"></form>');
 		$('body').append(form);
 
-		$.each(selectedRows[activeTabKey], function(index, value){
+		$.each(selectedRows, function(index, value){
 			form.append($('<input type="checkbox" name="selection[]" value="' + value + '" checked >'))
 		});
 
@@ -483,7 +471,7 @@ $('.listViewButton').click(function() {
 	$('.graphViewButton').removeClass('hidden');
 	$('.includeGraph').addClass('hidden');
 
-	$(getActiveTabKey() + ' tbody.results').show();
+	$('#crowdagents_tab tbody.results').show();
 });
 
 $('.graphViewButton').click(function() {
@@ -491,7 +479,7 @@ $('.graphViewButton').click(function() {
 	$('.listViewButton').removeClass('hidden');
 	$('.includeGraph, .specificGraphs').removeClass('hidden');
 
-	$(getActiveTabKey() + ' tbody.results').hide();
+	$('#crowdagents_tab tbody.results').hide();
 	getResults();
 });
 
@@ -514,7 +502,6 @@ $('.input-daterange').datepicker({
 $('.input-daterange input').on('changeDate', function(e) {
 	// alert($(this).val());
 	var date = $(this).val();
-	console.log('test' + date);
 
 	if(date == "") {
 		$(this).removeAttr('data-query-value');
@@ -527,57 +514,48 @@ $('.input-daterange input').on('changeDate', function(e) {
 
 
 var updateSelection = function(id) {
-    console.dir(id);
-        var activeTabKey = getActiveTabKey();
-console.dir(activeTabKey);
-        console.dir(id);
-        if (typeof selectedRows[activeTabKey] == 'undefined') {
-            selectedRows[activeTabKey] = [];
+
+        if (typeof selectedRows == 'undefined') {
+            selectedRows = [];
         }
 
         if(id !== undefined)
         {
-            if(jQuery.inArray(id, selectedRows[activeTabKey]) != -1) {
-                selectedRows[activeTabKey] = $.grep(selectedRows[activeTabKey], function(value) {
+            if(jQuery.inArray(id, selectedRows) != -1) {
+                selectedRows = $.grep(selectedRows, function(value) {
                     return value != id;
                 });
             } else {
-                selectedRows[activeTabKey].push(id);
+                selectedRows.push(id);
             }
         }
 
         $("input[name=rowchk]").each(function(){
             var val = $(this).attr('value');
 
-            if(jQuery.inArray(val, selectedRows[activeTabKey]) != -1) {
+            if(jQuery.inArray(val, selectedRows) != -1) {
                 $(this).prop("checked", true);
             } else {
                 $(this).prop("checked", false);
             }
         });
 
-        console.dir(selectedRows[activeTabKey]);
     }
 
 var getSelection = function() {
-        var activeTabKey = getActiveTabKey();
 
-        if (typeof selectedRows[activeTabKey] != 'undefined') {
-            return selectedRows[activeTabKey];
+        if (typeof selectedRows != 'undefined') {
+            return selectedRows;
         }
 
         return [];
     }
 
 function getTabFieldsQuery(){
-	var activeTabKey = getActiveTabKey();
 	var tabFieldsQuery = '';
 
-	if(activeTabKey == "#all_tab"){
-		tabFieldsQuery = getGeneralFilterQueries();
-	}
 
-	$('.searchOptions .specificFilterOptions, ' + activeTabKey).find("[data-query-key]").each(function() {
+	$('.searchOptions .specificFilterOptions, #crowdagents_tab').find("[data-query-key]").each(function() {
 		if($(this).hasClass('btn') && !$(this).hasClass('active')){
 			return;
 		}
@@ -609,75 +587,49 @@ function getResults(baseApiURL){
 		var baseApiURL = '{{ URL::to("api/search?noCache") }}';
 	}
 
-	var activeTabKey = getActiveTabKey();
 	var searchLimitQuery = "&limit=" + getSearchLimitValue();
 	var tabFieldsQuery = getTabFieldsQuery();
 
 	if(tabFieldsQuery == '')
 	{
-		$(activeTabKey).find('.results').empty();
-		$(activeTabKey).find('.cw_pagination').empty();
+		$('#crowdagents_tab').find('.results').empty();
+		$('#crowdagents_tab').find('.cw_pagination').empty();
 		return false;
 	}
-
-	console.log(tabFieldsQuery);
 
 	$('.searchStats').text('Processing...');
 
 	abortAjax(xhr);
-
+	console.log(baseApiURL + tabFieldsQuery + searchLimitQuery);
 	xhr = $.getJSON(baseApiURL + tabFieldsQuery + searchLimitQuery, function(data) {
-		// console.log(data);
 
 		lastQueryResult = data;
 
-		if(templates[activeTabKey] == undefined)
-		{
-			templates[activeTabKey] = $(activeTabKey).find('.template').html();
-			defaultColumns[activeTabKey] = $('.searchOptions').find(".vbColumns").html();
-		}
+			templates = $('#crowdagents_tab').find('.template').html();
+			defaultColumns = $('.searchOptions').find(".vbColumns").html();
 
-		var template = Handlebars.compile(templates[activeTabKey]);
+		var template = Handlebars.compile(templates);
 		var html = template(data);
+
 		$('.cw_pagination').empty().prepend($(data.pagination));
 		$('.cw_pagination').find('.pagination').addClass('pagination-sm');
-		$(activeTabKey).find('.results').empty().append(html);
+		$('#crowdagents_tab').find('.results').empty().append(html);
 
 		var searchStats = Handlebars.compile($('.searchStatsTemplate').html());
 		var searchStats = searchStats(data);
 		$('.searchStats').empty().append(searchStats);
 
-		// $(activeTabKey + ' .hb_popover').popover({
-		// 	placement : "left",
-		// 	html : true,
-		// 	trigger : "hover",
-		// 	title : "default",
-		// 	content : function(){ return $(this).find('.hidden').html() },
- 	// 		container: 'body',
-  //           template: '<div class="popover popover-medium"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'
-		// });
-
-		if(templates[activeTabKey + 'date'] == undefined)
-		{
-			templates[activeTabKey + 'date'] = activeTabKey + 'date';
-		} else {
-			// alert(templates[activeTabKey + 'date']);
-		}
 
 		initializeVisibleColumns();
 		visibleColumns();
 
 
 
-		// console.dir(selectedRows[activeTabKey]);
-		// console.log('starting search');
-
         if($('.graphViewButton').hasClass('hidden')){
-            var selectedCategory = activeTabKey;
-            $(activeTabKey + ' .checkAll').removeAttr('checked');
+            $('#crowdagents_tab .checkAll').removeAttr('checked');
             if(unitsChart == undefined)
             {
-                unitsChart = new unitsChartFacade(selectedCategory, openModal, getSelection, updateSelection);
+                unitsChart = new unitsChartFacade('#crowdagents_tab', openModal, getSelection, updateSelection);
                 unitsChart.init(getTabFieldsQuery(),"");
             } else {
                 unitsChart.init(getTabFieldsQuery(),"");
@@ -729,7 +681,7 @@ var initializeVisibleColumns = function(){
 		$('.searchOptions .openAllColumns').removeClass('hidden');
 
 		$('.searchOptions .tabOptions').find(".vbColumns").empty();
-		$('.searchOptions .tabOptions').find(".vbColumns").append(defaultColumns[getActiveTabKey()]);
+		$('.searchOptions .tabOptions').find(".vbColumns").append(defaultColumns);
 
 		initializeVisibleColumns();
 		visibleColumns();
@@ -737,11 +689,10 @@ var initializeVisibleColumns = function(){
 }
 
 var visibleColumns = function(){
-	var activeTabKey = getActiveTabKey();
 
 	$('.searchOptions .tabOptions').find("[data-vbSelector]").each(function() {
 
-		var vbSelector = $(activeTabKey).find($("[" + "data-vbIdentifier='" + $(this).attr('data-vbSelector') + "']"));
+		var vbSelector = $('#crowdagents_tab').find($("[" + "data-vbIdentifier='" + $(this).attr('data-vbSelector') + "']"));
 
 		if($(this).attr('data-vb') == "show")
 		{
@@ -760,7 +711,7 @@ var fixedThead;
 
 var initializeFixedThead = function(){
 	if(typeof fixedThead == 'undefined') {
-		fixedThead = $(getActiveTabKey() + ' .cResults table').floatThead({
+		fixedThead = $('#crowdagents_tab .cResults table').floatThead({
 			scrollContainer: function($table){
 				return $table.closest('.ctable-responsive');
 			},
@@ -781,22 +732,20 @@ var updateFilters = function(filterOption){
 	}
 }
 
-var openModal = function(modalAnchor , activeTabKey){
+var openModal = function(modalAnchor){
     if(baseApiURL == undefined)
     {
         var baseApiURL = modalAnchor.attr('data-api-target');
     }
-    console.log(modalAnchor);
-    //var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
+    //console.log(modalAnchor);
+
     var modalTarget = modalAnchor.attr('data-target');
-    //alert(modalTarget);
 
     $('#activeTabModal').remove();
 
     var query = modalAnchor.attr('data-modal-query');
-    console.log(baseApiURL + query);
+    //console.log(baseApiURL + query);
     $.getJSON(baseApiURL + query, function(data) {
-        console.dir(activeTabKey);
 
         var template = Handlebars.compile($(modalTarget + ' .template').html());
 
@@ -874,13 +823,13 @@ var openModal = function(modalAnchor , activeTabKey){
     });
 }
 
-var openStaticModal = function(modalAnchor , activeTabKey){
+var openStaticModal = function(modalAnchor){
 
 
     var modalTarget = modalAnchor.attr('data-target');
     var staticData = modalAnchor.attr('data-static');
 
-        var template = Handlebars.compile($(activeTabKey).find(modalTarget + ' .template').html());
+        var template = Handlebars.compile($('#crowdagents_tab').find(modalTarget + ' .template').html());
 
         var html = template();
 
@@ -905,7 +854,7 @@ var openStaticModal = function(modalAnchor , activeTabKey){
 		        data : postData,
 		        success:function(data, textStatus, jqXHR)
 		        {
-	            	console.log(data);
+	            	//console.log(data);
 	            	alert(data.message);
 
 		        },
@@ -922,18 +871,16 @@ var openStaticModal = function(modalAnchor , activeTabKey){
 
 
 $('body').on('click', '.testModal', function(){
-    var activeTabKey =  '#' + $('.tab-pane.active').attr('id');
-
     if($(this).is('[data-static]')){
-    	openStaticModal($(this),activeTabKey);
+    	openStaticModal($(this));
     } else {
-   	 	openModal($(this),activeTabKey);
+   	 	openModal($(this));
 	}
 });
 
 $('.select_crowdagents').click();
 $('.documentTypesNav').find('#crowdagents_nav a').click();
-$('.graphViewButton').click();
+getResults();
 
 var workerList = localStorage.getItem("workerList");
 if(workerList !=  null) {

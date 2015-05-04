@@ -1,3 +1,6 @@
+/**
+ * Generate DIV for displaying 'As Text' processor inputs.
+ */
 function textPreprocessor(propId) {
 	htmlText = '' + 
 		'<div class="row">' +
@@ -9,6 +12,9 @@ function textPreprocessor(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'As Number' processor inputs.
+ */
 function numberPreprocessor(propId) {
 	htmlText = '' + 
 		'<div class="row">' +
@@ -20,6 +26,9 @@ function numberPreprocessor(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'Regular Expression' processor inputs.
+ */
 function regexPreprocessor(propId) {
 	htmlText = '' + 
 		'Apply regular expression to column: <br>' + 
@@ -42,6 +51,9 @@ function regexPreprocessor(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'Word count' processor inputs.
+ */
 function wordcountPreprocessor(propId) {
 	htmlText = '<div class="row">' +
 		'<label for="column" class="col-md-3 control-label">Column:</label>' + 
@@ -51,6 +63,9 @@ function wordcountPreprocessor(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'String length' processor inputs.
+ */
 function stringlengthPreprocessor(propId) {
 	htmlText = '<div class="row">' +
 		'<label for="column" class="col-md-3 control-label">Column:</label>' + 
@@ -60,6 +75,9 @@ function stringlengthPreprocessor(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'Term difference' processor inputs.
+ */
 function termdifferencePreprocessor(propId) {
 	htmlText = '' + 
 		'Compute the Levenshtein-Distance between the terms in the following two columns. Will return -1 if one of the argument strings is longer than the limit of 255 characters. <br><br>' + 
@@ -75,6 +93,9 @@ function termdifferencePreprocessor(propId) {
 	return htmlText;
 }
 
+/**
+ * Generate DIV for displaying 'Replace term' processor inputs.
+ */
 function replaceTermPreprocessor(propId) {
 	htmlText = '' +		
 		'<div class="row">' +

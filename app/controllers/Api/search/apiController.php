@@ -7,11 +7,15 @@ use \Input as Input;
 use \URL as URL;
 use \Response as Response;
 
+use \Auth as Auth;
 use \MongoDB\Repository as Repository;
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
 use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDB\CrowdAgent as CrowdAgent;
+use \MongoDB\Security\ProjectHandler as ProjectHandler;
+use \MongoDB\Security\Permissions as Permissions;
+
 
 use League\Csv\Reader as Reader;
 use League\Csv\Writer as Writer;
@@ -24,31 +28,36 @@ class apiController extends BaseController {
 		$this->repository = $repository;
 	}
 
-    protected $operators = array(
-    	'=' , '<', '>', '<=', '>=', '<>', 'like'
-    );	
-
+	protected $operators = array(
+		'=' , '<', '>', '<=', '>=', '<>', 'like'
+	);	
+	
 	public function getIndex()
 	{
 		$c = Input::get('collection', 'Entity');
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
 
-    	if(Input::has('match'))
-    	{
+		// Filter data for projects for which the authenticated user has permissions.
+		if(Input::has('authkey')) {
+			return 'auth key not yet implemented on API.';
+		} elseif(Auth::check()) {
+			$user = Auth::user();
+			$projects = ProjectHandler::getUserProjects($user, Permissions::PROJECT_READ);
+			$projectNames = array_column($projects, 'name');
+		} else {
+			return 'Not logged in -> no data';
+		}
+		$collection = $collection->whereIn('project', $projectNames);
+
+		if(Input::has('match'))
+		{
 			$collection = $this->processFields($collection);
 		}
-
-		// if(!array_key_exists('noCache', Input::all()))
-		// {
-		// 	$collection = $collection->remember(1, md5(serialize(array_values(Input::except('pretty')))));
-		// }
 
 		$start = (int) Input::get('start', 0);
 		$limit = (int) Input::get('limit', 100);
 		$only = Input::get('only', array());
-
-		// return $collection = ["entries" => $collection->skip($start)->take($limit)->get($only)->toArray()];
 
 		if($orderBy = Input::get('orderBy')){
 			foreach($orderBy as $sortingColumnName => $sortingDirection)
@@ -123,7 +132,7 @@ class apiController extends BaseController {
 			$writer->output(time() . '.csv');
 
 			die;
-		}		
+		}
 
 		return Response::json([
 			"count" => $count,
@@ -131,25 +140,11 @@ class apiController extends BaseController {
 			"searchQuery" => Input::except('page'),
 			"documents" => $documents
 			]);
-
-		if(array_key_exists('getQueryLog', Input::all()))
-		{
-			return Response::json(\DB::getQueryLog());
-		}		
-
-		if(array_key_exists('pretty', Input::all()))
-		{	
-			echo "<pre>";
-			return json_encode($collection->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		}
-
-		return Response::json($collection->toArray());
-
 	}
 
 	public function recur_ksort(&$array) {
 	   foreach ($array as &$value) {
-	      if (is_array($value)) $this->recur_ksort($value);
+		  if (is_array($value)) $this->recur_ksort($value);
 	   }
 	   return ksort($array);
 	}	
@@ -160,8 +155,8 @@ class apiController extends BaseController {
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
 
-    	if(isset(Input::get('match')['_id']))
-    	{
+		if(isset(Input::get('match')['_id']))
+		{
 			$collection = $this->processFields($collection);
 
 			if($data = Input::get('data'))
@@ -181,8 +176,8 @@ class apiController extends BaseController {
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
 
-    	if(isset(Input::get('match')['_id']))
-    	{
+		if(isset(Input::get('match')['_id']))
+		{
 			$collection = $this->processFields($collection);
 
 			if($data = Input::get('data'))
@@ -222,8 +217,6 @@ class apiController extends BaseController {
 						if(is_numeric($subvalue))
 						{
 							$subvalue = (double) $subvalue;
-							
-
 						}
 
 						if($operator == "like")

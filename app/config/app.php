@@ -110,7 +110,7 @@ return array(
 		'Codesleeve\AssetPipeline\AssetPipelineServiceProvider',
 		'Jenssegers\Mongodb\MongodbServiceProvider',
 		'Gloudemans\Shoppingcart\ShoppingcartServiceProvider',
-		
+		'Cartalyst\Sentry\SentryServiceProvider',
 		'CrowdTruth\Crowdflower\CrowdflowerServiceProvider',
 		'CrowdTruth\Mturk\MturkServiceProvider'
 /*		'PlatformProvider'*/
@@ -182,8 +182,7 @@ return array(
 
 		// added
 		'Moloquent'       => 'Jenssegers\Mongodb\Model',
-		'Cart'            => 'Gloudemans\Shoppingcart\Facades\Cart'
-
+		'Cart'            => 'Gloudemans\Shoppingcart\Facades\Cart',
+		'Sentry'          => 'Cartalyst\Sentry\Facades\Laravel\Sentry',
 	),
-
 );

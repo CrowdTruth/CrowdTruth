@@ -7,20 +7,61 @@ use \MongoDB\SoftwareComponent as SoftwareComponent;
 use \MongoDate as MongoDate;
 use Auth;
 
+/**
+ * Software component for input file preprocessing.
+ * 
+ * This software component creates entities out of a text document, given using a given
+ * configuration. 
+ * 
+ * @author carlosm
+ */
 class TextSentencePreprocessor {
 	protected $softwareComponent;
 	
+	/**
+	 * Create a TextSentencePreprocessor instance.
+	 */
 	public function __construct() {
 		$this->softwareComponent = SoftwareComponent::find('textsentencepreprocessor');
 	}
 	
-	public function store($document, $sentences) {
-		$nEnts = count($sentences);
+	/**
+	 * Fetch the last existing ID for the given format / domain / docType combination.
+	 */
+	private function getLastDocumentInc($format, $domain, $docType) {
+		$lastMongoURIUsed = Entity::where('format', $format)
+								->where('domain', $domain)
+								->where('documentType', $docType)
+								->get(array("_id"));
+		
+		if(count($lastMongoURIUsed) > 0) {
+			$lastMongoURIUsed = $lastMongoURIUsed->sortBy(
+				function($entity) {return $entity->_id;}, SORT_NATURAL)->toArray();
+				
+			if(end($lastMongoURIUsed)) {
+				$lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
+				$inc = end($lastMongoIDUsed) + 1;
+			}
+		} else {
+			$inc = 0;
+		}
+		return $inc;
+	}
+	
+	/**
+	 * Store to the database the given entities as entities decendent from the given
+	 * document.
+	 * 
+	 * @param $document Parent document -- Must be a document entity on the database.
+	 * @param $entities List of entities to be created as decendents from the given document. 
+	 * 
+	 * @return multitype:string A status array containing the result status information.
+	 */
+	public function store($document, $entities) {
+		$nEnts = count($entities);
 		if($nEnts<=0 && $nEnts>=10000) {
 			// We will have problems processing empty files or more than 10,000 entities
-			$status = [];
-			$status['error'] = 'Unable to process files with more than 10,000 sentences: '.$nEnts.'found';
-			return $status;
+			return [ 'error' => 'Unable to process files with more than 10,000 lines: '.$nEnts.'found' ];
 		}
 		
 		$activity = new Activity();
@@ -42,9 +83,9 @@ class TextSentencePreprocessor {
 		$idBase = 'entity/'.$format.'/'.$domain.'/'.$docType.'/';
 		$inc = $this->getLastDocumentInc($format, $domain, $docType);
 		
-		$entities = [];
-		foreach ($sentences as $sentence) {
-			$entity = [
+		$fullEntities = [];
+		foreach ($entities as $entitiy) {
+			$fullEntity = [
 				"_id" => $idBase . $inc,
 				"title" => strtolower($title),
 				"domain" => $domain,
@@ -52,8 +93,8 @@ class TextSentencePreprocessor {
 				"tags" => [ 'unit' ],
 				"documentType" => $docType,
 				"parents" => [ $parentId ],
-				"content" => $sentence,
-				"hash" => md5(serialize($sentence)),
+				"content" => $entitiy,
+				"hash" => md5(serialize($entitiy)),
 				"activity_id" => $activityId,
 				"user_id" => $userId,
 				"updated_at" => new MongoDate(time()),
@@ -61,15 +102,22 @@ class TextSentencePreprocessor {
 			];
 			$inc++;
 			
-			array_push($entities, $entity);
+			array_push($fullEntities, $fullEntity);
 		}
 		
-		\DB::collection('entities')->insert($entities);
+		\DB::collection('entities')->insert($fullEntities);
 		\MongoDB\Temp::truncate();
 		
 		return [ 'success' => 'Sentences created successfully' ];
 	}
 
+	/**
+	 * Retrieve the Preprocessor configuration for a given document type.
+	 * 
+	 * @param $documentType Type of document for which configuration is required.
+	 * 
+	 * @return The configuration, or NULL if no configuration is available.
+	 */
 	public function getConfiguration($documentType) {
 		$avlConfigs = $this->softwareComponent['configurations'];
 		$configKey = $documentType;
@@ -80,6 +128,14 @@ class TextSentencePreprocessor {
 		}
 	}
 
+	/**
+	 * Store a given configuration associated with a given document type.
+	 * 
+	 * @param $config The configuration.
+	 * @param $documentType The document type.
+	 * 
+	 * @return The completion status for the save operation.
+	 */
 	public function storeConfiguration($config, $documentType) {
 		$configKey = $documentType;
 		$avlConfigs = $this->softwareComponent['configurations'];

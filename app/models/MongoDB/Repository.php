@@ -2,7 +2,7 @@
 
 namespace MongoDB;
 
-use User, Exception;
+use Exception;
 
 
 class Repository {
@@ -112,8 +112,7 @@ class Repository {
 		    case 'useragents':
 		    case 'user':
 		    case 'users':
-		        return new \User;
-		        return new \User;
+		        return new UserAgent;
 		    case 'temp':
 		        return new \MongoDB\Temp;
 		}

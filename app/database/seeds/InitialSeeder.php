@@ -13,14 +13,26 @@ class InitialSeeder extends Seeder {
 	{
 		Eloquent::unguard();
 
-		// Initialize file uploader
+		// Initialize text sentence preprocessor component
 		$id = 'textsentencepreprocessor';
+		$label = 'This component is used for transforming text files';
+		$txtPreprocessor = new SoftwareComponent($id, $label);
+		$txtPreprocessor['domains'] = [];
+		$txtPreprocessor['configurations'] = [];
+		$txtPreprocessor->save();
+		
+		// Initialize file uploader component
+		$id = 'fileuploader';
 		$label = 'This component is used for storing files as documents within MongoDB';
 		$txtPreprocessor = new SoftwareComponent($id, $label);
 		$txtPreprocessor['domains'] = [];
 		$txtPreprocessor->save();
 		
-		// $this->call('UserTableSeeder');
+		// Initialize media search component
+		$id = 'mediasearchcomponent';
+		$label = 'This component is used for searching media in MongoDB';
+		$txtPreprocessor = new SoftwareComponent($id, $label);
+		$txtPreprocessor['keys'] = [];
+		$txtPreprocessor->save();
 	}
-
 }

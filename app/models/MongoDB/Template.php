@@ -2,7 +2,7 @@
 
 namespace MongoDB;
 
-use Moloquent, Schema, Auth, Exception, User, Input;
+use Moloquent, Schema, Auth, Exception, Input;
 
 use \Counter as Counter;
 
@@ -75,7 +75,7 @@ class Template extends Moloquent {
 	}
 
     public function wasAssociatedWithUserAgent(){
-        return $this->hasOne('User', '_id', 'user_id');
+        return $this->hasOne('\MongoDB\UserAgent', '_id', 'user_id');
     }
 
     public function wasAssociatedWithCrowdAgent(){
