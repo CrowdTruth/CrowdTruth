@@ -49,9 +49,9 @@ class Entity extends Moloquent {
                 {
                     throw new Exception("Hash already exists for: " . $entity->title);
                 }
-            }            
+            }
 
-			if(!empty($entity->_id)) {
+			if(!empty($entity->_id) || $entity->_id==null) {
 				$entity->_id = static::generateIncrementedBaseURI($entity);
 			}
 
@@ -68,7 +68,7 @@ class Entity extends Moloquent {
         {
             $entity->documentType = strtolower($entity->documentType);
 
-            static::validateEntity($entity);         
+            static::validateEntity($entity);
         });
 
         static::saved(function($entity)
@@ -105,7 +105,7 @@ class Entity extends Moloquent {
         {
             $collection->index('hash');
             $collection->index('domain');
-            $collection->index('documentType');    
+            $collection->index('documentType');
             $collection->index('activity_id');
             $collection->index('user_id');
             $collection->index('parents');
@@ -122,8 +122,6 @@ class Entity extends Moloquent {
 
         })->distinct($field)->get();
 
-    //    })->distinct($field)->remember(60, 'text_' . md5(serialize($field)))->get();
-
         $fieldValues = array();
         foreach($distinctFields as $distinctField)
         {
@@ -136,8 +134,8 @@ class Entity extends Moloquent {
             return $fieldValues;
         }
             
-        return false;       
-    }    
+        return false;
+    }
 
     public function wasGeneratedBy(){
         return $this->hasOne('\MongoDB\Activity', '_id', 'activity_id');
@@ -221,5 +219,5 @@ class Entity extends Moloquent {
         }
         
         return array_merge($attributes, $this->relationsToArray());
-    }     
+    }
 }

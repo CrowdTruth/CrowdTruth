@@ -206,7 +206,7 @@ class TextController extends BaseController {
 			$lineEntity = $rootProcessor->call($line);
 			array_push($entities, $lineEntity);
 		}
-
+		
 		return json_encode($entities, JSON_PRETTY_PRINT);
 	}
 
@@ -232,6 +232,8 @@ class TextController extends BaseController {
 		$processor11 = new \Preprocess\Relex\ParenthesisAroundTermsPreprocessor;
 		$processor12 = new \Preprocess\Relex\OverlapingTermsPreprocessor;
 		
+		$processor13 = new \Preprocess\Extra\JsonTextPreprocessor;
+		
 		if($option == 'extended') {
 				return [ $processorA->getName() => $processorA,
 				$processorB->getName() => $processorB,
@@ -246,7 +248,8 @@ class TextController extends BaseController {
 				$processor9->getName() => $processor9,
 				$processor10->getName() => $processor10,
 				$processor11->getName() => $processor11,
-				$processor12->getName() => $processor12
+				$processor12->getName() => $processor12,
+				$processor13->getName() => $processor13,
 			];
 		} else {
 			return [ $processor1->getName() => $processor1,
@@ -260,12 +263,14 @@ class TextController extends BaseController {
 				$processor9->getName() => $processor9,
 				$processor10->getName() => $processor10,
 				$processor11->getName() => $processor11,
-				$processor12->getName() => $processor12
+				$processor12->getName() => $processor12,
+				$processor13->getName() => $processor13
 			];
 		}
 	}
 }
 
+// TODO: DOCUMENT !!!
 class RootProcessor {
 	private $processor;
 	private $providers;
@@ -366,6 +371,10 @@ class RootProcessor {
 		}
 		return $children;
 	}
+	
+	public function __toString() {
+		return 'RootProcessor: [<br>'.$this->processor->asString().']';
+	}
 }
 
 class PropertyProcessor {
@@ -396,7 +405,7 @@ class PropertyProcessor {
 	}
 	
 	public function asString() {
-		return $this->propName.'<br>';
+		return $this->propName.': '.$this->provider->getName().'<br>';
 	}
 	
 	public function getConfiguration($parentName) {

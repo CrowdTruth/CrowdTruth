@@ -26,7 +26,8 @@ class FileUploader {
 					'text/x-c',
 					'text/x-asm',
 					'text/x-pascal',
-					'text/x-c++'
+					'text/x-c++',
+					'text/html'
 			],
 			'images' => [
 					'text/plain' // To be added
@@ -111,7 +112,7 @@ class FileUploader {
 		$files = $validatedFiles['passed'];
 		foreach($files as $file){
 			$title = $file->getClientOriginalName();
-
+			
 			try {
 				$entity = new Entity;
 				$entity->_id = $entity->_id;
@@ -133,6 +134,12 @@ class FileUploader {
 				$entity->forceDelete();
 				$status['error'][$title] = $e->getMessage();
 			}
+		}
+		
+		$files = $validatedFiles['failed'];
+		foreach($files as $file) {
+			$title = $file->getClientOriginalName();
+			$status['error'][$title] = 'Validation failed';
 		}
 		
 		return $status;
@@ -166,6 +173,10 @@ class FileUploader {
 	 */
 	private function performValidation($files, $format) {
 		$validatedFiles = [];
+		$validatedFiles['passed'] = [];
+		$validatedFiles['failed'] = [];
+		
+		
 		foreach($files as $fileKey => $file){
 			$validator = Validator::make(array('file' => $file), $this->validationRules[$format]);
 
@@ -181,7 +192,7 @@ class FileUploader {
 				}
 			}
 		}
-
+		
 		return $validatedFiles;
 	}
 }
