@@ -168,18 +168,25 @@
 						 <thead>
 						  <tr>
 						     <th class="header" rowspan="2">Unit Format</th>
-    						     <th class="header" rowspan="2">Filtered</th>
-						     <th class="header" colspan="7">Unit Metrics</th>
+    						 <th class="header" rowspan="2">Filtered</th>
+    						 <th class="header" rowspan="2">Workers</th>
+						     <th class="header" rowspan="2">Clarity</th>
+							 <th class="header" colspan="2">Question</th>
+							 <th class="header" colspan="2">Justification</th>
+							 <th class="header" colspan="2">Answer</th>
 						     <th class="header" rowspan="2">Annotation Vector</th>
 						  </tr>
 						  <tr>
-						    <th> # Workers </th>	
-						    <th> Max Rel Cos </th>	
-						    <th> Vector Length </th>	
+						    <!--<th> Vector Length </th>
+							<th> Max Rel Cos </th>	
 						    <th> Norm Magnitude </th>
-						    <th> Magnitude </th>
-						    <th> Norm Rel Magnitude All </th>
-						    <th> Norm Rel Magnitude </th>
+						    <th> Magnitude </th>-->
+							<th>Clarity</th>
+							<th>Vector length</th>
+							<th>Clarity</th>
+							<th>Vector length</th>
+							<th>Clarity</th>
+							<th>Vector length</th>
 						  </tr>
 						 </thead>
 						 <tbody>
@@ -192,13 +199,19 @@
 						    @{{else}}
 						    <td> False </td>
 						    @{{/inArray}}
-						    <td> @{{ toFixed avg.no_annotators 2}} </td>
+							<td> @{{ toFixed avg.no_annotators 0}} </td>
+							
 						    <td> @{{ toFixed avg.max_relation_Cos 2}} </td>
-						    <td> @{{ avg.vector_size }} </td>
-						    <td> @{{ toFixed avg.norm_magnitude 2}} </td>
-						    <td> @{{ toFixed avg.magnitude 2}} </td>
-						    <td> @{{ toFixed avg.norm_relation_magnitude_all 2}} </td>
-						    <td> @{{ toFixed avg.norm_relation_magnitude 2}} </td>
+						    <!--<td> @{{ toFixed avg.norm_magnitude 2}} </td>
+						    <td> @{{ toFixed avg.magnitude 2}} </td>-->
+
+						    <td> @{{ toFixed question.max_relation_Cos 2}} </td>
+							<td> @{{ toFixed question.vector_size 2 }} </td>
+						    <td> @{{ toFixed justification.max_relation_Cos 2}} </td>
+							<td> @{{ toFixed justification.vector_size 2 }} </td>
+						    <td> @{{ toFixed answer.max_relation_Cos 2}} </td>
+							<td> @{{ toFixed answer.vector_size 2 }} </td>
+
 						    <td>
 						    @{{#each @root.infoStat.results.withoutSpam}}
 						    @{{#ifvalue ../key value=@key}}

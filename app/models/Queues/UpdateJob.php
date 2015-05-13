@@ -6,9 +6,10 @@ use Exception;
 use \Entity as Entity;
 use \SoftwareAgent as SoftwareAgent;
 use \Activity as Activity;
+use \CrowdAgent as CrowdAgent;
 
 use \Entities\File as File;
-use \Entities\Media as Media;
+use \Entities\Unit as Unit;
 use \Entities\Batch as Batch;
 use \Entities\Job as Job;
 use \Entities\Workerunit as Workerunit;
@@ -75,7 +76,7 @@ class UpdateJob {
 			$j->completion = 1.00; // TODO: HACK
 
 		if($j->completion == 1) {
-			$j->status = 'finished';
+			if($j->status != 'imported') { $j->status = 'finished'; }
 			if(!isset($j->finishedAt)) 
 				$j->finishedAt = new \MongoDate; 
 			
@@ -92,7 +93,7 @@ class UpdateJob {
 
 		try {
 			//if(count($j->results['withSpam'])>1) and ($j->workerunitsCount % $j->jobConfiguration->content['unitsPerTask'] == 0)){
-			if(empty($j->metrics) and $j->completion==1){
+			if($j->completion==1){
 				// do the metrics, we're in a queue anyway.
 				\Log::debug("Starting metrics for Job {$j->_id}.");
 
@@ -146,11 +147,43 @@ class UpdateJob {
 				$this->createMetricActivity($j->_id);
 				$j->save();
 
-				// TODO
-				// Update workerunits
-				// Update workers
-				// Update units
-				//
+					
+				// update workerunits
+				foreach ($workerunits as $workerunit) {
+					set_time_limit(60);
+					\Queue::push('Queues\UpdateWorkerunits', array('workerunit' => serialize($workerunit)));
+				}
+
+				// update worker cache
+				foreach ($response['metrics']['workers']['withoutFilter'] as $workerId => $workerData) {
+					set_time_limit(60);
+					$agent = CrowdAgent::where("_id", $workerId)->first();
+					\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));
+				}
+		
+				// create output units
+				foreach ($response['metrics']['units']['withSpam'] as $unitId => $content) {
+					set_time_limit(60);
+					$unit = Unit::where("_id", $unitId)->first();
+					
+					// create new settings copied from the job
+					$settings = [];
+					$settings['project'] = $j['project'];
+					$settings['format'] = $j['format'];
+					$settings['domain'] = $j['domain'];
+					$settings['documentType'] = $j['resultType'];
+					
+					// merge existing content with new generated content
+					$newcontent = array_merge($content, $unit['content']);
+
+					$childUnit = Unit::store($settings, $unitId, $newcontent);
+				}
+				
+				// update input units
+				$units = array_keys($response['metrics']['units']['withSpam']);
+				\Queue::push('Queues\UpdateUnits', $units);
+			
+			
 			}
 		} catch (Exception $e) {
 			\Log::debug("Error in running metrics: {$e->getMessage()}");

@@ -40,20 +40,20 @@
 						
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h4><i class="fa fa-sign-in fa-fw"></i> Input Data</h4>
+								<h4><i class="fa fa-sign-in fa-fw"></i> Input Unit</h4>
 							</div>
 							<div class="panel-body">							
 								<div class="form-horizontal">
 								
 									<div class="form-group">
-										<div class='col-xs-12'>Select the type of the original input of the job that is included in the result file. If the original input data does not yet exist in the platform, it will be added.</div>
+										<div class='col-xs-12'>Select the type of the input units of the job that are included in the result file. If the original input data does not yet exist in the platform, it will be added.</div>
 									</div>
 								
 									<div class="form-group">
 										<label for="domain_type" class="col-sm-3 control-label">Input Type</label>
 										<div class="col-sm-9">
 											@if(isset($mainSearchFilters['media']['categories']))
-												<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+												<select name="inputClass" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
 													@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
 														<optgroup label="{{ $project }}">
 															@foreach($documentTypes as $key => $doctype)
@@ -81,7 +81,7 @@
 									
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h4><i class="fa fa-sign-out fa-fw"></i> Output Data</h4>
+								<h4><i class="fa fa-sign-out fa-fw"></i> Output Units</h4>
 							</div>
 							<div class="panel-body">							
 								<div class="form-horizontal">
@@ -92,22 +92,27 @@
 									
 									<div class="form-group">
 										<label for="domain_type" class="col-sm-3 control-label">Output Type</label>
-										<div class="col-sm-5">
+										<div class="col-sm-9">
 											@if(isset($mainSearchFilters['media']['categories']))
-												<select disabled name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-													<option value="sound" class="select_sound" data-subtext="">Disabled</option>
+												<select name="outputClass" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
 													@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
 														<optgroup label="{{ $project }}">
 															@foreach($documentTypes as $key => $doctype)
-																{{--<option value="{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>--}}
+																<option value="{{ $project }}-{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>
 															@endforeach
 														</optgroup>
 													@endforeach
 												</select>
 											@endif
-
 										</div>
-									</div>								
+									</div>
+									
+									<div class="form-group">
+										<label for="domain_type" class="col-sm-3 control-label">Custom</label>
+										<div class='col-sm-3'>
+											<input type='text' class='form-control' name='output-type' placeholder='Type' />
+										</div>
+									</div>				
 								</div>
 							</div>
 							<div class='panel-footer'>

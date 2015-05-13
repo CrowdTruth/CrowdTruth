@@ -110,9 +110,11 @@ class ResultImporter {
 		$entity = new Job;
 		$entity->_id = $entity->_id;
 		$entity->batch_id = $batch->_id;
+		$entity->project = $settings['project'];
 		$entity->domain = $settings['domain'];
 		$entity->format = $settings['format'];
 		$entity->type = $settings['documentType'];
+		$entity->resultType = $settings['resultType'];
 		$entity->documentType = "job";
 		$entity->completion = 1;
 		$entity->expectedWorkerUnitsCount = 450;
@@ -132,7 +134,6 @@ class ResultImporter {
 		array_push($this->status['success'], "Job created (" . $entity->_id . ")");
 		
 		return $entity;
-
 	}
 	
 	
@@ -213,16 +214,34 @@ class ResultImporter {
 	 * Create worker unit
 	 */
 	public function process($document, $settings)
-	{	
+	{
 		// increase memory usage to support larger files with up to 10k judgments
 		ini_set('memory_limit','256M');
+		set_time_limit(0);
 		
 		$this->status = ['notice' => [], 'success' => [], 'error' => []];
 
 		try {
+
+			/*
+			$workerUnits = Entity::where('documentType', 'workerunit')->select('_id')->get();
+			foreach($workerUnits as $workerUnit) {
+				$entity = Entity::where('_id', $workerUnit->_id)->first();
+				
+				$none = 0;
+				$vector = $entity['annotationVector'];
+				$vector['justification']['none'] = 0;
+				if(array_sum($vector['justification']) == 0) {
+					$none = 1;
+				}
+				$vector['justification']['none'] = $none;
+				$entity['annotationVector'] = $vector;
+				$entity->save();
+			}
+			*/
 		
 			$settings['units'] = [];
-			
+
 			// keep a list of all unique units, crowdAgents and workerUnits so that we can rollback only the unique ones on error
 			$units = [];
 			$this->crowdAgents = [];
@@ -549,9 +568,8 @@ class ResultImporter {
 				$workerUnit = $this->createWorkerUnit($activity->_id, $unit->_id, $data[$i][$column['start_time']], $data[$i][$column['channel']], $trust, $content, $crowdAgent->_id, $annotationVector, $job->_id, $data[$i][$column['id']], $data[$i][$column['submit_time']], $settings);
 			}	
 			
-
 			/*
-			// aggregate all results	
+			// aggregate all results
 			$result = array();
 			$annotations = Entity::where("documentType", "=", "workerunit")->where("job_id", "=", $job->_id)->get();
 			$count = 0;
@@ -588,7 +606,7 @@ class ResultImporter {
 			   $job->results = $r;
 			}
 			$job->update();
-			
+
 			
 			$job_id = 'entity/text/opendomain/job/94';
 			
@@ -606,27 +624,25 @@ class ResultImporter {
 			$r['withoutSpam'] = $response['results']['withoutSpam'];
 			$job->results = $r;
 			$job->save();
-			*/
+
 			
+	
+			$jobs = Job::select('_id')->get();
+			
+			foreach($jobs as $jobId) {
+			
+				$job = Job::where('_id', $jobId->_id)->first();
+				
+				// update job cache
+				\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
+			
+			}
+			
+*/
 			
 			// update job cache
 			\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-	
-			
-			// update workerunits
-			foreach ($this->workerUnits as $workerunit) {
-				set_time_limit(60);
-				\Queue::push('Queues\UpdateWorkerunits', array('workerunit' => serialize($workerunit)));
-			}
 
-			// update worker cache
-			foreach ($this->crowdAgents as $worker) {
-				set_time_limit(60);
-				\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($worker)));
-			}
-			
-			// update units
-			\Queue::push('Queues\UpdateUnits', $settings['units']);
 			
 			// Notice that units already existed in the database
 			if($this->duplicateUnits > 0) { array_push($this->status['notice'], "Existing units found (" . $this->duplicateUnits . ")"); }

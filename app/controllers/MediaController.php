@@ -139,48 +139,62 @@ class MediaController extends BaseController {
 	 */
 	public function postImportresults()
 	{
-			$files = Input::file('file');
-			
-			$settings = [];
-			$type = explode('-', Input::get('documentType'));
-			$settings['filename'] = basename($files->getClientOriginalName(), '.csv');
-			//$inputFormat = 'text';
-			//$inputDomain = 'medical';
-			
-			$settings['outputType'] = 'sound-keywords';
-			//$outputFormat = 'text';
-			//$outputDomain = 'medical2';
-			
-			if(Input::get('input-project') != "") {
-				$settings['project'] = Input::get('input-project');
-			} else {
-				$settings['project'] = $type[0];			
-			}
-			if(Input::get('input-type') != "") {
-				$settings['documentType'] = Input::get('input-type');
-				$settings['inputType'] = Input::get('input-type');
-			} else {
-				$settings['documentType'] = $type[1];
-				$settings['inputType'] = $type[1];				
-			}
-			$settings['domain'] = 'opendomain';
-			$settings['format'] = 'text';
+		$files = Input::file('file');
+		
+		$settings = [];
+		$inputClass = explode('-', Input::get('inputClass'));
+		$outputClass = explode('-', Input::get('outputClass'));
+		$settings['filename'] = basename($files->getClientOriginalName(), '.csv');
+		//$inputFormat = 'text';
+		//$inputDomain = 'medical';
+		
+		$settings['outputType'] = 'sound-keywords';
+		//$outputFormat = 'text';
+		//$outputDomain = 'medical2';
+		
+		// input project
+		if(Input::get('input-project') != "") {
+			$settings['project'] = Input::get('input-project');
+		} else {
+			$settings['project'] = $inputClass[0];			
+		}
+		
+		// input type
+		if(Input::get('input-type') != "") {
+			$settings['documentType'] = Input::get('input-type');
+		} else {
+			$settings['documentType'] = $inputClass[1];
+		}
+		
+		// output type
+		if(Input::get('output-type') != "") {
+			$settings['resultType'] = Input::get('output-type');
+		} else {
+			$settings['resultType'] = $outputClass[1];
+		}
+		
+		$settings['domain'] = 'opendomain';
+		$settings['format'] = 'text';
 
-			// process file
-			$importer = new ResultImporter();
-			$status = $importer->process($files, $settings);
-			
-			// flash appropriate message
-			if(!$status['error']) {
-				Session::flash('flashSuccess', $status['success']);
-				if($status['notice']) {
-					Session::flash('flashNotice', $status['notice']);
-				}
-			} else {
-				Session::flash('flashError', $status['error']);
+		// process file
+		$importer = new ResultImporter();
+		$status = $importer->process($files, $settings);
+		
+		// flash appropriate message
+		if(!$status['error']) {
+			Session::flash('flashSuccess', $status['success']);
+			if($status['notice']) {
+				Session::flash('flashNotice', $status['notice']);
 			}
-			
-			return View::make('media.search.pages.importresults');
+		} else {
+			Session::flash('flashError', $status['error']);
+		}
+
+		$mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
+		$projects = ProjectHandler::getUserGroups(Auth::user());
+		$projects = array_column($projects, 'name');
+		
+		return View::make('media.search.pages.importresults')->with('mainSearchFilters', $mainSearchFilters)->with('projects', $projects);;
 	}
 	
 	
