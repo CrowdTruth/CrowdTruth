@@ -44,7 +44,7 @@ class Unit extends Entity {
 				$unit->parents = [$parent];
 				$unit->content = $content;
 				$unit->hash = $hash;
-				if(isset($platform_id)) {
+				if($platform_id) {
 					$unit->platformId = $platform_id;
 				}
 				$unit->activity_id = $activity->_id;

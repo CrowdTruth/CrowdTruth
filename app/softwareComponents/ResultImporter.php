@@ -6,6 +6,7 @@ use \MongoDate;
 
 use \Entities\File as File;
 use \Entities\Unit as Unit;
+use \Entities\Workerunit as Workerunit;
 use \Entities\Batch as Batch;
 use \Entities\Job as Job;
 use \Entities\JobConfiguration as JobConfiguration;
@@ -170,43 +171,41 @@ class ResultImporter {
 	/**
 	 * Create worker unit
 	 */
-	public function createWorkerUnit($activityId, $unitId, $acceptTime, $channel, $trust, $content, $agentId, $annVector, $jobId, $annId, $submitTime, $settings) 
+	public function createWorkerUnit($activityId, $unitId, $acceptTime, $channel, $trust, $content, $agentId, $jobId, $annId, $submitTime, $settings) 
 	{
-		$entity = Entity::where('platformWorkerUnitId', $annId)->first();
-		if($entity) {
+		$workerunit = Workerunit::where('platformWorkerUnitId', $annId)->first();
+		if($workerunit) {
 			// do not delete this on rollback
-			if(!array_key_exists($entity->_id, $this->workerUnits)) {
+			if(!array_key_exists($workerunit->_id, $this->workerUnits)) {
 				$this->duplicateWorkerUnits++;
-				$entity->_existing = true;
-				$this->workerUnits[$entity->_id] = $entity;
+				$workerunit->_existing = true;
+				$this->workerUnits[$workerunit->_id] = $workerunit;
 			}
 		} else {
-			$entity = new Entity;
-			$entity->_id = $entity->_id;
-			$entity->domain = $settings['domain'];
-			$entity->format = $settings['format'];
-			$entity->documentType = "workerunit";
-			$entity->activity_id = $activityId; 
-			$entity->acceptTime = $acceptTime;
-			$entity->cfChannel = $channel;
-			$entity->type = $settings['documentType'];
-			$entity->cfTrust = $trust;
-			$entity->content = $content;
-			$entity->contradiction = $settings['contradiction'];
-			$entity->crowdAgent_id = $agentId;
-			$entity->annotationVector = $annVector;
-			$entity->job_id = $jobId;
-			$entity->platformWorkerUnitId = $annId;
-			$entity->softwareAgent_id = $settings['platform'];
-			$entity->spam = false;
-			$entity->submitTime = $submitTime;
-			$entity->unit_id = $unitId;
-			$entity->save();
+			$workerunit = new Workerunit;
+			$workerunit->activity_id = $activityId;			
+			$workerunit->unit_id = $unitId;			
+			$workerunit->acceptTime = $acceptTime;
+			$workerunit->cfChannel = $channel;
+			$workerunit->cfTrust = $trust;
+			$workerunit->content = $content;
+			$workerunit->crowdAgent_id = $agentId;
+			$workerunit->job_id = $jobId;
+			$workerunit->platformWorkerunitId = $annId;
+			$workerunit->submitTime = $submitTime;
+			$workerunit->type = $settings['documentType'];
+			$workerunit->domain = $settings['domain'];
+			$workerunit->format = $settings['format'];
+			$workerunit->softwareAgent_id = $settings['platform'];
+			$workerunit->softwareAgent_id = 'cf2';
+			$workerunit->contradiction = $settings['contradiction'];
+
+			\Queue::push('Queues\SaveWorkerunit', array('workerunit' => serialize($workerunit)));		
 			
-			$this->workerUnits[$entity->_id] = $entity;
+			$this->workerUnits[$workerunit->_id] = $workerunit;
 		}
 	
-		return $entity;
+		return $workerunit;
 	}
 	 
 	 
@@ -277,6 +276,8 @@ class ResultImporter {
 				// AMT
 				$settings['platform'] = 'AMT';
 				$prefix = "Answer."; // Frefix for answer columns
+				$startColumn = 27;
+				$endColumn = count($data[0]);
 				$column['submit_time'] = 18;
 				$column['id'] = 14;
 				$column['start_time'] = 17;
@@ -290,7 +291,8 @@ class ResultImporter {
 				// CrowdFlower
 				$settings['platform'] = 'CF'; 
 				$prefix = "";
-				
+				$startColumn = 12;
+				$endColumn = count($data[0]);				
 				$column['submit_time'] = 1;
 				$column['id'] = 2;
 				$column['start_time'] = 3;
@@ -441,131 +443,27 @@ class ResultImporter {
 			}
 
 			// loop through all the judgments and add workerUnits, media units and CrowdAgents.
-			for ($i = 1; $i < count($data); $i ++) {
+			for ($i = 1; $i < count($data); $i++) {
 			
-				// Sounds
-				if($settings['documentType'] == 'sound') {
-					$content = ['id' => $data[$i][array_search('id',$data[0])], 'preview-hq-mp3' => $data[$i][array_search('preview-hq-mp3',$data[0])]];
+				// loop through all values in the file, and add them as content
+				$content = [];
+				for($c = $startColumn; $c < $endColumn; $c++) {
+					$key = str_replace('.','_',$data[0][$c]);
+					$content[$key] = $data[$i][$c];
 				}
-				
-				// Passage Alignment
-				if($settings['documentType'] == 'passage_alignment') {
-					$content = [
-						'question' => [
-							'id' => $data[$i][array_search('Input.ID',$data[0])],
-							'passage' => $data[$i][array_search('Input.Question',$data[0])]
-						],
-						'answer' => [
-							'id' => $data[$i][array_search('Input.PassageID',$data[0])],
-							'passage' => $data[$i][array_search('Input.Passage',$data[0])]
-						]];
-				}
-
-				// Passage Justification
-				if($settings['documentType'] == 'passage_justification') {
-					$content = [
-						'question' => [
-							'id' => $data[$i][array_search('Input.ID',$data[0])],
-							'passage' => $data[$i][array_search('Input.Question',$data[0])]
-						],
-						'answers' => []
-						];
-
-					for($k = 1; $k <= 6; $k++) {
-						if($data[$i][array_search('Input.id'.$k,$data[0])] != "") {
-							$content['answers'][$k] = [
-								'id' => $data[$i][array_search('Input.id'.$k,$data[0])],
-								'passage' => $data[$i][array_search('Input.Passage'.$k,$data[0])]
-							];
-						}
-					}
-				}
-				
-				// Find this unit
-				$unit = Unit::store($settings, $file->_id, $content, $activity);
 			
 				$trust = 1;
-			
-				// Prepare workerUnit
-				if($settings['documentType'] == 'sound') {
-					$content = ['keywords' => trim(strtolower(str_replace('.', '', $data[$i][array_search('keywords',$data[0])])))];
-				}
-				
 				
 				$vector = $annVector[$data[$i][0]];
 				$settings['contradiction'] = 0;
 									
-				if($settings['documentType'] == 'passage_alignment') {
-					for ($j = 0; $j < 30; $j ++) {
-						// for each passage get the tags
-						if($data[$i][array_search('Answer.rel' . $j,$data[0])] != "") {
-							$term1 = $data[$i][array_search('Answer.rel' . $j . 'a',$data[0])];
-							$term2 = $data[$i][array_search('Answer.rel' . $j . 'b',$data[0])];
-							$key = $term1 . ',' . $term2;
-							// add keyword to list of keywords for this unit
-							$vector[$key]++;
-						}
-					}
-					$annotationVector = ['terms' => $vector];
-				}
-				
-				if($settings['documentType'] == 'passage_justification') {
-				
-					$question = $data[$i][array_search('Answer.Question',$data[0])];
-					$answer = $data[$i][array_search('Answer.Answer',$data[0])];
-					$justification = $data[$i][array_search('Answer.Justifying',$data[0])];
 
-					$join = $question.':'.$answer;
-									
-					// check for conflicting answers
-					if($justification == "" && ($join == 'Subjective:Yes' || $join == 'Subjective:No' || $join == 'Subjective:Other' || $join == 'YesNo:Yes' || $join == 'YesNo:No' || $join == 'YesNo:Other' || $join == 'NotYesNo:Yes' || $join == 'NotYesNo:No' || $join == 'NotYesNo:Other')) {
-						$missingJustification = 1;
-						$settings['contradiction'] = 1;
-						$trust = 0;
-					}
-					if($justification != "" && ($join == 'Subjective:Noanswer' || $join == 'Subjective:Unanswerable' || $join == 'YesNo:Noanswer' || $join == 'YesNo:Unanswerable' || $join == 'NotYesNo:Noanswer' || $join == 'NotYesNo:Unanswerable' || $join == 'Unanswerable:Noanswer' || $join == 'Unanswerable:Unanswerable')) {
-						$conflictingJustification = 1;
-						$settings['contradiction'] = 1;
-						$trust = 0;
-					}
-					if($join == 'Subjective:Unanswerable' || $join == 'YesNo:Other' || $join == 'YesNo:Unanswerable' || $join == 'NotYesNo:Yes' || $join == 'NotYesNo:No' || $join == 'NotYesNo:Unanswerable' || $join == 'Unanswerable:Noanswer' || $join == 'Unanswerable:Yes' || $join == 'Unanswerable:No' || $join == 'Unanswerable:Other') {
-						$conflictingCombination = 1;
-						$settings['contradiction'] = 1;
-						$trust = 0;
-					}
-					
-					// add answer as combination of two questions
-						$vector['question'][$question] = 1;
-						$vector['answer'][$answer] = 1;
-
-						// add justifying passages
-						if($justification != "") {
-							$justify = explode('|', $justification);
-							foreach($justify as $j) {
-								$vector['justification']['p'.$j] = 1;
-							}
-						}
-						$annotationVector = $vector;
-				}
-							
-				// sound fix
-				if($settings['documentType'] == 'sound') {
-					// for each keywords
-					$keywords = explode(',', $content['keywords']);
-					foreach($keywords as $keyword) {
-						$keyword = trim($keyword);
-						if($keyword != "") {
-							$vector[$keyword]++;
-						}
-					}
-					$annotationVector = ['keywords' => $vector];
-				}
 
 				// Create CrowdAgent
 				$crowdAgent = $this->createCrowdAgent($data[$i][$column['worker']], $data[$i][$column['country']], $data[$i][$column['region']], $data[$i][$column['city']], $trust, $settings);
 				
 				// Create WorkerUnit
-				$workerUnit = $this->createWorkerUnit($activity->_id, $unit->_id, $data[$i][$column['start_time']], $data[$i][$column['channel']], $trust, $content, $crowdAgent->_id, $annotationVector, $job->_id, $data[$i][$column['id']], $data[$i][$column['submit_time']], $settings);
+				$workerUnit = $this->createWorkerUnit($activity->_id, $unitMap[$data[$i][0]], $data[$i][$column['start_time']], $data[$i][$column['channel']], $trust, $content, $crowdAgent->_id, $job->_id, $data[$i][$column['id']], $data[$i][$column['submit_time']], $settings);
 			}	
 			
 			/*

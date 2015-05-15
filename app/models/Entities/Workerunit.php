@@ -42,8 +42,9 @@ class Workerunit extends Entity {
                 $workerunit->format = $j->format;
             }  
 
+			// transform answer into annotation vector to prepare for the CrowdTruth metrics
             $workerunit->annotationVector = $workerunit->createAnnotationVector();
-
+			
             // Activity if not exists
             if(empty($workerunit->activity_id)){
                 try {
@@ -63,8 +64,9 @@ class Workerunit extends Entity {
 
         });
 
-     }   
-
+     }
+			
+			
      //todo make private. 
      // TODO exceptionhandling, smart checks.
     public function createAnnotationVector(){
@@ -83,6 +85,15 @@ class Workerunit extends Entity {
                 break;
             case 'BiographyNetConcepts':
                 return $this->createAnnotationVectorBiographyNetConcepts();
+                break;
+            case 'passage_alignment':
+                return $this->createAnnotationVectorPassageAlignment();
+                break;
+            case 'passage_justification':
+                return $this->createAnnotationVectorPassageJustification();
+                break;
+            case 'sound':
+                return $this->createAnnotationVectorSound();
                 break;
 		//	case 'DistributionalDisambiguation':
         //        return $this->createAnnotationVectorDistributionalDisambiguation();
@@ -147,6 +158,87 @@ class Workerunit extends Entity {
         return array('relations' => $answer, 'other' => $other);
     }
 */
+
+    public function createAnnotationVectorPassageAlignment() {
+        $debug = false;
+		
+		$judgment = $this->content;
+		for ($j = 0; $j < 30; $j ++) {
+			// for each passage get the tags
+			if($data[$i][array_search('Answer.rel' . $j,$data[0])] != "") {
+				$term1 = $data[$i][array_search('Answer.rel' . $j . 'a',$data[0])];
+				$term2 = $data[$i][array_search('Answer.rel' . $j . 'b',$data[0])];
+				$key = $term1 . ',' . $term2;
+				// add keyword to list of keywords for this unit
+				$vector[$key]++;
+			}
+		}
+		return ['terms' => $vector];
+	}
+			
+
+    public function createAnnotationVectorPassageJustification() {
+        $debug = false;		
+		
+		$judgment = $this->content;
+		
+		$question = $data[$i][array_search('Answer.Question',$data[0])];
+		$answer = $data[$i][array_search('Answer.Answer',$data[0])];
+		$justification = $data[$i][array_search('Answer.Justifying',$data[0])];
+
+		$join = $question.':'.$answer;
+						
+		// check for conflicting answers
+		if($justification == "" && ($join == 'Subjective:Yes' || $join == 'Subjective:No' || $join == 'Subjective:Other' || $join == 'YesNo:Yes' || $join == 'YesNo:No' || $join == 'YesNo:Other' || $join == 'NotYesNo:Yes' || $join == 'NotYesNo:No' || $join == 'NotYesNo:Other')) {
+			$missingJustification = 1;
+			$settings['contradiction'] = 1;
+			$trust = 0;
+		}
+		if($justification != "" && ($join == 'Subjective:Noanswer' || $join == 'Subjective:Unanswerable' || $join == 'YesNo:Noanswer' || $join == 'YesNo:Unanswerable' || $join == 'NotYesNo:Noanswer' || $join == 'NotYesNo:Unanswerable' || $join == 'Unanswerable:Noanswer' || $join == 'Unanswerable:Unanswerable')) {
+			$conflictingJustification = 1;
+			$settings['contradiction'] = 1;
+			$trust = 0;
+		}
+		if($join == 'Subjective:Unanswerable' || $join == 'YesNo:Other' || $join == 'YesNo:Unanswerable' || $join == 'NotYesNo:Yes' || $join == 'NotYesNo:No' || $join == 'NotYesNo:Unanswerable' || $join == 'Unanswerable:Noanswer' || $join == 'Unanswerable:Yes' || $join == 'Unanswerable:No' || $join == 'Unanswerable:Other') {
+			$conflictingCombination = 1;
+			$settings['contradiction'] = 1;
+			$trust = 0;
+		}
+		
+		// add answer as combination of two questions
+		$vector['question'][$question] = 1;
+		$vector['answer'][$answer] = 1;
+
+		// add justifying passages
+		if($justification != "") {
+			$justify = explode('|', $justification);
+			foreach($justify as $j) {
+				$vector['justification']['p'.$j] = 1;
+			}
+		}
+			
+		return $vector;
+	}
+		
+		
+    public function createAnnotationVectorSound() {
+        $debug = false;
+		
+		$judgment = $this->content;
+		$vector = [];
+		// for each keyword
+		$keywords = explode(',', $judgment['keywords']);
+		foreach($keywords as $keyword) {
+			$keyword = str_replace('.', ' ', $keyword);
+			$keyword = trim($keyword);
+			if($keyword != "") {
+				$vector[$keyword] = 1;
+			}
+		}
+		return ['keywords' => $vector];
+	}
+
+
     public function createAnnotationVectorMetaDEvents() {
         $debug = false;
 

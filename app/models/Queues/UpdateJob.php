@@ -26,6 +26,9 @@ class UpdateJob {
 		$workerunits = $j->workerunits;
         $result = array();
 		$count = 0;
+			
+		
+		// aggregate workerUnits
         foreach($workerunits as $workerunit){
         	
         	if(empty($workerunit->annotationVector))
@@ -43,18 +46,46 @@ class UpdateJob {
 				foreach($workerunit->annotationVector as $key=>$val){
 					if(is_array($val)){ // term1 -> [k] -> 1
 						foreach($val as $k=>$v){
-							//if(isset($result[$uid][$key][$k]))
+							if(isset($result[$uid][$key][$k]))
 								$result[$uid][$key][$k]+=$v;
-							//else $result[$uid][$key][$k]=$v; // THIS SHOULDN'T HAPPEN
+							else $result[$uid][$key][$k]=$v; // THIS SHOULDN'T HAPPEN
 						}
 					} else {			// [key] -> 1
-						//if(isset($result[$uid][$key]))
+						if(isset($result[$uid][$key]))
 	                    	$result[$uid][$key]+=$val;
-	                    //else $result[$uid][$key]=$val; // THIS SHOULDN'T HAPPEN
+	                    else $result[$uid][$key]=$val; // THIS SHOULDN'T HAPPEN
 					}
 				}
 			}
 		}
+		
+		// expand annotationVector with annotations from other workers
+        foreach($workerunits as $workerunit){
+        	
+        	if(empty($workerunit->annotationVector)) {
+        		continue; // Skip if no annotationVector.
+			} else {
+				$annotationVector = $workerunit->annotationVector;
+			}
+			
+			$uid = $workerunit->unit_id; // to prevent mongoException: zero length key not allowed. Could also 'continue;'
+
+			
+			foreach($result[$uid] as $key=>$val){
+				if(is_array($val)){ // term1 -> [k] -> 1
+					foreach($val as $k=>$v){
+						if(!isset($annotationVector[$key][$k]))
+							$annotationVector[$key][$k] = 0;
+					}
+				} else {			// [key] -> 1
+					if(!isset($annotationVector[$key]))
+						$annotationVector[$key] = 0;
+				}
+			}
+			$workerunit->annotationVector = $annotationVector;
+			$workerunit->save();
+		}
+		
 		
 		if(!isset($j->results)){
 			$j->results = array('withSpam' => $result);
@@ -162,7 +193,7 @@ class UpdateJob {
 				}
 		
 				// create output units
-				foreach ($response['metrics']['units']['withSpam'] as $unitId => $content) {
+				foreach ($response['results']['withoutSpam'] as $unitId => $content) {
 					set_time_limit(60);
 					$unit = Unit::where("_id", $unitId)->first();
 					

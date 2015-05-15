@@ -148,7 +148,6 @@ class MediaController extends BaseController {
 		//$inputFormat = 'text';
 		//$inputDomain = 'medical';
 		
-		$settings['outputType'] = 'sound-keywords';
 		//$outputFormat = 'text';
 		//$outputDomain = 'medical2';
 		
