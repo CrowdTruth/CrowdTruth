@@ -113,7 +113,7 @@ return array(
 		'Cartalyst\Sentry\SentryServiceProvider',
 		'CrowdTruth\Crowdflower\CrowdflowerServiceProvider',
 		'CrowdTruth\Mturk\MturkServiceProvider',
-		'CrowdTruth\DDGameapi\DDGameapiServiceProvider'
+		'CrowdTruth\DDGameapi\DDGameapiServiceProvider',
 /*		'PlatformProvider'*/
 	),
 

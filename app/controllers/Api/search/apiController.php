@@ -1,5 +1,4 @@
 <?php
-
 namespace Api\search;
 
 use \BaseController as BaseController;
@@ -10,18 +9,12 @@ use \Response as Response;
 use \Auth as Auth;
 use \MongoDB\Repository as Repository;
 use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
-use \MongoDB\CrowdAgent as CrowdAgent;
 use \MongoDB\Security\ProjectHandler as ProjectHandler;
 use \MongoDB\Security\Permissions as Permissions;
 
-
-use League\Csv\Reader as Reader;
 use League\Csv\Writer as Writer;
 
 class apiController extends BaseController {
-
 	protected $repository;
 
 	public function __construct(Repository $repository){
@@ -30,7 +23,7 @@ class apiController extends BaseController {
 
 	protected $operators = array(
 		'=' , '<', '>', '<=', '>=', '<>', 'like'
-	);	
+	);
 	
 	public function getIndex()
 	{
@@ -40,14 +33,17 @@ class apiController extends BaseController {
 
 		// Filter data for projects for which the authenticated user has permissions.
 		if(Input::has('authkey')) {
-			return 'auth key not yet implemented on API.';
+			$user = \MongoDB\UserAgent::where('api_key', Input::get('authkey'))->first();
+			if(is_null($user)) {
+				return [ 'error' => 'Invalid auth key: '.Input::get('authkey') ];
+			}
 		} elseif(Auth::check()) {
 			$user = Auth::user();
-			$projects = ProjectHandler::getUserProjects($user, Permissions::PROJECT_READ);
-			$projectNames = array_column($projects, 'name');
 		} else {
-			return 'Not logged in -> no data';
+			return [ 'error' => 'Authentication required. Please supply authkey.' ];
 		}
+		$projects = ProjectHandler::getUserProjects($user, Permissions::PROJECT_READ);
+		$projectNames = array_column($projects, 'name');
 		$collection = $collection->whereIn('project', $projectNames);
 
 		if(Input::has('match'))
@@ -73,7 +69,7 @@ class apiController extends BaseController {
 		$documents = $collection->toArray()['data'];
 
 		if(array_key_exists('tocsv', Input::all()))
-		{	
+		{
 			set_time_limit(1200);
 			$writer = new Writer(new \SplTempFileObject);
 			$writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
@@ -124,7 +120,7 @@ class apiController extends BaseController {
 					{
 						$csvRow[str_replace('.', '_', $column)] = "";
 					}
-				}				
+				}
 
 				$writer->insertOne($csvRow);
 			}
@@ -135,19 +131,19 @@ class apiController extends BaseController {
 		}
 
 		return Response::json([
-			"count" => $count,
-			"pagination" => $pagination,
-			"searchQuery" => Input::except('page'),
-			"documents" => $documents
+				"count" => $count,
+				"pagination" => $pagination,
+				"searchQuery" => Input::except('page'),
+				"documents" => $documents
 			]);
 	}
 
 	public function recur_ksort(&$array) {
-	   foreach ($array as &$value) {
-		  if (is_array($value)) $this->recur_ksort($value);
-	   }
-	   return ksort($array);
-	}	
+		foreach ($array as &$value) {
+			if (is_array($value)) $this->recur_ksort($value);
+		}
+		return ksort($array);
+	}
 
 	public function anyPost()
 	{
@@ -166,7 +162,7 @@ class apiController extends BaseController {
 				$collection->update($data, array('upsert' => true));
 			}
 
-			return $collection->get();			
+			return $collection->get();
 		}
 	}
 
@@ -194,7 +190,7 @@ class apiController extends BaseController {
 				}
 
 				return Response::json($original);
-			}			
+			}
 		}
 	}
 
@@ -238,7 +234,7 @@ class apiController extends BaseController {
 						else
 						{
 							$collection = $collection->where($field, $operator, $subvalue);
-						}		
+						}
 					}
 				}
 
@@ -248,12 +244,12 @@ class apiController extends BaseController {
 				if(is_numeric($value))
 				{
 					$value = (int) $value;
-				}					
+				}
 
 				$collection = $collection->whereIn($field, array($value));
 			}
 		}
 
-		return $collection;		
+		return $collection;
 	}
 }
