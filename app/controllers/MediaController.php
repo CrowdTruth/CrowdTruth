@@ -355,11 +355,9 @@ class MediaController extends BaseController {
 			$uploader = new FileUploader();
 			$status_upload = $uploader->store($fileFormat, $domain, $documentType, $project, $domainCreate, 
 					$documentCreate, $files);
-			
 			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
 			return $uploadView;
 		} catch (Exception $e){
-			dd([$e->getMessage(),Input::all()]);
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}
 	}

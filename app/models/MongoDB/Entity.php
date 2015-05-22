@@ -90,9 +90,9 @@ class Entity extends Moloquent {
 
 	public static function validateEntity($entity){
 		$entity->documentType = strtolower($entity->documentType);
-
+		
 		// Check entity has been assigned a project
-		if( ! property_exists($entity, 'project')) {
+		if( $entity->project==null) {
 			// Use same project as parent Entity
 			$entParent = Entity::find($entity->parents[0]);
 			$entity->project = $entParent->project;
