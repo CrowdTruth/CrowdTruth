@@ -3,12 +3,11 @@
 @include('layouts.flashdata')
 <div class="col-xs-12 col-md-10 col-md-offset-1">
 	<div class='maincolumn CW_box_style'>
-					
 		<div class='tab'>
 			@include('job2.nav')
 			<div>
 				{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSubmitFinal', 'sandbox'), 'method' => 'POST')) }}
-				<div class="panel panel-default">		
+				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h4>Provide Job and Template details</h4>
 					</div>
@@ -39,23 +38,23 @@
 									//	dd($unitAttributes);
 
 										$_aTitles = \MongoDB\Entity::where("documentType", "jobconf")->where("format", $_format)->distinct("content.title")->get();
-									    $_aTitles = array_flatten($_aTitles->toArray());	
-								    
-									    foreach($_aTitles as $key=>$value){
-									    	$pos = strpos($value, '[[');
-									    	if ( $pos > 0) {
-									    		$t = trim(substr($value, 0, $pos));
-									    		if(!array_key_exists($t, $aTitles))
-										    		$aTitles[$t] = $t;
-									    	}
+										$_aTitles = array_flatten($_aTitles->toArray());
+									
+										foreach($_aTitles as $key=>$value){
+											$pos = strpos($value, '[[');
+											if ( $pos > 0) {
+												$t = trim(substr($value, 0, $pos));
+												if(!array_key_exists($t, $aTitles))
+													$aTitles[$t] = $t;
+											}
 										}
 
 										$_aTypes = \MongoDB\Template::where("format", $_format)->distinct('type')->get();
-									    $_aTypes = array_flatten($_aTypes->toArray());
-									    foreach($_aTypes as $key=>$value){
-									    	if(!isset($aTypes[$value]))
-										    	$aTypes[$value] = $value;
-										}							
+										$_aTypes = array_flatten($_aTypes->toArray());
+										foreach($_aTypes as $key=>$value){
+											if(!isset($aTypes[$value]))
+												$aTypes[$value] = $value;
+										}
 										
 										if($phpres = Session::get('templatetype')){
 											if(!isset($aTypes[$phpres]))
@@ -64,7 +63,7 @@
 
 										if($phprest = Session::get('title')){
 											$pos = strpos($phprest, '[[');
-									    	if ( $pos > 0)
+											if ( $pos > 0)
 												$phprest = trim(substr($phprest, 0, $pos));
 											
 											if(!isset($aTitles[$phprest]))
@@ -85,13 +84,13 @@
 									array('class' => 'col-xs-12 col-sm-4 control-label')) }}
 								<div class="col-xs-12 col-sm-7">
 									{{ Form::text('description', null, array('class' => 'form-control', 'placeholder' => 'Keywords')) }}
-								</div>	
+								</div>
 							
 						</div>
 						<div class='row' style='margin-top:40px; margin-bottom: 20px;'>
 							{{ Form::label('templateType', 'Select a Template or define a new one', array('class' => 'col-xs-12 col-sm-4 control-label')) }}
 								<div class="col-xs-12 col-sm-3">
-									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'id' => 'chosenTempType', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}		
+									{{ Form::select('templateType',  $aTypes, $phpres, array('class' => 'selectpicker', 'id' => 'chosenTempType', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip', 'templateType'=>'')) }}
 								</div>
 								<div class="col-xs-12 col-sm-4">
 									{{ Form::text('templateTypeOwn', null, array('class' => 'form-control', 'id' => 'typeNewType', 'placeholder' => 'New Template')) }}
@@ -101,13 +100,13 @@
 							{{ Form::label('batchColumns', 'Select the columns that you want to use in the new template', array('class' => 'col-xs-12 col-sm-4 control-label')) }}
 							{{ Form::hidden('newcolnames', '', array('class' => 'form-control', 'id' => 'newcolnames')) }}	
 								<div class="col-xs-12 col-sm-3">
-									{{ Form::select('batchColumns[]',  $unitAttributes, null, array('class' => 'selectpicker', 'id' => 'multiselBatchCol', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip', 'multiple' => 'multiple', 'batchColumns[]'=>'') ) }}		
+									{{ Form::select('batchColumns[]',  $unitAttributes, null, array('class' => 'selectpicker', 'id' => 'multiselBatchCol', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip', 'multiple' => 'multiple', 'batchColumns[]'=>'') ) }}
 								</div>
 								<div class="col-xs-2">
-									{{ Form::button('Select All', array('id' => 'selectAll', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip') ) }}		
+									{{ Form::button('Select All', array('id' => 'selectAll', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip') ) }}
 								</div>
 								<div class="col-xs-2">
-									{{ Form::button('Deselect All',  array('id' => 'deselectAll', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip') ) }}		
+									{{ Form::button('Deselect All',  array('id' => 'deselectAll', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip') ) }}
 								</div>
 								<div class="col-md-6 col-md-6" id="placeholderNewNames">
 								</div>
@@ -121,7 +120,7 @@
 						<div class='row hidden' id="placeholderExtraColumns" style='margin-top:40px; margin-bottom: 20px;'>
 							{{ Form::label('moreColumns', 'Add more columns?', array('class' => 'col-xs-12 col-sm-4 control-label')) }}
 							<div class="col-md-4 col-md-4">
-								{{ Form::select('addMoreColumns[]',  $unitAttributes, null, array('class' => 'selectpicker', 'id' => 'addMoreColumns', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip', 'multiple' => 'multiple', 'addMoreColumns[]'=>'') ) }}		
+								{{ Form::select('addMoreColumns[]',  $unitAttributes, null, array('class' => 'selectpicker', 'id' => 'addMoreColumns', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip', 'multiple' => 'multiple', 'addMoreColumns[]'=>'') ) }}
 							</div>
 						</div>
 						
@@ -135,9 +134,5 @@
 			</div>	
 		</div>
 	</div>
-</div>	
-@stop	
-
-
-
-
+</div>
+@stop
