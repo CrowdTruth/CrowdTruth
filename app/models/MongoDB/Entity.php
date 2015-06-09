@@ -114,7 +114,7 @@ class Entity extends Moloquent {
 				$entity->user_id==null) {
 			// dd('Entity does not comply with data model! -- please debug');
 			// dd($entity);
-			throw new \Exception();
+			throw new \Exception('Entity does not comply with data model!');
 		}
 		$entity->documentType = strtolower($entity->documentType);
 	}
