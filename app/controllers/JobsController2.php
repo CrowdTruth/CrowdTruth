@@ -445,6 +445,7 @@ class JobsController2 extends BaseController {
 		return Redirect::to("save");
 	}
 
+	// TODO: Make job configuration part of job ?
 	public function postSubmitFinal($ordersandbox = 'order') {
 		$batch = unserialize(Session::get('batch'));
 
@@ -598,11 +599,6 @@ class JobsController2 extends BaseController {
 			$j->extraInfoBatch = $extraInfoBatch;
 			$j->save(); //convert to publish later
 
-			/*return [
-					"WARNING"	=>	"Job creation will crash at this point",
-					"cause"		=>	"There is no DrDetective class, and it does not implement publish (or refreshJob) method",
-					"fix"		=>	"Add refreshJob to the GameController (however it is called) and use that class."
-			];*/
 			$j->publish(($ordersandbox == 'sandbox' ? true : false));
 			$jobs[] = $j;
 

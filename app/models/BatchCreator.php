@@ -64,7 +64,7 @@ class BatchCreator extends Moloquent {
 			$activity->forceDelete();			
 			$entity->forceDelete();
 			return [
-				'status'	=> 'ok',
+				'status'	=> 'error',
 				'message'	=> $e->getMessage(),
 				'batch'		=> null
 			];
