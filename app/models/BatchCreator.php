@@ -2,17 +2,27 @@
 
 use \MongoDB\Entity as Entity;
 use \MongoDB\Activity as Activity;
-//use Moloquent, Schema, URL, File, Exception, Session;
 
+// TODO: Document ?
 class BatchCreator extends Moloquent {
 
+	/**
+	 * 
+	 * @param array $input
+	 * @return result status structure containing
+	 * 		'status'	'ok' or 'error'
+	 * 		'message'	'A status message'
+	 * 		'batch'		the batch or null if error
+	 */
 	public function store(array $input){
-
 		try {
 			$this->createBatchCreatorSoftwareAgent();
 		} catch (Exception $e) {
-			$status['error']['FileUpload'] = $e->getMessage();
-			return $status;
+			return [
+				'status'	=> 'error',
+				'message'	=> $e->getMessage(),
+				'batch'		=> null
+			];
 		}
 
 		try {
@@ -23,19 +33,20 @@ class BatchCreator extends Moloquent {
 		} catch (Exception $e) {
 			// Something went wrong with creating the Activity
 			$activity->forceDelete();
-			Session::flash('flashError', $e->getMessage());
-			return false;
+			return [
+				'status'	=> 'error',
+				'message'	=> $e->getMessage(),
+				'batch'		=> null
+			];
 		}
 
 		try {
-			
-
 			$entity = new Entity;
 			$entity->title = $input['batch_title'];
-			// $entity->extension = $file->getClientOriginalExtension();
 			$entity->format = $input['format'];	
 			$entity->domain = $input['domain'];	
-			$entity->documentType = "batch";
+			$entity->documentType = 'batch';
+			$entity->softwareAgent_id = 'batchcreator';
 			$entity->parents = $input['units'];
 			$entity->content = $input['batch_description'];
 			$entity->hash = md5(serialize($entity->parents));
@@ -43,17 +54,21 @@ class BatchCreator extends Moloquent {
 			$entity->save();
 
 			Queue::push('Queues\UpdateUnits', $input['units']);
-			
-			Session::flash("flashSuccess", $input['batch_title'] . " batch was successfully created. (URI: {$entity->_id})");
+			return [
+				'status'	=> 'ok',
+				'message'	=> $input['batch_title'] . " batch was successfully created. (URI: {$entity->_id})",
+				'batch'		=> $entity
+			];
 		} catch (Exception $e) {
 			// Something went wrong with creating the Entity
 			$activity->forceDelete();			
 			$entity->forceDelete();
-			Session::flash('flashError', $e->getMessage());
-			return false;
+			return [
+				'status'	=> 'error',
+				'message'	=> $e->getMessage(),
+				'batch'		=> null
+			];
 		}
-
-		return $entity;
 	}
 
 	public function createBatchCreatorSoftwareAgent(){

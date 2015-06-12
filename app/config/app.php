@@ -112,7 +112,8 @@ return array(
 		'Gloudemans\Shoppingcart\ShoppingcartServiceProvider',
 		'Cartalyst\Sentry\SentryServiceProvider',
 		'CrowdTruth\Crowdflower\CrowdflowerServiceProvider',
-		'CrowdTruth\Mturk\MturkServiceProvider'
+		'CrowdTruth\Mturk\MturkServiceProvider',
+		'CrowdTruth\DDGameapi\DDGameapiServiceProvider',
 /*		'PlatformProvider'*/
 	),
 

@@ -99,7 +99,7 @@ class FileUploader {
 		
 		try {
 			$activity = new Activity;
-			$activity->softwareAgent_id = "fileuploader";
+			$activity->softwareAgent_id = $this->softwareComponent->_id;
 			$activity->save();
 		} catch (Exception $e) {
 			// Something went wrong with creating the Activity
@@ -111,18 +111,19 @@ class FileUploader {
 		$files = $validatedFiles['passed'];
 		foreach($files as $file){
 			$title = $file->getClientOriginalName();
-
+			
 			try {
 				$entity = new Entity;
 				$entity->_id = $entity->_id;
+				$entity->activity_id = $activity->_id;
+				$entity->softwareAgent_id = $this->softwareComponent->_id;
+				$entity->project = $project;
 				$entity->title = strtolower($title);
 				$entity->domain = $domain;
 				$entity->format = "text";
 				$entity->documentType = $documentType;
 				$entity->content = File::get($file->getRealPath());
 				$entity->hash = md5(serialize([$entity->content]));
-				$entity->activity_id = $activity->_id;
-				$entity->project = $project;
 				$entity->tags = [ "unit" ];
 				$entity->save();
 		

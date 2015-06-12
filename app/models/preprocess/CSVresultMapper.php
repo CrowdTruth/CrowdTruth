@@ -12,6 +12,9 @@ use URL, Session, Exception, File, Input, Redirect, App;
 
 use League\Csv\Reader as Reader;
 
+// TODO: 
+// - clean up (remove unused functions)
+// - document
 class CSVresultMapper {
 
 	public function processInputData($csvresult, $preview = false)
@@ -355,7 +358,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 			$batch['format'] = "text";
 			$batch['domain'] = "medical";
 			$batch['units'] = $batchUnits;
-			$batch = $batchCreator->store($batch);
+			$batch = $batchCreator->store($batch)['batch'];
 		}
 
 		try {
@@ -434,7 +437,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 			$batch['format'] = "text";
 			$batch['domain'] = "medical";
 			$batch['units'] = $batchUnits;
-			$batch = $batchCreator->store($batch);
+			$batch = $batchCreator->store($batch)['batch'];
 		}
 
 		try {
@@ -513,7 +516,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 			$batch['format'] = "text";
 			$batch['domain'] = "medical";
 			$batch['units'] = $batchUnits;
-			$batch = $batchCreator->store($batch);
+			$batch = $batchCreator->store($batch)['batch'];
 		}
 
 		try {
@@ -592,7 +595,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 			$batch['format'] = "text";
 			$batch['domain'] = "medical";
 			$batch['units'] = $batchUnits;
-			$batch = $batchCreator->store($batch);
+			$batch = $batchCreator->store($batch)['batch'];
 		}
 
 		try {
@@ -671,7 +674,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 			$batch['format'] = "text";
 			$batch['domain'] = "medical";
 			$batch['units'] = $batchUnits;
-			$batch = $batchCreator->store($batch);
+			$batch = $batchCreator->store($batch)['batch'];
 		}
 
 		try {
@@ -750,7 +753,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 			$batch['format'] = "text";
 			$batch['domain'] = "medical";
 			$batch['units'] = $batchUnits;
-			$batch = $batchCreator->store($batch);
+			$batch = $batchCreator->store($batch)['batch'];
 		}
 
 		try {
@@ -829,7 +832,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 			$batch['format'] = "text";
 			$batch['domain'] = "medical";
 			$batch['units'] = $batchUnits;
-			$batch = $batchCreator->store($batch);
+			$batch = $batchCreator->store($batch)['batch'];
 		}
 
 		try {
@@ -908,7 +911,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 			$batch['format'] = "text";
 			$batch['domain'] = "medical";
 			$batch['units'] = $batchUnits;
-			$batch = $batchCreator->store($batch);
+			$batch = $batchCreator->store($batch)['batch'];
 		}
 
 		try {
@@ -987,7 +990,7 @@ echo ' - ' . $row['b1'] . '. ';*/
 			$batch['format'] = "text";
 			$batch['domain'] = "medical";
 			$batch['units'] = $batchUnits;
-			$batch = $batchCreator->store($batch);
+			$batch = $batchCreator->store($batch)['batch'];
 		}
 
 		try {
@@ -1068,7 +1071,7 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			$batch['format'] = "text";
 			$batch['domain'] = "medical";
 			$batch['units'] = $batchUnits;
-			$batch = $batchCreator->store($batch);
+			$batch = $batchCreator->store($batch)['batch'];
 		}
 
 		try {
@@ -1149,7 +1152,7 @@ Please consider only the capitalized WORD PHRASES (in case one of them appears m
 			$batch['format'] = "text";
 			$batch['domain'] = "medical";
 			$batch['units'] = $batchUnits;
-			$batch = $batchCreator->store($batch);
+			$batch = $batchCreator->store($batch)['batch'];
 		}
 
 		try {

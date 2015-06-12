@@ -36,7 +36,7 @@ App::after(function($request, $response)
 Route::filter('auth', function()
 {
 	if (!Auth::check()){
-		return Redirect::guest('user/login');
+		return Redirect::guest('login');
 	} 
 });
 
