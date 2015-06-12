@@ -88,17 +88,25 @@ class TextSentencePreprocessor {
 		foreach ($entities as $entitiy) {
 			$fullEntity = [
 				"_id" => $idBase . $inc,
+				"documentType"	=> 'unit',
+				"activity_id" => $activityId,
+				"softwareAgent_id" => $this->softwareComponent->_id,
+				"project" => $project,
+				"user_id" => $userId,
+				
+				"type" => $docType,
+				"unitParents" => [ $parentId ],
+				"jobParents" => [],
+				"children" => [],
+				"judgements" => [],
+				"metrics" => [],
+				"source" => '',
+				"format" => $format,
 				"title" => strtolower($title),
 				"domain" => $domain,
-				"format" => $format,
 				"tags" => [ 'unit' ],
-				"documentType" => $docType,
-				"parents" => [ $parentId ],
 				"content" => $entitiy,
 				"hash" => md5(serialize($entitiy)),
-				"activity_id" => $activityId,
-				"user_id" => $userId,
-				"project" => $project,
 				"updated_at" => new MongoDate(time()),
 				"created_at" => new MongoDate(time())
 			];

@@ -16,7 +16,7 @@
 @stop
 
 @section('content')
-<!-- START search_content --> 
+<!-- START search_content -->
 <div class="col-xs-12">
 	<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')			
@@ -52,10 +52,10 @@
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
-                            <li><a href="{{ URL::to('jobs/analyzeVideo') }}">Analyze Video</a></li>
-							<li><a href="#" class='toCSV'>Export results to CSV</a></li>													
+							<li><a href="{{ URL::to('jobs/analyzeVideo') }}">Analyze Video</a></li>
+							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
 						</ul>
-					</div>					
+					</div>
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
 						<option value="10">10 Records per page</option>
 						<option value="25">25 Records per page</option>
@@ -65,10 +65,10 @@
 					<div class='switchViews pull-right' style="margin-right:5px;">
 						<button type="button" class="btn btn-info listViewButton hidden" style="margin-left:5px;">
 							Switch to List View
-						</button>						
+						</button>
 						<button type="button" class="btn btn-info graphViewButton" style="margin-left:5px;">
 							Switch to Graph View
-						</button>						
+						</button>
 					</div>
 				</div>
 				<div class='col-xs-12'>
@@ -77,7 +77,7 @@
 					<div class='cw_pagination pull-right'>
 					</div>
 				</div>
-				<div class='col-xs-12 searchResults'>				
+				<div class='col-xs-12 searchResults'>
 					<ul class="nav nav-tabs documentTypesNav hidden">
 						<li id="all_nav">
 							<a href="#all_tab" data-toggle="tab">
@@ -89,7 +89,7 @@
 								Jobs
 							</a>
 						</li>
-					</ul>    								
+					</ul>
 					<div class="tab-content documentTypesTabs">
 						@include('media.search.layouts.hb-all')
 
@@ -410,12 +410,13 @@
 		</div>
 	</div>
 </div>
-<!-- STOP search_content --> 				
+<!-- STOP search_content -->
 @stop
 
 @section('end_javascript')
 {{ javascript_include_tag('generalsearch_manifest') }}
 {{ javascript_include_tag('visualization_manifest') }}
+
 <script>
 $('document').ready(function(){
 
@@ -458,7 +459,7 @@ var getSearchLimitValue = function(){
 }
 
 var updateReponsiveTableHeight = function() {
-	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 185 + "px");	
+	$(getActiveTabKey() + ' .ctable-responsive').css('max-height', $(window).height() - 185 + "px");
 }
 
 var delay = (function(){
@@ -481,8 +482,8 @@ $('.searchOptions').on('change', ".selectpicker", function(){
 				$('.documentTypesNav').find('#' + $(this).val() + '_nav a').click();
 			}
 			getResults();
-			return;				
-		}	
+			return;
+		}
 	}
 
 	if($(this).attr('name') == "search_limit"){
@@ -546,7 +547,7 @@ $('.searchOptions .tabOptions').on('click', "[data-vbSelector]", function(){
 	}
 	else
 	{
-		$(this).attr('data-vb', 'show');					
+		$(this).attr('data-vb', 'show');
 		$(this).find('.fa').remove();
 		$(this).prepend('<i class="fa fa-check-circle-o fa-fw"></i>');
 	}
@@ -559,7 +560,7 @@ $('body').on('keyup', '.inputFilters input', function(){
 
 	delay(function(){
 		var activeTabKey = getActiveTabKey();
-		selectedRows[activeTabKey] = [];		
+		selectedRows[activeTabKey] = [];
 		inputFilter.attr('data-query-value', inputFilter.val());
 
 		if(inputFilter.val() == "")
@@ -715,7 +716,7 @@ $('.input-daterange input').on('changeDate', function(e) {
 	var date = $(this).val();
 
 	if(date == "") {
-		$(this).removeAttr('data-query-value');					
+		$(this).removeAttr('data-query-value');
 	} else {
 		$(this).attr('data-query-value', date);
 	}
@@ -831,7 +832,10 @@ function getResults(baseApiURL){
 		}
 
 		var template = Handlebars.compile(templates[activeTabKey]);
+		// TODO: this line seems to be faulty:
+		console.log('Test template(data)');
 		var html = template(data);
+		console.log('Test complete!');	// If this line is not printed, something is w
 		$('.cw_pagination').empty().prepend($(data.pagination));
 		$('.cw_pagination').find('.pagination').addClass('pagination-sm');
 		$(activeTabKey).find('.results').empty().append(html);
@@ -1154,19 +1158,16 @@ function jobactions(job, action, index){
 		        type: "GET",
 		        success:function(data, textStatus, jqXHR)
 					{
-							           
-
 						if(data.status=='ok'){
 							$('#'+action+index).hide();
 							$('#'+'status'+index).html(newstatus);
 						} else {
 							alert(data.message);
 						}
-							    
 					},
-		        error: function(jqXHR, textStatus, errorThrown) 
+		        error: function(jqXHR, textStatus, errorThrown)
 		        {
-		            alert(errorThrown);     
+		            alert(errorThrown);
 		        }
 		    });
 }
