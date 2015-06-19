@@ -49,6 +49,13 @@ class TextPreprocessor extends AbstractTextPreprocessor {
 			'usecol' => $params['usecol'],
 		];
 	}
+	
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
+	public function isDataType() {
+		return true;
+	}
 }
 
 /**
@@ -105,6 +112,13 @@ class NumberPreprocessor extends AbstractTextPreprocessor {
 		return [
 			'usecol' => $params['usecol'],
 		];
+	}
+	
+	/**
+	 * See AbstractTextPreprocessor.
+	 */
+	public function isDataType() {
+		return true;
 	}
 }
 

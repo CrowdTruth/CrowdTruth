@@ -51,4 +51,14 @@ abstract class AbstractTextPreprocessor {
 	 * @param $params List of all available configuration parameters.
 	 */
 	abstract function getConfiguration($params);
+	
+	/**
+	 * This function should be overriden if-and-only-if the implementing 
+	 * TextPreprocessor is aimed at processing a basic data type (number, text).
+	 * 
+	 * @return boolean True if basic data type, false otherwise.
+	 */
+	public function isDataType() {
+		return false;
+	}
 }

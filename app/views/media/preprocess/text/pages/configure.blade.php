@@ -281,9 +281,18 @@
 	Perform 'Read file' action.
 --}}
 	function doPreview() {
+		$("#delimiter-form").val($('#delimiter').val());
+		$("#separator-form").val($('#separator').val());
 		makePost('processPreview', function(data) {
 			$("#contentPreview").html(data);
 		});
+	}
+
+	function doSubmit() {
+		// Copy values from #docPreviewForm to #theForm
+		$("#delimiter-form").val($('#delimiter').val());
+		$("#separator-form").val($('#separator').val());
+		$('#postAction').val('process');
 	}
 
 {{--
@@ -455,6 +464,8 @@
 {{ Form::open(array('action' => 'preprocess\TextController@postConfigure', 'name' => 'theForm', 'id' => 'theForm' )) }}
 {{ Form::hidden('URI', $URI) }}
 {{ Form::hidden('postAction', 'preview', [ 'id' => 'postAction' ]) }}
+{{ Form::hidden('delimiter', '', [ 'id' => 'delimiter-form' ]) }}
+{{ Form::hidden('separator', '', [ 'id' => 'separator-form' ]) }}
 
 <div class="panel panel-default">
 		<div class="panel-heading">
@@ -499,7 +510,7 @@
 		</div>
 	</div>
 	<div class="panel-footer">
-		<button class='btn btn-primary' onClick="$('#postAction').val('process');"><i class="fa fa-gear"></i> Save Content</button>
+		<button class='btn btn-primary' onClick="doSubmit()"><i class="fa fa-gear"></i> Save Content</button>
 	</div>
 </div>
 

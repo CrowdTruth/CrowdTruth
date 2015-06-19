@@ -7,7 +7,6 @@ use Moloquent, Schema, Cache, Input, Exception, Auth, Session;
 use \Counter as Counter;
 
 class Entity extends Moloquent {
-
 	protected $collection = 'entities';
 	protected $softDelete = true;
 	protected static $unguarded = true;
