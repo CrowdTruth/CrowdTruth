@@ -821,8 +821,6 @@ function getResults(baseApiURL){
 	abortAjax(xhr);
 
 	xhr = $.getJSON(baseApiURL + tabFieldsQuery + searchLimitQuery, function(data) {
-		// console.log(data);
-
 		lastQueryResult = data;
 
 		if(templates[activeTabKey] == undefined)
