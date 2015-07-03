@@ -325,12 +325,12 @@ class ResultImporter {
 				if($settings['documentType'] == 'passage_alignment') {
 					$content = [
 						'question' => [
-							'id' => $data[$unitIds[$i]][array_search('Input.ID',$data[0])],
-							'passage' => $data[$unitIds[$i]][array_search('Input.Question',$data[0])]
+							'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
+							'passage' => $data[$unitIds[$i]][array_search('question',$data[0])]
 						],
 						'answer' => [
-							'id' => $data[$unitIds[$i]][array_search('Input.PassageID',$data[0])],
-							'passage' => $data[$unitIds[$i]][array_search('Input.Passage',$data[0])]
+							'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
+							'passage' => $data[$unitIds[$i]][array_search('passage',$data[0])]
 						]];
 				}
 				
@@ -389,9 +389,9 @@ class ResultImporter {
 					for ($j = 0; $j < 30; $j ++) {
 				
 						// for each passage get the tags
-						if($data[$i][array_search('Answer.rel' . $j,$data[0])] != "") {
-							$term1 = $data[$i][array_search('Answer.rel' . $j . 'a',$data[0])];
-							$term2 = $data[$i][array_search('Answer.rel' . $j . 'b',$data[0])];
+						if($data[$i][array_search('rel' . $j,$data[0])] != "") {
+							$term1 = $data[$i][array_search('rel' . $j . 'a',$data[0])];
+							$term2 = $data[$i][array_search('rel' . $j . 'b',$data[0])];
 							$key = $term1 . ',' . $term2;
 							// add keyword to list of keywords for this unit
 							if(!isset($annVector[$data[$i][0]][$key])) {
