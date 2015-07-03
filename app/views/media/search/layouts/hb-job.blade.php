@@ -37,6 +37,7 @@
 					<li><a href="#" data-vb="hide" data-vbSelector="total_workers"></i>Workers</a></li>
 					<li><a href="#" data-vb="hide" data-vbSelector="total_spam_workers"></i>Spammers</a></li>
 					<li><a href="#" data-vb="hide" data-vbSelector="cost_per_task"></i>Cost/mTask</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="spam"></i>Spam</a></li>
 				</ul>
 			</div>
 		</div>
@@ -63,6 +64,7 @@
 				    <th class="sorting" data-vbIdentifier="total_spam_workers" data-query-key="orderBy[metrics.spammers.count]" data-toggle="tooltip" data-placement="top" title="Number of workers labelled as spam">Spammers</th>
 				    <th class="sorting" data-vbIdentifier="cost_per_task" data-query-key="orderBy[hasConfiguration.content.reward]" data-toggle="tooltip" data-placement="top" title="Amount paid to each worker per micro-task, set by the job definition">Cost/mTask</th>
 				    <th class="sorting" data-vbIdentifier="total_job_cost" data-query-key="orderBy[projectedCost]" data-toggle="tooltip" data-placement="top" title="Amount paid so far - <br /> [# mTasks Complete Actual] * [Cost/mTask]">Cost</th>
+				    <th class="sorting" data-vbIdentifier="spam" data-query-key="orderBy[spam]" data-toggle="tooltip" data-placement="top" title="Spam %">Spam</th>
 				    <th class="sorting" data-vbIdentifier="completion" data-query-key="orderBy[completion]" data-toggle="tooltip" data-placement="top" title="Percent of job complete so far">Completion</th>
 				    <th class="sorting" data-vbIdentifier="running_time" data-query-key="orderBy[runningTimeInSeconds]" data-toggle="tooltip" data-placement="top" title="Amount of time the job has taken so far">Run Time</th>
 		            <th class="sorting sorting_desc whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the job was created in the framework">Created</th>
@@ -132,6 +134,9 @@
 					<input class="input-sm form-control" type='text' data-query-key="match[projectedCost]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 					<input class="input-sm form-control" type='text' data-query-key="match[projectedCost]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
+				<td data-vbIdentifier="spam">
+					<input class="input-sm form-control" type='text' data-query-key="match[spam]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[spam]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />				</td>
 				<td data-vbIdentifier="completion">
 					<input class="input-sm form-control" type='text' data-query-key="match[completion]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 					<input class="input-sm form-control" type='text' data-query-key="match[completion]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
@@ -222,6 +227,7 @@
 					<td data-vbIdentifier="total_spam_workers">@{{ this.metrics.spammers.count }}</td>
 					<td data-vbIdentifier="cost_per_task">@{{ toPrice this.hasConfiguration.content.reward }}</td>
 					<td data-vbIdentifier="total_job_cost">@{{ toPrice this.projectedCost }}</td>
+					<td data-vbIdentifier="spam">@{{ toFixed this.spam 1 }}%</td>
 					<td data-vbIdentifier="completion" class="status-@{{this.status}}">@{{ createPercentage this.completion }}%</td>
 					<td data-vbIdentifier="running_time">@{{ duration this.runningTimeInSeconds }}</td>
 					<td data-vbIdentifier="created_at">@{{ this.created_at }}</td>

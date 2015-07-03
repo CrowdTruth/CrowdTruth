@@ -419,6 +419,23 @@ $('document').ready(function(){
 	
 	return new Handlebars.SafeString(user);
   });
+  
+   Swag.addHelper('heatMap', function(context,ndx,ndx2,options) {
+		var table = '<table border="1" bordercolor="#C0C0C0">';
+			table += '<tr>';
+			for(term in context[ndx][ndx2]) {
+				table += '<td> '+ term +' </td>';
+			}
+			table += '</tr><tr>';
+			for(term in context[ndx][ndx2]) {
+				table += '<td> '+ context[ndx][ndx2][term] +' </td>';
+			}
+			table += '</tr>';
+			table += '</table>';
+
+					
+	return new Handlebars.SafeString(table);
+  });
 
 Swag.registerHelpers();
 

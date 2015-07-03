@@ -75,8 +75,8 @@
 						@{{/if}}
 						@{{#if this.infoStat.metrics.filteredWorkerunits.count }}
 						<div><strong> @{{ this.infoStat.metrics.filteredWorkerunits.count }} Filtered Annotation(s) </strong> </div>
+						<div><strong> @{{ toFixed this.infoStat.spam 1 }}% Spam </strong> </div>
 						@{{else}}
-						<div><strong> 0 Filtered Annotation(s) </strong> </div>
 						@{{/if}}
 						<hr/>
 						<table style="width: 100%; text-align: center; align: center;" border="1" bordercolor="#C0C0C0" text-align="center">
@@ -171,22 +171,24 @@
     						 <th class="header" rowspan="2">Filtered</th>
     						 <th class="header" rowspan="2">Workers</th>
 						     <th class="header" rowspan="2">Clarity</th>
-							 <th class="header" colspan="2">Question</th>
-							 <th class="header" colspan="2">Justification</th>
-							 <th class="header" colspan="2">Answer</th>
-						     <th class="header" rowspan="2">Annotation Vector</th>
+							 @{{#each @root.infoStat.results.withoutSpam }}
+								@{{#if @first}}
+									@{{#each this}}
+										<th class="header" colspan="3">@{{ @key }}</th>
+									@{{/each}}
+								@{{/if}}
+							@{{/each}}
 						  </tr>
 						  <tr>
 						    <!--<th> Vector Length </th>
 							<th> Max Rel Cos </th>	
 						    <th> Norm Magnitude </th>
 						    <th> Magnitude </th>-->
-							<th>Clarity</th>
-							<th>Vector length</th>
-							<th>Clarity</th>
-							<th>Vector length</th>
-							<th>Clarity</th>
-							<th>Vector length</th>
+							@{{#each this }}
+								<th>Clarity</th>
+								<th>Vector length</th>
+								<th>Vector</th>
+							@{{/each}}
 						  </tr>
 						 </thead>
 						 <tbody>
@@ -205,34 +207,19 @@
 						    <!--<td> @{{ toFixed avg.norm_magnitude 2}} </td>
 						    <td> @{{ toFixed avg.magnitude 2}} </td>-->
 
-						    <td> @{{ toFixed question.max_relation_Cos 2}} </td>
-							<td> @{{ toFixed question.vector_size 2 }} </td>
-						    <td> @{{ toFixed justification.max_relation_Cos 2}} </td>
-							<td> @{{ toFixed justification.vector_size 2 }} </td>
-						    <td> @{{ toFixed answer.max_relation_Cos 2}} </td>
-							<td> @{{ toFixed answer.vector_size 2 }} </td>
-
-						    <td>
-						    @{{#each @root.infoStat.results.withoutSpam}}
-						    @{{#ifvalue ../key value=@key}}
-						     <!--@{{#each this}} 
-						      <table border="1" bordercolor="#C0C0C0">
-						       <tr> 
-						       @{{#eachProperty this}}
-  							<td> @{{#abrWords key}} @{{/abrWords}} </td>
-						       @{{/eachProperty }}
-							    </tr>
-							    <tr> 
-							     @{{#eachProperty this}}
-  								<td>@{{value}} </td>
-							     @{{/eachProperty }}
-							    </tr>
-							   </table>
-							  @{{/each}}-->
-						       @{{/ifvalue}}
-    							 @{{/each}}
-						    </td>
-						  </tr>
+							@{{#each this }}
+								@{{#isnt @key 'avg'}}
+									@{{#isnt @key 'key'}}
+										 <td> @{{ toFixed this.max_relation_Cos 2}}</td>
+										 <td> @{{ toFixed this.vector_size 2 }} </td>
+										<td>
+										   @{{#heatMap @root.infoStat.results.withoutSpam ../../../key @key}}
+										   @{{/heatMap}}
+										</td>
+									@{{/isnt}}
+								@{{/isnt}}
+							 @{{/each}}
+							</tr>
 						  @{{/each}}
 						 </tbody>
 						</table>

@@ -173,21 +173,17 @@ class Task:
             results['metrics']['pivotTables']['annotations']['withoutSpam']['mutual_info_dict'] = filtered_annotation.mutual_info_dict
 
     def get_worker_units(self, selected_workers_to_filter):
-        query = {}
+        query = ""
         worker_units = []
-        iter = 0
-        for worker in selected_workers_to_filter:
-            query['field[crowdAgent_id][' + str(iter) + ']'] = worker
-            iter += 1
-        query['only[]'] = '_id'
-        query['limit'] = 10000
 
-        query = dict(self.default_query_v1.items() + query.items())
-        api_param = urllib.urlencode(query)
-        api_call = urllib2.urlopen(config.server + "v1/?" + api_param)
-        response = json.JSONDecoder().decode(api_call.read())
-        for worker_unit in response:
-            worker_units.append(worker_unit['_id']);
+        for worker in selected_workers_to_filter:
+            query += '&field[crowdAgent_id][0]=' + worker + '&only[]=_id&limit=10000'
+            
+            api_param = urllib.urlencode(self.default_query_v1.items())
+            api_call = urllib2.urlopen(config.server + "v1/?" + api_param + query)
+            response = json.JSONDecoder().decode(api_call.read())
+            for worker_unit in response:
+                worker_units.append(worker_unit['_id']);
         return worker_units
 
     def create_metrics(self):

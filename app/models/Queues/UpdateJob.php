@@ -171,6 +171,7 @@ class UpdateJob {
 				$r = $j->results;
 				$r['withoutSpam'] = $response['results']['withoutSpam'];
 				$j->results = $r;
+				$j->spam = $response['metrics']['filteredWorkerunits']['count'] / $j->workerunitsCount * 100;
 				
 				//\Log::debug(end($output));
 				//$j->latestMetrics = .25;
@@ -205,9 +206,10 @@ class UpdateJob {
 					$settings['documentType'] = $j['resultType'];
 					
 					// merge existing content with new generated content
-					$newcontent = array_merge($content, $unit['content']);
+					$unit['content']['new'] = implode(",", $content);
+					//$newcontent = array_merge($content, $unit['content']);
 
-					$childUnit = Unit::store($settings, $unitId, $newcontent);
+					$childUnit = Unit::store($settings, $unitId, $unit['content']);
 				}
 				
 				// update input units

@@ -43,7 +43,7 @@ class apiController extends BaseController {
 	 */
 	public function getIndex()
 	{
-		// return Input::all();
+		//return Input::all();
 
 		$c = Input::get('collection', 'Entity');
 
