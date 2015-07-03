@@ -193,6 +193,7 @@ class UpdateJob {
 					\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));
 				}
 		
+				/*
 				// create output units
 				foreach ($response['results']['withoutSpam'] as $unitId => $content) {
 					set_time_limit(60);
@@ -211,6 +212,7 @@ class UpdateJob {
 
 					$childUnit = Unit::store($settings, $unitId, $unit['content']);
 				}
+				*/
 				
 				// update input units
 				$units = array_keys($response['metrics']['units']['withSpam']);

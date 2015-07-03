@@ -162,18 +162,35 @@ class Workerunit extends Entity {
     public function createAnnotationVectorPassageAlignment() {
         $debug = false;
 		
-		$judgment = $this->content;
-		for ($j = 0; $j < 30; $j ++) {
-			// for each passage get the tags
-			if($data[$i][array_search('Answer.rel' . $j,$data[0])] != "") {
-				$term1 = $data[$i][array_search('Answer.rel' . $j . 'a',$data[0])];
-				$term2 = $data[$i][array_search('Answer.rel' . $j . 'b',$data[0])];
-				$key = $term1 . ',' . $term2;
-				// add keyword to list of keywords for this unit
-				$vector[$key]++;
+		$data = $this->content;
+		$vector = [];
+		$vector['possible'] = ['yes' => 0, 'no' => 1];
+		
+		if(is_array($data['notpossible'])) {
+		dd($data['notpossible']);
+		}
+		
+		if($data['notpossible'] != "" && $data['rel0'] == "") {
+			$vector['possible'] = ['yes' => 0, 'no' => 1];
+		} else {
+			$vector['possible'] = ['yes' => 1, 'no' => 0];
+		
+			for ($j = 0; $j < 30; $j ++) {
+				// for each passage get the tags
+				if($data['rel' . $j] != "") {
+					$term1 = $data['rel' . $j . 'a'];
+					$term2 = $data['rel' . $j . 'b'];
+					$key = $term1 . ',' . $term2;
+					// add keyword to list of keywords for this unit
+					
+					if(!isset($vector[$key])) {
+						$vector[$key] = ['ide' => 0, 'syn' => 0, 'gen' => 0, 'par' => 0, 'neg' => 0, 'int' => 0];
+					}
+					$vector[$key][$data['rel' . $j]] = 1;
+				}
 			}
 		}
-		return ['terms' => $vector];
+		return $vector;
 	}
 			
 
