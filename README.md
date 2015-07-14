@@ -18,4 +18,4 @@ These steps are realised in an automatic end-to-end workﬂow, that can support 
 # Using CrowdTruth
 Start using CrowdTruth right now, completely free, and explore all its possiblities. Follow the [installation guide](https://github.com/CrowdTruth/CrowdTruth/wiki/installation) to get started, or check out our [wiki](https://github.com/CrowdTruth/CrowdTruth/wiki) for all documentation of the platform. We have some [crowdsourcing templates](https://github.com/CrowdTruth/CrowdTruth/wiki/Creating-Templates) ready for you to start with.
 
-[![Build Status](https://travis-ci.org/CrowdTruth/CrowdTruth.svg?branch=travis-ci)](https://travis-ci.org/CrowdTruth/CrowdTruth)
+[![Build Status](https://travis-ci.org/CrowdTruth/CrowdTruth.svg?branch=master)](https://travis-ci.org/CrowdTruth/CrowdTruth)
