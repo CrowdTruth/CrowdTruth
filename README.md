@@ -20,3 +20,4 @@ Start using CrowdTruth right now, completely free, and explore all its possiblit
 
 [![Build Status](https://travis-ci.org/CrowdTruth/CrowdTruth.svg?branch=master)](https://travis-ci.org/CrowdTruth/CrowdTruth)
 [![Code Climate](https://codeclimate.com/github/CrowdTruth/CrowdTruth/badges/gpa.svg)](https://codeclimate.com/github/CrowdTruth/CrowdTruth)
+[![Test Coverage](https://codeclimate.com/github/CrowdTruth/CrowdTruth/badges/coverage.svg)](https://codeclimate.com/github/CrowdTruth/CrowdTruth)
