@@ -7,3 +7,6 @@ install:
 
 script:
   - phpunit --coverage-clover build/logs/clover.xml
+
+after_script:
+  - CODECLIMATE_REPO_TOKEN=59be07e897f3abafc334411ec14096ec4b39a816d43f5a45e072af854e42cef8 ./vendor/bin/test-reporter
