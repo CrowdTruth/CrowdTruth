@@ -6,4 +6,4 @@ install:
   - composer update
 
 script:
-  - phpunit
+  - phpunit --coverage-clover build/logs/clover.xml
