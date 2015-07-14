@@ -8,3 +8,7 @@ php:
   
 install:
   - composer global require "laravel/installer=~1.1"
+
+script:
+  - pwd
+  - ls
