@@ -45,5 +45,6 @@
 	"config": {
 		"preferred-install": "dist"
 	},
-	"minimum-stability": "dev"
+	"minimum-stability": "dev",
+	"require-dev": { "codeclimate/php-test-reporter": "dev-master" }
 }
