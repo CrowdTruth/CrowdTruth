@@ -12,6 +12,8 @@ use \Security\ProjectHandler as ProjectHandler;
 use \Security\Permissions as Permissions;
 use \Security\Roles as Roles;
 
+use \Entities\File as File;
+
 class MediaController extends BaseController {
 
 	protected $repository;
@@ -416,17 +418,13 @@ class MediaController extends BaseController {
 	public function postUpload()
 	{
 		try {
-			$fileFormat = Input::get('file_format');
-			$domain = Input::get('domain_type');
-			$documentType = Input::get('document_type');
-			$domainCreate = Input::get('domain_create');
-			$documentCreate = Input::get('document_create');
 			$files = Input::file('files');
 			$project = Input::get('projectname');
 			
 			$uploader = new FileUploader();
-			$status_upload = $uploader->store($fileFormat, $domain, $documentType, $project, $domainCreate, 
-					$documentCreate, $files);
+			$entities = File::store($files, $project);
+			
+			$status_upload = ['test'];
 			
 			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
 			return $uploadView;
