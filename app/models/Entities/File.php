@@ -12,9 +12,17 @@ use \Activity as Activity;
 
 class File extends Entity { 
     
-	private $validationRules = ['file' => 'mimes:txt|max:900000'];
+	private static $rules = [
+					'file' => 'mimes:txt|max:900000',
+					'filename' => 'required'
+					];
+					
+	protected $fillable = [
+		'project'
+	];
 	
-	private $extraAllowedMimeTypes = [
+	private static $extraAllowedMimeTypes = [
+				'text' => [
 					'text/plain',
 					'text/anytext',
 					'application/txt',
@@ -22,76 +30,73 @@ class File extends Entity {
 					'text/x-c',
 					'text/x-asm',
 					'text/x-pascal',
-					'text/x-c++'];
+					'text/x-c++']];
 	
 
-	public static function boot() {
-		
-	
-	}
+    public static function boot ()
+    {
+        parent::boot();
+
+        static::creating(function ( $file )
+        {
+		dd($file);
 	
 		/**
-	 * Store a new file to the database. Construct all entity information for such file.
-	 * 
-	 * @param $fileFormat
-	 * @param $domain
-	 * @param $documentType
-	 * @param $project			The name of the Project who owns the file data.
-	 * @param $domainCreate
-	 * @param $documentCreate
-	 * @param $files
-	 */
-	public static function store($files, $project, $activity = false) {
+		 * Store a new file to the database. Construct all entity information for such file.
+		 * 
+		 */
 		$validatedFiles = self::performValidation($files);
-		
+
 	
 		// Create the SoftwareAgent if it doesnt exist
 		SoftwareAgent::store('filecreator', 'File creation');
-		
+
 		$entities = [];
 		
-		if(!isset($activity)){
+		if(!$activity){
 			$activity = new Activity;
 			$activity->label = "File added to the platform";
 			$activity->softwareAgent_id = 'filecreator';
 			$activity->save();
 		}
-		
-		$files = $validatedFiles['passed'];
-		
-		foreach($files as $file){
+	
+			$files = $validatedFiles['passed'];
 
-			$file = File::withTrashed()->where('hash', $hash)->first();
-			
+
 			// check if file already exists
-			if($file) {
-				$file->existing = true;
-				array_push($entities, $file);
-			} else {
 				try {
+
 					$file = new File;
-					$file->_id = $entity->_id;
-					$filename = $file->getClientOriginalName();
+					$file->_id = $file->_id;
+					dd($file->_id);
 					$file->title = strtolower($filename);
 					$file->documentType = 'file';
-					$file->content = File::get($file->getRealPath());
-					$file->hash = md5(serialize([$entity->content]));
+					$file->content = $content;
+					$file->hash = $hash;
 					$file->activity_id = $activity->_id;
 					$file->project = $project;
 					$file->save();
-			
-					array_push($entities, $file);
+
 
 				} catch (Exception $e) {
 					// Something went wrong with creating the file
 					$file->forceDelete();
 					throw $e;
 				}
-			}
-		}
-		return $entities;
+
+		});
 	}
 
+	public function store(Request $request)
+	{
+		$this->validate($request, [
+			'title' => 'required|unique:posts|max:255',
+			'body' => 'required',
+		]);
+
+		// The blog post is valid, store in database...
+	}	
+	
 	/**
 	 * Perform Mime types and size validations.
 	 * 
@@ -102,14 +107,14 @@ class File extends Entity {
 	public static function performValidation($files) {
 		$validatedFiles = [];
 		foreach($files as $fileKey => $file){
-			$validator = \Validator::make(array('file' => $file), $this->validationRules);
+			$validator = \Validator::make(['file' => $file], self::$validationRules);
 
 			if($validator->passes()){
 				$validatedFiles['passed'][$fileKey] = $file;
 			} else {
 				// Sometimes the Validator fails because it does not recognize all MimeTypes
 				// To solve this we check the MimeTypes in the uploaded files against our own list of allowed MimeTypes (extraAllowedMimeTypes)
-				if(in_array($file->getMimeType(), $this->extraAllowedMimeTypes)){
+				if(in_array($file->getMimeType(), self::$extraAllowedMimeTypes)){
 					$validatedFiles['passed'][$fileKey] = $file;
 				} else {
 					$validatedFiles['failed'][$fileKey] = $file;

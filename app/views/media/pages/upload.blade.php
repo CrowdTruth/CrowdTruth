@@ -59,23 +59,22 @@
 											<input type="file" name="files[]" class="btn uploadInput" multiple />
 										</div>
 									</div>
-								
+
+									@if(count($projects)==1)
+										{{ Form::hidden('projectname', $projects[0]) }}
+									@else						
 									<div class="form-group">
 										<label for="category" class="col-sm-3 control-label">Project:</label>
 										<div class="col-sm-5">
-										@if(count($projects)==1)
-											{{ $projects[0] }}
-											{{ Form::hidden('projectname', $projects[0]) }}
-										@else
 											<select name="projectname" class="selectpicker" id="project" title="Project">
 												<option data-hidden="true"></option>
 											@foreach($projects as $project)
 												<option value="{{ $project }}">{{ $project }}</option>
 											@endforeach
 											</select>
-										@endif
 										</div>
 									</div>
+									@endif
 								</div>						
 							</div>
 							<div class='panel-footer'>

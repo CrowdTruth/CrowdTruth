@@ -52,14 +52,12 @@ class Entity extends Moloquent {
                 $entity->user_id = Auth::user()->_id;
             } else 
             {
-                $entity->user_id = "crowdwatson";
+                $entity->user_id = "crowdtruth";
             }
         });
 
         static::saving(function($entity)
         {
-            $entity->format = strtolower($entity->format);            
-            $entity->domain = strtolower($entity->domain);
             $entity->documentType = strtolower($entity->documentType);
         });
 
@@ -79,7 +77,7 @@ class Entity extends Moloquent {
 
     public static function generateIncrementedBaseURI($entity)
     {
-        $seqName = 'entity/' . $entity->format . '/' . $entity->domain . '/' . $entity->documentType;
+        $seqName = 'entity/' . $entity->project . '/' . $entity->documentType;
         $id = Counter::getNextId($seqName);
         return $seqName.'/'.$id;
     }     
@@ -88,7 +86,6 @@ class Entity extends Moloquent {
         Schema::create('entities', function($collection)
         {
             $collection->index('hash');
-            $collection->index('domain');
             $collection->index('documentType');    
             $collection->index('activity_id');
             $collection->index('user_id');

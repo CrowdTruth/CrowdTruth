@@ -417,19 +417,28 @@ class MediaController extends BaseController {
 
 	public function postUpload()
 	{
+
 		try {
 			$files = Input::file('files');
 			$project = Input::get('projectname');
+
+			foreach($files as $file)
+			{
 			
-			$uploader = new FileUploader();
-			$entities = File::store($files, $project);
+				$content = \File::get($file->getRealPath());
+				$hash = md5(serialize([$content]));
+				$filename = $file->getClientOriginalName();
 			
-			$status_upload = ['test'];
-			
+				// create file or get existing
+				$entity = new File(['project' => 'test']);
+				$entity->save();
+			}
+		
+
 			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
 			return $uploadView;
+
 		} catch (Exception $e){
-			dd([$e->getMessage(),Input::all()]);
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}
 	}
