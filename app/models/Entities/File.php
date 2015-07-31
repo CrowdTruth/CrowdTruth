@@ -67,6 +67,11 @@ class File extends Entity {
 		$this->size = $file->getSize();
 		$this->filetype = $file->getMimeType();
 		
+		// see if there are any crowdsourcing results in the file
+		if(preg_match("/^\"HITId\",\"HITTypeId\"/", $this->content) || preg_match("/^_unit_id,_created_at/", $this->content)) {
+			$this->results = true;
+		}
+		
 		// Throw error if file is of wrong type
 		if(!in_array($this->filetype, $this->types)) {
 			throw new Exception($this->title . " is not of an accepted file type");

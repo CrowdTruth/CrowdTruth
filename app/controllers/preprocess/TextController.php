@@ -6,7 +6,7 @@ use CoffeeScript\compact;
 use BaseController, Cart, View, App, Input, Redirect, Session;
 use League\Csv\Reader as Reader;
 use \Repository as Repository;
-use \Entity as Entity;
+use \Entities\File as File;
 
 use \Security\PermissionHandler as PermissionHandler;
 use \Security\Permissions as Permissions;
@@ -44,16 +44,16 @@ class TextController extends BaseController {
 	}
 	
 	public function getIndex() {
-		$entities = Entity::where('activity_id', 'LIKE', '%fileuploader%')->get();
+		$files = File::get();
 		
 		$thisUser = \Auth::user();
-		foreach ($entities as $ent) {
+		foreach ($files as $ent) {
 			$hasPermission = PermissionHandler::checkGroup($thisUser, $ent['project'], Permissions::PROJECT_WRITE);
 			$ent['canWrite'] = $hasPermission;
 		}
 		
-		if(count($entities) > 0) {
-			return View::make('media.preprocess.text.pages.actions', compact('entities'));
+		if(count($files) > 0) {
+			return View::make('media.preprocess.text.pages.actions', compact('files'));
 		}
 		return Redirect::to('media/upload')->with('flashNotice', 'You have not uploaded any documents yet');
 	}
