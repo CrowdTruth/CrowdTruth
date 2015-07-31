@@ -59,9 +59,10 @@ class TextController extends BaseController {
 	}
 	
 	public function getConfigure() {
-		if($URI = Input::get('URI')) {
-			if($document = $this->repository->find($URI)) {
-				// Load which functions are available for display
+		$URI = Input::get('URI');
+		if($document = File::where('_id', $URI)->first()) {
+			
+			// Load which functions are available for display
 				$functions = $this->getAvailableFunctions();
 
 				$newLine = "\n";
@@ -89,9 +90,6 @@ class TextController extends BaseController {
 						->with('configuration', $config)
 						->with('previewTable', $previewTable)
 				;
-			} else {
-				return Redirect::back()->with('flashError', 'Document does not exist: ' . $URI);
-			}
 		} else {
 			return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);
 		}

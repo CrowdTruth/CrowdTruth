@@ -209,6 +209,7 @@
 	      selectFunction(functionName, propId);
 	  });
 	  $("#" + propId + "_function").change();
+	  doPreview();
 	  return false;
     }
 
@@ -243,6 +244,7 @@
 		    $(this).closest(".panel").remove();
 			return false;
 		});
+		doPreview();
 	}
 
 {{--
@@ -384,17 +386,24 @@
 {{ Form::hidden('postAction', 'tableView') }}
 <div class="panel panel-default">
 	<div class="panel-heading">
+		File content
+	</div>
+	<pre style="height: 150px; overflow: auto;">{{ $docPreview }}</pre>
+</div>
+		
+<div class="panel panel-default">
+	<div class="panel-heading">
 		File settings
 	</div>
 	<div class="panel-body">
 		<div class="row">
 			{{ Form::label('useHeaders', 'First row contains headers', [ 'class' => 'col-md-3 control-label' ]) }}
-			{{ Form::checkbox('useHeaders', 'tick', false, [ 'class' => 'col-md-3' ]) }}
+			{{ Form::checkbox('useHeaders', 'tick', true, [ 'class' => 'col-md-3 docPreview' ]) }}
 		</div>
 		<div class="row">
 			{{ Form::label('delimiter', 'Text delimiter:', [ 'class' => 'col-md-3 control-label' ]) }}
 			<div class='col-xs-3'>
-				<select class='form-control' id="delimiter" name="delimiter" />
+				<select class='form-control docPreview' id="delimiter" name="delimiter" />
 					<option value='"'>"</option>
 					<option value="'">'</option>
 				</select>
@@ -403,7 +412,7 @@
 		<div class="row">
 		{{ Form::label('separator', 'Seperated by', [ 'class' => 'col-md-3 control-label' ]) }}
 			<div class='col-xs-3'>
-				<select class='form-control' id="separator" name="separator" />
+				<select class='form-control docPreview' id="separator" name="separator" />
 					<option value=','>Comma</option>
 					<option value=';'>Semicolon</option>
 					<option value=':'>Colon</option>
@@ -415,40 +424,38 @@
 		<div class="row">
 			{{ Form::label('', '', [ 'class' => 'col-md-3' ]) }}
 		</div>
-		<pre style="height: 200px; overflow: auto;">{{ $docPreview }}</pre>
-	</div>
-	<div class="panel-footer">
-		<button type="button" class='btn btn-success' onClick="previewTable();"><i class="fa fa-gear"></i> Read file</button>
 	</div>
 </div>
 {{ Form::close() }}
 
+
+
 <div class="panel panel-default">
 	<div class="panel-heading">
-		Document Preview
+		Table Preview
 	</div>
-<div style="height: 150px; overflow: auto;">
-	<table name="docPreviewTable" id="docPreviewTable">
-	@if($previewTable!=null)
-		<thead>
-			<tr>
-			@foreach ($previewTable['headers'] as $column)
-				<th>{{ $column }}</th> 
-			@endforeach
-			</tr>
-		</thead>
-		<tbody>
-			@foreach ($previewTable['content'] as $row)
-			<tr>
-				@foreach ($row as $column)
-				<td>{{ str_limit($column, 30) }}</td>
+	<div style="height: 150px; overflow: auto;">
+		<table name="docPreviewTable" id="docPreviewTable">
+		@if($previewTable!=null)
+			<thead>
+				<tr>
+				@foreach ($previewTable['headers'] as $column)
+					<th>{{ $column }}</th> 
 				@endforeach
-			</tr>
-			@endforeach
-		</tbody>
-	@endif
-	</table>
-</div>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach ($previewTable['content'] as $row)
+				<tr>
+					@foreach ($row as $column)
+					<td>{{ str_limit($column, 30) }}</td>
+					@endforeach
+				</tr>
+				@endforeach
+			</tbody>
+		@endif
+		</table>
+	</div>
 </div>
 
 <!-- BEGIN DYNAMIC STRUCTURE FORM  -->
@@ -481,23 +488,13 @@
 	<div class="panel-body">
 		<div class="" id="root_props"></div>
 	</div>
-	<div class="panel-footer">
-		<button type='button' class='btn btn-success' onclick="doPreview();"><i class="fa fa-desktop"></i> Preview</button>
-	</div>
 </div>
 
 <div class="panel panel-default">
 	<div class="panel-heading">
 		Preview Content
 	</div>
-	<div class="panel-body">
-		<div class="row">
-			<div class="col-md-12">
-				<pre name='contentPreview' id='contentPreview' style='margin:10px 0 10px;'>
-				</pre>
-			</div>
-		</div>
-	</div>
+	<pre name='contentPreview' id='contentPreview' style="height: 150px; overflow: auto;"></pre>
 	<div class="panel-footer">
 		<button class='btn btn-primary' onClick="$('#postAction').val('process');"><i class="fa fa-gear"></i> Save Content</button>
 	</div>
@@ -541,6 +538,20 @@
 		});
 		$("#root_newGroup").click(function(){
 		  newGroupAction("root");
+		});
+		
+		previewTable();
+		
+		$('.docPreview').change(function(){
+			previewTable();
+		});
+		
+		$('#root_props').on('change', 'select', function() {
+			doPreview();
+		});
+		
+		$('#root_props').on('change', 'input', function() {
+			doPreview();
 		});
 
 		@if($configuration!=null)
