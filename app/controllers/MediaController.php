@@ -421,22 +421,37 @@ class MediaController extends BaseController {
 		try {
 			$files = Input::file('files');
 			$project = Input::get('projectname');
-
+			
+			// Create the SoftwareAgent if it doesnt exist
+			SoftwareAgent::store('filecreator', 'File creation');
+			
+			$activity = new Activity;
+			$activity->label = "Files added to the platform";
+			$activity->softwareAgent_id = 'filecreator';
+			$activity->save();
+			$success = [];
+			$entities = [];
 			foreach($files as $file)
 			{
-			
-				$content = \File::get($file->getRealPath());
-				$hash = md5(serialize([$content]));
-				$filename = $file->getClientOriginalName();
-			
-				// create file or get existing
-				$entity = new File(['project' => 'test']);
-				$entity->save();
+				try {
+					$entity = new File();
+					$entity->project = $project;
+					$entity->activity_id = $activity->_id;
+					$entity->store($file);
+					
+					$entity->save();
+					array_push($success, 'Added ' . $entity->title);
+					array_push($entities, $entity);
+				
+				} catch (Exception $e){
+					foreach($entities as $en) {
+						$en->forceDelete();
+					}
+					throw $e ;
+				}
 			}
-		
-
-			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
-			return $uploadView;
+			Session::flash('flashSuccess', $success);
+			return $this->loadMediaUploadView();
 
 		} catch (Exception $e){
 			return Redirect::back()->with('flashError', $e->getMessage());
