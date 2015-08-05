@@ -7,6 +7,7 @@ use BaseController, Cart, View, App, Input, Redirect, Session;
 use League\Csv\Reader as Reader;
 use \Repository as Repository;
 use \Entities\File as File;
+use \Entities\Unit as Unit;
 
 use \Security\PermissionHandler as PermissionHandler;
 use \Security\Permissions as Permissions;
@@ -71,6 +72,8 @@ class TextController extends BaseController {
 				$docPreview = array_slice($docPreview, 0, $this->nLines);
 				$docPreview = implode($newLine, $docPreview);
 				
+				$docTypes = Unit::select('type')->where('documentType', 'unit')->where('project', $document->project)->distinct()->get()->toArray();
+				
 				$config = $this->processor->getConfiguration($document["documentType"]);
 				if($config!=null) {
 					$delimiter = $config["delimiter"];
@@ -89,6 +92,7 @@ class TextController extends BaseController {
 						->with('functions', $functions)
 						->with('configuration', $config)
 						->with('previewTable', $previewTable)
+						->with('docTypes', $docTypes)
 				;
 		} else {
 			return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);

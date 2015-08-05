@@ -13,6 +13,7 @@ use \Security\Permissions as Permissions;
 use \Security\Roles as Roles;
 
 use \Entities\File as File;
+use \Entities\Unit as Unit;
 
 class MediaController extends BaseController {
 
@@ -53,7 +54,7 @@ class MediaController extends BaseController {
 		}
 		
 		if($parent == "") {
-			$type = $entity['documentType'];
+			$type = $entity['type'];
 		}
 		
 		$keys = [];
@@ -358,7 +359,9 @@ class MediaController extends BaseController {
 		// amount of units to index per iteration
 		$batchsize = 500;
 		$from = Input::get('next');
-		$unitCount = Entity::whereIn('tags', ['unit'])->count();
+		
+		// this needs to be changed to be relative to a project
+		$unitCount = Unit::count();
 		
 		// reset index on start
 		if($from == 0) {
@@ -371,15 +374,14 @@ class MediaController extends BaseController {
 		}
 		
 		// all units in this range
-		$units = Entity::distinct('_id')->where('tags', ['unit'])->skip($from)->take($batchsize)->get();
+		$units = Unit::select('_id')->skip($from)->take($batchsize)->get()->toArray();
 			 
-		 
 		// get keys for each unit in this batch
 		$allKeys = [];
-		for($i = $from; $i < $from + $batchsize; $i++) {
+		foreach($units as $unitId) {
 			// get data of unit
-			$unit = Entity::where('_id', $units[$i][0])->first();
-			
+			$unit = Unit::where('_id', $unitId['_id'])->first();
+//			return ['log' => $unit, 'next' => 100, 'last' => 1000 ];				
 			// map all properties into keys with formats
 			$keys = $this->getKeys($unit->attributesToArray());
 			

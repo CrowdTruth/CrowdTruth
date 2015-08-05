@@ -13,7 +13,17 @@ use \Exception as Exception;
 
 class File extends Entity { 
     
-	protected $attributes = array('documentType' => 'file');				
+	protected $attributes = array('documentType' => 'file');
+	
+	/**
+    *   Override the standard query to include documenttype.
+    */
+    public function newQuery($excludeDeleted = true)
+    {
+        $query = parent::newQuery($excludeDeleted = true);
+        $query->where('documentType', 'file');
+        return $query;
+    }
 
 	protected $types = [
 				'text/plain',
