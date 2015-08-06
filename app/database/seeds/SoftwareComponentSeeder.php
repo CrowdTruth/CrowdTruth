@@ -1,6 +1,7 @@
 <?php
 
 use MongoDB\SoftwareComponent as SoftwareComponent;
+use Illuminate\Database\Seeder;
 
 class SoftwareComponentSeeder extends Seeder {
 
@@ -20,8 +21,8 @@ class SoftwareComponentSeeder extends Seeder {
 				'textsentencepreprocessor',
 				'This component is used for transforming text files',
 				function( &$component ) { 
-					$txtPreprocessor['domains'] = [];
-					$txtPreprocessor['configurations'] = [];
+					$component['domains'] = [];
+					$component['configurations'] = [];
 				}
 		);
 		
