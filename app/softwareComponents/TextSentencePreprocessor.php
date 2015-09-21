@@ -33,7 +33,7 @@ class TextSentencePreprocessor {
 	 * 
 	 * @return multitype:string A status array containing the result status information.
 	 */
-	public function store($parent, $units) {
+	public function store($parent, $units, $type) {
 
 		if(count($units)<=0 && count($units)>=10000) {
 			// We will have problems processing empty files or more than 10,000 entities
@@ -53,7 +53,7 @@ class TextSentencePreprocessor {
 				$entity->project = $parent->project;
 				$entity->activity_id = $activity->_id;
 				$entity->documentType = "unit";
-				$entity->type = "test";
+				$entity->type = $type;
 				$entity->parents = [$parent->_id];
 				$entity->content = $unit;
 				$entity->hash = md5(serialize($entity));

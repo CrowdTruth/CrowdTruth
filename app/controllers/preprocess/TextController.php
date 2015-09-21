@@ -156,7 +156,8 @@ class TextController extends BaseController {
 			if($postAction=='processPreview') {
 				return $this->doPreview($rootProcessor, $document, $delimiter, $separator, $ignoreHeader);
 			} else {	// $postAction=='process'
-				return $this->doPreprocess($rootProcessor, $document, $delimiter, $separator, $ignoreHeader);
+				$type = Input::get('new_doctype');
+				return $this->doPreprocess($rootProcessor, $document, $type, $delimiter, $separator, $ignoreHeader);
 			}
 		} else {
 			return [ 'Error' => 'Unknown post action: '.$postAction ];
@@ -184,7 +185,7 @@ class TextController extends BaseController {
 		return $data;
 	}
 
-	private function doPreprocess($rootProcessor, $document, $delimiter, $separator, $ignoreHeader) {
+	private function doPreprocess($rootProcessor, $document, $type, $delimiter, $separator, $ignoreHeader) {
 		$nLines = -1;	// Process all lines
 		$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $ignoreHeader, $nLines);
 		
@@ -193,7 +194,7 @@ class TextController extends BaseController {
 			$lineEntity = $rootProcessor->call($line);
 			array_push($entities, $lineEntity);
 		}
-		$status = $this->processor->store($document, $entities);
+		$status = $this->processor->store($document, $entities, $type);
 		
 		return $this->getConfigure()
 						->with('status', $status);

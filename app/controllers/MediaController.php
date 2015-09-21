@@ -550,10 +550,22 @@ class MediaController extends BaseController {
 
 	public function getSearch()
 	{
+		
+		/*
 		$mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
 		
 		// include keys
 		$searchComponent = new MediaSearchComponent();
+		*/
+		
+		$projects = Unit::distinct('project')->get()->toArray();
+		$projects = array_flatten($projects);
+		
+		foreach($projects as $key => $project) {
+			$types = Unit::distinct('type')->where('project', $project)->get()->toArray();
+			dd(array_values(array_flatten($types)));
+		}
+		dd($types);
 		
 		return View::make('media.search.pages.media')->with('mainSearchFilters', $mainSearchFilters);
 	}
