@@ -368,6 +368,61 @@ class apiController extends BaseController
 
     }
 
+	public function getAnalytics()
+    {
+		$job = Input::get('job');
+		$templateid = 'entity/text/medical/FactSpan/Factor_Span/0';
+		$j = Entity::where('_id',$job)->first();
+
+		
+		set_time_limit(3600); // One hour.
+		$apppath = app_path();
+		//$command = "/usr/bin/python2.7 $apppath/lib/generateMetrics.py '{$j->_id }' '$templateid'";
+		$command = "C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe $apppath/lib/generateMetrics.py {$j->_id } $templateid";
+		\Log::debug("Command: $command");
+		exec($command, $output, $return_var);
+		\Log::debug("Metrics done.");
+		
+		//dd($output);
+
+		$response = json_decode($output[0], true);
+		
+		if(!$response or !isset($response['metrics']))
+			throw new Exception("Incorrect response from generateMetrics.py.");
+
+			
+		// update list of spammers
+		foreach($response['metrics']['spammers']['list'] as $spammer) {
+			$response['metrics']['workers']['withoutFilter'][$spammer]['spam'] = 1;
+		}
+			
+		$j->metrics = $response['metrics'];
+		$r = $j->results;
+		$r['withoutSpam'] = $response['results']['withoutSpam'];
+		$j->results = $r;
+		$j->spam = $response['metrics']['filteredWorkerunits']['count'] / $j->workerunitsCount * 100;
+		
+		//\Log::debug(end($output));
+		//$j->latestMetrics = .25;
+	
+		$j->save();
+
+		/*	
+		// update worker cache
+		foreach ($response['metrics']['workers']['withoutFilter'] as $workerId => $workerData) {
+			set_time_limit(60);
+			$agent = CrowdAgent::where("_id", $workerId)->first();
+			\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));
+		}
+
+		
+		// update input units
+		$units = array_keys($response['metrics']['units']['withSpam']);
+		\Queue::push('Queues\UpdateUnits', $units);
+		*/
+		echo 'done';
+	}
+	
     public function getWorkerunit()
     {
         //http://crowdtruth.org/api/analytics/piegraph/?match[documentType][]=workerunit&match[crowdAgent_id][]=crowdagent/cf/21832469&

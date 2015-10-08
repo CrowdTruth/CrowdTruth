@@ -33,8 +33,7 @@ class Batch extends Entity {
 			$batch = new Batch;
 			$batch->_id = $batch->_id;
 			$batch->title = $settings['batch_title'];
-			$batch->format = $settings['format'];	
-			$batch->domain = $settings['domain'];	
+			$batch->project = $settings['project'];
 			$batch->documentType = "batch";
 			$batch->parents = $settings['units'];
 			$batch->content = $settings['batch_description'];

@@ -83,9 +83,8 @@ class ResultImporter {
 			array_push($this->status['notice'], "Existing job configuration found (" . $entity->_id . ")");
 		} else {
 			$entity = new Entity;
-			$entity->domain = $settings['domain'];
-			$entity->format = $settings['format'];
 			$entity->documentType = "jobconf";
+			$entity->project = $settings['project'];
 			$entity->tags = array($settings['documentType']);
 			$entity->type = $settings['documentType'];
 			$entity->content = $content;
@@ -112,8 +111,6 @@ class ResultImporter {
 		$entity->_id = $entity->_id;
 		$entity->batch_id = $batch->_id;
 		$entity->project = $settings['project'];
-		$entity->domain = $settings['domain'];
-		$entity->format = $settings['format'];
 		$entity->type = $settings['documentType'];
 		$entity->resultType = $settings['resultType'];
 		$entity->documentType = "job";
@@ -194,8 +191,7 @@ class ResultImporter {
 			$workerunit->platformWorkerunitId = $annId;
 			$workerunit->submitTime = $submitTime;
 			$workerunit->type = $settings['documentType'];
-			$workerunit->domain = $settings['domain'];
-			$workerunit->format = $settings['format'];
+			$workerunit->project = $settings['project'];
 			$workerunit->softwareAgent_id = $settings['platform'];
 			$workerunit->softwareAgent_id = 'cf2';
 			$workerunit->contradiction = $settings['contradiction'];
@@ -251,12 +247,15 @@ class ResultImporter {
 		
 			// read document content and put it into an array
 			$data = $this->readCSV($document);
-		
+
 			// Create activity
 			$activity = $this->createActivity();
 			
 			// Create input file
-			$file = File::store($document, $settings, $activity);
+			$file = new File();
+			$file->project = $settings['project'];
+			$file->store($document, $settings, $activity);
+			$file->save();
 
 			// log status
 			if($file->exists()) {
@@ -355,7 +354,19 @@ class ResultImporter {
 						
 				}
 				
-				$unit = Unit::store($settings, $file->_id, $content, $platform_id, $activity);
+				
+
+				$unit = new Unit();
+				$unit->project = $settings['project'];
+				$unit->activity_id = $activity->_id;
+				$unit->documentType = $settings['documentType'];
+				$unit->type = "unit";
+				$unit->parents = [$file->_id];
+				$unit->content = $content;
+				$unit->hash = md5(serialize($content));
+				$unit->platformId = $platform_id;
+				$unit->save();
+				
 				$units[$unit->_id] = $unit;
 				$unitMap[$data[$unitIds[$i]][0]] = $unit->_id;
 

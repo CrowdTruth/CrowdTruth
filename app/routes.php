@@ -63,6 +63,7 @@ Route::controller('api/media', '\Api\media\apiController');
 Route::controller('api/search', '\Api\search\apiController');
 Route::controller('api/actions', '\Api\actions\apiController');
 Route::controller('api/analytics', '\Api\analytics\apiController');
+Route::controller('api/import', '\Api\import\apiController');
 
 Route::get('login', 'UserController@login');
 Route::get('register', 'UserController@register');

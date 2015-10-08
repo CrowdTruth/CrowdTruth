@@ -106,7 +106,7 @@ class UpdateJob {
 		if($j->completion>1)
 			$j->completion = 1.00; // TODO: HACK
 
-		if($j->completion == 1) {
+		if($j->completion == 1 || $j->status == 'imported') {
 			if($j->status != 'imported') { $j->status = 'finished'; }
 			if(!isset($j->finishedAt)) 
 				$j->finishedAt = new \MongoDate; 
@@ -124,7 +124,7 @@ class UpdateJob {
 
 		try {
 			//if(count($j->results['withSpam'])>1) and ($j->workerunitsCount % $j->jobConfiguration->content['unitsPerTask'] == 0)){
-			if($j->completion==1){
+			if($j->completion==1 || $j->status == 'imported'){
 				// do the metrics, we're in a queue anyway.
 				\Log::debug("Starting metrics for Job {$j->_id}.");
 
@@ -194,6 +194,7 @@ class UpdateJob {
 				}
 		
 				// create output units
+				/*
 				foreach ($response['results']['withoutSpam'] as $unitId => $content) {
 					set_time_limit(60);
 					$unit = Unit::where("_id", $unitId)->first();
@@ -210,6 +211,7 @@ class UpdateJob {
 
 					$childUnit = Unit::store($settings, $unitId, $newcontent);
 				}
+				*/
 				
 				// update input units
 				$units = array_keys($response['metrics']['units']['withSpam']);

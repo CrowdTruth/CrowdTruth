@@ -84,11 +84,11 @@ class File extends Entity {
 		
 		// Throw error if file is of wrong type
 		if(!in_array($this->filetype, $this->types)) {
-			throw new Exception($this->title . " is not of an accepted file type");
+			throw new Exception($this->title . " is not of an accepted file type:" . $this->filetype);
 		}
 		
 		// Throw error if file is too large
-		if($this->size > 900000) {
+		if($this->size > 90000000) {
 			throw new Exception($this->title . " is too large");
 		}
 

@@ -76,6 +76,7 @@ class Task:
 
         api_call = urllib2.urlopen(config.server + "v1/?" + api_param)
         response = json.JSONDecoder().decode(api_call.read())
+        #print(config.server + "v1/?" + api_param)
         return response[0]['content']['defaultThresholds']
 
     def __get_units(self, add_query_list, annotations_to_filter):
@@ -85,12 +86,14 @@ class Task:
         api_param = urllib.urlencode(queryCriteria)
         api_call = urllib2.urlopen(config.server + "analytics/mapreduceunit/?" + api_param)
         response = json.JSONDecoder().decode(api_call.read())
+        #print(config.server + "analytics/mapreduceunit/?" + api_param)
         #create media unit objects
         for media_unit in response['results']:
             unit_vector = media_unit['value']['vector']
             for annotation in annotations_to_filter:
                 unit_vector = Annotation.filter_annotation(annotation, annotations_to_filter[annotation], unit_vector)
             media_units[media_unit['_id']] = Unit(media_unit['_id'], unit_vector, media_unit['value']['count'])
+        #print media_units
 
         return media_units
 
@@ -100,15 +103,15 @@ class Task:
         queryCriteria = dict(self.default_query.items() + add_query_list.items())
         api_param = urllib.urlencode(queryCriteria)
         api_call = urllib2.urlopen(config.server + "analytics/mapreduceworker/?" + api_param)
+        #print(config.server + "analytics/mapreduceworker/?" + api_param)
         response = json.JSONDecoder().decode(api_call.read())
+        #print(response)
         #create worker objects
         for worker_info in response['results']:
             worker_id = worker_info['_id']
-            contradictions = 0
             unit_vectors = {}
             unit_freq = {}
             for unit in worker_info['value']['workerunits']:
-                contradictions += unit['contradiction']
                 unit_id = unit['unit_id']
                 unit_vector = unit['vector']
                 for annotation in annotations_to_filter:
@@ -116,8 +119,8 @@ class Task:
                 unit_vectors[unit_id] = unit_vector
                 unit_freq[unit_id] = unit['count']
 
-            workers[worker_id] = Worker(worker_id, unit_vectors, unit_freq, contradictions)
-
+            workers[worker_id] = Worker(worker_id, unit_vectors, unit_freq)
+        #print(len(workers))
         return workers
 
     def process_units(self, units_metrics):
@@ -151,8 +154,8 @@ class Task:
             if unit_id not in results['metrics']['pivotTables']['units']['withSpam']:
                 results['metrics']['pivotTables']['units']['withSpam'][unit_id] = {}
                 results['metrics']['pivotTables']['units']['withoutSpam'][unit_id] = {}
-            results['metrics']['pivotTables']['units']['withSpam'][unit_id][key_id] = filtered_units[unit].cosine_vector
-            results['metrics']['pivotTables']['units']['withoutSpam'][unit_id][key_id] = unfiltered_units[unit].cosine_vector
+            results['metrics']['pivotTables']['units']['withSpam'][unit_id][key_id] = unfiltered_units[unit].cosine_vector
+            results['metrics']['pivotTables']['units']['withoutSpam'][unit_id][key_id] = filtered_units[unit].cosine_vector
 
         results['metrics']['pivotTables']['annotations'] = {}
         results['metrics']['pivotTables']['annotations']['withSpam'] = {}
@@ -190,6 +193,7 @@ class Task:
 
         #get the unfiltered units for this jobs
         unfiltered_units = self.__get_units({},{})
+        #print(unfiltered_units)
         #compute all the metrics on the units
         unfiltered_units_metrics = {}
         for unit_id in unfiltered_units:
@@ -200,14 +204,16 @@ class Task:
 
         #get the unfiltered workers for this jobs
         unfiltered_workers = self.__get_workers({},{})
+        #print(len(unfiltered_workers))
         #compute all the metrics on the workers
         unfiltered_workers_metrics = {}
         for worker_id in unfiltered_workers:
             worker = unfiltered_workers[worker_id]
             #compute all the metrics, if it is computationally intense, define in the template the metrics to be computed
+            #print(WorkerMetricsEnum.__members__.values())
             worker_result = worker.get_metrics(unfiltered_workers, unfiltered_units, WorkerMetricsEnum.__members__.values())
             unfiltered_workers_metrics[worker_id] = worker_result
-
+        #print(unfiltered_workers_metrics)
         #get the metrics for unfiltered annotations
         unfiltered_annotation_metrics = {}
         unfiltered_annotation = None
@@ -236,22 +242,18 @@ class Task:
         for filter_name in self.default_thresholds['unitThresholds']:
             filter_enum_type = getattr(UnitFiltersEnum, filter_name, None)
             selected_units_to_filter = list(set(selected_units_to_filter)|set(units_to_filter[filter_enum_type]))
+        #print(selected_units_to_filter)
 
-
+        unclear_units_query_list = {}
+        iter = 0
+        for unit in selected_units_to_filter:
+            unclear_units_query_list['match[unit_id][<>][' + str(iter) + ']'] = unit
+            iter += 1
+        
+        #print(unclear_units_query_list)
         #compute the average values for workers
         unfiltered_worker_mean_metrics = self.__compute_mean_measure(unfiltered_workers_metrics)
         unfiltered_worker_stddev_measure = self.__compute_stddev_measure(unfiltered_workers_metrics, unfiltered_worker_mean_metrics)
-
-        #get the list of low quality workers
-        selected_workers_to_filter = []
-        for metric_name in self.default_thresholds['workerThresholds'].keys():
-            metric_thresholds = self.default_thresholds['workerThresholds'][metric_name]
-            metric = getattr(WorkerMetricsEnum, metric_name, None)
-            for worker in unfiltered_workers_metrics:
-                if metric_thresholds[0] < unfiltered_workers_metrics[worker][metric] < metric_thresholds[1]:
-                    if worker not in selected_workers_to_filter:
-                        selected_workers_to_filter.append(worker)
-
 
         #compute the list of unclear, ambiguous annotations
         selected_annotations_to_filter = {}
@@ -261,7 +263,80 @@ class Task:
             filtered_set = unfiltered_annotation.get_filtered_set(metric, metric_thresholds)
             selected_annotations_to_filter[metric] = filtered_set
 
-        spam_worker_query_list = {}
+        filtered_workers = self.__get_workers(unclear_units_query_list, selected_annotations_to_filter)
+        #print(filtered_workers)
+        unfiltered_units_for_worker = self.__get_units({},selected_annotations_to_filter)
+        #compute all the metrics on the units
+        filtered_workers_metrics = {}
+        for worker_id in unfiltered_workers:
+            if worker_id not in filtered_workers:
+                filtered_workers[worker_id] = Worker(worker_id, {}, {})
+            worker = filtered_workers[worker_id]
+            #compute all the metrics, if it is computationally intense, define in the template the metrics to be computed
+            worker_result = worker.get_metrics(filtered_workers, unfiltered_units_for_worker, WorkerMetricsEnum.__members__.values())
+            filtered_workers_metrics[worker_id] = worker_result
+
+        filtered_worker_mean_measure = self.__compute_mean_measure(filtered_workers_metrics)
+        filtered_worker_stddev_measure = self.__compute_stddev_measure(filtered_workers_metrics, filtered_worker_mean_measure)
+        #print(filtered_workers_metrics)
+        #get the list of low quality workers
+        selected_workers_to_filter = []
+        worker_cosine_array = []
+    	worker_agreement_array = []
+    	#novelty_irrelevant_sel_array = []
+    	consistency_check_array = []
+    	#novelty_selection_frequency_array = []
+    	missed_instructions_array = []
+    	none_event_type_frequency_array = []
+    	event_type_frequency_array = []
+        for metric_name in self.default_thresholds['workerThresholds'].keys():
+        	metric_thresholds = self.default_thresholds['workerThresholds'][metric_name]
+        	metric = getattr(WorkerMetricsEnum, metric_name, None)
+        	#print(metric)
+        	for worker in filtered_workers_metrics:
+        		if metric_name == "worker_cosine":
+        			if filtered_worker_mean_measure[metric] + filtered_worker_stddev_measure[metric] < filtered_workers_metrics[worker][metric]:
+        				if worker not in worker_cosine_array:
+        					#print(worker)
+        					worker_cosine_array.append(worker)
+        		elif metric_name == "avg_worker_agreement":
+        			if filtered_workers_metrics[worker][metric] < filtered_worker_mean_measure[metric] - filtered_worker_stddev_measure[metric]:
+        				if worker not in worker_agreement_array:
+        					worker_agreement_array.append(worker)
+        		elif metric_name == "consistency_check":
+        			if 0 < filtered_workers_metrics[worker][metric]:
+        				if worker not in consistency_check_array:
+        					consistency_check_array.append(worker)
+        		elif metric_name == "missed_instructions":
+        			if 0 <= filtered_workers_metrics[worker][metric]:
+        				if worker not in missed_instructions_array:
+        					missed_instructions_array.append(worker)
+        		elif metric_name == "none_event_type_frequency":
+        			if 0.7 <= filtered_workers_metrics[worker][metric]:
+        				if worker not in none_event_type_frequency_array:
+        					none_event_type_frequency_array.append(worker)
+        		elif metric_name == "event_type_frequency":
+        			if 0.7 < filtered_workers_metrics[worker][metric]:
+        				if worker not in event_type_frequency_array:
+        					event_type_frequency_array.append(worker)
+
+        for worker in filtered_workers_metrics:
+        	if (worker in worker_cosine_array) and (worker in worker_agreement_array):
+        		selected_workers_to_filter.append(worker)
+        	elif (worker in worker_cosine_array) and (worker not in worker_agreement_array):
+        		if (worker in consistency_check_array) or (worker in missed_instructions_array) or (worker in none_event_type_frequency_array):
+        			if worker not in selected_workers_to_filter:
+        				selected_workers_to_filter.append(worker)
+        	elif (worker not in worker_cosine_array) and (worker in worker_agreement_array):
+        		if (worker in consistency_check_array) or (worker in missed_instructions_array) or (worker in none_event_type_frequency_array):
+        			if worker not in selected_workers_to_filter:
+        				selected_workers_to_filter.append(worker)
+        	elif (worker in none_event_type_frequency_array) and (worker in event_type_frequency_array):
+        		if worker not in selected_workers_to_filter:
+        			selected_workers_to_filter.append(worker)
+
+       	#print(selected_workers_to_filters)
+       	spam_worker_query_list = {}
         iter = 0
         for worker in selected_workers_to_filter:
             spam_worker_query_list['match[crowdAgent_id][<>][' + str(iter) + ']'] = worker
@@ -288,25 +363,6 @@ class Task:
             filtered_units_metrics[unit_id] = unit_result
 
 
-        #create the workers without spam workers and unclear/ambiguous annotations
-        unclear_units_query_list = {}
-        iter = 0
-        for unit in selected_units_to_filter:
-            unclear_units_query_list['match[unit_id][<>][' + str(iter) + ']'] = unit
-            iter += 1
-
-        filtered_workers = self.__get_workers(unclear_units_query_list, selected_annotations_to_filter)
-        unfiltered_units_for_worker = self.__get_units({},selected_annotations_to_filter)
-        #compute all the metrics on the units
-        filtered_workers_metrics = {}
-        for worker_id in unfiltered_workers:
-            if worker_id not in filtered_workers:
-                filtered_workers[worker_id] = Worker(worker_id, {}, {}, {})
-            worker = filtered_workers[worker_id]
-            #compute all the metrics, if it is computationally intense, define in the template the metrics to be computed
-            worker_result = worker.get_metrics(filtered_workers, unfiltered_units_for_worker, WorkerMetricsEnum.__members__.values())
-            filtered_workers_metrics[worker_id] = worker_result
-
         filtered_annotation_metrics = {}
         filtered_annotation = None
         if len(self.default_thresholds['annotationThresholds']) > 0:
@@ -326,9 +382,6 @@ class Task:
         #get the mean metrics of units
         filtered_unit_mean_measure = self.__compute_mean_measure(filtered_units_metrics)
         filtered_unit_stddev_measure = self.__compute_stddev_measure(filtered_units_metrics, filtered_unit_mean_measure)
-
-        filtered_worker_mean_measure = self.__compute_mean_measure(filtered_workers_metrics)
-        filtered_worker_stddev_measure = self.__compute_stddev_measure(filtered_workers_metrics, filtered_worker_mean_measure)
 
         pr_unfiltered_units_metrics = self.process_units(unfiltered_units_metrics)
         pr_filtered_units_metrics = self.process_units(filtered_units_metrics)
@@ -423,3 +476,4 @@ class Task:
         encoder.c_make_encoder = None
         metrics_json = encoder.JSONEncoder().encode(results)
         return metrics_json
+
