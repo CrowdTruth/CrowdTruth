@@ -54,7 +54,7 @@ class MediaController extends BaseController {
 		}
 		
 		if($parent == "") {
-			$type = $entity['type'];
+			$type = $entity['documentType'];
 		}
 		
 		$keys = [];
@@ -561,13 +561,17 @@ class MediaController extends BaseController {
 		$projects = Unit::distinct('project')->get()->toArray();
 		$projects = array_flatten($projects);
 		
-		foreach($projects as $key => $project) {
-			$types = Unit::distinct('type')->where('project', $project)->get()->toArray();
-			dd(array_values(array_flatten($types)));
-		}
-		dd($types);
+		$types = [];
 		
-		return View::make('media.search.pages.media')->with('mainSearchFilters', $mainSearchFilters);
+		foreach($projects as $key => $project) {
+			$types[$project] = Unit::distinct('documentType')->where('project', $project)->get()->toArray()[0];
+		}
+		
+		// need to re-add count of units
+		
+		//dd($types);
+		
+		return View::make('media.search.pages.media')->with('types', $types);
 	}
 
 

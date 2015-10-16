@@ -25,18 +25,16 @@
 		<div class='tab'>
 			<div class='search row'>
 				<div class='col-xs-12'>
-				@if(isset($mainSearchFilters['media']['categories']))
 					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" multiple data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-						<option value="all" class="select_all" data-subtext="{{ $mainSearchFilters['media']['all']['count'] }} Items">{{ $mainSearchFilters['media']['all']['label'] }}</option>
-						@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
+						<option value="all" class="select_all" data-subtext="0 Items">All</option>
+						@foreach($types as $project => $doctypes)
 							<optgroup label="{{ $project }}">
-								@foreach($documentTypes as $key => $doctype)
-									<option value="{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>
+								@foreach($doctypes as $key => $doctype)
+									<option value="{{ $doctype }}" class="select_{{ $doctype }}" data-subtext="0 Items">{{ $doctype }}</option>
 								@endforeach
 							</optgroup>
 						@endforeach
 					</select>
-				@endif
 				
 					<div class='btn-group pull-left' style="margin-left:5px";>
 						{{ Form::open([ 'action' => 'MediaController@postKeys', 'name' => 'theForm', 'id' => 'theForm' ]) }}
