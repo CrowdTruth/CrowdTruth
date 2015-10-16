@@ -24,3 +24,5 @@ composer.lock
 Installation.md
 public/js/
 public/images/team/
+*.pyc
+app/lib/Metrics/config.py
