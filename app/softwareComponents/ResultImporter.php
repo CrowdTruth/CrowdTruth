@@ -83,10 +83,10 @@ class ResultImporter {
 			array_push($this->status['notice'], "Existing job configuration found (" . $entity->_id . ")");
 		} else {
 			$entity = new Entity;
-			$entity->documentType = "jobconf";
+			$entity->type = "jobconf";
 			$entity->project = $settings['project'];
 			$entity->tags = array($settings['documentType']);
-			$entity->type = $settings['documentType'];
+			$entity->documentType = $settings['documentType'];
 			$entity->content = $content;
 			$entity->hash = $hash;
 			$entity->activity_id = $activity;  
@@ -111,9 +111,9 @@ class ResultImporter {
 		$entity->_id = $entity->_id;
 		$entity->batch_id = $batch->_id;
 		$entity->project = $settings['project'];
-		$entity->type = $settings['documentType'];
+		$entity->documentType = $settings['documentType'];
 		$entity->resultType = $settings['resultType'];
-		$entity->documentType = "job";
+		$entity->type = "job";
 		$entity->completion = 1;
 		$entity->expectedWorkerUnitsCount = 450;
 		$entity->finishedAt = new MongoDate;
@@ -190,7 +190,7 @@ class ResultImporter {
 			$workerunit->job_id = $jobId;
 			$workerunit->platformWorkerunitId = $annId;
 			$workerunit->submitTime = $submitTime;
-			$workerunit->type = $settings['documentType'];
+			$workerunit->documentType = $settings['documentType'];
 			$workerunit->project = $settings['project'];
 			$workerunit->softwareAgent_id = $settings['platform'];
 			$workerunit->softwareAgent_id = 'cf2';

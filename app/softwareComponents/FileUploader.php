@@ -56,7 +56,7 @@ class FileUploader {
 				$entity->_id = $entity->_id;
 				$entity->title = strtolower($title);
 				$entity->filename = strtolower($filename);
-				$entity->documentType = 'file';
+				$entity->type = 'file';
 				$entity->content = File::get($file->getRealPath());
 				$entity->hash = md5(serialize([$entity->content]));
 				$entity->activity_id = $activity->_id;

@@ -35,11 +35,9 @@ class Workerunit extends Entity {
         {
         //    dd($workerunit);
             // Inherit documentType, domain and format
-            if(empty($workerunit->documentType) or empty($workerunit->domain) or empty($workerunit->format)){
+            if(empty($workerunit->documentType)){
                 $j = Job::where('_id', $workerunit->job_id)->first();
                 $workerunit->documentType = $j->documentType;
-                $workerunit->domain = $j->domain;
-                $workerunit->format = $j->format;
             }  
 
 			// transform answer into annotation vector to prepare for the CrowdTruth metrics

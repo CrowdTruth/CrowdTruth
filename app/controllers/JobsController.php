@@ -501,7 +501,7 @@ public function getTest($entity, $format, $domain, $docType, $incr){
 
 
 	public function getBatch() {
-		$batches = Batch::where('documentType', 'batch')->get(); 
+		$batches = Batch::where('type', 'batch')->get(); 
 		$batch = unserialize(Session::get('batch'));
 		if(!$batch) $selectedbatchid = ''; 
 		else $selectedbatchid = $batch->_id;

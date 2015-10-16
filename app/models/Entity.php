@@ -81,7 +81,7 @@ class Entity extends Moloquent {
 
     public static function generateIncrementedBaseURI($entity)
     {
-        $seqName = 'entity/' . $entity->project . '/' . $entity->documentType;
+        $seqName = 'entity/' . $entity->project . '/' . $entity->type;
         $id = Counter::getNextId($seqName);
         return $seqName.'/'.$id;
     }     
@@ -90,7 +90,7 @@ class Entity extends Moloquent {
         Schema::create('entities', function($collection)
         {
             $collection->index('hash');
-            $collection->index('documentType');    
+            $collection->index('type');    
             $collection->index('activity_id');
             $collection->index('user_id');
             $collection->index('parents');

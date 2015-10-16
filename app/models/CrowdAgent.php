@@ -20,11 +20,12 @@ class CrowdAgent extends Moloquent {
     public function updateStats2() {
 
         // take all the jobs for that worker
+		
+		// TODO: change to Job::
         if($crowdAgentJobs = Job::where('metrics.workers.withFilter.' . $this->_id, 'exists', true)->get(['_id'])) {
-            //if there is at least one job with that worker
+			
+			//if there is at least one job with that worker
             if(count($crowdAgentJobs->toArray()) > 0) {   
-
-                $domains = $formats = $types = $jobids = array();
                 $spam = $nonspam = $totalNoOfWorkerunits = 0;
                 foreach($this->workerunits as $a) {
                     $totalNoOfWorkerunits++;
@@ -32,8 +33,6 @@ class CrowdAgent extends Moloquent {
                     if($a->spam) $spam++;
                     else $nonspam++;
 
-                    $domains[] = $a->domain;
-                    $formats[]=$a->format;
                     $types[]= $a->type;
                     $jobids[] = $a->job_id;
                     $unitids[] = $a->unit_id;
@@ -42,9 +41,8 @@ class CrowdAgent extends Moloquent {
  
                // $this->WorkerunitStats = array('count'=>$total['count'], 'spam'=>$spam, 'nonspam'=>$nonspam);
                 $distinctWorkerunitTypes = array_unique($types); // These actually are the Workerunit types
-                $distinctMediaFormats = array_unique($formats);
-                $distinctMediaDomains = array_unique($domains);
                 $workerParticipatedIn = count(array_unique($unitids));
+				dd($workerParticipatedIn);
 
                 $cache["workerunits"] = [
                         "count" => $totalNoOfWorkerunits,
@@ -56,11 +54,6 @@ class CrowdAgent extends Moloquent {
                 $distinctBatchIds = Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->distinct('batch_id')->get(['_id']);
 
 				/*
-                $cache["mediaTypes"] = [
-                    //  "distinct" => count($distinctMediaTypes),
-                        "count" => count($distinctWorkerunitTypes), //,
-                        "types" => []
-                    ];
 
                
                 
@@ -104,37 +97,6 @@ class CrowdAgent extends Moloquent {
                         }
                     }   
                 }
-
-
-				/*
-                if(count($distinctMediaFormats) > 0) {
-                    $cache["mediaFormats"] = [
-                        "distinct" => count($distinctMediaFormats),
-                        "count" => $workerParticipatedIn,
-                        "formats" => []
-                    ];
-
-
-                    $cache["mediaDomains"] = [
-                        "distinct" => count($distinctMediaDomains),
-                        "count" => $workerParticipatedIn,
-                        "domains" => []
-                    ];
-
-
-                    foreach($distinctMediaFormats as $distinctMediaFormat) {
-                        $distinctMediaFormatAndCount = Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('format', $distinctMediaFormat)->count();
-                        $cache["mediaFormats"]["formats"][$distinctMediaFormat] = $distinctMediaFormatAndCount;
-                    }           
-
-
-                    foreach($distinctMediaDomains as $distinctMediaDomain) {
-                        $distinctMediaDomainAndCount = Entity::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->where('documentType', 'job')->where('domain', $distinctMediaDomain)->count();
-                        $cache["mediaDomains"]["domains"][$distinctMediaDomain] = $distinctMediaDomainAndCount;
-                    }                                                   
-                }
-
-				*/
 				
                 $jobsAsSpammer = Job::whereIn('_id', array_flatten($crowdAgentJobs->toArray()))->whereIn('metrics.spammers.list', [$this->_id])->lists('platformJobId');
                 $cache["spammer"]["count"] = count($jobsAsSpammer);

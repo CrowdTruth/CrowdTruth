@@ -44,7 +44,7 @@
 	</div>
 	<div class='ctable-responsive'>	
 	    <table class="table table-striped">
-	        <thead data-query-key="&collection=temp&match[documentType]" data-query-value="job">
+	        <thead data-query-key="&match[type]" data-query-value="job">
 		        <tr>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row" style='min-width:60px;'>Select</th>
 		            <th data-vbIdentifier="status" data-toggle="tooltip" data-placement="top" title="Mouseover for actions">Status</th>

@@ -10,7 +10,7 @@ class JobsController2 extends BaseController {
 	
 	public function getBatch() {
 		$this->getClearTask();
-		$batches = Batch::where('documentType', 'batch')->get(); 
+		$batches = Batch::where('type', 'batch')->get(); 
 		//$batch = unserialize(Session::get('batch'));
 		//if(!$batch) $selectedbatchid = ''; 
 		//else $selectedbatchid = $batch->_id;
@@ -18,7 +18,7 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getBatchd() {
-		$batches = Batch::where('documentType', 'batch')->get(); 
+		$batches = Batch::where('type', 'batch')->get(); 
 		//$batch = unserialize(Session::get('batch'));
 		//dd($batch);
 		//if(!isset($batch)) $selectedbatchid = ''; 
@@ -228,7 +228,7 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getSave($id) {
-		$j = Entity::where("documentType", "job")->where("platformJobId", $id)->first();
+		$j = Entity::where("type", "job")->where("platformJobId", $id)->first();
 		Session::put('format_t', $j->format);
 		Session::put('jobconf_id_t', $j->jobConf_id);
 		Session::put('job_id_t', $j->_id);
@@ -309,7 +309,7 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getLoad($id) {
-		$j = Entity::where("documentType", "job")->where("platformJobId", $id)->first();
+		$j = Entity::where("type", "job")->where("platformJobId", $id)->first();
 		Session::put('format_t', $j->format);
 		Session::put('jobconf_id_t', $j->jobConf_id);
 		Session::put('job_id_t', $j->_id);
@@ -472,7 +472,7 @@ class JobsController2 extends BaseController {
 		$ownTemplate = false;
 		if (!$jc = unserialize(Session::get('jobconf'))){
 			$jc = new JobConfiguration;
-			$jc->documentType = "jobconf";
+			$jc->type = "jobconf";
 			$jcco = array();
 		}
 		else

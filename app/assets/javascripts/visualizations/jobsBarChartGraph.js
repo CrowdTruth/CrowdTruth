@@ -763,7 +763,7 @@ function jobsBarChartGraph(workerUpdateFunction, jobsUpdateFunction, annotations
         } else {
             sortStr = '&sort[' + 'created_at' + ']=1'
         }
-       // matchCriteria = 'match[documentType][]=job';
+       // matchCriteria = 'match[type][]=job';
         drawBarChart(matchStr,sortStr);
     }
 

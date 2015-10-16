@@ -1,6 +1,6 @@
 function unitsAnnotationDetails(category, categoryName, openModal) {
 
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
+    var urlBase = "/api/analytics/piegraph/?match[type][]=workerunit&";
     var annotationDivs = [];
     var queryField = 'unit_id';
     var categoryPrefix = 'in';
@@ -67,7 +67,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
         activeSelectedType = type;
         var unitList = {};
 
-        var annotationsURL = '/api/v1/?field[documentType][]=job&'
+        var annotationsURL = '/api/v1/?field[type][]=job&'
         for (var indexUnits in currentSelection) {
             annotationsURL += '&field[_id][]=' + currentSelection[indexUnits];
         }
@@ -426,7 +426,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
 
         //get the list of workers for this units
         $.getJSON(annotationsURL, function (data) {
-            var urlJobsInfo =  '/api/v1/?field[documentType]=job&'
+            var urlJobsInfo =  '/api/v1/?field[type]=job&'
 
             for (var dataIter in data){
                 var fieldID = data[dataIter]['_id'];
@@ -783,7 +783,7 @@ function unitsAnnotationDetails(category, categoryName, openModal) {
         activeSelectedType = "";
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
+        urlBase = "/api/analytics/piegraph/?match[type][]=workerunit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match[' + queryField + '][]=' + selectedUnits[indexUnits] + '&';

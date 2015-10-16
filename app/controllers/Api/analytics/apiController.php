@@ -130,7 +130,7 @@ class apiController extends BaseController
 
         $selection = Entity::raw(function ($collection) use ($aggregateOperators, $crowdAgentID) {
             $aggregateOperators['$match']['crowdAgent_id'] = $crowdAgentID;
-            $aggregateOperators['$match']['documentType'] = 'workerunit';
+            $aggregateOperators['$match']['type'] = 'workerunit';
             $aggregateOperators['$project']['job_id'] = array('$ifNull' => array('$' . 'job_id', 0));
             $aggregateOperators['$project']['unit_id'] = array('$ifNull' => array('$' . 'unit_id', 0));
             $aggregateOperators['$project']['type'] = array('$ifNull' => array('$' . 'type', 0));
@@ -367,6 +367,21 @@ class apiController extends BaseController
         return $result;
 
     }
+	
+		
+	public function getJobs()
+    {
+		/* This can be used to transform data to a new model
+		
+		$jobs = Entity::where('documentType','file')->limit(10000)->get();
+		foreach($jobs as $j) {
+			$j->documentType = $j->type;
+			$j->type = "file";
+			$j->save();
+		}
+		*/
+		return "done";
+	}
 
 	public function getAnalytics()
     {
@@ -407,19 +422,17 @@ class apiController extends BaseController
 	
 		$j->save();
 
-		/*	
 		// update worker cache
 		foreach ($response['metrics']['workers']['withoutFilter'] as $workerId => $workerData) {
 			set_time_limit(60);
 			$agent = CrowdAgent::where("_id", $workerId)->first();
 			\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));
 		}
-
 		
 		// update input units
 		$units = array_keys($response['metrics']['units']['withSpam']);
 		\Queue::push('Queues\UpdateUnits', $units);
-		*/
+
 		echo 'done';
 	}
 	
@@ -499,7 +512,7 @@ class apiController extends BaseController
     
         $selection = Entity::raw(function ($collection) use ($aggregateOperators, $unitID) {
             $aggregateOperators['$match']['unit_id'] = $unitID;
-            $aggregateOperators['$match']['documentType'] = 'workerunit';
+            $aggregateOperators['$match']['type'] = 'workerunit';
             $aggregateOperators['$project']['job_id'] = array('$ifNull' => array('$' . 'job_id', 0));
             $aggregateOperators['$project']['crowdAgent_id'] = array('$ifNull' => array('$' . 'crowdAgent_id', 0));
             $aggregateOperators['$project']['type'] = array('$ifNull' => array('$' . 'type', 0));
@@ -679,7 +692,7 @@ class apiController extends BaseController
     public function getSpammers()
     {
         $spammersSet = Entity::raw(function ($collection) {
-            $match = array('documentType' => 'job', 'metrics' => array('$exists' => true));
+            $match = array('type' => 'job', 'metrics' => array('$exists' => true));
             $project = array('_id' => 0, 'spammers' => '$metrics.spammers.list', 'index' => array('$const' => 0));
             $unwind = '$spammers';
             $group = array('_id' => '$index', 'spammers' => array('$addToSet' => '$spammers'));
@@ -937,7 +950,7 @@ class apiController extends BaseController
         //use a for to insure the same order is preserved in the arrays
         for ($iter = 0; $iter < $sizeIDs; $iter++) {
             //get the workers of the job
-            $workersOfJob = Entity::where('documentType', 'workerunit')->where('job_id', $ids[$iter])->lists('crowdAgent_id');
+            $workersOfJob = Entity::where('type', 'workerunit')->where('job_id', $ids[$iter])->lists('crowdAgent_id');
             $workersOfJob = array_unique($workersOfJob);
 
             //check if there are spammers
@@ -970,7 +983,7 @@ class apiController extends BaseController
 
     public function getJobtypes()
     {
-        return array_flatten(Entity::where('documentType', 'job')->distinct('type')->get()->toArray());
+        return array_flatten(Entity::where('type', 'job')->distinct('type')->get()->toArray());
     }
 
     public function getIndex()

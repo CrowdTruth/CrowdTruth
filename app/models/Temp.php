@@ -889,7 +889,7 @@ class Temp extends Moloquent {
         
         //unset($mainSearchFilters['media']['documentTypes']['twrex']);
 
-        $mainSearchFilters['job']['count'] = Entity::where('documentType', 'job')->count();
+        $mainSearchFilters['job']['count'] = Entity::where('type', 'job')->count();
         $mainSearchFilters['workers']['count'] = CrowdAgent::all()->count();
 
         ksort($mainSearchFilters['media']['categories']);
@@ -922,12 +922,12 @@ class Temp extends Moloquent {
         $db = \DB::getMongoDB();
         $db = $db->temp;
 
-        $result = Entity::where('documentType', 'job')->with('hasConfiguration')->get()->toArray();
+        $result = Entity::where('type', 'job')->with('hasConfiguration')->get()->toArray();
 
         if(count($result) > 0)
         {
             try {
-                Temp::where('documentType', 'job')->forceDelete();
+                Temp::where('type', 'job')->forceDelete();
 
                 $db->batchInsert(
                     $result,

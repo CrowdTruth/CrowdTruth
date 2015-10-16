@@ -52,8 +52,7 @@ class TextSentencePreprocessor {
 				$entity = new Unit();
 				$entity->project = $parent->project;
 				$entity->activity_id = $activity->_id;
-				$entity->documentType = "unit";
-				$entity->type = $type;
+				$entity->documentType = $type;
 				$entity->parents = [$parent->_id];
 				$entity->content = $unit;
 				$entity->hash = md5(serialize($entity));

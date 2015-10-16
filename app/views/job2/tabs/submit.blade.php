@@ -38,7 +38,7 @@
 										}
 									//	dd($unitAttributes);
 
-										$_aTitles = Entity::where("documentType", "jobconf")->where("format", $_format)->distinct("content.title")->get();
+										$_aTitles = Entity::where("type", "jobconf")->where("format", $_format)->distinct("content.title")->get();
 									    $_aTitles = array_flatten($_aTitles->toArray());	
 								    
 									    foreach($_aTitles as $key=>$value){

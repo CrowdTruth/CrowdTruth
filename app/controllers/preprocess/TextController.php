@@ -72,7 +72,7 @@ class TextController extends BaseController {
 				$docPreview = array_slice($docPreview, 0, $this->nLines);
 				$docPreview = implode($newLine, $docPreview);
 				
-				$docTypes = Unit::select('type')->where('documentType', 'unit')->where('project', $document->project)->distinct()->get()->toArray();
+				$docTypes = Unit::select('documentType')->where('project', $document->project)->distinct()->get()->toArray();
 				
 				$config = $this->processor->getConfiguration($document["documentType"]);
 				if($config!=null) {
