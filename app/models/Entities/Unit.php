@@ -12,7 +12,7 @@ use \Activity as Activity;
 
 class Unit extends Entity { 
 
-	protected $attributes = array('documentType' => 'unit');
+	protected $attributes = array('type' => 'unit');
 	
     /**
     *   Override the standard query to include documenttype.
@@ -20,7 +20,7 @@ class Unit extends Entity {
     public function newQuery($excludeDeleted = true)
     {
         $query = parent::newQuery($excludeDeleted = true);
-        $query->where('documentType', 'unit');
+        $query->where('type', 'unit');
         return $query;
     }
 

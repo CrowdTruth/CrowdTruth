@@ -130,15 +130,15 @@ class UpdateJob {
 
 
 				// TODO: of course all this hardcoded stuff has to go.
-				if($j->type == 'FactSpan')
+				if($j->documentType == 'FactSpan')
 					$templateid = 'entity/text/medical/FactSpan/Factor_Span/0';
-				else if($j->type == 'RelEx')
+				else if($j->documentType == 'RelEx')
 					$templateid = 'entity/text/medical/RelEx/Relation_Extraction/0';
-				else if($j->type == 'RelDir')
+				else if($j->documentType == 'RelDir')
 					$templateid = 'entity/text/medical/RelDir/Relation_Direction/0';
-				else if($j->type == 'MetaDEvents')
+				else if($j->documentType == 'MetaDEvents')
 					$templateid = 'entity/text/cultural/MetaDEvents/MetadataDescription_Events/0';
-				else if($j->type == 'DistributionalDisambiguation')
+				else if($j->documentType == 'DistributionalDisambiguation')
 					$templateid = 'entity/text/opendomain/termpairs/0';
 				else
 					$templateid = 'entity/text/medical/FactSpan/Factor_Span/0';

@@ -13,7 +13,7 @@ use \Activity as Activity;
 
 class Batch extends Entity {
 	
-	protected $attributes = array('documentType' => 'batch');
+	protected $attributes = array('type' => 'batch');
 
 	public static function store($settings, $activity = false)
 	{
@@ -34,7 +34,6 @@ class Batch extends Entity {
 			$batch->_id = $batch->_id;
 			$batch->title = $settings['batch_title'];
 			$batch->project = $settings['project'];
-			$batch->documentType = "batch";
 			$batch->parents = $settings['units'];
 			$batch->content = $settings['batch_description'];
 			$batch->hash = md5(serialize($batch->parents));

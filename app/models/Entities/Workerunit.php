@@ -14,7 +14,7 @@ class Workerunit extends Entity {
 
 	protected $attributes = array(  'format' => 'text', 
                                     'domain' => 'medical', 
-                                    'documentType' => 'workerunit',
+                                    'type' => 'workerunit',
                                     'spam' => false);
 	
     /**
@@ -23,7 +23,7 @@ class Workerunit extends Entity {
     public function newQuery($excludeDeleted = true)
     {
         $query = parent::newQuery($excludeDeleted = true);
-        $query->where('documentType', 'workerunit');
+        $query->where('type', 'workerunit');
         return $query;
     }
 
@@ -34,10 +34,10 @@ class Workerunit extends Entity {
         static::creating(function ( $workerunit )
         {
         //    dd($workerunit);
-            // Inherit type, domain and format
-            if(empty($workerunit->type) or empty($workerunit->domain) or empty($workerunit->format)){
+            // Inherit documentType, domain and format
+            if(empty($workerunit->documentType) or empty($workerunit->domain) or empty($workerunit->format)){
                 $j = Job::where('_id', $workerunit->job_id)->first();
-                $workerunit->type = $j->type;
+                $workerunit->documentType = $j->documentType;
                 $workerunit->domain = $j->domain;
                 $workerunit->format = $j->format;
             }  
@@ -70,7 +70,7 @@ class Workerunit extends Entity {
      //todo make private. 
      // TODO exceptionhandling, smart checks.
     public function createAnnotationVector(){
-        switch ($this->type) {
+        switch ($this->documentType) {
             case 'FactSpan':
                 return  $this->createAnnotationVectorFactSpan();
                 break;
@@ -101,7 +101,7 @@ class Workerunit extends Entity {
             
             default:
                //return  $this->createAnnotationVectorFactSpan(); // For Debugging!
-                Log::debug("TYPE {$this->type} UNKNOWN: {$this->_id}");
+                Log::debug("TYPE {$this->documentType} UNKNOWN: {$this->_id}");
                 //dd("here");
                 return null;
                 //throw new Exception("TYPE {$this->type} UNKNOWN: {$this->_id}");
@@ -242,17 +242,19 @@ class Workerunit extends Entity {
         $debug = false;
 		
 		$judgment = $this->content;
-		$vector = [];
+		$vector = ['keywords' => []];
+		
 		// for each keyword
 		$keywords = explode(',', $judgment['keywords']);
 		foreach($keywords as $keyword) {
 			$keyword = str_replace('.', ' ', $keyword);
 			$keyword = trim($keyword);
 			if($keyword != "") {
-				$vector[$keyword] = 1;
+				$vector['keywords'][$keyword] = 1;
 			}
 		}
-		return ['keywords' => $vector];
+		
+		return $vector;
 	}
 
 

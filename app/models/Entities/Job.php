@@ -13,7 +13,7 @@ use \Temp as Temp;
 
 class Job extends Entity { 
     
-	protected $attributes = array('documentType' => 'job');
+	protected $attributes = array('type' => 'job');
 
     /**
     *   Override the standard query to include documenttype.
@@ -21,7 +21,7 @@ class Job extends Entity {
     public function newQuery($excludeDeleted = true)
     {
         $query = parent::newQuery($excludeDeleted = true);
-        $query->where('documentType', 'job');
+        $query->where('type', 'job');
         return $query;
     }
 

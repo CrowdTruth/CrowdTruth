@@ -47,7 +47,7 @@ class Entity extends Moloquent {
                 {
                     throw new Exception("Hash already exists for: " . $entity->title . " in project " . $entity->project);
                 }
-            }            
+            }
 
             $entity->_id = static::generateIncrementedBaseURI($entity);
 

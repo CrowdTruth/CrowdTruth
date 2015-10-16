@@ -13,7 +13,7 @@ use \Activity as Activity;
 
 class JobConfiguration extends Entity {
 	protected $guarded = array();
-	protected $attributes = array('documentType' => 'jobconf');
+	protected $attributes = array('type' => 'jobconf');
 
     /**
     *   Override the standard query to include documenttype.
@@ -21,7 +21,7 @@ class JobConfiguration extends Entity {
     public function newQuery($excludeDeleted = true)
     {
         $query = parent::newQuery($excludeDeleted = true);
-        $query->where('documentType', 'jobconf');
+        $query->where('type', 'jobconf');
         return $query;
     }
 
