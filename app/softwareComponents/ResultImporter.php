@@ -26,6 +26,7 @@ class ResultImporter {
 		}
 	}
 
+
 	/**
 	 *	Create result importer activity
 	 */
@@ -148,6 +149,9 @@ class ResultImporter {
 				$agent->_existing = true;			
 				$this->crowdAgents[$agent->_id] = $agent;
 			}
+			if(!in_array($settings['project'], $agent->project)) {
+				$agent->project = array_push($agent->project, $settings['project']);
+			}
 		} else {
 			$agent = new CrowdAgent;
 			$agent->_id= "crowdagent/".$settings['platform']."/".$workerId;
@@ -156,6 +160,7 @@ class ResultImporter {
 			$agent->city = $city;
 			$agent->country = $country;
 			$agent->region = $region;
+			$agent->project = [$settings['project']];
 			$agent->cfWorkerTrust = $cfWorkerTrust;
 			$agent->save();
 			

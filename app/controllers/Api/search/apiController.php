@@ -37,7 +37,7 @@ class apiController extends BaseController {
 
 		// Filter data for projects for which the authenticated user has permissions.
 		if(Input::has('authkey')) {
-			$user = \MongoDB\UserAgent::where('api_key', Input::get('authkey'))->first();
+			$user = \UserAgent::where('api_key', Input::get('authkey'))->first();
 			if(is_null($user)) {
 				return [ 'error' => 'Invalid auth key: '.Input::get('authkey') ];
 			}
