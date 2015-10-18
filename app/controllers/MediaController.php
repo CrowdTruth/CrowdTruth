@@ -246,7 +246,7 @@ class MediaController extends BaseController {
 		$searchComponent = new MediaSearchComponent();
 		
 		// amount of units to index per iteration
-		$batchsize = 500;
+		$batchsize = 50;
 		$from = Input::get('next');
 		$unitCount = Entity::whereIn('tags', ['unit'])->count();
 		
@@ -271,13 +271,7 @@ class MediaController extends BaseController {
 		for($i = $from; $i < $from + $batchsize; $i++) {
 			// get data of unit
 			$unit = Entity::where('_id', $units[$i][0])->first();
-	
-	
-			$id = explode('/', $unit['_id']);
-			if(sizeof($id) == 5) {
-				$user['_id'] = $id[0] . '/' . $id[3] . '/' . $id[4];
-			}
-	
+
 			switch($unit['documentType']) {
 				case 'annotatedmetadatadescription':
 					$unit['project'] = 'soundandvision';
@@ -336,12 +330,22 @@ class MediaController extends BaseController {
 				ProjectHandler::grantUser($user, $unit['project'], Roles::PROJECT_MEMBER);
 			}
 
-			
-			$unit->save();
+			$id = explode('/', $unit['_id']);
+			if(sizeof($id) == 5) {			
+				$entity = new Entity;
+				
+				// copy properties
+				
+				$entity['documentType'] = $unit['documentType'];
+				$entity['test'] = 'new';
+				$entity->_id = 'entity/' . $entity->documentType . '/' . $id[4];
+				$entity->save();
+			}
+
 		}
 			 
 		return [
-			'log' => $projects,
+			'log' => 'test',
 			'next' => $from + $batchsize,
 			'last' => $unitCount
 		 ];
@@ -515,7 +519,7 @@ class MediaController extends BaseController {
 			$fileTypes[$domainKey] = $fileTypeList;
 			$doctypes[$domainKey] = $domain['document_types'];
 		}
-		$userprojects = ProjectHandler::getUserGroups(Auth::user());
+		$userprojects = ProjectHandler::getUserProjects(Auth::user());
 		$userprojects = array_column($userprojects, 'name');
 		
 		return View::make('media.pages.upload')
@@ -581,16 +585,15 @@ class MediaController extends BaseController {
 		{
 			$batch = new Batch;
 			$status = $batch->store(Input::all());
+
 			return Redirect::to('media/search');
 		}
 
 		$units = Input::get('selection');
 		natsort($units);
 		$units = array_values($units);
-	//	dd($units);
 
 		$fields = explode("/", $units[0]);
-	//	dd($fields);
 		return View::make('media.pages.createbatch', compact('units', 'fields'));
 	}
 }

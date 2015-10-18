@@ -3,6 +3,9 @@
 use Jenssegers\Mongodb\Sentry\User as SentryUser;
 use Illuminate\Auth\UserInterface;
 
+/**
+ * This class defines a user in the CrowdTruth platform.
+ */
 class UserAgent extends SentryUser implements UserInterface {
 
 	/**
@@ -63,10 +66,16 @@ class UserAgent extends SentryUser implements UserInterface {
 		return UserAgent::orderBy('_id', 'asc')->get();
 	}
 	
+	/**
+	 * Establish how user ownership over activities is established.
+	 */
 	public function associatedActivities(){
 		return $this->hasMany('Activity', 'user_id', '_id');
 	}
 
+	/**
+	 * Establish how user ownership over entities is established.
+	 */
 	public function associatedEntities(){
 		return $this->hasMany('Entity', 'user_id', '_id');
 	}
@@ -81,17 +90,28 @@ class UserAgent extends SentryUser implements UserInterface {
 		$this->remember_token = $value;
 	}
 
+	/**
+	 * Name of remember token field.
+	 * @return string
+	 */
 	public function getRememberTokenName()
 	{
 		return 'remember_token';
 	}
 	
-	// Override Jenssegers\Mongodb\Sentry\User
+	/**
+	 * Override Jenssegers\Mongodb\Sentry\User.
+	 */
 	public function isActivated()
 	{
 		return true;
 	}
 	
+	/**
+	 * Used to indicate to Sentry which field is used for login.
+	 * 
+	 * @return Login name used to login to the platform.
+	 */
 	public function getLoginName()
 	{
 		return '_id';

@@ -38,7 +38,7 @@ class FileUploader {
 		
 		try {
 			$activity = new Activity;
-			$activity->softwareAgent_id = "fileuploader";
+			$activity->softwareAgent_id = $this->softwareComponent->_id;
 			$activity->save();
 		} catch (Exception $e) {
 			// Something went wrong with creating the Activity
@@ -49,6 +49,7 @@ class FileUploader {
 		
 		$files = $validatedFiles['passed'];
 		foreach($files as $file){
+
 			$filename = $file->getClientOriginalName();
 
 			try {
@@ -72,6 +73,12 @@ class FileUploader {
 			}
 		}
 		
+		$files = $validatedFiles['failed'];
+		foreach($files as $file) {
+			$title = $file->getClientOriginalName();
+			$status['error'][$title] = 'Validation failed';
+		}
+		
 		return $status;
 	}
 
@@ -82,6 +89,7 @@ class FileUploader {
 	 * @param $format Format of files to be validated (different rules apply to different formats)
 	 * @return An array with two lists: one of valid ('passed') and one of invalid ('failed') files.
 	 */
+
 	private function performValidation($files) {
 		$validatedFiles = [];
 		foreach($files as $fileKey => $file){
@@ -99,7 +107,7 @@ class FileUploader {
 				}
 			}
 		}
-
+		
 		return $validatedFiles;
 	}
 }

@@ -5,11 +5,11 @@ use \SoftwareComponent as SoftwareComponent;
 
 class MediaSearchComponent {
 	protected $softwareComponent;
-	
+
 	public function __construct() {
 		$this->softwareComponent = SoftwareComponent::find('mediasearchcomponent');
 	}
-	
+
 	// clear all data
 	public function clear() {
 		$this->softwareComponent->keys = [];
@@ -23,7 +23,7 @@ class MediaSearchComponent {
 						];
 		$this->softwareComponent->save();
 	}
-	
+
 	/**
 	 * from the list of formats select the lowest granularity
 	 */
@@ -37,11 +37,11 @@ class MediaSearchComponent {
 		else { $format = 'video'; }
 		return $format;
 	}
-	
+
 	// get all keys
 	public function getKeys($documents = Array('all')) {
 		$keys = $this->softwareComponent['keys'];
-		
+
 		// remove keys that are not in these docTypes
 		if($documents[0] != 'all') {
 			foreach($keys as $key => $value) {
@@ -56,10 +56,10 @@ class MediaSearchComponent {
 				}
 			}
 		}
-		
+
 		return $keys;
-	}	
-	
+	}
+
 	// get all formats
 	public function getFormats() {
 		return $this->softwareComponent['formats'];
@@ -67,15 +67,15 @@ class MediaSearchComponent {
 
 	// create new index of keys in the database
 	public function store($keys) {
-		
+
 		$allKeys = $this->softwareComponent['keys'];
-		
+
 		// loop through keys to update formats
 		foreach($keys as $k => $v) {
-		
+
 			// update data if key already exists
 			if(array_key_exists($k,$allKeys)) {
-				
+
 				// prioritize formats
 				if($allKeys[$k]['format'] != $keys[$k]['format']) {
 					$format = $this->prioritizeFormat([$allKeys[$k]['format'], $keys[$k]['format']]);
@@ -83,19 +83,19 @@ class MediaSearchComponent {
 					$format = $keys[$k]['format'];
 				}
 				$allKeys[$k]['format'] = $format;
-				
+
 				// add unique documents
 				foreach($keys[$k]['documents'] as $doc) {
 					if(!in_array($doc, $allKeys[$k]['documents'])) {
 						array_push($allKeys[$k]['documents'], $doc);
-					}				
+					}
 				}
 			} else {
 				// add new key
-				$allKeys[$k] = $v;				
+				$allKeys[$k] = $v;
 			}
 		}
 		$this->softwareComponent['keys'] = $allKeys;
-		$this->softwareComponent->save();		
+		$this->softwareComponent->save();
 	}
 }

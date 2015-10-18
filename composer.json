@@ -7,12 +7,13 @@
 		"laravel/framework": "4.1.*",
 		"crowdtruth/crowdflower": "*",
 		"crowdtruth/mturk": "*",
+		"crowdtruth/ddgameapi": "*",
 		"sunra/php-simple-html-dom-parser": "v1.5.0",
 		"codesleeve/asset-pipeline": "dev-master",
 		"jenssegers/mongodb": "*",
 		"gloudemans/shoppingcart": "~1.2",
 		"league/csv": "5.*",
-		"jenssegers/mongodb-sentry": "dev-master"
+		"jenssegers/mongodb-sentry": "v1.0.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -44,5 +45,6 @@
 	"config": {
 		"preferred-install": "dist"
 	},
-	"minimum-stability": "dev"
+	"minimum-stability": "dev",
+	"require-dev": { "codeclimate/php-test-reporter": "dev-master" }
 }

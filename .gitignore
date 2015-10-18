@@ -16,7 +16,6 @@ crowd-watson.sublime-workspace
 /app/lib/Metrics/enum*
 /app/lib/getAPIS/*
 /app/storage/videostorage/*
-composer.lock
 .gitignore
 .buildpath
 .project

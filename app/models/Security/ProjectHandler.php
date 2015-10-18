@@ -98,23 +98,28 @@ class ProjectHandler {
 	 * Generate a list of Projects a given user belongs to.
 	 * 
 	 * @param $user UserAgent of the user whose groups should be listed.
+	 * @param $permission (optional) a permission required for the listed projects -- only 
+	 * 			projects for which the user has the given permission will be listed.
 	 * @return List of containing the name and role of Projects the user belongs to.
 	 */
-	public static function getUserGroups($user) {
+	public static function getUserProjects($user, $permission=null) {
 		$sentryGroups = $user->getGroups();
 		
 		// List Sentry-groups and build list of Projects
 		$projects = [];
 		foreach ($sentryGroups as $sentryGroup) {
 			$parts = explode(':', $sentryGroup->name);
-			array_push($projects, [
-				'name' => $parts[0],
-				'role' => $parts[1]
-			]);
+			
+			if(is_null($permission) || PermissionHandler::checkProject($user, $parts[0], $permission)) {
+				array_push($projects, [
+					'name' => $parts[0],
+					'role' => $parts[1]
+				]);
+			}
 		}
 		return $projects;
 	}
-	
+
 	/**
 	 * List the names of all existing Projects.
 	 * 
@@ -148,7 +153,6 @@ class ProjectHandler {
 			return false;
 		}
 	}
-	
 	
 	/**
 	 * Retrieve the external account credentials for a given group

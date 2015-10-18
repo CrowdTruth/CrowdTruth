@@ -483,7 +483,7 @@ var getGeneralFilterQueries = function() {
 			{
 				$(this).find("option:selected").each(function() {
 					generalFilterQuery += "&" + $(this).parent().attr('data-query-key') + "=" + $(this).val();
-			    });
+				});
 			}
 		}
 	});
@@ -500,7 +500,7 @@ $('body').on('keyup', '.inputFilters input', function(){
 		if(inputFilter.val() == "")
 			inputFilter.removeAttr('data-query-value');
 
-	 	getResults();
+		getResults();
 	}, 300);
 });
 
@@ -518,9 +518,8 @@ $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
 });
 
 $('body').on('click', '.toSelection', function(){
-
 	if(typeof selectedRows == 'undefined' || selectedRows.length < 1){
-		event.preventDefault();
+		// event.preventDefault();
 		alert('Please make a selection first');
 	} else {
 		var searchQuery = JSON.stringify(lastQueryResult.searchQuery);
@@ -621,13 +620,13 @@ var updateSelection = function(id) {
 
 	if(id !== undefined)
 	{
-	    if(jQuery.inArray(id, selectedRows) != -1) {
+		if(jQuery.inArray(id, selectedRows) != -1) {
 			selectedRows = $.grep(selectedRows, function(value) {
-			  return value != id;
-			});			
-	    } else {
+				return value != id;
+			});
+		} else {
 			selectedRows.push(id);
-	    }
+		}
 	}
 
     $("input[name=rowchk]").each(function(){
@@ -658,7 +657,7 @@ function getTabFieldsQuery(){
 	
 	var operator = '=';
 	if(documentType[0] == 'all') {
-		tabFieldsQuery += "&match[tags]=unit";
+		tabFieldsQuery += "&match[type]=unit";
 	} else {
 		// needs to use all doctypes
 		tabFieldsQuery += "&" + "match[documentType]" + operator + documentType[0];
@@ -816,18 +815,17 @@ var refreshColumns = function() {
 
 	// create identifiers and filters
 	var identifiers = '<th data-vbIdentifier="checkbox">Select</th>';
-	var filters = '<td><input type="checkbox" class="checkAll" /></td>';
+	var filters = '<td><input type="checkbox" class="checkAll" id="checkAll"/></td>';
 
 	var columns = $('.columns').val();
 	for(var i = 0; i < columns.length; i++) {
 
 		var $column = $('.columns option[value="' + columns[i] + '"]');
-	
+
 		// move selected to selected group
 		if(!$column.parent().hasClass('columnSelected')) {
 			$column.appendTo('.columns .columnSelected');
 		}
-		
 
 		identifiers += '<th class="sorting" data-vbIdentifier="' + columns[i] + '" data-query-key="orderBy[' + columns[i] + ']">' + $column.text() + '</th>';	
 		
@@ -843,7 +841,7 @@ var refreshColumns = function() {
 				'</div></td>';		
 		} else { // default filter is string matching
 			filters += '<td><input class="input-sm form-control" type="text" data-query-key="match[' + columns[i] + ']" data-query-operator="like" placeholder="Filter" /></td>';
-		}		
+		}
 	}
 
 	// for each option in the selected list, check if it is still selectedCategory
@@ -856,7 +854,17 @@ var refreshColumns = function() {
 	// update identifiers and filters
 	$('.identifiers').html(identifiers);
 	$('.inputFilters').html(filters);
-	
+
+	$("#checkAll").click(function () {
+		$("input[name=rowchk]").prop('checked', $(this).prop('checked'));
+
+		selectedRows = [];
+		if($(this).prop('checked')) {	// Check all
+			$.each($("input[name=rowchk]"), function(index, value) {
+				selectedRows.push(value.id);
+			});
+		}
+	});
 }
 
 // create template based on selected columns

@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * This class works as an Interface, defining a series of contract methods
+ * which external frameworks must implement.
+ *
+ * An external framework is understood as a class which allows CrowdTruth to
+ * communicate with an external platform (such as CrowdFlower or Dr. Detective game.
+ */
 abstract class FrameWork {
 
 	/**
@@ -79,9 +86,9 @@ abstract class FrameWork {
 	*/
 	abstract public function sendMessage($subject, $body, $workerids);
 
+	// TODO: add documentation
 	abstract public function blockWorker($id, $message);
 	
+	// TODO: add documentation
 	abstract public function unBlockWorker($id, $message);
 }
-
-?>

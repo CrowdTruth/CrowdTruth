@@ -1,5 +1,7 @@
 <?php
 use Sunra\PhpSimple\HtmlDomParser;
+use MongoDB\Entity;
+use MongoDB\Activity;
 
 
 /*
@@ -55,19 +57,7 @@ class JobsController extends BaseController {
 	public function getTestmetrics(){
 		$job = Job::id("entity/text/medical/job/1")->first();
 		Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-			
 	}
-
-
-/*
-
-	public function getUpdate(){
-		foreach (Job::get() as $job) {
-			$job->results = null;
-			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-
-		}
-	}*/
 
 	public function getAnnotationVector($entity, $format, $domain, $docType, $incr){
 
@@ -220,29 +210,110 @@ class JobsController extends BaseController {
 			//$ca->messagesRecieved = array('count'=>0, 'messages'=>[]);
 			$ca->save();
 		}
-		//$ca->updateStats2();
-/*
-		//$unitids = array('entity/text/medical/relex-structured-sentence/1736');
-		Queue::push('Queues\UpdateUnits', $unitids);
-		//dd($unitids);
-		echo count($unitids);*/
 	}
 
-
 	public function getUpdatecfdictionaries(){
-		
 		foreach(Job::where('softwareAgent_id', 'cf')->type('FactSpan')->get() as $job){
 			foreach ($job->workerunits as $ann) {
 				$ann->annotationVector = $ann->createAnnotationVector();
 				$ann->save();
 			}
-
-
 			Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
 		}
 	}
 
-
+	public function getProcesscrowdgames() {
+		$gameJobs = Job::where('softwareAgent_id', 'DrDetectiveGamingPlatform')->get();
+		
+		$activity = new Activity;
+		$activity->softwareAgent_id = 'DrDetectiveGamingPlatform';
+		$activity->save();
+		
+		foreach($gameJobs as $job) {
+			// $annotations = Entity::where('jobParents', $job['_id'])->get();
+			
+			// Create one annotation vector for each image on the game
+			$images = Entity::where('jobParents', $job['_id'])
+				->distinct('content.task_data')
+				->get();
+			
+			$annotationsSummary = [];
+			foreach($images as $image) {
+				$imageName = $image[0];	// unpack data
+				$annotations = Entity::where('jobParents', $job['_id'])
+					->where('content.task_data', $imageName)->get();
+				$annotations = $annotations->toArray();
+				// Create an array with all coordinates given for target image.
+				$coordinates = array_column(array_column(array_column($annotations, 'content'), 'response'), 'Coordinates');
+				
+				$allCoordinates = [];
+				foreach ($coordinates as $coords) {	// Flatten to array of coords.
+					foreach ($coords as $c) {
+						$allCoordinates[] = $c;
+					}
+				}
+				$aggCoords =  static::aggregateCoordinates($allCoordinates);
+				$annotationsSummary[] = [
+					'image' => $imageName,
+					'aggregateCoordinates' => $aggCoords
+				];
+			}
+			
+			// process annotations for this job into an annotation vector...
+			$e = new Entity();
+			$e->jobParents = [ $job['_id'] ];
+			$e->annotationVector = $annotationsSummary;
+			$e->documentType = 'annotationVector';
+			$e->activity_id = $activity->_id;
+			$e->softwareAgent_id = $job->softwareAgent_id;
+			$e->project = $job->project;
+			$e->user_id = $job->user_id;
+			$e->save();
+		}
+		return 'OK -- may need adjustments...';
+	}
+	
+	// Takes: an array of existing coordinates
+	// Returns: an array of candidate coordinates set, with the number of votes 
+	// each candidate coordinates set received.
+	private static function aggregateCoordinates($allCoordinates) {
+		$threshold = 10;	// TODO: adjust this parameter
+		$coordGroups = [];
+		$coordGroupsVotes = [];
+		foreach ($allCoordinates as $coords) {
+			$min_dist = -1;	// Negative distance indicates no known distance yet
+			$min_dist_idx = -1;
+				
+			for ($idx=0; $idx<count($coordGroups); $idx++) {
+				$dist = static::getEuclideanDistance($coords, $coordGroups[$idx]);
+				if($dist<$min_dist || $min_dist<0) {
+					$min_dist = $dist;
+					$min_dist_idx = $idx;
+				}
+			}
+			if($min_dist<$threshold && $min_dist>0) {	// Existing group close by found -> add one vote
+				$coordGroupsVotes[$min_dist_idx]++;
+			} else {	// No existing group was close enough -> add as new group
+				$coordGroups[] = $coords;
+				$coordGroupsVotes[] = 1;
+			}
+		}
+		
+		// Pack as array
+		$annotationSummary = array_map(function($coords,$votes) { return [
+				'coords' => $coords, 'votes' => $votes
+		]; }, $coordGroups, $coordGroupsVotes);
+		return $annotationSummary;
+	}
+	
+	private static function getEuclideanDistance($c0, $c1) {
+		$x0 = $c0[0];
+		$x1 = $c1[1];
+		$y0 = $c0[0];
+		$y1 = $c1[1];
+		$distance = sqrt(($x1 - $x0)^2 + ($y1 - $y0)^2);
+		return $distance;
+	}
 
 public function getVector(){
 	if (($handle = fopen(storage_path() . '/output_AMT_FactSpan_sentences_raw.csv', 'r')) === false) {

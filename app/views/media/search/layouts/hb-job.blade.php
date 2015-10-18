@@ -204,7 +204,7 @@
 							</div>
 			            </td>
 			            
-			        <td data-vbIdentifier="job_id">
+					<td data-vbIdentifier="job_id">
 						<a class='testModal' data-modal-query="job=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/job?') }}" data-target="#modalIndividualJob" data-toggle="tooltip" data-placement="top" title="Click to see the individual job page">
 							@{{this._id}}
 						</a>

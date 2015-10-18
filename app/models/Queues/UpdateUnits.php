@@ -1,4 +1,5 @@
 <?php
+
 namespace Queues;
 
 use \Entity as Entity;
