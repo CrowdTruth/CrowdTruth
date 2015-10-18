@@ -1,7 +1,5 @@
 <?php
 
-namespace MongoDB;
-
 use Moloquent, Schema, Auth, Exception, Input;
 use \Counter as Counter;
 
@@ -83,15 +81,15 @@ class Template extends Moloquent {
 		} );
 	}
 
-	public function wasAssociatedWithUserAgent() {
-		return $this->hasOne ( '\MongoDB\UserAgent', '_id', 'user_id' );
-	}
-	
-	public function wasAssociatedWithCrowdAgent() {
-		return $this->hasOne ( '\MongoDB\CrowdAgent', '_id', 'crowdAgent_id' );
-	}
-	
-	public function wasAssociatedWithSoftwareAgent() {
-		return $this->hasOne ( '\MongoDB\SoftwareAgent', '_id', 'softwareAgent_id' );
-	}
+    public function wasAssociatedWithUserAgent(){
+        return $this->hasOne('UserAgent', '_id', 'user_id');
+    }
+
+    public function wasAssociatedWithCrowdAgent(){
+        return $this->hasOne('CrowdAgent', '_id', 'crowdAgent_id');
+    }    
+
+    public function wasAssociatedWithSoftwareAgent(){
+        return $this->hasOne('SoftwareAgent', '_id', 'softwareAgent_id');
+    }
 }

@@ -1,13 +1,10 @@
 <?php
 
 use \Auth as Auth;
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\UserAgent as UserAgent;
-use \MongoDB\Security\ProjectHandler as ProjectHandler;
-use \MongoDB\Security\PermissionHandler as PermissionHandler;
-use \MongoDB\Security\Permissions as Permissions;
-use \MongoDB\Security\Roles as Roles;
+use \Security\ProjectHandler as ProjectHandler;
+use \Security\PermissionHandler as PermissionHandler;
+use \Security\Permissions as Permissions;
+use \Security\Roles as Roles;
 
 /**
  * Controll actions related to Group management.

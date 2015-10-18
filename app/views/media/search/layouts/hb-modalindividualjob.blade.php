@@ -10,7 +10,7 @@
 				      </div>
 				      <div class="modal-body" >
 					<div><strong>Platform Name: </strong> @{{ this.infoStat.softwareAgent_id }} </div>
-					<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{#ifarray this.infoStat.platformJobId }} @{{/ifarray}} </div>
+					<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{ this.infoStat._id }}</div>
 					<div><strong>Creation Date: </strong> @{{ this.infoStat.startedAt }} </div>
 					<div><strong>Finish Date: </strong> @{{ this.infoStat.finishedAt }} </div>
 					<div><strong>Type: </strong> @{{ this.infoStat.type }} </div>
@@ -38,7 +38,7 @@
 					    <div id="collapseOne" class="panel-collapse collapse in">
 					      <div class="panel-body">
 						<div><strong>Platform Name: </strong> @{{ this.infoStat.softwareAgent_id }} </div>
-						<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{#ifarray this.infoStat.platformJobId }} @{{/ifarray}} </div>
+						<div><strong data-toggle="tooltip" data-placement="top" title="CrowdTruth Id: @{{ this.infoStat._id }}"> Job ID: </strong> @{{ this.infoStat._id }} </div>
 						<div><strong>Running Time: </strong> @{{#formatTime this.infoStat.runningTimeInSeconds }}@{{/formatTime}} </div>
 						<div><strong>Creation Date: </strong> @{{ this.infoStat.startedAt }} </div>
 						<div><strong>Finish Date: </strong> @{{ this.infoStat.finishedAt }} </div>
@@ -75,8 +75,8 @@
 						@{{/if}}
 						@{{#if this.infoStat.metrics.filteredWorkerunits.count }}
 						<div><strong> @{{ this.infoStat.metrics.filteredWorkerunits.count }} Filtered Annotation(s) </strong> </div>
+						<div><strong> @{{ toFixed this.infoStat.spam 1 }}% Spam </strong> </div>
 						@{{else}}
-						<div><strong> 0 Filtered Annotation(s) </strong> </div>
 						@{{/if}}
 						<hr/>
 						<table style="width: 100%; text-align: center; align: center;" border="1" bordercolor="#C0C0C0" text-align="center">
@@ -84,34 +84,38 @@
 						  <td colspan="12" align="center"> <strong> Aggregated Units </strong> </td>
 						 </tr>
 						 <tr>
-						  <td text-align="center" colspan="6"> <strong> Mean </strong> </td>
-						  <td text-align="center" colspan="6"> <strong> Stddev </strong> </td>
+						  <td text-align="center" colspan="2"> <strong> Workers </strong> </td>
+						  <td text-align="center" colspan="2"> <strong> Clarity </strong> </td>
+						  <td text-align="center" colspan="2"> <strong> Norm Magnitude </strong> </td>
+						  <td text-align="center" colspan="2"> <strong> Magnitude </strong> </td>
+						  <td text-align="center" colspan="2"> <strong> Norm Rel Magnitude All </strong> </td>
+						  <td text-align="center" colspan="2"> <strong> Norm Rel Magnitude </strong> </td>
 						 </tr>
-						  <td> # Workers </td>	
-						  <td> Max Rel Cos </td>	
-						  <td> Norm Magnitude </td>
-						  <td> Magnitude </td>
-						  <td> Norm Rel Magnitude All </td>
-						  <td> Norm Rel Magnitude </td>
-						  <td> # Workers </td>	
-						  <td> Max Rel Cos </td>	
-						  <td> Norm Magnitude </td>
-						  <td> Magnitude </td>
-						  <td> Norm Rel Magnitude All </td>
-						  <td> Norm Rel Magnitude </td>
+						  <td text-align="center">Avg</td>
+						  <td text-align="center">Stdev</td>
+						  <td text-align="center">Avg</td>
+						  <td text-align="center">Stdev</td>
+						  <td text-align="center">Avg</td>
+						  <td text-align="center">Stdev</td>
+						  <td text-align="center">Avg</td>
+						  <td text-align="center">Stdev</td>
+						  <td text-align="center">Avg</td>
+						  <td text-align="center">Stdev</td>
+						  <td text-align="center">Avg</td>
+						  <td text-align="center">Stdev</td>
 						 </tr>
 						 <tr>
 						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.no_annotators 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.max_relation_Cos 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_magnitude 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.magnitude 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_relation_magnitude_all 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_relation_magnitude 2}} </td>
 						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.no_annotators 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.max_relation_Cos 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_magnitude 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.magnitude 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_relation_magnitude_all 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.max_relation_Cos 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.max_relation_Cos 2}} </td>						  
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_magnitude 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_magnitude 2}} </td>						  
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.magnitude 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.magnitude 2}} </td>						  
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_relation_magnitude_all 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_relation_magnitude_all 2}} </td>						  
+						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.mean.norm_relation_magnitude 2}} </td>
 						  <td> @{{ toFixed this.infoStat.metrics.aggUnits.stddev.norm_relation_magnitude 2}} </td>
 						 </tr>
 						</table>
@@ -122,26 +126,28 @@
 						  <td colspan="8"> <strong> Aggregated Workers </strong> </td>
 						 </tr>
 						 <tr>
-						  <td colspan="4"> <strong> Mean </strong> </td>
-						  <td colspan="4"> <strong> Stddev </strong> </td>
+						  <td text-align="center" colspan="2"> <strong> Units </strong> </td>
+						  <td text-align="center" colspan="2"> <strong> Ann. per Unit </strong> </td>
+						  <td text-align="center" colspan="2"> <strong> Worker Agreement </strong> </td>
+						  <td text-align="center" colspan="2"> <strong> Worker Cosine </strong> </td>
 						 </tr>
-						  <td> # Ann / Unit </td>	
-						  <td> # of Units </td>	
-						  <td> Avg. worker agreement </td>
-						  <td> Worker Cosine </td>
-						  <td> # Ann / Unit </td>	
-						  <td> # of Units </td>	
-						  <td> Avg. worker agreement </td>
-						  <td> Worker Cosine </td>
+						  <td text-align="center">Avg</td>	
+						  <td text-align="center">Stdev</td>	
+						  <td text-align="center">Avg</td>	
+						  <td text-align="center">Stdev</td>	
+						  <td text-align="center">Avg</td>	
+						  <td text-align="center">Stdev</td>	
+						  <td text-align="center">Avg</td>	
+						  <td text-align="center">Stdev</td>	
 						 </tr>
 						 <tr>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.ann_per_unit 2}} </td>
 						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.no_of_units 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.avg_worker_agreement 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.worker_cosine 2}} </td>
-						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.ann_per_unit 2}} </td>
 						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.no_of_units 2}} </td>
+						 <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.ann_per_unit 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.ann_per_unit 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.avg_worker_agreement 2}} </td>
 						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.avg_worker_agreement 2}} </td>
+						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.mean.worker_cosine 2}} </td>
 						  <td> @{{ toFixed this.infoStat.metrics.aggWorkers.stddev.worker_cosine 2}} </td>						 </tr>
 						</table>
 						</div>
@@ -162,17 +168,27 @@
 						 <thead>
 						  <tr>
 						     <th class="header" rowspan="2">Unit Format</th>
-    						     <th class="header" rowspan="2">Filtered</th>
-						     <th class="header" colspan="6">Unit Metrics</th>
-						     <th class="header" rowspan="2">Annotation Vector</th>
+    						 <th class="header" rowspan="2">Filtered</th>
+    						 <th class="header" rowspan="2">Workers</th>
+						     <th class="header" rowspan="2">Clarity</th>
+							 @{{#each @root.infoStat.results.withoutSpam }}
+								@{{#if @first}}
+									@{{#each this}}
+										<th class="header" colspan="3">@{{ @key }}</th>
+									@{{/each}}
+								@{{/if}}
+							@{{/each}}
 						  </tr>
 						  <tr>
-						    <th> # Workers </th>	
-						    <th> Max Rel Cos </th>	
+						    <!--<th> Vector Length </th>
+							<th> Max Rel Cos </th>	
 						    <th> Norm Magnitude </th>
-						    <th> Magnitude </th>
-						    <th> Norm Rel Magnitude All </th>
-						    <th> Norm Rel Magnitude </th>
+						    <th> Magnitude </th>-->
+							@{{#each this }}
+								<th>Clarity</th>
+								<th>Vector length</th>
+								<th>Vector</th>
+							@{{/each}}
 						  </tr>
 						 </thead>
 						 <tbody>
@@ -180,38 +196,30 @@
 						  @{{type @key}}
 						  <tr>
 						    <td> @{{ @key }} </td>
-						    @{{#inArray @root.infoStat.metrics.filteredUnits.list @key }}
+						    @{{#inArray @root.infoStat.metrics.filteredunits.list @key }}
 						    <td> True </td>
 						    @{{else}}
 						    <td> False </td>
 						    @{{/inArray}}
-						    <td> @{{ toFixed avg.no_annotators 2}} </td>
+							<td> @{{ toFixed avg.no_annotators 0}} </td>
+							
 						    <td> @{{ toFixed avg.max_relation_Cos 2}} </td>
-						    <td> @{{ toFixed avg.norm_magnitude 2}} </td>
-						    <td> @{{ toFixed avg.magnitude 2}} </td>
-						    <td> @{{ toFixed avg.norm_relation_magnitude_all 2}} </td>
-						    <td> @{{ toFixed avg.norm_relation_magnitude 2}} </td>
-						    <td>
-						    @{{#each @root.infoStat.results.withoutSpam}}
-						    @{{#ifvalue ../key value=@key}}
-						     @{{#each this}} 
-						      <table border="1" bordercolor="#C0C0C0">
-						       <tr> 
-						       @{{#eachProperty this}}
-  							<td> @{{#abrWords key}} @{{/abrWords}} </td>
-						       @{{/eachProperty }}
-							    </tr>
-							    <tr> 
-							     @{{#eachProperty this}}
-  								<td>@{{value}} </td>
-							     @{{/eachProperty }}
-							    </tr>
-							   </table>
-							  @{{/each}}
-						       @{{/ifvalue}}
-    							 @{{/each}}
-						    </td>
-						  </tr>
+						    <!--<td> @{{ toFixed avg.norm_magnitude 2}} </td>
+						    <td> @{{ toFixed avg.magnitude 2}} </td>-->
+
+							@{{#each this }}
+								@{{#isnt @key 'avg'}}
+									@{{#isnt @key 'key'}}
+										 <td> @{{ toFixed this.max_relation_Cos 2}}</td>
+										 <td> @{{ toFixed this.vector_size 2 }} </td>
+										<td>
+										   @{{#heatMap @root.infoStat.results.withoutSpam ../../../key @key}}
+										   @{{/heatMap}}
+										</td>
+									@{{/isnt}}
+								@{{/isnt}}
+							 @{{/each}}
+							</tr>
 						  @{{/each}}
 						 </tbody>
 						</table>
@@ -236,7 +244,7 @@
 						    <th class="header" rowspan="2">Platform</th>
 						    <th class="header" rowspan="2">Platform Quality</th>
 						    <th class="header" colspan="2">Worker Metrics Across all Jobs</th>
-						    <th class="header" colspan="4">Worker Metrics Across Job</th>
+						    <th class="header" colspan="6">Worker Metrics Across Job</th>
 						</tr> 
 						<tr>
 						    <th> Avg. Worker Agreement </th>
@@ -245,10 +253,12 @@
 						    <th> Worker Cosine </th>	
 						    <th> # Ann / Unit </th>
 						    <th> # Ann Units </th>
+						    <th> Contradictions </th>
+						    <th> Spammer </th>
 						  </tr>
 						</thead>
 						<tbody>
-						 @{{#each this.infoStat.metrics.workers.withFilter}} 
+						 @{{#each this.infoStat.metrics.workers.withoutFilter}} 
 						 @{{type @key}}
 						 <tr>
 						  <td> @{{ @key }} </td>
@@ -263,7 +273,9 @@
 						   <td> @{{ toFixed avg_worker_agreement 2 }} </td>
 						   <td> @{{ toFixed worker_cosine 2 }} </td>
 						   <td> @{{ toFixed ann_per_unit 2 }} </td>
-						   <td> @{{ toFixed no_of_units 2 }} </td>
+						   <td> @{{ toFixed no_of_units }} </td>
+						   <td> @{{ contradiction }} </td>
+						   <td> @{{ spam }} </td>
 						  </tr>
 						  @{{/each}}  	
 						 </tbody>

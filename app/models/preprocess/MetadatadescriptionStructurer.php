@@ -3,10 +3,6 @@
 namespace Preprocess;
 require_once 'sparqllib.php';
 
-
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
 use URL, Session, Exception;
 
 
@@ -2389,9 +2385,9 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 	}
 
 	public function createNamedEntitiesExtractionTHDApiSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('thdextractor'))
+		if(!SoftwareAgent::find('thdextractor'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "thdextractor";
 			$softwareAgent->label = "This component uses THD API in order to extract entities from video metadata description";
 			$softwareAgent->save();
@@ -2399,9 +2395,9 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 	}
 
 	public function createAutomatedEventExtractionSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('automatedEventExtraction'))
+		if(!SoftwareAgent::find('automatedEventExtraction'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "automatedEventExtraction";
 			$softwareAgent->label = "This component extracts events from video metadata description";
 			$softwareAgent->save();
@@ -2410,9 +2406,9 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 
 
 	public function createNamedEntitiesExtractionTextRazorApiSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('textrazorextractor'))
+		if(!SoftwareAgent::find('textrazorextractor'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "textrazorextractor";
 			$softwareAgent->label = "This component uses TextRazor API in order to extract named entities from video metadata description";
 			$softwareAgent->save();
@@ -2420,9 +2416,9 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 	}
 
 	public function createNamedEntitiesExtractionSemiTagsApiSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('semitagsextractor'))
+		if(!SoftwareAgent::find('semitagsextractor'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "semitagsextractor";
 			$softwareAgent->label = "This component uses SemiTags API in order to extract named entities from video metadata description";
 			$softwareAgent->save();
@@ -2430,9 +2426,9 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 	}
 
 	public function createNamedEntitiesExtractionNERDApiSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('nerdextractor'))
+		if(!SoftwareAgent::find('nerdextractor'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "nerdextractor";
 			$softwareAgent->label = "This component uses the combined NERD API in order to extract named entities from video metadata description";
 			$softwareAgent->save();
@@ -2440,9 +2436,9 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 	}
 
 	public function createNamedEntitiesExtractionLupediaApiSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('lupediaextractor'))
+		if(!SoftwareAgent::find('lupediaextractor'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "lupediaextractor";
 			$softwareAgent->label = "This component uses the Lupedia API in order to extract named entities from video metadata description";
 			$softwareAgent->save();
@@ -2450,9 +2446,9 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 	}
 	
 	public function createNamedEntitiesExtractionDBpediaSpotlightApiSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('dbpediaspotlightextractor'))
+		if(!SoftwareAgent::find('dbpediaspotlightextractor'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "dbpediaspotlightextractor";
 			$softwareAgent->label = "This component uses the DBpediaSpotlight API in order to extract named entities from video metadata description";
 			$softwareAgent->save();

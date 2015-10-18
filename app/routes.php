@@ -1,5 +1,5 @@
 <?php
-use \MongoDB\Security\Permissions as Permissions;
+use \Security\Permissions as Permissions;
 
 Route::group(array('before' => 'auth'), function()
 {
@@ -26,8 +26,8 @@ Route::get('/', function()
 Route::get('/urlsurls', function()
 {
 	echo '-------- paintings -------' . PHP_EOL;
-	$results = \MongoDB\Entity::whereIn('documentType', ['painting'])->get(['content.url']);
-	$results2 = \MongoDB\Entity::whereIn('documentType', ['drawing'])->get(['content.url']);
+	$results = Entity::whereIn('documentType', ['painting'])->get(['content.url']);
+	$results2 = Entity::whereIn('documentType', ['drawing'])->get(['content.url']);
 
 	foreach($results as $result)
 	{	
@@ -43,7 +43,7 @@ Route::get('/urlsurls', function()
 		echo $result['_id'] . PHP_EOL;
 	}
 	echo PHP_EOL . PHP_EOL . "[";
-	$results = \MongoDB\Entity::whereIn('documentType', ['painting','drawing'])->get();
+	$results = Entity::whereIn('documentType', ['painting','drawing'])->get();
 	foreach($results as $result)
 	{	
 		echo $result . ",". PHP_EOL;
@@ -63,6 +63,7 @@ Route::controller('api/media', '\Api\media\apiController');
 Route::controller('api/search', '\Api\search\apiController');
 Route::controller('api/actions', '\Api\actions\apiController');
 Route::controller('api/analytics', '\Api\analytics\apiController');
+Route::controller('api/import', '\Api\import\apiController');
 
 Route::get('login', 'UserController@login');
 Route::get('register', 'UserController@register');
@@ -74,7 +75,7 @@ Route::get('user/{user}', 'UserController@getProfile');
 Route::get('user/{user}/activity', 'UserController@getActivity');
 Route::get('user/{user}/settings', 'UserController@getSettings');
 Route::post('user/{user}/settings', 'UserController@postSettings');
-Route::model('user', '\MongoDB\UserAgent');
+Route::model('user', 'UserAgent');
 
 Route::get('projects/', 'ProjectController@getGroupList');
 Route::get('project/{projectname}', 'ProjectController@getProfile');

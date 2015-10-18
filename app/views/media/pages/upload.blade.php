@@ -1,5 +1,11 @@
 @extends('layouts.default_new')
 
+@section('head')
+{{ stylesheet_link_tag('bootstrap-select.css') }}
+{{ stylesheet_link_tag('bootstrap-dropdown-checkbox.css') }}
+{{ javascript_include_tag('jquery-1.10.2.min.js') }}
+@stop
+
 @section('content')
 @section('pageHeader', 'Upload Media')
 
@@ -39,103 +45,43 @@
 						</div>
 					@endif
 
+						{{ Form::open(array('action' => 'MediaController@postUpload', 'files' => 'true')) }}
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h4><i class="fa fa-upload fa-fw"></i>File input</h4>
+								<h4><i class="fa fa-file-text-o fa-fw"></i> Input file</h4>
 							</div>
 							<div class="panel-body">							
-
-								{{ Form::open(array('action' => 'MediaController@postUpload', 'files' => 'true')) }}
 								<div class="form-horizontal">
-									<div class="form-group">
-										<label for="file_format" class="col-sm-3 control-label">Type of File</label>
-										<div class="col-sm-5">
-											<select name="file_format" class="form-control" id="file_format">
-												<option value="">--</option>
-												<option value="file_format_text">Text</option>
-												<option value="file_format_image">Image</option>
-												<option value="file_format_video">Video</option>
-											</select>
-										</div>
-									</div>
-
-									<div class="form-group">
-										<label for="domain_type" class="col-sm-3 control-label">Domain</label>
-										<div class="col-sm-5">
-											<select name="domain_type" class="form-control" id="domain_type">
-												<option value="">--</option>
-											@foreach($domains as $domain)
-												<option value="{{ $domain }}" class="{{ $fileTypes[$domain] }}">{{ $names[$domain] }}</option>
-											@endforeach
-												<option value="domain_type_other" class="file_format_text file_format_image file_format_video">Other</option>
-											</select>
-										</div>
-									</div>
-									
-									<div class="form-group hidden" id="domain_other_div">
-										<label for="domain_create" class="col-sm-3 control-label">Other domain</label>
-										<div class="col-sm-5">
-											<input type="text" name="domain_create" id="domain_create" class="form-control"/>
-										</div>
-									</div>
-
-									<div class="form-group">
-										<label for="document_type" class="col-sm-3 control-label">Type of Document</label>
-										<div class="col-sm-5">
-											<select name="document_type" class="form-control" id="document_type">
-												<option value="">--</option>
-										@foreach($domains as $domain)
-											@foreach($doctypes[$domain] as $docType)
-												<option value="document_type_{{ $docType }}" class="{{ $domain }}">{{ $docType }}</option>
-											@endforeach
-										@endforeach
-
-												{{-- Display OTHER for all domain_type's --}}
-												<option value="document_type_other" class="{{  implode(' ', array_keys($doctypes)) }} domain_type_other">Other</option>
-											</select>
-										</div>
-									</div>
-
-									<div class="form-group hidden" id="document_other_div">
-										<label for="domain_create" class="col-sm-3 control-label">Other type of document</label>
-										<div class="col-sm-5">
-											<input type="text" name="document_create" id="document_create" class="form-control"/>
-										</div>
-									</div>
 
 									<div class="form-group">
 										<label for="category" class="col-sm-3 control-label">Choose File(s)</label>
 										<div class="col-sm-6">
 											<input type="file" name="files[]" class="btn uploadInput" multiple />
-											<!-- <p class='uploadHelpText'>Allowed filetypes are: txt</p> -->
 										</div>
 									</div>
 
+									@if(count($projects)==1)
+										{{ Form::hidden('projectname', $projects[0]) }}
+									@else						
 									<div class="form-group">
-										<label for="category" class="col-sm-3 control-label">Upload to project:</label>
+										<label for="category" class="col-sm-3 control-label">Project:</label>
 										<div class="col-sm-5">
-										@if(count($projects)==1)
-											{{ $projects[0] }}
-											{{ Form::hidden('projectname', $projects[0]) }}
-										@else
-											<select name="projectname" class="form-control">
+											<select name="projectname" class="selectpicker" id="project" title="Project">
+												<option data-hidden="true"></option>
 											@foreach($projects as $project)
 												<option value="{{ $project }}">{{ $project }}</option>
 											@endforeach
 											</select>
-										@endif
 										</div>
 									</div>
-
-									<div class="form-group">
-										<div class="col-sm-offset-3 col-sm-5">
-										{{ Form::button('Submit', array('type' => 'submit', 'value' => 'upload', 'class' => 'btn btn-info')) }} 
-										</div>
-									</div>
-								</div>
-								{{ Form::close() }}				
+									@endif
+								</div>						
 							</div>
+							<div class='panel-footer'>
+								{{ Form::button('Upload Media', array('type' => 'submit', 'value' => 'upload', 'class' => 'btn btn-primary')) }} 										
+							</div>	
 						</div>
+						{{ Form::close() }}		
 
 						<div class="panel panel-default">
 							<div class="panel-heading">
@@ -178,12 +124,17 @@
 
 @section('end_javascript')
 	{{ javascript_include_tag('jquery.chained.min.js') }}
+	{{ javascript_include_tag('bootstrap-select.js') }}
 
 	<script type="text/javascript">
 		$(document).ready(function () {
-			$("#domain_type").chainedTo("#file_format");
-			$("#document_type").chainedTo("#domain_type");
+		
+			$('.selectpicker').selectpicker({
+				iconBase: 'fa',
+				tickIcon: 'fa-check'
+			});
 
+		
 			$('button[value=onlinedata]').on('click', function() {
 				if($('select#source_name').val() == "source_beeldengeluid")
 				{
@@ -248,9 +199,9 @@
 			$("#document_type").on('change', function() {
 				var type = $(this).val();
 				if(type=="document_type_other") {
-					$("#document_other_div").removeClass("hidden");
+					$("#document_other_div").show();
 				} else {
-					$("#document_other_div").addClass("hidden");
+					$("#document_other_div").hide();
 				}
 			});
 		});

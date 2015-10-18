@@ -1,5 +1,5 @@
 <?php
-namespace MongoDB\Security;
+namespace Security;
 
 use \Sentry as Sentry;
 

@@ -8,11 +8,10 @@ use \URL as URL;
 use \Response as Response;
 use \Exception as Exception;
 
-use \MongoDB\Repository as Repository;
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
-use \MongoDB\CrowdAgent as CrowdAgent;
+use \Repository as Repository;
+use \Activity as Activity;
+use \SoftwareAgent as SoftwareAgent;
+use \CrowdAgent as CrowdAgent;
 
 class apiController extends BaseController {
 
@@ -214,9 +213,9 @@ class apiController extends BaseController {
 	public function createPostSoftwareAgent($data){
 		if(isset($data['softwareAgent_id']))
 		{
-			if(!\MongoDB\SoftwareAgent::find($data['softwareAgent_id']))
+			if(!SoftwareAgent::find($data['softwareAgent_id']))
 			{
-				$softwareAgent = new \MongoDB\SoftwareAgent;
+				$softwareAgent = new SoftwareAgent;
 				$softwareAgent->_id = strtolower($data['softwareAgent_id']);
 
 				if(isset($data['softwareAgent_label']))

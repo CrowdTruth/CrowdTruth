@@ -25,18 +25,16 @@
 		<div class='tab'>
 			<div class='search row'>
 				<div class='col-xs-12'>
-				@if(isset($mainSearchFilters['media']['categories']))
 					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" multiple data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-						<option value="all" class="select_all" data-subtext="{{ $mainSearchFilters['media']['all']['count'] }} Items">{{ $mainSearchFilters['media']['all']['label'] }}</option>
-						@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
+						<option value="all" class="select_all" data-subtext="0 Items">All</option>
+						@foreach($types as $project => $doctypes)
 							<optgroup label="{{ $project }}">
-								@foreach($documentTypes as $key => $doctype)
-									<option value="{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>
+								@foreach($doctypes as $key => $doctype)
+									<option value="{{ $doctype }}" class="select_{{ $doctype }}" data-subtext="0 Items">{{ $doctype }}</option>
 								@endforeach
 							</optgroup>
 						@endforeach
 					</select>
-				@endif
 				
 					<div class='btn-group pull-left' style="margin-left:5px";>
 						{{ Form::open([ 'action' => 'MediaController@postKeys', 'name' => 'theForm', 'id' => 'theForm' ]) }}
@@ -134,6 +132,7 @@
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
+							<li><a href="{{ URL::to('media/importresults') }}">Import Results</a></li>
 							<li><a href="#" class='toSelection'>Save Selection as Batch</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
 						<li role="presentation" class="divider"></li>
@@ -658,7 +657,7 @@ function getTabFieldsQuery(){
 	
 	var operator = '=';
 	if(documentType[0] == 'all') {
-		tabFieldsQuery += "&match[tags]=unit";
+		tabFieldsQuery += "&match[type]=unit";
 	} else {
 		// needs to use all doctypes
 		tabFieldsQuery += "&" + "match[documentType]" + operator + documentType[0];
@@ -890,8 +889,14 @@ var dynamicTemplate = function() {
 					case 'image':
 						template += '<td data-vbIdentifier="id"><img style="max-width:100px; max-height:100px;border:0px;" src="@{{ this.' + columns[i] + ' }}" /></td>';
 					break;
+					case 'sound':
+						template += '<td data-vbIdentifier="id"><audio class="audio" src="@{{ this.' + columns[i] + ' }}" preload="none" controls="controls">Please update your browser to the latest version in order to complete this task.</audio></td>';
+					break;
 					case 'video':
-						template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video>';
+						template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video></td>';
+					break;
+					case 'number':
+						template += '<td data-vbIdentifier="id">@{{ toFixed this.' + columns[i] + ' 2 }}</td>';
 					break;
 					default:
 						template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';

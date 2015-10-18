@@ -1,15 +1,18 @@
-.status-running {
+.currentstatus {
 	text-transform: capitalize;
+}
+.status-running {
 	color: #8ec549;
 }
 .status-unordered {
-	text-transform: capitalize;
 	color: #808080;
 }
 .status-paused {
-	text-transform: capitalize;
 	color: #9e9e00;
 }
 .status-finished  {
-	text-transform: capitalize;
+}
+
+.status-imported  {
+	color: #9e0000;
 }

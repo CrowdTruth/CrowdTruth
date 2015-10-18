@@ -1,10 +1,6 @@
 <?php
 
-namespace MongoDB;
-
 use Jenssegers\Mongodb\Sentry\User as SentryUser;
-use Schema;
-
 use Illuminate\Auth\UserInterface;
 
 /**
@@ -74,14 +70,14 @@ class UserAgent extends SentryUser implements UserInterface {
 	 * Establish how user ownership over activities is established.
 	 */
 	public function associatedActivities(){
-		return $this->hasMany('\MongoDB\Activity', 'user_id', '_id');
+		return $this->hasMany('Activity', 'user_id', '_id');
 	}
 
 	/**
 	 * Establish how user ownership over entities is established.
 	 */
 	public function associatedEntities(){
-		return $this->hasMany('\MongoDB\Entity', 'user_id', '_id');
+		return $this->hasMany('Entity', 'user_id', '_id');
 	}
 
 	public function getRememberToken()

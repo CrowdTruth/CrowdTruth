@@ -6,7 +6,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
         queryField = 'job_id'
         var categoryPrefix = 'in'
     }
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
+    var urlBase = "/api/analytics/piegraph/?match[type][]=workerunit&";
 
     var querySettings = { metricFields:['avg_cosine','avg_agreement'],
         metricName:['avg worker cosine across jobs','avg worker agreement across jobs'], metricSuffix: "",
@@ -616,7 +616,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
             for (var indexUnits in currentSelection) {
                 urlWorkerInfo += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
             }
-            urlWorkerInfo += 'match[documentType][]=workerunit&project[crowdAgent_id]=crowdAgent_id&push[crowdAgent_id]=crowdAgent_id' +
+            urlWorkerInfo += 'match[type][]=workerunit&project[crowdAgent_id]=crowdAgent_id&push[crowdAgent_id]=crowdAgent_id' +
                 '&metrics[]=avg_agreement&metrics[]=avg_cosine'+
                 '&metrics[]=flagged&metrics[]=cfWorkerTrust&metrics[]=softwareAgent_id';
             $.getJSON(urlWorkerInfo, function (data) {
@@ -627,7 +627,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
 
                 if (queryField == 'job_id') {
                     //get the metrics for jobs
-                    var urlJobsInfo =  '/api/v1/?field[documentType]=job&only[]=metrics.workers.withFilter&only[]=metrics.workers.withoutFilter&';
+                    var urlJobsInfo =  '/api/v1/?field[type]=job&only[]=metrics.workers.withFilter&only[]=metrics.workers.withoutFilter&';
                     for (var indexUnits in currentSelection) {
                         urlJobsInfo += 'field[_id][]=' + currentSelection[indexUnits] + '&';
                     }
@@ -776,7 +776,7 @@ function unitsWorkerDetails(category, categoryName, openModal, updateSelection) 
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
+        urlBase = "/api/analytics/piegraph/?match[type][]=workerunit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match[' + queryField + '][]=' + selectedUnits[indexUnits] + '&';

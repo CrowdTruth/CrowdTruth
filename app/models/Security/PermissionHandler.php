@@ -1,5 +1,5 @@
 <?php
-namespace MongoDB\Security;
+namespace Security;
 
 /**
  * Class for handling permissions in the platform.

@@ -1,14 +1,11 @@
 <?php
 
 use \Auth as Auth;
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\UserAgent as UserAgent;
-use \MongoDB\Security\ProjectHandler as ProjectHandler;
-use \MongoDB\Security\PermissionHandler as PermissionHandler;
-use \MongoDB\Security\Permissions as Permissions;
-use \MongoDB\Security\Roles as Roles;
 use \Jenssegers\Mongodb\Sentry\Group as SentryGroup;
+use \Security\ProjectHandler as ProjectHandler;
+use \Security\PermissionHandler as PermissionHandler;
+use \Security\Permissions as Permissions;
+use \Security\Roles as Roles;
 
 /**
  * This controller performs all actions for handling Users.

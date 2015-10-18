@@ -51,6 +51,8 @@ class Unit:
                     metric_value = max(self.cosine_vector.values())
             elif UnitMetricsEnum.no_annotators == metric_key:
                 metric_value = self.get_no_annotators()
+            elif UnitMetricsEnum.vector_size == metric_key:
+                metric_value = len(self.unit_vector)
 
             results[metric_key] = metric_value
             self.unit_metrics[metric_key] = metric_value

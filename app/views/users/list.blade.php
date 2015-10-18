@@ -19,7 +19,7 @@
 							<th>Projects</th>
 						</tr>
 						
-						<?php use \MongoDB\Security\Roles as Roles; ?>
+						<?php use Security\Roles as Roles; ?>
 						
 						@foreach ($userlist as $user)
 						<tr class='text-left' >

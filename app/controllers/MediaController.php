@@ -4,18 +4,16 @@ use Illuminate\Support\Facades\View;
 
 use CoffeeScript\compact;
 
-use \MongoDB\Repository as Repository;
-use \MongoDB\Entity as Entity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
-use \MongoDB\UserAgent as UserAgent;
-use \MongoDB\SoftwareComponent as SoftwareComponent;
 use \SoftwareComponents\FileUploader as FileUploader;
 use \SoftwareComponents\MediaSearchComponent as MediaSearchComponent;
+use \SoftwareComponents\ResultImporter as ResultImporter;
 
-use \MongoDB\Security\ProjectHandler as ProjectHandler;
-use \MongoDB\Security\PermissionHandler as PermissionHandler;
-use \MongoDB\Security\Permissions as Permissions;
-use \MongoDB\Security\Roles as Roles;
+use \Security\ProjectHandler as ProjectHandler;
+use \Security\Permissions as Permissions;
+use \Security\Roles as Roles;
+
+use \Entities\File as File;
+use \Entities\Unit as Unit;
 
 class MediaController extends BaseController {
 
@@ -40,7 +38,7 @@ class MediaController extends BaseController {
 	}
 
 	public function getPreprocess() {
-		return Redirect::to('media/preprocess/text')	;
+		return Redirect::to('media/preprocess/text');
 	}
 
 	/**
@@ -114,6 +112,9 @@ class MediaController extends BaseController {
 		return $label;
 	}
 
+	/**
+	 * page with current index
+	 */
 	public function getListindex()
 	{
 		$searchComponent = new MediaSearchComponent();
@@ -121,6 +122,84 @@ class MediaController extends BaseController {
 		$formats = $searchComponent->getFormats();
 		return View::make('media.search.pages.listindex')->with('keys', $keys)->with('formats',$formats);
 	}
+	
+	/**
+	 * page to add results
+	 */
+	public function getImportresults()
+	{
+		$mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
+		$projects = ProjectHandler::getUserGroups(Auth::user());
+		$projects = array_column($projects, 'name');
+		
+		return View::make('media.search.pages.importresults')->with('mainSearchFilters', $mainSearchFilters)->with('projects', $projects);;
+	}
+	
+	
+	
+	/**
+	 * function to add results
+	 */
+	public function postImportresults()
+	{
+		$files = Input::file('file');
+		
+		$settings = [];
+		$inputClass = explode('-', Input::get('inputClass'));
+		$outputClass = explode('-', Input::get('outputClass'));
+		$settings['filename'] = basename($files->getClientOriginalName(), '.csv');
+		//$inputFormat = 'text';
+		//$inputDomain = 'medical';
+		
+		//$outputFormat = 'text';
+		//$outputDomain = 'medical2';
+		
+		// input project
+		if(Input::get('input-project') != "") {
+			$settings['project'] = Input::get('input-project');
+		} else {
+			$settings['project'] = $inputClass[0];			
+		}
+		
+		// input type
+		if(Input::get('input-type') != "") {
+			$settings['documentType'] = Input::get('input-type');
+		} else {
+			$settings['documentType'] = $inputClass[1];
+		}
+		
+		// output type
+		if(Input::get('output-type') != "") {
+			$settings['resultType'] = Input::get('output-type');
+		} else {
+			$settings['resultType'] = $outputClass[1];
+		}
+		
+		$settings['domain'] = 'opendomain';
+		$settings['format'] = 'text';
+
+		// process file
+		$importer = new ResultImporter();
+		$status = $importer->process($files, $settings);
+		
+		// flash appropriate message
+		if(!$status['error']) {
+			Session::flash('flashSuccess', $status['success']);
+			if($status['notice']) {
+				Session::flash('flashNotice', $status['notice']);
+			}
+		} else {
+			Session::flash('flashError', $status['error']);
+		}
+
+		$mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
+		$projects = ProjectHandler::getUserGroups(Auth::user());
+		$projects = array_column($projects, 'name');
+		
+		return View::make('media.search.pages.importresults')->with('mainSearchFilters', $mainSearchFilters)->with('projects', $projects);;
+	}
+	
+	
 	
 	
 	/**
@@ -136,7 +215,7 @@ class MediaController extends BaseController {
 		$formats = $searchComponent->getFormats();
 		
 		// default columns
-		$default = ['_id','documentType','title','created_at','project','user_id']; // default visible columns
+		$default = ['_id','documentType','title','created_at','project','user_id','avg_clarity']; // default visible columns
 		
 		return [
 			'log' => $documents,
@@ -284,7 +363,9 @@ class MediaController extends BaseController {
 		// amount of units to index per iteration
 		$batchsize = 500;
 		$from = Input::get('next');
-		$unitCount = Entity::whereIn('tags', ['unit'])->count();
+		
+		// this needs to be changed to be relative to a project
+		$unitCount = Unit::count();
 		
 		// reset index on start
 		if($from == 0) {
@@ -297,15 +378,14 @@ class MediaController extends BaseController {
 		}
 		
 		// all units in this range
-		$units = Entity::distinct('_id')->where('tags', ['unit'])->skip($from)->take($batchsize)->get();
+		$units = Unit::select('_id')->skip($from)->take($batchsize)->get()->toArray();
 			 
-		 
 		// get keys for each unit in this batch
 		$allKeys = [];
-		for($i = $from; $i < $from + $batchsize; $i++) {
+		foreach($units as $unitId) {
 			// get data of unit
-			$unit = Entity::where('_id', $units[$i][0])->first();
-			
+			$unit = Unit::where('_id', $unitId['_id'])->first();
+//			return ['log' => $unit, 'next' => 100, 'last' => 1000 ];				
 			// map all properties into keys with formats
 			$keys = $this->getKeys($unit->attributesToArray());
 			
@@ -343,20 +423,42 @@ class MediaController extends BaseController {
 
 	public function postUpload()
 	{
+
 		try {
-			$fileFormat = Input::get('file_format');
-			$domain = Input::get('domain_type');
-			$documentType = Input::get('document_type');
-			$domainCreate = Input::get('domain_create');
-			$documentCreate = Input::get('document_create');
 			$files = Input::file('files');
 			$project = Input::get('projectname');
 			
-			$uploader = new FileUploader();
-			$status_upload = $uploader->store($fileFormat, $domain, $documentType, $project, $domainCreate, 
-					$documentCreate, $files);
-			$uploadView = $this->loadMediaUploadView()->with(compact('status_upload'));
-			return $uploadView;
+			// Create the SoftwareAgent if it doesnt exist
+			SoftwareAgent::store('filecreator', 'File creation');
+			
+			$activity = new Activity;
+			$activity->label = "Files added to the platform";
+			$activity->softwareAgent_id = 'filecreator';
+			$activity->save();
+			$success = [];
+			$entities = [];
+			foreach($files as $file)
+			{
+				try {
+					$entity = new File();
+					$entity->project = $project;
+					$entity->activity_id = $activity->_id;
+					$entity->store($file);
+					
+					$entity->save();
+					array_push($success, 'Added ' . $entity->title);
+					array_push($entities, $entity);
+				
+				} catch (Exception $e){
+					foreach($entities as $en) {
+						$en->forceDelete();
+					}
+					throw $e ;
+				}
+			}
+			Session::flash('flashSuccess', $success);
+			return $this->loadMediaUploadView();
+
 		} catch (Exception $e){
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}
@@ -396,7 +498,6 @@ class MediaController extends BaseController {
 	 */
 	private function loadMediaUploadView() {
 		// Load properties from file uploader software component.
-		// TODO: replace for $data = new FileUploader ?
 		$data = SoftwareComponent::find("fileuploader");
 		$dbDomains = $data->domains;
 		
@@ -453,19 +554,28 @@ class MediaController extends BaseController {
 
 	public function getSearch()
 	{
-		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
 		
-		// get projects of a user
-		$user = Auth::user();
-		foreach($mainSearchFilters['media']['categories'] as $key => $value) {
-			// $key is the name of a project
-			if(! PermissionHandler::checkProject($user, $key, Permissions::PROJECT_READ)) {
-				unset($mainSearchFilters['media']['categories'][$key]);
-			}
+		/*
+		$mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
+		
+		// include keys
+		$searchComponent = new MediaSearchComponent();
+		*/
+		
+		$projects = Unit::distinct('project')->get()->toArray();
+		$projects = array_flatten($projects);
+		
+		$types = [];
+		
+		foreach($projects as $key => $project) {
+			$types[$project] = Unit::distinct('documentType')->where('project', $project)->get()->toArray()[0];
 		}
 		
-		return View::make('media.search.pages.media')
-			->with('mainSearchFilters', $mainSearchFilters);
+		// need to re-add count of units
+		
+		//dd($types);
+		
+		return View::make('media.search.pages.media')->with('types', $types);
 	}
 
 
@@ -473,9 +583,9 @@ class MediaController extends BaseController {
 	{
 		if(Input::has('batch_description'))
 		{
-			$batchCreator = App::make('BatchCreator');
-			$status = $batchCreator->store(Input::all());
-			Session::flash(($status['status']=='ok' ? 'flashSuccess' : 'flashError'), $status['message']);
+			$batch = new Batch;
+			$status = $batch->store(Input::all());
+
 			return Redirect::to('media/search');
 		}
 

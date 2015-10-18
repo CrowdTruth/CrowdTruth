@@ -36,7 +36,7 @@ App::after(function($request, $response)
 Route::filter('auth', function()
 {
 	if (!Auth::check()){
-		return Redirect::guest('login');
+		return Redirect::guest('/login');
 	} 
 });
 
@@ -81,8 +81,8 @@ Route::filter('csrf', function()
 	}
 });
 
-use \MongoDB\Security\PermissionHandler as PermissionHandler;
-use \MongoDB\Security\Permissions as Permissions;
+use \Security\PermissionHandler as PermissionHandler;
+use \Security\Permissions as Permissions;
 
 /**
  * Require routes to have a particular Permissions for a given projectname.

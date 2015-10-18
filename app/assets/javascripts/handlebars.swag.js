@@ -776,6 +776,9 @@ Swag.addHelper('ifequal', function (val1, val2, fn, elseFn) {
       return Utils.err('{{gt}} takes two arguments (string|number, string|number).');
     }
   });
+  
+  
+
 
   Swag.addHelper('gradualColors', function(currentValue, maxValue, options) {
     // console.log(currentValue);

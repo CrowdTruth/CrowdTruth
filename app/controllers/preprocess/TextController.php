@@ -5,11 +5,12 @@ namespace preprocess;
 use CoffeeScript\compact;
 use BaseController, View, Input, Redirect;
 use League\Csv\Reader as Reader;
+use \Repository as Repository;
+use \Entities\File as File;
+use \Entities\Unit as Unit;
 
-use \MongoDB\Repository as Repository;
-use \MongoDB\Entity as Entity;
-use \MongoDB\Security\PermissionHandler as PermissionHandler;
-use \MongoDB\Security\Permissions as Permissions;
+use \Security\PermissionHandler as PermissionHandler;
+use \Security\Permissions as Permissions;
 
 use \SoftwareComponents\TextSentencePreprocessor as TextSentencePreprocessor;
 
@@ -37,16 +38,16 @@ class TextController extends BaseController {
 	 * Return view for selecting a document for preprocessing.
 	 */
 	public function getIndex() {
-		$entities = Entity::where('activity_id', 'LIKE', '%fileuploader%')->get();
+		$files = File::get();
 		
 		$thisUser = \Auth::user();
-		foreach ($entities as $ent) {
+		foreach ($files as $ent) {
 			$hasPermission = PermissionHandler::checkProject($thisUser, $ent['project'], Permissions::PROJECT_WRITE);
 			$ent['canWrite'] = $hasPermission;
 		}
 		
-		if(count($entities) > 0) {
-			return View::make('media.preprocess.text.pages.actions', compact('entities'));
+		if(count($files) > 0) {
+			return View::make('media.preprocess.text.pages.actions', compact('files'));
 		}
 		return Redirect::to('media/upload')->with('flashNotice', 'You have not uploaded any documents yet');
 	}
@@ -55,9 +56,10 @@ class TextController extends BaseController {
 	 * Return view for configuring preprocessing.
 	 */
 	public function getConfigure() {
-		if($URI = Input::get('URI')) {
-			if($document = $this->repository->find($URI)) {
-				// Load which functions are available for display
+		$URI = Input::get('URI');
+		if($document = File::where('_id', $URI)->first()) {
+			
+			// Load which functions are available for display
 				$functions = $this->getAvailableFunctions();
 
 				$newLine = "\n";
@@ -65,6 +67,8 @@ class TextController extends BaseController {
 				$docPreview = explode($newLine, $docPreview);
 				$docPreview = array_slice($docPreview, 0, $this->nLines);
 				$docPreview = implode($newLine, $docPreview);
+				
+				$docTypes = Unit::select('documentType')->where('project', $document->project)->distinct()->get()->toArray();
 				
 				$config = $this->processor->getConfiguration($document["documentType"]);
 				if($config!=null) {
@@ -84,10 +88,8 @@ class TextController extends BaseController {
 						->with('functions', $functions)
 						->with('configuration', $config)
 						->with('previewTable', $previewTable)
+						->with('docTypes', $docTypes)
 				;
-			} else {
-				return Redirect::back()->with('flashError', 'Document does not exist: ' . $URI);
-			}
 		} else {
 			return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);
 		}
@@ -165,7 +167,10 @@ class TextController extends BaseController {
 			if($postAction=='processPreview') {
 				return $this->doPreview($rootProcessor, $document, $delimiter, $separator, $ignoreHeader);
 			} else {	// $postAction=='process'
-				return $this->doPreprocess($rootProcessor, $document, $delimiter, $separator, $ignoreHeader);
+
+				$type = Input::get('new_doctype');
+				return $this->doPreprocess($rootProcessor, $document, $type, $delimiter, $separator, $ignoreHeader);
+
 			}
 		} else {
 			return [ 'Error' => 'Unknown post action: '.$postAction ];
@@ -228,7 +233,7 @@ class TextController extends BaseController {
 	/**
 	 * Execute postAction='process' command
 	 */
-	private function doPreprocess($rootProcessor, $document, $delimiter, $separator, $ignoreHeader) {
+	private function doPreprocess($rootProcessor, $document, $type, $delimiter, $separator, $ignoreHeader) {
 		$nLines = -1;	// Process all lines
 		$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $ignoreHeader, $nLines);
 		
@@ -237,8 +242,8 @@ class TextController extends BaseController {
 			$lineEntity = $rootProcessor->call($line);
 			array_push($entities, $lineEntity);
 		}
-		return $dataTable;
-		$status = $this->processor->store($document, $entities);
+
+		$status = $this->processor->store($document, $entities, $type);
 		
 		return $this->getConfigure()
 						->with('status', $status);

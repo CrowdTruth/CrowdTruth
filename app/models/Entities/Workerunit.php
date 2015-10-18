@@ -1,11 +1,20 @@
 <?php
-use MongoDB\Entity;
+/*
+ * Main class for creating and managing batches
+ * A workerunit is a type of entity and contains the raw annotations one worker makes for one unit
+*/
+
+namespace Entities;
+
+use \Entity as Entity;
+use \SoftwareAgent as SoftwareAgent;
+use \Activity as Activity;
 
 class Workerunit extends Entity {
 
 	protected $attributes = array(  'format' => 'text', 
                                     'domain' => 'medical', 
-                                    'documentType' => 'workerunit',
+                                    'type' => 'workerunit',
                                     'spam' => false);
 	
     /**
@@ -14,7 +23,7 @@ class Workerunit extends Entity {
     public function newQuery($excludeDeleted = true)
     {
         $query = parent::newQuery($excludeDeleted = true);
-        $query->where('documentType', 'workerunit');
+        $query->where('type', 'workerunit');
         return $query;
     }
 
@@ -25,16 +34,15 @@ class Workerunit extends Entity {
         static::creating(function ( $workerunit )
         {
         //    dd($workerunit);
-            // Inherit type, domain and format
-            if(empty($workerunit->type) or empty($workerunit->domain) or empty($workerunit->format)){
+            // Inherit documentType, domain and format
+            if(empty($workerunit->documentType)){
                 $j = Job::where('_id', $workerunit->job_id)->first();
-                $workerunit->type = $j->type;
-                $workerunit->domain = $j->domain;
-                $workerunit->format = $j->format;
+                $workerunit->documentType = $j->documentType;
             }  
 
+			// transform answer into annotation vector to prepare for the CrowdTruth metrics
             $workerunit->annotationVector = $workerunit->createAnnotationVector();
-
+			
             // Activity if not exists
             if(empty($workerunit->activity_id)){
                 try {
@@ -54,12 +62,13 @@ class Workerunit extends Entity {
 
         });
 
-     }   
-
+     }
+			
+			
      //todo make private. 
      // TODO exceptionhandling, smart checks.
     public function createAnnotationVector(){
-        switch ($this->type) {
+        switch ($this->documentType) {
             case 'FactSpan':
                 return  $this->createAnnotationVectorFactSpan();
                 break;
@@ -75,13 +84,22 @@ class Workerunit extends Entity {
             case 'BiographyNetConcepts':
                 return $this->createAnnotationVectorBiographyNetConcepts();
                 break;
+            case 'passage_alignment':
+                return $this->createAnnotationVectorPassageAlignment();
+                break;
+            case 'passage_justification':
+                return $this->createAnnotationVectorPassageJustification();
+                break;
+            case 'sound':
+                return $this->createAnnotationVectorSound();
+                break;
 		//	case 'DistributionalDisambiguation':
         //        return $this->createAnnotationVectorDistributionalDisambiguation();
         //        break;
             
             default:
                //return  $this->createAnnotationVectorFactSpan(); // For Debugging!
-                Log::debug("TYPE {$this->type} UNKNOWN: {$this->_id}");
+                Log::debug("TYPE {$this->documentType} UNKNOWN: {$this->_id}");
                 //dd("here");
                 return null;
                 //throw new Exception("TYPE {$this->type} UNKNOWN: {$this->_id}");
@@ -138,6 +156,106 @@ class Workerunit extends Entity {
         return array('relations' => $answer, 'other' => $other);
     }
 */
+
+    public function createAnnotationVectorPassageAlignment() {
+        $debug = false;
+		
+		$data = $this->content;
+		$vector = [];
+		$vector['possible'] = ['yes' => 0, 'no' => 1];
+		
+		if(is_array($data['notpossible'])) {
+		dd($data['notpossible']);
+		}
+		
+		if($data['notpossible'] != "" && $data['rel0'] == "") {
+			$vector['possible'] = ['yes' => 0, 'no' => 1];
+		} else {
+			$vector['possible'] = ['yes' => 1, 'no' => 0];
+		
+			for ($j = 0; $j < 30; $j ++) {
+				// for each passage get the tags
+				if($data['rel' . $j] != "") {
+					$term1 = $data['rel' . $j . 'a'];
+					$term2 = $data['rel' . $j . 'b'];
+					$key = $term1 . ',' . $term2;
+					// add keyword to list of keywords for this unit
+					
+					if(!isset($vector[$key])) {
+						$vector[$key] = ['ide' => 0, 'syn' => 0, 'gen' => 0, 'par' => 0, 'neg' => 0, 'int' => 0];
+					}
+					$vector[$key][$data['rel' . $j]] = 1;
+				}
+			}
+		}
+		return $vector;
+	}
+			
+
+    public function createAnnotationVectorPassageJustification() {
+        $debug = false;		
+		
+		$judgment = $this->content;
+		
+		$question = $data[$i][array_search('Answer.Question',$data[0])];
+		$answer = $data[$i][array_search('Answer.Answer',$data[0])];
+		$justification = $data[$i][array_search('Answer.Justifying',$data[0])];
+
+		$join = $question.':'.$answer;
+						
+		// check for conflicting answers
+		if($justification == "" && ($join == 'Subjective:Yes' || $join == 'Subjective:No' || $join == 'Subjective:Other' || $join == 'YesNo:Yes' || $join == 'YesNo:No' || $join == 'YesNo:Other' || $join == 'NotYesNo:Yes' || $join == 'NotYesNo:No' || $join == 'NotYesNo:Other')) {
+			$missingJustification = 1;
+			$settings['contradiction'] = 1;
+			$trust = 0;
+		}
+		if($justification != "" && ($join == 'Subjective:Noanswer' || $join == 'Subjective:Unanswerable' || $join == 'YesNo:Noanswer' || $join == 'YesNo:Unanswerable' || $join == 'NotYesNo:Noanswer' || $join == 'NotYesNo:Unanswerable' || $join == 'Unanswerable:Noanswer' || $join == 'Unanswerable:Unanswerable')) {
+			$conflictingJustification = 1;
+			$settings['contradiction'] = 1;
+			$trust = 0;
+		}
+		if($join == 'Subjective:Unanswerable' || $join == 'YesNo:Other' || $join == 'YesNo:Unanswerable' || $join == 'NotYesNo:Yes' || $join == 'NotYesNo:No' || $join == 'NotYesNo:Unanswerable' || $join == 'Unanswerable:Noanswer' || $join == 'Unanswerable:Yes' || $join == 'Unanswerable:No' || $join == 'Unanswerable:Other') {
+			$conflictingCombination = 1;
+			$settings['contradiction'] = 1;
+			$trust = 0;
+		}
+		
+		// add answer as combination of two questions
+		$vector['question'][$question] = 1;
+		$vector['answer'][$answer] = 1;
+
+		// add justifying passages
+		if($justification != "") {
+			$justify = explode('|', $justification);
+			foreach($justify as $j) {
+				$vector['justification']['p'.$j] = 1;
+			}
+		}
+			
+		return $vector;
+	}
+		
+		
+    public function createAnnotationVectorSound() {
+        $debug = false;
+		
+		$judgment = $this->content;
+		$vector = ['keywords' => []];
+		
+		// for each keyword
+		$keywords = explode(',', $judgment['keywords']);
+		foreach($keywords as $keyword) {
+			$keyword = str_replace('.', ' ', $keyword);
+			$keyword = trim($keyword);
+			if($keyword != "") {
+				$vector['keywords'][$keyword] = 1;
+			}
+		}
+		
+		return $vector;
+	}
+
+
     public function createAnnotationVectorMetaDEvents() {
         $debug = false;
 
@@ -720,11 +838,11 @@ class Workerunit extends Entity {
 	}
 
 	public function job(){
-		return $this->belongsTo('Job', '_id', 'job_id');
+		return $this->belongsTo('\Entities\Job', '_id', 'job_id');
 	}
 
     public function unit(){
-        return $this->hasOne('MongoDB\Entity', '_id', 'unit_id');
+        return $this->hasOne('\Entities\Unit', '_id', 'unit_id');
     }
 
 

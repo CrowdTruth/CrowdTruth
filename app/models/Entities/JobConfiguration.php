@@ -1,11 +1,19 @@
 <?php
+/*
+ * Main class for creating and managing job configurations
+ * A job configuration is a type of entity
+ * Configurations are reusable across jobs
+*/
 
-use \MongoDB\Entity;
-use \MongoDB\Activity;
+namespace Entities;
+
+use \Entity as Entity;
+use \SoftwareAgent as SoftwareAgent;
+use \Activity as Activity;
 
 class JobConfiguration extends Entity {
 	protected $guarded = array();
-	protected $attributes = array('documentType' => 'jobconf');
+	protected $attributes = array('type' => 'jobconf');
 
     /**
     *   Override the standard query to include documenttype.
@@ -13,7 +21,7 @@ class JobConfiguration extends Entity {
     public function newQuery($excludeDeleted = true)
     {
         $query = parent::newQuery($excludeDeleted = true);
-        $query->where('documentType', 'jobconf');
+        $query->where('type', 'jobconf');
         return $query;
     }
 
@@ -58,37 +66,6 @@ class JobConfiguration extends Entity {
         });
 
      } 
-
-/*    protected $justusedasareferencenow = array(
-    								'title', 
-    								'description',
-    								'instructions', // AMT: inject into template
-    								'keywords', 
-    								'workerunitsPerUnit', // AMT: maxAssignments
-    								'unitsPerTask', // AMT: not in API. Would be 'tasks per assignment'
-    								'reward', 
-    								'expirationInMinutes', // AMT: assignmentDurationInSeconds 
-    								'notificationEmail',
-    								'requesterWorkerunit',
-    								'instructions',
-
-    								 //AMT specific 
-    	    						'autoApprovalDelayInMinutes', // AMT API: AutoApprovalDelayInSeconds 
-									'hitLifetimeInMinutes', 
-									'qualificationRequirement',
-									'assignmentReviewPolicy', 
-									'frameheight',
-									'eventType',
-
-    	    						// CF specific 
-    	    						'workerunitsPerWorker',
-    	    						'countries',
-
-    	    						// for our use 
-    	    						'answerfields', // The fields of the CSV file that contain the gold answers. 
-    								'platform',
-    								'questionTemplate_id'
-    								);*/
 
     private $errors;
     private $commonrules = array(

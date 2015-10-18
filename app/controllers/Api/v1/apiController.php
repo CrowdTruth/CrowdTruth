@@ -7,11 +7,11 @@ use \Input as Input;
 use \URL as URL;
 use \Response as Response;
 
-use \MongoDB\Repository as Repository;
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
-use \MongoDB\CrowdAgent as CrowdAgent;
+use \Repository as Repository;
+use \Entity as Entity;
+use \Activity as Activity;
+use \SoftwareAgent as SoftwareAgent;
+use \CrowdAgent as CrowdAgent;
 
 use League\Csv\Reader as Reader;
 use League\Csv\Writer as Writer;
@@ -43,7 +43,7 @@ class apiController extends BaseController {
 	 */
 	public function getIndex()
 	{
-		// return Input::all();
+		//return Input::all();
 
 		$c = Input::get('collection', 'Entity');
 
@@ -78,7 +78,7 @@ class apiController extends BaseController {
 
 			$sortingColumnName = $sortingColumnName == "_id" ? "natural" : $sortingColumnName;
 
-			$iTotalDisplayRecords = new \MongoDB\Entity;
+			$iTotalDisplayRecords = new Entity;
 			$iTotalDisplayRecords = $this->processFields($iTotalDisplayRecords);
 			$iTotalDisplayRecords = $iTotalDisplayRecords->count();
 		
@@ -86,7 +86,7 @@ class apiController extends BaseController {
 
 			if($input = Input::get('field'))
 			{
-				$iTotalRecords = new \MongoDB\Entity;
+				$iTotalRecords = new Entity;
 
 				if(isset($input['format']))
 				{

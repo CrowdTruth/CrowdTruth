@@ -6,12 +6,16 @@ use \Input as Input;
 use \URL as URL;
 use \Response as Response;
 
-use \Auth as Auth;
-use \MongoDB\Repository as Repository;
-use \MongoDB\Entity as Entity;
-use \MongoDB\Security\ProjectHandler as ProjectHandler;
-use \MongoDB\Security\Permissions as Permissions;
+use \Security\ProjectHandler as ProjectHandler;
+use \Security\Permissions as Permissions;
+use \Security\Roles as Roles;
 
+use \Auth as Auth;
+use \Repository as Repository;
+use \Entity as Entity;
+use \Activity as Activity;
+use \SoftwareAgent as SoftwareAgent;
+use \CrowdAgent as CrowdAgent;
 use League\Csv\Writer as Writer;
 
 class apiController extends BaseController {

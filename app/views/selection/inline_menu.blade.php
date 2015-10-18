@@ -6,7 +6,7 @@
 
 								@foreach ($items as $item)
 								<?php 
-									$repository = App::make('\MongoDB\Repository');
+									$repository = App::make('Repository');
 									$entity = $repository->find($item['id']); 
 								?>
 									<tr>

@@ -1,7 +1,8 @@
 <?php
 namespace SoftwareComponents;
-use \MongoDB\Entity as Entity;
-use \MongoDB\SoftwareComponent as SoftwareComponent;
+
+use \SoftwareComponent as SoftwareComponent;
+
 class MediaSearchComponent {
 	protected $softwareComponent;
 

@@ -5,7 +5,7 @@ function textPreprocessor(propId) {
 	htmlText = '' + 
 		'<div class="row">' +
 		'	<label for="column" class="col-md-3 control-label">Column:</label>' + 
-		'	<div class="col-xs-3">' +
+		'	<div class="col-xs-6">' +
 				getColumnsSelector(propId + '_usecol') +
 		'	</div>' +
 		'</div>';
@@ -19,7 +19,7 @@ function numberPreprocessor(propId) {
 	htmlText = '' + 
 		'<div class="row">' +
 		'	<label for="column" class="col-md-3 control-label">Column:</label>' + 
-		'	<div class="col-xs-3">' +
+		'	<div class="col-xs-6">' +
 				getColumnsSelector(propId + '_usecol') +
 		'	</div>' +
 		'</div>';

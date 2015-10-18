@@ -2,7 +2,6 @@
 
 namespace preprocess;
 
-use \MongoDB\Repository as Repository;
 use \preprocess\FullvideoStructurer as FullvideoStructurer;
 use BaseController, Cart, View, App, Input, Redirect, Session;
 
@@ -29,7 +28,7 @@ class FullvideoController extends BaseController {
 
 	public function getActions()
 	{
-		$entities = \MongoDB\Entity::where('documentType', '=', 'fullvideo')->orWhere('keyframes.count', '=', 0)->orWhere('segments.count', '=', 0)->get();
+		$entities = Entity::where('documentType', '=', 'fullvideo')->orWhere('keyframes.count', '=', 0)->orWhere('segments.count', '=', 0)->get();
 		//dd($entities);
 		if(count($entities) > 0)
 		{
@@ -106,14 +105,14 @@ class FullvideoController extends BaseController {
 				if (isset($status_processing["keyframes"])) {
 					if (!isset($status_processing["keyframes"]['error'])) {
 						//update the parent
-						\MongoDB\Entity::where('_id', '=', $entity->_id)->update( array('keyframes.count' => $status_processing["keyframes"]['success']["noEntitiesCreated"]));
+						Entity::where('_id', '=', $entity->_id)->update( array('keyframes.count' => $status_processing["keyframes"]['success']["noEntitiesCreated"]));
 					}
 					echo "<pre>";
 				}
 				if (isset($status_processing["segments"])) {
 					if (!isset($status_processing["segments"]['error'])) {
 						//update the parent
-						\MongoDB\Entity::where('_id', '=', $entity->_id)->update(array('segments.count' => $status_processing["segments"]['success']["noEntitiesCreated"]));
+						Entity::where('_id', '=', $entity->_id)->update(array('segments.count' => $status_processing["segments"]['success']["noEntitiesCreated"]));
 					}
 					echo "<pre>";
 				}

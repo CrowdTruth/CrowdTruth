@@ -1,5 +1,5 @@
 <?php
-namespace MongoDB\Security;
+namespace Security;
 
 /**
  * Class that defines the various roles in a CT-group.

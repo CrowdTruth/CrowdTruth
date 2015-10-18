@@ -60,10 +60,12 @@
 	    divStr = '' +
 	        '		<div class="panel panel-default" id="' + propId + '_div">' +
 			'		<div class="panel-heading">' +
+			'			<div class="row">' +
 			'			<div class="col-xs-4" style="padding-top:7.5px;">' +
 			'				<i class="fa fa-edit"></i> ' + propName +
+			'				<a class="text-danger" href="#" name="' + propId + '_close" id="' + propId + '_close"><i class="fa fa-remove"></i></a>' +
 			'			</div>' +
-			'			<div class="col-xs-4">' +
+			'			<div class="col-xs-8">' +
 			'				<select class="selectpicker" data-container="body" name="' + propId + '_function" id="' + propId + '_function">' +		
 			'          			<option value="text">Text</option>' + 
 			'          			<option value="number">Number</option>' + 
@@ -75,10 +77,8 @@
 			'					</optgroup>' +
 	        '				</select> ' +
 			'			</div>' +
-			'			<div class="col-xs-4 btn-group">'+
-			'				<a class="text-danger pull-right" style="padding-top:7.5px;" href="#" name="' + propId + '_close" id="' + propId + '_close"><i class="fa fa-remove"></i></a>' +
-			'			</div>' +
 			'			<div class="clearfix"></div>' +
+			'		</div>' +
 			'		</div>' +
 	        '		<div class="panel-body">' +
 			'			 <input type="hidden" name="' + propId + '_propName" id="' + propId + '_propName" value="' + propId + '" class="propertyName"/>' +
@@ -151,28 +151,23 @@
 	        '		<div class="panel panel-default" id="' + groupId + '_div">' +
 			'		<div class="panel-heading">' +
 			'			<div class="row">' +
-			'				<div class="col-xs-2" style="padding-top:7.5px;">' +
+			'				<div class="col-xs-3"">' +
 			'					<i class="fa fa-folder-open"></i> ' + groupName +
+			'					<a class="text-danger" href="#" name="' + groupId + '_close" id="' + groupId + '_close"><i class="fa fa-remove"></i></a>' +
 			'				</div>' +
-			'				<div class="col-xs-8">' +
-	        '  	 			<input type="hidden" name="' + groupId + '_groupName" id="' + groupId + '_groupName" value="' + groupId + '" class="groupName"/>' +
-			'		           	<input type="hidden" name="' + groupId + '_groupParent" id="' + groupId + '_groupParent" value="' + parentGroupId + '"/>' +
-			'					<div class="input-group">' +
-			'						<input class="form-control" type="text" value="" id="' + groupId + '_newName" placeholder="Add new" />' +
-			'						<span class="input-group-btn">' +
-			'							<button type="button" class="btn btn-default" id="' + groupId + '_newProp"><i class="fa fa-edit"></i> Data Property</button>' +
-			'							<button type="button" class="btn btn-default" id="' + groupId + '_newGroup"><i class="fa fa-folder-open"></i> Property Group</button>' +
-			'						</span>' +
-			'					</div>' +
-			'				</div>' +
-			'				<div class="col-xs-2 btn-group">'+
-			'					<a class="text-danger pull-right" style="padding-top:7.5px;" href="#" name="' + groupId + '_close" id="' + groupId + '_close"><i class="fa fa-remove"></i></a>' +
-			'				</div>' +
-			'				<div class="clearfix"></div>' +
 			'			</div>' +
 			'		</div>' +
 	        '		<div class="panel-body" id="' + groupId + '_props">' +
 	        '		</div>' +
+			'		<div class="panel-footer input-group">' +			
+	        '  	 		<input type="hidden" name="' + groupId + '_groupName" id="' + groupId + '_groupName" value="' + groupId + '" class="groupName"/>' +
+			'		    <input type="hidden" name="' + groupId + '_groupParent" id="' + groupId + '_groupParent" value="' + parentGroupId + '"/>' +
+			'			<input class="form-control" type="text" value="" id="' + groupId + '_newName" placeholder="Add new" />' +
+			'			<span class="input-group-btn">' +
+			'				<button type="button" class="btn btn-default" id="' + groupId + '_newProp"><i class="fa fa-edit"></i> Property</button>' +
+			'				<button type="button" class="btn btn-default" id="' + groupId + '_newGroup"><i class="fa fa-folder-open"></i> Group</button>' +
+			'			</span>' +
+			'		</div>' +
 	        '		</div>';
 	    return divStr;
 	}
@@ -209,6 +204,7 @@
 	      selectFunction(functionName, propId);
 	  });
 	  $("#" + propId + "_function").change();
+	  doPreview();
 	  return false;
     }
 
@@ -243,6 +239,7 @@
 		    $(this).closest(".panel").remove();
 			return false;
 		});
+		doPreview();
 	}
 
 {{--
@@ -388,127 +385,153 @@
 	</p>
 </div>
 	
-{{ Form::open(array('action' => 'preprocess\TextController@postConfigure', 'name' => 'docPreviewForm', 'id' => 'docPreviewForm' )) }}
+{{ Form::open(array('action' => 'preprocess\TextController@postConfigure', 'name' => 'docPreviewForm', 'id' => 'docPreviewForm', 'class' => 'form-horizontal')) }}
 {{ Form::hidden('URI', $URI) }}
 {{ Form::hidden('postAction', 'tableView') }}
 <div class="panel panel-default">
 	<div class="panel-heading">
-		File settings
+		Read File Content
 	</div>
 	<div class="panel-body">
 		<div class="row">
-			{{ Form::label('useHeaders', 'First row contains headers', [ 'class' => 'col-md-3 control-label' ]) }}
-			{{ Form::checkbox('useHeaders', 'tick', false, [ 'class' => 'col-md-3' ]) }}
-		</div>
-		<div class="row">
+			<div class="form-group">
 			{{ Form::label('delimiter', 'Text delimiter:', [ 'class' => 'col-md-3 control-label' ]) }}
-			<div class='col-xs-3'>
-				<select class='form-control' id="delimiter" name="delimiter" />
-					<option value='"'>"</option>
-					<option value="'">'</option>
-				</select>
+				<div class='col-xs-3'>
+					<select class='form-control docPreview' id="delimiter" name="delimiter" />
+						<option value='"'>"</option>
+						<option value="'">'</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+			{{ Form::label('separator', 'Seperated by', [ 'class' => 'col-md-3 control-label' ]) }}
+				<div class='col-xs-3'>
+					<select class='form-control docPreview' id="separator" name="separator" />
+						<option value=','>Comma</option>
+						<option value=';'>Semicolon</option>
+						<option value=':'>Colon</option>
+						<option value='	'>Tab</option>
+						<option value=' '>Space</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-xs-offset-3 col-xs-6">
+					{{ Form::checkbox('useHeaders', 'tick', true, [ 'class' => 'docPreview' ]) }} First row contains headers
+				</div>
 			</div>
 		</div>
-		<div class="row">
-		{{ Form::label('separator', 'Seperated by', [ 'class' => 'col-md-3 control-label' ]) }}
-			<div class='col-xs-3'>
-				<select class='form-control' id="separator" name="separator" />
-					<option value=','>Comma</option>
-					<option value=';'>Semicolon</option>
-					<option value=':'>Colon</option>
-					<option value='	'>Tab</option>
-					<option value=' '>Space</option>
-				</select>
+		<hr />
+	</div>
+	
+	<div class="col-xs-5">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Input
+			</div>
+			<pre style="height: 130px; margin:0px; overflow: auto; border: none; word-wrap: normal;">{{ $docPreview }}</pre>
+		</div>
+	</div>
+	
+	<div class="col-xs-7">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Output
+			</div>	
+			<div style="height: 130px; overflow: auto;">
+				<table name="docPreviewTable" id="docPreviewTable">
+				@if($previewTable!=null)
+					<thead>
+						<tr>
+						@foreach ($previewTable['headers'] as $column)
+							<th>{{ $column }}</th> 
+						@endforeach
+						</tr>
+					</thead>
+					<tbody>
+						@foreach ($previewTable['content'] as $row)
+						<tr>
+							@foreach ($row as $column)
+							<td>{{ str_limit($column, 30) }}</td>
+							@endforeach
+						</tr>
+						@endforeach
+					</tbody>
+				@endif
+				</table>
 			</div>
 		</div>
-		<div class="row">
-			{{ Form::label('', '', [ 'class' => 'col-md-3' ]) }}
-		</div>
-		<pre style="height: 200px; overflow: auto;">{{ $docPreview }}</pre>
 	</div>
-	<div class="panel-footer">
-		<button type="button" class='btn btn-success' onClick="previewTable();"><i class="fa fa-gear"></i> Read file</button>
-	</div>
+	
+	<div class="clearfix"></div>
 </div>
 {{ Form::close() }}
 
-<div class="panel panel-default">
-	<div class="panel-heading">
-		Document Preview
-	</div>
-<div style="height: 150px; overflow: auto;">
-	<table name="docPreviewTable" id="docPreviewTable">
-	@if($previewTable!=null)
-		<thead>
-			<tr>
-			@foreach ($previewTable['headers'] as $column)
-				<th>{{ $column }}</th> 
-			@endforeach
-			</tr>
-		</thead>
-		<tbody>
-			@foreach ($previewTable['content'] as $row)
-			<tr>
-				@foreach ($row as $column)
-				<td>{{ str_limit($column, 30) }}</td>
-				@endforeach
-			</tr>
-			@endforeach
-		</tbody>
-	@endif
-	</table>
-</div>
-</div>
-
 <!-- BEGIN DYNAMIC STRUCTURE FORM  -->
-{{ Form::open(array('action' => 'preprocess\TextController@postConfigure', 'name' => 'theForm', 'id' => 'theForm' )) }}
+{{ Form::open(array('action' => 'preprocess\TextController@postConfigure', 'name' => 'theForm', 'id' => 'theForm', 'class' => 'form-horizontal' )) }}
 {{ Form::hidden('URI', $URI) }}
 {{ Form::hidden('postAction', 'preview', [ 'id' => 'postAction' ]) }}
 {{ Form::hidden('delimiter', '', [ 'id' => 'delimiter-form' ]) }}
 {{ Form::hidden('separator', '', [ 'id' => 'separator-form' ]) }}
 
 <div class="panel panel-default">
-		<div class="panel-heading">
-			<div class="row">
-				<div class='col-xs-2' style='padding-top:7.5px;'>
-					Content Structure
-					<input type="hidden" name="root_groupName" id="root_groupName" value="root"/>
+	<div class="panel-heading">
+		Content Structure
+	</div>
+	<div class="panel-body">	
+		<div class="row">
+			<div class="form-group">
+				<label for="document" class="col-sm-3 control-label">Document Type</label>
+				<div class="col-sm-5">
+					@if(count($docTypes)>0)
+					<select name="document" id="document" class="selectpicker pull-left show-tick" title="Select a Document" data-show-subtext="true" data-container="body">
+						<option data-hidden="true"></option>
+						<option value="new">Create New</option>					
+						<option data-divider="true"></option>
+						@foreach($docTypes as $dc)
+							<option value="{{ $dc }}">{{ $dc }}</option>
+						@endforeach
+					</select>
+					@else
+						<input type="text" name="new_doctype" id="new_doctype" class="form-control" placeholder="Name" />
+					@endif
+					<p class='help-block'>This is an identifier for the content of the document. E.g. tweets, events</p>
 				</div>
-				<div class="col-xs-7">
-					<div class="input-group">
-						<input class='form-control' type="text" value="" id="root_newName" placeholder="Add new" />
-						<span class="input-group-btn">
-							<button type="button" class="btn btn-default" id="root_newProp"><i class="fa fa-edit"></i> Data Property</button>
-							<button type="button" class="btn btn-default" id="root_newGroup"><i class="fa fa-folder-open"></i> Property Group</button>
-						</span>
-					</div>
-				</div>
-				<div class="col-xs-3">
-					<input class="btn btn-default pull-right" type="button" onClick="saveConfiguration();" value="Save configuration">
-				</div>
-				<div class="clearfix"></div>
 			</div>
 		</div>
-	<div class="panel-body">
-		<div class="" id="root_props"></div>
+		<hr />
 	</div>
-	<div class="panel-footer">
-		<button type='button' class='btn btn-success' onclick="doPreview();"><i class="fa fa-desktop"></i> Preview</button>
+
+	<div class="col-xs-7">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Structure
+			</div>
+			<div class="panel-body">
+				<div class="" id="root_props"></div>
+			</div>
+			<div class="panel-footer input-group">
+				<input class='form-control' type="text" value="" id="root_newName" placeholder="Add new" />
+				<input type="hidden" name="root_groupName" id="root_groupName" value="root"/>
+				<span class="input-group-btn">
+					<button type="button" class="btn btn-default" id="root_newProp"><i class="fa fa-edit"></i> Property</button>
+					<button type="button" class="btn btn-default" id="root_newGroup"><i class="fa fa-folder-open"></i> Group</button>
+				</span>
+			</div>
+		</div>
 	</div>
+	<div class="col-xs-5">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Output
+			</div>
+			<pre name='contentPreview' id='contentPreview' style="border: none; overflow: auto; word-wrap: normal; margin:0px;"></pre>
+		</div>
+	</div>
+	<div class="clearfix"></div>
 </div>
 
 <div class="panel panel-default">
-	<div class="panel-heading">
-		Preview Content
-	</div>
-	<div class="panel-body">
-		<div class="row">
-			<div class="col-md-12">
-				<pre name='contentPreview' id='contentPreview' style='margin:10px 0 10px;'>
-				</pre>
-			</div>
-		</div>
-	</div>
 	<div class="panel-footer">
 		<button class='btn btn-primary' onClick="doSubmit()"><i class="fa fa-gear"></i> Save Content</button>
 	</div>
@@ -531,6 +554,7 @@
 	font-size:12px;
 }
 #docPreviewTable td {
+	white-space: nowrap;
     border: 1px solid black;
 }
 #docPreviewTable th {
@@ -552,6 +576,20 @@
 		});
 		$("#root_newGroup").click(function(){
 		  newGroupAction("root");
+		});
+		
+		previewTable();
+		
+		$('.docPreview').change(function(){
+			previewTable();
+		});
+		
+		$('#root_props').on('change', 'select', function() {
+			doPreview();
+		});
+		
+		$('#root_props').on('change', 'input', function() {
+			doPreview();
 		});
 
 		@if($configuration!=null)

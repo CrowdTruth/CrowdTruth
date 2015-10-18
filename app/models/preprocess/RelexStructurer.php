@@ -2,9 +2,6 @@
 
 namespace Preprocess;
 
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
 use \MongoDate;
 use Exception, Auth;
 
@@ -631,7 +628,7 @@ class RelexStructurer {
 
 		if(count($allEntities) > 1) {
 			\DB::collection('entities')->insert($allEntities);
-			\MongoDB\Temp::truncate();
+			Temp::truncate();
 		}
 
 		return $inc;
@@ -651,7 +648,7 @@ class RelexStructurer {
 
 	public function createSoftwareAgent(){
 		try {
-			if(!\MongoDB\SoftwareAgent::find('relexstructurer'))
+			if(!SoftwareAgent::find('relexstructurer'))
 			{
 				$this->softwareAgent->_id = "relexstructurer";
 				$this->softwareAgent->label = "This component (pre)processes chang documents into structured relex documents";

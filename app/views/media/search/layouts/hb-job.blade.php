@@ -12,6 +12,7 @@
 					<li><a href="#" data-vb="show" data-vbSelector="checkbox"></i>Select</a></li>
 					<li><a href="#" data-vb="show" data-vbSelector="status"></i>Status and actions</a></li>						
 					<li><a href="#" data-vb="show" data-vbSelector="job_id"></i>Job</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="platformJobId"></i>platformJobId</a></li>
 					<li><a href="#" data-vb="show" data-vbSelector="job_type"></i>Type</a></li>
 					<li><a href="#" data-vb="show" data-vbSelector="created_at"></i>Created</a></li>	
 					<li><a href="#" data-vb="hide" data-vbSelector="created_by"></i>Created By</a></li>
@@ -36,17 +37,19 @@
 					<li><a href="#" data-vb="hide" data-vbSelector="total_workers"></i>Workers</a></li>
 					<li><a href="#" data-vb="hide" data-vbSelector="total_spam_workers"></i>Spammers</a></li>
 					<li><a href="#" data-vb="hide" data-vbSelector="cost_per_task"></i>Cost/mTask</a></li>
+					<li><a href="#" data-vb="show" data-vbSelector="spam"></i>Spam</a></li>
 				</ul>
 			</div>
 		</div>
 	</div>
 	<div class='ctable-responsive'>	
 	    <table class="table table-striped">
-	        <thead data-query-key="&collection=temp&match[documentType]" data-query-value="job">
+	        <thead data-query-key="&match[type]" data-query-value="job">
 		        <tr>
 		            <th data-vbIdentifier="checkbox" data-toggle="tooltip" data-placement="top" title="Check to select this row" style='min-width:60px;'>Select</th>
 		            <th data-vbIdentifier="status" data-toggle="tooltip" data-placement="top" title="Mouseover for actions">Status</th>
-		            <th class="sorting" data-vbIdentifier="job_id" data-query-key="orderBy[platformJobId]" data-toggle="tooltip" data-placement="top" title="ID of the job from the platform that ran it">Job</th>
+		            <th class="sorting" data-vbIdentifier="job_id" data-query-key="orderBy[_id]" data-toggle="tooltip" data-placement="top" title="ID of the job">Job</th>
+		            <th class="sorting" data-vbIdentifier="platformJobId" data-query-key="orderBy[platformJobId]" data-toggle="tooltip" data-placement="top" title="ID of the job from the platform that ran it">platform Id</th>
 		            <th class="sorting" data-vbIdentifier="job_title" data-query-key="orderBy[hasConfiguration.content.title]" data-toggle="tooltip" data-placement="top" title="Title of the job published on the platform">Title</th>
 		            <th class="sorting" data-vbIdentifier="job_type" data-query-key="orderBy[type]" data-toggle="tooltip" data-placement="top" title="Task type for the Job">Type</th>
 		            <th class="sorting" data-vbIdentifier="job_description" data-query-key="orderBy[hasConfiguration.content.description]" data-toggle="tooltip" data-placement="top" title="Descripton">Description</th>
@@ -61,6 +64,7 @@
 				    <th class="sorting" data-vbIdentifier="total_spam_workers" data-query-key="orderBy[metrics.spammers.count]" data-toggle="tooltip" data-placement="top" title="Number of workers labelled as spam">Spammers</th>
 				    <th class="sorting" data-vbIdentifier="cost_per_task" data-query-key="orderBy[hasConfiguration.content.reward]" data-toggle="tooltip" data-placement="top" title="Amount paid to each worker per micro-task, set by the job definition">Cost/mTask</th>
 				    <th class="sorting" data-vbIdentifier="total_job_cost" data-query-key="orderBy[projectedCost]" data-toggle="tooltip" data-placement="top" title="Amount paid so far - <br /> [# mTasks Complete Actual] * [Cost/mTask]">Cost</th>
+				    <th class="sorting" data-vbIdentifier="spam" data-query-key="orderBy[spam]" data-toggle="tooltip" data-placement="top" title="Spam %">Spam</th>
 				    <th class="sorting" data-vbIdentifier="completion" data-query-key="orderBy[completion]" data-toggle="tooltip" data-placement="top" title="Percent of job complete so far">Completion</th>
 				    <th class="sorting" data-vbIdentifier="running_time" data-query-key="orderBy[runningTimeInSeconds]" data-toggle="tooltip" data-placement="top" title="Amount of time the job has taken so far">Run Time</th>
 		            <th class="sorting sorting_desc whiteSpaceNoWrap" data-vbIdentifier="created_at" data-query-key="orderBy[created_at]" style="min-width:220px; width:auto;" data-toggle="tooltip" data-placement="top" title="When the job was created in the framework">Created</th>
@@ -72,6 +76,9 @@
 				</td>
 				<td data-vbIdentifier="status"><span style="width:130px; display:inline-block;"><small>Mouseover for actions</small></span></td>
 				<td data-vbIdentifier="job_id">
+					<input class="input-sm form-control" type='text' data-query-key="match[_id]" data-query-operator="like" />
+				</td>
+				<td data-vbIdentifier="platformJobId">
 					<input class="input-sm form-control" type='text' data-query-key="match[platformJobId]" data-query-operator="like" />
 				</td>
 				<td data-vbIdentifier="job_title">
@@ -127,6 +134,9 @@
 					<input class="input-sm form-control" type='text' data-query-key="match[projectedCost]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 					<input class="input-sm form-control" type='text' data-query-key="match[projectedCost]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 				</td>
+				<td data-vbIdentifier="spam">
+					<input class="input-sm form-control" type='text' data-query-key="match[spam]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+					<input class="input-sm form-control" type='text' data-query-key="match[spam]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />				</td>
 				<td data-vbIdentifier="completion">
 					<input class="input-sm form-control" type='text' data-query-key="match[completion]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
 					<input class="input-sm form-control" type='text' data-query-key="match[completion]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
@@ -154,72 +164,74 @@
 			            <td data-vbIdentifier="status" class="actiontd" style='padding: 0px;'>
 			            	<div id="status@{{@index}}" class="currentstatus status-@{{this.status}}">@{{this.status}}</div>
 							<div class="btn-group actionbar">
-								<a class="btn btn-default btn-sm" href="/jobs2/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o"></i></a>
-								<a class="btn btn-default btn-sm" href="/jobs2/refresh/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Refresh the job settings"><i class="fa fa-refresh"></i></a>
-
-								@{{#if this.url}}
-								    <a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link"></i></a>
-								@{{/if}}
-								@{{#is this.status 'unordered'}}
-								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'order', @{{@index}})"  id="order@{{@index}}" data-toggle="tooltip" data-placement="top" title="Order job on the platform. Warning: may take a long time for mTurk"><i class="fa fa-play"></i></a>
-								@{{/is}}
-								@{{#is this.status 'running'}}
-								    <a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'pause', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Pause job"><i class="fa fa-pause" id="pause@{{@index}}"></i></a>
-								    <a class="btn btn-default btn-sm" id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop"></i></a>
-								@{{/is}}
-								@{{#is this.status 'paused'}}
-								    <a class="btn btn-default btn-sm"  id="resume@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'resume', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Resume job"><i class="fa fa-play"></i></a>
-								    <a class="btn btn-default btn-sm"  id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})"data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop"></i></a>	
-								@{{/is}}
-								</div>
-								<div class="btn-group actionbar">
-									<a class="btn btn-default btn-sm" href="/jobs2/save/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Save a template"><i class="fa fa-save"></i></a>
-
 								
+								<a class="btn btn-default btn-sm" href="/jobs2/duplicate/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Duplicate and edit job"><i class="fa fa-files-o"></i></a>
 
-									@{{#is this.status 'canceled'}}
-										<a class="btn btn-default btn-sm" href="/jobs2/load/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Load a template"><i class="fa fa-link"></i></a>
-									@{{/is}}
+								@{{#isnt this.status 'imported'}}
+									<a class="btn btn-default btn-sm" href="/jobs2/refresh/@{{this._id}}" data-toggle="tooltip" data-placement="top" title="Refresh the job settings"><i class="fa fa-refresh"></i></a>
+								
+									@{{#if this.url}}
+										<a class="btn btn-default btn-sm" href="@{{this.url}}" target="_blank" data-toggle="tooltip" data-placement="top" title="Visit task"><i class="fa fa-external-link"></i></a>
+									@{{/if}}
 									@{{#is this.status 'unordered'}}
-										<a class="btn btn-default btn-sm" href="/jobs2/load/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Load a template"><i class="fa fa-link"></i></a>
+										<a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'order', @{{@index}})"  id="order@{{@index}}" data-toggle="tooltip" data-placement="top" title="Order job on the platform. Warning: may take a long time for mTurk"><i class="fa fa-play"></i></a>
+									@{{/is}}
+									@{{#is this.status 'running'}}
+										<a class="btn btn-default btn-sm" href="#" onclick="javascript:jobactions('@{{this._id}}', 'pause', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Pause job"><i class="fa fa-pause" id="pause@{{@index}}"></i></a>
+										<a class="btn btn-default btn-sm" id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop"></i></a>
+									@{{/is}}
+									@{{#is this.status 'paused'}}
+										<a class="btn btn-default btn-sm"  id="resume@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'resume', @{{@index}})" data-toggle="tooltip" data-placement="top" title="Resume job"><i class="fa fa-play"></i></a>
+										<a class="btn btn-default btn-sm"  id="cancel@{{@index}}" href="#" onclick="javascript:jobactions('@{{this._id}}', 'cancel', @{{@index}})"data-toggle="tooltip" data-placement="top" title="Cancel job"><i class="fa fa-stop"></i></a>	
 									@{{/is}}
 
-									
+									<a class="btn btn-default btn-sm" href="/jobs2/save/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Save a template"><i class="fa fa-save"></i></a>									
+								@{{/isnt}}
 
-									@{{#is this.status 'unordered'}}
-										<a class="btn btn-danger btn-sm" href="/jobs2/delete/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job everywhere (CT and Platform)"><i class="fa fa-remove"></i></a>
+
+								@{{#is this.status 'canceled'}}
+									<a class="btn btn-default btn-sm" href="/jobs2/load/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Load a template"><i class="fa fa-link"></i></a>
+									<a class="btn btn-danger btn-sm" href="/jobs2/delete/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job everywhere (CT and Platform)"><i class="fa fa-remove"></i></a>
 									@{{/is}}
-									@{{#is this.status 'canceled'}}
-										<a class="btn btn-danger btn-sm" href="/jobs2/delete/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job everywhere (CT and Platform)"><i class="fa fa-remove"></i></a>
-									@{{/is}}
-								</div>
+								@{{#is this.status 'unordered'}}
+									<a class="btn btn-default btn-sm" href="/jobs2/load/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="Load a template"><i class="fa fa-link"></i></a>
+									<a class="btn btn-danger btn-sm" href="/jobs2/delete/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job everywhere (CT and Platform)"><i class="fa fa-remove"></i></a>
+								@{{/is}}
+								@{{#is this.status 'imported'}}
+									<a class="btn btn-danger btn-sm" href="/jobs2/delete/@{{this.platformJobId}}" data-toggle="tooltip" data-placement="top" title="DELETE this job"><i class="fa fa-remove"></i></a>								
+								@{{/is}}
+
 							</div>
-	
 			            </td>
 			            
-			            <td data-vbIdentifier="job_id">
-					<a class='testModal' data-modal-query="job=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/job?') }}" data-target="#modalIndividualJob" data-toggle="tooltip" data-placement="top" title="Click to see the individual job page">
-						@{{ platformJobId }}
-					</a>
+					<td data-vbIdentifier="job_id">
+						<a class='testModal' data-modal-query="job=@{{this._id}}" data-api-target="{{ URL::to('api/analytics/job?') }}" data-target="#modalIndividualJob" data-toggle="tooltip" data-placement="top" title="Click to see the individual job page">
+							@{{this._id}}
+						</a>
 				    </td>
-			            <td data-vbIdentifier="job_title">@{{ this.hasConfiguration.content.title }}</td>
-			            <td data-vbIdentifier="job_type">@{{ this.type }}</td>
-			            <td data-vbIdentifier="job_description">@{{ this.hasConfiguration.content.description }}</td>
-			            <td data-vbIdentifier="job_size">@{{ this.unitsCount }}</td>
-			            <td data-vbIdentifier="clarity">@{{ this.avg_clarity }}</td>
-			            <td data-vbIdentifier="units_per_task">@{{ this.hasConfiguration.content.unitsPerTask }}</td>
-			            <td data-vbIdentifier="req_ann_per_unit">@{{ this.hasConfiguration.content.workerunitsPerUnit }}</td>
-			            <td data-vbIdentifier="total_ann">@{{ this.expectedWorkerunitsCount }}</td>
-			            <td data-vbIdentifier="current_no_ann">@{{ this.workerunitsCount }}</td>
-					    <td data-vbIdentifier="req_ann_per_worker">@{{ this.hasConfiguration.content.workerunitsPerWorker }}</td>
-					    <td data-vbIdentifier="total_workers">@{{ this.workersCount }}</td>
-					    <td data-vbIdentifier="total_spam_workers">@{{ this.metrics.spammers.count }}</td>
-					    <td data-vbIdentifier="cost_per_task">@{{ toPrice this.hasConfiguration.content.reward }}</td>
-					    <td data-vbIdentifier="total_job_cost">@{{ toPrice this.projectedCost }}</td>
-					    <td data-vbIdentifier="completion" class="status-@{{this.status}}">@{{ createPercentage this.completion }}%</td>
-					    <td data-vbIdentifier="running_time">@{{ duration this.runningTimeInSeconds }}</td>
-			            <td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
-					    <td data-vbIdentifier="created_by">@{{ highlightSelf this.user_id }}</td>
+					<td data-vbIdentifier="platformJobId">
+					@{{#if this.platformJobId }}
+								@{{#ifarray this.platformJobId }} @{{/ifarray}}
+					@{{/if}}</td>
+					<td data-vbIdentifier="job_title">@{{ this.hasConfiguration.content.title }}</td>
+					<td data-vbIdentifier="job_type">@{{ this.type }}</td>
+					<td data-vbIdentifier="job_description">@{{ this.hasConfiguration.content.description }}</td>
+					<td data-vbIdentifier="job_size">@{{ this.unitsCount }}</td>
+					<td data-vbIdentifier="clarity">@{{ this.avg_clarity }}</td>
+					<td data-vbIdentifier="units_per_task">@{{ this.hasConfiguration.content.unitsPerTask }}</td>
+					<td data-vbIdentifier="req_ann_per_unit">@{{ this.hasConfiguration.content.workerunitsPerUnit }}</td>
+					<td data-vbIdentifier="total_ann">@{{ this.expectedWorkerunitsCount }}</td>
+					<td data-vbIdentifier="current_no_ann">@{{ this.workerunitsCount }}</td>
+					<td data-vbIdentifier="req_ann_per_worker">@{{ this.hasConfiguration.content.workerunitsPerWorker }}</td>
+					<td data-vbIdentifier="total_workers">@{{ this.workersCount }}</td>
+					<td data-vbIdentifier="total_spam_workers">@{{ this.metrics.spammers.count }}</td>
+					<td data-vbIdentifier="cost_per_task">@{{ toPrice this.hasConfiguration.content.reward }}</td>
+					<td data-vbIdentifier="total_job_cost">@{{ toPrice this.projectedCost }}</td>
+					<td data-vbIdentifier="spam">@{{ toFixed this.spam 1 }}%</td>
+					<td data-vbIdentifier="completion" class="status-@{{this.status}}">@{{ createPercentage this.completion }}%</td>
+					<td data-vbIdentifier="running_time">@{{ duration this.runningTimeInSeconds }}</td>
+					<td data-vbIdentifier="created_at">@{{ this.created_at }}</td>
+					<td data-vbIdentifier="created_by">@{{ highlightSelf this.user_id }}</td>
 			        </tr>
 			        @{{/each}}
 				</script>

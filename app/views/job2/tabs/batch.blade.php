@@ -42,7 +42,7 @@
 								<div class="tab-content documentTypesTabs">
 									<div class="tab-pane active ctable-responsive" id="all_tab">
 										<table class="table table-striped">
-											<thead data-query-key="match[documentType]" data-query-value="batch">
+											<thead data-query-key="match[type]" data-query-value="batch">
 												<tr>
 													<th></th>
 													<th class="sorting" data-query-key="orderBy[title]">Title</th>

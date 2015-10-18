@@ -1,11 +1,7 @@
 <?php
-
-namespace MongoDB;
-
-use Moloquent, Schema, Auth, Exception, Input;
-
-use \Counter as Counter;
-
+/**
+ * This model keeps track of the activities, for the purpose of data provenance
+ */
 class Activity extends Moloquent {
 
 	protected $collection = 'activities';
@@ -79,14 +75,14 @@ class Activity extends Moloquent {
     }
 
     public function wasAssociatedWithUserAgent(){
-        return $this->hasOne('\MongoDB\UserAgent', '_id', 'user_id');
+        return $this->hasOne('UserAgent', '_id', 'user_id');
     }
 
     public function wasAssociatedWithCrowdAgent(){
-        return $this->hasOne('\MongoDB\CrowdAgent', '_id', 'crowdAgent_id');
+        return $this->hasOne('CrowdAgent', '_id', 'crowdAgent_id');
     }    
 
     public function wasAssociatedWithSoftwareAgent(){
-        return $this->hasOne('\MongoDB\SoftwareAgent', '_id', 'softwareAgent_id');
+        return $this->hasOne('SoftwareAgent', '_id', 'softwareAgent_id');
     }
 }

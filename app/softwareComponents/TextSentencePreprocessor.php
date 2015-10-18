@@ -1,11 +1,10 @@
 <?php
 namespace SoftwareComponents;
 
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareComponent as SoftwareComponent;
 use \MongoDate as MongoDate;
 use Auth;
+use \SoftwareComponent as SoftwareComponent;
+use \Entities\Unit as Unit;
 
 /**
  * Software component for input file preprocessing.
@@ -24,30 +23,7 @@ class TextSentencePreprocessor {
 	public function __construct() {
 		$this->softwareComponent = SoftwareComponent::find('textsentencepreprocessor');
 	}
-	
-	/**
-	 * Fetch the last existing ID for the given format / domain / docType combination.
-	 */
-	private function getLastDocumentInc($format, $domain, $docType) {
-		$lastMongoURIUsed = Entity::where('format', $format)
-								->where('domain', $domain)
-								->where('documentType', $docType)
-								->get(array("_id"));
-		
-		if(count($lastMongoURIUsed) > 0) {
-			$lastMongoURIUsed = $lastMongoURIUsed->sortBy(
-				function($entity) {return $entity->_id;}, SORT_NATURAL)->toArray();
-				
-			if(end($lastMongoURIUsed)) {
-				$lastMongoIDUsed = explode("/", end($lastMongoURIUsed)['_id']);
-				$inc = end($lastMongoIDUsed) + 1;
-			}
-		} else {
-			$inc = 0;
-		}
-		return $inc;
-	}
-	
+
 	/**
 	 * Store to the database the given entities as entities decendent from the given
 	 * document.
@@ -57,64 +33,42 @@ class TextSentencePreprocessor {
 	 * 
 	 * @return multitype:string A status array containing the result status information.
 	 */
-	public function store($document, $entities) {
-		$nEnts = count($entities);
-		if($nEnts<=0 && $nEnts>=10000) {
+	public function store($parent, $units, $type) {
+
+		if(count($units)<=0 && count($units)>=10000) {
 			// We will have problems processing empty files or more than 10,000 entities
 			return [ 'error' => 'Unable to process files with more than 10,000 lines: '.$nEnts.'found' ];
 		}
 		
-		$activity = new Activity();
+		$activity = new \Activity();
 		$activity->softwareAgent_id = $this->softwareComponent->_id;
 		$activity->save();
+
 		
-		$format = $document['format'];
-		$domain = $document['domain'];
-		$docType = $document['documentType'].'-sentence';
-		$title = $document['title'];
-		$parentId = $document['_id'];
-		$project = $document['project'];
-		$activityId = $activity->_id;
-		if (Auth::check()) {
-			$userId = Auth::user()->_id;
-		} else  {
-			$userId = "crowdwatson";
-		}
-		
-		$idBase = 'entity/'.$format.'/'.$domain.'/'.$docType.'/';
-		$inc = $this->getLastDocumentInc($format, $domain, $docType);
-		
-		$fullEntities = [];
-		foreach ($entities as $entitiy) {
-			$fullEntity = [
-				"_id" => $idBase . $inc,
-				"documentType"	=> 'unit',
-				"activity_id" => $activityId,
-				"softwareAgent_id" => $this->softwareComponent->_id,
-				"project" => $project,
-				"user_id" => $userId,
+		$entities = [];
+		foreach($units as $unit)
+		{
+			try {
+				$entity = new Unit();
+				$entity->project = $parent->project;
+				$entity->activity_id = $activity->_id;
+				$entity->documentType = $type;
+				$entity->parents = [$parent->_id];
+				$entity->content = $unit;
+				$entity->hash = md5(serialize($entity));
 				
-				"type" => $docType,
-				"unitParents" => [ $parentId ],
-				"jobParents" => [],
-				"children" => [],
-				"judgements" => [],
-				"metrics" => [],
-				"source" => '',
-				"format" => $format,
-				"title" => strtolower($title),
-				"domain" => $domain,
-				"tags" => [ 'unit' ],
-				"content" => $entitiy,
-				"hash" => md5(serialize($entitiy)),
-				"updated_at" => new MongoDate(time()),
-				"created_at" => new MongoDate(time())
-			];
-			$inc++;
-			array_push($fullEntities, $fullEntity);
+				$entity->save();
+				array_push($entities, $entity);
+			
+			} catch (Exception $e){
+				foreach($entities as $en) {
+					$en->forceDelete();
+				}
+				throw $e ;
+			}
 		}
-		\DB::collection('entities')->insert($fullEntities);
-		\MongoDB\Temp::truncate();
+		
+		\Temp::truncate();
 		
 		return [ 'success' => 'Sentences created successfully' ];
 	}

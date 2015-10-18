@@ -1,7 +1,5 @@
 <?php
 
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
 use \CurlRequest\SVBasicRequest as SVRequest;
 //use Moloquent, Schema, URL, File, Exception;
 
@@ -58,7 +56,7 @@ class OnlineData extends Moloquent {
 			throw new Exception('Request parameters missing!');
 		}
 
-		$entities = \MongoDB\Entity::where('documentType', 'fullvideo')->lists("title");
+		$entities = Entity::where('documentType', 'fullvideo')->lists("title");
 
 		while ($noEntries > 0) {
 		    //throw new Exception($noEntries);	
@@ -490,9 +488,9 @@ class OnlineData extends Moloquent {
 	}
 
 	public function createOpenimagesVideoGetterSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('openimagesgetter'))
+		if(!SoftwareAgent::find('openimagesgetter'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "openimagesgetter";
 			$softwareAgent->label = "This component is used for getting the videos stored in openimages.nl and storing them as documents within MongoDB";
 			$softwareAgent->save();
@@ -500,9 +498,9 @@ class OnlineData extends Moloquent {
 	}
 	
 	public function createOpenimagesVideoDescriptionExtractorSoftwareAgent(){
-		if(!\MongoDB\SoftwareAgent::find('videodescriptiongetter'))
+		if(!SoftwareAgent::find('videodescriptiongetter'))
 		{
-			$softwareAgent = new \MongoDB\SoftwareAgent;
+			$softwareAgent = new SoftwareAgent;
 			$softwareAgent->_id = "videodescriptiongetter";
 			$softwareAgent->label = "This component is used for getting the videos description from openimages.nl and storing them as documents within MongoDB";
 			$softwareAgent->save();

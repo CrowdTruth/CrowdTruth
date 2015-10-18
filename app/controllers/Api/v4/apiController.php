@@ -8,11 +8,11 @@ use \URL as URL;
 use \Response as Response;
 use \Paginator as Paginator;
 
-use \MongoDB\Repository as Repository;
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
-use \MongoDB\CrowdAgent as CrowdAgent;
+use \Repository as Repository;
+use \Entity as Entity;
+use \Activity as Activity;
+use \SoftwareAgent as SoftwareAgent;
+use \CrowdAgent as CrowdAgent;
 
 /**
  * This apiController is used for the worker overview and the individual worker view,
@@ -53,7 +53,7 @@ class apiController extends BaseController {
 		
 			$id = Input::get('id');
 			
-			$result = \MongoDB\CrowdAgent::with('hasGeneratedWorkerunits.hasJob')->with('hasGeneratedWorkerunits.hasUnit')->where('_id', $id)->get();
+			$result = CrowdAgent::with('hasGeneratedWorkerunits.hasJob')->with('hasGeneratedWorkerunits.hasUnit')->where('_id', $id)->get();
 
 			$result = $result->toArray();
 			
