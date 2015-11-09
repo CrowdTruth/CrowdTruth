@@ -15,6 +15,9 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('workers', 'WorkersController');
 	Route::controller('analyze','AnalyticsController');
 	Route::controller('onlinesource', 'OnlineSourceController');
+
+	Route::controller('project-viz', 'ProjectVizController');
+	Route::controller('shankey', 'ShankeyController');
 });
 
 Route::get('/', function()
@@ -63,6 +66,7 @@ Route::controller('api/media', '\Api\media\apiController');
 Route::controller('api/search', '\Api\search\apiController');
 Route::controller('api/actions', '\Api\actions\apiController');
 Route::controller('api/analytics', '\Api\analytics\apiController');
+Route::controller('api/shankey', '\Api\shankey\apiController');
 
 Route::get('login', 'UserController@login');
 Route::get('register', 'UserController@register');
