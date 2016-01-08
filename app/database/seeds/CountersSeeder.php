@@ -1,9 +1,5 @@
 <?php
 
-use MongoDB\SoftwareComponent as SoftwareComponent;
-use MongoDB\Activity as Activity;
-use MongoDB\Entity as Entity;
-
 /**
  * Seed the Counters collection with existing Activities and Entities.
  * This seeder looks at the _id's of existing Activities and Entities 

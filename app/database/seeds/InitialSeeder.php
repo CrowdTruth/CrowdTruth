@@ -1,7 +1,5 @@
 <?php
 
-use MongoDB\SoftwareComponent as SoftwareComponent;
-
 class InitialSeeder extends Seeder {
 
 	/**
