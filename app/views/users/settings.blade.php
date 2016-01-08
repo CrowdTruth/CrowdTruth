@@ -38,10 +38,10 @@
 							</div>
 						</div>
 						<div class="form-group">
-							{{ Form::label('email', 'Groups', [ 'class' => 'col-xs-3 control-label' ]) }}
+							{{ Form::label('email', 'Projects', [ 'class' => 'col-xs-3 control-label' ]) }}
 							<div class='col-xs-3'>
 								@foreach($groups as $group)
-									{{ link_to('group/'.$group['name'], $group['name']) }} <small>({{ $group['role'] }})</small>
+									{{ link_to('project/'.$group['name'], $group['name']) }} <small>({{ $group['role'] }})</small>
 								@endforeach
 							</div>
 						</div>

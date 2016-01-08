@@ -80,7 +80,7 @@ Route::model('user', 'UserAgent');
 Route::get('projects/', 'ProjectController@getGroupList');
 Route::get('project/{projectname}', 'ProjectController@getProfile');
 Route::get('project/{projectname}/settings', 'ProjectController@getSettings');
-Route::post('projects/create', [ 'before' => 'adminPermission', 'uses' => 'ProjectController@createGroup' ]);
+Route::post('projects/create', 'ProjectController@createGroup');
 
 Route::group([ 'before' => 'permission:'.Permissions::PROJECT_ADMIN ], function()
 {

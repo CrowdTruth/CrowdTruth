@@ -563,18 +563,26 @@ class MediaController extends BaseController {
 		$searchComponent = new MediaSearchComponent();
 		*/
 		
-		$projects = Unit::distinct('project')->get()->toArray();
-		$projects = array_flatten($projects);
+		// get all projects a user has access to
+		$projects = ProjectHandler::getUserProjects(Auth::user());
+		$projects = array_column($projects, 'name');
 		
 		$types = [];
 		
+		// for each project get the document types in it
 		foreach($projects as $key => $project) {
-			$types[$project] = Unit::distinct('documentType')->where('project', $project)->get()->toArray()[0];
+			$docTypes = Unit::distinct('documentType')->where('project', $project)->get()->toArray();
+			// skip if there is no data
+			if(count($docTypes) > 0) {
+
+				// for each document type get the number of units
+				$types[$project] = [];
+				foreach($docTypes as $key => $type) {
+					$count = Unit::where('documentType', $type[0])->where('project', $project)->count();
+					$types[$project][$type[0]] = $count;
+				}
+			}
 		}
-		
-		// need to re-add count of units
-		
-		//dd($types);
 		
 		return View::make('media.search.pages.media')->with('types', $types);
 	}

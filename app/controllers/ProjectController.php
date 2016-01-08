@@ -33,6 +33,9 @@ class ProjectController extends BaseController {
 
 		$groups = ProjectHandler::listGroups();
 		$projects = [];
+		
+		$isAdmin = PermissionHandler::checkAdmin($thisUser, Permissions::ALLOW_ALL);
+		
 		foreach ($groups as $group) {
 			$canView = PermissionHandler::checkProject($thisUser, $group, Permissions::PROJECT_READ);
 			
@@ -43,13 +46,16 @@ class ProjectController extends BaseController {
 				$users += sizeOf($projectRole['user_agent_ids']);
 			}
 			
-			array_push($projects, [
-				'name' => $group,
-				'canview' => $canView,
-				'users' => $users
-			]);
-		}
-		$isAdmin = PermissionHandler::checkAdmin($thisUser, Permissions::ALLOW_ALL);
+			// if user is not admin, do not show the admin group
+			if($group != 'admin') {
+				array_push($projects, [
+					'name' => $group,
+					'canview' => $canView,
+					'users' => $users
+				]);
+			}
+		}		
+		
 		return View::make('projects.list')
 			->with('projects', $projects)
 			->with('isAdmin', $isAdmin);
@@ -112,9 +118,16 @@ class ProjectController extends BaseController {
 		foreach(Roles::$PROJECT_ROLE_NAMES as $role) {
 			// List userts with $role in this group -- make [] when none
 			$users = $sentryGroups[$role]['user_agent_ids'];
-			$groupUsers[$role] = is_null($users)?[]:$users;
+			$groupUsers[$role] = [];
+			if(sizeOf($users) > 0) {
+				foreach($users as $key => $user) {
+					if($user != 'admin') {
+						array_push($groupUsers[$role], $user);
+					}
+				}
+			}
 		}
-		
+				
 		$groupInviteCodes = [];
 		foreach(Roles::$PROJECT_ROLE_NAMES as $role) {
 			$groupInviteCodes[$role] = $sentryGroups[$role]['invite_code'];
@@ -212,6 +225,7 @@ class ProjectController extends BaseController {
 		$groupName = Input::get('addGrp');
 		try{
 			ProjectHandler::createGroup($groupName);
+			ProjectHandler::grantUser(Auth::user(), $groupName, Roles::PROJECT_ADMIN);
 			return Redirect::back()
 				->with('flashSuccess', 'Group <b>'.$groupName.'</b> succesfully created!');			
 		} catch(\Cartalyst\Sentry\Groups\GroupExistsException $e) {
