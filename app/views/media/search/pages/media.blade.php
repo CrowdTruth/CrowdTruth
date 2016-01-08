@@ -29,8 +29,8 @@
 						<option value="all" class="select_all" data-subtext="0 Items">All</option>
 						@foreach($types as $project => $doctypes)
 							<optgroup label="{{ $project }}">
-								@foreach($doctypes as $key => $doctype)
-									<option value="{{ $doctype }}" class="select_{{ $doctype }}" data-subtext="0 Items">{{ $doctype }}</option>
+								@foreach($doctypes as $doctype => $count)
+									<option value="{{ $doctype }}" class="select_{{ $doctype }}" data-subtext="{{ $count }} Items">{{ $doctype }}</option>
 								@endforeach
 							</optgroup>
 						@endforeach
