@@ -14,6 +14,7 @@ use \Security\Roles as Roles;
 
 use \Entities\File as File;
 use \Entities\Unit as Unit;
+use \Entities\Batch as Batch;
 
 class MediaController extends BaseController {
 

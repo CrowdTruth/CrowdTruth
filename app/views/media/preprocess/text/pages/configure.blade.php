@@ -489,7 +489,7 @@
 						<option value="new">Create New</option>					
 						<option data-divider="true"></option>
 						@foreach($docTypes as $dc)
-							<option value="{{ $dc }}">{{ $dc }}</option>
+							<option value="{{ $dc[0] }}">{{ $dc[0] }}</option>
 						@endforeach
 					</select>
 					@else

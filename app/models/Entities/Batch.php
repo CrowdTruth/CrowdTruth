@@ -23,13 +23,6 @@ class Batch extends Entity {
 			// Create the SoftwareAgent if it doesnt exist
 			SoftwareAgent::store('batchcreator', 'Batch creation');
 
-			if(!isset($activity)){
-				$activity = new Activity;
-				$activity->label = "Batch added to the platform";
-				$activity->softwareAgent_id = 'mediacreator';
-				$activity->save();
-			}
-
 			$batch = new Batch;
 			$batch->_id = $batch->_id;
 			$batch->title = $settings['batch_title'];
@@ -37,7 +30,16 @@ class Batch extends Entity {
 			$batch->parents = $settings['units'];
 			$batch->content = $settings['batch_description'];
 			$batch->hash = md5(serialize($batch->parents));
-			$batch->activity_id = $activity->_id;
+		//	$batch->activity_id = 
+
+			if(!isset($activity)){
+				$activity = new Activity;
+				$activity->label = "Batch added to the platform";
+				$activity->softwareAgent_id = 'mediacreator';
+				$activity->save();
+				$batch->activity_id = $activity->_id;
+			}
+
 			$batch->save();
 
 			Queue::push('Queues\UpdateUnits', $settings['units']);
