@@ -34,7 +34,6 @@
 						</tr>
 						@endforeach
 						
-						@if($isAdmin)
 						<tr class='text-left' >
 							<td colspan='2'>
 								{{ Form::open([ 'action' => 'ProjectController@createGroup', 'class' => 'form-horizontal jobconf' ] ) }}
@@ -49,7 +48,6 @@
 								{{ Form::close() }}
 							</td>
 						</tr>
-						@endif
 					</table>
 				</div>
 			</div>
