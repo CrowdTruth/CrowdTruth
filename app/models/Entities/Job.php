@@ -141,7 +141,8 @@ class Job extends Entity {
     	if(!isset($this->softwareAgent_id)) // and (!isset($this->platformJobId) !!! TODO
     		throw new Exception('Can\'t handle a Job that has not yet been uploaded to a platform.');
 
-    	return App::make($this->softwareAgent_id);
+    	//return \App::make($this->softwareAgent_id);
+    	return \App::make("cf2");
     }
 
     /** 
@@ -200,11 +201,11 @@ class Job extends Entity {
     public function jobConfiguration(){
         return $this->hasOne('\Entities\JobConfiguration', '_id', 'jobConf_id');
     }
-
+/*
     public function questionTemplate(){
         return $this->hasOne('\Entities\QuestionTemplate', '_id', 'questionTemplate_id');
     }
-
+*/
     public function batch(){
         return $this->hasOne('\Entities\Batch', '_id', 'batch_id');
     }

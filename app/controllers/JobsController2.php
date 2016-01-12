@@ -1,6 +1,14 @@
 <?php
 use Sunra\PhpSimple\HtmlDomParser;
 
+use \Entities\File as File;
+use \Entities\Unit as Unit;
+use \Entities\Batch as Batch;
+use \Entities\JobConfiguration as JobConfiguration;
+use \Entities\Job as Job;
+
+use \Activity as Activity;
+
 class JobsController2 extends BaseController {
 
     public function getIndex(){
@@ -555,7 +563,7 @@ class JobsController2 extends BaseController {
 
 		try{
 			// Save activity
-			$activity = new MongoDB\Activity;
+			$activity = new Activity;
 			$activity->label = "Job is uploaded to crowdsourcing platform.";
 			$activity->softwareAgent_id = 'jobcreator'; // JOB softwareAgent_id = $platform. Does this need to be the same?
 			$activity->save();
@@ -605,7 +613,9 @@ class JobsController2 extends BaseController {
 
 			$successmessage = "Created job with jobConf :-)";
 
-			$platform = App::make($job_sw_agent);
+		//	$platform = App::make($job_sw_agent);
+			$platform = App::make("cf2");
+
 			$platform->refreshJob($j->_id);
 			
 			Session::flash('flashSuccess', $successmessage);
