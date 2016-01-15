@@ -8,6 +8,7 @@
 		"crowdtruth/crowdflower": "*",
 		"crowdtruth/mturk": "*",
 		"crowdtruth/ddgameapi": "*",
+		"crowdtruth/divedashboard": "*",
 		"sunra/php-simple-html-dom-parser": "v1.5.0",
 		"codesleeve/asset-pipeline": "dev-master",
 		"jenssegers/mongodb": "*",
@@ -46,5 +47,5 @@
 		"preferred-install": "dist"
 	},
 	"minimum-stability": "dev",
-	"require-dev": { "codeclimate/php-test-reporter": "dev-master" }
+	"require-dev": {  }
 }

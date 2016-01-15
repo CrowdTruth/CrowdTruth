@@ -114,6 +114,7 @@ return array(
 		'CrowdTruth\Crowdflower\CrowdflowerServiceProvider',
 		'CrowdTruth\Mturk\MturkServiceProvider',
 		'CrowdTruth\DDGameapi\DDGameapiServiceProvider',
+		'CrowdTruth\DIVEDashboard\DIVEDashboardServiceProvider',
 /*		'PlatformProvider'*/
 	),
 
