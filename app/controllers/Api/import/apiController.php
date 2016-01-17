@@ -5,6 +5,7 @@ use \Input as Input;
 use \URL as URL;
 
 use \SoftwareComponents\ResultImporter as ResultImporter;
+use \SoftwareComponents\DIVEUnitsImporter as DIVEUnitsImporter;
 
 use \Exception;
 
@@ -30,6 +31,27 @@ class apiController extends BaseController
 		$status = $importer->process($files, $settings);
 
 		echo 'done';
+    }
+
+    public function postImportdiveunits()
+    {
+		$signal = Input::get('signal');
+		$payload = Input::get('payload');
+		$batchDesc = Input::get('description');
+		$docType = Input::get('documentType');
+
+		$settings = [];
+		$settings['project'] = "dive";
+		$settings['documentType'] = $docType;
+		$settings['batch_description'] = $batchDesc;
+		$settings['domain'] = 'cultural';
+		$settings['format'] = 'text';
+
+		// process request
+		$importer = new DIVEUnitsImporter();
+		$status = $importer->process($signal, $payload, $settings);
+
+		return $status;
     }
 
 
