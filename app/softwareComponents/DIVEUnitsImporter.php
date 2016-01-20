@@ -62,47 +62,91 @@ class DIVEUnitsImporter {
 
 		try {
 		
-			if ($signal == "new_units") {
+			if (!empty($payload)) {
+				if ($signal == "new_units") {
 
 				
-				$settings['units'] = [];
+					$settings['units'] = [];
 
-				$retUnits = json_decode ( $payload, true ) ;
+					$retUnits = json_decode ( $payload, true ) ;
 
-				//return $retUnits;
-				// Create activity
-				$activity = $this->createActivity();
-				
-				foreach ($retUnits as $unitContent) {
-
-					$unit = new Unit();
-					$unit->project = $settings['project'];
-					$unit->activity_id = $activity->_id;
-					$unit->documentType = $settings['documentType'];
-					$unit->type = "unit";
-					$unit->parents = [];
-					$unit->content = $unitContent;
-					$unit->hash = md5(serialize($unitContent));
-					$unit->source = "divedashboard";
-
-					//return $unit;
-					$unit->save();
+					//return $retUnits;
+					// Create activity
+					$activity = $this->createActivity();
 					
-					array_push($settings['units'], $unit->_id);
+					if ($settings['documentType'] == "") {
+						$settings['documentType'] = "diveunit";
+					}
+					
+					if ($settings["batch_description"] == "") {
+						$settings["batch_description"] = "Batch imported from DIVE dashboard";
+					}
+
+					foreach ($retUnits as $unitContent) {
+
+						$hashing = array();
+						$hashing["project"] = $settings["project"];
+						$hashing["documentType"] = $settings["documentType"];
+						$hashing["content"] = $unitContent;
+						$hash = md5(serialize($hashing));
+
+						$searchForUnit = \Entity::where("hash", $hash)->first();
+
+						if ($searchForUnit != NULL) {
+							//$units[$searchForUnit["_id"]] = $searchForUnit;
+							array_push($settings['units'], $searchForUnit["_id"]);
+						} 
+						else {
+							$unit = new Unit();
+							$unit->project = $settings['project'];
+							$unit->activity_id = $activity->_id;
+							$unit->documentType = $settings['documentType'];
+							$unit->type = "unit";
+							$unit->parents = [];
+							$unit->content = $unitContent;
+							$unit->hash = $hash;
+							$unit->source = "divedashboard";
+
+							//return $unit;
+							$unit->save();
+							$units[$unit->_id] = $unit;
+							
+							array_push($settings['units'], $unit->_id);
+							//	dd($settings['units']);
+						}
+
+					}
+
+					// Create Batch
+					$hashBatch = array();
+					$hashBatch["project"] = $settings["project"];
+					$hashBatch["batch_description"] = $settings["batch_description"];
+					$hashBatch["content"] = $settings["units"];
+					$settings['batch_title'] = "Imported batch from Dive dashboard";
+
+					$searchForBatch = \Entity::where("hash", md5(serialize($hashBatch)))->first();
+
+					if ($searchForBatch != NULL) {
+						array_push($this->status['notice'], "Batch already exists " . $searchForBatch['_id'] . "");
+					}
+					else {
+						$batch = Batch::store($settings, $activity);
+					}	
+					
+					array_push($this->status['success'], "Successfully imported " . $settings['documentType'] . "");
+					array_push($this->status['success'], "Logged activities as " . $activity->_id . "");
+					
+					return $this->status;
 
 				}
-
-			//	return "goes here";
-				// Create Batch
-				$settings['batch_title'] = "Imported batch from Dive dashboard";
-						
-				$batch = Batch::store($settings, $activity);
-
-				array_push($this->status['success'], "Successfully imported " . $settings['documentType'] . "");
-				array_push($this->status['success'], "Logged activities as " . $activity->_id . "");
-				
+				else {
+					array_push($this->status['error'], "Unknown request from DIVE dashboard -- " . $signal . "");
+					return $this->status;
+				}
+			}
+			else {
+				array_push($this->status['error'], "The content of the units is empty -- " . $payload . "");
 				return $this->status;
-
 			}
 			
 		} catch (Exception $e) {

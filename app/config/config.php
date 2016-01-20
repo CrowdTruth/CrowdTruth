@@ -1,8 +1,7 @@
 <?php
 return array(
 	'templatedir' => base_path() . '/public/templates/',
-	'csvdir' => base_path() . '/public/csv/',	
-	'platforms' => array('cf','cf2', 'amt')
+	'csvdir' => base_path() . '/public/csv/'	
 	);
 
 
