@@ -1,6 +1,5 @@
 <?php
 
-use Moloquent, Schema, Auth, Exception, Input;
 use \Counter as Counter;
 
 class Template extends Moloquent {
