@@ -331,11 +331,11 @@ class JobsController2 extends BaseController {
 	 		if($jcco['type'] == Null) 
 	    		return Redirect::back()->with('flashError', "form not filled in (type).");	 	
 	    	// get a selected, newest jcbase
-	    	$maxi = Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->max('version');
-	 		$jcbase = Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->where('version', $maxi)->first();
+	    	$maxi = Template::where("type", $jcco['type'])->max('version');
+	 		$jcbase = Template::where("type", $jcco['type'])->where('version', $maxi)->first();
 
 	 		if(!isset($jcbase)){
-	 			Session::flash('flashError',"template not found");
+	 			Session::flash('flashError',"template not found: ". $jcco['type']);
 				return Redirect::to("jobs2/submit");
 			}
 	 		if(!isset($jcbase['cml'])){
@@ -504,12 +504,12 @@ class JobsController2 extends BaseController {
 	    		return Redirect::back()->with('flashError', "You did not fill in the type of the template");	 	
 
 	    	// get a selected, newest jcbase
-	    	$maxi = Template::where("type", $jcco['type'])->where("format", $batch->format)->max('version');
-	 		$jcbase = Template::where("type", $jcco['type'])->where("format", $batch->format)->where('version', $maxi)->first();
+	    	$maxi = Template::where("type", $jcco['type'])->max('version');
+	 		$jcbase = Template::where("type", $jcco['type'])->where('version', $maxi)->first();
 
 
 	 		if(!isset($jcbase)){
-	 			Session::flash('flashError',"template not found");
+	 			Session::flash('flashError',"template not found: ". $jcco['type']);
 				return Redirect::to("jobs2/submit");
 			}
 			if(!isset($jcbase['cml'])){	// Template must have CML field
@@ -548,7 +548,7 @@ class JobsController2 extends BaseController {
 	    		return Redirect::back()->with('flashError', "You did not fill in the title of the template");	 	
 
 
-	    $jcco['platform'] = Array("cf");
+	    $jcco['platform'] = Array("DrDetectiveGamingPlatform"); //TODOJORAN
 	    $jcco['description'] =  Input::get('description');
 	    $jcco['title'] = $jcco['title'] . "[[" . $jcco['type'] . "(" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ")]]";
 	    ///////// PUT
@@ -614,7 +614,7 @@ class JobsController2 extends BaseController {
 			$successmessage = "Created job with jobConf :-)";
 
 		//	$platform = App::make($job_sw_agent);
-			$platform = App::make("cf2");
+			$platform = App::make("DrDetectiveGamingPlatform"); //TODOJORAN
 
 			$platform->refreshJob($j->_id);
 			

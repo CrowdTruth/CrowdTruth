@@ -26,6 +26,7 @@
 										$_format = (unserialize(Session::get('batch'))->format);
 										$batchUnits = (unserialize(Session::get('batch'))->parents);
 
+
 										$batchUnitContent = Entity::where("_id", $batchUnits[0])->get()->first();
 
 										$unitAttributes = array();
@@ -49,7 +50,7 @@
 									    	}
 										}
 
-										$_aTypes = Template::where("format", $_format)->distinct('type')->get();
+										$_aTypes = Template::distinct('type')->get();
 									    $_aTypes = array_flatten($_aTypes->toArray());
 									    foreach($_aTypes as $key=>$value){
 									    	if(!isset($aTypes[$value]))
