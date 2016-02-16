@@ -25,23 +25,31 @@
 		<div class='tab'>
 			<div class='search row'>
 				<div class='col-xs-12'>
+
+
+
+
 					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" multiple data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
 						<option value="all" class="select_all" data-subtext="0 Items">All</option>
-						@foreach($types as $project => $doctypes)
+                    	@foreach($types as $project => $doctypes)
 							<optgroup label="{{ $project }}">
-								@foreach($doctypes as $doctype => $count)
-									<option value="{{ $doctype }}" class="select_{{ $doctype }}" data-subtext="{{ $count }} Items">{{ $doctype }}</option>
+                        		@foreach($doctypes as $doctype => $count)
+									<option value="{{ $project }}__{{ $doctype }}" class="select_{{ $doctype }}" data-subtext="{{ $count }} Items">{{ $doctype }}</option>
 								@endforeach
 							</optgroup>
 						@endforeach
 					</select>
-				
+
+
 					<div class='btn-group pull-left' style="margin-left:5px";>
 						{{ Form::open([ 'action' => 'MediaController@postKeys', 'name' => 'theForm', 'id' => 'theForm' ]) }}
 							<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" data-selected-text-format="count>3" style="display: none;">
 							</select>
 						{{ Form::close() }}
 					</div>
+
+		
+
 					
 					<div class="btn-group pull-left specificFilterButton" style="margin-left:5px;">
 						<button type="button" class="btn btn-default specificFilter" data-original-title="" title="">
@@ -137,8 +145,6 @@
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
 						<li role="presentation" class="divider"></li>
 						<li role="presentation" class="dropdown-header">Database Tools</li>
-							<li><a href="{{ URL::to('media/listindex') }}">View search index</a></li>
-							<li><a href="{{ URL::to('media/refreshindex') }}">Refresh search index</a></li>
 							<li><a href="{{ URL::to('media/updatedb') }}">Update entities</a></li>
 						</ul>
 					</div>
@@ -388,6 +394,7 @@ $('.selectpicker').selectpicker({
     tickIcon: 'fa-check'
 });
 
+
 var xhr;
 var unitsChart;
 var oldTabKey;
@@ -415,6 +422,7 @@ var lastDocuments = [];
 $('.search .documentType').change(function(){
 
 	var documents = $(this).val();
+
 	//if nothing is selected, select All
 	if(!documents) {
 		$('.search .documentType option[value=all]').attr('selected',true);
@@ -422,7 +430,6 @@ $('.search .documentType').change(function(){
 	} else if(documents.length > 1 && documents[0] == 'all' && lastDocuments[0] == 'all') { // unselect 'all' if any other document type is selected
 		$('.search .documentType option[value=all]').attr('selected',false);
 		delete(documents[0]);
-		documents.sort();
 	} else if(documents.length > 1 && documents[0] == 'all' && lastDocuments[0] != 'all') { // unselect all other document types if 'all' is selected
 		$('.search .documentType option[value!=all]').attr('selected',false);
 		documents = ['all'];
@@ -437,8 +444,10 @@ $('.search .documentType').change(function(){
 	} else {
 		$('.specificFilterButton').hide();
 	}
-	
+
+	documents = documents.sort();
 	lastDocuments = documents;
+
 	getColumns(documents);
 });
 
@@ -651,17 +660,20 @@ var getSelection = function() {
 }
 
 function getTabFieldsQuery(){
-	var tabFieldsQuery = '';
+	var tabFieldsQuery = '&match[type]=unit';
 
-	var documentType = $('.search .documentType').val();
-	
+	var documents = $('.search .documentType').val();
+
+	console.log(documents);	
+
+
 	var operator = '=';
-	if(documentType[0] == 'all') {
-		tabFieldsQuery += "&match[type]=unit";
-	} else {
-		// needs to use all doctypes
-		tabFieldsQuery += "&" + "match[documentType]" + operator + documentType[0];
+	if(documents[0] != 'all') {
+		documents = documents[0].split('__');
+		tabFieldsQuery += "&match[documentType]" + operator + documents[1];
 	}
+
+
 	
 	// find filter values
 	$('.inputFilters, .specificFilterContent').find("[data-query-key]").each(function() {
@@ -701,30 +713,29 @@ function getTabFieldsQuery(){
 }
 
 // function to get columns available for selected document types
-function getColumns(docTypes) {
+function getColumns(documents) {
 
-			formData = 'documents=' + docTypes.join('|');
+			formData = 'documents=' + documents.join('|');
 			$.ajax({
 				type: "POST",
 				url: $("#theForm").attr("action"),
 				data: formData,
 				success: function(data) {
 
+					def = ['_id','documentType','title','created_at','project','user_id','avg_clarity']; // default visible columns
+
 					// create select list with default options
 					var columnList = '<optgroup data-icon="fa fa-flag" class="columnSelected" label="Selected">';
-					for(key in data.keys) {
-						if(data.default.indexOf(key)>=0) {
-							columnList += '<option data-icon="' + data.formats[data.keys[key]['format']] + ' fa-fw" value="' + data.keys[key]['key'] + '" format="' + data.keys[key]['format'] + '" class="select_' + key + '" selected>' + data.keys[key]['label'] + '</option>';
-						}
+					for(key in def) {
+						columnList += '<option data-icon=" fa-fw" value="' + def[key] + '" format="" class="select_' + def[key] + '" selected>' + def[key] + '</option>';
 					}
 					columnList += '</optgroup>';
 
 					// list with other options
 					columnList += '<optgroup class="columnNotSelected" label="Available">';
-					for(key in data.keys) {
-						if(data.default.indexOf(key)==-1) {
-							columnList += '<option data-icon="' + data.formats[data.keys[key]['format']] + ' fa-fw" value="' + data.keys[key]['key'] + '" format="' + data.keys[key]['format'] + '" class="select_' + key + '">' + data.keys[key]['label'] + '</option>';
-						}
+					for(key in data) {
+						label = 
+						columnList += '<option data-icon=" fa-fw" value="' + data[key] + '" format="" class="select_' + data[key] + '">' + data[key] + '</option>';
 					}
 					columnList += '</optgroup>';
 					
@@ -1102,6 +1113,10 @@ if(workerList !=  null) {
     }
     localStorage.removeItem("unitList");
 }
+
+$(document).on('click', '.mediaselector', function (e) {
+        e.stopPropagation();
+    });
 
 
 });

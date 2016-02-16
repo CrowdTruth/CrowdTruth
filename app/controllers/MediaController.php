@@ -42,88 +42,8 @@ class MediaController extends BaseController {
 		return Redirect::to('media/preprocess/text');
 	}
 
-	/**
-	 * map properties to keys with formats
-	 */
-	public function getKeys($entity, $parent = "", $type = "") {
-		$blacklist = [ '/withoutSpam/', '/withSpam/', '/withFilter/', '/withoutFilter/' ];
-		$poundSign = '/#/';
-		foreach($blacklist as $pattern) {
-			if(preg_match($pattern, $parent)) {
-				return [];
-			}
-		}
-		
-		if($parent == "") {
-			$type = $entity['documentType'];
-		}
-		
-		$keys = [];
-		// loop through all properties
-		foreach($entity as $key => $value) {
-			// exclude keys that are numbers
-			if(! is_numeric($key) && !preg_match($poundSign, $key)) {
-				// if the property has children
-				if(is_array($entity[$key])) {
-					// get properties of children
-					$subKeys = $this->getKeys($entity[$key], $parent.$key.".", $type);
-					$keys = array_merge($keys, $subKeys);
-				} else {
-					if($parent != "") { // this has a parent
-						$subkey = str_replace('.', '_', $parent.$key);
-						$keys[$subkey] = ['key' => $parent.$key, 'label' => $this->getLabel($parent.$key), 'format' => $this->getFormat($value), 'document' => $type];
-					} else {
-						$keys[$key] = ['key' => $key, 'label' => $this->getLabel($key), 'format' => $this->getFormat($value), 'document' => $type];
-					}
-				}
-			}
-		};
-		return $keys;
-	}
 
-	/**
-	 * trace format of a value
-	 */
-	public function getFormat($value) {
-		
-		if(preg_match('/^.*\.(mp3|ogg|wmv)$/i',$value)) {
-			$format = 'sound';
-		} else if(preg_match('/^(http\:\/\/.*\.ggpht\.com.*|.*\.(jpg|jpeg|png|gif))$/i',$value)) {
-			$format = 'image';
-		} else if(preg_match('/^.*\.(avi|mpeg|mpg|mp4)$/i',$value)) {
-			$format = 'video';
-		} else if(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}.*$/i',$value)) {
-			$format = 'time';
-		} else if(is_numeric($value)) {
-			$format = 'number';
-		} else {
-			$format = 'string';
-		}		
 
-		return $format;
-	}
-	
-	/**
-	 * create a fancy label based on a key
-	 */
-	public function getLabel($label) {
-		$label = str_replace(".", " > ", $label);
-		$label = str_replace("_", " ", $label);
-		$label = ucfirst($label);
-		return $label;
-	}
-
-	/**
-	 * page with current index
-	 */
-	public function getListindex()
-	{
-		$searchComponent = new MediaSearchComponent();
-		$keys = $searchComponent->getKeys();
-		$formats = $searchComponent->getFormats();
-		return View::make('media.search.pages.listindex')->with('keys', $keys)->with('formats',$formats);
-	}
-	
 	/**
 	 * page to add results
 	 */
@@ -204,32 +124,46 @@ class MediaController extends BaseController {
 	
 	
 	/**
-	 * get keys for (a set of) document types
+	 * get keys for (a set of) selected document types
 	 */
 	public function postKeys()
 	{	
+		// get the document types
 		$documents = explode("|", Input::get('documents'));
 		$searchComponent = new MediaSearchComponent();
 
-		$keys = $searchComponent->getKeys($documents);
-		asort($keys);
-		$formats = $searchComponent->getFormats();
+		// store all keys in this array
+		$docKeys = [];
+
+		// go through each selected document type and get the keys
+		foreach($documents as $type) {
+
+			// skip if value is empty
+			if($type == "") {
+				continue;
+			} elseif($type == "all") {
+				$units = Unit::select('content')->get();
+			} else {
+				// split the document type string so that we can get the project name from it.
+				$type = explode('__', $type);
+				// get the content of the units for this document type in this project
+				// if the load on the system is too high limit this to e.g. 100 random units.
+				$units = Unit::select('content')->where('project', $type[0])->where('documentType', $type[1])->get();
+			}
+
+			// get the keys for the units in this document type
+			foreach($units as $unit) {
+				$unit->attributesToArray();
+				$keys = $searchComponent->getKeys($unit['attributes']);
+				$docKeys = array_unique(array_merge($docKeys, $keys));
+			}
+		}
+
+//		asort($keys);
 		
-		// default columns
-		$default = ['_id','documentType','title','created_at','project','user_id','avg_clarity']; // default visible columns
-		
-		return [
-			'log' => $documents,
-			'keys' => $keys,
-			'formats' => $formats,
-			'default' => $default
-		];
+		return $docKeys;
 	}
 
-	public function getRefreshindex()
-	{
-		return View::make('media.search.pages.refreshindex');
-	}
 	
 	// update db page
 	public function getUpdatedb()
@@ -569,21 +503,27 @@ class MediaController extends BaseController {
 		
 		$types = [];
 		
+		$searchComponent = new MediaSearchComponent();
+
 		// for each project get the document types in it
 		foreach($projects as $key => $project) {
 			$docTypes = Unit::distinct('documentType')->where('project', $project)->get()->toArray();
+
+
 			// skip if there is no data
 			if(count($docTypes) > 0) {
 
 				// for each document type get the number of units
 				$types[$project] = [];
 				foreach($docTypes as $key => $type) {
-					$count = Unit::where('documentType', $type[0])->where('project', $project)->count();
+
+					$count = Unit::where('project', $project)->where('documentType', $type[0])->count();
+
 					$types[$project][$type[0]] = $count;
 				}
 			}
 		}
-		
+
 		return View::make('media.search.pages.media')->with('types', $types);
 	}
 

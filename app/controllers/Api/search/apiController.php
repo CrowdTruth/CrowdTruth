@@ -25,9 +25,12 @@ class apiController extends BaseController {
 		$this->repository = $repository;
 	}
 
-	protected $operators = array(
-		'=' , '<', '>', '<=', '>=', '<>', 'like'
-	);
+   protected $operators = array(
+        '=', '<', '>', '<=', '>=', '<>', '!=',
+        'like', 'not like', 'between', 'ilike',
+        '&', '|', '^', '<<', '>>',
+        'exists', 'type', 'mod', 'where', 'all', 'size', 'regex',
+    );
 	
 	public function getIndex()
 	{
