@@ -49,11 +49,9 @@ class MediaController extends BaseController {
 	 */
 	public function getImportresults()
 	{
-		$mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
-		$projects = ProjectHandler::getUserGroups(Auth::user());
-		$projects = array_column($projects, 'name');
+		$types = $this->userDocTypes();
 		
-		return View::make('media.search.pages.importresults')->with('mainSearchFilters', $mainSearchFilters)->with('projects', $projects);;
+		return View::make('media.search.pages.importresults')->with('types', $types);
 	}
 	
 	
@@ -114,7 +112,7 @@ class MediaController extends BaseController {
 		}
 
 		$mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
-		$projects = ProjectHandler::getUserGroups(Auth::user());
+		$projects = ProjectHandler::getUserProjects(Auth::user());
 		$projects = array_column($projects, 'name');
 		
 		return View::make('media.search.pages.importresults')->with('mainSearchFilters', $mainSearchFilters)->with('projects', $projects);;
@@ -199,7 +197,7 @@ class MediaController extends BaseController {
 		$units = Entity::distinct('_id')->where('tags', ['unit'])->skip($from)->take($batchsize)->get();
 
 		// get list of existing projects
-		$projects = ProjectHandler::listGroups();
+		$projects = ProjectHandler::listProjects();
 			 
 		// for each unit get the keys and check if the project exists
 		$allKeys = [];
@@ -487,16 +485,8 @@ class MediaController extends BaseController {
 		return Redirect::to('media/browse')->with('flashError', "No document found at given URI: {$URI}");
 	}
 
-	public function getSearch()
-	{
-		
-		/*
-		$mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
-		
-		// include keys
-		$searchComponent = new MediaSearchComponent();
-		*/
-		
+	// get a list of all the projects and document types a user has access to
+	private function userDocTypes() {
 		// get all projects a user has access to
 		$projects = ProjectHandler::getUserProjects(Auth::user());
 		$projects = array_column($projects, 'name');
@@ -523,6 +513,12 @@ class MediaController extends BaseController {
 				}
 			}
 		}
+		return $types;
+	}
+
+	public function getSearch()
+	{
+		$types = $this->userDocTypes();
 
 		return View::make('media.search.pages.media')->with('types', $types);
 	}

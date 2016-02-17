@@ -664,9 +664,6 @@ function getTabFieldsQuery(){
 
 	var documents = $('.search .documentType').val();
 
-	console.log(documents);	
-
-
 	var operator = '=';
 	if(documents[0] != 'all') {
 		documents = documents[0].split('__');
