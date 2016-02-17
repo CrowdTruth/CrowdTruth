@@ -52,17 +52,15 @@
 									<div class="form-group">
 										<label for="domain_type" class="col-sm-3 control-label">Input Type</label>
 										<div class="col-sm-9">
-											@if(isset($mainSearchFilters['media']['categories']))
-												<select name="inputClass" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-													@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
-														<optgroup label="{{ $project }}">
-															@foreach($documentTypes as $key => $doctype)
-																<option value="{{ $project }}-{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>
-															@endforeach
-														</optgroup>
-													@endforeach
-												</select>
-											@endif
+											<select name="inputClass" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+												@foreach($types as $project => $doctypes)
+													<optgroup label="{{ $project }}">
+														@foreach($doctypes as $doctype => $count)
+															<option value="{{ $project }}__{{ $doctype }}" class="select_{{ $doctype }}" data-subtext="{{ $count }} Items">{{ $doctype }}</option>
+														@endforeach
+													</optgroup>
+												@endforeach
+											</select>
 										</div>
 									</div>
 									
@@ -93,17 +91,15 @@
 									<div class="form-group">
 										<label for="domain_type" class="col-sm-3 control-label">Output Type</label>
 										<div class="col-sm-9">
-											@if(isset($mainSearchFilters['media']['categories']))
-												<select name="outputClass" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-													@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
-														<optgroup label="{{ $project }}">
-															@foreach($documentTypes as $key => $doctype)
-																<option value="{{ $project }}-{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>
-															@endforeach
-														</optgroup>
-													@endforeach
-												</select>
-											@endif
+											<select name="outputClass" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
+												@foreach($types as $project => $doctypes)
+													<optgroup label="{{ $project }}">
+														@foreach($doctypes as $doctype => $count)
+															<option value="{{ $project }}__{{ $doctype }}" class="select_{{ $doctype }}" data-subtext="{{ $count }} Items">{{ $doctype }}</option>
+														@endforeach
+													</optgroup>
+												@endforeach
+											</select>
 										</div>
 									</div>
 									

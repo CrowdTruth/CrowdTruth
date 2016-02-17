@@ -311,7 +311,7 @@ class ResultImporter {
 				// Temp mapping of files to document type structures. This should be done using the preprocessing functions
 				
 				// Sounds
-				if($settings['documentType'] == 'sound') {
+				if($settings['project'] == 'Sounds' && $settings['documentType'] == 'sound') {
 					$content = [
 					'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
 					'preview-hq-mp3' => $data[$unitIds[$i]][array_search('preview-hq-mp3',$data[0])]
@@ -351,7 +351,28 @@ class ResultImporter {
 							];
 						}
 					}
-						
+				}
+
+
+				// Passage Alignment
+				if($settings['project'] == 'Quantum' && $settings['documentType'] == 'sound') {
+					$content = [
+						'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
+						'sound1' => [
+							'id' => $data[$unitIds[$i]][array_search('s1_id',$data[0])],
+							'name' => $data[$unitIds[$i]][array_search('s1_name',$data[0])],
+							'description' => $data[$unitIds[$i]][array_search('s1_description',$data[0])],
+							'duration' => $data[$unitIds[$i]][array_search('s1_duration',$data[0])],
+							'url' => $data[$unitIds[$i]][array_search('s1_url',$data[0])]
+						],
+						'sound2' => [
+							'id' => $data[$unitIds[$i]][array_search('s2_id',$data[0])],
+							'name' => $data[$unitIds[$i]][array_search('s2_name',$data[0])],
+							'description' => $data[$unitIds[$i]][array_search('s2_description',$data[0])],
+							'duration' => $data[$unitIds[$i]][array_search('s2_duration',$data[0])],
+							'url' => $data[$unitIds[$i]][array_search('s2_url',$data[0])]
+						]
+					];
 				}
 				
 				

@@ -64,8 +64,8 @@ class MediaController extends BaseController {
 		$files = Input::file('file');
 		
 		$settings = [];
-		$inputClass = explode('-', Input::get('inputClass'));
-		$outputClass = explode('-', Input::get('outputClass'));
+		$inputClass = explode('__', Input::get('inputClass'));
+		$outputClass = explode('__', Input::get('outputClass'));
 		$settings['filename'] = basename($files->getClientOriginalName(), '.csv');
 		//$inputFormat = 'text';
 		//$inputDomain = 'medical';
