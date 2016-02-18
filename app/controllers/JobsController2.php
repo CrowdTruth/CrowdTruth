@@ -6,6 +6,7 @@ use \Entities\Unit as Unit;
 use \Entities\Batch as Batch;
 use \Entities\JobConfiguration as JobConfiguration;
 use \Entities\Job as Job;
+use \Template as Template;
 
 use \Activity as Activity;
 
@@ -288,12 +289,14 @@ class JobsController2 extends BaseController {
 		if($newest === null){
 				$v = 0;
 			}else{
-				$v =   Template::where("type", $type)->where("format", $j->format)->max('version')+1;
+				//$v =   Template::where("type", $type)->where("format", $j->format)->max('version')+1;
+				$v =   Template::where("type", $type)->max('version')+1;
 			}	
 		//save + increasing version
 	    $te = new Template;
 	    $te['cml'] = $jcco['cml'];
-	    $te['format'] = $j->format;
+	    $te['platform'] = "cf2";
+	    //$te['format'] = $j->format;
 	 	if(isset($jcco['css']))
 	 			$te['css'] = $jcco['css'];
  		if(isset($jcco['instructions']))
@@ -301,7 +304,8 @@ class JobsController2 extends BaseController {
  		if(isset($jcco['js']))
  			$te['js'] = $jcco['js'];
 		$te['version'] = $v;
- 		$te['type'] = $type;
+ 		//$te['type'] = $type;
+ 		$te['type'] = Input::get('templateType');
  		$te->save();
 
 
@@ -380,17 +384,17 @@ class JobsController2 extends BaseController {
 		return Redirect::to("jobs2/batch");
 	}
 
-	public function getDuplicate($entity, $format, $domain, $docType, $incr){
+	public function getDuplicate($entity, $project, $type, $incr){
 		Session::forget('batch');
 
-		$job = Job::id("entity/job/$incr")->first();
+		$job = Job::id("entity/$project/$type/$incr")->first();
 
 		if(!is_null($job)){
 				$jc = $job->JobConfiguration->replicate();
 			unset($jc->activity_id);
 			$jc->parents= array($job->JobConfiguration->_id);
 			Session::put('jobconf', serialize($jc));
-			Session::put('format', $job->batch->format);
+			//Session::put('format', $job->batch->format);
 			if(isset($jc->content['TVID']))
 				Session::put('templateType', $jc->content['TVID']);
 			Session::put('title', $jc->content['title']);
@@ -423,9 +427,9 @@ class JobsController2 extends BaseController {
 	}
 
 
-	public function getRefresh($entity, $format, $domain, $docType, $incr){
+	public function getRefresh($entity, $project, $type, $incr){
 		$platform = App::make('cf2');
-		$platform->refreshJob("entity/job/$incr");
+		$platform->refreshJob("entity/$project/$type/$incr");
 		return Redirect::to("jobs");
 	}
 
