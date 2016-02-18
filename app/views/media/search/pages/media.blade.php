@@ -362,6 +362,32 @@ $('document').ready(function(){
 	return new Handlebars.SafeString(user);
   });
 
+
+
+  Swag.addHelper('dynamicField', function(value) {
+    
+    if(!value) {
+    	string = "";
+    } else if(/^(http\:\/\/.*\.ggpht\.com.*|.*\.(jpg|jpeg|png|gif))$/i.test(value)) {
+		// image
+		string = '<img style="max-width:100px; max-height:100px;border:0px;" src="' + value + '" />';
+	} else if(/^.*\.(mp3|ogg|wmv)$/i.test(value)) {
+		// sound
+		string = '<audio class="audio" src="' + value + '" preload="none" controls="controls">Please update your browser to the latest version in order to complete this task.</audio>';
+	} else if(/^.*\.(avi|mpeg|mpg|mp4)$/i.test(value)) {
+		// video
+		string = '<video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="' + value + '" type="video/mp4">Your browser does not support the video tag.</video>';
+	} else if(!isNaN(value)) {
+		// number
+		string = value;
+	} else {
+	 	// other
+		string = value;
+	}
+	
+	return new Handlebars.SafeString(string);
+  });
+
   
   
 	// set the unit modal based on the document type. only available in some specific cases
@@ -885,31 +911,14 @@ var dynamicTemplate = function() {
 		if(columns[i] == '_id') {
 			// for the ID the best modal is applied through handlebars to show the invidial unit
 			template += '<td data-vbIdentifier="id">@{{ unitModal this._id this.documentType }}</td>';
+		} else if (columns[i].indexOf('content.') === 0) {
+
+			// display based on actual content
+			template += '<td data-vbIdentifier="id">@{{ dynamicField this.' + columns[i] + ' }}</td>';
+
 		} else {
-			// fallback support for video keyframes and video segments
-			if(columns[i] == 'keyframes.count') {
-				template += '<td data-vbIdentifier="number_of_video_keyframes" id="keyframe_@{{ @index }}"><a class="testModal" data-modal-query="&only[]=content.storage_url&only[]=content.timestamp&match[documentType]=keyframe&match[parents][]=@{{ this._id }}" data-api-target="{{ URL::to("api/search?noCache") }}" data-target="#modalVideoKeyframes" data-toggle="tooltip" data-placement="top" title="Click to see the keyframes">@{{ this.keyframes.count }}</a></td>';
-			} else if(columns[i] == 'segments.count') { 
-				template += '<td data-vbIdentifier="number_of_video_segments" id="segment_@{{ @index }}"><a class="testModal" data-modal-query="&only[]=content.storage_url&only[]=content.duration&match[documentType]=videosegment&only[]=content.start_time&only[]=content.end_time&match[parents][]=@{{ this._id }}" data-api-target="{{ URL::to("api/search?noCache") }}" data-target="#modalVideoSegments" data-toggle="tooltip" data-placement="top" title="Click to see the video segments">@{{ this.segments.count }}</a></td>';
-			} else {
-				// change field based on format of the data
-				switch($('.columns option[value="' + columns[i] + '"]').attr('format')) {
-					case 'image':
-						template += '<td data-vbIdentifier="id"><img style="max-width:100px; max-height:100px;border:0px;" src="@{{ this.' + columns[i] + ' }}" /></td>';
-					break;
-					case 'sound':
-						template += '<td data-vbIdentifier="id"><audio class="audio" src="@{{ this.' + columns[i] + ' }}" preload="none" controls="controls">Please update your browser to the latest version in order to complete this task.</audio></td>';
-					break;
-					case 'video':
-						template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video></td>';
-					break;
-					case 'number':
-						template += '<td data-vbIdentifier="id">@{{ toFixed this.' + columns[i] + ' 2 }}</td>';
-					break;
-					default:
-						template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
-				}
-			}
+			// default display
+			template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
 		}
 	}
 	template += '</tr>@{{/each}}';
@@ -919,7 +928,6 @@ var dynamicTemplate = function() {
 // on adding or removal of a column, refresh the table identifiers and filters
 $('.columns').on('change', function(){
 	refreshColumns();
-	
 	
 	// update results
 	var template = Handlebars.compile(dynamicTemplate());
