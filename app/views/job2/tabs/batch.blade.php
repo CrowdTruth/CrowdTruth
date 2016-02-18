@@ -47,9 +47,8 @@
 													<th></th>
 													<th class="sorting" data-query-key="orderBy[title]">Title</th>
 													<th class="sorting" data-query-key="orderBy[content]">Content</th>
-													<th>Size</th>
-													<th class="sorting" data-query-key="orderBy[format]">Format</th>
-													<th class="sorting" data-query-key="orderBy[domain]">Domain</th>
+													<th class="sorting" data-query-key="orderBy[size]">Size</th>
+													<th class="sorting" data-query-key="orderBy[project]">Project</th>
 													<th class="sorting whiteSpaceNoWrap" data-query-key="orderBy[user_id]">Created By</th>
 												</tr>
 												<tr class="inputFilters">
@@ -60,24 +59,12 @@
 													<td>
 														<input class="input-sm form-control" type='text' data-query-key="match[content]" data-query-operator="like" />
 													</td>
-													<td style='min-width:40px;'>
+													<td style='min-width:100px;'>
+														<input class="input-sm form-control" type='text' data-query-key="match[size]" data-query-operator=">" style="width:49%; float:left;" placeholder=">" data-toggle="tooltip" data-placement="bottom" title="Greater than" />
+														<input class="input-sm form-control" type='text' data-query-key="match[size]" data-query-operator="<" style="width:49%; float:right;" placeholder="<" data-toggle="tooltip" data-placement="bottom" title="Less than" />
 													</td>
 													<td>
-														<?php 
-														$format = Session::get('format');
-														if (empty($format)){
-
-															echo '<input class="input-sm form-control" type="text" data-query-key="match[format]" data-query-operator="like" />';
-														}
-														else
-														{
-
-															echo '<input class="input-sm form-control" type="text" data-query-key="match[format]" data-query-value="'.$format.'" />';
-														}
-														?>
-													</td>
-													<td>
-														<input class="input-sm form-control" type='text' data-query-key="match[domain]" data-query-operator="like" />
+														<input class="input-sm form-control" type='text' data-query-key="match[project]" data-query-operator="like" />
 													</td>
 													<td>
 														<input class="input-sm form-control" type='text' data-query-key="match[user_id]" data-query-operator="like" />
@@ -92,8 +79,7 @@
 														<td class='text-left double-title' data-vbIdentifier="title"><strong>@{{ this.title }}</strong><div class='list-content-small'>@{{ this._id }}</div></td>
 														<td class='text-left' data-vbIdentifier="content">@{{ this.content }}</td>
 														<td data-vbIdentifier="size">@{{ this.parents.length }}</td>
-														<td data-vbIdentifier="format">@{{ this.format }}</td>
-														<td data-vbIdentifier="domain">@{{ this.domain }}</td>
+														<td data-vbIdentifier="project">@{{ this.project }}</td>
 														<td data-vbIdentifier="user_id">@{{ highlightSelf this.user_id }} </td>
 													</tr>
 													@{{/each}}

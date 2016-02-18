@@ -264,7 +264,8 @@ class JobsController2 extends BaseController {
 		$jc = Entity::where("_id", $jc_id)->first();
 		$jcco = $jc['content'];
 		$j = Entity::where("_id", $j_id)->first();
-		$type = Input::get('templateType');
+		//$type = Input::get('templateType');
+		$type = "job";
 		$load = Input::get('load');
 		if($type === null){
 			$load = Session::get('load');
@@ -272,7 +273,8 @@ class JobsController2 extends BaseController {
 		}
 		else
 		{
-		Session::put('templateType', $type);
+		//Session::put('templateType', $type);
+		Session::put('templateType', Input::get('templateType'));
 		Session::put('load', $load);
 		}
 		if($type===null or $type==="")
@@ -355,7 +357,8 @@ class JobsController2 extends BaseController {
 		 	$rest = substr($jcco['title'], strpos($jcco['title'], '(entity/' ));
 	 		$jcco['title'] = $title . "[[" . $jcco['type'] . $rest;
 	 		$jc['content'] = $jcco;
-	 		$j['type'] = $jcco['type'];
+	 		//$j['type'] = $jcco['type'];
+	 		$j['type'] = "job";
 	 		$jc->save();
 	 		$j->save();
 	 		$platform = App::make('cf2');
@@ -380,7 +383,7 @@ class JobsController2 extends BaseController {
 	public function getDuplicate($entity, $format, $domain, $docType, $incr){
 		Session::forget('batch');
 
-		$job = Job::id("entity/$format/$domain/$docType/$incr")->first();
+		$job = Job::id("entity/job/$incr")->first();
 
 		if(!is_null($job)){
 				$jc = $job->JobConfiguration->replicate();
@@ -422,7 +425,7 @@ class JobsController2 extends BaseController {
 
 	public function getRefresh($entity, $format, $domain, $docType, $incr){
 		$platform = App::make('cf2');
-		$platform->refreshJob("entity/$format/$domain/$docType/$incr");
+		$platform->refreshJob("entity/job/$incr");
 		return Redirect::to("jobs");
 	}
 
@@ -552,6 +555,8 @@ class JobsController2 extends BaseController {
 	    $jcco['description'] =  Input::get('description');
 	    $jcco['title'] = $jcco['title'] . "[[" . $jcco['type'] . "(" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ")]]";
 	    ///////// PUT
+
+	    $jcco['platform'] = Array("cf2");
 	    $jc->content = $jcco;
 	    if($own){
 		    $_tt = Template::where('type', $jcco['type'])->where("format", $batch->format)->first();
@@ -594,7 +599,7 @@ class JobsController2 extends BaseController {
 			$j->project = $batch->project;
 			$j->domain = $batch->domain;
 			$j->user_id = $batch->user_id;
-			$j->type = $jc->content['type'];
+			$j->type = "job";
 			$j->batch_id = $batch->_id;
 			$j->jobConf_id = $jcid;
 			$j->softwareAgent_id = $job_sw_agent;
@@ -614,7 +619,8 @@ class JobsController2 extends BaseController {
 			$successmessage = "Created job with jobConf :-)";
 
 		//	$platform = App::make($job_sw_agent);
-			$platform = App::make("DrDetectiveGamingPlatform"); //TODOJORAN
+			$platform = App::make("cf2");
+		//	$platform = App::make("DrDetectiveGamingPlatform"); //TODOJORAN
 
 			$platform->refreshJob($j->_id);
 			
