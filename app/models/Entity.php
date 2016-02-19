@@ -43,9 +43,9 @@ class Entity extends Moloquent {
 
             if(!empty($entity->hash) && !empty($entity->project))
             {
-                if(Entity::withTrashed()->where('hash', $entity->hash)->where('project', $entity->project)->first())
+            	if(Entity::withTrashed()->where('hash', $entity->hash)->where('project', $entity->project)->first())
                 {
-                    throw new Exception("Hash already exists for: " . $entity->title . " in project " . $entity->project);
+                   	throw new Exception("Hash already exists for: " . $entity->title . " in project " . $entity->project);
                 }
             }
 
