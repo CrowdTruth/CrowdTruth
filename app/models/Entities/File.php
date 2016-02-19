@@ -73,7 +73,10 @@ class File extends Entity {
 		
 		$this->title = strtolower($file->getClientOriginalName());
 		$this->content = \File::get($file->getRealPath());
-		$this->hash = md5(serialize([$this->content]));
+		$hashing = array();
+		$hashing["project"] = $this->project;
+		$hashing["content"] = $this->content;
+		$this->hash = md5(serialize($hashing));
 		$this->size = $file->getSize();
 		$this->filetype = $file->getMimeType();
 		

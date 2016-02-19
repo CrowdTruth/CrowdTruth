@@ -60,11 +60,6 @@ class Entity extends Moloquent {
             }
         });
 
-        static::saving(function($entity)
-        {
-            $entity->documentType = strtolower($entity->documentType);
-        });
-
         static::saved(function($entity)
         {
 
@@ -186,12 +181,6 @@ class Entity extends Moloquent {
     public function scopeId($query, $id)
     {
         return $query->where_id($id);
-    }
-    
-    public function getJobCountAttribute(){
-        if($this->documentType == "relex-structured-sentence"){
-            return $workerunits = count(array_flatten(Entity::where('unit_id', $this->_id)->distinct('job_id')->get()->toArray()));
-        }
     }
 
     public function toArray()

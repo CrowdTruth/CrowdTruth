@@ -28,14 +28,11 @@ class Batch extends Entity {
 			$batch->title = $settings['batch_title'];
 			$batch->project = $settings['project'];
 			$batch->parents = $settings['units'];
-			$batch->content = $settings['batch_description'];
 			$batch->size = count($settings['units']);
 			$hashing = array();
 			$hashing["project"] = $settings['project'];
-			$hashing["batch_description"] = $settings['batch_description'];
 			$hashing["content"] = $settings['units'];
 			$batch->hash = md5(serialize($hashing));
-		//	$batch->activity_id = 
 
 			if(!isset($activity)){
 				$activity = new Activity;
