@@ -23,6 +23,10 @@ class DatabaseSeeder extends Seeder {
 		$this->call('SoftwareComponentSeeder');
 		$this->command->info('SoftwareComponent collection seeded!');
 		$this->command->info('Counters table seeded!');
+
+		$this->call('SoftwareAgentSeeder');
+		$this->command->info('SoftwareAgent collection seeded!');
+		$this->command->info('Counters table seeded!');
 		
 		$this->call('PermissionSeeder');
 		$this->command->info('Permissions tables seeded!');
