@@ -1,0 +1,132 @@
+.t1 {
+  font-weight: bold;
+  color: #6666CD;
+}
+
+.t2 {
+  font-weight: bold;
+  color: #CD6666;
+}
+
+.cml_row {
+  margin: 5px 0 5px 0; 
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  width: 50%;
+}
+
+.image-top-left {
+   vertical-align: top;
+}
+
+.tweetbody1 {
+   border: 1px solid #DEDEDE;
+}
+
+.tweetbody2 {
+   border: 1px solid #DEDEDE;
+}
+
+.novelanswer {
+  display: inline-block;
+  color: black;
+  width: 482px;
+  font-size: 125%;
+  font-weight: bold;
+  margin:0px;outline:none;
+}
+
+.novelanswer:hover{
+  border-color: #666 #aaa #bbb #888;
+  border-width:1px 1px 1px 1px;
+}
+
+.novelanswer2 {
+  display: inline-block;
+  color: black;
+  width: 482px;
+  font-size: 125%;
+  font-weight: bold;
+  margin:0px;outline:none;
+}
+
+.novelanswer2:hover{
+  border-color: #666 #aaa #bbb #888;
+  border-width:1px 1px 1px 1px;
+}
+
+.ans .cml_row:nth-child(4), .ans .cml_row:nth-child(6), .ans .cml_row:nth-child(8) {
+  margin-bottom:25px;
+}
+
+.cml_row label {
+  padding:4px;
+}
+
+.examples p {
+  padding:5px;
+  margin-bottom:0px;
+  font-style: italic;
+}
+
+.examples {
+  margin: 10px 0 22px;
+}
+
+.divValLocator {position: absolute; z-index: -1;}
+
+/*eventextraction class */
+.eventextraction hr { margin-top: 22px; }
+.eventextraction fieldset { padding: 10px; margin: 0px; width: 500px; }
+.eventextraction legend, #example legend { border: 0px; margin: 0px; padding: 0 5px 0 5px; width: auto; font-weight: inherit; font-size: inherit; color:black; line-height: inherit; letter-spacing: inherit; }
+.passage1 { text-align:center; }
+
+.eventextraction { display: inline-block; vertical-align:top; -moz-user-select: none; -khtml-user-select: none; -webkit-user-select: none; user-select: none;}
+.eventextraction .passage1 .word:hover { cursor: pointer; cursor: hand; background-color: #C6C6C6; }
+
+.passage1 .word { position:relative; display: inline-block; line-height: 24px; z-index: 5; margin: 0px; padding: 4px 4px 5px 4px; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; }
+.passage1 .term { position: relative; z-index: 5; margin: 0px; }
+
+.eventextraction2 hr { margin-top: 22px; }
+.eventextraction2 fieldset { padding: 10px; margin: 0px; width: 500px; }
+.eventextraction2 legend, #example legend { border: 0px; margin: 0px; padding: 0 5px 0 5px; width: auto; font-weight: inherit; font-size: inherit; color:black; line-height: inherit; letter-spacing: inherit; }
+.passage2 { text-align:center; }
+
+.eventextraction2 { display: inline-block; vertical-align:top; -moz-user-select: none; -khtml-user-select: none; -webkit-user-select: none; user-select: none;}
+.eventextraction2 .passage2 .word:hover { cursor: pointer; cursor: hand; background-color: #C6C6C6; }
+
+.passage2 .word { position:relative; display: inline-block; line-height: 24px; z-index: 5; margin: 0px; padding: 4px 4px 5px 4px; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; }
+.passage2 .term { position: relative; z-index: 5; margin: 0px; }
+
+#example { position: relative; }
+#example .exampleRel { text-align:center; font-size:16px; font-weight:bold; letter-spacing: 1px; line-height:14px; }
+#example .term { padding-left:4px; padding-right:4px; }
+
+
+.term { -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; -webkit-box-shadow: inset 0px 1px 1px #fff, 0 1px 0px 0px #000;
+     -moz-box-shadow: inset 0px 1px 1px #fff, 0 1px 0px 0px #000;
+     box-shadow: inset 0px 1px 1px #fff, 0 1px 0px 0px #000; 
+  padding: 4px 0px 4px 0px; background-color: #8dd3c7; border: 1px solid #4d9387;}
+.term .word:first-of-type { margin-left:-1px; }
+.term .word:last-of-type { margin-right:-1px; }
+
+.event { margin-bottom: 0px; }
+.event .legend { display: none; }
+.event .term { margin: 0 2px 0 2px; line-height:30px; padding: 4px 4px 5px 4px; }
+.hidden { display: none; }
+
+.eventb { margin-bottom: 0px; }
+.eventb .legend { display: none; }
+.eventb .term { margin: 0 2px 0 2px; line-height:30px; }
+.hidden { display: none; }
+
+.instructions { color: #e32636; }
+
+.events .instructions { padding-left: 16px; background-image: url("/assets/glyphicons_halflings_085_circle_info_grey.png"); background-repeat: no-repeat; background-position: 0 2px; font-size: 10pt; height: 14px; margin: 10px 0 0 0; }
+
+.remove:hover { color: #CC0000; }
+.remove2:hover { color: #CC0000; }
+.event .remove { cursor: pointer; cursor: hand; }
+.eventb .remove2 { cursor: pointer; cursor: hand; }
+
