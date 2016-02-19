@@ -378,7 +378,7 @@ class MediaController extends BaseController {
 					$entity->store($file);
 					
 					$entity->save();
-					array_push($success, 'Added ' . $entity->title);
+					array_push($success, 'Added ' . $entity->title . ' to ' . $entity->project);
 					array_push($entities, $entity);
 				
 				} catch (Exception $e){
