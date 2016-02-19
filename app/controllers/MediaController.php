@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\View;
 
 use CoffeeScript\compact;
 
-use \SoftwareComponents\FileUploader as FileUploader;
 use \SoftwareComponents\MediaSearchComponent as MediaSearchComponent;
 use \SoftwareComponents\ResultImporter as ResultImporter;
 
@@ -430,37 +429,12 @@ class MediaController extends BaseController {
 	 * back to the user.
 	 */
 	private function loadMediaUploadView() {
-		// Load properties from file uploader software component.
-		$data = SoftwareComponent::find("fileuploader");
-		$dbDomains = $data->domains;
-		
-		$domains = [];
-		$names = [];
-		$fileTypes = [];
-		$doctypes = [];
-		foreach($dbDomains as $domainKey => $domain) {
-			// $domainKey = $domain['key'];
-		
-			array_push($domains, $domainKey);
-			$names[$domainKey] = $domain['name'];
-		
-			$fileTypeList = '';
-			foreach($domain['file_formats'] as $fileType) {
-				$fileTypeList = $fileTypeList.' '.$fileType;
-			}
-		
-			$fileTypes[$domainKey] = $fileTypeList;
-			$doctypes[$domainKey] = $domain['document_types'];
-		}
+
+		// get all the projects a user is in
 		$userprojects = ProjectHandler::getUserProjects(Auth::user());
 		$userprojects = array_column($userprojects, 'name');
 		
-		return View::make('media.pages.upload')
-			->with('domains', $domains)
-			->with('names', $names)
-			->with('fileTypes', $fileTypes)
-			->with('doctypes', $doctypes)
-			->with('projects', $userprojects);
+		return View::make('media.pages.upload')->with('projects', $userprojects);
 	}
 
 	public function getView()
