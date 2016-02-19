@@ -1,0 +1,453 @@
+/* Prevent 3px space at bottom of image: http://stackoverflow.com/questions/10844205/ */
+img {
+  vertical-align: middle;
+}
+* {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+html {
+  font-size: 10px;
+}
+.topBar {
+  border-bottom: 4px solid #282828;
+}
+.layout {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: stretch;
+  align-items: stretch;
+  min-height: 100vh;
+  padding-top: 54px;
+  margin-top: -54px;
+}
+.layout .actions {
+  width: 200px;
+  padding: 10px;
+}
+.layout .actions label {
+  display: block;
+}
+.layout .actions select,
+.layout .actions button {
+  margin: 2px 0;
+}
+.layout .actions .sortWrapper input[type=checkbox] {
+  float: right;
+}
+.layout .boxes {
+  flex-grow: 10;
+  position: relative;
+  margin: 10px;
+}
+.layout .boxes .box {
+  width: 7px;
+  height: 7px;
+  position: absolute;
+  background: grey;
+  transition: 0.4s all;
+}
+.layout .boxes .box.fade {
+  opacity: 0.2;
+}
+.layout .popup {
+  width: 150px;
+  padding: 10px;
+}
+.layout .popup a {
+  display: block;
+  margin: 10px 0;
+  text-decoration: underline;
+}
+/*# sourceMappingURL=main.css.map */
+.jh-root,
+.jh-type-object,
+.jh-type-array,
+.jh-key,
+.jh-value,
+.jh-root tr {
+  -webkit-box-sizing: border-box;
+  /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;
+  /* Firefox, other Gecko */
+  box-sizing: border-box;
+  /* Opera/IE 8+ */
+  font-weight: bold;
+}
+.jh-key,
+.jh-value {
+  margin: 0;
+  padding: 0.2em;
+  font-weight: bold;
+}
+.jh-value {
+  border-left: 1px solid #ddd;
+}
+.jh-type-number {
+  text-align: center;
+  color: #5286BC;
+}
+.jh-type-bool-true {
+  text-align: center;
+  color: #5A811C;
+}
+.jh-type-bool-false {
+  text-align: center;
+  color: #D45317;
+}
+.jh-type-bool-image {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+  vertical-align: bottom;
+}
+.jh-type-string {
+  font-style: italic;
+  color: #6E6E6E;
+}
+.jh-array-key {
+  font-style: italic;
+  font-size: small;
+  text-align: center;
+}
+.jh-object-key,
+.jh-array-key {
+  color: #444;
+  vertical-align: top;
+}
+.jh-type-object > tr:nth-child(odd),
+.jh-type-array > tr:nth-child(odd) {
+  background-color: #f5f5f5;
+}
+.jh-type-object > tr:nth-child(even),
+.jh-type-array > tr:nth-child(even) {
+  background-color: #fff;
+}
+.jh-type-object,
+.jh-type-array {
+  width: 100%;
+  border-collapse: collapse;
+}
+.jh-root {
+  border: 1px solid #ccc;
+  margin: 0.2em;
+}
+th.jh-key {
+  text-align: left;
+}
+.jh-type-object > tr,
+.jh-type-array > tr {
+  border: 1px solid #ddd;
+  border-bottom: none;
+}
+.jh-type-object > tr:last-child,
+.jh-type-array > tr:last-child {
+  border-bottom: 1px solid #ddd;
+}
+.jh-type-object > tr:hover,
+.jh-type-array > tr:hover {
+  border: 1px solid #F99927;
+}
+.jh-empty {
+  font-style: italic;
+  color: #999;
+  font-size: small;
+}
+.jh-a {
+  text-decoration: none;
+}
+.jh-a:hover {
+  text-decoration: underline;
+}
+.jh-a span.jh-type-string {
+  text-decoration: none;
+  color: #268ddd;
+  font-style: normal;
+}
+/*editor error animate*/
+/*@import "~toastr/build/toastr.min.css";*/
+.react-bs-container .react-bs-table-container {
+  border: 1px solid #dddddd;
+}
+.react-bs-container .table-header {
+  height: 37.5px;
+  border: hidden;
+  overflow: hidden;
+  border-bottom: 1px solid #dddddd;
+}
+.react-bs-container .table-header > table {
+  /*table-layout: fixed;*/
+  border-top-style: hidden;
+  border-right-style: hidden;
+  border-left-style: hidden;
+  width: 100%;
+}
+.react-bs-container .table-header > table > thead > tr {
+  border-bottom-style: hidden;
+}
+.react-bs-container .table-container > table > tbody > tr > td,
+.react-bs-container .table-container > table > thead > tr > th,
+.react-bs-container .table-header > table > thead > tr > th .table-header-column {
+  line-height: 25px;
+  vertical-align: top;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.react-bs-container .table-header > table > thead > tr > .sort-column {
+  cursor: pointer;
+}
+.react-bs-container .table-container {
+  overflow: auto;
+  height: 100%;
+}
+.react-bs-container .table-container > table {
+  margin-top: -42px;
+  /*table-layout: fixed;*/
+  margin-bottom: 0px;
+  border-left-style: hidden;
+  border-right-style: hidden;
+  border-bottom-style: hidden;
+  border-top-width: 0px;
+  width: 100%;
+}
+.react-bs-container .tool-bar {
+  margin-bottom: 5px;
+}
+/*inline editor default style*/
+.react-bs-container .form-control.editor {
+  /*width:100%;
+  top:0;
+  left:0;*/
+  /*height: 100%;
+  position: absolute;*/
+}
+.react-bs-container .textarea-save-btn {
+  position: absolute;
+  z-index: 100;
+  right: 0;
+  top: -21px;
+}
+/*error tip style*/
+.animated {
+  animation-fill-mode: both;
+}
+.animated.bounceIn,
+.animated.bounceOut {
+  animation-duration: .75s;
+}
+.animated.shake {
+  animation-duration: .3s;
+}
+@keyframes shake {
+  from,
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+  10%,
+  50%,
+  90% {
+    transform: translate3d(-10px, 0, 0);
+  }
+  30%,
+  70% {
+    transform: translate3d(10px, 0, 0);
+  }
+}
+.shake {
+  animation-name: shake;
+}
+@keyframes bounceIn {
+  from,
+  20%,
+  40%,
+  60%,
+  80%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  0% {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+  20% {
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
+  40% {
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+  80% {
+    transform: scale3d(0.97, 0.97, 0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+.bounceIn {
+  animation-name: bounceIn;
+}
+@keyframes bounceOut {
+  20% {
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+  50%,
+  55% {
+    opacity: 1;
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
+  to {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+}
+.bounceOut {
+  animation-name: bounceOut;
+}
+#popup {
+  width: 60%;
+  height: 100%;
+  overflow: scroll;
+}
+.boxes {
+  height: 100%;
+  overflow: scroll;
+  padding-right: 20px;
+}
+.actions {
+  overflow: scroll;
+}
+.actions .selected {
+  padding-top: 30px;
+}
+.actions ul li {
+  font-size: 10px;
+  word-wrap: break-word;
+}
+.bordered {
+  margin: 10px 10px 10px 10px;
+  border: 1px solid black;
+}
+.chart {
+  margin: 10px 10px 10px 10px;
+}
+.clickable {
+  cursor: pointer;
+}
+.fitscreen {
+  height: 80%;
+  overflow: scroll;
+}
+td {
+  word-wrap: break-word;
+}
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+.bs-callout {
+  margin: 5px 0;
+  border: 2px solid #eee;
+  border-left-width: 5px;
+  border-radius: 3px;
+}
+.bs-callout h4 {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+.bs-callout p:last-child {
+  margin-bottom: 0;
+}
+.bs-callout code {
+  border-radius: 3px;
+}
+.bs-callout + .bs-callout {
+  margin-top: -5px;
+}
+.bs-callout-default {
+  border-left-color: #777;
+}
+.bs-callout-default h4 {
+  color: #777;
+}
+.bs-callout-primary {
+  border-left-color: #428bca;
+}
+.bs-callout-primary h4 {
+  color: #428bca;
+}
+.bs-callout-success {
+  border-left-color: #5cb85c;
+}
+.bs-callout-success h4 {
+  color: #5cb85c;
+}
+.bs-callout-danger {
+  border-left-color: #d9534f;
+}
+.bs-callout-danger h4 {
+  color: #d9534f;
+}
+.bs-callout-warning {
+  border-left-color: #f0ad4e;
+}
+.bs-callout-warning h4 {
+  color: #f0ad4e;
+}
+.bs-callout-info {
+  border-left-color: #5bc0de;
+}
+.bs-callout-info h4 {
+  color: #5bc0de;
+}
+body {
+  background-color: yellow;
+}
+.white {
+  background-color: white;
+}
+.grey {
+  background-color: #D8D8D8;
+}
+.job-title {
+  border-style: solid;
+  border-width: 5px;
+}
+.full-width {
+  width: '100%';
+}
+.not-active {
+  pointer-events: none;
+  cursor: default;
+}
+.table {
+  cursor: pointer;
+}

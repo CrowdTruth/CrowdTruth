@@ -49,6 +49,7 @@ class apiController extends BaseController {
 		} else {
 			return [ 'error' => 'Authentication required. Please supply authkey.' ];
 		}
+		
 		$projects = ProjectHandler::getUserProjects($user, Permissions::PROJECT_READ);
 		$projectNames = array_column($projects, 'name');
 		$collection = $collection->whereIn('project', $projectNames);
@@ -202,7 +203,7 @@ class apiController extends BaseController {
 	}
 
 	protected function processFields($collection)
-	{
+		{
 		foreach(Input::get('match') as $field => $value)
 		{
 			if(is_array($value))
@@ -220,11 +221,16 @@ class apiController extends BaseController {
 						if(is_numeric($subvalue))
 						{
 							$subvalue = (double) $subvalue;
+							
+
 						}
 
 						if($operator == "like")
 						{
 							$collection = $collection->where($field, $operator, "%" . preg_quote($subvalue, '/') . "%");
+						}
+						elseif($operator == 'in'){
+							$collection = $collection->whereIn($field, $subvalue);
 						}
 						elseif($field == "created_at" || $field == "updated_at")
 						{
@@ -241,7 +247,7 @@ class apiController extends BaseController {
 						else
 						{
 							$collection = $collection->where($field, $operator, $subvalue);
-						}
+						}		
 					}
 				}
 
@@ -251,12 +257,13 @@ class apiController extends BaseController {
 				if(is_numeric($value))
 				{
 					$value = (int) $value;
-				}
+				}					
 
 				$collection = $collection->whereIn($field, array($value));
 			}
 		}
 
-		return $collection;
+		return $collection;		
 	}
 }
+

@@ -69,6 +69,25 @@
 									</a>
 								</div>
 							</div>
+							<div class="col-xs-4">
+								<div class='tools'>
+									<a href="/project-viz" class="noastyle">
+										<i class="fa fa-bar-chart" style='font-size:400%;'></i>
+										<h4>View Projects</h4>
+										<div>View Projects and analyze their Jobs</div>
+									</a>
+								</div>
+							</div>
+							<div class="col-xs-4">
+								<div class='tools'>
+									<a href="/shankey" class="noastyle">
+										<i class="fa fa-line-chart" style='font-size:400%;'></i>
+										<h4>Shankey</h4>
+										<div>View Shankey Diagrams</div>
+									</a>
+								</div>
+							</div>
+
 						</div>
 					</div>
 					<hr />

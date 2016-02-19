@@ -1,0 +1,192 @@
+<div class='eventextractionTitle'>
+  <h2><center> Read the TEXT:</center></h2>
+  <br>
+  <fieldset>
+    <div class="passageTitle" id="passageTitle">{{title}}</div>
+  </fieldset>
+  <p></p>
+  <br /><br />
+  
+  <cml:checkboxes label="STEP 1: Select all the SNIPPETS that refer to the TEXT." class="" name="event" validates="required" instructions="If no SNIPPETS are relevant, select 'NONE OF THE ABOVE'.">
+    <cml:checkbox label='{{sentence1}}' value="s1" /><br>
+    {% if {{sentence2}} != "" and {{sentence2}} != "No data available" and {{sentence2}} != empty %}
+    <cml:checkbox label='{{sentence2}}' value="s2" /><br>
+    {% endif %}
+    {% if {{sentence3}} != "" and {{sentence3}} != "No data available" and {{sentence3}} != empty %}
+    <cml:checkbox label='{{sentence3}}' value="s3" /><br>
+    {% endif %}
+    {% if {{sentence4}} != "" and {{sentence4}} != "No data available" and {{sentence4}} != empty %}
+    <cml:checkbox label='{{sentence4}}' value="s4" /><br>
+    {% endif %}
+    {% if {{sentence5}} != "" and {{sentence5}} != "No data available" and {{sentence5}} != empty %}
+    <cml:checkbox label='{{sentence5}}' value="s5" /><br>
+    {% endif %}
+    <cml:checkbox label='[NONE OF THE ABOVE]' value="none" />
+  </cml:checkboxes>
+  
+  <cml:group class='highlightWords' label="STEP 2: HIGHLIGHT the words in each SNIPPET that show relation to the TEXT." only-if="event:[s1]||event:[s2]||event:[s3]||event:[s4]||event:[s5]" instructions="To HIGHLIGHT MULTIPLE WORDS drag your cursor across the words you want to select. To HIGHLIGHT a SINGLE WORD click on it. All highlighted phrases appear in a list below the SNIPPET. To REMOVE highlighted phrases click on the REMOVE button next to each phrase. You can select up to 10 word phrases for each SNIPPET. DO NOT copy the whole sentence.">
+  
+  <div class='eventextraction1'>
+    <cml:group class="needsHighlight" only-if="event:[s1]">
+      <cml:hidden name='ev0a' class='ev0a' />
+      <cml:hidden name='ev1a' class='ev1a' />
+      <cml:hidden name='ev2a' class='ev2a' />
+      <cml:hidden name='ev3a' class='ev3a' />
+      <cml:hidden name='ev4a' class='ev4a' />
+      <cml:hidden name='ev5a' class='ev5a' />
+      <cml:hidden name='ev6a' class='ev6a' />
+      <cml:hidden name='ev7a' class='ev7a' />
+      <cml:hidden name='ev8a' class='ev8a' />
+      <cml:hidden name='ev9a' class='ev9a' />
+            
+        <fieldset>
+          <div class="passage" id="passage1">{{sentence1}}</div>
+        </fieldset>
+        
+        <div id='opinion0a' class='opinion'><span class='term event0aterm'></span><span id='remove0a' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion1a' class='opinion'><span class='term event1aterm'></span><span id='remove1a' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion2a' class='opinion'><span class='term event2aterm'></span><span id='remove2a' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion3a' class='opinion'><span class='term event3aterm'></span><span id='remove3a' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion4a' class='opinion'><span class='term event4aterm'></span><span id='remove4a' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion5a' class='opinion'><span class='term event5aterm'></span><span id='remove5a' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion6a' class='opinion'><span class='term event6aterm'></span><span id='remove6a' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion7a' class='opinion'><span class='term event7aterm'></span><span id='remove7a' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion8a' class='opinion'><span class='term event8aterm'></span><span id='remove8a' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion9a' class='opinion'><span class='term event9aterm'></span><span id='remove9a' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove </span><div style='clear:both;'></div></div>
+      </cml:group>
+   
+  </div>
+
+  <div class='eventextraction2'>
+    <cml:group class="needsHighlight" only-if="event:[s2]">
+      <cml:hidden name='ev0b' class='ev0b' /><br>
+      <cml:hidden name='ev1b' class='ev1b' />
+      <cml:hidden name='ev2b' class='ev2b' />
+      <cml:hidden name='ev3b' class='ev3b' />
+      <cml:hidden name='ev4b' class='ev4b' />
+      <cml:hidden name='ev5b' class='ev5b' />
+      <cml:hidden name='ev6b' class='ev6b' />
+      <cml:hidden name='ev7b' class='ev7b' />
+      <cml:hidden name='ev8b' class='ev8b' />
+      <cml:hidden name='ev9b' class='ev9b' />
+      
+            
+        <fieldset>
+          <div class="passage" id="passage2">{{sentence2}}</div>
+        </fieldset>
+        
+        <div id='opinion0b' class='opinion'><span class='term event0bterm'></span><span id='remove0b' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion1b' class='opinion'><span class='term event1bterm'></span><span id='remove1b' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion2b' class='opinion'><span class='term event2bterm'></span><span id='remove2b' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion3b' class='opinion'><span class='term event3bterm'></span><span id='remove3b' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion4b' class='opinion'><span class='term event4bterm'></span><span id='remove4b' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion5b' class='opinion'><span class='term event5bterm'></span><span id='remove5b' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion6b' class='opinion'><span class='term event6bterm'></span><span id='remove6b' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion7b' class='opinion'><span class='term event7bterm'></span><span id='remove7b' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion8b' class='opinion'><span class='term event8bterm'></span><span id='remove8b' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion9b' class='opinion'><span class='term event9bterm'></span><span id='remove9b' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove </span><div style='clear:both;'></div></div>
+      </cml:group>
+
+  </div>
+
+  <div class='eventextraction3'>
+    <cml:group class="needsHighlight" only-if="event:[s3]">
+      <cml:hidden name='ev0c' class='ev0c' />
+      <cml:hidden name='ev1c' class='ev1c' />
+      <cml:hidden name='ev2c' class='ev2c' />
+      <cml:hidden name='ev3c' class='ev3c' />
+      <cml:hidden name='ev4c' class='ev4c' />
+      <cml:hidden name='ev5c' class='ev5c' />
+      <cml:hidden name='ev6c' class='ev6c' />
+      <cml:hidden name='ev7c' class='ev7c' />
+      <cml:hidden name='ev8c' class='ev8c' />
+      <cml:hidden name='ev9c' class='ev9c' />
+      
+
+        
+        <fieldset>
+          <div class="passage" id="passage3">{{sentence3}}</div>
+        </fieldset>
+        
+        <div id='opinion0c' class='opinion'><span class='term event0cterm'></span><span id='remove0c' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion1c' class='opinion'><span class='term event1cterm'></span><span id='remove1c' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion2c' class='opinion'><span class='term event2cterm'></span><span id='remove2c' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion3c' class='opinion'><span class='term event3cterm'></span><span id='remove3c' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion4c' class='opinion'><span class='term event4cterm'></span><span id='remove4c' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion5c' class='opinion'><span class='term event5cterm'></span><span id='remove5c' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion6c' class='opinion'><span class='term event6cterm'></span><span id='remove6c' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion7c' class='opinion'><span class='term event7cterm'></span><span id='remove7c' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion8c' class='opinion'><span class='term event8cterm'></span><span id='remove8c' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion9c' class='opinion'><span class='term event9cterm'></span><span id='remove9c' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove </span><div style='clear:both;'></div></div>
+      </cml:group>
+
+  </div>
+
+  <div class='eventextraction4'>
+    <cml:group class="needsHighlight" only-if="event:[s4]">
+      <cml:hidden name='ev0d' class='ev0d' />
+      <cml:hidden name='ev1d' class='ev1d' />
+      <cml:hidden name='ev2d' class='ev2d' />
+      <cml:hidden name='ev3d' class='ev3d' />
+      <cml:hidden name='ev4d' class='ev4d' />
+      <cml:hidden name='ev5d' class='ev5d' />
+      <cml:hidden name='ev6d' class='ev6d' />
+      <cml:hidden name='ev7d' class='ev7d' />
+      <cml:hidden name='ev8d' class='ev8d' />
+      <cml:hidden name='ev9d' class='ev9d' />
+      
+     
+        
+        <fieldset>
+          <div class="passage" id="passage4">{{sentence4}}</div>
+        </fieldset>
+        
+        <div id='opinion0d' class='opinion'><span class='term event0dterm'></span><span id='remove0d' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion1d' class='opinion'><span class='term event1dterm'></span><span id='remove1d' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion2d' class='opinion'><span class='term event2dterm'></span><span id='remove2d' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion3d' class='opinion'><span class='term event3dterm'></span><span id='remove3d' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion4d' class='opinion'><span class='term event4dterm'></span><span id='remove4d' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion5d' class='opinion'><span class='term event5dterm'></span><span id='remove5d' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion6d' class='opinion'><span class='term event6dterm'></span><span id='remove6d' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion7d' class='opinion'><span class='term event7dterm'></span><span id='remove7d' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion8d' class='opinion'><span class='term event8dterm'></span><span id='remove8d' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion9d' class='opinion'><span class='term event9dterm'></span><span id='remove9d' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove </span><div style='clear:both;'></div></div>
+      </cml:group>
+
+  </div>
+  
+  <div class='eventextraction5'>
+    <cml:group class="needsHighlight" only-if="event:[s5]">
+      <cml:hidden name='ev0e' class='ev0e' />
+      <cml:hidden name='ev1e' class='ev1e' />
+      <cml:hidden name='ev2e' class='ev2e' />
+      <cml:hidden name='ev3e' class='ev3e' />
+      <cml:hidden name='ev4e' class='ev4e' />
+      <cml:hidden name='ev5e' class='ev5e' />
+      <cml:hidden name='ev6e' class='ev6e' />
+      <cml:hidden name='ev7e' class='ev7e' />
+      <cml:hidden name='ev8e' class='ev8e' />
+      <cml:hidden name='ev9e' class='ev9e' />
+    
+        <fieldset>
+          <div class="passage" id="passage5">{{sentence5}}</div>
+        </fieldset>
+        
+        <div id='opinion0e' class='opinion'><span class='term event0eterm'></span><span id='remove0e' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion1e' class='opinion'><span class='term event1eterm'></span><span id='remove1e' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion2e' class='opinion'><span class='term event2eterm'></span><span id='remove2e' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion3e' class='opinion'><span class='term event3eterm'></span><span id='remove3e' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion4e' class='opinion'><span class='term event4eterm'></span><span id='remove4e' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion5e' class='opinion'><span class='term event5eterm'></span><span id='remove5e' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion6e' class='opinion'><span class='term event6eterm'></span><span id='remove6e' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion7e' class='opinion'><span class='term event7eterm'></span><span id='remove7e' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion8e' class='opinion'><span class='term event8eterm'></span><span id='remove8e' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove</span><div style='clear:both;'></div></div>
+        <div id='opinion9e' class='opinion'><span class='term event9eterm'></span><span id='remove9e' class='btn btn-danger btn-small remove'><i class='icon-trash icon-white'></i> Remove </span><div style='clear:both;'></div></div>
+      </cml:group>
+
+  </div>
+  </cml:group>
+  <cml:text label="Validated when all the labels are analyzed" name="checkfield" class="checkfield" validates="required"/>
+  
+</div>
+
