@@ -49,8 +49,9 @@ class File extends Entity {
 		
 			// Create the SoftwareAgent if it doesnt exist
 			SoftwareAgent::store('filecreator', 'File creation');
+
 			
-			if(!isset($file->activity)){
+			if(!isset($file->activity_id)){
 				$activity = new Activity;
 				$activity->label = "File added to the platform";
 				$activity->softwareAgent_id = 'filecreator';

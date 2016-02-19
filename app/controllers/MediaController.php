@@ -364,7 +364,7 @@ class MediaController extends BaseController {
 			SoftwareAgent::store('filecreator', 'File creation');
 			
 			$activity = new Activity;
-			$activity->label = "Files added to the platform";
+			$activity->label = "File added to the platform";
 			$activity->softwareAgent_id = 'filecreator';
 			$activity->save();
 			$success = [];

@@ -37,7 +37,7 @@ class Batch extends Entity {
 			if(!isset($activity)){
 				$activity = new Activity;
 				$activity->label = "Batch added to the platform";
-				$activity->softwareAgent_id = 'mediacreator';
+				$activity->softwareAgent_id = 'batchcreator';
 				$activity->save();
 				$batch->activity_id = $activity->_id;
 			}

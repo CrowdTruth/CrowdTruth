@@ -10,12 +10,11 @@ class SoftwareAgent extends Moloquent {
 	protected $softDelete = true;
 	protected static $unguarded = true;   
 	
-	public function __construct($id = '', $label='')
-	{
-		$attributes = [];
-		parent::__construct($attributes);
-		$this->_id = $id;
-		$this->label = $label;
-	}
-
+	public static function store($name, $title) {
+ 		if(!SoftwareAgent::find($name)){
+ 			$softwareAgent = new SoftwareAgent;
+ 			$softwareAgent->_id = $name;
+ 			$softwareAgent->label = $title;
+ 		}
+ 	}
 }

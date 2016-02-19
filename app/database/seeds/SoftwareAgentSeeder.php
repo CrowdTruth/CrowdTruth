@@ -36,6 +36,12 @@ class SoftwareAgentSeeder extends Seeder {
 				'jobcreator',
 				'This component is used for creating jobs in the database'
 		);
+
+		// Initialize template creation
+		$this->createIfNotExist(
+				'templatecreator',
+				'This component is used for creating templates in the database'
+		);
 	}
 
 	/**
@@ -51,8 +57,8 @@ class SoftwareAgentSeeder extends Seeder {
 		
 		if( is_null($sc) ) {
 			$this->command->info('...Initializing: ' . $name);
-			$agent = new SoftwareAgent($name, $label);	// Create generic agent
-			$agent->save();		// And save the agent
+			$agent = new SoftwareAgent();	// Create generic agent
+			$agent->store();		// And save the agent
 		}
 	}
 }
