@@ -745,8 +745,7 @@ function getColumns(documents) {
 				data: formData,
 				success: function(data) {
 
-					def = ['_id','documentType','title','created_at','project','user_id','avg_clarity']; // default visible columns
-
+					def = ['_id','project','documentType','created_at','user_id']; // default visible columns
 					// create select list with default options
 					var columnList = '<optgroup data-icon="fa fa-flag" class="columnSelected" label="Selected">';
 					for(key in def) {
@@ -756,6 +755,8 @@ function getColumns(documents) {
 
 					// list with other options
 					columnList += '<optgroup class="columnNotSelected" label="Available">';
+					columnList += '<option data-icon=" fa-fw" value="avg_clarity" format="" class="select_avg_clarity">avg_clarity</option>';
+
 					for(key in data) {
 						label = 
 						columnList += '<option data-icon=" fa-fw" value="' + data[key] + '" format="" class="select_' + data[key] + '">' + data[key] + '</option>';

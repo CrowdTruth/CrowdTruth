@@ -48,7 +48,7 @@ class MediaSearchComponent {
 		// loop through all properties
 		foreach($entity as $key => $value) {
 			// exclude keys that are numbers
-			if(! is_numeric($key)) {
+			if(! is_numeric($key) && $key != '_id') {
 				// if the property has children
 				if(is_array($entity[$key])) {
 					// get properties of children

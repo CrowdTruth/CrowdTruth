@@ -22,15 +22,7 @@ class SoftwareComponentSeeder extends Seeder {
 					$txtPreprocessor['configurations'] = [];
 				}
 		);
-		
-		$this->createIfNotExist(
-				'fileuploader',
-				'This component is used for storing files as documents within MongoDB',
-				function( &$component ) {
-					$component['domains'] = [];
-				}
-		);
-		
+	
 		// Initialize media search component
 		$this->createIfNotExist(
 				'mediasearchcomponent',
