@@ -99,7 +99,7 @@ class UserController extends BaseController {
 			Session::flash('flashError', "$msg</ul>");
 			return Redirect::back()->withInput(Input::except('password', 'confirm_password'));
 		}
-		unset($userdata['confirm_password']);
+	
 		$user = Sentry::register($userdata);
 		Auth::login($user);
 	
