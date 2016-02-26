@@ -37,19 +37,24 @@ class Unit extends Entity {
 			 */
 		
 			// Create the SoftwareAgent if it doesnt exist
-			SoftwareAgent::store('filecreator', 'Unit creation');
+			if(!SoftwareAgent::find('unitcreator'))
+			{
+				$softwareAgent = new SoftwareAgent;
+				$softwareAgent->_id = "unitcreator";
+				$softwareAgent->label = "This component is used for creating units in the database";
+				$softwareAgent->save();
+			}
 			
 			if(!isset($unit->activity)){
 				$activity = new Activity;
 				$activity->label = "Unit added to the platform";
-				$activity->softwareAgent_id = 'filecreator';
+				$activity->softwareAgent_id = 'unitcreator';
 				$activity->save();
 				$unit->activity_id = $activity->_id;
 			}
+
 		});
 	}
-			
-
 				
 }
 ?>
