@@ -47,9 +47,13 @@ class File extends Entity {
 			 * 
 			 */
 		
-			// Create the SoftwareAgent if it doesnt exist
-			SoftwareAgent::store('filecreator', 'File creation');
-
+			if(!SoftwareAgent::find('filecreator'))
+			{
+				$softwareAgent = new SoftwareAgent;
+				$softwareAgent->_id = "filecreator";
+				$softwareAgent->label = "This component is used for creating files in the database";
+				$softwareAgent->save();
+			}
 			
 			if(!isset($file->activity_id)){
 				$activity = new Activity;

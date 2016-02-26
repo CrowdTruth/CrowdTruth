@@ -360,8 +360,14 @@ class MediaController extends BaseController {
 			$files = Input::file('files');
 			$project = Input::get('projectname');
 			
-			// Create the SoftwareAgent if it doesnt exist
-			SoftwareAgent::store('filecreator', 'File creation');
+
+			if(!SoftwareAgent::find('filecreator'))
+			{
+				$softwareAgent = new SoftwareAgent;
+				$softwareAgent->_id = "filecreator";
+				$softwareAgent->label = "This component is used for creating files in the database";
+				$softwareAgent->save();
+			}
 			
 			$activity = new Activity;
 			$activity->label = "File added to the platform";
