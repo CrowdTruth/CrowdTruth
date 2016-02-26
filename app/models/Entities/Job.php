@@ -48,7 +48,13 @@ class Job extends Entity {
             }
 */
             // Create the SoftwareAgent if it doesnt exist
-			SoftwareAgent::store('jobcreator', 'Job creation');
+			if(!SoftwareAgent::find('jobcreator'))
+			{
+				$softwareAgent = new SoftwareAgent;
+				$softwareAgent->_id = "jobcreator";
+				$softwareAgent->label = "This component is used for creating jobs in the database";
+				$softwareAgent->save();
+			}
 
 			if(!isset($job->projectedCost) and !isset($job->iamemptyjob)){
 				$reward = $job->jobConfiguration->content['reward'];

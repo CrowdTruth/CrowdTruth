@@ -479,10 +479,9 @@ class MediaController extends BaseController {
 		foreach($projects as $key => $project) {
 			$docTypes = Unit::distinct('documentType')->where('project', $project)->get()->toArray();
 
-
+//dd($docTypes);
 			// skip if there is no data
-			if(count($docTypes) > 0) {
-
+			if(!empty($docTypes[0])) {
 				// for each document type get the number of units
 				$types[$project] = [];
 				foreach($docTypes as $key => $type) {
