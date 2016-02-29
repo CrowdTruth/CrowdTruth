@@ -64,35 +64,39 @@ class TextController extends BaseController {
 
 				$newLine = "\n";
 				$docPreview = $document['content'];
+				$project = $document['project'];
 				$docPreview = explode($newLine, $docPreview);
 				$docPreview = array_slice($docPreview, 0, $this->nLines);
 				$docPreview = implode($newLine, $docPreview);
 				
 				$docTypes = Unit::select('documentType')->where('project', $document->project)->distinct()->get()->toArray();
 				
-				$config = $this->processor->getConfiguration($document["documentType"]);
-				if($config!=null) {
-					$delimiter = $config["delimiter"];
-					$separator = $config["separator"];
-					$ignoreHeader = !$config["useHeaders"];
-					
-					$previewTable = $this->doPreviewTable($document, $delimiter, $separator, $ignoreHeader);
-				} else {
-					$previewTable = null;
-				}
+				// default preview of files
+				$previewTable = $this->doPreviewTable($document, '"', ',', false);
 				
 				return View::make('media.preprocess.text.pages.configure')
 						->with('URI', $URI)
 						->with('docTitle', $document['title'])
 						->with('docPreview', $docPreview)
 						->with('functions', $functions)
-						->with('configuration', $config)
+						->with('project',$project)
+						//->with('configuration', $config)
 						->with('previewTable', $previewTable)
 						->with('docTypes', $docTypes)
 				;
 		} else {
 			return Redirect::back()->with('flashError', 'No valid URI given: ' . $URI);
 		}
+	}
+
+	/**
+	*
+	*/
+	public function postConfiguration(){
+		$project = Input::get('project');
+		$documentType = Input::get('documentType');
+		$config = $this->processor->getConfiguration($project, $documentType);
+		return $config;
 	}
 
 	/**
@@ -140,7 +144,9 @@ class TextController extends BaseController {
 		// Prepare document
 		$URI = Input::get('URI');
 		$document = $this->repository->find($URI);
-		
+		$project = $document['project'];
+		// need to verify project access here
+
 		$delimiter = Input::get('delimiter');
 		$separator = Input::get('separator');
 		$ignoreHeader = !Input::get('useHeaders');
@@ -155,7 +161,7 @@ class TextController extends BaseController {
 		if($postAction=='saveConfig') {
 			$inputs = Input::all();		// Same as $_POST
 			$rootProcessor = new RootProcessor($inputs, $this::getAvailableFunctions('extended'));
-			return $this->doSaveConfig($ignoreHeader, $delimiter, $separator, $rootProcessor, $document);
+			return $this->doSaveConfig($ignoreHeader, $delimiter, $separator, $rootProcessor, $project, $type);
 		} else if($postAction=='tableView') {
 			return $this->doPreviewTable($document, $delimiter, $separator, $ignoreHeader);
 		} else if($postAction=='processPreview' || $postAction=='process') {
@@ -167,8 +173,16 @@ class TextController extends BaseController {
 			if($postAction=='processPreview') {
 				return $this->doPreview($rootProcessor, $document, $delimiter, $separator, $ignoreHeader);
 			} else {	// $postAction=='process'
-
-				$type = Input::get('new_doctype');
+				$type = Input::get('document');
+				if($type == '_new' || !$type) {
+					$type = Input::get('new_doctype');
+				}
+				if($type == '') {
+					return [ 'Error' => 'No document type given' ];
+				}
+				$inputs = Input::all();
+				$rootProcessor = new RootProcessor($inputs, $this::getAvailableFunctions('extended'));
+				$this->doSaveConfig($ignoreHeader, $delimiter, $separator, $rootProcessor, $project, $type);
 				return $this->doPreprocess($rootProcessor, $document, $type, $delimiter, $separator, $ignoreHeader);
 
 			}
@@ -180,15 +194,12 @@ class TextController extends BaseController {
 	/**
 	 * Execute postAction='saveConfig' command.
 	 */
-	private function doSaveConfig($ignoreHeader, $delimiter, $separator, $rootProcessor, $document) {
+	private function doSaveConfig($ignoreHeader, $delimiter, $separator, $rootProcessor, $project, $type) {
 		$config = [
-				"useHeaders" => !$ignoreHeader,
-				"delimiter" => $delimiter,
-				"separator" => $separator,
 				"groups" => $rootProcessor->getGroupsConfiguration(),
 				"props" => $rootProcessor->getPropertiesConfiguration()
 		];
-		return $this->processor->storeConfiguration($config, $document["documentType"]);
+		return $this->processor->storeConfiguration($config, $project, $type);
 	}
 	
 	/**

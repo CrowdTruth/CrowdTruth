@@ -301,6 +301,32 @@
 		});
 	}
 
+
+{{--
+	Get given configuration --
+--}}
+	function getConfig(doc) {
+		var project = "{{ $project }}";
+
+		// reset the existing properties
+		$('#root_props').html('');
+
+		formData = 'project='+project+'&documentType='+doc;
+		$.ajax({
+			type: "POST",
+			url: '{{ action("preprocess\TextController@postConfiguration") }}',
+			data: formData,
+			success: function(data) {
+				if(data!=null) {
+					// Load known columns and configuration if a configuration exists.
+					//config = json_encode(configuration);
+					loadConfig(data);
+				}
+			}
+		});
+	}
+
+
 {{--
 	Load given configuration -- initialize Content structure as required.
 --}}
@@ -398,7 +424,7 @@
 			{{ Form::label('delimiter', 'Text delimiter:', [ 'class' => 'col-md-3 control-label' ]) }}
 				<div class='col-xs-3'>
 					<select class='form-control docPreview' id="delimiter" name="delimiter" />
-						<option value='"'>"</option>
+						<option value='"' selected>"</option>
 						<option value="'">'</option>
 					</select>
 				</div>
@@ -407,7 +433,7 @@
 			{{ Form::label('separator', 'Seperated by', [ 'class' => 'col-md-3 control-label' ]) }}
 				<div class='col-xs-3'>
 					<select class='form-control docPreview' id="separator" name="separator" />
-						<option value=','>Comma</option>
+						<option value=',' selected>Comma</option>
 						<option value=';'>Semicolon</option>
 						<option value=':'>Colon</option>
 						<option value='	'>Tab</option>
@@ -480,21 +506,37 @@
 	</div>
 	<div class="panel-body">	
 		<div class="row">
+			@if(count($docTypes)>0)
 			<div class="form-group">
 				<label for="document" class="col-sm-3 control-label">Document Type</label>
-				<div class="col-sm-5">
-					@if(count($docTypes)>0)
-					<select name="document" id="document" class="selectpicker pull-left show-tick" title="Select a Document" data-show-subtext="true" data-container="body">
+				<div class="col-sm-9">
+					<select name="document" id="document" class="selectpicker pull-left show-tick" title="Select a Document Type" data-show-subtext="true" data-container="body">
 						<option data-hidden="true"></option>
-						<option value="new">Create New</option>					
+						<option value="_new">Create New</option>
 						<option data-divider="true"></option>
 						@foreach($docTypes as $dc)
 							<option value="{{ $dc[0] }}">{{ $dc[0] }}</option>
 						@endforeach
 					</select>
-					@else
+				</div>
+			</div>
+			<div id="new_doctype_frame" class="form-group">
+				<label for="new_doctype" class="col-sm-3 control-label">New Document Type</label>
+				<div class="col-sm-4">
 						<input type="text" name="new_doctype" id="new_doctype" class="form-control" placeholder="Name" />
-					@endif
+				</div>
+			</div>
+			@else
+			<div class="form-group">
+				<label for="new_doctype" class="col-sm-3 control-label">Document Type</label>
+				<div class="col-sm-4">
+						<input type="text" name="new_doctype" id="new_doctype" class="form-control" placeholder="Name" />
+				</div>
+			</div>
+			@endif
+			
+			<div class="form-group">
+				<div class="col-sm-9 col-sm-offset-3">
 					<p class='help-block'>This is an identifier for the content of the document. E.g. tweets, events</p>
 				</div>
 			</div>
@@ -533,7 +575,7 @@
 
 <div class="panel panel-default">
 	<div class="panel-footer">
-		<button class='btn btn-primary' onClick="doSubmit()"><i class="fa fa-gear"></i> Save Content</button>
+		<button class='btn btn-primary' onClick="doSubmit()"><i class="fa fa-gear"></i> Process data</button>
 	</div>
 </div>
 
@@ -571,6 +613,20 @@
 	// TODO: Couldn't this be added dynamically? 
 	$(document).ready(function(){
 		$('.selectpicker').selectpicker();
+		$('#new_doctype_frame').hide();
+
+		$('#document').change(function(){
+			var doc = $(this).val();
+			if(doc == "_new") {
+				// show the field to change the name. do not reset all the fields, because this way you can load an existing configuration and use if for a new document type
+				$('#new_doctype_frame').show('slow');
+			} else {
+				$('#new_doctype_frame').hide('slow');
+				// load existing document type configuration
+				getConfig(doc);
+			}
+		});
+
 		$("#root_newProp").click(function(){
 		  newPropertyAction("root");
 		});
@@ -592,12 +648,6 @@
 			doPreview();
 		});
 
-		@if($configuration!=null)
-			// Load known columns and configuration if a configuration exists.
-			document.columns = {{ json_encode($previewTable['headers']) }};
-			config = {{ json_encode($configuration) }};
-			loadConfig(config);
-		@endif
 	});
 </script>
 @stop

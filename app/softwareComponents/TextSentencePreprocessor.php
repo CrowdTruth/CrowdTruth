@@ -80,11 +80,10 @@ class TextSentencePreprocessor {
 	 * 
 	 * @return The configuration, or NULL if no configuration is available.
 	 */
-	public function getConfiguration($documentType) {
+	public function getConfiguration($project, $documentType) {
 		$avlConfigs = $this->softwareComponent['configurations'];
-		$configKey = $documentType;
-		if(array_key_exists($configKey, $avlConfigs)) {
-			return $avlConfigs[$configKey];
+		if(array_key_exists($project, $avlConfigs) && array_key_exists($documentType, $avlConfigs[$project])) {
+			return $avlConfigs[$project][$documentType];
 		} else {
 			return null;
 		}
@@ -98,11 +97,17 @@ class TextSentencePreprocessor {
 	 * 
 	 * @return The completion status for the save operation.
 	 */
-	public function storeConfiguration($config, $documentType) {
-		$configKey = $documentType;
-		$avlConfigs = $this->softwareComponent['configurations'];
-		$avlConfigs[$configKey] = $config;
-		$this->softwareComponent['configurations'] = $avlConfigs;
+	public function storeConfiguration($config, $project, $documentType) {
+		$configs = $this->softwareComponent['configurations'];
+		if(!in_array($project, $configs)) {
+			$configs[$project] = [];
+		}
+		if(!in_array($documentType, $configs[$project])) {
+			$configs[$project][$documentType] = [];
+		}
+		$configs[$project][$documentType] = $config;
+
+		$this->softwareComponent['configurations'] = $configs;
 		$this->softwareComponent->save();
 		return [ 'status' => 'Configuration saved successfully' ];
 	}
