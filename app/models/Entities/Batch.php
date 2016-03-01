@@ -28,8 +28,14 @@ class Batch extends Entity {
 			 */
 		
 			// Create the SoftwareAgent if it doesnt exist
-			SoftwareAgent::store('batchcreator', 'Batch creation');
-
+			//SoftwareAgent::store('batchcreator', 'Batch creation');
+			if(!SoftwareAgent::find('batchcreator'))
+			{
+				$softwareAgent = new SoftwareAgent;
+				$softwareAgent->_id = "batchcreator";
+				$softwareAgent->label = "This component is used for creating batches in the database";
+				$softwareAgent->save();
+			}
 			
 			if(!isset($batch->activity_id)){
 				$activity = new Activity;
