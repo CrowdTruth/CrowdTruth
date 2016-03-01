@@ -153,6 +153,9 @@
 						<option value="25">25 Records per page</option>
 						<option value="50">50 Records per page</option>
 						<option value="100">100 Records per page</option>
+						<option value="250">250 Records per page</option>
+						<option value="500">500 Records per page</option>
+						<option value="1000">1000 Records per page</option>
 					</select>
 					<div class='switchViews pull-right' style="margin-right:5px;">
 						<button type="button" class="btn btn-info listViewButton hidden" style="margin-left:5px;">
