@@ -50,7 +50,7 @@ class MediaController extends BaseController {
 	{
 		$types = $this->userDocTypes();
 		
-		return View::make('media.search.pages.importresults')->with('types', $types);
+		return View::make('media.search.pages.importresults')->with('types', $types[0]);
 	}
 	
 	
@@ -472,6 +472,7 @@ class MediaController extends BaseController {
 		$projects = array_column($projects, 'name');
 		
 		$types = [];
+		$allunits = 0;
 		
 		$searchComponent = new MediaSearchComponent();
 
@@ -479,7 +480,6 @@ class MediaController extends BaseController {
 		foreach($projects as $key => $project) {
 			$docTypes = Unit::distinct('documentType')->where('project', $project)->get()->toArray();
 
-//dd($docTypes);
 			// skip if there is no data
 			if(!empty($docTypes[0])) {
 				// for each document type get the number of units
@@ -487,19 +487,21 @@ class MediaController extends BaseController {
 				foreach($docTypes as $key => $type) {
 
 					$count = Unit::where('project', $project)->where('documentType', $type[0])->count();
+					$allunits += $count;
 
 					$types[$project][$type[0]] = $count;
 				}
 			}
 		}
-		return $types;
+		return [$types,$allunits];
 	}
+
 
 	public function getSearch()
 	{
 		$types = $this->userDocTypes();
 
-		return View::make('media.search.pages.media')->with('types', $types);
+		return View::make('media.search.pages.media')->with('unitcount', $types[1])->with('types', $types[0]);
 	}
 
 

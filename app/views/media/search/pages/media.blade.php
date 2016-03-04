@@ -30,7 +30,7 @@
 
 
 					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" multiple data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-						<option value="all" class="select_all" data-subtext="0 Items">All</option>
+						<option value="all" class="select_all" data-subtext="{{ $unitcount }} Items">All</option>
                     	@foreach($types as $project => $doctypes)
 							<optgroup label="{{ $project }}">
                         		@foreach($doctypes as $doctype => $count)
