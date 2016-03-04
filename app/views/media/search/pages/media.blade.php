@@ -175,21 +175,23 @@
 				</div>
 				<div class='col-xs-12 searchResults'>
 					<div class="tab-content documentTypesTabs">
+						<div class="tab-pane active" id="all_tab">
 
 
-						<div class='ctable-responsive'>		
-							<table class="table table-striped">
-								<thead data-query-key="" data-query-value="">
-									<tr class='identifiers'>
-									</tr>
-									<tr class="inputFilters">
-									</tr>											        
-								</thead>
-								<tbody class='results'>
-								</tbody>
-							</table>
-						</div>	
-						
+							<div class='ctable-responsive'>		
+								<table class="table table-striped">
+									<thead data-query-key="" data-query-value="">
+										<tr class='identifiers'>
+										</tr>
+										<tr class="inputFilters">
+										</tr>											        
+									</thead>
+									<tbody class='results'>
+									</tbody>
+								</table>
+							</div>	
+						</div>
+							
 						<div class='status text-center'>
 							<div class='loading'>
 								<i class="fa fa-spinner fa-spin fa-4x"></i><br /><br />Loading
@@ -445,6 +447,10 @@ var delay = (function(){
 })();
 
 
+
+var getActiveTabKey = function(){
+	return '#all_tab';
+}
 
 // document type selection
 var lastDocuments = [];
@@ -819,9 +825,14 @@ function getResults(baseApiURL){
 						
 			// spoof category to support visualizations		
 			var category = '#' + $('.search .documentType').val()[0] + '_tab';
+
+			// TEMP FIX
+			var category = '#all_tab';
+
 			var availableVis = ['#relex-structured-sentence_tab','#fullvideo_tab','#metadatadescription_tab','#annotatedmetadatadescription_tab','#all_tab','#drawing_tab','#painting_tab'];
 			if(availableVis.indexOf(category)>=0) { // do not update if there is no visualization for this document type	
 				unitsChart = new unitsChartFacade(category, openModal, getSelection, updateSelection);
+				// problem
 				unitsChart.init(getTabFieldsQuery(),"");
 			}
 		} else {
