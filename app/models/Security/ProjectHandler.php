@@ -127,7 +127,7 @@ class ProjectHandler {
 	 * 
 	 * @return List of Project names.
 	 */
-	public static function listGroups() {
+	public static function listProjects() {
 		$sentryGroups = Sentry::findAllGroups();
 		$project = [];
 

@@ -4,7 +4,10 @@ namespace Preprocess;
 require_once 'sparqllib.php';
 
 use URL, Session, Exception;
-
+use \SoftwareAgent as SoftwareAgent;
+use \Activity as Activity;
+use \Entity as Entity;
+use \Entities\Unit as Unit;
 
 class MetadatadescriptionStructurer {
 
@@ -272,7 +275,68 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
 
-	//	dd("here");
+		$descriptionContent = urlencode($entity->content["metadata"]["abstract"]["nl"]);
+		
+		$lang = $entity->content["metadata"]["language"];
+		$format = "json";
+		$entity_type = array("ne", "ce");
+		$priority_entity_linking = "true";
+		$apikey = "150284785c5a49709990f973ec825d1e";
+		$result = array();
+
+		$result["initialNamedEntities"] = array();
+
+		for ($i = 0; $i < count($entity_type); $i ++) {
+			$output = "";
+			$urlReq = $this->urlTDH . "apikey=". $apikey . "&format=" . $format . "&lang=" . $lang ."&priority_entity_linking=" . $priority_entity_linking . "&entity_type=" . $entity_type[$i]; // . "&provenance=dbpedia";
+			$curlRequest = "curl -v \"" . $urlReq . "\" -d \"" . $descriptionContent . "\"";
+			$response = exec($curlRequest, $output);
+			$responseEntities = json_decode($output[0], true);	
+			//dd($responseEntities);
+			for ($j = 0; $j < count($responseEntities); $j++) {
+				$initialEntity = array();
+				$initialEntity["label"] = iconv('UTF-8', 'UTF-8//IGNORE', $responseEntities[$j]["underlyingString"]);
+				$initialEntity["startOffset"] = $responseEntities[$j]["startOffset"];
+				$initialEntity["endOffset"] = $responseEntities[$j]["endOffset"];
+				$initialEntity["timestamp"] = "00:00"; 
+				$initialEntity["description"] = ""; 
+				$initialEntity["confidence"] = array();
+				$initialEntity["confidence"]["score"] = "";
+				$initialEntity["provenance"] = "thd";
+				$initialEntity["salience"] = array();
+				$initialEntity["salience"]["score"] = $responseEntities[$j]["types"][0]["salience"]["score"];
+				$initialEntity["salience"]["confidence"] = $responseEntities[$j]["types"][0]["salience"]["confidence"];
+				$initialEntity["salience"]["class"] = $responseEntities[$j]["types"][0]["salience"]["classLabel"];
+				
+				$initialEntity["types"] = array();
+				for ($k = 0; $k < count($responseEntities[$j]["types"]); $k++) {
+					if ((strpos($responseEntities[$j]["types"][$k]["typeLabel"], "dbpedia.org/resource/") !== false)) {
+						continue;
+					}
+					$initialType = array();
+					$initialType["type"] =$responseEntities[$j]["types"][$k]["typeLabel"];
+					$initialType["typeURI"] =$responseEntities[$j]["types"][$k]["typeURI"];
+					$initialType["entityURI"] = iconv('UTF-8', 'UTF-8//IGNORE', (string)$responseEntities[$j]["types"][$k]["entityURI"]); 
+					$initialType["typeConfidence"] = array();
+					$initialType["typeConfidence"]["score"] = $responseEntities[$j]["types"][$k]["classificationConfidence"]["value"];
+					$initialType["resourceConfidence"] = array();
+					$initialType["resourceConfidence"]["score"] = $responseEntities[$j]["types"][$k]["linkingConfidence"]["value"];
+
+					array_push($initialEntity["types"], $initialType);
+
+					$initialEntity["types"] = array_map("unserialize", array_unique(array_map("serialize", $initialEntity["types"])));
+				}
+				array_push($result["initialNamedEntities"], $initialEntity);
+			}
+			$array["initialNamedEntities"] = array_map("unserialize", array_unique(array_map("serialize", $result["initialNamedEntities"])));
+		}
+	//	dd($array);
+		return $array;	
+	}
+
+	public function processTDHApiOld($entity) {
+		set_time_limit(5200);
+		\DB::connection()->disableQueryLog();
 
 		$descriptionContent = urlencode($entity->content["description"]);
 		$initialDescription = utf8_decode($entity->content["description"]);
@@ -1516,6 +1580,66 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 	public function processNERDApi($entity) {
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
+		$descriptionContent = $entity->content["metadata"]["abstract"]["nl"];
+		$lang = $entity->content["metadata"]["language"];
+		$apikey = "9u0sd79j21vpvv0tqin1oleb4di32oo6";
+		$result = array();
+		$result["initialNamedEntities"] = array();
+		$entities = array();
+		$curlRequest = "curl -i -X POST http://nerd.eurecom.fr/api/document -d \"text=" . urlencode($descriptionContent) . "&key=" . $apikey . "\"";
+		$response = exec($curlRequest, $output);
+		$documentId = "";
+		if (strpos($output[count($output) - 1], 'idDocument') !== false) {
+			$documentId = explode("}", explode(":", $output[count($output) - 1])[1])[0];
+		}
+		$annotationId = "";
+		$curlRequest = "curl -i -X POST \"http://nerd.eurecom.fr/api/annotation\" -d \"key=" . $apikey . "&idDocument=" . $documentId . "&extractor=combined&ontology=extended&timeout=10\"";
+		$response = exec($curlRequest, $output);
+		if (strpos($output[count($output) - 1], 'idAnnotation') !== false) {
+			$annotationId = explode("}", explode(":", $output[count($output) - 1])[1])[0];
+		}
+		$curlRequest = "curl -i -X GET -H \"Accept: application/json\" \"http://nerd.eurecom.fr/api/entity?key=" . $apikey . "&idAnnotation=" . $annotationId . "&granularity=oen\"";
+		$response = exec($curlRequest, $output);
+		$resultArray = json_decode($output[count($output) - 1], true);
+	//	dd($resultArray);
+		foreach($resultArray as $key => $value) {
+			$initialEntity = array();
+			$initialEntity["label"] = iconv('UTF-8', 'UTF-8//IGNORE', $value["label"]);
+			$initialEntity["startOffset"] = $value['startChar'];
+			$initialEntity["endOffset"] = $value['endChar'];
+
+			$initialEntity["timestamp"] = "00:00"; 
+			$initialEntity["description"] = ""; 
+			
+			$initialEntity["confidence"] = array();
+			$initialEntity["confidence"]["score"] = $value["confidence"];
+			$initialEntity["relevance"] = array();
+			$initialEntity["relevance"]["score"] = $value["relevance"];
+			$initialEntity["provenance"] = "nerd";
+			$initialEntity["types"] = array();
+
+			$typesArray = explode(",", $value["extractorType"]);
+
+			foreach ($typesArray as $typeValue) {
+				$initialType = array();
+				$nerdTypeArray = explode("#", $value["nerdType"]);
+				$initialType["type"] =  $nerdTypeArray[1];
+				$initialType["typeURI"] = $value["nerdType"];
+				$initialType["extractorType"] = $value["extractorType"];
+				$initialType["entityURI"] = iconv('UTF-8', 'UTF-8//IGNORE', $value["uri"]);
+				$initialType["extractor"] = $value["extractor"];
+				array_push($initialEntity["types"], $initialType);
+			}
+
+			array_push($result["initialNamedEntities"], $initialEntity);
+		}
+	//	dd($result);
+		return $result;	
+	}
+
+	public function processNERDApiOld($entity) {
+		set_time_limit(5200);
+		\DB::connection()->disableQueryLog();
 		$descriptionContent = $entity->content["description"];
 		$initialDescription = utf8_decode($descriptionContent);
 		$lang = $entity->language;
@@ -1911,53 +2035,54 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 	{	
 		\Session::flash('flashSuccess', 'Your video description is being pre-processed');
 
-		if ($entity->preprocessed["automatedEvents"] == false) {
+	/*	if ($entity->preprocessed["automatedEvents"] == false) {
 			if ($entity->language != "en") {
 				$retVal["processAutomatedEventExtraction"] = $this->processAutomatedEventExtraction($entity);
 			}
 		}
-
-		if ($entity->preprocessed["automatedEntities"] == false) {
-			$retVal["tdhapi"] = $this->processTDHApi($entity);	
-			$retVal["textrazorapi"] = $this->processTextRazorApi($entity);
-			if ($entity->language != "en") {
+*/
+	//	if ($entity->preprocessed["automatedEntities"] == false) {
+	//		$retVal["tdhapi"] = $this->processTDHApi($entity);	
+	//		$retVal["textrazorapi"] = $this->processTextRazorApi($entity);
+	//		if ($entity->language != "en") {
 		//		$retVal["semitagsapi"] = $this->processSemiTagsApi($entity);
-				$retVal["dbpediaspotlightapi"] = $this->processDBpediaSpotlightApi($entity);
-			}
+	//			$retVal["dbpediaspotlightapi"] = $this->processDBpediaSpotlightApi($entity);
+	//		}
 			$retVal["nerdapi"] = $this->processNERDApi($entity);	
-			$retVal["lupediaapi"] = $this->processLupediaApi($entity);
-		}
+	//		$retVal["lupediaapi"] = $this->processLupediaApi($entity);
+	//	}
 		return $retVal;
 	}
 
 	public function store($parentEntity, $metadataDescriptionPreprocessing)
 	{
 		$retVal = array();
-		if (isset($metadataDescriptionPreprocessing["processAutomatedEventExtraction"])) {
-			$retVal["processAutomatedEventExtraction"] = $this->storeAutomatedEventExtraction($parentEntity, $metadataDescriptionPreprocessing["processAutomatedEventExtraction"]);
-		}
-		if (isset($metadataDescriptionPreprocessing["tdhapi"])) {
-			$retVal["thdapi"] = $this->storeTDHApi($parentEntity, $metadataDescriptionPreprocessing["tdhapi"]);
-		}
-		if (isset($metadataDescriptionPreprocessing["textrazorapi"])) {
-			$retVal["textrazorapi"] = $this->storeTextRazorApi($parentEntity, $metadataDescriptionPreprocessing["textrazorapi"]);
-		}
+	//	if (isset($metadataDescriptionPreprocessing["processAutomatedEventExtraction"])) {
+	//		$retVal["processAutomatedEventExtraction"] = $this->storeAutomatedEventExtraction($parentEntity, $metadataDescriptionPreprocessing["processAutomatedEventExtraction"]);
+	//	}
+	//	if (isset($metadataDescriptionPreprocessing["tdhapi"])) {
+	//		$retVal["thdapi"] = $this->storeTDHApi($parentEntity, $metadataDescriptionPreprocessing["tdhapi"]);
+	//	}
+	//	if (isset($metadataDescriptionPreprocessing["textrazorapi"])) {
+	//		$retVal["textrazorapi"] = $this->storeTextRazorApi($parentEntity, $metadataDescriptionPreprocessing["textrazorapi"]);
+	//	}
 	/*	if (isset($metadataDescriptionPreprocessing["semitagsapi"])) {
 			$retVal["semitagsapi"] = $this->storeSemiTagsApi($parentEntity, $metadataDescriptionPreprocessing["semitagsapi"]);
 		}
-	*/	if (isset($metadataDescriptionPreprocessing["nerdapi"])) {
+	*/
+		if (isset($metadataDescriptionPreprocessing["nerdapi"])) {
 			$retVal["nerdapi"] = $this->storeNERDApi($parentEntity, $metadataDescriptionPreprocessing["nerdapi"]);
 		}
-		if (isset($metadataDescriptionPreprocessing["lupediaapi"])) {
-			$retVal["lupediaapi"] = $this->storeLupediaApi($parentEntity, $metadataDescriptionPreprocessing["lupediaapi"]);
-		}
-		if (isset($metadataDescriptionPreprocessing["dbpediaspotlightapi"])) {
-			$retVal["dbpediaspotlightapi"] = $this->storeDBpediaSpotlightApi($parentEntity, $metadataDescriptionPreprocessing["dbpediaspotlightapi"]);
-		}
+	//	if (isset($metadataDescriptionPreprocessing["lupediaapi"])) {
+	//		$retVal["lupediaapi"] = $this->storeLupediaApi($parentEntity, $metadataDescriptionPreprocessing["lupediaapi"]);
+	//	}
+	//	if (isset($metadataDescriptionPreprocessing["dbpediaspotlightapi"])) {
+	//		$retVal["dbpediaspotlightapi"] = $this->storeDBpediaSpotlightApi($parentEntity, $metadataDescriptionPreprocessing["dbpediaspotlightapi"]);
+	//	}
 		$retVal["parentId"] = $parentEntity->_id;
 		return $retVal;
 	}
-
+/*
 	public function storeAutomatedEventExtraction($parentEntity, $metadataDescriptionPreprocessing)
 	{
 	//	$metadataDescriptionPreprocessing = unserialize(utf8_decode(utf8_encode(serialize($metadataDescriptionPreprocessing))));
@@ -2011,7 +2136,7 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 
 		return $status;
 	}
-
+*/
 	public function storeDBpediaSpotlightApi($parentEntity, $metadataDescriptionPreprocessing)
 	{
 	//	$metadataDescriptionPreprocessing = unserialize(utf8_decode(utf8_encode(serialize($metadataDescriptionPreprocessing))));
@@ -2221,22 +2346,20 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 			$title = "thdextractor-" . $parentEntity["title"];
 			//dd($title);
 			try {
-				$entity = new Entity;
+				$entity = new Unit;
 				$entity->_id = $tempEntityID;
 				$entity->title = strtolower($title);
-				$entity->domain = $parentEntity->domain;
-				$entity->format = "text";
+				$entity->type = "unit";
+				$entity->project = "soundandvision";
 				$entity->documentType = "thdextractor";
 				$entity->parents = array($parentEntity->_id);
 				$entity->source = $parentEntity->source;
 				$content = array();
 				$content["description"] = $parentEntity->content;
 				foreach ($metadataDescriptionPreprocessing as $key => $value){
-					$content["features"][$key] = $value;
+					$content["named-entities"][$key] = $value;
 				}
 				$entity->content = $content;
-
-			//	
 				//unset($twrexStructuredSentenceKeyVal['properties']);
 				$entity->hash = md5(serialize($entity));
 				$entity->activity_id = $activity->_id;
@@ -2349,21 +2472,20 @@ filter (regex (str(?resource), \"http://nl.dbpedia\", \"i\") ) .}";
 			$title = "nerdextractor-" . $parentEntity["title"];
 			//dd($title);
 			try {
-				$entity = new Entity;
+				$entity = new Unit;
 				$entity->_id = $tempEntityID;
 				$entity->title = strtolower($title);
-				$entity->domain = $parentEntity->domain;
-				$entity->format = "text";
+				$entity->type = "unit";
 				$entity->documentType = "nerdextractor";
 				$entity->parents = array($parentEntity->_id);
 				$entity->source = $parentEntity->source;
 				$content = array();
 				$content["description"] = $parentEntity->content;
 				foreach ($metadataDescriptionPreprocessing as $key => $value){
-					$content["features"][$key] = $value;
+					$content["named-entities"][$key] = $value;
 				}
 				$entity->content = $content;
-
+				$entity->project = "soundandvision";
 			//	
 				//unset($twrexStructuredSentenceKeyVal['properties']);
 				$entity->hash = md5(serialize($entity));

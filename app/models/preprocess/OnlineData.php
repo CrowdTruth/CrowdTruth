@@ -2,6 +2,10 @@
 
 use \CurlRequest\SVBasicRequest as SVRequest;
 //use Moloquent, Schema, URL, File, Exception;
+use \Entities\Unit as Unit;
+use \Security\ProjectHandler as ProjectHandler;
+use \Security\Permissions as Permissions;
+use \Security\Roles as Roles;
 
 class OnlineData extends Moloquent {
 	private $url = "http://openbeelden.nl/feeds/oai/?";
@@ -13,7 +17,7 @@ class OnlineData extends Moloquent {
     		}
     		return (substr($haystack, -$length) === $needle);
 	}
-	
+/*	
 	public function downloadFile($url) {
 		$videoPathSplit = explode("/", (string)$url);
 		$videoName = $videoPathSplit[sizeof($videoPathSplit) - 1];
@@ -28,7 +32,7 @@ class OnlineData extends Moloquent {
     		curl_close($ch);
     		fclose($fp);
 	}
-
+*/
 
 	public function listRecords($parameters, $noEntries, &$listOfRecords) {
 		
@@ -56,7 +60,7 @@ class OnlineData extends Moloquent {
 			throw new Exception('Request parameters missing!');
 		}
 
-		$entities = Entity::where('documentType', 'fullvideo')->lists("title");
+		$entities = Entity::where('documentType', 'tv-news-broadcasts')->lists("title");
 
 		while ($noEntries > 0) {
 		    //throw new Exception($noEntries);	
@@ -264,8 +268,6 @@ class OnlineData extends Moloquent {
 									//echo $identifier . "--------" . (string)$medium . "\n";
 									$videoPathSplit = explode("/", (string)$medium);
 									$videoName = $videoPathSplit[sizeof($videoPathSplit) - 1];
-									$content["storage_url"] = "/videostorage/fullvideos/" . $videoName;
-									$this->downloadFile((string)$medium);
 									$metadata["online_url"] = (string)$medium;
 								}
 							}						
@@ -355,78 +357,15 @@ class OnlineData extends Moloquent {
 		
 	}
 
-
-	public function storeVideoDescription ($parentEntity) {
-		$title = "Description: " . $parentEntity->title;
-		$status = array();
-
-		try {
-			$this->createOpenimagesVideoDescriptionExtractorSoftwareAgent();
-		} catch (Exception $e) {
-			$status['error']['OnlineDataVideoDescr'] = $e->getMessage();
-			return $status;
-		}
-
-		try {
-			$activity = new Activity;
-			$activity->softwareAgent_id = "videodescriptiongetter";
-			$activity->save();
-		} catch (Exception $e) {
-			// Something went wrong with creating the Activity
-			$status['error']['OnlineDataVideoDescr'] = $e->getMessage();
-			$activity->forceDelete();	
-			return $status;
-		}
-		//dd($parentEntity->title);
-		$languageValues = $parentEntity->content["metadata"]["abstract"];
-		foreach($languageValues as $lang => $value) {
-			if ($value != "" || $value != NULL) {
-			try {
-				$entity = new Entity;
-				$entity->_id = $entity->_id;
-				$entity->title = $lang . '.' . strtolower($title);
-				$entity->domain = $parentEntity->domain;
-				$entity->format = "text";
-				$entity->documentType = "metadatadescription";
-				$entity->source = "openimages";
-				$entity->videoContent = $parentEntity->content["storage_url"];
-				$entity->videoTitle = $parentEntity->content["metadata"]["title"][$lang];
-				$entity->language = $lang;
-				$entity->parents = array($parentEntity->_id);
-				
-				$content = array();
-				$content["description"] = $value;
-				
-				$entity->content = $content;
-
-				$preprocessed = array();
-				$preprocessed["automatedEntities"] = false;
-				$preprocessed["automatedEvents"] = false;
-				$entity->preprocessed = $preprocessed;
-				$entity->tags = array("unit");
-				$entity->hash = md5(serialize([$entity->content]));				
-				$entity->activity_id = $activity->_id;  
-				$entity->save();
-				Queue::push('Queues\UpdateUnits', [$entity->_id]);
-				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
-			} catch (Exception $e) {
-				// Something went wrong with creating the Entity
-				$activity->forceDelete();
-				$entity->forceDelete();
-				$status['error'][$title] = $e->getMessage();
-			}
-			}		
-		}
-
-		return $status;
-	}
-
-
-	public function store ($format, $domain, $documentType, $parameters, $noOfVideos) {
+	public function store ($documentType, $parameters, $noOfVideos) {
 		//fastcgi_finish_request();
 		$listOfVideoIdentifiers = array();
 		$this->listRecords($parameters, $noOfVideos, $listOfVideoIdentifiers);
 		
+		// get list of existing projects
+		$projects = ProjectHandler::listProjects();
+
+
 	//	dd("done");
 		$status = array();
 
@@ -452,13 +391,13 @@ class OnlineData extends Moloquent {
 		foreach($listOfVideoIdentifiers as $video){
 			$title = $video;
 			try {
-				$entity = new Entity;
+				$entity = new Unit;
 				$entity->_id = $entity->_id;
 				$entity->title = strtolower($title);
-				$entity->domain = $domain;
-				$entity->format = $format;
 				$entity->documentType = $documentType;
 				$entity->source = "openimages";
+				$entity->project = "soundandvision";
+				$entity->type = "unit";
 				$videoMetadata = $this->getRecord($video, $parameters["metadataPrefix"]);
 				$entity->content = $videoMetadata["content"];	
 				$parents = array();
@@ -466,16 +405,28 @@ class OnlineData extends Moloquent {
 				$entity->tags = array("unit");
 				$entity->segments = $count;
 				$entity->keyframes = $count;
-				$entity->hash = md5(serialize([$entity->content]));				
+				$hashing = array();
+				$hashing["content"] = $entity->content;
+				$hashing["project"] = $entity->project;
+				$entity->hash = md5(serialize($hashing));				
 				$entity->activity_id = $activity->_id;  
 				$entity->save();
-				Queue::push('Queues\UpdateUnits', [$entity->_id]);
+				
 				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
-	
-				if (isset($status['success'])) {
-					$this->storeVideoDescription($entity);
-				//	dd($this->storeVideoDescription($entity));
+
+				// add the project if it doesnt exist yet
+				if(!in_array($entity->project, $projects)) {
+					ProjectHandler::createGroup($entity->project);
+					// add the project to the temporary list
+					array_push($projects, $entity->project);
 				}
+
+				// add the user to the project if it has no access yet
+				if(!ProjectHandler::inGroup($entity->user_id, $entity->project)) {
+					$user = UserAgent::find($entity->user_id);
+					ProjectHandler::grantUser($user, $entity->project, Roles::PROJECT_MEMBER);
+				}
+
 			} catch (Exception $e) {
 				// Something went wrong with creating the Entity
 				$activity->forceDelete();

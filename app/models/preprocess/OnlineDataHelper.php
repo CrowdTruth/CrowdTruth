@@ -31,7 +31,7 @@ class OnlineDataHelper {
 	public function getDocumentType(){
 		switch ($this->input['source_name']) {
 		    case 'source_beeldengeluid':
-		        return 'fullvideo';
+		        return 'tv-news-broadcasts';
 		}
 		throw new Exception('Unknown document type!');		
 	}
