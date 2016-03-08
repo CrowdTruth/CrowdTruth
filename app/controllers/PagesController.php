@@ -7,7 +7,7 @@ class PagesController extends BaseController {
 	public function index()
 	{
 		// run database seeder on first load
-		$groups = ProjectHandler::listGroups();
+		$groups = ProjectHandler::listProjects();
 		if(count($groups) == 0) {
 			Artisan::call('db:seed');
 		}
