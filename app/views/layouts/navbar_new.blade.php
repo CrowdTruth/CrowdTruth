@@ -19,10 +19,7 @@
 						<a href='{{ url("jobs") }}'><i class='fa fa-fw fa-shopping-cart'></i> Jobs</a></li>
 						<li{{ (Request::segment(1) == 'workers' ? ' class="active"' : '') }} data-toggle="tooltip" id="workerTabOption" data-placement="bottom" title="View Worker Analytics">
 						<a href='{{ url("workers") }}'><i class='fa fa-fw fa-users'></i> Workers</a></li>
-						<li>
-						<a href='{{ url("project-viz") }}'><i class='fa fa-fw fa-bar-chart'></i> Projects</a></li>
-						<li>
-						<a href='{{ url("shankey") }}'><i class='fa fa-fw fa-line-chart'></i> Shankey</a></li>
+
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class='fa fa-fw fa-info'></i> Info <b class="caret"></b></a>
 							<ul class="dropdown-menu">
