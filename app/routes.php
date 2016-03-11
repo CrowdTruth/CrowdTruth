@@ -1,5 +1,5 @@
 <?php
-use \MongoDB\Security\Permissions as Permissions;
+use \Security\Permissions as Permissions;
 
 Route::group(array('before' => 'auth'), function()
 {
@@ -15,6 +15,9 @@ Route::group(array('before' => 'auth'), function()
 	Route::controller('workers', 'WorkersController');
 	Route::controller('analyze','AnalyticsController');
 	Route::controller('onlinesource', 'OnlineSourceController');
+
+	Route::controller('project-viz', 'ProjectVizController');
+	Route::controller('shankey', 'ShankeyController');
 });
 
 Route::get('/', function()
@@ -26,8 +29,8 @@ Route::get('/', function()
 Route::get('/urlsurls', function()
 {
 	echo '-------- paintings -------' . PHP_EOL;
-	$results = \MongoDB\Entity::whereIn('documentType', ['painting'])->get(['content.url']);
-	$results2 = \MongoDB\Entity::whereIn('documentType', ['drawing'])->get(['content.url']);
+	$results = Entity::whereIn('documentType', ['painting'])->get(['content.url']);
+	$results2 = Entity::whereIn('documentType', ['drawing'])->get(['content.url']);
 
 	foreach($results as $result)
 	{	
@@ -43,7 +46,7 @@ Route::get('/urlsurls', function()
 		echo $result['_id'] . PHP_EOL;
 	}
 	echo PHP_EOL . PHP_EOL . "[";
-	$results = \MongoDB\Entity::whereIn('documentType', ['painting','drawing'])->get();
+	$results = Entity::whereIn('documentType', ['painting','drawing'])->get();
 	foreach($results as $result)
 	{	
 		echo $result . ",". PHP_EOL;
@@ -64,6 +67,9 @@ Route::controller('api/search', '\Api\search\apiController');
 Route::controller('api/actions', '\Api\actions\apiController');
 Route::controller('api/analytics', '\Api\analytics\apiController');
 
+Route::controller('api/import', '\Api\import\apiController');
+Route::controller('api/shankey', '\Api\shankey\apiController');
+
 Route::get('login', 'UserController@login');
 Route::get('register', 'UserController@register');
 Route::post('register', 'UserController@postRegister');
@@ -74,12 +80,12 @@ Route::get('user/{user}', 'UserController@getProfile');
 Route::get('user/{user}/activity', 'UserController@getActivity');
 Route::get('user/{user}/settings', 'UserController@getSettings');
 Route::post('user/{user}/settings', 'UserController@postSettings');
-Route::model('user', '\MongoDB\UserAgent');
+Route::model('user', 'UserAgent');
 
 Route::get('projects/', 'ProjectController@getGroupList');
 Route::get('project/{projectname}', 'ProjectController@getProfile');
 Route::get('project/{projectname}/settings', 'ProjectController@getSettings');
-Route::post('projects/create', [ 'before' => 'adminPermission', 'uses' => 'ProjectController@createGroup' ]);
+Route::post('projects/create', 'ProjectController@createGroup');
 
 Route::group([ 'before' => 'permission:'.Permissions::PROJECT_ADMIN ], function()
 {

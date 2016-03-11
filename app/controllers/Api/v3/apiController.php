@@ -8,11 +8,11 @@ use \URL as URL;
 use \Response as Response;
 use \Paginator as Paginator;
 
-use \MongoDB\Repository as Repository;
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
-use \MongoDB\CrowdAgent as CrowdAgent;
+use \Repository as Repository;
+use \Entity as Entity;
+use \Activity as Activity;
+use \SoftwareAgent as SoftwareAgent;
+use \CrowdAgent as CrowdAgent;
 
 /**
  * This apiController is used merely in the result view,
@@ -56,11 +56,11 @@ class apiController extends BaseController {
 
 			if($workerunitType === false){
 
-				$result = \MongoDB\Entity::with('hasWorkerunits')->where('_id', $id)->get();
+				$result = Entity::with('hasWorkerunits')->where('_id', $id)->get();
 
 			} else {
 
-				$result = \MongoDB\Entity::with('hasUnit')->where('_id', $id)->get();
+				$result = Entity::with('hasUnit')->where('_id', $id)->get();
 			
 			}
 
@@ -69,7 +69,7 @@ class apiController extends BaseController {
 			return $result;
 		}
 
-		$documents = $this->repository->returnCollectionObjectFor("entity")->where('documentType', 'job')->with('hasConfiguration')->with('wasAttributedToUserAgent');
+		$documents = $this->repository->returnCollectionObjectFor("entity")->where('type', 'job')->with('hasConfiguration')->with('wasAttributedToUserAgent');
 		
 		//Filter on wished for fields using using field of v2
 		json_encode($documents);
@@ -124,7 +124,7 @@ class apiController extends BaseController {
 
 								$filter = explode(".", $filter);
 
-								$jobConf = Entity::where('documentType', '=', 'jobconf')->where(end($filter), 'like', $subvalue);
+								$jobConf = Entity::where('type', '=', 'jobconf')->where(end($filter), 'like', $subvalue);
 								
 								$allJobConfIDs = array_flatten($jobConf->get(['_id'])->toArray());
 

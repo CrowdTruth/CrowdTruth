@@ -8,3 +8,4 @@ class UnitMetricsEnum(Enum):
     norm_relation_magnitude_all = "norm-all |R|"
     max_relation_Cos = "Max Rel Cos"
     no_annotators = "|# annotators|"
+    vector_size = "Vector Size"

@@ -122,7 +122,7 @@ return array(
 
 		//'model' => 'Cartalyst\Sentry\Users\Eloquent\User',
 		//'model' => 'Jenssegers\Mongodb\Sentry\User',
-		'model' => '\MongoDB\UserAgent',
+		'model' => '\UserAgent',
 
 		/*
 		|--------------------------------------------------------------------------

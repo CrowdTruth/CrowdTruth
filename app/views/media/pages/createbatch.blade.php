@@ -15,14 +15,14 @@
 								<div class="form-horizontal">
 
 									<div class="form-group">
-										<label for="format" class="col-sm-3 control-label">Format</label>
+										<label for="project" class="col-sm-3 control-label">Project</label>
 										<div class="col-sm-5">
-											<select name="format" class="form-control">
+											<select name="project" class="form-control">
 												<option value="{{ $fields[1] }}">{{ $fields[1] }}</option>
 											</select>
 										</div>
 									</div>
-
+<!--
 									<div class="form-group">
 										<label for="domain" class="col-sm-3 control-label">Domain</label>
 										<div class="col-sm-5">
@@ -41,7 +41,7 @@
 										</div>
 									</div>
 
-									<div class="form-group">
+-->									<div class="form-group">
 										<label for="units" class="col-sm-3 control-label">Units In Batch</label>
 										<div class='table-responsive col-sm-9'>
 											<table class='table table-striped datatable_content'>

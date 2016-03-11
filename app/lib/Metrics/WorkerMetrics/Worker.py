@@ -49,11 +49,259 @@ class Worker:
                     metric_value = self.get_worker_cosine(units)
             elif WorkerMetricsEnum.factor_selection_check == metric_key:
                     metric_value = self.get_factor_selection_check()
+            elif WorkerMetricsEnum.novelty_irrelevant_sel == metric_key:
+                    metric_value = self.get_novelty_irrelevant_sel()
+            elif WorkerMetricsEnum.consistency_check == metric_key:
+                    metric_value = self.get_consistency_check()
+            elif WorkerMetricsEnum.novel_words_per_tweet == metric_key:
+                    metric_value = self.get_novel_words_per_tweet()
+            elif WorkerMetricsEnum.notnovel_words_per_tweet == metric_key:
+                    metric_value = self.get_notnovel_words_per_tweet()
+            elif WorkerMetricsEnum.novelty_relevant_sel == metric_key:
+                    metric_value = self.get_novelty_relevant_sel()
+            elif WorkerMetricsEnum.novelty_t1morenovel_sel == metric_key:
+                    metric_value = self.get_novelty_t1morenovel_sel()
+            elif WorkerMetricsEnum.novelty_t1equalnovel_sel == metric_key:
+                    metric_value = self.get_novelty_t1equalnovel_sel()
+            elif WorkerMetricsEnum.novelty_t1lessnovel_sel == metric_key:
+                    metric_value = self.get_novelty_t1lessnovel_sel()
+            elif WorkerMetricsEnum.novelty_selection_frequency == metric_key:
+                    metric_value = self.get_novelty_selection_frequency()
+            elif WorkerMetricsEnum.event_ann_per_unit == metric_key:
+                    metric_value = self.get_event_ann_per_unit()
+            elif WorkerMetricsEnum.missed_instructions == metric_key:
+                    metric_value = self.get_missed_instructions()
+            elif WorkerMetricsEnum.none_event_type_frequency == metric_key:
+                    metric_value = self.get_none_event_type_frequency()
+
 
             results[metric_key] = metric_value
             self.worker_metrics[metric_key] = metric_value
 
         return results
+
+    def get_event_ann_per_unit(self):
+        no_annotations = 0
+        no_units = 0
+        for unit_id in self.unit_vectors:
+        	unitString = str(unit_id)
+        	if unitString.endswith("eventType"):
+        		no_annotations += sum(self.unit_vectors[unit_id].values())
+            	#count the number of units, an unit can be annotated twice is some cases
+            	no_units += self.unit_freq[unit_id]
+
+        if len(self.unit_vectors) == 0:
+            return 0
+
+        return no_annotations/(no_units * 1.0)
+
+ 
+    def get_consistency_check(self):
+        sel_check = 0.0
+        count = 0
+        for unit_id in self.unit_vectors:
+            if "[CHECK_FAILED]" in self.unit_vectors[unit_id]:
+                sel_check += self.unit_vectors[unit_id]['[CHECK_FAILED]']
+                count += 1
+
+        if count == 0:
+            return 0
+
+        return sel_check/(count * 1.0)
+
+    def get_missed_instructions(self):
+        sel_check = 0.0
+        count = 0
+        for unit_id in self.unit_vectors:
+        	if "check_failed" in self.unit_vectors[unit_id]:
+        		sel_check += self.unit_vectors[unit_id]['check_failed']
+        		count += 1
+
+        if count == 0:
+            return 0
+
+        return sel_check/(count * 1.0)
+
+    def get_none_event_type_frequency(self):
+    	sel_check = 0.0
+        count = 0
+        for unit_id in self.unit_vectors:
+        	unitString = str(unit_id)
+        	if unitString.endswith("eventType"):
+        		if "[NONE]" in self.unit_vectors[unit_id]:
+        			sel_check += self.unit_vectors[unit_id]["[NONE]"]
+               		count += 1
+
+        if count == 0:
+            return 0
+
+        return sel_check/(count * 1.0)
+
+
+    def get_novelty_irrelevant_sel(self):
+        sel_check = 0.0
+        count = 0
+        for unit_id in self.unit_vectors:
+        	unitString = str(unit_id)
+        	if unitString.endswith("t1_relevancy"):
+        	   	if "irrelevant" in self.unit_vectors[unit_id]:
+        	   		if self.unit_vectors[unit_id]['irrelevant'] == 1:
+        	   			sel_check += self.unit_vectors[unit_id]['irrelevant']
+        	   		count += 1
+        	if unitString.endswith("t2_relevancy"):
+        		if "irrelevant" in self.unit_vectors[unit_id]:
+        			if self.unit_vectors[unit_id]['irrelevant'] == 1:
+        				sel_check += self.unit_vectors[unit_id]['irrelevant']
+        			count += 1
+        if count == 0:
+            return 0
+
+        return sel_check/(count * 1.0)
+
+    def get_novelty_relevant_sel(self):
+        sel_check = 0.0
+        count = 0
+        for unit_id in self.unit_vectors:
+        	if "relevant" in self.unit_vectors[unit_id]:
+        		sel_check += self.unit_vectors[unit_id]['relevant']
+        		count += 1
+
+        if count == 0:
+            return 0
+
+        return sel_check/(count * 1.0)
+
+    def get_novelty_t1morenovel_sel(self):
+        sel_check = 0.0
+        count = 0
+        for unit_id in self.unit_vectors:
+        	unitString = str(unit_id)
+        	if unitString.endswith("t1_novelty"):
+	        	if "more_novel" in self.unit_vectors[unit_id]:
+	        		sel_check += self.unit_vectors[unit_id]['more_novel']
+	               	count += 1
+
+        if count == 0:
+            return 0
+
+        return sel_check/(count * 1.0)
+
+    def get_novelty_t1equalnovel_sel(self):
+        sel_check = 0.0
+        count = 0
+        for unit_id in self.unit_vectors:
+        	unitString = str(unit_id)
+        	if unitString.endswith("t1_novelty"):
+	        	if "equal_novel" in self.unit_vectors[unit_id]:
+	        		sel_check += self.unit_vectors[unit_id]['equal_novel']
+	               	count += 1
+
+        if count == 0:
+            return 0
+
+        return sel_check/(count * 1.0)
+
+    def get_novelty_t1lessnovel_sel(self):
+        sel_check = 0.0
+        count = 0
+        for unit_id in self.unit_vectors:
+        	unitString = str(unit_id)
+        	if unitString.endswith("t1_novelty"):
+	        	if "less_novel" in self.unit_vectors[unit_id]:
+	        		sel_check += self.unit_vectors[unit_id]['less_novel']
+	               	count += 1
+
+        if count == 0:
+            return 0
+
+        return sel_check/(count * 1.0)
+
+
+    def get_novelty_selection_frequency(self):
+  		sel_check_less = 0.0
+  		count_less = 0
+  		sel_check_equal = 0.0
+  		count_equal = 0
+		sel_check_more = 0.0
+		count_more = 0
+		sel_check_na = 0.0
+		count_na = 0
+		score_less = 0.0
+		score_equal = 0.0
+		score_more = 0.0
+		score_na = 0.0
+		for unit_id in self.unit_vectors:
+			unitString = str(unit_id)
+			if unitString.endswith("t1_novelty"):
+				if "less_novel" in self.unit_vectors[unit_id]:
+					sel_check_less += self.unit_vectors[unit_id]['less_novel']
+					count_less += 1
+		      	if "equal_novel" in self.unit_vectors[unit_id]:
+		      		sel_check_equal += self.unit_vectors[unit_id]['equal_novel']
+		      		count_equal += 1
+		      	if "more_novel" in self.unit_vectors[unit_id]:
+		        	sel_check_more += self.unit_vectors[unit_id]['more_novel']
+		      		count_more += 1
+		        if "na" in self.unit_vectors[unit_id]:
+		        	sel_check_na += self.unit_vectors[unit_id]['na']
+		      		count_na += 1
+
+		if count_less != 0:
+		    score_less = sel_check_less / (count_less * 1.0)
+		if count_equal != 0:
+		    score_equal = sel_check_equal / (count_equal * 1.0)
+		if count_more != 0:
+		    score_more = sel_check_more / (count_more * 1.0)
+		if count_na != 0:
+		    score_na = sel_check_na / (count_na * 1.0)
+
+		list_values = [score_less, score_equal, score_more, score_na]
+
+		return max(list_values)
+
+    def get_novel_words_per_tweet(self):
+        no_annotations = 0
+        no_units = 0
+        for unit_id in self.unit_vectors:
+        	unitString = str(unit_id)
+        	if unitString.endswith("t1_novelwords"):
+        		if (self.unit_vectors[unit_id]["[NONE]"] != 1) and (self.unit_vectors[unit_id]["[CHECK_FAILED]"] != 1):
+        			no_annotations += sum(self.unit_vectors[unit_id].values())
+        			no_units += 1
+        	if unitString.endswith("t2_novelwords"):
+        		if (self.unit_vectors[unit_id]["[NONE]"] != 1) and (self.unit_vectors[unit_id]["[CHECK_FAILED]"] != 1):
+        			no_annotations += sum(self.unit_vectors[unit_id].values())
+        			no_units += 1
+
+        if len(self.unit_vectors) == 0:
+            return 0
+
+        if no_units == 0:
+            return 0
+
+        return no_annotations/(no_units * 1.0)
+
+    def get_notnovel_words_per_tweet(self):
+        no_annotations = 0
+        no_units = 0
+        for unit_id in self.unit_vectors:
+        	unitString = str(unit_id)
+        	if unitString.endswith("t1_notnovelwords"):
+        		if self.unit_vectors[unit_id]["[NONE]"] != 1:
+        			no_annotations += sum(self.unit_vectors[unit_id].values())
+        			no_units += 1
+        	if unitString.endswith("t2_notnovelwords"):
+        		if self.unit_vectors[unit_id]["[NONE]"] != 1:
+        			no_annotations += sum(self.unit_vectors[unit_id].values())
+        			no_units += 1
+
+        if len(self.unit_vectors) == 0:
+            return 0
+
+        if no_units == 0:
+            return 0
+
+        return no_annotations/(no_units * 1.0)
 
     def get_factor_selection_check(self):
         sel_check = 0.0
@@ -163,3 +411,4 @@ class Worker:
             return 0
 
         return sum_cos/(1.0 * count)
+

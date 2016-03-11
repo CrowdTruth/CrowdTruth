@@ -7,7 +7,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
         categoryPrefix = 'in'
     }
 
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
+    var urlBase = "/api/analytics/piegraph/?match[type][]=workerunit&";
 
     var infoFields = [
         {field: 'domain', name: 'domain'},
@@ -611,7 +611,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
             for (var indexUnits in currentSelection) {
                 urlUnitInfo += 'match[' + queryField + '][]=' + currentSelection[indexUnits] + '&';
             }
-            urlUnitInfo += 'match[documentType][]=workerunit&project[unit_id]=unit_id&push[unit_id]=unit_id' +
+            urlUnitInfo += 'match[type][]=workerunit&project[unit_id]=unit_id&push[unit_id]=unit_id' +
                 '&metrics[]=avg_clarity&metrics[]=domain&metrics[]=format';
             $.getJSON(urlUnitInfo, function (data) {
                 for (var iterData in data) {
@@ -620,7 +620,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
 
                 if (queryField == 'job_id') {
                     //get the metrics for jobs
-                    var urlJobsInfo = '/api/v1/?field[documentType]=job&only[]=metrics.units.withoutSpam&&only[]=metrics.units.withSpam&';
+                    var urlJobsInfo = '/api/v1/?field[type]=job&only[]=metrics.units.withoutSpam&&only[]=metrics.units.withSpam&';
 
                     for (var indexUnits in currentSelection) {
                         urlJobsInfo += 'field[_id][]=' + currentSelection[indexUnits] + '&';
@@ -746,7 +746,7 @@ function unitsDetails(category, categoryName, openModal, modalName) {
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
+        urlBase = "/api/analytics/piegraph/?match[type][]=workerunit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match[' + queryField + '][]=' + selectedUnits[indexUnits] + '&';

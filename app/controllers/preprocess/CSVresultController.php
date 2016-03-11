@@ -2,7 +2,6 @@
 
 namespace preprocess;
 
-use \MongoDB\Repository as Repository;
 use \preprocess\CSVresultMapper as CSVresultMapper;
 use BaseController, Cart, View, App, Input, Redirect, Session;
 
@@ -31,7 +30,7 @@ class csvresultController extends BaseController {
 	{
 		if(is_null($action))
 		{
-			$entities = \MongoDB\Entity::where('documentType', 'csvresult')->where('title', 'like', '%input%')->get();
+			$entities = Entity::where('documentType', 'csvresult')->where('title', 'like', '%input%')->get();
 
 			if(count($entities) > 0)
 			{
@@ -71,7 +70,7 @@ class csvresultController extends BaseController {
 	{
 		if(is_null($action))
 		{
-			$entities = \MongoDB\Entity::where('documentType', 'csvresult')->where('title', 'like', '%workerunit%')->get();
+			$entities = Entity::where('documentType', 'csvresult')->where('title', 'like', '%workerunit%')->get();
 
 			if(count($entities) > 0)
 			{
@@ -113,7 +112,7 @@ class csvresultController extends BaseController {
 
 	// public function getActions()
 	// {
-	// 	$entities = \MongoDB\Entity::where('documentType', 'csvresult')->get();
+	// 	$entities = Entity::where('documentType', 'csvresult')->get();
 
 	// 	if(count($entities) > 0)
 	// 	{

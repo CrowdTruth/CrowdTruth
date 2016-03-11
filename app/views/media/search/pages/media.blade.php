@@ -25,25 +25,31 @@
 		<div class='tab'>
 			<div class='search row'>
 				<div class='col-xs-12'>
-				@if(isset($mainSearchFilters['media']['categories']))
+
+
+
+
 					<select name="documentType" data-query-key="match[documentType]" class="documentType selectpicker pull-left show-tick" multiple data-selected-text-format="count>3" title="Choose Document-Type(s)" data-width="auto" data-show-subtext="true">
-						<option value="all" class="select_all" data-subtext="{{ $mainSearchFilters['media']['all']['count'] }} Items">{{ $mainSearchFilters['media']['all']['label'] }}</option>
-						@foreach($mainSearchFilters['media']['categories'] as $project => $documentTypes)
+						<option value="all" class="select_all" data-subtext="{{ $unitcount }} Items">All</option>
+                    	@foreach($types as $project => $doctypes)
 							<optgroup label="{{ $project }}">
-								@foreach($documentTypes as $key => $doctype)
-									<option value="{{ $key }}" class="select_{{ $key }}" data-subtext="{{ $doctype['count'] }} Items">{{ $doctype['label'] }}</option>
+                        		@foreach($doctypes as $doctype => $count)
+									<option value="{{ $project }}__{{ $doctype }}" class="select_{{ $doctype }}" data-subtext="{{ $count }} Items">{{ $doctype }}</option>
 								@endforeach
 							</optgroup>
 						@endforeach
 					</select>
-				@endif
-				
+
+
 					<div class='btn-group pull-left' style="margin-left:5px";>
 						{{ Form::open([ 'action' => 'MediaController@postKeys', 'name' => 'theForm', 'id' => 'theForm' ]) }}
 							<select class="columns selectpicker show-tick" multiple title="Select columns" data-live-search="true" data-selected-text-format="count>3" style="display: none;">
 							</select>
 						{{ Form::close() }}
 					</div>
+
+		
+
 					
 					<div class="btn-group pull-left specificFilterButton" style="margin-left:5px;">
 						<button type="button" class="btn btn-default specificFilter" data-original-title="" title="">
@@ -134,13 +140,9 @@
 						</button>
 						<ul class="dropdown-menu" role="menu">
 							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
+							<li><a href="{{ URL::to('media/importresults') }}">Import Results</a></li>
 							<li><a href="#" class='toSelection'>Save Selection as Batch</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
-						<li role="presentation" class="divider"></li>
-						<li role="presentation" class="dropdown-header">Database Tools</li>
-							<li><a href="{{ URL::to('media/listindex') }}">View search index</a></li>
-							<li><a href="{{ URL::to('media/refreshindex') }}">Refresh search index</a></li>
-							<li><a href="{{ URL::to('media/updatedb') }}">Update entities</a></li>
 						</ul>
 					</div>
 					<select name="search_limit" data-query-key="limit" class="limit selectpicker pull-right show-tick">
@@ -148,6 +150,9 @@
 						<option value="25">25 Records per page</option>
 						<option value="50">50 Records per page</option>
 						<option value="100">100 Records per page</option>
+						<option value="250">250 Records per page</option>
+						<option value="500">500 Records per page</option>
+						<option value="1000">1000 Records per page</option>
 					</select>
 					<div class='switchViews pull-right' style="margin-right:5px;">
 						<button type="button" class="btn btn-info listViewButton hidden" style="margin-left:5px;">
@@ -167,21 +172,23 @@
 				</div>
 				<div class='col-xs-12 searchResults'>
 					<div class="tab-content documentTypesTabs">
+						<div class="tab-pane active" id="all_tab">
 
 
-						<div class='ctable-responsive'>		
-							<table class="table table-striped">
-								<thead data-query-key="" data-query-value="">
-									<tr class='identifiers'>
-									</tr>
-									<tr class="inputFilters">
-									</tr>											        
-								</thead>
-								<tbody class='results'>
-								</tbody>
-							</table>
-						</div>	
-						
+							<div class='ctable-responsive'>		
+								<table class="table table-striped">
+									<thead data-query-key="" data-query-value="">
+										<tr class='identifiers'>
+										</tr>
+										<tr class="inputFilters">
+										</tr>											        
+									</thead>
+									<tbody class='results'>
+									</tbody>
+								</table>
+							</div>	
+						</div>
+							
 						<div class='status text-center'>
 							<div class='loading'>
 								<i class="fa fa-spinner fa-spin fa-4x"></i><br /><br />Loading
@@ -357,6 +364,32 @@ $('document').ready(function(){
 	return new Handlebars.SafeString(user);
   });
 
+
+
+  Swag.addHelper('dynamicField', function(value) {
+    
+    if(!value) {
+    	string = "";
+    } else if(/^(http\:\/\/.*\.ggpht\.com.*|.*\.(jpg|jpeg|png|gif))$/i.test(value)) {
+		// image
+		string = '<img style="max-width:100px; max-height:100px;border:0px;" src="' + value + '" />';
+	} else if(/^.*\.(mp3|ogg|wmv)$/i.test(value)) {
+		// sound
+		string = '<audio class="audio" src="' + value + '" preload="none" controls="controls">Please update your browser to the latest version in order to complete this task.</audio>';
+	} else if(/^.*\.(avi|mpeg|mpg|mp4)$/i.test(value)) {
+		// video
+		string = '<video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="' + value + '" type="video/mp4">Your browser does not support the video tag.</video>';
+	} else if(!isNaN(value)) {
+		// number
+		string = value;
+	} else {
+	 	// other
+		string = value;
+	}
+	
+	return new Handlebars.SafeString(string);
+  });
+
   
   
 	// set the unit modal based on the document type. only available in some specific cases
@@ -389,6 +422,7 @@ $('.selectpicker').selectpicker({
     tickIcon: 'fa-check'
 });
 
+
 var xhr;
 var unitsChart;
 var oldTabKey;
@@ -411,11 +445,16 @@ var delay = (function(){
 
 
 
+var getActiveTabKey = function(){
+	return '#all_tab';
+}
+
 // document type selection
 var lastDocuments = [];
 $('.search .documentType').change(function(){
 
 	var documents = $(this).val();
+
 	//if nothing is selected, select All
 	if(!documents) {
 		$('.search .documentType option[value=all]').attr('selected',true);
@@ -423,7 +462,6 @@ $('.search .documentType').change(function(){
 	} else if(documents.length > 1 && documents[0] == 'all' && lastDocuments[0] == 'all') { // unselect 'all' if any other document type is selected
 		$('.search .documentType option[value=all]').attr('selected',false);
 		delete(documents[0]);
-		documents.sort();
 	} else if(documents.length > 1 && documents[0] == 'all' && lastDocuments[0] != 'all') { // unselect all other document types if 'all' is selected
 		$('.search .documentType option[value!=all]').attr('selected',false);
 		documents = ['all'];
@@ -438,8 +476,10 @@ $('.search .documentType').change(function(){
 	} else {
 		$('.specificFilterButton').hide();
 	}
-	
+
+	documents = documents.sort();
 	lastDocuments = documents;
+
 	getColumns(documents);
 });
 
@@ -652,17 +692,17 @@ var getSelection = function() {
 }
 
 function getTabFieldsQuery(){
-	var tabFieldsQuery = '';
+	var tabFieldsQuery = '&match[type]=unit';
 
-	var documentType = $('.search .documentType').val();
-	
+	var documents = $('.search .documentType').val();
+
 	var operator = '=';
-	if(documentType[0] == 'all') {
-		tabFieldsQuery += "&match[tags]=unit";
-	} else {
-		// needs to use all doctypes
-		tabFieldsQuery += "&" + "match[documentType]" + operator + documentType[0];
+	if(documents[0] != 'all') {
+		documents = documents[0].split('__');
+		tabFieldsQuery += "&match[documentType]" + operator + documents[1];
 	}
+
+
 	
 	// find filter values
 	$('.inputFilters, .specificFilterContent').find("[data-query-key]").each(function() {
@@ -702,30 +742,30 @@ function getTabFieldsQuery(){
 }
 
 // function to get columns available for selected document types
-function getColumns(docTypes) {
+function getColumns(documents) {
 
-			formData = 'documents=' + docTypes.join('|');
+			formData = 'documents=' + documents.join('|');
 			$.ajax({
 				type: "POST",
 				url: $("#theForm").attr("action"),
 				data: formData,
 				success: function(data) {
 
+					def = ['_id','project','documentType','created_at','user_id']; // default visible columns
 					// create select list with default options
 					var columnList = '<optgroup data-icon="fa fa-flag" class="columnSelected" label="Selected">';
-					for(key in data.keys) {
-						if(data.default.indexOf(key)>=0) {
-							columnList += '<option data-icon="' + data.formats[data.keys[key]['format']] + ' fa-fw" value="' + data.keys[key]['key'] + '" format="' + data.keys[key]['format'] + '" class="select_' + key + '" selected>' + data.keys[key]['label'] + '</option>';
-						}
+					for(key in def) {
+						columnList += '<option data-icon=" fa-fw" value="' + def[key] + '" format="" class="select_' + def[key] + '" selected>' + def[key] + '</option>';
 					}
 					columnList += '</optgroup>';
 
 					// list with other options
 					columnList += '<optgroup class="columnNotSelected" label="Available">';
-					for(key in data.keys) {
-						if(data.default.indexOf(key)==-1) {
-							columnList += '<option data-icon="' + data.formats[data.keys[key]['format']] + ' fa-fw" value="' + data.keys[key]['key'] + '" format="' + data.keys[key]['format'] + '" class="select_' + key + '">' + data.keys[key]['label'] + '</option>';
-						}
+					columnList += '<option data-icon=" fa-fw" value="avg_clarity" format="" class="select_avg_clarity">avg_clarity</option>';
+
+					for(key in data) {
+						label = 
+						columnList += '<option data-icon=" fa-fw" value="' + data[key] + '" format="" class="select_' + data[key] + '">' + data[key] + '</option>';
 					}
 					columnList += '</optgroup>';
 					
@@ -782,9 +822,14 @@ function getResults(baseApiURL){
 						
 			// spoof category to support visualizations		
 			var category = '#' + $('.search .documentType').val()[0] + '_tab';
+
+			// TEMP FIX
+			var category = '#all_tab';
+
 			var availableVis = ['#relex-structured-sentence_tab','#fullvideo_tab','#metadatadescription_tab','#annotatedmetadatadescription_tab','#all_tab','#drawing_tab','#painting_tab'];
 			if(availableVis.indexOf(category)>=0) { // do not update if there is no visualization for this document type	
 				unitsChart = new unitsChartFacade(category, openModal, getSelection, updateSelection);
+				// problem
 				unitsChart.init(getTabFieldsQuery(),"");
 			}
 		} else {
@@ -878,25 +923,14 @@ var dynamicTemplate = function() {
 		if(columns[i] == '_id') {
 			// for the ID the best modal is applied through handlebars to show the invidial unit
 			template += '<td data-vbIdentifier="id">@{{ unitModal this._id this.documentType }}</td>';
+		} else if (columns[i].indexOf('content.') === 0) {
+
+			// display based on actual content
+			template += '<td data-vbIdentifier="id">@{{ dynamicField this.' + columns[i] + ' }}</td>';
+
 		} else {
-			// fallback support for video keyframes and video segments
-			if(columns[i] == 'keyframes.count') {
-				template += '<td data-vbIdentifier="number_of_video_keyframes" id="keyframe_@{{ @index }}"><a class="testModal" data-modal-query="&only[]=content.storage_url&only[]=content.timestamp&match[documentType]=keyframe&match[parents][]=@{{ this._id }}" data-api-target="{{ URL::to("api/search?noCache") }}" data-target="#modalVideoKeyframes" data-toggle="tooltip" data-placement="top" title="Click to see the keyframes">@{{ this.keyframes.count }}</a></td>';
-			} else if(columns[i] == 'segments.count') { 
-				template += '<td data-vbIdentifier="number_of_video_segments" id="segment_@{{ @index }}"><a class="testModal" data-modal-query="&only[]=content.storage_url&only[]=content.duration&match[documentType]=videosegment&only[]=content.start_time&only[]=content.end_time&match[parents][]=@{{ this._id }}" data-api-target="{{ URL::to("api/search?noCache") }}" data-target="#modalVideoSegments" data-toggle="tooltip" data-placement="top" title="Click to see the video segments">@{{ this.segments.count }}</a></td>';
-			} else {
-				// change field based on format of the data
-				switch($('.columns option[value="' + columns[i] + '"]').attr('format')) {
-					case 'image':
-						template += '<td data-vbIdentifier="id"><img style="max-width:100px; max-height:100px;border:0px;" src="@{{ this.' + columns[i] + ' }}" /></td>';
-					break;
-					case 'video':
-						template += '<td data-vbIdentifier="id"><video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="@{{ this.' + columns[i] + ' }}" type="video/mp4">Your browser does not support the video tag.</video>';
-					break;
-					default:
-						template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
-				}
-			}
+			// default display
+			template += '<td data-vbIdentifier="id">@{{ this.' + columns[i] + ' }}</td>';
 		}
 	}
 	template += '</tr>@{{/each}}';
@@ -906,7 +940,6 @@ var dynamicTemplate = function() {
 // on adding or removal of a column, refresh the table identifiers and filters
 $('.columns').on('change', function(){
 	refreshColumns();
-	
 	
 	// update results
 	var template = Handlebars.compile(dynamicTemplate());
@@ -1097,6 +1130,10 @@ if(workerList !=  null) {
     }
     localStorage.removeItem("unitList");
 }
+
+$(document).on('click', '.mediaselector', function (e) {
+        e.stopPropagation();
+    });
 
 
 });

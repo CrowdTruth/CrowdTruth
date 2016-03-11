@@ -2,12 +2,6 @@
 
 use crowdwatson\MechanicalTurkService;
 
-use \MongoDB\Repository as Repository;
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
-use \MongoDB\CrowdAgent as CrowdAgent;
-
 class AnalyticsController extends BaseController {
 
     public $restful = true;
@@ -27,7 +21,7 @@ class AnalyticsController extends BaseController {
         for ($iter = 0; $iter < count($jobArray); ++$iter) {
 
             $jobID = $jobArray[$iter];
-            $jobsInfo[$jobID] = \MongoDB\Entity::find($jobID);
+            $jobsInfo[$jobID] = Entity::find($jobID);
             $color = AnalyticsController::$colorList[$iter%count(AnalyticsController::$colorList)];
             $jobsInfo[$jobID]['color'] = $color;
             $colors[$jobID] = $color;

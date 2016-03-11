@@ -1,16 +1,25 @@
 <?php
 use Sunra\PhpSimple\HtmlDomParser;
 
+use \Entities\File as File;
+use \Entities\Unit as Unit;
+use \Entities\Batch as Batch;
+use \Entities\JobConfiguration as JobConfiguration;
+use \Entities\Job as Job;
+use \Template as Template;
+
+use \Activity as Activity;
+
 class JobsController2 extends BaseController {
 
-	public function getIndex(){
-		$mainSearchFilters = \MongoDB\Temp::getMainSearchFiltersCache()['filters'];
-		return View::make('media.search.pages.jobs2', compact('mainSearchFilters'));
-	}
+    public function getIndex(){
+        $mainSearchFilters = Temp::getMainSearchFiltersCache()['filters'];
+        return View::make('media.search.pages.jobs2', compact('mainSearchFilters'));
+    }
 	
 	public function getBatch() {
 		$this->getClearTask();
-		$batches = Batch::where('documentType', 'batch')->get(); 
+		$batches = Batch::where('type', 'batch')->get(); 
 		//$batch = unserialize(Session::get('batch'));
 		//if(!$batch) $selectedbatchid = ''; 
 		//else $selectedbatchid = $batch->_id;
@@ -18,7 +27,7 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getBatchd() {
-		$batches = Batch::where('documentType', 'batch')->get(); 
+		$batches = Batch::where('type', 'batch')->get(); 
 		//$batch = unserialize(Session::get('batch'));
 		//dd($batch);
 		//if(!isset($batch)) $selectedbatchid = ''; 
@@ -32,17 +41,18 @@ class JobsController2 extends BaseController {
 	 * the CML code and available fields.
 	 */
 	public function getTemplate() {
-		$templateType = Input::get( 'templateType' );
-		$template = \MongoDB\Template::where("type", $templateType)->first();
-		// everything that is between {{ }}
-		$simpleRegEx = "/{{([^.}}]*)}}/";
+        $templateType = Input::get( 'templateType' );
+        $template = Template::where("type", $templateType)->first();
+        // everything that is between {{ }}
+        $simpleRegEx = "/{{([^.}}]*)}}/";
 
-		preg_match_all($simpleRegEx, $template["cml"], $matchesCol, PREG_OFFSET_CAPTURE);
-		$matches = array();
-		foreach ($matchesCol[1] as $simpleMatch) {
-			//print_r($simpleMatch);
-			if (strpos($simpleMatch[0], "|") === false) {
-				$newMatch = array();
+        preg_match_all($simpleRegEx, $template["cml"], $matchesCol, PREG_OFFSET_CAPTURE);
+        //print_r($matchesCol);
+        $matches = array();
+        foreach ($matchesCol[1] as $simpleMatch) {
+        	//print_r($simpleMatch);
+        	if (strpos($simpleMatch[0], "|") === false) {
+        		$newMatch = array();
 				$newMatch["label"] = str_replace(" ", "", $simpleMatch[0]);
 				$newMatch["startLabel"] = $simpleMatch[1];
 				$found = false;
@@ -222,7 +232,7 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getSave($id) {
-		$j = \MongoDB\Entity::where("documentType", "job")->where("platformJobId", $id)->first();
+		$j = Entity::where("type", "job")->where("platformJobId", $id)->first();
 		Session::put('format_t', $j->format);
 		Session::put('jobconf_id_t', $j->jobConf_id);
 		Session::put('job_id_t', $j->_id);
@@ -241,22 +251,22 @@ class JobsController2 extends BaseController {
 		return View::make('job2.saveover');
 	}
 
-	private function findNewestTemplate($type, $format) {
-		$maxi = \MongoDB\Template::where("type", $type)->where("format", $format)->max('version');
-		if ($maxi === null){
-			return null;
-		}
-		$jcbase = \MongoDB\Template::where("type", $type)->where("format", $format)->where('version', $maxi)->first();
-		return $jcbase;
+	private function findNewestTemplate($type, $format){
+		$maxi = Template::where("type", $type)->where("format", $format)->max('version');
+		if ($maxi === null){return null;}
+	 	$jcbase = Template::where("type", $type)->where("format", $format)->where('version', $maxi)->first();
+
+	 	return $jcbase;
 	}
 
 	public function postSavet() {
 		$jc_id = Session::get('jobconf_id_t');
 		$j_id = Session::get('job_id_t');
-		$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
+		$jc = Entity::where("_id", $jc_id)->first();
 		$jcco = $jc['content'];
-		$j = \MongoDB\Entity::where("_id", $j_id)->first();
-		$type = Input::get('templateType');
+		$j = Entity::where("_id", $j_id)->first();
+		//$type = Input::get('templateType');
+		$type = "job";
 		$load = Input::get('load');
 		if($type === null){
 			$load = Session::get('load');
@@ -264,7 +274,8 @@ class JobsController2 extends BaseController {
 		}
 		else
 		{
-		Session::put('templateType', $type);
+		//Session::put('templateType', $type);
+		Session::put('templateType', Input::get('templateType'));
 		Session::put('load', $load);
 		}
 		if($type===null or $type==="")
@@ -278,12 +289,14 @@ class JobsController2 extends BaseController {
 		if($newest === null){
 				$v = 0;
 			}else{
-				$v =   \MongoDB\Template::where("type", $type)->where("format", $j->format)->max('version')+1;
+				//$v =   Template::where("type", $type)->where("format", $j->format)->max('version')+1;
+				$v =   Template::where("type", $type)->max('version')+1;
 			}	
 		//save + increasing version
-		$te = new \MongoDB\Template;
-		$te['cml'] = $jcco['cml'];
-		$te['format'] = $j->format;
+	    $te = new Template;
+	    $te['cml'] = $jcco['cml'];
+	    $te['platform'] = "cf2";
+	    //$te['format'] = $j->format;
 	 	if(isset($jcco['css']))
 	 			$te['css'] = $jcco['css'];
  		if(isset($jcco['instructions']))
@@ -291,7 +304,8 @@ class JobsController2 extends BaseController {
  		if(isset($jcco['js']))
  			$te['js'] = $jcco['js'];
 		$te['version'] = $v;
- 		$te['type'] = $type;
+ 		//$te['type'] = $type;
+ 		$te['type'] = Input::get('templateType');
  		$te->save();
 
 
@@ -304,7 +318,7 @@ class JobsController2 extends BaseController {
 	}
 
 	public function getLoad($id) {
-		$j = \MongoDB\Entity::where("documentType", "job")->where("platformJobId", $id)->first();
+		$j = Entity::where("type", "job")->where("platformJobId", $id)->first();
 		Session::put('format_t', $j->format);
 		Session::put('jobconf_id_t', $j->jobConf_id);
 		Session::put('job_id_t', $j->_id);
@@ -315,17 +329,19 @@ class JobsController2 extends BaseController {
 	public function postLoadt() {
 			$jc_id = Session::get('jobconf_id_t');
 			$j_id = Session::get('job_id_t');
-			$jc = \MongoDB\Entity::where("_id", $jc_id)->first();
-			$j = \MongoDB\Entity::where("_id", $j_id)->first();
+			$jc = Entity::where("_id", $jc_id)->first();
+			$j = Entity::where("_id", $j_id)->first();
 			$jcco = $jc['content'];
 			$jcco['type'] =  Input::get('templateType');
-	 		if($jcco['type'] == null) 
-				return Redirect::back()->with('flashError', "form not filled in (type).");	 	
-			// get a selected, newest jcbase
-			$maxi = \MongoDB\Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->max('version');
-	 		$jcbase = \MongoDB\Template::where("type", $jcco['type'])->where("format", Session::get('format_t'))->where('version', $maxi)->first();
+
+	 		if($jcco['type'] == Null) 
+	    		return Redirect::back()->with('flashError', "form not filled in (type).");	 	
+	    	// get a selected, newest jcbase
+	    	$maxi = Template::where("type", $jcco['type'])->max('version');
+	 		$jcbase = Template::where("type", $jcco['type'])->where('version', $maxi)->first();
+
 	 		if(!isset($jcbase)){
-	 			Session::flash('flashError',"template not found");
+	 			Session::flash('flashError',"template not found: ". $jcco['type']);
 				return Redirect::to("jobs2/submit");
 			}
 	 		if(!isset($jcbase['cml'])){
@@ -345,7 +361,8 @@ class JobsController2 extends BaseController {
 		 	$rest = substr($jcco['title'], strpos($jcco['title'], '(entity/' ));
 	 		$jcco['title'] = $title . "[[" . $jcco['type'] . $rest;
 	 		$jc['content'] = $jcco;
-	 		$j['type'] = $jcco['type'];
+	 		//$j['type'] = $jcco['type'];
+	 		$j['type'] = "job";
 	 		$jc->save();
 	 		$j->save();
 	 		$platform = App::make('cf2');
@@ -367,17 +384,17 @@ class JobsController2 extends BaseController {
 		return Redirect::to("jobs2/batch");
 	}
 
-	public function getDuplicate($entity, $format, $domain, $docType, $incr){
+	public function getDuplicate($entity, $project, $type, $incr){
 		Session::forget('batch');
 
-		$job = Job::id("entity/$format/$domain/$docType/$incr")->first();
+		$job = Job::id("entity/$project/$type/$incr")->first();
 
 		if(!is_null($job)){
 				$jc = $job->JobConfiguration->replicate();
 			unset($jc->activity_id);
 			$jc->parents= array($job->JobConfiguration->_id);
 			Session::put('jobconf', serialize($jc));
-			Session::put('format', $job->batch->format);
+			//Session::put('format', $job->batch->format);
 			if(isset($jc->content['TVID']))
 				Session::put('templateType', $jc->content['TVID']);
 			Session::put('title', $jc->content['title']);
@@ -410,9 +427,9 @@ class JobsController2 extends BaseController {
 	}
 
 
-	public function getRefresh($entity, $format, $domain, $docType, $incr){
+	public function getRefresh($entity, $project, $type, $incr){
 		$platform = App::make('cf2');
-		$platform->refreshJob("entity/$format/$domain/$docType/$incr");
+		$platform->refreshJob("entity/$project/$type/$incr");
 		return Redirect::to("jobs");
 	}
 
@@ -420,7 +437,7 @@ class JobsController2 extends BaseController {
 		$platform = App::make('cf2');
 		//dd($id);
 		$platform->deleteJob($id);
-		\MongoDB\Temp::truncate();
+		Temp::truncate();
 		return Redirect::to("jobs");
 	}
 
@@ -428,7 +445,7 @@ class JobsController2 extends BaseController {
 		$platform = App::make('cf2');
 		//dd($id);
 		$platform->deleteJobCT($id);
-		\MongoDB\Temp::truncate();
+		Temp::truncate();
 		return Redirect::to("jobs");
 	}
 
@@ -436,7 +453,7 @@ class JobsController2 extends BaseController {
 		$platform = App::make('cf2');
 		//dd($id);
 		$platform->deleteJobPL($id);
-		\MongoDB\Temp::truncate();
+		Temp::truncate();
 		return Redirect::to("jobs");
 	}
 
@@ -457,7 +474,7 @@ class JobsController2 extends BaseController {
 		// Use existing job configuration content (if available)
 		if (!$jc = unserialize(Session::get('jobconf'))) {
 			$jc = new JobConfiguration;
-			$jc->documentType = "jobconf";
+			$jc->type = "jobconf";
 			$jcco = array();
 		} else {
 			$jcco = $jc->content;
@@ -489,10 +506,17 @@ class JobsController2 extends BaseController {
 				return Redirect::back()->with('flashError', "You did not fill in the type of the template");
 			}
 
-			// Get selected, newest template
-			$jcbase = $this->findNewestTemplate($jcco['type'], $batch->format);
-			if($jcbase==null) {
-				Session::flash('flashError',"template not found");
+	 		$jcco['type'] =  Input::get('templateType');
+	 		if($jcco['type'] == Null) 
+	    		return Redirect::back()->with('flashError', "You did not fill in the type of the template");	 	
+
+	    	// get a selected, newest jcbase
+	    	$maxi = Template::where("type", $jcco['type'])->max('version');
+	 		$jcbase = Template::where("type", $jcco['type'])->where('version', $maxi)->first();
+
+
+	 		if(!isset($jcbase)){
+	 			Session::flash('flashError',"template not found: ". $jcco['type']);
 				return Redirect::to("jobs2/submit");
 			}
 			if(!isset($jcbase['cml'])){	// Template must have CML field
@@ -523,38 +547,32 @@ class JobsController2 extends BaseController {
 			$jcco['template_id'] = $jcbase['_id'];
 		}
 
-		if (Input::has('titleOwn') && strlen(Input::get('titleOwn')) > 0 ) {
-			$jcco['title'] = Input::get('titleOwn');
-		} else {
-			$jcco['title'] =  Input::get('title');
-		}
-		if ($jcco['title'] == null) { 
-			return Redirect::back()->with('flashError', "You did not fill in the title of the template");
-		}
+	    if (Input::has('titleOwn') && strlen(Input::get('titleOwn')) > 0 )
+			 		$jcco['title'] = Input::get('titleOwn');
+			 	else
+			 		$jcco['title'] =  Input::get('title');
+		if ($jcco['title'] == Null) 
+	    		return Redirect::back()->with('flashError', "You did not fill in the title of the template");	 	
 
-		// TODO: dynamically load available platforms (in case more than cf are available).
-		// At the moment this will work for CF2 and DrDetective but it is not flexible
-		if(isset($jcbase['platform'])) {
-			$jcco['platform'] = [ $jcbase['platform'] ];
-		} else {
-			$jcco['platform'] = [ "cf2" ];
-			$jcco['title'] = $jcco['title'] . "[[" . $jcco['type'] . "(" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ")]]";
-		}
 
-		$jcco['description'] =  Input::get('description');
-		///////// PUT
-		$jc->content = $jcco;
-		if($own){
-			$_tt = \MongoDB\Template::where('type', $jcco['type'])->where("format", $batch->format)->first();
-			if(isset($_tt)) {
-				Session::flash('flashError', "There is already a template of this type. Please rename (or select this template from dropdown list.");
+	    $jcco['platform'] = Array("DrDetectiveGamingPlatform"); //TODOJORAN
+	    $jcco['description'] =  Input::get('description');
+	    $jcco['title'] = $jcco['title'] . "[[" . $jcco['type'] . "(" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ")]]";
+	    ///////// PUT
+
+	    $jcco['platform'] = Array("cf2");
+	    $jc->content = $jcco;
+	    if($own){
+		    $_tt = Template::where('type', $jcco['type'])->where("format", $batch->format)->first();
+		    if(isset($_tt)){
+		    	Session::flash('flashError', "There is already a template of this type. Please rename (or select this template from dropdown list.");
 				return Redirect::to("jobs2/submit");
 			}
 		}
 
 		try{
 			// Save activity
-			$activity = new MongoDB\Activity;
+			$activity = new Activity;
 			$activity->label = "Job is uploaded to crowdsourcing platform.";
 			$activity->softwareAgent_id = 'jobcreator'; // JOB softwareAgent_id = $platform. Does this need to be the same?
 			$activity->save();
@@ -585,7 +603,7 @@ class JobsController2 extends BaseController {
 			$j->project = $batch->project;
 			$j->domain = $batch->domain;
 			$j->user_id = $batch->user_id;
-			$j->type = $jc->content['type'];
+			$j->type = "job";
 			$j->batch_id = $batch->_id;
 			$j->jobConf_id = $jcid;
 			$j->softwareAgent_id = $job_sw_agent;
@@ -604,7 +622,10 @@ class JobsController2 extends BaseController {
 
 			$successmessage = "Created job with jobConf :-)";
 
-			$platform = App::make($job_sw_agent);
+		//	$platform = App::make($job_sw_agent);
+			$platform = App::make("cf2");
+		//	$platform = App::make("DrDetectiveGamingPlatform"); //TODOJORAN
+
 			$platform->refreshJob($j->_id);
 			
 			Session::flash('flashSuccess', $successmessage);

@@ -3,13 +3,11 @@
 namespace preprocess;
 
 
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\Temp as Temp;
-use \MongoDB\CrowdAgent as CrowdAgent;
-use \MongoDB\Repository as Repository;
 use \preprocess\MetadatadescriptionStructurer as MetadatadescriptionStructurer;
 use BaseController, Cart, View, App, Input, Redirect, Session;
+use \Repository as Repository;
+use \Entity as Entity;
+use \Entities\Unit as Unit;
 
 class MetadatadescriptionController extends BaseController {
 
@@ -36,14 +34,14 @@ class MetadatadescriptionController extends BaseController {
 	public function getActions()
 	{
 
-		$entities = \MongoDB\Entity::where('documentType', '=', 'metadatadescription')->orWhere('preprocessed.automatedEvents', '=', false)->orWhere('preprocessed.automatedEntities', '=', false)->get();
+		$entities = Unit::where('documentType', '=', 'tv-news-broadcasts')->get();
 	
 		if(count($entities) > 0)
 		{
 			return View::make('media.preprocess.metadatadescription.pages.actions', compact('entities'));
 		}
 
-		return Redirect::to('media/upload')->with('flashNotice', 'You have not uploaded any "metadatadescription" documents yet');
+		return Redirect::to('media/upload')->with('flashNotice', 'You have not uploaded any "tv-news-broadcasts" documents yet');
 
 
 		$items = Cart::content();
@@ -56,7 +54,7 @@ class MetadatadescriptionController extends BaseController {
 			{
 				if($entity = $this->repository->find($item['id']))
 				{
-					if($entity->documentType != "metadatadescription")
+					if($entity->documentType != "tv-news-broadcasts")
 					{
 						continue;
 					}
@@ -71,7 +69,7 @@ class MetadatadescriptionController extends BaseController {
 
 		}
 
-		return Redirect::to('media/browse')->with('flashNotice', 'You have not added any "metadatadescription" items to your selection yet');
+		return Redirect::to('media/browse')->with('flashNotice', 'You have not added any "tv-news-broadcasts" items to your selection yet');
 
 	}
 
@@ -80,7 +78,7 @@ class MetadatadescriptionController extends BaseController {
 		if($URI = Input::get('URI'))
 		{
 			if($entity = $this->repository->find($URI)) {
-				if($entity->documentType != "metadatadescription")
+				if($entity->documentType != "tv-news-broadcasts")
 				{
 					continue;
 				}
@@ -119,19 +117,19 @@ function stats_stddev_func($a) {
     
     return sqrt($carry / $size);
 }    
-
+/*
 function createStatisticsForMetadatadescriptionCache ($id) {
     set_time_limit(5200);
     \Session::flash('rawArray', 1);
     $db = \DB::getMongoDB();
     $db = $db->entities;
 
-    $result = \MongoDB\Entity::where('_id', $id)->get()->toArray();
+    $result = Entity::where('_id', $id)->get()->toArray();
     //    dd($result);
     foreach($result as &$parent) {
-        $children = \MongoDB\Entity::whereIn('parents', [$id])->where('content.features.cleanedUpEntities', 'exists', true)->where("documentType", '!=', "annotatedmetadatadescription")->get(['content.features'])->toArray();
+        $children = Entity::whereIn('parents', [$id])->where('content.features.cleanedUpEntities', 'exists', true)->where("documentType", '!=', "annotatedmetadatadescription")->get(['content.features'])->toArray();
        // dd($children);
-        $eventChildren = \MongoDB\Entity::whereIn('parents', [$id])->where('content.automatedEvents', 'exists', true)->get(['content.automatedEvents'])->toArray();
+        $eventChildren = Entity::whereIn('parents', [$id])->where('content.automatedEvents', 'exists', true)->get(['content.automatedEvents'])->toArray();
                 $parent['content']['features'] = array();
                 $parent['content']['features']['cleanedUpEntities'] = array();
                 $parent['content']['features']['automatedEvents'] = array();
@@ -583,8 +581,8 @@ function createStatisticsForMetadatadescriptionCache ($id) {
 
             //    dd($result);
                 try {
-                \MongoDB\Entity::where('_id', '=', $id)->forceDelete();
-            //    \MongoDB\Entity::insert($result);
+                Entity::where('_id', '=', $id)->forceDelete();
+            //    Entity::insert($result);
             //    $result->save();
                 $db->batchInsert(
                     $result,
@@ -597,58 +595,58 @@ function createStatisticsForMetadatadescriptionCache ($id) {
         \Session::forget('rawArray');
       //       dd("done");
     }
-
+*/
 	public function getProcess()
 	{
 		if($URI = Input::get('URI'))
 		{
 			if($entity = $this->repository->find($URI)) {
-				if($entity->documentType != "metadatadescription")
+				if($entity->documentType != "tv-news-broadcasts")
 				{
 					continue;
 				}
 			
 				$metadataProcessing = $this->metadataAnnotationStructurer->process($entity);
 				$status_processing = $this->metadataAnnotationStructurer->store($entity, $metadataProcessing);
-                if (isset($status_processing["processAutomatedEventExtraction"])) {
+            /*    if (isset($status_processing["processAutomatedEventExtraction"])) {
                 	if (!isset($status_processing["processAutomatedEventExtraction"]['error'])) {
-						\MongoDB\Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEvents' => true));
+						Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEvents' => true));
 					}
 					echo "<pre>";
 				}
 				if (isset($status_processing["thdapi"])) {	
 					if (!isset($status_processing["thdapi"]['error'])) {
-						\MongoDB\Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
+						Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
 					}
 					echo "<pre>";
 				}
 				if (isset($status_processing["textrazorapi"])) {	
 					if (!isset($status_processing["textrazorapi"]['error'])) {
-						\MongoDB\Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
+						Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
 					}
 					echo "<pre>";
 				}
 				if (isset($status_processing["semitagsapi"])) {	
 					if (!isset($status_processing["semitagsapi"]['error'])) {
-						\MongoDB\Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
+						Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
 					}
 					echo "<pre>";
 				}
 				if (isset($status_processing["nerdapi"])) {	
 					if (!isset($status_processing["nerdapi"]['error'])) {
-						\MongoDB\Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
+						Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
 					}
 					echo "<pre>";
 				}
 				if (isset($status_processing["lupediaapi"])) {	
 					if (!isset($status_processing["lupediaapi"]['error'])) {
-						\MongoDB\Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
+						Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
 					}
 					echo "<pre>";
 				}
 				if (isset($status_processing["dbpediaspotlightapi"])) {	
 					if (!isset($status_processing["dbpediaspotlightapi"]['error'])) {
-						\MongoDB\Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
+						Entity::where('_id', '=', $entity->_id)->update( array('preprocessed.automatedEntities' => true));
 					}
 					echo "<pre>";
 				}
@@ -660,6 +658,7 @@ function createStatisticsForMetadatadescriptionCache ($id) {
 				else {
 					return Redirect::back()->with('flashError', 'An error occurred while the video description was being pre-processed in named entities and putative events');
 				}
+				*/
 			}
 		} 
 		else 

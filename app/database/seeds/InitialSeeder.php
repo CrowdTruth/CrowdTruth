@@ -1,7 +1,5 @@
 <?php
 
-use MongoDB\SoftwareComponent as SoftwareComponent;
-
 class InitialSeeder extends Seeder {
 
 	/**
@@ -20,14 +18,7 @@ class InitialSeeder extends Seeder {
 		$txtPreprocessor['domains'] = [];
 		$txtPreprocessor['configurations'] = [];
 		$txtPreprocessor->save();
-		
-		// Initialize file uploader component
-		$id = 'fileuploader';
-		$label = 'This component is used for storing files as documents within MongoDB';
-		$txtPreprocessor = new SoftwareComponent($id, $label);
-		$txtPreprocessor['domains'] = [];
-		$txtPreprocessor->save();
-		
+	
 		// Initialize media search component
 		$id = 'mediasearchcomponent';
 		$label = 'This component is used for searching media in MongoDB';

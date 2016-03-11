@@ -10,8 +10,10 @@
 					</div>
 					@include('layouts.flashdata')
 					<div class='row'>
-						<div class="lead text-center">
-							Try out the CrowdTruth tools:
+						<div class="col-xs-12 col-md-10 col-md-offset-1">
+							<h4 class="text-center">
+								Manage your data:
+							</h4>
 						</div>
 						<div class="col-xs-12 col-md-10 col-md-offset-1">
 
@@ -26,10 +28,50 @@
 							</div>
 							<div class="col-xs-4">
 								<div class='tools'>
+									<a href="/media" class="noastyle">
+										<i class="fa fa-files-o" style='font-size:400%;'></i>
+										<h4>Manage Media</h4>
+										<div>View existing media and their statistics, and create batches</div>
+									</a>
+								</div>
+							</div>
+							<div class="col-xs-4">
+								<div class='tools'>
+									<a href="/media/importresults" class="noastyle">
+										<i class="fa fa-archive" style='font-size:400%;'></i>
+										<h4>Import results</h4>
+										<div>Manually import completed crowdsourcing jobs</div>
+									</a>
+								</div>
+							</div>
+
+						</div>
+						<div class="col-xs-12 col-md-10 col-md-offset-1">
+							<h4 class="text-center">
+								Manage your crowdsourcing tasks:
+							</h4>
+						</div>
+						<div class="col-xs-12 col-md-10 col-md-offset-1">
+
+
+
+							<div class="col-xs-4">
+								<div class='tools'>
 									<a href="/jobs/batch" class="noastyle">
 										<i class="fa fa-edit" style='font-size:400%; margin-left:8%;'></i>
 										<h4>Create Job</h4>
 										<div>Order a new crowdsourcing job for your media</div>
+									</a>
+								</div>
+							</div>
+
+
+							<div class="col-xs-4">
+								<div class='tools'>
+									<a href="/jobs" class="noastyle">
+										<i class="fa fa-shopping-cart" style='font-size:400%;'></i>
+										<h4>Manage Jobs</h4>
+										<div>View existing crowdsourcing jobs or submit new ones</div>
 									</a>
 								</div>
 							</div>
@@ -42,33 +84,42 @@
 
 								</div>
 							</div>
-							<div class="col-xs-4">
-								<div class='tools'>
-									<a href="/media" class="noastyle">
-										<i class="fa fa-files-o" style='font-size:400%;'></i>
-										<h4>Select Media</h4>
-										<div>View existing media and their statistics, and create batches</div>
-									</a>
-								</div>
-							</div>
-							<div class="col-xs-4">
-								<div class='tools'>
-									<a href="/jobs" class="noastyle">
-										<i class="fa fa-shopping-cart" style='font-size:400%;'></i>
-										<h4>Select Jobs</h4>
-										<div>View existing crowdsourcing jobs or submit new ones</div>
-									</a>
-								</div>
-							</div>
+						</div>
+						<div class="col-xs-12 col-md-10 col-md-offset-1">
+							<h4 class="text-center">
+								Analyse the results:
+							</h4>
+						</div>
+						<div class="col-xs-12 col-md-10 col-md-offset-1">
+
 							<div class="col-xs-4">
 								<div class='tools'>
 									<a href="/workers" class="noastyle">
 										<i class="fa fa-users" style='font-size:400%;'></i>
-										<h4>Select Workers</h4>
+										<h4>View Workers</h4>
 										<div>View worker analytics and flag spammers</div>
 									</a>
 								</div>
 							</div>
+							<div class="col-xs-4">
+								<div class='home-disabled'>
+
+										<i class="fa fa-bar-chart" style='font-size:400%;'></i>
+										<h4>View Projects</h4>
+										<div>View Projects and analyze their Jobs</div>
+
+								</div>
+							</div>
+							<div class="col-xs-4">
+								<div class='home-disabled'>
+
+										<i class="fa fa-random" style='font-size:400%;'></i>
+										<h4>Workflows</h4>
+										<div>View the flow of the data in a Shankey diagram</div>
+
+								</div>
+							</div>
+
 						</div>
 					</div>
 					<hr />

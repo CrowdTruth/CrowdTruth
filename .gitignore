@@ -1,5 +1,6 @@
 #
 /app/lib/getAPIS/keys.py
+/app/lib/**.pyc
 /app/config/database.php
 /app/config/config.php
 /app/config/packages/crowdtruth/

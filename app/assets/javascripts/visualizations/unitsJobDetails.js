@@ -23,7 +23,7 @@ function unitsJobDetails(category , categoryName, openModal) {
         metricSuffix: ".avg"}
     }
 
-    var urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
+    var urlBase = "/api/analytics/piegraph/?match[type][]=workerunit&";
     var currentSelection = [];
     var jobSelection = [];
     var currentSelectionInfo = {};
@@ -140,7 +140,7 @@ function unitsJobDetails(category , categoryName, openModal) {
             }
 
             var newSeries = {};
-            var urlJobsInfo =  '/api/v1/?field[documentType]=job&';
+            var urlJobsInfo =  '/api/v1/?field[type]=job&';
             for (var iterCateg in categories) {
                 urlJobsInfo += 'field[_id][]=' + categories[iterCateg] + '&';
             }
@@ -221,7 +221,7 @@ function unitsJobDetails(category , categoryName, openModal) {
             for (var indexUnits in currentSelection) {
                 urlUnitInfo += 'match['+ queryField + '][]=' + currentSelection[indexUnits] + '&';
             }
-            urlUnitInfo += 'match[documentType][]=workerunit&project[job_id]=job_id&push[job_id]=job_id' +
+            urlUnitInfo += 'match[type][]=workerunit&project[job_id]=job_id&push[job_id]=job_id' +
                 '&metrics[]=type&metrics[]=softwareAgent_id&'
             for (var indexMetric in querySettings['metricFields']) {
                 urlUnitInfo += 'metrics[]=metrics.' + querySettings['aggName'] + '.mean.' + querySettings['metricFields'][indexMetric] + '&';
@@ -777,7 +777,7 @@ function unitsJobDetails(category , categoryName, openModal) {
         currentSelection = selectedUnits;
         currentSelectionInfo = selectedInfo
         seriesBase = [];
-        urlBase = "/api/analytics/piegraph/?match[documentType][]=workerunit&";
+        urlBase = "/api/analytics/piegraph/?match[type][]=workerunit&";
         //create the series data
         for (var indexUnits in selectedUnits) {
             urlBase += 'match['+ queryField + '][]=' + selectedUnits[indexUnits] + '&';
@@ -806,7 +806,7 @@ function unitsJobDetails(category , categoryName, openModal) {
                 pieChartOptions[platformID] = {};
                 pieChartOptions[platformID]['all'] = data[platformIter]['content'];
                 //get the jobs by category
-                var urlType = "/api/analytics/piegraph/?match[documentType][]=job&";
+                var urlType = "/api/analytics/piegraph/?match[type][]=job&";
                 for (var jobIter in data[platformIter]['content']) {
                     urlType += 'match[_id][]='+data[platformIter]['content'][jobIter] + '&';
                 }
