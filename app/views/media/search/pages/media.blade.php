@@ -143,9 +143,6 @@
 							<li><a href="{{ URL::to('media/importresults') }}">Import Results</a></li>
 							<li><a href="#" class='toSelection'>Save Selection as Batch</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
-						<li role="presentation" class="divider"></li>
-						<li role="presentation" class="dropdown-header">Database Tools</li>
-							<li><a href="{{ URL::to('media/updatedb') }}">Update entities</a></li>
 						</ul>
 					</div>
 					<select name="search_limit" data-query-key="limit" class="limit selectpicker pull-right show-tick">
