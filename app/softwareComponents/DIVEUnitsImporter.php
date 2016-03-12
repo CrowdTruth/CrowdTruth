@@ -4,10 +4,16 @@ namespace SoftwareComponents;
 use \Validator as Validator;
 use \MongoDate;
 
-use \Entities\Unit as Unit;
-use \Entities\Batch as Batch;
+use \Security\ProjectHandler as ProjectHandler;
+use \Security\Permissions as Permissions;
+use \Security\Roles as Roles;
 
-use SoftwareAgent, Activity, Entity;
+use \Entities\Unit as Unit;
+
+use \Auth as Auth;
+
+use SoftwareAgent, Activity, Entity, UserAgent;
+use UserController as UserController;
 
 class DIVEUnitsImporter {
 	protected $softwareComponent;
@@ -52,113 +58,158 @@ class DIVEUnitsImporter {
 	public function process($signal, $payload, $settings)
 	{
 		
-		//return "blabla";
-
 		// increase memory usage to support larger files with up to 10k judgments
 		ini_set('memory_limit','256M');
 		set_time_limit(0);
 		
 		$this->status = ['notice' => [], 'success' => [], 'error' => []];
+		$mapping = [];
 
-		try {
+		if ($settings['user'] != "" || isset($settings['user'])) {
+			$user = UserAgent::where('api_key', $settings['user'])->first();
+
+			if(is_null($user)) {
+				array_push($this->status['error'], "Invalid auth key for user: " . $settings['user'] . "");
+				return $this->status;
+			}
+			Auth::login($user);
+
+
+			//UserController::loginWithToken($settings['user'], 'divedashboard');
 		
-			if (!empty($payload)) {
-				if ($signal == "new_units") {
-
+			if(Auth::check()) {
+				$user = Auth::user();
 				
-					$settings['units'] = [];
-
-					$retUnits = json_decode ( $payload, true ) ;
-
-					//return $retUnits;
-					// Create activity
-					$activity = $this->createActivity();
+				if (isset($signal) && $signal == "new_units") {
 					
-					if ($settings['documentType'] == "") {
-						$settings['documentType'] = "diveunit";
-					}
-					
-					if ($settings["batch_description"] == "") {
-						$settings["batch_description"] = "Batch imported from DIVE dashboard";
-					}
+					if ($settings['project'] != '' && isset($settings['project'])) {
+						
+						$projectsAll = ProjectHandler::listProjects();
+						$projectsUser = ProjectHandler::getUserProjects($user, Permissions::PROJECT_READ);
+						$projectUserNames = array_column($projectsUser, 'name');
 
-					foreach ($retUnits as $unitContent) {
-
-						$hashing = array();
-						$hashing["project"] = $settings["project"];
-						$hashing["documentType"] = $settings["documentType"];
-						$hashing["content"] = $unitContent;
-						$hash = md5(serialize($hashing));
-
-						$searchForUnit = \Entity::where("hash", $hash)->first();
-
-						if ($searchForUnit != NULL) {
-							//$units[$searchForUnit["_id"]] = $searchForUnit;
-							array_push($settings['units'], $searchForUnit["_id"]);
-						} 
-						else {
-							$unit = new Unit();
-							$unit->project = $settings['project'];
-							$unit->activity_id = $activity->_id;
-							$unit->documentType = $settings['documentType'];
-							$unit->type = "unit";
-							$unit->parents = [];
-							$unit->content = $unitContent;
-							$unit->hash = $hash;
-							$unit->source = "divedashboard";
-
-							//return $unit;
-							$unit->save();
-							$units[$unit->_id] = $unit;
+						if (!in_array($settings['project'], $projectsAll)) {
 							
-							array_push($settings['units'], $unit->_id);
-							//	dd($settings['units']);
+							ProjectHandler::createGroup($settings['project']);
+							ProjectHandler::grantUser($user, $settings['project'], Roles::PROJECT_MEMBER);
+						}
+						else {
+							
+							// add the user to the project if it has no access yet
+							if(!ProjectHandler::inGroup($user['_id'], $settings['project'])) {
+								ProjectHandler::grantUser($user, $settings['project'], Roles::PROJECT_MEMBER);
+							}
+							else {
+								
+								if ($settings['source'] != ''  && isset($settings['source'])) {
+									if ($settings['description'] != '' && isset($settings['description'])) {
+										if ($settings['docType'] != '' && isset($settings['docType'])) {
+											if (isset($payload) && !empty($payload)) {
+												
+												$settings['units'] = [];
+												$retUnits = json_decode ( $payload, true ) ;
+												
+												foreach ($retUnits as $unitContent) {
+														// Create activity
+													
+													$activity = $this->createActivity();
+
+													try {
+														$mapping[$unitContent["id"]] = array();
+														$mapping[$unitContent["id"]]["CT_ID"] = "";
+														$mapping[$unitContent["id"]]["status"] = "";
+
+														$hashing = array();
+														$hashing["project"] = $settings["project"];
+														$hashing["documentType"] = $settings["docType"];
+														$hashing["content"] = $unitContent;
+														$hash = md5(serialize($hashing));
+
+														$searchForUnit = Entity::where("hash", $hash)->first();
+
+														if ($searchForUnit != NULL) {
+															
+															$mapping[$unitContent["id"]]["CT_ID"] = $searchForUnit["_id"];
+															$mapping[$unitContent["id"]]["status"] = "exists";
+														} 
+														else {
+															$unit = new Unit();
+															$unit->project = $settings['project'];
+															$unit->activity_id = $activity->_id;
+															$unit->documentType = $settings['docType'];
+															$unit->type = "unit";
+															$unit->parents = [];
+															$unit->content = $unitContent;
+															$unit->hash = $hash;
+															$unit->source = $settings['source'];
+															$unit->description = $settings['description'];
+																//return $unit;
+															$unit->save();
+															//$units[$unit->_id] = $unit;
+																
+															array_push($settings['units'], $unit->_id);
+															$mapping[$unitContent["id"]]["CT_ID"] = $unit->_id;
+															$mapping[$unitContent["id"]]["status"] = "success";
+																//	dd($settings['units']);
+														}
+													} catch (Exception $e) {
+				
+														$activity->forceDelete();
+						
+														$unit->forceDelete();
+														$mapping[$unitContent["id"]]["CT_ID"] = null;
+														$mapping[$unitContent["id"]]["status"] = "error";
+														//return $e;
+													}
+												}
+											}
+											else {
+												return 2;
+												array_push($this->status['error'], "No units were sent from Dive Dashboard: payload -- " . $payload . "");
+												return $this->status;
+											}
+										}
+										else {
+											array_push($this->status['error'], "The documentType of the data is unknown.");
+											return $this->status;
+										}
+									}
+									else {
+										array_push($this->status['error'], "The description of the data is unknown.");
+										return $this->status;
+									}
+								}
+								else {
+									array_push($this->status['error'], "The source of the data is unknown.");
+									return $this->status;
+								}
+
+							}
 						}
 
 					}
-
-					// Create Batch
-					$hashBatch = array();
-					$hashBatch["project"] = $settings["project"];
-					$hashBatch["batch_description"] = $settings["batch_description"];
-					$hashBatch["content"] = $settings["units"];
-					$settings['batch_title'] = "Imported batch from Dive dashboard";
-
-					$searchForBatch = \Entity::where("hash", md5(serialize($hashBatch)))->first();
-
-					if ($searchForBatch != NULL) {
-						array_push($this->status['notice'], "Batch already exists " . $searchForBatch['_id'] . "");
-					}
 					else {
-						$batch = Batch::store($settings, $activity);
-					}	
-					
-					array_push($this->status['success'], "Successfully imported " . $settings['documentType'] . "");
-					array_push($this->status['success'], "Logged activities as " . $activity->_id . "");
-					
-					return $this->status;
-
+						array_push($this->status['error'], "No project name was given in the request.");
+						return $this->status;
+					}
 				}
 				else {
-					array_push($this->status['error'], "Unknown request from DIVE dashboard -- " . $signal . "");
+					array_push($this->status['error'], "Unknown request from DIVE dashboard: signal -- " . $signal . ". Signal should be new_units");
 					return $this->status;
 				}
 			}
 			else {
-				array_push($this->status['error'], "The content of the units is empty -- " . $payload . "");
+				return "here";
+				array_push($this->status['error'], "Authentication required. Please supply authkey.");
 				return $this->status;
 			}
-			
-		} catch (Exception $e) {
-		
-			$activity->forceDelete();
-			
-			foreach($this->units as $unit) {
-				if(!$unit->exists()) {
-					$unit->forceDelete();
-				}
-			}
-			return $e;
-		}
+		} 
+
+
+		array_push($this->status['notice'], $mapping);
+		return $this->status;
+
 	}
+
 }
+

@@ -36,16 +36,19 @@ class apiController extends BaseController
     public function postImportdiveunits()
     {
 		$signal = Input::get('signal');
-		$payload = Input::get('payload');
-		$batchDesc = Input::get('description');
+		$user = Input::get('user');
+		$project = Input::get('project');
+		$source = Input::get('source');
+		$description = Input::get('description');
 		$docType = Input::get('documentType');
+		$payload = Input::get('payload');
 
 		$settings = [];
-		$settings['project'] = "dive";
-		$settings['documentType'] = $docType;
-		$settings['batch_description'] = $batchDesc;
-		$settings['domain'] = 'cultural';
-		$settings['format'] = 'text';
+		$settings['user'] = $user;
+		$settings['project'] = $project;
+		$settings['source'] = $source;
+		$settings['docType'] = $docType;
+		$settings['description'] = $description;
 
 		// process request
 		$importer = new DIVEUnitsImporter();

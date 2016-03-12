@@ -61,6 +61,18 @@ class UserController extends BaseController {
 	}
 
 	/**
+	 * Process user login.
+	 */
+/*	public static function loginWithToken($token, $pass){
+		
+		$user = UserAgent::where('api_key', '=', $token)->first();
+		
+		$value = Auth::attempt(array('email' => $user['email'], 'password' => $pass)); 
+		
+		return $value;
+	}
+*/
+	/**
 	 * Display user registration page.
 	 */
 	public function register(){
