@@ -31,7 +31,7 @@ class ProjectController extends BaseController {
 	public function getGroupList() {
 		$thisUser = Auth::user();
 
-		$groups = ProjectHandler::listGroups();
+		$groups = ProjectHandler::listProjects();
 		$projects = [];
 		
 		$isAdmin = PermissionHandler::checkAdmin($thisUser, Permissions::ALLOW_ALL);
