@@ -6,11 +6,16 @@ php:            # When adding or removing php versions to test
   - 7.0			# 
   - hhvm        # .scrutinizer.yml (tools: external_code_coverage: runs:)
 services: mongodb
+sudo: false		# use cache
 
 matrix:
   allow_failures:
     - php: 7.0
     - php: hhvm
+
+cache:
+  directories:
+    - $HOME/vendor/
 
 install:
   - composer update
