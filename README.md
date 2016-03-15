@@ -1,4 +1,7 @@
-# Welcome to CrowdTruth
+The CrowdTruth Framework
+===============
+
+[![Latest Stable Version](http://img.shields.io/github/release/crowdtruth/crowdtruth.svg)](https://packagist.org/packages/crowdtruth/crowdtruth) [![Build Status](https://travis-ci.org/CrowdTruth/CrowdTruth.svg?branch=master)](https://travis-ci.org/CrowdTruth/CrowdTruth) [![Code Coverage](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/?branch=master) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/?branch=master)
 
 The [CrowdTruth Framework](http://crowdtruth.org) implements an approach to machine-human computing for collecting annotation data on text, images, sounds and videos. The approach is focussed specifically on collecting gold standard data for training and evaluation of cognitive computing systems. The original framework was inspired by the [IBM Watson project](http://www.research.ibm.com/labs/watson/) for providing improved (multi-perspective) gold standard (medical) text annotation data for the training and evaluation of various IBM Watson components, such as Medical Relation Extraction, Medical Factor Extraction and Question-Answer passage alignment.
 
@@ -18,6 +21,4 @@ These steps are realised in an automatic end-to-end workﬂow, that can support 
 # Using CrowdTruth
 Start using CrowdTruth right now, completely free, and explore all its possiblities. Follow the [installation guide](https://github.com/CrowdTruth/CrowdTruth/wiki/installation) to get started, or check out our [wiki](https://github.com/CrowdTruth/CrowdTruth/wiki) for all documentation of the platform. We have some [crowdsourcing templates](https://github.com/CrowdTruth/CrowdTruth/wiki/Creating-Templates) ready for you to start with.
 
-[![Build Status](https://travis-ci.org/CrowdTruth/CrowdTruth.svg?branch=master)](https://travis-ci.org/CrowdTruth/CrowdTruth)
-[![Code Coverage](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/?branch=master)
+

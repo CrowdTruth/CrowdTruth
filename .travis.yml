@@ -20,7 +20,7 @@ install:
   - composer update
 
 before_script:
-  - echo "extension=mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - echo "extension=mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - cp app/config/database.dontrename.copy.php app/config/database.php
 
 script:
