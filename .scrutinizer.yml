@@ -57,4 +57,4 @@ checks:
 tools:
     external_code_coverage:
         timeout: 600    # Timeout in seconds. 
-        runs: 5         # Has to be equal to the number of versions Travis-CI tests ({5.5, 5.6, hhvm} in .travis.yml)
+        runs: 4         # Has to be equal to the number of versions Travis-CI tests ({5.5, 5.6, hhvm} in .travis.yml)

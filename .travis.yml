@@ -1,6 +1,5 @@
 language: php
 php:            # When adding or removing php versions to test
-  - 5.4			#
   - 5.5         # make sure the number of tested versions is 
   - 5.6         # updated in:
   - 7.0			# 
@@ -21,7 +20,7 @@ install:
   - composer update
 
 before_script:
-  - echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - echo "extension=mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - cp app/config/database.dontrename.copy.php app/config/database.php
 
 script:
