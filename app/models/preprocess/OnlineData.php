@@ -396,7 +396,7 @@ class OnlineData extends Moloquent {
 				$entity->title = strtolower($title);
 				$entity->documentType = $documentType;
 				$entity->source = "openimages";
-				$entity->project = "soundandvision";
+				$entity->project = "SoundAndVision";
 				$entity->type = "unit";
 				$videoMetadata = $this->getRecord($video, $parameters["metadataPrefix"]);
 				$entity->content = $videoMetadata["content"];	
