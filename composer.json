@@ -1,7 +1,7 @@
 {
-	"name": "laravel/laravel",
-	"description": "The Laravel Framework.",
-	"keywords": ["framework", "laravel"],
+	"name": "crowdtruth/crowdtruth",
+	"description": "The CrowdTruth Framework",
+	"keywords": ["crowdtruth", "framework","crowdsourcing"],
 	"license": "MIT",
 	"require": {
 		"laravel/framework": "4.1.*",
