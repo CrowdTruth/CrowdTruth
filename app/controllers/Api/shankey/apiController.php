@@ -7,11 +7,13 @@ use \Input as Input;
 use \URL as URL;
 use \Response as Response;
 
-use \MongoDB\Repository as Repository;
-use \MongoDB\Entity as Entity;
-use \MongoDB\Activity as Activity;
-use \MongoDB\SoftwareAgent as SoftwareAgent;
-use \MongoDB\CrowdAgent as CrowdAgent;
+use \Repository as Repository;
+use \Entity as Entity;
+use \Entities\File as File;
+
+use \Activity as Activity;
+use \SoftwareAgent as SoftwareAgent;
+use \CrowdAgent as CrowdAgent;
 use \MongoDate as MongoDate;
 
 class apiController extends BaseController {
@@ -32,13 +34,13 @@ class apiController extends BaseController {
     $relations = array();
 
     $collection = $this->repository->returnCollectionObjectFor($c);
-
-    $initialData = $this -> getinitialData($collection, $user);
-
-
-
+    #$initialData = $this -> getinitialData($collection, $user);
+    
+    $initialData = File::where('user_id',$user)->get();
+    
     array_push($nodes, $initialData);
     $next = $this->getNextNodeLevel($nodes,$collection);
+
     while(count($next['level']['data'])>0){
 
         
