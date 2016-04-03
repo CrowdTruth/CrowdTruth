@@ -1,11 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "701fff779403d1562d47aa2ba40b9149",
-    "content-hash": "e17ad09ee1359fdcefd5f94632c26f1c",
+    "hash": "344414e09c660007dd35b49792be352b",
     "packages": [
         {
             "name": "cartalyst/sentry",
@@ -331,12 +330,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/CrowdTruth/DrDetectiveAPI.git",
-                "reference": "63c60aca0a9280e4c3383ba4446da44147a18f68"
+                "reference": "2bf7853963af5688676d0f43c459640d781ae0e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CrowdTruth/DrDetectiveAPI/zipball/63c60aca0a9280e4c3383ba4446da44147a18f68",
-                "reference": "63c60aca0a9280e4c3383ba4446da44147a18f68",
+                "url": "https://api.github.com/repos/CrowdTruth/DrDetectiveAPI/zipball/2bf7853963af5688676d0f43c459640d781ae0e3",
+                "reference": "2bf7853963af5688676d0f43c459640d781ae0e3",
                 "shasum": ""
             },
             "require": {
@@ -362,7 +361,7 @@
                     "email": "c.martinez@esciencecenter.nl"
                 }
             ],
-            "time": "2016-02-18 14:54:10"
+            "time": "2016-03-24 14:42:30"
         },
         {
             "name": "crowdtruth/mturk",
@@ -403,25 +402,23 @@
         },
         {
             "name": "d11wtq/boris",
-            "version": "v1.0.8",
+            "version": "v1.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/borisrepl/boris.git",
-                "reference": "125dd4e5752639af7678a22ea597115646d89c6e"
+                "reference": "31055b15e2d3fe47f31f6aa8e277f8f3fc7eb483"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/borisrepl/boris/zipball/125dd4e5752639af7678a22ea597115646d89c6e",
-                "reference": "125dd4e5752639af7678a22ea597115646d89c6e",
+                "url": "https://api.github.com/repos/borisrepl/boris/zipball/31055b15e2d3fe47f31f6aa8e277f8f3fc7eb483",
+                "reference": "31055b15e2d3fe47f31f6aa8e277f8f3fc7eb483",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
-            },
-            "suggest": {
                 "ext-pcntl": "*",
                 "ext-posix": "*",
-                "ext-readline": "*"
+                "ext-readline": "*",
+                "php": ">=5.3.0"
             },
             "bin": [
                 "bin/boris"
@@ -433,7 +430,11 @@
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
-            "time": "2014-01-17 12:21:18"
+            "license": [
+                "MIT"
+            ],
+            "description": "A tiny, but robust REPL (Read-Evaluate-Print-Loop) for PHP.",
+            "time": "2015-03-01 08:05:19"
         },
         {
             "name": "filp/whoops",
@@ -537,12 +538,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "6a173ddae1a8e58be871f6d010e88c029eaf5cae"
+                "reference": "8e4e5ef9fbcc6ced335f398b32dcf2a0e4a24acb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/6a173ddae1a8e58be871f6d010e88c029eaf5cae",
-                "reference": "6a173ddae1a8e58be871f6d010e88c029eaf5cae",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/8e4e5ef9fbcc6ced335f398b32dcf2a0e4a24acb",
+                "reference": "8e4e5ef9fbcc6ced335f398b32dcf2a0e4a24acb",
                 "shasum": ""
             },
             "require": {
@@ -591,7 +592,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2016-03-11 16:36:56"
+            "time": "2016-04-01 05:52:09"
         },
         {
             "name": "guzzlehttp/promises",
@@ -1225,12 +1226,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "a9ccae25cbb5c0af6f2a549e4cc3ee6628c253ab"
+                "reference": "064b38c16790249488e7a8b987acf1c9d7383c09"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/a9ccae25cbb5c0af6f2a549e4cc3ee6628c253ab",
-                "reference": "a9ccae25cbb5c0af6f2a549e4cc3ee6628c253ab",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/064b38c16790249488e7a8b987acf1c9d7383c09",
+                "reference": "064b38c16790249488e7a8b987acf1c9d7383c09",
                 "shasum": ""
             },
             "require": {
@@ -1245,13 +1246,13 @@
                 "doctrine/couchdb": "~1.0@dev",
                 "graylog2/gelf-php": "~1.0",
                 "jakub-onderka/php-parallel-lint": "0.9",
+                "php-amqplib/php-amqplib": "~2.4",
                 "php-console/php-console": "^3.1.3",
                 "phpunit/phpunit": "~4.5",
                 "phpunit/phpunit-mock-objects": "2.3.0",
                 "raven/raven": "^0.13",
                 "ruflin/elastica": ">=0.90 <3.0",
-                "swiftmailer/swiftmailer": "~5.3",
-                "videlalvaro/php-amqplib": "~2.4"
+                "swiftmailer/swiftmailer": "~5.3"
             },
             "suggest": {
                 "aws/aws-sdk-php": "Allow sending log messages to AWS services like DynamoDB",
@@ -1260,11 +1261,11 @@
                 "ext-mongo": "Allow sending log messages to a MongoDB server",
                 "graylog2/gelf-php": "Allow sending log messages to a GrayLog2 server",
                 "mongodb/mongodb": "Allow sending log messages to a MongoDB server via PHP Driver",
+                "php-amqplib/php-amqplib": "Allow sending log messages to an AMQP server using php-amqplib",
                 "php-console/php-console": "Allow sending log messages to Google Chrome",
                 "raven/raven": "Allow sending log messages to a Sentry server",
                 "rollbar/rollbar": "Allow sending log messages to Rollbar",
-                "ruflin/elastica": "Allow sending log messages to an Elastic Search server",
-                "videlalvaro/php-amqplib": "Allow sending log messages to an AMQP server using php-amqplib"
+                "ruflin/elastica": "Allow sending log messages to an Elastic Search server"
             },
             "type": "library",
             "extra": {
@@ -1295,7 +1296,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2016-03-13 16:20:24"
+            "time": "2016-04-02 13:12:58"
         },
         {
             "name": "nesbot/carbon",
@@ -1490,20 +1491,20 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "dev-master",
+            "version": "0.3.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "fd6aa5258c29792924e9034ff58679d9c65bfdf3"
+                "reference": "d15bba1edcc7c89e09cc74c5d961317a8b947bf4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/fd6aa5258c29792924e9034ff58679d9c65bfdf3",
-                "reference": "fd6aa5258c29792924e9034ff58679d9c65bfdf3",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/d15bba1edcc7c89e09cc74c5d961317a8b947bf4",
+                "reference": "d15bba1edcc7c89e09cc74c5d961317a8b947bf4",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.3"
+                "php": ">=5.0.0"
             },
             "require-dev": {
                 "phing/phing": "~2.7",
@@ -1584,7 +1585,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2015-01-11 15:05:19"
+            "time": "2015-01-28 21:50:33"
         },
         {
             "name": "predis/predis",
@@ -2261,12 +2262,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "c714d43cc8a564b9402b6c2e894d78a2a4989371"
+                "reference": "f08ffdf229252cd2745558cb2112df43903bcae4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/c714d43cc8a564b9402b6c2e894d78a2a4989371",
-                "reference": "c714d43cc8a564b9402b6c2e894d78a2a4989371",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/f08ffdf229252cd2745558cb2112df43903bcae4",
+                "reference": "f08ffdf229252cd2745558cb2112df43903bcae4",
                 "shasum": ""
             },
             "require": {
@@ -2302,7 +2303,7 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "https://symfony.com",
-            "time": "2016-03-10 19:33:53"
+            "time": "2016-03-27 10:20:16"
         },
         {
             "name": "symfony/finder",
@@ -2482,12 +2483,12 @@
             "target-dir": "Symfony/Component/Process",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/process.git",
+                "url": "https://github.com/symfony/Process.git",
                 "reference": "2756ff2bc8e05527f4d5285cc4406e269b12e516"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/2756ff2bc8e05527f4d5285cc4406e269b12e516",
+                "url": "https://api.github.com/repos/symfony/Process/zipball/2756ff2bc8e05527f4d5285cc4406e269b12e516",
                 "reference": "2756ff2bc8e05527f4d5285cc4406e269b12e516",
                 "shasum": ""
             },

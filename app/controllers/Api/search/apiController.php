@@ -29,7 +29,7 @@ class apiController extends BaseController {
         '=', '<', '>', '<=', '>=', '<>', '!=',
         'like', 'not like', 'between', 'ilike',
         '&', '|', '^', '<<', '>>',
-        'exists', 'type', 'mod', 'where', 'all', 'size', 'regex',
+        'exists', 'type', 'mod', 'where', 'all', 'size', 'regex', 'in',
     );
 	
 	public function getIndex()
@@ -38,21 +38,21 @@ class apiController extends BaseController {
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
 
-		// Filter data for projects for which the authenticated user has permissions.
-		if(Input::has('authkey')) {
-			$user = \MongoDB\UserAgent::where('api_key', Input::get('authkey'))->first();
-			if(is_null($user)) {
-				return [ 'error' => 'Invalid auth key: '.Input::get('authkey') ];
-			}
-		} elseif(Auth::check()) {
-			$user = Auth::user();
-		} else {
-			return [ 'error' => 'Authentication required. Please supply authkey.' ];
-		}
+		// // Filter data for projects for which the authenticated user has permissions.
+		// if(Input::has('authkey')) {
+		// 	$user = \MongoDB\UserAgent::where('api_key', Input::get('authkey'))->first();
+		// 	if(is_null($user)) {
+		// 		return [ 'error' => 'Invalid auth key: '.Input::get('authkey') ];
+		// 	}
+		// } elseif(Auth::check()) {
+		// 	$user = Auth::user();
+		// } else {
+		// 	return [ 'error' => 'Authentication required. Please supply authkey.' ];
+		// }
 		
-		$projects = ProjectHandler::getUserProjects($user, Permissions::PROJECT_READ);
-		$projectNames = array_column($projects, 'name');
-		$collection = $collection->whereIn('project', $projectNames);
+		// $projects = ProjectHandler::getUserProjects($user, Permissions::PROJECT_READ);
+		// $projectNames = array_column($projects, 'name');
+		// $collection = $collection->whereIn('project', $projectNames);
 
 		if(Input::has('match'))
 		{
@@ -231,6 +231,7 @@ class apiController extends BaseController {
 						}
 						elseif($operator == 'in'){
 							$collection = $collection->whereIn($field, $subvalue);
+
 						}
 						elseif($field == "created_at" || $field == "updated_at")
 						{
@@ -262,7 +263,6 @@ class apiController extends BaseController {
 				$collection = $collection->whereIn($field, array($value));
 			}
 		}
-
 		return $collection;		
 	}
 }
