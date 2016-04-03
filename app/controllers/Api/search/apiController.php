@@ -38,21 +38,21 @@ class apiController extends BaseController {
 
 		$collection = $this->repository->returnCollectionObjectFor($c);
 
-		// // Filter data for projects for which the authenticated user has permissions.
-		// if(Input::has('authkey')) {
-		// 	$user = \MongoDB\UserAgent::where('api_key', Input::get('authkey'))->first();
-		// 	if(is_null($user)) {
-		// 		return [ 'error' => 'Invalid auth key: '.Input::get('authkey') ];
-		// 	}
-		// } elseif(Auth::check()) {
-		// 	$user = Auth::user();
-		// } else {
-		// 	return [ 'error' => 'Authentication required. Please supply authkey.' ];
-		// }
+		// Filter data for projects for which the authenticated user has permissions.
+		if(Input::has('authkey')) {
+			$user = \MongoDB\UserAgent::where('api_key', Input::get('authkey'))->first();
+			if(is_null($user)) {
+				return [ 'error' => 'Invalid auth key: '.Input::get('authkey') ];
+			}
+		} elseif(Auth::check()) {
+			$user = Auth::user();
+		} else {
+			return [ 'error' => 'Authentication required. Please supply authkey.' ];
+		}
 		
-		// $projects = ProjectHandler::getUserProjects($user, Permissions::PROJECT_READ);
-		// $projectNames = array_column($projects, 'name');
-		// $collection = $collection->whereIn('project', $projectNames);
+		$projects = ProjectHandler::getUserProjects($user, Permissions::PROJECT_READ);
+		$projectNames = array_column($projects, 'name');
+		$collection = $collection->whereIn('project', $projectNames);
 
 		if(Input::has('match'))
 		{
