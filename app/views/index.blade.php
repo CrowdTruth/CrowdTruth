@@ -102,8 +102,8 @@
 								</div>
 							</div>
 							<div class="col-xs-4">
-								<div class='home-disabled'>
-
+								<div class='tools'>
+									<a href="/project-viz" class="noastyle">
 										<i class="fa fa-bar-chart" style='font-size:400%;'></i>
 										<h4>View Projects</h4>
 										<div>View Projects and analyze their Jobs</div>
@@ -111,8 +111,8 @@
 								</div>
 							</div>
 							<div class="col-xs-4">
-								<div class='home-disabled'>
-
+								<div class='tools'>
+									<a href="/shankey" class="noastyle">
 										<i class="fa fa-random" style='font-size:400%;'></i>
 										<h4>Workflows</h4>
 										<div>View the flow of the data in a Shankey diagram</div>
