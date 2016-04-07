@@ -105,17 +105,17 @@ var AvgClarityChart = React.createClass({
 
   render: function(){
     return (
-      <div className={'chart'}>
-        <HighCharts config={this.options()} ref='chart' />
-        <Row>
-          <Col xs={4}> <div className="pull-right">Sort:</div> </Col>
-          <Col xs={4}><Button onClick={this.setSort.bind(this,true)}> Asc </Button> </Col> 
-          <Col xs={4}><Button onClick={this.setSort.bind(this,false)}>Desc</Button></Col>
-        </Row>
-      </div>
-
+      React.createElement("div", {className: 'chart'}, 
+        React.createElement(HighCharts, {config: this.options(), ref: "chart"}), 
+        React.createElement(Row, null, 
+          React.createElement(Col, {xs: 4}, " ", React.createElement("div", {className: "pull-right"}, "Sort:"), " "), 
+          React.createElement(Col, {xs: 4}, React.createElement(Button, {onClick: this.setSort.bind(this,true)}, " Asc "), " "), 
+          React.createElement(Col, {xs: 4}, React.createElement(Button, {onClick: this.setSort.bind(this,false)}, "Desc"))
+        )
       )
+    )
   }
 });
+
 
 module.exports = AvgClarityChart;

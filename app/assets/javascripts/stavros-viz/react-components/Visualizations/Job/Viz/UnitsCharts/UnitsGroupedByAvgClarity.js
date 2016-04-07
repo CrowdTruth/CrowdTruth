@@ -112,15 +112,15 @@ var UnitsGroupedByAvgClarity = React.createClass({
   },
   render: function(){
     return (
-      <div className={'chart'}>
-        <HighCharts config={this.options()} ref='chart' />
-        <Row>
-          <Col xs={4}> <div className="pull-right">Set Clarity Range:</div> </Col>
-          <Col xs={4}><Input type='text' ref="timeRangeInput" bsStyle={this.state.invalidInput?"error":null} /> </Col> 
-          <Col xs={4}><Button onClick={this.setClarityRange}>OK</Button></Col>
-        </Row>
-      </div>
+      React.createElement("div", {className: 'chart'}, 
+        React.createElement(HighCharts, {config: this.options(), ref: "chart"}), 
+        React.createElement(Row, null, 
+          React.createElement(Col, {xs: 4}, " ", React.createElement("div", {className: "pull-right"}, "Set Time Range:"), " "), 
+          React.createElement(Col, {xs: 4}, React.createElement(Input, {type: "text", ref: "timeRangeInput", bsStyle: this.state.invalidInput?"error":null}), " "), 
+          React.createElement(Col, {xs: 4}, React.createElement(Button, {onClick: this.setTimeRange}, "OK"))
+        )
       )
+    )
   }
 });
 

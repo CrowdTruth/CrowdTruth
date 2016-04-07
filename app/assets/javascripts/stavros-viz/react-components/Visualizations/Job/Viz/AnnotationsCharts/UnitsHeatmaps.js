@@ -120,13 +120,12 @@ var UnitsHeatmaps = React.createClass({
 
 
 
-
   render: function(){
 
-    return (
-      <div className="Chart">
-      </div>
-    );
+      return (
+        React.createElement("div", {className: "Chart"}
+        )
+      );
    
    
   }
