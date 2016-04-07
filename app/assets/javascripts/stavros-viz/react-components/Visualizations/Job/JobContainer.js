@@ -9,7 +9,7 @@ var State = require('react-router').State;
 var util = require('../util/util.js');
 
 
-var JobContainer = React.createClass({
+var JobContainer = React.createClass({displayName: "JobContainer",
 
   mixins: [ State ],
 
@@ -249,30 +249,30 @@ var JobContainer = React.createClass({
     var Job;
 
     if(this.state.jobsLeftToLoad != -1){
-      Job = <div className="text-center"> Not Ready Yet </div>
+      Job = React.createElement("div", {className: "text-center"}, " Not Ready Yet ")
       
 
     }else{
-      Job = (<Row className='bs-callout'>
-            <h3 className='text-center job-title'>Job id :<b> {job.jobInfo._id}</b></h3>
-            <Col xs={6}>
-              <JobViz job={job} select={this.select} sortBy={this.sortBy}/>
-            </Col>
-            <Col xs={6}>
-              <JobList job={job} select={this.select} />
-            </Col>
+      Job = (React.createElement(Row, {className: "bs-callout"}, 
+            React.createElement("h3", {className: "text-center job-title"}, "Job id :", React.createElement("b", null, " ", job.jobInfo._id)), 
+            React.createElement(Col, {xs: 6}, 
+              React.createElement(JobViz, {job: job, select: this.select, sortBy: this.sortBy})
+            ), 
+            React.createElement(Col, {xs: 6}, 
+              React.createElement(JobList, {job: job, select: this.select})
+            )
 
-          </Row>)
+          ))
     }
 
     return (
-      <div>
+      React.createElement("div", null, 
       
-        {
+        
           Job
-        }
+        
      
-      </div>
+      )
     )
 
   }

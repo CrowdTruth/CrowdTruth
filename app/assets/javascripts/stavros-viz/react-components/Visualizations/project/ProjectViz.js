@@ -1,3 +1,4 @@
+//done
 var React = require('react');
 var _ = require('underscore');
 var Bootstrap = require('react-bootstrap');
@@ -12,7 +13,7 @@ var util = require('../util/util.js');
 var JobVizHeader = require('../Job/Viz/JobVizHeader');
 
 
-var ProjectViz = React.createClass({
+var ProjectViz = React.createClass({displayName: "ProjectViz",
 
   getInitialState: function(){
     return {
@@ -108,30 +109,30 @@ var ProjectViz = React.createClass({
   render: function(){
 
     return(
-      <Col xs={6}>
-      <Row>
-        <Col xs={8}>
-          <FilterInput data={this.state.jobs} fields={['_id', 'user_id']} onChange={this.setFilteredJobs} placeholder="Search through Jobs" />
-        </Col>
-        <Col xs={4}>
-          <Button bsStyle={this.state.multipleSelection?'success':null} onClick={this.toggleMultipleSelection}> Multiple </Button>
-          {this.state.multipleSelection? <Button bsStyle='primary' onClick={this.selectMultiple}> Ok </Button>: null}
-        </Col>
-      </Row>
-      <Row>
-        <Col xs={4}>
-          Show only:
-        </Col>
-        <Col xs={8}>
-          <label className='checkbox-inline'><input type="checkbox" defaultChecked value="running" onClick={this.setPreferences}/> Running</label>
-          <label className='checkbox-inline'><input type="checkbox" defaultChecked value="finished" onClick={this.setPreferences}/> Finished</label>
-          <label className='checkbox-inline'><input type="checkbox" defaultChecked value="onlyWithResults" onClick={this.setPreferences} />Only with results</label>
-          <label className='checkbox-inline'><input type="checkbox" defaultChecked value="unordered" onClick={this.setPreferences} />Unordered</label>
-        </Col>
-      </Row>
-      <Row>
-      <ListGroup className='fitscreen'>
-      {
+      React.createElement(Col, {xs: 6}, 
+      React.createElement(Row, null, 
+        React.createElement(Col, {xs: 8}, 
+          React.createElement(FilterInput, {data: this.state.jobs, fields: ['_id', 'user_id'], onChange: this.setFilteredJobs, placeholder: "Search through Jobs"})
+        ), 
+        React.createElement(Col, {xs: 4}, 
+          React.createElement(Button, {bsStyle: this.state.multipleSelection?'success':null, onClick: this.toggleMultipleSelection}, " Multiple "), 
+          this.state.multipleSelection? React.createElement(Button, {bsStyle: "primary", onClick: this.selectMultiple}, " Ok "): null
+        )
+      ), 
+      React.createElement(Row, null, 
+        React.createElement(Col, {xs: 4}, 
+          "Show only:"
+        ), 
+        React.createElement(Col, {xs: 8}, 
+          React.createElement("label", {className: "checkbox-inline"}, React.createElement("input", {type: "checkbox", defaultChecked: true, value: "running", onClick: this.setPreferences}), " Running"), 
+          React.createElement("label", {className: "checkbox-inline"}, React.createElement("input", {type: "checkbox", defaultChecked: true, value: "finished", onClick: this.setPreferences}), " Finished"), 
+          React.createElement("label", {className: "checkbox-inline"}, React.createElement("input", {type: "checkbox", defaultChecked: true, value: "onlyWithResults", onClick: this.setPreferences}), "Only with results"), 
+          React.createElement("label", {className: "checkbox-inline"}, React.createElement("input", {type: "checkbox", defaultChecked: true, value: "unordered", onClick: this.setPreferences}), "Unordered")
+        )
+      ), 
+      React.createElement(Row, null, 
+      React.createElement(ListGroup, {className: "fitscreen"}, 
+      
         this.state.filteredJobs.map(function(job, index){
           var currentState = this.state;
           var hasResults = job.workerunitsCount && job.workerunitsCount>0;
@@ -143,10 +144,10 @@ var ProjectViz = React.createClass({
            
           return(
 
-            <a className={classString + " " + (this.state.selected.indexOf(job._id)>=0?"list-group-item-info":"")} key={index} onClick={this.selectJob.bind(this,job, hasResults)}>
-              <h4 className='list-group-item-heading'>{'Job: ' + job._id}</h4>
-              <JobVizHeader job={ {jobInfo:job} }/>
-              {/*<ListGroupItem bsStyle={this.state.selected.indexOf(job._id)>=0?"info":null}  className={classString} disabled={hasResults?false:true} key={index} header={'Job: ' + job._id} onClick={this.selectJob.bind(this,job, hasResults)}>
+            React.createElement("a", {className: classString + " " + (this.state.selected.indexOf(job._id)>=0?"list-group-item-info":""), key: index, onClick: this.selectJob.bind(this,job, hasResults)}, 
+              React.createElement("h4", {className: "list-group-item-heading"}, 'Job: ' + job._id), 
+              React.createElement(JobVizHeader, {job:  {jobInfo:job} })
+              /*<ListGroupItem bsStyle={this.state.selected.indexOf(job._id)>=0?"info":null}  className={classString} disabled={hasResults?false:true} key={index} header={'Job: ' + job._id} onClick={this.selectJob.bind(this,job, hasResults)}>
                 
                   {hasResults?  <div></div> : <div> This job has no results</div>}
 
@@ -156,16 +157,16 @@ var ProjectViz = React.createClass({
                 
                   {job.realCost? <div>Cost: {job.realCost + '$'}</div> : <div></div>}
                   <div>Status: {job.status}</div>
-              </ListGroupItem>*/} 
-            </a> 
+              </ListGroupItem>*/
+            ) 
            
             )
           
         }.bind(this))
-      }
-      </ListGroup>
-      </Row>
-      </Col>
+      
+      )
+      )
+      )
       )
   }
 })

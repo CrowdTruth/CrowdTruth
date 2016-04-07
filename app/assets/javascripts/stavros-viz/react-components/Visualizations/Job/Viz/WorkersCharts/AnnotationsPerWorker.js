@@ -3,7 +3,7 @@ var Bootstrap = require('react-bootstrap');
 var Row = Bootstrap.Row;
 var HighCharts = require('react-highcharts/bundle/highcharts');;
 
-var AnnotationsPerWorker = React.createClass({
+var AnnotationsPerWorker = React.createClass({displayName: "AnnotationsPerWorker",
   getInitialState: function(){
     return {
       height: window.innerHeight* this.props.height
@@ -144,9 +144,9 @@ var AnnotationsPerWorker = React.createClass({
 
   render: function(){
     return (
-      <div className={'chart'}>
-        <HighCharts config={this.options()} ref='chart' />
-      </div>
+      React.createElement("div", {className: 'chart'}, 
+        React.createElement(HighCharts, {config: this.options(), ref: "chart"})
+      )
 
       )
   }

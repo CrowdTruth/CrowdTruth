@@ -1,3 +1,4 @@
+//done
 var React = require('react');
 var _ = require('underscore');
 var Bootstrap = require('react-bootstrap');
@@ -8,7 +9,7 @@ var ListGroupItem = Bootstrap.ListGroupItem;
 var FilterInput = require('../util/FilterInput.js');
 var util = require('../util/util.js');
 
-var AllViz = React.createClass({
+var AllViz = React.createClass({displayName: "AllViz",
 
   getInitialState: function(){
     return {
@@ -91,32 +92,29 @@ var AllViz = React.createClass({
 
 
     return(
-      <Col xs={6}>
-      <Row>
+      React.createElement(Col, {xs: 6}, 
+      React.createElement(Row, null, 
       
-      <FilterInput data={this.state.projects} fields={['type', 'users']} onChange={this.setFilteredProjects} placeholder="Search through projects" />
-      <ListGroup className='fitscreen'>
-      {
+      React.createElement(FilterInput, {data: this.state.projects, fields: ['type', 'users'], onChange: this.setFilteredProjects, placeholder: "Search through projects"}), 
+      React.createElement(ListGroup, {className: "fitscreen"}, 
+      
         this.state.filteredProjects.map(function(project, index){
           return(
-              <a className={'clickable full-width list-group-item ' + (this.state.active==index?"list-group-item-info":"")} key={index} onClick={this.selectProject.bind(this,project.type, index)}>
-                <h4 className='list-group-item-heading'>{'Project ' + project.type}</h4> 
-                <div>Job Count: {project.jobs.length} </div>
-                <div>Total Cost: {this.getTotalCost(project.jobs) + '$'}</div>
-                <div>Users: {project.users}</div>
-              </a> 
+              React.createElement("a", {className: 'clickable full-width list-group-item ' + (this.state.active==index?"list-group-item-info":""), key: index, onClick: this.selectProject.bind(this,project.type, index)}, 
+                React.createElement("h4", {className: "list-group-item-heading"}, 'Project ' + project.type), 
+                React.createElement("div", null, "Job Count: ", project.jobs.length, " "), 
+                React.createElement("div", null, "Total Cost: ", this.getTotalCost(project.jobs) + '$'), 
+                React.createElement("div", null, "Users: ", project.users)
+              ) 
             )
         }.bind(this))
-      }
       
-      </ListGroup>
+      
+      )
 
-      </Row>
-      </Col>
+      )
+      )
       )
   }
 
 })
-
-
-module.exports = AllViz;

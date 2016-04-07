@@ -7,7 +7,7 @@ var AllProjects = require('./project/AllViz.js');
 var ProjectViz = require('./project/ProjectViz.js');
 
 
-var VizContainer = React.createClass({
+var VizContainer = React.createClass({displayName: "VizContainer",
   getInitialState: function(){
     return {
       items : [{
@@ -48,21 +48,21 @@ var VizContainer = React.createClass({
   
     if (activeItem.job == null){
       Tab = [ 
-        <AllProjects selectProject={this.selectProject} key={0}/>,
-        <ProjectViz project={activeItem.project} selectJob={this.selectJob} key={1}/>
+        React.createElement(AllProjects, {selectProject: this.selectProject, key: 0}),
+        React.createElement(ProjectViz, {project: activeItem.project, selectJob: this.selectJob, key: 1})
       ]
     }else{
-      Tab = <JobContainer job_id={activeItem.job}/>
+      Tab = React.createElement(JobContainer, {job_id: activeItem.job})
     }
 
 
     return (
 
-      <div className='container-fluid'>
-        {/*<VizTabs items={this.state.items} onSelect={this.onSelect} onAdd={this.onAdd}>*/}
-        {Tab}
+      React.createElement("div", {className: "container-fluid"}, 
+        /*<VizTabs items={this.state.items} onSelect={this.onSelect} onAdd={this.onAdd}>*/
+        Tab
 
-      </div>
+      )
 
 
 

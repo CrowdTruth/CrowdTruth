@@ -5,7 +5,8 @@ var NavItem = Bootstrap.NavItem;
 var Button = Bootstrap.Button;
 
 
-var VizTabs = React.createClass({
+
+var VizTabs = React.createClass({displayName: "VizTabs",
 
   getInitialState: function(){
     return {active: 0}
@@ -48,8 +49,8 @@ var VizTabs = React.createClass({
 
     return (
            
-        <Nav bsStyle='tabs' activeKey={this.state.active} onSelect={this.onSelect}>
-        {
+        React.createElement(Nav, {bsStyle: "tabs", activeKey: this.state.active, onSelect: this.onSelect}, 
+        
           this.props.items.map(function(item, index){
             var Tab = [];
             var title = '';
@@ -65,23 +66,24 @@ var VizTabs = React.createClass({
             }else{
               title = "All Projects";
             }           
-            Tab.push(<span> {title}</span>);
+            Tab.push(React.createElement("span", null, " ", title));
             return(
-              <NavItem eventKey={index } key={index}>
-                {
+              React.createElement(NavItem, {eventKey: index, key: index}, 
+                
                   Tab
-                }
-              </NavItem>
+                
               )
-          }.bind(this))
-        }
+              )
+          }.bind(this)), 
         
-        <NavItem eventKey={this.props.items.length} key={this.props.items.length}>Add New</NavItem>
-      </Nav>
+        
+        React.createElement(NavItem, {eventKey: this.props.items.length, key: this.props.items.length}, "Add New")
+      )
     
 
     )
   }
 })
+
 
 module.exports = VizTabs;

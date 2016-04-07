@@ -8,7 +8,7 @@ var Input = Bootstrap.Input;
 var _ = require('underscore');
 
 
-var AnnotationsChart = React.createClass({
+var AnnotationsChart = React.createClass({displayName: "AnnotationsChart",
   getInitialState: function(){
     return {
       withSpam: true,
@@ -85,64 +85,64 @@ var AnnotationsChart = React.createClass({
     var activeChart;
     if (items.length > 0){
       activeChart = (
-        <Row>
-          <Row>
+        React.createElement(Row, null, 
+          React.createElement(Row, null, 
 
-            <Col xs={4} style={{"paddingLeft": "40px"}}>
-              <Input type='select' ref="unitInput" label='Select unit ID' onClick={this.handleSelection} >
-              {
+            React.createElement(Col, {xs: 4, style: {"paddingLeft": "40px"}}, 
+              React.createElement(Input, {type: "select", ref: "unitInput", label: "Select unit ID", onClick: this.handleSelection}, 
+              
                 this.props.job.selected.units.map(function(unit, index){
                   return (
-                      <option value={index} key={index}>{unit.split('/').pop()}</option>
+                      React.createElement("option", {value: index, key: index}, unit.split('/').pop())
                     )
                 })
-              }
-              </Input>
-            </Col>
+              
+              )
+            ), 
 
-            <Col xs={4}>
-              <Input type='select' ref="typeInput" label='Select type' onClick={this.handleSelection} >
-              {
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Input, {type: "select", ref: "typeInput", label: "Select type", onClick: this.handleSelection}, 
+              
                 types.map(function(type, index){
                   return (
-                      <option value={type} key={index}>{type}</option>
+                      React.createElement("option", {value: type, key: index}, type)
                     )
                 })
-              }
-              </Input>
+              
+              )
 
-            </Col>
+            ), 
 
-            <Col xs={4}>
-              <Row>
-                <Input type='checkbox' label='with Spam' defaultChecked={this.state.withSpam} onClick={this.changeSpam}/>
-              </Row>
-            </Col>
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Row, null, 
+                React.createElement(Input, {type: "checkbox", label: "with Spam", defaultChecked: this.state.withSpam, onClick: this.changeSpam})
+              )
+            )
            
-          </Row>
+          ), 
           
-          <Chart items={items} _id={selectedUnit._id} height={this.props.height * 0.75} />
-        </Row>
+          React.createElement(Chart, {items: items, _id: selectedUnit._id, height: this.props.height * 0.75})
+        )
         )
 
     }else{
       var height = window.innerHeight* this.props.height*1.18+'px'
-      activeChart = <Row> <h3 style={{height:height}} className={"text-center"}> Select Units from Unit Charts or Table</h3></Row>
+      activeChart = React.createElement(Row, null, " ", React.createElement("h3", {style: {height:height}, className: "text-center"}, " Select Units from Unit Charts or Table"))
     }
    
 
     
 
     return (
-      <div className='bs-callout bs-callout-primary white'>
-        <h3 className={'text-center'}>Annotations Heatmap</h3>
+      React.createElement("div", {className: "bs-callout bs-callout-primary white"}, 
+        React.createElement("h3", {className: 'text-center'}, "Annotations Heatmap"), 
       
-        {
+        
           activeChart
-        }
+        
        
           
-      </div>
+      )
       )
   }
 

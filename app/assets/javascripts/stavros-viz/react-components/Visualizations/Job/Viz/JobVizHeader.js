@@ -4,7 +4,7 @@ var Row = Bootstrap.Row;
 var Label = Bootstrap.Label;
 var Col=Bootstrap.Col;
 
-var JobVizHeader = React.createClass({
+var JobVizHeader = React.createClass({displayName: "JobVizHeader",
 
   
 
@@ -27,14 +27,14 @@ var JobVizHeader = React.createClass({
 
 
     return (
-      <Row className='bs-callout bs-callout-success'>
-        <HeaderItem size={2} itemName={'User'} value={this.props.job.jobInfo.user_id} />
-        <HeaderItem size={2} itemName={'Real cost'} value={'$' +this.props.job.jobInfo.realCost} />
-        <HeaderItem size={2} itemName={'Running time'} value={this.props.job.jobInfo.runningTimeInSeconds?(toHHMMSS(this.props.job.jobInfo.runningTimeInSeconds)): Math.floor(this.props.job.jobInfo.completion*100) + '% completed' } />
-        <HeaderItem size={2} itemName={'Status'} value={this.props.job.jobInfo.status} />
-        <HeaderItem size={2} itemName={'Created at'} value={(new Date(this.props.job.jobInfo.created_at)).toDateString()} />
-        <HeaderItem size={2} itemName={'Format'} value={this.props.job.jobInfo.format} />
-      </Row>
+      React.createElement(Row, {className: "bs-callout bs-callout-success"}, 
+        React.createElement(HeaderItem, {size: 2, itemName: 'User', value: this.props.job.jobInfo.user_id}), 
+        React.createElement(HeaderItem, {size: 2, itemName: 'Real cost', value: '$' +this.props.job.jobInfo.realCost}), 
+        React.createElement(HeaderItem, {size: 2, itemName: 'Running time', value: this.props.job.jobInfo.runningTimeInSeconds?(toHHMMSS(this.props.job.jobInfo.runningTimeInSeconds)): Math.floor(this.props.job.jobInfo.completion*100) + '% completed'}), 
+        React.createElement(HeaderItem, {size: 2, itemName: 'Status', value: this.props.job.jobInfo.status}), 
+        React.createElement(HeaderItem, {size: 2, itemName: 'Created at', value: (new Date(this.props.job.jobInfo.created_at)).toDateString()}), 
+        React.createElement(HeaderItem, {size: 2, itemName: 'Format', value: this.props.job.jobInfo.format})
+      )
 
       )
 
@@ -42,22 +42,22 @@ var JobVizHeader = React.createClass({
 
 });
 
-var HeaderItem = React.createClass({
+var HeaderItem = React.createClass({displayName: "HeaderItem",
   render: function(){
     var val = this.props.value;
     if (val.indexOf('undefined') > -1){
       val = 'Value not found';
     }
     return (
-      <Col xs={this.props.size}>
+      React.createElement(Col, {xs: this.props.size}, 
         
-        <Row>
-          <h3 className={'text-center'}><Label bsStyle='danger'>{val}</Label></h3>
-        </Row>
-        <Row>
-          <div className={'text-center'}>{this.props.itemName}</div>
-        </Row>
-      </Col>
+        React.createElement(Row, null, 
+          React.createElement("h3", {className: 'text-center'}, React.createElement(Label, {bsStyle: "danger"}, val))
+        ), 
+        React.createElement(Row, null, 
+          React.createElement("div", {className: 'text-center'}, this.props.itemName)
+        )
+      )
       )
   }
 

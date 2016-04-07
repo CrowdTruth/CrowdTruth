@@ -19,8 +19,7 @@ var Charts = [
     }
   ]
 
-
-var UnitsChart = React.createClass({
+var UnitsChart = React.createClass({displayName: "UnitsChart",
   getInitialState: function(){
     return {
       index: 0
@@ -53,22 +52,22 @@ var UnitsChart = React.createClass({
     var leftBtnLabel = leftActive?Charts[index-1].desc:'No more charts';
 
     return(
-        <div className={'bs-callout bs-callout-success white'}>
-          <Row>
-            <Col xs={4}>
-              <Button bsStyle='primary' onClick={this.changeChart.bind(null,false)} disabled={!leftActive}>{leftBtnLabel}</Button>
-            </Col>
-            <Col xs={4}>
-              <h3 className={'text-center'}>Units</h3>
-            </Col>
-            <Col xs={4}>
-              <Button className={"pull-right"} onClick={this.changeChart.bind(null,true)} bsStyle='primary' disabled={!rightActive}>{rightBtnLabel}</Button>
-            </Col>
-          </Row>
-          <Row>
-            <Chart job={this.props.job} height={this.props.height} select={this.props.select} sortBy={this.props.sortBy} />
-          </Row>
-        </div>
+        React.createElement("div", {className: 'bs-callout bs-callout-success white'}, 
+          React.createElement(Row, null, 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Button, {bsStyle: "primary", onClick: this.changeChart.bind(null,false), disabled: !leftActive}, leftBtnLabel)
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement("h3", {className: 'text-center'}, "Units")
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Button, {className: "pull-right", onClick: this.changeChart.bind(null,true), bsStyle: "primary", disabled: !rightActive}, rightBtnLabel)
+            )
+          ), 
+          React.createElement(Row, null, 
+            React.createElement(Chart, {job: this.props.job, height: this.props.height, select: this.props.select, sortBy: this.props.sortBy})
+          )
+        )
         )
   }
 });

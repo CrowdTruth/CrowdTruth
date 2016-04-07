@@ -8,7 +8,7 @@ var _ = require('underscore');
 var Row = require('react-bootstrap').Row;
 var Col = require('react-bootstrap').Col;
 
-var JobList = React.createClass({
+var JobList = React.createClass({displayName: "JobList",
 
   getInitialState: function(){
     return {
@@ -127,41 +127,41 @@ var JobList = React.createClass({
   },
 
   setTables: function(props){
-    this.tables.workersTable= <BootstrapTable height={this.state.height+'px'} data={props.job['workers']} key={1} columnFilter={true} selectRow={this.getSelectedRowProps(props,'workers')}>
-          {
+    this.tables.workersTable= React.createElement(BootstrapTable, {height: this.state.height+'px', data: props.job['workers'], key: 1, columnFilter: true, selectRow: this.getSelectedRowProps(props,'workers')}, 
+          
             this.getColumns('workers')
-          }
-        </BootstrapTable>
+          
+        )
     
-    this.tables.unitsTable = <BootstrapTable height={this.state.height+'px'} data={props.job['units']} key={2} columnFilter={true} selectRow={this.getSelectedRowProps(props,'units')}>
-          {
+    this.tables.unitsTable = React.createElement(BootstrapTable, {height: this.state.height+'px', data: props.job['units'], key: 2, columnFilter: true, selectRow: this.getSelectedRowProps(props,'units')}, 
+          
             this.getColumns('units')
-          }
-        </BootstrapTable>
+          
+        )
 
-    this.tables.workerunitsTable = <BootstrapTable height={this.state.height+'px'} data={props.job['workerunits']} key={3} columnFilter={true} selectRow={this.getSelectedRowProps(props,'workerunits')}>
-          {
+    this.tables.workerunitsTable = React.createElement(BootstrapTable, {height: this.state.height+'px', data: props.job['workerunits'], key: 3, columnFilter: true, selectRow: this.getSelectedRowProps(props,'workerunits')}, 
+          
             this.getColumns('workerunits')
-          }
-        </BootstrapTable>
+          
+        )
 
-    this.tables.workersSelected = <BootstrapTable height={this.state.height+'px'} data={this.getSelected(props, 'workers')} key={4} columnFilter={true}>
-          {
+    this.tables.workersSelected = React.createElement(BootstrapTable, {height: this.state.height+'px', data: this.getSelected(props, 'workers'), key: 4, columnFilter: true}, 
+          
             this.getColumns('workers')
-          }
-        </BootstrapTable>
+          
+        )
 
-    this.tables.unitsSelected = <BootstrapTable height={this.state.height+'px'} data={this.getSelected(props, 'units')} key={5} columnFilter={true}>
-          {
+    this.tables.unitsSelected = React.createElement(BootstrapTable, {height: this.state.height+'px', data: this.getSelected(props, 'units'), key: 5, columnFilter: true}, 
+          
             this.getColumns('units')
-          }
-        </BootstrapTable>
+          
+        )
 
-    this.tables.workerunitsSelected = <BootstrapTable height={this.state.height+'px'} data={this.getSelected(props, 'workerunits')} key={6} columnFilter={true}>
-          {
+    this.tables.workerunitsSelected = React.createElement(BootstrapTable, {height: this.state.height+'px', data: this.getSelected(props, 'workerunits'), key: 6, columnFilter: true}, 
+          
             this.getColumns('workerunits')
-          }
-        </BootstrapTable>
+          
+        )
 
   },
  
@@ -178,14 +178,14 @@ var JobList = React.createClass({
     var cols = this.state.columns[type];
     var result = [];
     cols.map(function(col, index){
-      result.push(<TableHeaderColumn
-                    dataField={col.field}                   
-                    dataKey={col.field}
-                    isKey={col.field=="_id"?true:false}
-                    dataSort={true}
-                    dataFormat={col.render}
-                    key={index}> 
-                    {col.name} </TableHeaderColumn>)
+      result.push(React.createElement(TableHeaderColumn, {
+                    dataField: col.field, 
+                    dataKey: col.field, 
+                    isKey: col.field=="_id"?true:false, 
+                    dataSort: true, 
+                    dataFormat: col.render, 
+                    key: index}, 
+                    col.name, " "))
     });
 
     return result;
@@ -224,28 +224,28 @@ var JobList = React.createClass({
 
 
     return (
-      <Row className='white'>
-        <Row>
-        <Col xs={6}>
-          <Input type='select' ref="typeInput" onClick={this.handleTypeChange}>
-            <option value={'workers'}> Workers </option>
-            <option value={'units'}> Units </option>
-            <option value={'workerunits'}> Annotations </option>
-          </Input>
-        </Col>
-        <Col xs={6}>
-          <Input type='checkbox' label='Show only selected' onClick={this.toggleSelected} />
+      React.createElement(Row, {className: "white"}, 
+        React.createElement(Row, null, 
+        React.createElement(Col, {xs: 6}, 
+          React.createElement(Input, {type: "select", ref: "typeInput", onClick: this.handleTypeChange}, 
+            React.createElement("option", {value: 'workers'}, " Workers "), 
+            React.createElement("option", {value: 'units'}, " Units "), 
+            React.createElement("option", {value: 'workerunits'}, " Annotations ")
+          )
+        ), 
+        React.createElement(Col, {xs: 6}, 
+          React.createElement(Input, {type: "checkbox", label: "Show only selected", onClick: this.toggleSelected})
 
-        </Col>
-        </Row>
-        {this.state.type=='workers'&& !this.state.showSelected? this.tables.workersTable: null}
-        {this.state.type=='units' && !this.state.showSelected ? this.tables.unitsTable: null}
-        {this.state.type=='workerunits' && !this.state.showSelected? this.tables.workerunitsTable: null}
+        )
+        ), 
+        this.state.type=='workers'&& !this.state.showSelected? this.tables.workersTable: null, 
+        this.state.type=='units' && !this.state.showSelected ? this.tables.unitsTable: null, 
+        this.state.type=='workerunits' && !this.state.showSelected? this.tables.workerunitsTable: null, 
 
-        {this.state.type=='workers'&& this.state.showSelected? this.tables.workersSelected: null}
-        {this.state.type=='units' && this.state.showSelected? this.tables.unitsSelected: null}
-        {this.state.type=='workerunits' && this.state.showSelected? this.tables.workerunitsSelected: null}
-      </Row>
+        this.state.type=='workers'&& this.state.showSelected? this.tables.workersSelected: null, 
+        this.state.type=='units' && this.state.showSelected? this.tables.unitsSelected: null, 
+        this.state.type=='workerunits' && this.state.showSelected? this.tables.workerunitsSelected: null
+      )
       )
 
   }

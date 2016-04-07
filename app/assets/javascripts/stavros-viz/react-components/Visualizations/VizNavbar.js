@@ -3,7 +3,7 @@ var Bootstrap = require('react-bootstrap');
 var Navbar = Bootstrap.Navbar;
 var Nav = Bootstrap.Nav;
 var NavItem = Bootstrap.NavItem;
-var VizNavbar = React.createClass({
+var VizNavbar = React.createClass({displayName: "VizNavbar",
 
 
   gotoProjects: function(){
@@ -12,13 +12,13 @@ var VizNavbar = React.createClass({
 
   render: function(){
     return (
-      <Navbar brand='CrowdTruth'>
-        <Nav key={1}>
-          <NavItem eventKey={1} >To be Added</NavItem>
-          <NavItem eventKey={2} href="#/projects" > Projects</NavItem>
-        </Nav>
+      React.createElement(Navbar, {brand: "CrowdTruth"}, 
+        React.createElement(Nav, {key: 1}, 
+          React.createElement(NavItem, {eventKey: 1}, "To be Added"), 
+          React.createElement(NavItem, {eventKey: 2, href: "#/projects"}, " Projects")
+        )
       
-      </Navbar>
+      )
     )
   }
 })

@@ -1,3 +1,4 @@
+//done
 var React = require('react');
 var Bootstrap = require('react-bootstrap');
 var VizNavbar = require('./VizNavbar.js');
@@ -10,14 +11,13 @@ var Route = Router.Route;
 var RouteHandler = Router.RouteHandler;
 var Redirect = Router.Redirect;
 
-
-var StartPage = React.createClass({
+var StartPage = React.createClass({displayName: "StartPage",
   render: function() {
     return (
       
-      <div className='container-fluid'> 
-        <RouteHandler/>
-      </div>
+      React.createElement("div", {className: "container-fluid"}, 
+        React.createElement(RouteHandler, null)
+      )
         
       
     )
@@ -25,11 +25,11 @@ var StartPage = React.createClass({
 });
 
 var routes = (
-  <Route handler={StartPage}>
-    <Redirect from="/" to="/projects" />
-    <Route name="projects" path="/projects" handler={Projects}/>
-    <Route name="job" path="/jobs/:id" handler={JobContainer}/>
-  </Route>
+  React.createElement(Route, {handler: StartPage}, 
+    React.createElement(Redirect, {from: "/", to: "/projects"}), 
+    React.createElement(Route, {name: "projects", path: "/projects", handler: Projects}), 
+    React.createElement(Route, {name: "job", path: "/jobs/:id", handler: JobContainer})
+  )
   );
 
 

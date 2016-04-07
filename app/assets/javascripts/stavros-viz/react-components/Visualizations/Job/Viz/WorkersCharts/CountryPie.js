@@ -5,7 +5,7 @@ var HighCharts = require('react-highcharts/bundle/highcharts');;
 var _ = require('underscore');
 
 
-var CountryPie = React.createClass({
+var CountryPie = React.createClass({displayName: "CountryPie",
 
   getInitialState: function(){
     return {
@@ -191,9 +191,9 @@ var CountryPie = React.createClass({
 
   render: function(){
     return (
-      <div className={'chart'}>
-        <HighCharts config={this.options()} ref='chart' />
-      </div>
+      React.createElement("div", {className: 'chart'}, 
+        React.createElement(HighCharts, {config: this.options(), ref: "chart"})
+      )
       )
   }
 });

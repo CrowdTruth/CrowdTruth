@@ -1,3 +1,4 @@
+//done
 var React = require('react');
 var _ = require('underscore');
 var Bootstrap = require('react-bootstrap');
@@ -7,7 +8,7 @@ var AllProjects = require('./AllViz.js');
 var ProjectViz = require('./ProjectViz.js');
 var Navigation = require('react-router').Navigation;
 
-var Projects = React.createClass({
+var Projects = React.createClass({displayName: "Projects",
 
   mixins: [Navigation],
 
@@ -38,10 +39,10 @@ var Projects = React.createClass({
     
 
     return(
-      <Row>
-        <AllProjects selectProject={this.selectProject} key={0}/>
-        <ProjectViz project={this.state.project} selectJob={this.selectJob} key={1}/>
-      </Row>
+      React.createElement(Row, null, 
+        React.createElement(AllProjects, {selectProject: this.selectProject, key: 0}), 
+        React.createElement(ProjectViz, {project: this.state.project, selectJob: this.selectJob, key: 1})
+      )
       )
   }
 
