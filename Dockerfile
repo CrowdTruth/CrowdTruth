@@ -6,5 +6,7 @@ ADD Docker/000-laravel.conf /etc/apache2/sites-available/
 ADD . /var/www/laravel/
 RUN chown www-data:www-data -R /var/www/laravel/
 
+WORKDIR /var/www/laravel/
+RUN composer update
 RUN chmod +x /var/www/laravel/Docker/initContainer.sh
 CMD "/var/www/laravel/Docker/initContainer.sh"]
