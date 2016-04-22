@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd /var/www/laravel
+cd /var/www/
 php artisan db:seed --class DatabaseSeeder
-/usr/sbin/apache2ctl -D FOREGROUND
+/start.sh

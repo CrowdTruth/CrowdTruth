@@ -1,12 +1,20 @@
-FROM eboraas/laravel
+FROM richarvey/nginx-php-fpm
 
-RUN apt-get -y install mongodb php5-mongo php5-curl php5-mcrypt
+RUN apt-get update
+RUN apt-get install -y php5-mongo php5-curl
+ADD . /var/www/
+RUN chown www-data:www-data -R /var/www/
 
-ADD Docker/000-laravel.conf /etc/apache2/sites-available/
-ADD . /var/www/laravel/
-RUN chown www-data:www-data -R /var/www/laravel/
+ADD Docker/nginx-ct.conf /etc/nginx/conf.d/nginx-ct.conf
+ADD Docker/database.php /var/www/app/config/database.php
 
-WORKDIR /var/www/laravel/
+# Install composer
+RUN chmod +x /var/www/Docker/installComposer.sh
+RUN chmod +x /var/www/Docker/initContainer.sh
+RUN /var/www/Docker/installComposer.sh
+
+USER www-data
+WORKDIR /var/www/
 RUN composer update
-RUN chmod +x /var/www/laravel/Docker/initContainer.sh
-CMD "/var/www/laravel/Docker/initContainer.sh"]
+USER root
+CMD ["/var/www/Docker/initContainer.sh"]
