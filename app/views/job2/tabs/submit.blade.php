@@ -88,6 +88,14 @@
 								</div>
 							
 						</div>
+						<div class='row' style='margin-top:40px;'>
+							{{ Form::label('platform', 'Platform', 
+									array('class' => 'col-xs-12 col-sm-4 control-label')) }}
+								<div class="col-xs-12 col-sm-3">
+									{{ Form::select('platform',  ['crowdflower','biocrowd'], $phpres, array('class' => 'selectpicker', 'id' => 'platform', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip', 'platform'=>'')) }}
+								</div>
+							
+						</div>
 						<div class='row' style='margin-top:40px; margin-bottom: 20px;'>
 							{{ Form::label('templateType', 'Select a Template or define a new one', array('class' => 'col-xs-12 col-sm-4 control-label')) }}
 								<div class="col-xs-12 col-sm-3">

@@ -150,8 +150,14 @@ class Job extends Entity {
     	if(!isset($this->softwareAgent_id)) // and (!isset($this->platformJobId) !!! TODO
     		throw new Exception('Can\'t handle a Job that has not yet been uploaded to a platform.');
 
+        $platform = 'cf2';
+        if($this->softwareAgent_id != 'CF') {
+            $platform = 'DrDetectiveGamingPlatform';
+        }
+
     	//return \App::make($this->softwareAgent_id);
-    	return \App::make("cf2");
+    	//return \App::make("cf2");
+    	return \App::make($platform);
     }
 
     /** 

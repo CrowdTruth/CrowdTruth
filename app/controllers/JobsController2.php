@@ -466,6 +466,12 @@ class JobsController2 extends BaseController {
 	public function postSubmitFinal($ordersandbox = 'order') {
 		$batch = unserialize(Session::get('batch'));
 
+		// switch platform
+		$platform = 'cf2';
+		if(Input::get('platform') == 'biocrowd') {
+			$platform = 'DrDetectiveGamingPlatform';
+		}
+
 		$batchColumnsNewTemplate = array();
 		$batchColumnsExtraChosenTemplate = array();
 		$associationsTemplBatch = array();
@@ -555,12 +561,11 @@ class JobsController2 extends BaseController {
 	    		return Redirect::back()->with('flashError', "You did not fill in the title of the template");	 	
 
 
-	    $jcco['platform'] = Array("DrDetectiveGamingPlatform"); //TODOJORAN
+	    $jcco['platform'] = Array($platform); //TODOJORAN
 	    $jcco['description'] =  Input::get('description');
 	    $jcco['title'] = $jcco['title'] . "[[" . $jcco['type'] . "(" . $batch->_id . ", " . $batch->domain .", " . $batch->format . ")]]";
 	    ///////// PUT
 
-	    $jcco['platform'] = Array("cf2");
 	    $jc->content = $jcco;
 	    if($own){
 		    $_tt = Template::where('type', $jcco['type'])->where("format", $batch->format)->first();
@@ -623,10 +628,10 @@ class JobsController2 extends BaseController {
 			$successmessage = "Created job with jobConf :-)";
 
 		//	$platform = App::make($job_sw_agent);
-			$platform = App::make("cf2");
-		//	$platform = App::make("DrDetectiveGamingPlatform"); //TODOJORAN
+		//	$platform = App::make("cf2");
+			$platformApp = App::make($platform); //TODOJORAN
 
-			$platform->refreshJob($j->_id);
+			$platformApp->refreshJob($j->_id);
 			
 			Session::flash('flashSuccess', $successmessage);
 			return Redirect::to("jobs");
