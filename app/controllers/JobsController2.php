@@ -468,7 +468,7 @@ class JobsController2 extends BaseController {
 
 		// switch platform
 		$platform = 'cf2';
-		if(Input::get('platform') == 'biocrowd') {
+		if(Input::get('platform') != 'cf') {
 			$platform = 'DrDetectiveGamingPlatform';
 		}
 
@@ -627,8 +627,6 @@ class JobsController2 extends BaseController {
 
 			$successmessage = "Created job with jobConf :-)";
 
-		//	$platform = App::make($job_sw_agent);
-		//	$platform = App::make("cf2");
 			$platformApp = App::make($platform); //TODOJORAN
 
 			$platformApp->refreshJob($j->_id);

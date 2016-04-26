@@ -155,8 +155,6 @@ class Job extends Entity {
             $platform = 'DrDetectiveGamingPlatform';
         }
 
-    	//return \App::make($this->softwareAgent_id);
-    	//return \App::make("cf2");
     	return \App::make($platform);
     }
 
