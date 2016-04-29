@@ -368,6 +368,8 @@ $('document').ready(function(){
 
   Swag.addHelper('dynamicField', function(value) {
     
+    var youtube = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
+
     if(!value) {
     	string = "";
     } else if(/^(http\:\/\/.*\.ggpht\.com.*|.*\.(jpg|jpeg|png|gif))$/i.test(value)) {
@@ -376,9 +378,13 @@ $('document').ready(function(){
 	} else if(/^.*\.(mp3|ogg|wmv)$/i.test(value)) {
 		// sound
 		string = '<audio class="audio" src="' + value + '" preload="none" controls="controls">Please update your browser to the latest version in order to complete this task.</audio>';
+	
 	} else if(/^.*\.(avi|mpeg|mpg|mp4)$/i.test(value)) {
 		// video
 		string = '<video width="240" height="160" controls="" preload="none" data-toggle="tooltip" data-placement="top" title="" data-original-title="Click to play"><source src="' + value + '" type="video/mp4">Your browser does not support the video tag.</video>';
+	} else if(youtube.test(value)) {
+	    var youtubeId = value.match(youtube);
+		string = '<iframe width="240" height="160" src="https://www.youtube.com/embed/' + youtubeId[1] + '" frameborder="0" allowfullscreen></iframe>';
 	} else if(!isNaN(value)) {
 		// number
 		string = value;
