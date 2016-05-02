@@ -12,7 +12,7 @@
 >
     <testsuites>
         <testsuite name="Application Test Suite">
-            <file>./app/tests/ApplicationTest.php</file>
+            <file>./app/tests/TestCase.php</file>
         </testsuite>
     </testsuites>
 </phpunit>
