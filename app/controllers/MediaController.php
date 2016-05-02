@@ -66,11 +66,6 @@ class MediaController extends BaseController {
 		$inputClass = explode('__', Input::get('inputClass'));
 		$outputClass = explode('__', Input::get('outputClass'));
 		$settings['filename'] = basename($files->getClientOriginalName(), '.csv');
-		//$inputFormat = 'text';
-		//$inputDomain = 'medical';
-		
-		//$outputFormat = 'text';
-		//$outputDomain = 'medical2';
 		
 		// input project
 		if(Input::get('input-project') != "") {
@@ -114,7 +109,9 @@ class MediaController extends BaseController {
 		$projects = ProjectHandler::getUserProjects(Auth::user());
 		$projects = array_column($projects, 'name');
 		
-		return View::make('media.search.pages.importresults')->with('mainSearchFilters', $mainSearchFilters)->with('projects', $projects);;
+		$types = $this->userDocTypes();
+
+		return View::make('media.search.pages.importresults')->with('types', $types[0]);
 	}
 	
 	

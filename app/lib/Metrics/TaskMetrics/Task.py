@@ -26,8 +26,8 @@ class Task:
             #remove this when APIs are integrated
             self.default_query_v1["field[job_id][" + str(jobPosition) + "]"] = jobs[jobPosition]
 
-        self.default_query["match[documentType]"] = 'workerunit'
-        self.default_query_v1["field[documentType]"] = 'workerunit'
+        self.default_query["match[type]"] = 'workerunit'
+        self.default_query_v1["field[type]"] = 'workerunit'
 
     def __create_unit_cluster(self):
         unit_cluster = {}
@@ -73,10 +73,10 @@ class Task:
     def __get_default_thresholds(self):
         api_param = urllib.urlencode({'field[_id]': self.template_id,'limit':10000,
                               'only[]': 'content.defaultThresholds'})
-
+        
+        #print(config.server + "v1/?" + api_param)
         api_call = urllib2.urlopen(config.server + "v1/?" + api_param)
         response = json.JSONDecoder().decode(api_call.read())
-        #print(config.server + "v1/?" + api_param)
         return response[0]['content']['defaultThresholds']
 
     def __get_units(self, add_query_list, annotations_to_filter):
