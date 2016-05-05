@@ -316,6 +316,10 @@ class ResultImporter {
 					'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
 					'preview-hq-mp3' => $data[$unitIds[$i]][array_search('preview-hq-mp3',$data[0])]
 					];
+					$settings["keywords"] = "sound annotation";
+					$settings["description"] = "semantic annotation of sounds";
+					$settings["templateType"] = "createAnnotationVectorSound";
+					$settings["platformJobId"] = $settings['filename'];
 				}
 
 				$platform_id = $data[$unitIds[$i]][0];
