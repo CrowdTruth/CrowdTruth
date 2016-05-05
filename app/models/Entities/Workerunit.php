@@ -49,7 +49,7 @@ class Workerunit extends Entity {
                     $activity->softwareAgent_id = $workerunit->softwareAgent_id;
                     $activity->save();
                     $workerunit->activity_id = $activity->_id;
-                    Log::debug("Saving workerunit {$workerunit->_id} with activity {$workerunit->activity_id}.");
+                    \Log::debug("Saving workerunit {$workerunit->_id} with activity {$workerunit->activity_id}.");
                 } catch (Exception $e) {
 
                     if($activity) $activity->forceDelete();
@@ -97,7 +97,7 @@ class Workerunit extends Entity {
             
             default:
                //return  $this->createAnnotationVectorFactSpan(); // For Debugging!
-                Log::debug("TYPE {$this->documentType} UNKNOWN: {$this->_id}");
+                \Log::debug("TYPE {$this->documentType} UNKNOWN: {$this->_id}");
                 //dd("here");
                 return null;
                 //throw new Exception("TYPE {$this->type} UNKNOWN: {$this->_id}");
@@ -443,7 +443,7 @@ class Workerunit extends Entity {
                     $vector1 = $this->createFactVect(false, $startdiff, $enddiff);      
                 }
             } catch (Exception $e) {
-                Log::debug("{$e->getMessage()}");
+                \Log::debug("{$e->getMessage()}");
                // echo "\r\n<span style='color:red'>!!! {$e->getMessage()}</span><br>\r\n";
                 $vector1 = $this->createFactVect(true);
             }  
@@ -470,7 +470,7 @@ class Workerunit extends Entity {
 
                  } 
             } catch (Exception $e) {
-                Log::debug("{$e->getMessage()}");
+                \Log::debug("{$e->getMessage()}");
                 //echo "\r\n<span style='color:red'>!!! {$e->getMessage()}</span><br>\r\n";
                 $vector2 = $this->createFactVect(true);
             }  
@@ -505,7 +505,7 @@ class Workerunit extends Entity {
                 }
             }
 
-            Log::debug($ans);
+            \Log::debug($ans);
          //   print_r($ans);
 
 
@@ -520,7 +520,7 @@ class Workerunit extends Entity {
             if($debug) echo "\r\n{$ans['confirmids2']}, {$ans['confirmsecondfactor']}, $term, $b, {$ans['saveselectionids2']}, {$ans['secondfactor']}";
             $vector2 = $this->createSingleFactVect($ans['confirmids2'], $ans['confirmsecondfactor'], $term, $b, $ans['saveselectionids2'], $ans['secondfactor']);
         } else {
-            Log::debug("Can't determine if it's CF or AMT.");
+            \Log::debug("Can't determine if it's CF or AMT.");
         }    
 
         return array('term1' => $vector1, 'term2' => $vector2);
@@ -602,7 +602,7 @@ class Workerunit extends Entity {
             }
 
         }catch(Exception $e){
-             Log::debug("\r\nFAIL: {$e->getMessage()}\r\n");
+             \Log::debug("\r\nFAIL: {$e->getMessage()}\r\n");
             if($debug) echo "\r\n\r\nException: {$e->getMessage()}\r\n\r\n";
             return $this->createFactVect(true);
 
@@ -814,7 +814,7 @@ class Workerunit extends Entity {
 
         } catch (Exception $e){
             echo $e->getMessage();
-            Log::debug($e->getMessage());
+            \Log::debug($e->getMessage());
             return null;
         }    
    

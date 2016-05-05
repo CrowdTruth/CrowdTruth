@@ -318,7 +318,7 @@ class ResultImporter {
 					];
 					$settings["keywords"] = "sound annotation";
 					$settings["description"] = "semantic annotation of sounds";
-					$settings["templateType"] = "createAnnotationVectorSound";
+					$settings["templateType"] = "sound";
 					$settings["platformJobId"] = $settings['filename'];
 				}
 
