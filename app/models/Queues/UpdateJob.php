@@ -1,7 +1,7 @@
 <?php
 namespace Queues;
 
-use Exception;
+use Exception, Config;
 
 use \Entity as Entity;
 use \SoftwareAgent as SoftwareAgent;
@@ -130,15 +130,15 @@ class UpdateJob {
 
 
 				// TODO: of course all this hardcoded stuff has to go.
-				if($j->documentType == 'FactSpan')
+				if($j->templateType == 'FactSpan')
 					$templateid = 'entity/text/medical/FactSpan/Factor_Span/0';
-				else if($j->documentType == 'RelEx')
+				else if($j->templateType == 'RelEx')
 					$templateid = 'entity/text/medical/RelEx/Relation_Extraction/0';
-				else if($j->documentType == 'RelDir')
+				else if($j->templateType == 'RelDir')
 					$templateid = 'entity/text/medical/RelDir/Relation_Direction/0';
-				else if($j->documentType == 'MetaDEvents')
-					$templateid = 'entity/text/cultural/MetaDEvents/MetadataDescription_Events/0';
-				else if($j->documentType == 'DistributionalDisambiguation')
+				else if($j->templateType == 'MetaDEvents')
+					$templateid = 'entity/openimages/template/MetaDEvents';
+				else if($j->templateType == 'DistributionalDisambiguation')
 					$templateid = 'entity/text/opendomain/termpairs/0';
 				else
 					$templateid = 'entity/text/medical/FactSpan/Factor_Span/0';
@@ -147,9 +147,9 @@ class UpdateJob {
 					throw new Exception("Template of type {$j->type} not found in database.");*/
 
 				set_time_limit(3600); // One hour.
-				$apppath = app_path();
-				//$command = "/usr/bin/python2.7 $apppath/lib/generateMetrics.py '{$j->_id }' '$templateid'";
-				$command = "C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe $apppath/lib/generateMetrics.py {$j->_id } $templateid";
+				
+				$command = Config::get('config.python_path') . " " . Config::get('config.metrics_path') . " '{$j->_id }' '$templateid'";
+				//$command = "C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe $apppath/lib/generateMetrics.py {$j->_id } $templateid";
 				\Log::debug("Command: $command");
 				exec($command, $output, $return_var);
 				\Log::debug("Metrics done.");

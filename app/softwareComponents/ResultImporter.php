@@ -66,11 +66,11 @@ class ResultImporter {
 		$content["expirationInMinutes"] = 3;
 		$content["reward"] = 0.02;
 		$content["workerunitsPerUnit"] = $settings['judgmentsPerUnit'];
-		$content["workerunitsPerWorker"] = 6;
-		$content["unitsPerTask"] = 3;
+		$content["workerunitsPerWorker"] = 10;
+		$content["unitsPerTask"] = 1;
 		$content["title"] = $settings['filename'];
-		$content["description"] = "N/A";
-		$content["keywords"] = "sound annotation";
+		$content["description"] = $settings["description"];
+		$content["keywords"] = $settings["keywords"];
 		$content["instructions"] = "";
 
 		$hash = md5(serialize([$content]));
@@ -112,13 +112,14 @@ class ResultImporter {
 		$entity->batch_id = $batch->_id;
 		$entity->project = $settings['project'];
 		$entity->documentType = $settings['documentType'];
+		$entity->templateType = $settings['templateType'];
 		$entity->resultType = $settings['resultType'];
 		$entity->type = "job";
 		$entity->completion = 1;
 		$entity->expectedWorkerUnitsCount = 450;
 		$entity->finishedAt = new MongoDate;
 		$entity->jobConf_id = $config;
-		$entity->platformJobId = $settings['filename'];
+		$entity->platformJobId = $settings['platformJobId'];
 		$entity->projectedCost = 12.00;
 		$entity->realCost = 11.97;
 		$entity->runningTimeInSeconds = 190714;
@@ -191,10 +192,11 @@ class ResultImporter {
 			$workerunit->platformWorkerunitId = $annId;
 			$workerunit->submitTime = $submitTime;
 			$workerunit->documentType = $settings['documentType'];
+			$workerunit->templateType = $settings['templateType'];
 			$workerunit->project = $settings['project'];
 			$workerunit->softwareAgent_id = $settings['platform'];
 			$workerunit->softwareAgent_id = 'cf2';
-			$workerunit->contradiction = $settings['contradiction'];
+		//	$workerunit->contradiction = $settings['contradiction'];
 
 			\Queue::push('Queues\SaveWorkerunit', array('workerunit' => serialize($workerunit)));		
 			
@@ -218,23 +220,6 @@ class ResultImporter {
 
 		try {
 
-			/*
-			$workerUnits = Entity::where('documentType', 'workerunit')->select('_id')->get();
-			foreach($workerUnits as $workerUnit) {
-				$entity = Entity::where('_id', $workerUnit->_id)->first();
-				
-				$none = 0;
-				$vector = $entity['annotationVector'];
-				$vector['justification']['none'] = 0;
-				if(array_sum($vector['justification']) == 0) {
-					$none = 1;
-				}
-				$vector['justification']['none'] = $none;
-				$entity['annotationVector'] = $vector;
-				$entity->save();
-			}
-			*/
-		
 			$settings['units'] = [];
 
 			// keep a list of all unique units, crowdAgents and workerUnits so that we can rollback only the unique ones on error
@@ -247,7 +232,7 @@ class ResultImporter {
 		
 			// read document content and put it into an array
 			$data = $this->readCSV($document);
-
+		//	dd($data);
 			// Create activity
 			$activity = $this->createActivity();
 			
@@ -305,11 +290,26 @@ class ResultImporter {
 			
 			// Create Units
 			$unitIds = array_keys(array_unique(array_column($data, 0)));
+		//	dd($unitIds);
 
 			for ($i = 1; $i < count($unitIds); $i ++) {
 				
 				// Temp mapping of files to document type structures. This should be done using the preprocessing functions
 				
+								// Passage Alignment
+				if($settings['project'] == 'openimages' && $settings['documentType'] == 'video-synopsis') {
+					$content = [
+						'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
+						'ct_id' => $data[$unitIds[$i]][array_search('uid',$data[0])],
+						'description' => $data[$unitIds[$i]][array_search('description',$data[0])]
+					];
+					$settings["keywords"] = "event extraction";
+					$settings["description"] = "event extraction in video synopsis";
+					$settings["templateType"] = "MetaDEvents";
+					$settings["platformJobId"] = substr($settings['filename'], 1);
+					//dd($content);
+				}
+
 				// Sounds
 				if($settings['project'] == 'Sounds' && $settings['documentType'] == 'sound') {
 					$content = [
@@ -411,68 +411,7 @@ class ResultImporter {
 			$job = $this->createJob($jobconfig->_id, $activity->_id, $batch, $settings);
 		
 			// temp for sounds, create annotation vector for each unit			
-			$annVector = [];
 			$result = [];
-			
-			
-			// passage alignment
-			if($settings['documentType'] == 'passage_alignment') {
-				for ($i = 1; $i < count($data); $i ++) {
-					for ($j = 0; $j < 30; $j ++) {
-				
-						// for each passage get the tags
-						if($data[$i][array_search('rel' . $j,$data[0])] != "") {
-							$term1 = $data[$i][array_search('rel' . $j . 'a',$data[0])];
-							$term2 = $data[$i][array_search('rel' . $j . 'b',$data[0])];
-							$key = $term1 . ',' . $term2;
-							// add keyword to list of keywords for this unit
-							if(!isset($annVector[$data[$i][0]][$key])) {
-								$annVector[$data[$i][0]][$key] = 0;
-							}
-						}
-					}
-				}
-			}
-			
-			// Passage Justification
-			if($settings['documentType'] == 'passage_justification') {
-				$questionTypes = ['Subjective' => 0,'YesNo' => 0,'NotYesNo' => 0,'Unanswerable' => 0];
-				$answers = ['Noanswer' => 0,'Yes' => 0,'No' => 0,'Other' => 0,'Unanswerable' => 0];
-				
-				
-				for ($i = 1; $i < count($data); $i ++) {
-				
-				
-					// add answer possibilities to hit
-					$annVector[$data[$i][0]]['question'] = $questionTypes;
-					$annVector[$data[$i][0]]['answer'] = $answers;
-
-					// add existing passages to vector
-					for($k = 1; $k <= 6; $k++) {
-						if($data[$i][array_search('Input.id'.$k,$data[0])] != "") {
-							$annVector[$data[$i][0]]['justification']['p'.$data[$i][array_search('Input.id'.$k,$data[0])]] = 0;
-						}
-					}
-				}
-			}
-
-			// Sounds
-			if($settings['documentType'] == 'sound') {
-				for ($i = 1; $i < count($data); $i ++) {
-					// for each keywords
-					$keywords = explode(',', $data[$i][array_search('keywords',$data[0])]);
-					foreach($keywords as $keyword) {
-						$keyword = trim(strtolower(str_replace('.', '', $keyword)));
-						if($keyword != "") {
-							// add keyword to list of keywords for this unit
-							if(!isset($annVector[$data[$i][0]][$keyword])) {
-								$annVector[$data[$i][0]][$keyword] = 0;
-							}
-						}
-					}
-					$result[$unitMap[$data[$i][0]]] = ['keywords' => $annVector[$data[$i][0]]];
-				}
-			}
 
 			// loop through all the judgments and add workerUnits, media units and CrowdAgents.
 			for ($i = 1; $i < count($data); $i++) {
@@ -486,11 +425,6 @@ class ResultImporter {
 			
 				$trust = 1;
 				
-				$vector = $annVector[$data[$i][0]];
-				$settings['contradiction'] = 0;
-									
-
-
 				// Create CrowdAgent
 				$crowdAgent = $this->createCrowdAgent($data[$i][$column['worker']], $data[$i][$column['country']], $data[$i][$column['region']], $data[$i][$column['city']], $trust, $settings);
 				

@@ -12,9 +12,7 @@ use \Activity as Activity;
 
 class Workerunit extends Entity {
 
-	protected $attributes = array(  'format' => 'text', 
-                                    'domain' => 'medical', 
-                                    'type' => 'workerunit',
+	protected $attributes = array(  'type' => 'workerunit',
                                     'spam' => false);
 	
     /**
@@ -68,7 +66,7 @@ class Workerunit extends Entity {
      //todo make private. 
      // TODO exceptionhandling, smart checks.
     public function createAnnotationVector(){
-        switch ($this->documentType) {
+        switch ($this->templateType) {
             case 'FactSpan':
                 return  $this->createAnnotationVectorFactSpan();
                 break;
@@ -271,7 +269,7 @@ class Workerunit extends Entity {
 
         $annotationVector["event"] = array();
     //    array_push($annotationVector["event"], "NONE_###_-1");
-        $annotationVector["event"]["NONE_###_-1"] = 0;
+        $annotationVector["event"]["[NONE]"] = 0;
 
         for ($i = 0; $i < count($descriptionWords); $i ++) {
         //    array_push($annotationVector["event"], str_replace('.', '', $descriptionWords[$i] . "_###_" . $i));
@@ -297,11 +295,12 @@ class Workerunit extends Entity {
             }
         }
         if ($annotations == 0 || count($annotationVector["event"]) == 0) {
-            $annotationVector["event"]["NONE_###_-1"] = 1;
+            $annotationVector["event"]["[NONE]"] = 1;
         }
         
         
-        return array('event' => $annotationVector["event"]);
+        return array('event' => $annotationVector["event"]); 
+       
     }
 
     public function createAnnotationVectorBiographyNetConcepts() {
