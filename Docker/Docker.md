@@ -36,6 +36,8 @@ docker run -d --name crowdtruth-local -p 8080:80 --link crowdtruth-mongo crowdtr
 
 Notice that your data will be saved in `/path/to/your/data/dir` -- if you have an existing database (exported as json) you may want to import it (using the mongoimport command).
 
-## TODO's
- - How to supply the CT container with your own database configuration file.
- - How to put code from your local host on the docker container (development mode).
+## Development mode
+If you want to be able to edit the code while running a Docker container, you need to share your local code with the container:
+```
+docker run -d --name crowdtruth-local -p 8080:80 -v /path/to/your/code:/var/www/ --link crowdtruth-mongo crowdtruth/crowdtruth
+```
