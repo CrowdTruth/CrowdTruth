@@ -1,6 +1,6 @@
 <?php
 
-namespace Preprocess;
+namespace preprocess;
 require_once 'sparqllib.php';
 
 use URL, Session, Exception, Config;
@@ -11,20 +11,20 @@ use \Entities\Unit as Unit;
 
 class MetadatadescriptionStructurer {
 
-	public function object_to_array_data($data) {
+	public static function object_to_array($data) {
 	    if (is_array($data) || is_object($data))
 	    {
 	        $result = array();
 	        foreach ($data as $key => $value)
 	        {
-	            $result[$key] = $this->object_to_array_data($value);
+	            $result[$key] = self::object_to_array($value);
 	        }
 	        return $result;
 	    }
 	    return $data;
 	}
 
-	public function processTDHApi($entity) {
+	public static function processTHDApi($entity) {
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
 		$urlTDH = "http://entityclassifier.eu/thd/api/v2/extraction?";
@@ -59,10 +59,8 @@ class MetadatadescriptionStructurer {
 					$initialType["type"] =$responseEntities[$j]["types"][$k]["typeLabel"];
 					$initialType["typeURI"] =$responseEntities[$j]["types"][$k]["typeURI"];
 					$initialType["entityURI"] = iconv('UTF-8', 'UTF-8//IGNORE', (string)$responseEntities[$j]["types"][$k]["entityURI"]); 
-					$initialType["typeConfidence"] = array();
-					$initialType["typeConfidence"]["score"] = $responseEntities[$j]["types"][$k]["classificationConfidence"]["value"];
-					$initialType["resourceConfidence"] = array();
-					$initialType["resourceConfidence"]["score"] = $responseEntities[$j]["types"][$k]["linkingConfidence"]["value"];
+					$initialType["typeConfidenceScore"] = $responseEntities[$j]["types"][$k]["classificationConfidence"]["value"];
+					$initialType["resourceConfidenceScore"] = $responseEntities[$j]["types"][$k]["linkingConfidence"]["value"];
 					$initialType["typeProvenance"] = $responseEntities[$j]["types"][$k]["provenance"];
 					$initialType["salience"] = array();
 					$initialType["salience"]["score"] = $responseEntities[$j]["types"][$k]["salience"]["score"];
@@ -80,12 +78,12 @@ class MetadatadescriptionStructurer {
 		return $array;	
 	}
 
-	public function processTextRazorApi($entity) {
+	public static function processTextRazorApi($entity) {
 		require_once('TextRazor.php');
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
 		$call_type = array("entities");
-		$text = $entity->content["programSynopsis"];
+		$text = $entity["content"]["description"];
 		$initialDescription = utf8_decode($text);
 		$textrazor = new TextRazor(Config::get('config.textrazor_api_key'));
 		$textrazor->addExtractor('entities,topics,words,phrases,dependency-trees,relations,entailments,senses');
@@ -175,10 +173,11 @@ class MetadatadescriptionStructurer {
 		return $result;	
 	}
 
-	public function processSemiTagsApi($entity) {
+	public static function processSemiTagsApi($entity) {
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
-		$descriptionContent = urlencode($entity->content["programSynopsis"]);
+		//$descriptionContent = urlencode($entity->content["programSynopsis"]);
+		$descriptionContent = urlencode($entity["content"]["programSynopsis"]);
 		//$lang = $entity->content["language"];
 		$lang = "en";
 		$result = array();
@@ -186,79 +185,92 @@ class MetadatadescriptionStructurer {
 		$curlRequest = "curl -d \"language=" . $lang . "&text=$descriptionContent\" http://nlp.vse.cz:8081/recognize";
 		$response = exec($curlRequest, $output);
 		$response = json_decode($output[0]);
-		$response = $this->object_to_array_data($response);
+	//	$response = object_to_array($response);
+		return $response;
 
+	}
+
+	public static function bla($response) {
+		$result = array();
+		$result["initialEntities"] = array();
 		foreach ($response as $entity) {
 			$initialEntity = array();
 			$initialEntity["label"] = $entity["name"];
 			$initialEntity["startOffset"] = (int)$entity["start"];
 			$initialEntity["endOffset"] = (int)$entity["start"] + strlen(utf8_decode($entity["name"]));
 			$initialEntity["types"] = array();
-			$initialEntity["types"]["type"] = $entity["type"];
-			$initialEntity["types"]["typeURI"] = "";
-			$initialEntity["types"]["entityURI"] = "";
+			$type = array();
+			$type["type"] = $entity["type"];
+			$type["typeURI"] = "";
+			$type["entityURI"] = "";
 			if ($entity["link"] != NULL) {
-				$initialEntity["types"]["entityURI"] = "http://wikipedia.org/wiki/" . $entity["link"];
+				$type["entityURI"] = "http://wikipedia.org/wiki/" . $entity["link"];
 			}
-			$initialEntity["types"]["confidence"] = floatval($entity["score"]);
+			$type["confidence"] = floatval($entity["score"]);
+			array_push($initialEntity["types"], $type);
 			array_push($result["initialEntities"], $initialEntity);
 		}			
 		return $result;	
 	}
 
-	public function processDBpediaSpotlightApi($entity) {
+	public static function processDBpediaSpotlightApi($entity) {
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
-		$descriptionContent = $entity->content["programSynopsis"];
+		$descriptionContent = $entity["content"]["description"];
 		//$lang = $entity->content["metadata"]["language"];
-		$lang = "en";
+		$lang = "nl";
 		$result = array();
 
 		$result["initialEntities"] = array();
-		$curlRequest = "curl -H \"Accept: application/json\"  http://spotlight.sztaki.hu:2222/rest/annotate --data-urlencode \"text=$descriptionContent\" --data \"confidence=0.35\"";
+		$curlRequest = "curl -H \"Accept: application/json\"  http://spotlight.sztaki.hu:2222/rest/annotate --data-urlencode \"text=$descriptionContent\" --data \"confidence=0.3\"";
 		$response = shell_exec($curlRequest);
 		$response = json_decode($response, true);
 		//dd($response);
 		if ($response != null)
-			foreach ($response["Resources"] as $extractedEntity) {
-				$initialEntity = array();
-				$initialEntity["label"] = iconv('UTF-8', 'UTF-8//IGNORE', $extractedEntity["@surfaceForm"]);
-				$initialEntity["startOffset"] = (int)$extractedEntity["@offset"];
-				$initialEntity["endOffset"] = (int)$extractedEntity["@offset"] + strlen(utf8_decode($extractedEntity["@surfaceForm"]));
-				$initialEntity["similarityScore"] = (float)$extractedEntity["@similarityScore"];
-				$initialEntity["suport"] = $extractedEntity["@support"];
-				$initialEntity["provenance"] = "dbpediaspotlight";
-			
-				$initialEntity["types"] = array();
-			
-				if (!empty($extractedEntity["@types"]) && $extractedEntity["@types"] != "") {
-					$extractedTypes = explode(",", $extractedEntity["@types"]);
-					foreach ($extractedTypes as $typeName) {
-						$initialType = array();
-						$initialType["type"] = $typeName; 
-						$initialType["typeURI"] = "";
-						$initialType["entityURI"] = iconv('UTF-8', 'UTF-8//IGNORE', $extractedEntity["@URI"]);
-						array_push($initialEntity["types"], $initialType);
+			if(isset($response["Resources"])) {
+				foreach ($response["Resources"] as $extractedEntity) {
+					$initialEntity = array();
+					$initialEntity["label"] = iconv('UTF-8', 'UTF-8//IGNORE', $extractedEntity["@surfaceForm"]);
+					$initialEntity["startOffset"] = (int)$extractedEntity["@offset"];
+					$initialEntity["endOffset"] = (int)$extractedEntity["@offset"] + strlen(utf8_decode($extractedEntity["@surfaceForm"]));
+					$initialEntity["similarityScore"] = (float)$extractedEntity["@similarityScore"];
+					$initialEntity["suport"] = $extractedEntity["@support"];
+					$initialEntity["provenance"] = "dbpediaspotlight";
+				
+					$initialEntity["types"] = array();
+				
+					if (!empty($extractedEntity["@types"]) && $extractedEntity["@types"] != "") {
+						$extractedTypes = explode(",", $extractedEntity["@types"]);
+						foreach ($extractedTypes as $typeName) {
+							$initialType = array();
+							$initialType["type"] = $typeName; 
+							$initialType["typeURI"] = "";
+							$initialType["entityURI"] = iconv('UTF-8', 'UTF-8//IGNORE', $extractedEntity["@URI"]);
+							array_push($initialEntity["types"], $initialType);
+						}
 					}
+					array_push($result["initialEntities"], $initialEntity);
 				}
-			array_push($result["initialEntities"], $initialEntity);
-		}
+			}
+			else {
+
+			}
 	//	dd($result);
 		return $result;	
 	}
 
-	public function processNERDApi($entity) {
+	public static function processNERDApi($entity) {
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
-		$descriptionContent = $entity->content["programSynopsis"];
+	//	$descriptionContent = $entity->content["programSynopsis"];
 	//	$lang = $entity->content["metadata"]["language"];
-	//	$descriptionContent = $entity["content"]["programSynopsis"];
-		$lang = "en";
+		$descriptionContent = $entity["content"]["programSynopsis"];
+		$lang = "nl";
 		$apikey = Config::get('config.nerd_api_key');
 		$result = array();
 		$result["initialEntities"] = array();
 		$entities = array();
-		$curlRequest = "curl -i -X POST http://nerd.eurecom.fr/api/document -d \"text=" . urlencode($descriptionContent) . "&key=" . $apikey . "\"";
+		$curlRequest = "curl -i -X POST http://nerd.eurecom.fr/api/document -d \"text=" . urlencode($descriptionContent) . " ---&key=" . $apikey . "\"";
 		$response = exec($curlRequest, $output);
 		$documentId = "";
 		if (strpos($output[count($output) - 1], 'idDocument') !== false) {
@@ -334,11 +346,18 @@ class MetadatadescriptionStructurer {
 		return $retVal;
 	}
 
-	public function storeTHDApi($parentEntity, $metadataDescriptionPreprocessing) {
+	public static function storeTHDApi($parentEntity, $metadataDescriptionPreprocessing) {
 		
 		$status = array();
 		try {
-			$this->createNamedEntitiesExtractionSoftwareAgent("thdextractor", "THD API");
+			if(!SoftwareAgent::find("thdextractor"))
+		{
+			$softwareAgent = new SoftwareAgent;
+			$softwareAgent->_id = "thdextractor";
+			$softwareAgent->label = "This component uses " . "THD API" . " in order to extract entities from texts";
+			$softwareAgent->save();
+		}
+		//	createNamedEntitiesExtractionSoftwareAgent("thdextractor", "THD API");
 		} catch (Exception $e) {
 			$status['error']['thdextractor'] = $e->getMessage();
 			return $status;
@@ -365,13 +384,19 @@ class MetadatadescriptionStructurer {
 			$entity->documentType = "enriched-synopsis-thd";
 			$entity->extractor = "thd";
 			$entity->parents = array($parentEntity["_id"]);
-			$entity->source = "BBC";
+			$entity->source = "Sound&Vision";
 			$content = array();	
-			$content["programSynopsis"] = $parentEntity["content"]["programSynopsis"];
 			$content["programId"] = $parentEntity["content"]["programId"];
+			$content["programSynopsis"] = $parentEntity["content"]["programSynopsis"];
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
+/*			$content["description"] = $parentEntity["content"]["description"];
+			$content["id"] = $parentEntity["content"]["id"];
+			$content["provenance"] = "thd";
+			$content["ct_id"] = $parentEntity["content"]["ct_id"];
+*/
+//			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
-			$entity->hash = md5(serialize($entity));
+			$entity->hash = md5(serialize($content));
 			$entity->activity_id = $activity->_id;
 			$entity->save();
 			$status['success'][$title] = $title . " was successfully processed into entities extraction. (URI: {$entity->_id})";
@@ -384,12 +409,19 @@ class MetadatadescriptionStructurer {
 		return $status;
 	}
 
-	public function storeNERDApi($parentEntity, $metadataDescriptionPreprocessing) {
+	public static function storeNERDApi($parentEntity, $metadataDescriptionPreprocessing) {
 		$status = array();
 		try {
-			$this->createNamedEntitiesExtractionSoftwareAgent("nerdextractor", "NERD API");
+			if(!SoftwareAgent::find("nerdextractor"))
+		{
+			$softwareAgent = new SoftwareAgent;
+			$softwareAgent->_id = "nerdextractor";
+			$softwareAgent->label = "This component uses " . "NERD API" . " in order to extract entities from texts";
+			$softwareAgent->save();
+		}
+		//	createNamedEntitiesExtractionSoftwareAgent("thdextractor", "THD API");
 		} catch (Exception $e) {
-			$status['error']['nerd'] = $e->getMessage();
+			$status['error']['nerdextractor'] = $e->getMessage();
 			return $status;
 		}
 		try {
@@ -399,9 +431,10 @@ class MetadatadescriptionStructurer {
 		} catch (Exception $e) {
 			// Something went wrong with creating the Activity
 			$activity->forceDelete();
-			$status['error'][$title] = $e->getMessage();
+			$status['error']['nerdextractor'] = $e->getMessage();
 			return $status;
 		}
+
 		$tempEntityID = null;
 		$title = "nerdextractor-enriched-synopsis-" . $parentEntity["content"]["programId"];
 		try {
@@ -413,13 +446,17 @@ class MetadatadescriptionStructurer {
 			$entity->documentType = "enriched-synopsis-nerd";
 			$entity->extractor = "nerd";
 			$entity->parents = array($parentEntity["_id"]);
-			$entity->source = "BBC";
+			$entity->source = "Sound&Vision";
 			$content = array();	
-			$content["programSynopsis"] = $parentEntity["content"]["programSynopsis"];
+		//	$content["description"] = $parentEntity["content"]["description"];
+		//	$content["id"] = $parentEntity["content"]["id"];
 			$content["programId"] = $parentEntity["content"]["programId"];
+		//	$content["id"] = $parentEntity["content"]["id"];
+			$content["programSynopsis"] = $parentEntity["content"]["programSynopsis"];
+		//	$content["ct_id"] = $parentEntity["content"]["ct_id"];
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
-			$entity->hash = md5(serialize($entity));
+			$entity->hash = md5(serialize($content));
 			$entity->activity_id = $activity->_id;
 			$entity->save();
 			$status['success'][$title] = $title . " was successfully processed into entities extraction. (URI: {$entity->_id})";
@@ -433,10 +470,17 @@ class MetadatadescriptionStructurer {
 	}
 
 
-	public function storeDBpediaSpotlightApi($parentEntity, $metadataDescriptionPreprocessing) {
+	public static function storeDBpediaSpotlightApi($parentEntity, $metadataDescriptionPreprocessing) {
 		$status = array();
 		try {
-			$this->createNamedEntitiesExtractionSoftwareAgent("dbpediaspotlightextractor", "DBPEDIASPOTLIGHT API");
+			if(!SoftwareAgent::find("dbpediaspotlightextractor"))
+		{
+			$softwareAgent = new SoftwareAgent;
+			$softwareAgent->_id = "dbpediaspotlightextractor";
+			$softwareAgent->label = "This component uses " . "DBpediaSpotlight API" . " in order to extract entities from texts";
+			$softwareAgent->save();
+		}
+		//	createNamedEntitiesExtractionSoftwareAgent("thdextractor", "THD API");
 		} catch (Exception $e) {
 			$status['error']['dbpediaspotlightextractor'] = $e->getMessage();
 			return $status;
@@ -448,12 +492,12 @@ class MetadatadescriptionStructurer {
 		} catch (Exception $e) {
 			// Something went wrong with creating the Activity
 			$activity->forceDelete();
-			$status['error'][$title] = $e->getMessage();
+			$status['error']['dbpediaspotlightextractor'] = $e->getMessage();
 			return $status;
 		}
 
 		$tempEntityID = null;
-		$title = "dbpediaspotlight-enriched-synopsis-" . $parentEntity["content"]["programId"];
+		$title = "dbpdiaspotlightextractor-enriched-synopsis-" . $parentEntity["content"]["id"];
 		try {
 			$entity = new Unit;
 			$entity->_id = $tempEntityID;
@@ -461,15 +505,17 @@ class MetadatadescriptionStructurer {
 			$entity->type = "unit";
 			$entity->project = $parentEntity["project"];
 			$entity->documentType = "enriched-synopsis-dbpediaspotlight";
-			$entity->extractor = "dbpediaspotlight";
+			$entity->extractor = "dbpdiaspotlight";
 			$entity->parents = array($parentEntity["_id"]);
-			$entity->source = "BBC";
+			$entity->source = "Sound&Vision";
 			$content = array();	
-			$content["programSynopsis"] = $parentEntity["content"]["programSynopsis"];
-			$content["programId"] = $parentEntity["content"]["programId"];
+			$content["description"] = $parentEntity["content"]["description"];
+			$content["provenance"] = "dbpediaspotlight";
+			$content["id"] = $parentEntity["content"]["id"];
+			$content["ct_id"] = $parentEntity["content"]["ct_id"];
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
-			$entity->hash = md5(serialize($entity));
+			$entity->hash = md5(serialize($content));
 			$entity->activity_id = $activity->_id;
 			$entity->save();
 			$status['success'][$title] = $title . " was successfully processed into entities extraction. (URI: {$entity->_id})";
@@ -482,10 +528,17 @@ class MetadatadescriptionStructurer {
 		return $status;
 	}
 
-	public function storeTextRazorApi($parentEntity, $metadataDescriptionPreprocessing) {
+	public static function storeTextRazorApi($parentEntity, $metadataDescriptionPreprocessing) {
 		$status = array();
 		try {
-			$this->createNamedEntitiesExtractionSoftwareAgent("textrazorextractor", "TEXTRAZOR API");
+			if(!SoftwareAgent::find("textrazorextractor"))
+		{
+			$softwareAgent = new SoftwareAgent;
+			$softwareAgent->_id = "textrazorextractor";
+			$softwareAgent->label = "This component uses " . "TextRazor API" . " in order to extract entities from texts";
+			$softwareAgent->save();
+		}
+		//	createNamedEntitiesExtractionSoftwareAgent("thdextractor", "THD API");
 		} catch (Exception $e) {
 			$status['error']['textrazorextractor'] = $e->getMessage();
 			return $status;
@@ -497,27 +550,30 @@ class MetadatadescriptionStructurer {
 		} catch (Exception $e) {
 			// Something went wrong with creating the Activity
 			$activity->forceDelete();
-			$status['error'][$title] = $e->getMessage();
+			$status['error']['textrazorextractor'] = $e->getMessage();
 			return $status;
 		}
+
 		$tempEntityID = null;
-		$title = "textrazorextractor-enriched-synopsis-" . $parentEntity["content"]["programId"];
+		$title = "textrazorextractor-enriched-synopsis-" . $parentEntity["content"]["id"];
 		try {
 			$entity = new Unit;
 			$entity->_id = $tempEntityID;
 			$entity->title = strtolower($title);
 			$entity->type = "unit";
 			$entity->project = $parentEntity["project"];
-			$entity->documentType = "enriched-synopsis-textrazorextractor";
-			$entity->extractor = "textrazorextractor";
+			$entity->documentType = "enriched-synopsis-textrazor";
+			$entity->extractor = "textrazor";
 			$entity->parents = array($parentEntity["_id"]);
-			$entity->source = "BBC";
+			$entity->source = "Sound&Vision";
 			$content = array();	
-			$content["programSynopsis"] = $parentEntity["content"]["programSynopsis"];
-			$content["programId"] = $parentEntity["content"]["programId"];
+			$content["description"] = $parentEntity["content"]["description"];
+			$content["id"] = $parentEntity["content"]["id"];
+			$content["provenance"] = "textrazor";
+			$content["ct_id"] = $parentEntity["content"]["ct_id"];
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
-			$entity->hash = md5(serialize($entity));
+			$entity->hash = md5(serialize($content));
 			$entity->activity_id = $activity->_id;
 			$entity->save();
 			$status['success'][$title] = $title . " was successfully processed into entities extraction. (URI: {$entity->_id})";
@@ -526,17 +582,25 @@ class MetadatadescriptionStructurer {
 			$entity->forceDelete();
 			$status['error'][$title] = $e->getMessage();
 		}
+		$tempEntityID = $entity->_id;
 		return $status;
 	}
 
 	
 
-	public function storeSemiTagsApi($parentEntity, $metadataDescriptionPreprocessing) {
+	public static function storeSemiTagsApi($parentEntity, $metadataDescriptionPreprocessing) {
 		$status = array();
 		try {
-			$this->createNamedEntitiesExtractionSoftwareAgent("semitagsextractor", "SEMITAGS API");
+			if(!SoftwareAgent::find("semitagsextractor"))
+		{
+			$softwareAgent = new SoftwareAgent;
+			$softwareAgent->_id = "semitagsextractor";
+			$softwareAgent->label = "This component uses " . "SemiTags API" . " in order to extract entities from texts";
+			$softwareAgent->save();
+		}
+		//	createNamedEntitiesExtractionSoftwareAgent("thdextractor", "THD API");
 		} catch (Exception $e) {
-			$status['error']['semitags'] = $e->getMessage();
+			$status['error']['semitagsextractor'] = $e->getMessage();
 			return $status;
 		}
 		try {
@@ -546,10 +610,10 @@ class MetadatadescriptionStructurer {
 		} catch (Exception $e) {
 			// Something went wrong with creating the Activity
 			$activity->forceDelete();
-			$status['error'][$title] = $e->getMessage();
+			$status['error']['semitagsextractor'] = $e->getMessage();
 			return $status;
 		}
-		$tempEntityID = null;
+
 		$tempEntityID = null;
 		$title = "semitagsextractor-enriched-synopsis-" . $parentEntity["content"]["programId"];
 		try {
@@ -558,16 +622,18 @@ class MetadatadescriptionStructurer {
 			$entity->title = strtolower($title);
 			$entity->type = "unit";
 			$entity->project = $parentEntity["project"];
-			$entity->documentType = "enriched-synopsis-semitagsextractor";
-			$entity->extractor = "semitagsextractor";
+			$entity->documentType = "enriched-synopsis-semitags";
+			$entity->extractor = "semitags";
 			$entity->parents = array($parentEntity["_id"]);
-			$entity->source = "BBC";
+			$entity->source = "Sound&Vision";
 			$content = array();	
-			$content["programSynopsis"] = $parentEntity["content"]["programSynopsis"];
 			$content["programId"] = $parentEntity["content"]["programId"];
+		//	$content["id"] = $parentEntity["content"]["id"];
+			$content["programSynopsis"] = $parentEntity["content"]["programSynopsis"];
+		//	$content["ct_id"] = $parentEntity["content"]["ct_id"];
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
-			$entity->hash = md5(serialize($entity));
+			$entity->hash = md5(serialize($content));
 			$entity->activity_id = $activity->_id;
 			$entity->save();
 			$status['success'][$title] = $title . " was successfully processed into entities extraction. (URI: {$entity->_id})";
@@ -576,10 +642,11 @@ class MetadatadescriptionStructurer {
 			$entity->forceDelete();
 			$status['error'][$title] = $e->getMessage();
 		}
+		$tempEntityID = $entity->_id;
 		return $status;
 	}
 
-	public function createNamedEntitiesExtractionSoftwareAgent($extractor, $label){
+	public static function createNamedEntitiesExtractionSoftwareAgent($extractor, $label){
 		if(!SoftwareAgent::find($extractor))
 		{
 			$softwareAgent = new SoftwareAgent;

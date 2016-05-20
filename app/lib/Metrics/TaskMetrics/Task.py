@@ -283,57 +283,38 @@ class Task:
         selected_workers_to_filter = []
         worker_cosine_array = []
     	worker_agreement_array = []
-    	#novelty_irrelevant_sel_array = []
-    	consistency_check_array = []
-    	#novelty_selection_frequency_array = []
-    	missed_instructions_array = []
-    	none_event_type_frequency_array = []
-    	event_type_frequency_array = []
+    	ann_per_unit_array = []
+
         for metric_name in self.default_thresholds['workerThresholds'].keys():
         	metric_thresholds = self.default_thresholds['workerThresholds'][metric_name]
         	metric = getattr(WorkerMetricsEnum, metric_name, None)
         	#print(metric)
         	for worker in filtered_workers_metrics:
         		if metric_name == "worker_cosine":
-        			if filtered_worker_mean_measure[metric] + filtered_worker_stddev_measure[metric] < filtered_workers_metrics[worker][metric]:
+        			if filtered_worker_mean_measure[metric] + filtered_worker_stddev_measure[metric] < filtered_workers_metrics[worker][metric] * 1.2:
         				if worker not in worker_cosine_array:
         					#print(worker)
         					worker_cosine_array.append(worker)
         		elif metric_name == "avg_worker_agreement":
-        			if filtered_workers_metrics[worker][metric] < filtered_worker_mean_measure[metric] - filtered_worker_stddev_measure[metric]:
+        			if filtered_workers_metrics[worker][metric] * 0.8 < filtered_worker_mean_measure[metric] - filtered_worker_stddev_measure[metric]:
         				if worker not in worker_agreement_array:
         					worker_agreement_array.append(worker)
-        		elif metric_name == "consistency_check":
-        			if 0 < filtered_workers_metrics[worker][metric]:
-        				if worker not in consistency_check_array:
-        					consistency_check_array.append(worker)
-        		elif metric_name == "missed_instructions":
-        			if 0 <= filtered_workers_metrics[worker][metric]:
-        				if worker not in missed_instructions_array:
-        					missed_instructions_array.append(worker)
-        		elif metric_name == "none_event_type_frequency":
-        			if 0.7 <= filtered_workers_metrics[worker][metric]:
-        				if worker not in none_event_type_frequency_array:
-        					none_event_type_frequency_array.append(worker)
-        		elif metric_name == "event_type_frequency":
-        			if 0.7 < filtered_workers_metrics[worker][metric]:
-        				if worker not in event_type_frequency_array:
-        					event_type_frequency_array.append(worker)
+        		elif metric_name == "ann_per_unit":
+        			if (filtered_worker_mean_measure[metric] + filtered_worker_stddev_measure[metric] < filtered_workers_metrics[worker][metric]) or (filtered_workers_metrics[worker][metric] < filtered_worker_mean_measure[metric] - filtered_worker_stddev_measure[metric]):
+        				if worker not in ann_per_unit_array:
+        					ann_per_unit_array.append(worker)
 
         for worker in filtered_workers_metrics:
         	if (worker in worker_cosine_array) and (worker in worker_agreement_array):
         		selected_workers_to_filter.append(worker)
         	elif (worker in worker_cosine_array) and (worker not in worker_agreement_array):
-        		if (worker in consistency_check_array) or (worker in missed_instructions_array) or (worker in none_event_type_frequency_array):
+        		if (worker in ann_per_unit_array):
         			if worker not in selected_workers_to_filter:
         				selected_workers_to_filter.append(worker)
         	elif (worker not in worker_cosine_array) and (worker in worker_agreement_array):
-        		if (worker in consistency_check_array) or (worker in missed_instructions_array) or (worker in none_event_type_frequency_array):
+        		if (worker in ann_per_unit_array):
         			if worker not in selected_workers_to_filter:
         				selected_workers_to_filter.append(worker)
-        	elif (worker in none_event_type_frequency_array) and (worker in event_type_frequency_array):
-        		if worker not in selected_workers_to_filter:
-        			selected_workers_to_filter.append(worker)
 
        	#print(selected_workers_to_filters)
        	spam_worker_query_list = {}
