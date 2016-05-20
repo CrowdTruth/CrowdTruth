@@ -63,16 +63,14 @@ class Template extends Moloquent {
 	}
 	
 	public static function generateIncrementedBaseURI($template) {
-		$seqName = 'template' . '/' . $template->format;
+		$seqName = 'template' . '/' . $template->platform;
 		$id = Counter::getNextId ( $seqName );
 		return $seqName . '/' . $id;
 	}
 
 	public static function createSchema() {
-		Schema::create ( 'template', function ($collection) {
+		Schema::create ( 'templates', function ($collection) {
 			$collection->index ( 'hash' );
-			$collection->index ( 'format' );
-			
 			$collection->index ( 'version' );
 			$collection->index ( 'type' );
 			$collection->index ( 'activity_id' );

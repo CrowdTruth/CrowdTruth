@@ -7,6 +7,7 @@ use \Response as Response;
 use \Auth as Auth;
 
 use \Entity as Entity;
+use \Entities\Job as Job;
 use \Exception;
 
 class apiController extends BaseController {
@@ -138,11 +139,11 @@ class apiController extends BaseController {
 	}
 
 	//i.e.: entity/text/medical/job/1
-	public function getEntity($format, $domain, $docType, $incr, $action){
+	public function getEntity($project, $type, $incr, $action){
 		try {
 			$return = array('status' => 'ok');
-			$id = "entity/$format/$domain/$docType/$incr";
-			switch ($docType) {
+			$id = "entity/$project/$type/$incr";
+			switch ($type) {
 
 				case 'job':
 					
@@ -182,7 +183,7 @@ class apiController extends BaseController {
 					}
 				break;
 				default:
-					throw new Exception("Unknown documenttype '$docType'.");
+					throw new Exception("Unknown documenttype '$type'.");
 					break;
 				}
 

@@ -92,7 +92,7 @@
 							{{ Form::label('platform', 'Platform', 
 									array('class' => 'col-xs-12 col-sm-4 control-label')) }}
 								<div class="col-xs-12 col-sm-3">
-									{{ Form::select('platform',  array('cf' => 'CrowdFlower', 'game' => 'BioCrowd'), 'cf', array('class' => 'selectpicker', 'id' => 'platform', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip')) }}
+									{{ Form::select('platform',  array('CF' => 'CrowdFlower', 'game' => 'BioCrowd'), 'CF', array('class' => 'selectpicker', 'id' => 'platform', 'data-width' => '100%', 'data-container' => 'body', 'data-toggle'=> 'tooltip')) }}
 								</div>
 							
 						</div>

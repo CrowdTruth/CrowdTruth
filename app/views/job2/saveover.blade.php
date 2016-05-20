@@ -11,7 +11,7 @@
 						<h4>Overwrite <b> {{  Session::get('templateType'); }} </b> (as a new version)?</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSaveovert', 'sandbox'), 'method' => 'POST')) }}	
+						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSaveover', 'sandbox'), 'method' => 'POST')) }}	
 				
 					<br/><br/>
 						{{ Form::submit('Yes', array('class' => 'btn btn-lg btn-primary pull-right', 'style' => 'margin-right:20px')); }}

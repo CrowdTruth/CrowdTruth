@@ -17,7 +17,7 @@
 						<h4>Provide job and template details</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postLoadt', 'sandbox'), 'method' => 'POST')) }}
+						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postLoad', 'sandbox'), 'method' => 'POST')) }}
 						<fieldset>
 							<?php 							
 								$aTypes = array(null => '---');

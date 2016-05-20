@@ -41,12 +41,6 @@ class Job extends Entity {
         {
 
 		try {
-/*            if(!SoftwareAgent::find('jobcreator')){
-                $softwareAgent = new SoftwareAgent;
-                $softwareAgent->_id = 'jobcreator';
-                $softwareAgent->label = "Job creation";
-            }
-*/
             // Create the SoftwareAgent if it doesnt exist
 			if(!SoftwareAgent::find('jobcreator'))
 			{
@@ -150,9 +144,12 @@ class Job extends Entity {
     	if(!isset($this->softwareAgent_id)) // and (!isset($this->platformJobId) !!! TODO
     		throw new Exception('Can\'t handle a Job that has not yet been uploaded to a platform.');
 
-        $platform = 'cf2';
-        if($this->softwareAgent_id != 'CF') {
-            $platform = 'DrDetectiveGamingPlatform';
+
+        if($this->softwareAgent_id == 'CF') {
+            $platform = 'CF';
+        }
+        else {
+        	$platform = 'DrDetectiveGamingPlatform';
         }
 
     	return \App::make($platform);

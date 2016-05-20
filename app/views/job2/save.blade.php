@@ -11,7 +11,7 @@
 						<h4>Save the current template as a new one</h4>
 					</div>
 					<div class="panel-body">
-						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSavet', 'sandbox'), 'method' => 'POST')) }}
+						{{ Form::open(array('class' => 'form-horizontal jobconf', 'action' => array('JobsController2@postSave', 'sandbox'), 'method' => 'POST')) }}
 						<fieldset>
 								
 							{{ Form::label('templateType', 'Save as:', 

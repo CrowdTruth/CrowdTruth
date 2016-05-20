@@ -195,7 +195,7 @@ class ResultImporter {
 			$workerunit->templateType = $settings['templateType'];
 			$workerunit->project = $settings['project'];
 			$workerunit->softwareAgent_id = $settings['platform'];
-			$workerunit->softwareAgent_id = 'cf2';
+			$workerunit->softwareAgent_id = 'CF';
 		//	$workerunit->contradiction = $settings['contradiction'];
 
 			\Queue::push('Queues\SaveWorkerunit', array('workerunit' => serialize($workerunit)));		
@@ -435,82 +435,9 @@ class ResultImporter {
 				// Create WorkerUnit
 				$workerUnit = $this->createWorkerUnit($activity->_id, $unitMap[$data[$i][0]], $data[$i][$column['start_time']], $data[$i][$column['channel']], $trust, $content, $crowdAgent->_id, $job->_id, $data[$i][$column['id']], $data[$i][$column['submit_time']], $settings);
 			}	
-			
-			/*
-			// aggregate all results
-			$result = array();
-			$annotations = Entity::where("documentType", "=", "workerunit")->where("job_id", "=", $job->_id)->get();
-			$count = 0;
-			foreach($annotations as $workerUnit){
-			   $uid = $workerUnit->unit_id; // to prevent mongoException: zero length key not allowed. Could also 'continue;'
-			   if(empty($uid)) $uid = 'unknown';
-				   else $count++;
-
-			   if(!isset($result[$uid]))
-				   $result[$uid] = $workerUnit->annotationVector;
-			   else {
-				   foreach($workerUnit->annotationVector as $key=>$val){
-					   if(is_array($val)){ // term1 -> [k] -> 1
-						   foreach($val as $k=>$v){
-							   //if(isset($result[$uid][$key][$k]))
-								   $result[$uid][$key][$k]+=$v;
-							   //else $result[$uid][$key][$k]=$v; // THIS SHOULDN'T HAPPEN
-						   }
-					   } else {            // [key] -> 1
-						   //if(isset($result[$uid][$key]))
-							   $result[$uid][$key]+=$val;
-						   //else $result[$uid][$key]=$val; // THIS SHOULDN'T HAPPEN
-					   }
-				   }
-			   }
-			}
-			
-
-			if(!isset($job->results)){
-			   $job->results = array('withSpam' => $result);
-			} else {
-			   $r = $job->results;
-			   $r['withSpam'] = $result;
-			   $job->results = $r;
-			}
-			$job->update();
-
-			
-			$job_id = 'entity/text/opendomain/job/94';
-			
-			$job = Job::where('_id', $job_id)->first();
-			
-			// metrics
-			$template = 'entity/text/medical/FactSpan/Factor_Span/0';
-			exec('C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe ' . base_path()  . '/app/lib/generateMetrics.py '.$job->_id.' '.$template, $output, $error);
-			$job->JobConfiguration->replicate();
-			
-			// save metrics in the job
-			$response = json_decode($output[0],true);
-			$job->metrics = $response['metrics'];
-			$r = $job->results;
-			$r['withoutSpam'] = $response['results']['withoutSpam'];
-			$job->results = $r;
-			$job->save();
-
-			
-	
-			$jobs = Job::select('_id')->get();
-			
-			foreach($jobs as $jobId) {
-			
-				$job = Job::where('_id', $jobId->_id)->first();
 				
-				// update job cache
-				\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-			
-			}
-			
-*/
-			
 			// update job cache
 			\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
-
 			
 			// Notice that units already existed in the database
 			if($this->duplicateUnits > 0) { array_push($this->status['notice'], "Existing units found (" . $this->duplicateUnits . ")"); }
