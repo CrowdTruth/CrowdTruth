@@ -19,6 +19,10 @@
   <script src='http://d3js.org/d3.v2.min.js'></script>
   <link rel="stylesheet" media="all" href="http://cdnjs.cloudflare.com/ajax/libs/codemirror/3.16.0/codemirror.css" />
   {{ javascript_include_tag('stavros-viz/d3tip.js') }}
-  {{ javascript_include_tag('stavros-viz/build.min.js') }}
+
+  {{ javascript_include_tag('stavros-viz/utilities.js') }}
+  {{ javascript_include_tag('stavros-viz/containers.js') }}
+  {{ javascript_include_tag('stavros-viz/charts.js') }}
+  {{ javascript_include_tag('stavros-viz/dependencies.min.js') }}
   <!-- {{ javascript_include_tag('project-viz/project-app.js') }} -->
 @stop
