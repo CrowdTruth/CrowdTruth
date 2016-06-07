@@ -831,7 +831,7 @@ class Workerunit extends Entity {
     		$annotationVector = [];
     		$judgment = $this->content;
     		
-    		dd($judgment);
+    		error_log($judgment);
     		
     		return null;
     		
