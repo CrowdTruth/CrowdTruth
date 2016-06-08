@@ -109,6 +109,12 @@ class Workerunit extends Entity {
 		//	case 'DistributionalDisambiguation':
         //        return $this->createAnnotationVectorDistributionalDisambiguation();
         //        break;
+            case 'gameImageTaggingJudgment':
+            	return $this->createAnnotationVectorGameImageTaggingJudgment();
+            	break;
+            case 'gameVesicleLocatingJudgment':
+            	return $this->createAnnotationVectorGameVesicleLocatingJudgment();
+            	break;
             
             default:
                //return  $this->createAnnotationVectorFactSpan(); // For Debugging!
@@ -1010,6 +1016,35 @@ class Workerunit extends Entity {
             return null;
         }    
    
+    }
+    
+    public function createAnnotationVectorGameImageTaggingJudgment() {
+    	try {
+    		$annotationVector = [];
+    		$judgment = $this->content;
+    		
+    		error_log($judgment);
+    		
+    		return null;
+    		
+    		//return array('markingDescription' => $annotationVector["markingDescription"], 
+        	//		'qualityDescription' => $annotationVector["qualityDescription"],
+        	//		'Coordinates' => $annotationVector["Coordinates"]);
+    	} catch (Exception $e){
+            echo $e->getMessage();
+            \Log::debug($e->getMessage());
+            return null;
+        }
+    }
+    
+ public function createAnnotationVectorGameVesicleLocatingJudgment() {
+    	try {
+    		return $annotationVector;
+    	} catch (Exception $e){
+            echo $e->getMessage();
+            \Log::debug($e->getMessage());
+            return null;
+        }
     }
 
      private function createCrowdAgent(){
