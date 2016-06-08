@@ -38,6 +38,11 @@ class Workerunit extends Entity {
                 $workerunit->documentType = $j->documentType;
             }  
 
+            if(empty($workerunit->templateType)){
+                $j = Job::where('_id', $workerunit->job_id)->first();
+                $workerunit->templateType = $j->templateType;
+            } 
+
 			// transform answer into annotation vector to prepare for the CrowdTruth metrics
             $workerunit->annotationVector = $workerunit->createAnnotationVector();
 			
@@ -91,13 +96,23 @@ class Workerunit extends Entity {
             case 'sound':
                 return $this->createAnnotationVectorSound();
                 break;
+            case 'LinkEventsTime'
+            	return $this->createAnnotationVectorLinkEventsTime();
+            	break;
+            case 'LinkEventsParticipants'
+            	return $this->createAnnotationVectorLinkEventsParticipants();
+            	break;
+            case 'LinkEventsLocation'
+            	return $this->createAnnotationVectorLinkEventsLocation();
+            	break;
+            
 		//	case 'DistributionalDisambiguation':
         //        return $this->createAnnotationVectorDistributionalDisambiguation();
         //        break;
             
             default:
                //return  $this->createAnnotationVectorFactSpan(); // For Debugging!
-                \Log::debug("TYPE {$this->documentType} UNKNOWN: {$this->_id}");
+                \Log::debug("TYPE {$this->templateType} UNKNOWN: {$this->_id}");
                 //dd("here");
                 return null;
                 //throw new Exception("TYPE {$this->type} UNKNOWN: {$this->_id}");
@@ -154,6 +169,183 @@ class Workerunit extends Entity {
         return array('relations' => $answer, 'other' => $other);
     }
 */
+
+
+    public function createAnnotationVectorLinkEventsTime() {
+    	$debug = false;
+
+        if(empty($this->unit_id))
+            return null;
+
+        $events = $this->content['events'];
+        $times = $this->content['time'];
+        
+        $listEvents = explode("_###_", $events);
+        $listTimes = explode("_###_", $times);
+
+        $offsetsEvents = array();
+        foreach ($listEvents as $event) {
+        	$eventComp = explode("__", $event);
+        	array_push($offsetsEvents, $eventComp[1] . "-" . $eventComp[2]);
+        }
+
+        $offsetsTimes = array();
+        foreach ($listTimes as $time) {
+        	$timeComp = explode("__", $time);
+        	array_push($offsetsTimes, $timeComp[1] . "-" . $timeComp[2]);
+        }
+
+        $annotationVector = array();
+        $annotationVector["linkEventTime"] = array();
+        $annotationVector["linkEventTime"]["[NONE]"] = 0;
+
+        foreach ($offsetsEvents as $offsetE) {
+        	foreach ($offsetsTimes as $offsetT) {
+        		$annotationVector["linkEventTime"][$offsetE . "_#_" . $offsetT] = 0;
+        	}
+        }
+
+        $judgment = $this->content;
+        for ($i = 0; $i < 30; $i ++) {
+            if (isset($judgment["rel" . $i . "e"]) && $judgment["rel" . $i . "e"] != "") {
+            	$eventAnnotated = str_replace("'", "", $judgment["rel" . $i . "e"]);
+            	if (isset($judgment["rel" . $i . "p"]) && $judgment["rel" . $i . "p"] != "") {
+            		$timeAnnotated = str_replace("'", "", $judgment["rel" . $i . "p"]);
+              	    $annotationVector["linkEventTime"][$eventAnnotated . "_#_" . $timeAnnotated] ++; 
+                }
+            }
+        }
+
+        $annotations = 0;
+        foreach ($annotationVector["linkEventTime"] as $key => $value) {
+            if ($value != 0) {
+                $annotations ++; 
+            }
+        }
+        if ($annotations == 0) {
+            $annotationVector["linkEventTime"]["[NONE]"] = 1;
+        }
+        
+        return array('linkEventTime' => $annotationVector["linkEventTime"]); 
+    }
+
+    public function createAnnotationVectorLinkEventsParticipants() {
+    	$debug = false;
+
+        if(empty($this->unit_id))
+            return null;
+
+        $events = $this->content['events'];
+        $times = $this->content['time'];
+        
+        $listEvents = explode("_###_", $events);
+        $listTimes = explode("_###_", $times);
+
+        $offsetsEvents = array();
+        foreach ($listEvents as $event) {
+        	$eventComp = explode("__", $event);
+        	array_push($offsetsEvents, $eventComp[1] . "-" . $eventComp[2]);
+        }
+
+        $offsetsTimes = array();
+        foreach ($listTimes as $time) {
+        	$timeComp = explode("__", $time);
+        	array_push($offsetsTimes, $timeComp[1] . "-" . $timeComp[2]);
+        }
+
+        $annotationVector = array();
+        $annotationVector["linkEventTime"] = array();
+        $annotationVector["linkEventTime"]["[NONE]"] = 0;
+
+        foreach ($offsetsEvents as $offsetE) {
+        	foreach ($offsetsTimes as $offsetT) {
+        		$annotationVector["linkEventTime"][$offsetE . "_#_" . $offsetT] = 0;
+        	}
+        }
+
+        $judgment = $this->content;
+        for ($i = 0; $i < 30; $i ++) {
+            if (isset($judgment["rel" . $i . "e"]) && $judgment["rel" . $i . "e"] != "") {
+            	$eventAnnotated = str_replace("'", "", $judgment["rel" . $i . "e"]);
+            	if (isset($judgment["rel" . $i . "p"]) && $judgment["rel" . $i . "p"] != "") {
+            		$timeAnnotated = str_replace("'", "", $judgment["rel" . $i . "p"]);
+              	    $annotationVector["linkEventTime"][$eventAnnotated . "_#_" . $timeAnnotated] ++; 
+                }
+            }
+        }
+
+        $annotations = 0;
+        foreach ($annotationVector["linkEventTime"] as $key => $value) {
+            if ($value != 0) {
+                $annotations ++; 
+            }
+        }
+        if ($annotations == 0) {
+            $annotationVector["linkEventTime"]["[NONE]"] = 1;
+        }
+        
+        return array('linkEventTime' => $annotationVector["linkEventTime"]); 
+    }
+
+
+    public function createAnnotationVectorLinkEventsLocation() {
+    	$debug = false;
+
+        if(empty($this->unit_id))
+            return null;
+
+        $events = $this->content['events'];
+        $times = $this->content['time'];
+        
+        $listEvents = explode("_###_", $events);
+        $listTimes = explode("_###_", $times);
+
+        $offsetsEvents = array();
+        foreach ($listEvents as $event) {
+        	$eventComp = explode("__", $event);
+        	array_push($offsetsEvents, $eventComp[1] . "-" . $eventComp[2]);
+        }
+
+        $offsetsTimes = array();
+        foreach ($listTimes as $time) {
+        	$timeComp = explode("__", $time);
+        	array_push($offsetsTimes, $timeComp[1] . "-" . $timeComp[2]);
+        }
+
+        $annotationVector = array();
+        $annotationVector["linkEventTime"] = array();
+        $annotationVector["linkEventTime"]["[NONE]"] = 0;
+
+        foreach ($offsetsEvents as $offsetE) {
+        	foreach ($offsetsTimes as $offsetT) {
+        		$annotationVector["linkEventTime"][$offsetE . "_#_" . $offsetT] = 0;
+        	}
+        }
+
+        $judgment = $this->content;
+        for ($i = 0; $i < 30; $i ++) {
+            if (isset($judgment["rel" . $i . "e"]) && $judgment["rel" . $i . "e"] != "") {
+            	$eventAnnotated = str_replace("'", "", $judgment["rel" . $i . "e"]);
+            	if (isset($judgment["rel" . $i . "p"]) && $judgment["rel" . $i . "p"] != "") {
+            		$timeAnnotated = str_replace("'", "", $judgment["rel" . $i . "p"]);
+              	    $annotationVector["linkEventTime"][$eventAnnotated . "_#_" . $timeAnnotated] ++; 
+                }
+            }
+        }
+
+        $annotations = 0;
+        foreach ($annotationVector["linkEventTime"] as $key => $value) {
+            if ($value != 0) {
+                $annotations ++; 
+            }
+        }
+        if ($annotations == 0) {
+            $annotationVector["linkEventTime"]["[NONE]"] = 1;
+        }
+        
+        return array('linkEventTime' => $annotationVector["linkEventTime"]); 
+    }
+
 
     public function createAnnotationVectorPassageAlignment() {
         $debug = false;
