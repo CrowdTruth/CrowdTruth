@@ -296,7 +296,7 @@ class ResultImporter {
 				
 				// Temp mapping of files to document type structures. This should be done using the preprocessing functions
 				
-								// Passage Alignment
+				// extracting event from video synopsys
 				if($settings['project'] == 'openimages' && $settings['documentType'] == 'video-synopsis') {
 					$content = [
 						'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
@@ -307,9 +307,49 @@ class ResultImporter {
 					$settings["description"] = "event extraction in video synopsis";
 					$settings["templateType"] = "MetaDEvents";
 					$settings["platformJobId"] = substr($settings['filename'], 1);
+				}
+
+				if($settings['project'] == 'openimages' && $settings['documentType'] == 'time-enriched-synopsis') {
+					$content = [
+						'time' => $data[$unitIds[$i]][array_search('time',$data[0])],
+						'timeCount' => $data[$unitIds[$i]][array_search('timeCount',$data[0])],
+						'description' => $data[$unitIds[$i]][array_search('description',$data[0])],
+						'events' => $data[$unitIds[$i]][array_search('events',$data[0])]
+					];
+					$settings["keywords"] = "link events with time";
+					$settings["description"] = "link events with their time period";
+					$settings["templateType"] = "LinkEventsTime";
+					$settings["platformJobId"] = substr($settings['filename'], 1);
 					//dd($content);
 				}
 
+				if($settings['project'] == 'openimages' && $settings['documentType'] == 'people-enriched-synopsis') {
+					$content = [
+						'people' => $data[$unitIds[$i]][array_search('people',$data[0])],
+						'peopleCount' => $data[$unitIds[$i]][array_search('peopleCount',$data[0])],
+						'description' => $data[$unitIds[$i]][array_search('description',$data[0])],
+						'events' => $data[$unitIds[$i]][array_search('events',$data[0])]
+					];
+					$settings["keywords"] = "link events with participants";
+					$settings["description"] = "link events with their participants";
+					$settings["templateType"] = "LinkEventsParticipants";
+					$settings["platformJobId"] = substr($settings['filename'], 1);
+					//dd($content);
+				}
+
+				if($settings['project'] == 'openimages' && $settings['documentType'] == 'location-enriched-synopsis') {
+					$content = [
+						'location' => $data[$unitIds[$i]][array_search('location',$data[0])],
+						'locationCount' => $data[$unitIds[$i]][array_search('locationCount',$data[0])],
+						'description' => $data[$unitIds[$i]][array_search('description',$data[0])],
+						'events' => $data[$unitIds[$i]][array_search('events',$data[0])]
+					];
+					$settings["keywords"] = "link events with locations";
+					$settings["description"] = "link events with their locations";
+					$settings["templateType"] = "LinkEventsLocation";
+					$settings["platformJobId"] = substr($settings['filename'], 1);
+					//dd($content);
+				}
 				// Sounds
 				if($settings['project'] == 'Sounds' && $settings['documentType'] == 'sound') {
 					$content = [
@@ -378,8 +418,6 @@ class ResultImporter {
 						]
 					];
 				}
-				
-				
 
 				$unit = new Unit();
 				$unit->project = $settings['project'];
@@ -391,7 +429,7 @@ class ResultImporter {
 				$unit->hash = md5(serialize($content));
 				$unit->platformId = $platform_id;
 				$unit->save();
-				
+			
 				$units[$unit->_id] = $unit;
 				$unitMap[$data[$unitIds[$i]][0]] = $unit->_id;
 
@@ -403,7 +441,7 @@ class ResultImporter {
 			$settings['batch_description'] = "Batch added via result importer";
 					
 			$batch = Batch::store($settings, $activity);
-
+		
 			// Create job configuration
 			$unitCount = count(array_unique(array_column($data, 0))) - 1;
 			// Get number of judgments per unit

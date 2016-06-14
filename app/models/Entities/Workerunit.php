@@ -96,13 +96,13 @@ class Workerunit extends Entity {
             case 'sound':
                 return $this->createAnnotationVectorSound();
                 break;
-            case 'LinkEventsTime'
+            case 'LinkEventsTime':
             	return $this->createAnnotationVectorLinkEventsTime();
             	break;
-            case 'LinkEventsParticipants'
+            case 'LinkEventsParticipants':
             	return $this->createAnnotationVectorLinkEventsParticipants();
             	break;
-            case 'LinkEventsLocation'
+            case 'LinkEventsLocation':
             	return $this->createAnnotationVectorLinkEventsLocation();
             	break;
             
@@ -202,12 +202,12 @@ class Workerunit extends Entity {
         }
 
         $annotationVector = array();
-        $annotationVector["linkEventTime"] = array();
-        $annotationVector["linkEventTime"]["[NONE]"] = 0;
+        $annotationVector["linkEventsTime"] = array();
+        $annotationVector["linkEventsTime"]["[NONE]"] = 0;
 
         foreach ($offsetsEvents as $offsetE) {
         	foreach ($offsetsTimes as $offsetT) {
-        		$annotationVector["linkEventTime"][$offsetE . "_#_" . $offsetT] = 0;
+        		$annotationVector["linkEventsTime"][$offsetE . "_#_" . $offsetT] = 0;
         	}
         }
 
@@ -217,22 +217,22 @@ class Workerunit extends Entity {
             	$eventAnnotated = str_replace("'", "", $judgment["rel" . $i . "e"]);
             	if (isset($judgment["rel" . $i . "p"]) && $judgment["rel" . $i . "p"] != "") {
             		$timeAnnotated = str_replace("'", "", $judgment["rel" . $i . "p"]);
-              	    $annotationVector["linkEventTime"][$eventAnnotated . "_#_" . $timeAnnotated] ++; 
+              	    $annotationVector["linkEventsTime"][$eventAnnotated . "_#_" . $timeAnnotated] ++; 
                 }
             }
         }
 
         $annotations = 0;
-        foreach ($annotationVector["linkEventTime"] as $key => $value) {
+        foreach ($annotationVector["linkEventsTime"] as $key => $value) {
             if ($value != 0) {
                 $annotations ++; 
             }
         }
         if ($annotations == 0) {
-            $annotationVector["linkEventTime"]["[NONE]"] = 1;
+            $annotationVector["linkEventsTime"]["[NONE]"] = 1;
         }
         
-        return array('linkEventTime' => $annotationVector["linkEventTime"]); 
+        return array('linkEventsTime' => $annotationVector["linkEventsTime"]); 
     }
 
     public function createAnnotationVectorLinkEventsParticipants() {
@@ -242,10 +242,10 @@ class Workerunit extends Entity {
             return null;
 
         $events = $this->content['events'];
-        $times = $this->content['time'];
+        $people = $this->content['people'];
         
         $listEvents = explode("_###_", $events);
-        $listTimes = explode("_###_", $times);
+        $listPeople = explode("_###_", $people);
 
         $offsetsEvents = array();
         foreach ($listEvents as $event) {
@@ -253,19 +253,19 @@ class Workerunit extends Entity {
         	array_push($offsetsEvents, $eventComp[1] . "-" . $eventComp[2]);
         }
 
-        $offsetsTimes = array();
-        foreach ($listTimes as $time) {
-        	$timeComp = explode("__", $time);
-        	array_push($offsetsTimes, $timeComp[1] . "-" . $timeComp[2]);
+        $offsetsPeople = array();
+        foreach ($listPeople as $people) {
+        	$peopleComp = explode("__", $people);
+        	array_push($offsetsPeople, $peopleComp[1] . "-" . $peopleComp[2]);
         }
 
         $annotationVector = array();
-        $annotationVector["linkEventTime"] = array();
-        $annotationVector["linkEventTime"]["[NONE]"] = 0;
+        $annotationVector["linkEventsParticipants"] = array();
+        $annotationVector["linkEventsParticipants"]["[NONE]"] = 0;
 
         foreach ($offsetsEvents as $offsetE) {
-        	foreach ($offsetsTimes as $offsetT) {
-        		$annotationVector["linkEventTime"][$offsetE . "_#_" . $offsetT] = 0;
+        	foreach ($offsetsPeople as $offsetT) {
+        		$annotationVector["linkEventsParticipants"][$offsetE . "_#_" . $offsetT] = 0;
         	}
         }
 
@@ -274,23 +274,23 @@ class Workerunit extends Entity {
             if (isset($judgment["rel" . $i . "e"]) && $judgment["rel" . $i . "e"] != "") {
             	$eventAnnotated = str_replace("'", "", $judgment["rel" . $i . "e"]);
             	if (isset($judgment["rel" . $i . "p"]) && $judgment["rel" . $i . "p"] != "") {
-            		$timeAnnotated = str_replace("'", "", $judgment["rel" . $i . "p"]);
-              	    $annotationVector["linkEventTime"][$eventAnnotated . "_#_" . $timeAnnotated] ++; 
+            		$peopleAnnotated = str_replace("'", "", $judgment["rel" . $i . "p"]);
+              	    $annotationVector["linkEventsParticipants"][$eventAnnotated . "_#_" . $peopleAnnotated] ++; 
                 }
             }
         }
 
         $annotations = 0;
-        foreach ($annotationVector["linkEventTime"] as $key => $value) {
+        foreach ($annotationVector["linkEventsParticipants"] as $key => $value) {
             if ($value != 0) {
                 $annotations ++; 
             }
         }
         if ($annotations == 0) {
-            $annotationVector["linkEventTime"]["[NONE]"] = 1;
+            $annotationVector["linkEventsParticipants"]["[NONE]"] = 1;
         }
         
-        return array('linkEventTime' => $annotationVector["linkEventTime"]); 
+        return array('linkEventsParticipants' => $annotationVector["linkEventsParticipants"]); 
     }
 
 
@@ -301,10 +301,10 @@ class Workerunit extends Entity {
             return null;
 
         $events = $this->content['events'];
-        $times = $this->content['time'];
+        $locations = $this->content['location'];
         
         $listEvents = explode("_###_", $events);
-        $listTimes = explode("_###_", $times);
+        $listlocations = explode("_###_", $locations);
 
         $offsetsEvents = array();
         foreach ($listEvents as $event) {
@@ -312,19 +312,19 @@ class Workerunit extends Entity {
         	array_push($offsetsEvents, $eventComp[1] . "-" . $eventComp[2]);
         }
 
-        $offsetsTimes = array();
-        foreach ($listTimes as $time) {
-        	$timeComp = explode("__", $time);
-        	array_push($offsetsTimes, $timeComp[1] . "-" . $timeComp[2]);
+        $offsetslocations = array();
+        foreach ($listlocations as $location) {
+        	$locationComp = explode("__", $location);
+        	array_push($offsetslocations, $locationComp[1] . "-" . $locationComp[2]);
         }
 
         $annotationVector = array();
-        $annotationVector["linkEventTime"] = array();
-        $annotationVector["linkEventTime"]["[NONE]"] = 0;
+        $annotationVector["linkEventsLocation"] = array();
+        $annotationVector["linkEventsLocation"]["[NONE]"] = 0;
 
         foreach ($offsetsEvents as $offsetE) {
-        	foreach ($offsetsTimes as $offsetT) {
-        		$annotationVector["linkEventTime"][$offsetE . "_#_" . $offsetT] = 0;
+        	foreach ($offsetslocations as $offsetT) {
+        		$annotationVector["linkEventsLocation"][$offsetE . "_#_" . $offsetT] = 0;
         	}
         }
 
@@ -333,23 +333,23 @@ class Workerunit extends Entity {
             if (isset($judgment["rel" . $i . "e"]) && $judgment["rel" . $i . "e"] != "") {
             	$eventAnnotated = str_replace("'", "", $judgment["rel" . $i . "e"]);
             	if (isset($judgment["rel" . $i . "p"]) && $judgment["rel" . $i . "p"] != "") {
-            		$timeAnnotated = str_replace("'", "", $judgment["rel" . $i . "p"]);
-              	    $annotationVector["linkEventTime"][$eventAnnotated . "_#_" . $timeAnnotated] ++; 
+            		$locationAnnotated = str_replace("'", "", $judgment["rel" . $i . "p"]);
+              	    $annotationVector["linkEventsLocation"][$eventAnnotated . "_#_" . $locationAnnotated] ++; 
                 }
             }
         }
 
         $annotations = 0;
-        foreach ($annotationVector["linkEventTime"] as $key => $value) {
+        foreach ($annotationVector["linkEventsLocation"] as $key => $value) {
             if ($value != 0) {
                 $annotations ++; 
             }
         }
         if ($annotations == 0) {
-            $annotationVector["linkEventTime"]["[NONE]"] = 1;
+            $annotationVector["linkEventsLocation"]["[NONE]"] = 1;
         }
         
-        return array('linkEventTime' => $annotationVector["linkEventTime"]); 
+        return array('linkEventsLocation' => $annotationVector["linkEventsLocation"]); 
     }
 
 
