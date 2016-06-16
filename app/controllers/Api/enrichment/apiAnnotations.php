@@ -21,32 +21,90 @@ class apiAnnotations extends BaseController
       foreach ($tickets as $ticket)
       {
         $ticketStatus = [
-          "ticket" => $ticket,
+          'ticket' => $ticket,
           // HERE WE NEED SOME CODE TO CHECK THE STATUS OF A TICKET
-          "status" => "pending"
+          'status' => 'pending'
         ];
         array_push($annotationStatus, $ticketStatus);
       }
 
       return [
-        "status"  =>  "success",
-        "message" =>  "string",
-        "annotationStatus"=> $annotationStatus
+        'status'  =>  'success',
+        'message' =>  'Supplying status for requested tickets',
+        'annotationStatus'=> $annotationStatus
       ];
     }
 
     // public function getCollect()
     public function anyCollect()
     {
-      // TO BE IMPLEMENTED
-      return ['ok - annotation collect -- should be POST'];
+      $body = file_get_contents('php://input');
+      $tickets = json_decode( $body );
+
+      $annotations = [];
+      foreach ($tickets as $ticket)
+      {
+        $ticketData = [ // This is a list of entities
+            [
+              "id"   => "The ID the ticket has on the originating system",
+              "data" => [// More key/value pairs can be present in the data.
+                [
+                  "key"   => "VALIDATION",
+                  "value" => "OK"
+                ]
+              ]
+            ]
+        ];
+        $ticketProvenance = [
+          "data" => [
+            [
+              "key"   => "AnnotationTool",
+              "value" => "CrowdTruth"
+            ],
+            [
+              "key"   => "AnnotationTemplate",
+              "value" => "Template1"
+            ]
+          ]
+        ];
+        $ticketAnnotations = [
+          "ticket"     => $ticket,
+          "data"       => $ticketData,
+          "provenance" => $ticketProvenance
+        ];
+        array_push($annotations, $ticketAnnotations);
+      }
+
+      return [
+        "message"  =>  "string",
+        "status"   =>  'Sending annotations for requested tickets',
+        "annotations" => $annotations
+      ];
     }
 
     // public function getSend($capability)
     public function anySend($capability)
     {
-      // TO BE IMPLEMENTED
-      return ['ok - annotation send ('.$capability.') -- should be POST'];
+      $body = file_get_contents('php://input');
+      $data = json_decode( $body );
+
+      $annotationStatus = [];
+      foreach ($data as $datapoint)
+      {
+        // $datapoint=>data -- this is the data we need to annotate
+        $datapointStatus = [
+          'id'     => $datapoint->id,  // This is the original ID of the data sent
+          'status' => 'accepted',
+          'ticket' => 'CT_generated_ID_'.$datapoint->id
+        ];
+        array_push($annotationStatus, $datapointStatus);
+      }
+
+      return [
+        'status'  => 'success',
+        'message' => 'We are applying '.$capability.' to your data',
+        'annotationStatus' => $annotationStatus
+      ];
     }
 
     public function postImportresults()

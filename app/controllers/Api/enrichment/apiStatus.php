@@ -25,7 +25,7 @@ class apiStatus extends BaseController
                         [ "type" => "string", "name" => "location" ],
                         [ "type" => "string", "name" => "synopsis" ]
                       ],
-                      "description" => "This template adds ? to data"
+                      "description" => "This template adds VALIDATION to data"
                     ]
                 ]
              ];
