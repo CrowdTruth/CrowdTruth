@@ -33,7 +33,7 @@ Route::get('/urlsurls', function()
 	$results2 = Entity::whereIn('documentType', ['drawing'])->get(['content.url']);
 
 	foreach($results as $result)
-	{	
+	{
 
 		echo $result['content']['url'] . ' ';
 		echo $result['_id'] . PHP_EOL;
@@ -48,7 +48,7 @@ Route::get('/urlsurls', function()
 	echo PHP_EOL . PHP_EOL . "[";
 	$results = Entity::whereIn('documentType', ['painting','drawing'])->get();
 	foreach($results as $result)
-	{	
+	{
 		echo $result . ",". PHP_EOL;
 
 	}
@@ -67,7 +67,9 @@ Route::controller('api/search', '\Api\search\apiController');
 Route::controller('api/actions', '\Api\actions\apiController');
 Route::controller('api/analytics', '\Api\analytics\apiController');
 
-Route::controller('api/import', '\Api\import\apiController');
+// enrichment/annotation must go first
+Route::controller('api/enrichment/annotation', '\Api\enrichment\apiAnnotations');
+Route::controller('api/enrichment', '\Api\enrichment\apiStatus');
 Route::controller('api/shankey', '\Api\shankey\apiController');
 
 Route::get('login', 'UserController@login');
