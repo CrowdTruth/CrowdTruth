@@ -1023,9 +1023,9 @@ class Workerunit extends Entity {
     		$annotationVector = [];
     		$judgment = $this->content;
     		
-    		error_log($judgment);
+    		\Log::debug($judgment);
     		
-    		return null;
+    		return $annotationVector;
     		
     		//return array('markingDescription' => $annotationVector["markingDescription"], 
         	//		'qualityDescription' => $annotationVector["qualityDescription"],
