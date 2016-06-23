@@ -35,14 +35,14 @@ class apiStatus extends BaseController
           $newParameter = array();
           $newParameter["type"] = $parameter["type"];
           $newParameter["name"] = $parameter["name"];
-          array_push($newCapability["parameters", $newParameter);
+          array_push($newCapability["parameters"], $newParameter);
         }
         array_push($capabilities, $newCapability);
       }
         return [
           "status"  => "success",
           "message" => "Listing capabilities of CrowdTruth data enrichment",
-          "capabilities" => $capabilities;
+          "capabilities" => $capabilities
         ];
     }
 
