@@ -31,11 +31,20 @@ class apiStatus extends BaseController
         $newCapability["id"] = $template["type"] . " on " . $template["platform"];
         $newCapability["description"] = $template["description"];
         $newCapability["parameters"] = array();
-        foreach ($template["parameters"] as $parameter) {
+        $newCapability["provides"] = array();
+        foreach ($template["parameters"]["input"] as $parameter) {
           $newParameter = array();
           $newParameter["type"] = $parameter["type"];
           $newParameter["name"] = $parameter["name"];
+          $newParameter["description"] = $parameter["description"];
           array_push($newCapability["parameters"], $newParameter);
+        }
+        foreach ($template["parameters"]["output"] as $parameter) {
+          $newParameter = array();
+          $newParameter["type"] = $parameter["type"];
+          $newParameter["name"] = $parameter["name"];
+          $newParameter["description"] = $parameter["description"];
+          array_push($newCapability["provides"], $newParameter);
         }
         array_push($capabilities, $newCapability);
       }
