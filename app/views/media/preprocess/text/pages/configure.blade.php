@@ -280,6 +280,7 @@
 	function doPreview() {
 		$("#delimiter-form").val($('#delimiter').val());
 		$("#separator-form").val($('#separator').val());
+		$('#useHeaders-form').prop('checked',$('#useHeaders').prop('checked'));
 		makePost('processPreview', function(data) {
 			$("#contentPreview").html(data);
 		});
@@ -289,6 +290,7 @@
 		// Copy values from #docPreviewForm to #theForm
 		$("#delimiter-form").val($('#delimiter').val());
 		$("#separator-form").val($('#separator').val());
+		$('#useHeaders-form').prop('checked',$('#useHeaders').prop('checked'));
 		$('#postAction').val('process');
 	}
 
@@ -443,7 +445,7 @@
 			</div>
 			<div class="form-group">
 				<div class="col-xs-offset-3 col-xs-6">
-					{{ Form::checkbox('useHeaders', 'tick', true, [ 'class' => 'docPreview' ]) }} First row contains headers
+					{{ Form::checkbox('useHeaders', 'true', true, [ 'class' => 'docPreview', 'id' => 'useHeaders' ]) }} First row contains headers
 				</div>
 			</div>
 		</div>
@@ -499,6 +501,7 @@
 {{ Form::hidden('postAction', 'preview', [ 'id' => 'postAction' ]) }}
 {{ Form::hidden('delimiter', '', [ 'id' => 'delimiter-form' ]) }}
 {{ Form::hidden('separator', '', [ 'id' => 'separator-form' ]) }}
+{{ Form::checkbox('useHeaders', 'true', true, [ 'style' => '', 'id' => 'useHeaders-form' ]) }}
 
 <div class="panel panel-default">
 	<div class="panel-heading">
@@ -643,7 +646,7 @@
 		$('#root_props').on('change', 'select', function() {
 			doPreview();
 		});
-		
+
 		$('#root_props').on('change', 'input', function() {
 			doPreview();
 		});
