@@ -159,6 +159,7 @@ class ResultImporter {
 			$agent->region = $region;
 			$agent->cfWorkerTrust = $cfWorkerTrust;
 			$agent->save();
+			\Log::debug("Saved CrowdAgent {$agent->_id}.");
 			
 			$this->crowdAgents[$agent->_id] = $agent;
 		}
@@ -171,37 +172,29 @@ class ResultImporter {
 	 */
 	public function createWorkerUnit($activityId, $unitId, $acceptTime, $channel, $trust, $content, $agentId, $jobId, $annId, $submitTime, $settings) 
 	{
-		$workerunit = Workerunit::where('platformWorkerUnitId', $annId)->first();
-		if($workerunit) {
-			// do not delete this on rollback
-			if(!array_key_exists($workerunit->_id, $this->workerUnits)) {
-				$this->duplicateWorkerUnits++;
-				$workerunit->_existing = true;
-				$this->workerUnits[$workerunit->_id] = $workerunit;
-			}
-		} else {
-			$workerunit = new Workerunit;
-			$workerunit->activity_id = $activityId;			
-			$workerunit->unit_id = $unitId;			
-			$workerunit->acceptTime = $acceptTime;
-			$workerunit->cfChannel = $channel;
-			$workerunit->cfTrust = $trust;
-			$workerunit->content = $content;
-			$workerunit->crowdAgent_id = $agentId;
-			$workerunit->job_id = $jobId;
-			$workerunit->platformWorkerunitId = $annId;
-			$workerunit->submitTime = $submitTime;
-			$workerunit->documentType = $settings['documentType'];
-			$workerunit->templateType = $settings['templateType'];
-			$workerunit->project = $settings['project'];
-			$workerunit->softwareAgent_id = $settings['platform'];
-			$workerunit->softwareAgent_id = 'CF';
-		//	$workerunit->contradiction = $settings['contradiction'];
+		$workerunit = new Workerunit;
+		$workerunit->activity_id = $activityId;			
+		$workerunit->unit_id = $unitId;			
+		$workerunit->acceptTime = $acceptTime;
+		$workerunit->cfChannel = $channel;
+		$workerunit->cfTrust = $trust;
+		$workerunit->content = $content;
+		$workerunit->crowdAgent_id = $agentId;
+		$workerunit->job_id = $jobId;
+		$workerunit->platformWorkerunitId = $annId;
+		$workerunit->submitTime = $submitTime;
+		$workerunit->documentType = $settings['documentType'];
+		$workerunit->templateType = $settings['templateType'];
+		$workerunit->project = $settings['project'];
+		$workerunit->softwareAgent_id = $settings['platform'];
+		$workerunit->softwareAgent_id = 'CF';
+	//	$workerunit->contradiction = $settings['contradiction'];
 
-			\Queue::push('Queues\SaveWorkerunit', array('workerunit' => serialize($workerunit)));		
-			
-			$this->workerUnits[$workerunit->_id] = $workerunit;
-		}
+		\Log::debug("Saved workerunit {$workerunit->_id}.");
+		$workerunit->save();
+		//\Queue::push('Queues\SaveWorkerunit', array('workerunit' => serialize($workerunit)));		
+		
+		$this->workerUnits[$workerunit->_id] = $workerunit;
 	
 		return $workerunit;
 	}
@@ -215,6 +208,7 @@ class ResultImporter {
 		// increase memory usage to support larger files with up to 10k judgments
 		ini_set('memory_limit','256M');
 		set_time_limit(0);
+		\Log::debug("Started importing of results");
 		
 		$this->status = ['notice' => [], 'success' => [], 'error' => []];
 
@@ -297,61 +291,59 @@ class ResultImporter {
 				// Temp mapping of files to document type structures. This should be done using the preprocessing functions
 				
 				// extracting event from video synopsys
-				if($settings['project'] == 'openimages' && $settings['documentType'] == 'video-synopsis') {
-					$content = [
-						'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
-						'ct_id' => $data[$unitIds[$i]][array_search('uid',$data[0])],
-						'description' => $data[$unitIds[$i]][array_search('description',$data[0])]
-					];
-					$settings["keywords"] = "event extraction";
-					$settings["description"] = "event extraction in video synopsis";
-					$settings["templateType"] = "MetaDEvents";
-					$settings["platformJobId"] = substr($settings['filename'], 1);
+				if($settings['project'] == 'openimages') {
+					if($settings['documentType'] == 'video-synopsis') {
+						$content = [
+							'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
+							'ct_id' => $data[$unitIds[$i]][array_search('uid',$data[0])],
+							'description' => $data[$unitIds[$i]][array_search('description',$data[0])]
+						];
+						$settings["keywords"] = "event extraction";
+						$settings["description"] = "event extraction in video synopsis";
+						$settings["templateType"] = "MetaDEvents";
+						$settings["platformJobId"] = substr($settings['filename'], 1);
+					}
+					elseif($settings['documentType'] == 'time-enriched-synopsis') {
+						$content = [
+							'time' => $data[$unitIds[$i]][array_search('time',$data[0])],
+							'timeCount' => $data[$unitIds[$i]][array_search('timeCount',$data[0])],
+							'description' => $data[$unitIds[$i]][array_search('description',$data[0])],
+							'events' => $data[$unitIds[$i]][array_search('events',$data[0])]
+						];
+						$settings["keywords"] = "link events with time";
+						$settings["description"] = "link events with their time period";
+						$settings["templateType"] = "LinkEventsTime";
+						$settings["platformJobId"] = substr($settings['filename'], 1);
+						//dd($content);
+					}
+					elseif($settings['documentType'] == 'people-enriched-synopsis') {
+						$content = [
+							'people' => $data[$unitIds[$i]][array_search('people',$data[0])],
+							'peopleCount' => $data[$unitIds[$i]][array_search('peopleCount',$data[0])],
+							'description' => $data[$unitIds[$i]][array_search('description',$data[0])],
+							'events' => $data[$unitIds[$i]][array_search('events',$data[0])]
+						];
+						$settings["keywords"] = "link events with participants";
+						$settings["description"] = "link events with their participants";
+						$settings["templateType"] = "LinkEventsParticipants";
+						$settings["platformJobId"] = substr($settings['filename'], 1);
+						//dd($content);
+					}
+					elseif($settings['documentType'] == 'location-enriched-synopsis') {
+						$content = [
+							'location' => $data[$unitIds[$i]][array_search('location',$data[0])],
+							'locationCount' => $data[$unitIds[$i]][array_search('locationCount',$data[0])],
+							'description' => $data[$unitIds[$i]][array_search('description',$data[0])],
+							'events' => $data[$unitIds[$i]][array_search('events',$data[0])]
+						];
+						$settings["keywords"] = "link events with locations";
+						$settings["description"] = "link events with their locations";
+						$settings["templateType"] = "LinkEventsLocation";
+						$settings["platformJobId"] = substr($settings['filename'], 1);
+						//dd($content);
+					}
 				}
-
-				if($settings['project'] == 'openimages' && $settings['documentType'] == 'time-enriched-synopsis') {
-					$content = [
-						'time' => $data[$unitIds[$i]][array_search('time',$data[0])],
-						'timeCount' => $data[$unitIds[$i]][array_search('timeCount',$data[0])],
-						'description' => $data[$unitIds[$i]][array_search('description',$data[0])],
-						'events' => $data[$unitIds[$i]][array_search('events',$data[0])]
-					];
-					$settings["keywords"] = "link events with time";
-					$settings["description"] = "link events with their time period";
-					$settings["templateType"] = "LinkEventsTime";
-					$settings["platformJobId"] = substr($settings['filename'], 1);
-					//dd($content);
-				}
-
-				if($settings['project'] == 'openimages' && $settings['documentType'] == 'people-enriched-synopsis') {
-					$content = [
-						'people' => $data[$unitIds[$i]][array_search('people',$data[0])],
-						'peopleCount' => $data[$unitIds[$i]][array_search('peopleCount',$data[0])],
-						'description' => $data[$unitIds[$i]][array_search('description',$data[0])],
-						'events' => $data[$unitIds[$i]][array_search('events',$data[0])]
-					];
-					$settings["keywords"] = "link events with participants";
-					$settings["description"] = "link events with their participants";
-					$settings["templateType"] = "LinkEventsParticipants";
-					$settings["platformJobId"] = substr($settings['filename'], 1);
-					//dd($content);
-				}
-
-				if($settings['project'] == 'openimages' && $settings['documentType'] == 'location-enriched-synopsis') {
-					$content = [
-						'location' => $data[$unitIds[$i]][array_search('location',$data[0])],
-						'locationCount' => $data[$unitIds[$i]][array_search('locationCount',$data[0])],
-						'description' => $data[$unitIds[$i]][array_search('description',$data[0])],
-						'events' => $data[$unitIds[$i]][array_search('events',$data[0])]
-					];
-					$settings["keywords"] = "link events with locations";
-					$settings["description"] = "link events with their locations";
-					$settings["templateType"] = "LinkEventsLocation";
-					$settings["platformJobId"] = substr($settings['filename'], 1);
-					//dd($content);
-				}
-				// Sounds
-				if($settings['project'] == 'Sounds' && $settings['documentType'] == 'sound') {
+				elseif($settings['project'] == 'Sounds' && $settings['documentType'] == 'sound') {
 					$content = [
 					'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
 					'preview-hq-mp3' => $data[$unitIds[$i]][array_search('preview-hq-mp3',$data[0])]
@@ -361,45 +353,43 @@ class ResultImporter {
 					$settings["templateType"] = "sound";
 					$settings["platformJobId"] = $settings['filename'];
 				}
-
-				$platform_id = $data[$unitIds[$i]][0];
-				
-				// Passage Alignment
-				if($settings['documentType'] == 'passage_alignment') {
-					$content = [
-						'question' => [
-							'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
-							'passage' => $data[$unitIds[$i]][array_search('question',$data[0])]
-						],
-						'answer' => [
-							'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
-							'passage' => $data[$unitIds[$i]][array_search('passage',$data[0])]
-						]];
-				}
-				
-				// Passage Justification
-				if($settings['documentType'] == 'passage_justification') {
-					$content = [
-						'question' => [
-							'id' => $data[$unitIds[$i]][array_search('Input.ID',$data[0])],
-							'passage' => $data[$unitIds[$i]][array_search('Input.Question',$data[0])]
-						],
-						'answers' => []
-						];
-
-					for($k = 1; $k <= 6; $k++) {
-						if($data[$unitIds[$i]][array_search('Input.id'.$k,$data[0])] != "") {
-							$content['answers'][$k] = [
-								'id' => $data[$unitIds[$i]][array_search('Input.id'.$k,$data[0])],
-								'passage' => $data[$unitIds[$i]][array_search('Input.Passage'.$k,$data[0])]
+				elseif($settings['project'] == 'qa') {
+					// Passage Alignment
+					if($settings['documentType'] == 'passage_alignment') {
+						$content = [
+							'question' => [
+								'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
+								'passage' => $data[$unitIds[$i]][array_search('question',$data[0])]
+							],
+							'answer' => [
+								'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
+								'passage' => $data[$unitIds[$i]][array_search('passage',$data[0])]
+							]];
+					}
+					elseif($settings['documentType'] == 'passage_justification') {
+						$content = [
+							'question' => [
+								'id' => $data[$unitIds[$i]][array_search('Input.ID',$data[0])],
+								'passage' => $data[$unitIds[$i]][array_search('Input.Question',$data[0])]
+							],
+							'answers' => []
 							];
+
+						for($k = 1; $k <= 6; $k++) {
+							if($data[$unitIds[$i]][array_search('Input.id'.$k,$data[0])] != "") {
+								$content['answers'][$k] = [
+									'id' => $data[$unitIds[$i]][array_search('Input.id'.$k,$data[0])],
+									'passage' => $data[$unitIds[$i]][array_search('Input.Passage'.$k,$data[0])]
+								];
+							}
 						}
+						$settings["keywords"] = "passage justification";
+						$settings["description"] = "passage justification";
+						$settings["templateType"] = "passage_justification";
+						$settings["platformJobId"] = $settings['filename'];
 					}
 				}
-
-
-				// Passage Alignment
-				if($settings['project'] == 'Quantum' && $settings['documentType'] == 'sound') {
+				elseif($settings['project'] == 'Quantum' && $settings['documentType'] == 'sound') {
 					$content = [
 						'id' => $data[$unitIds[$i]][array_search('id',$data[0])],
 						'sound1' => [
@@ -419,6 +409,8 @@ class ResultImporter {
 					];
 				}
 
+				$platform_id = $data[$unitIds[$i]][0];
+
 				$unit = new Unit();
 				$unit->project = $settings['project'];
 				$unit->activity_id = $activity->_id;
@@ -429,6 +421,8 @@ class ResultImporter {
 				$unit->hash = md5(serialize($content));
 				$unit->platformId = $platform_id;
 				$unit->save();
+
+				\Log::debug("Created unit {$unit->_id}.");
 			
 				$units[$unit->_id] = $unit;
 				$unitMap[$data[$unitIds[$i]][0]] = $unit->_id;
@@ -461,7 +455,12 @@ class ResultImporter {
 				// loop through all values in the file, and add them as content
 				$content = [];
 				for($c = $startColumn; $c < $endColumn; $c++) {
-					$key = str_replace('.','_',$data[0][$c]);
+					if($settings['platform'] == "AMT") {
+						$key = substr($data[0][$c], 7);
+					} else {
+						$key = str_replace('.','_',$data[0][$c]);
+					}
+					$key = strtolower($key);
 					$content[$key] = $data[$i][$c];
 				}
 			
@@ -472,7 +471,7 @@ class ResultImporter {
 				
 				// Create WorkerUnit
 				$workerUnit = $this->createWorkerUnit($activity->_id, $unitMap[$data[$i][0]], $data[$i][$column['start_time']], $data[$i][$column['channel']], $trust, $content, $crowdAgent->_id, $job->_id, $data[$i][$column['id']], $data[$i][$column['submit_time']], $settings);
-			}	
+			}
 				
 			// update job cache
 			\Queue::push('Queues\UpdateJob', array('job' => serialize($job)));
@@ -522,5 +521,6 @@ class ResultImporter {
 			
 			return $e;
 		}
+		\Log::debug("Finished importing of results");
 	}
 }
