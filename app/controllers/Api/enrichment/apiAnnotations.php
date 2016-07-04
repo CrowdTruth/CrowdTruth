@@ -83,11 +83,38 @@ class apiAnnotations extends BaseController
     }
 
     // public function getSend($capability)
-    public function anySend($capability)
+    public function postSend($capability)
     {
-      $body = file_get_contents('php://input');
-      $data = json_decode( $body );
+      $user_token = Input::get('token');
+      $project = Input::get('project');
+      $template_id = $capability;
 
+      $body = file_get_contents('php://input');
+
+      $settings = [];
+      $settings['token'] = $user_token;
+      $settings['project'] = $project;
+      $settings['template_id'] = $template_id;
+
+      // process request
+      $importer = new DIVEUnitsImporter();
+      $status = $importer->process($body, $settings);
+
+      if (count($status["error"] == 0)) {
+        return [
+          'status'  => 'success',
+          'message' => $status['success'][0],
+          'annotationStatus' => $status['annotationStatus']
+        ];
+      }
+      else {
+        return [
+          'status'  => 'error',
+          'message' => $status['error'][0],
+          'annotationStatus' => $status['annotationStatus']
+        ];
+      }
+/*
       $annotationStatus = [];
       foreach ($data as $datapoint)
       {
@@ -105,6 +132,7 @@ class apiAnnotations extends BaseController
         'message' => 'We are applying '.$capability.' to your data',
         'annotationStatus' => $annotationStatus
       ];
+*/
     }
 
     public function postImportresults()

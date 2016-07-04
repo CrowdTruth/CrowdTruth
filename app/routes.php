@@ -68,6 +68,8 @@ Route::controller('api/actions', '\Api\actions\apiController');
 Route::controller('api/analytics', '\Api\analytics\apiController');
 
 // enrichment/annotation must go first
+Route::post('api/enrichment/annotation/send/{capability}', '\Api\enrichment\apiAnnotations@postSend')
+    ->where('capability','.+');
 Route::controller('api/enrichment/annotation', '\Api\enrichment\apiAnnotations');
 Route::controller('api/enrichment', '\Api\enrichment\apiStatus');
 Route::controller('api/shankey', '\Api\shankey\apiController');
