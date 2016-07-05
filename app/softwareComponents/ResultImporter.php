@@ -246,7 +246,9 @@ class ResultImporter {
 			// temporary mapping of unit ids to CrowdTruth unit ids
 			$unitMap = [];
 			
-			
+			// On which column should we aggregate? default = 0 = unit_id
+			$aggrColumn = 0;
+
 			// Detect if this is an AMT or CF file
 			$column = [];
 			if($data[0][0] == "HITId")
@@ -256,6 +258,11 @@ class ResultImporter {
 				$prefix = "Answer."; // Frefix for answer columns
 				$startColumn = 27;
 				$endColumn = count($data[0]);
+				$beforelast = $endColumn - 1;
+				// in AMT, the result file may contain the Approve and Reject columns as final columns. They should be ignored.
+				if($data[0][$beforelast] == "Reject") {
+					$endColumn = $endColumn - 2;
+				}
 				$column['submit_time'] = 18;
 				$column['id'] = 14;
 				$column['start_time'] = 17;
@@ -283,7 +290,7 @@ class ResultImporter {
 			}			
 			
 			// Create Units
-			$unitIds = array_keys(array_unique(array_column($data, 0)));
+			$unitIds = array_keys(array_unique(array_column($data, $aggrColumn)));
 		//	dd($unitIds);
 
 			for ($i = 1; $i < count($unitIds); $i ++) {
@@ -409,7 +416,7 @@ class ResultImporter {
 					];
 				}
 
-				$platform_id = $data[$unitIds[$i]][0];
+				$platform_id = $data[$unitIds[$i]][$aggrColumn];
 
 				$unit = new Unit();
 				$unit->project = $settings['project'];
@@ -425,7 +432,7 @@ class ResultImporter {
 				\Log::debug("Created unit {$unit->_id}.");
 			
 				$units[$unit->_id] = $unit;
-				$unitMap[$data[$unitIds[$i]][0]] = $unit->_id;
+				$unitMap[$data[$unitIds[$i]][$aggrColumn]] = $unit->_id;
 
 			}
 
@@ -470,7 +477,7 @@ class ResultImporter {
 				$crowdAgent = $this->createCrowdAgent($data[$i][$column['worker']], $data[$i][$column['country']], $data[$i][$column['region']], $data[$i][$column['city']], $trust, $settings);
 				
 				// Create WorkerUnit
-				$workerUnit = $this->createWorkerUnit($activity->_id, $unitMap[$data[$i][0]], $data[$i][$column['start_time']], $data[$i][$column['channel']], $trust, $content, $crowdAgent->_id, $job->_id, $data[$i][$column['id']], $data[$i][$column['submit_time']], $settings);
+				$workerUnit = $this->createWorkerUnit($activity->_id, $unitMap[$data[$i][$aggrColumn]], $data[$i][$column['start_time']], $data[$i][$column['channel']], $trust, $content, $crowdAgent->_id, $job->_id, $data[$i][$column['id']], $data[$i][$column['submit_time']], $settings);
 			}
 				
 			// update job cache
