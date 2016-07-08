@@ -56,37 +56,34 @@ class DIVEUnitsImporter {
 	/**
 	 * Create worker unit
 	 */
-	public function process($data, $settings)
+	public function process($data, $template_id)
 	{
-
 		// increase memory usage to support larger files with up to 10k judgments
 		ini_set('memory_limit','256M');
 		set_time_limit(0);
+
+		$project = 'clariah';
+		$userId = 'clariah';
 
 		$this->status = ['annotationStatus' => [], 'success' => [], 'error' => []];
 		$mapping = [];
 
 		// Validate template
-		$templateEntity = Template::where("_id", $settings["template_id"])->first();
+		$templateEntity = Template::where("_id", $template_id)->first();
 		if ($templateEntity == NULL) {
 			array_push($this->status['error'], "The enrichment capability provided is no longer available in CrowdTruth");
 			return $this->status;
 		}
 
-		// Validate user
-		if ($settings["token"] == NULL || $settings["token"] == "") {
-			array_push($this->status['error'], "Authentication required. Please supply authentication token for CrowdTruth.");
-			return $this->status;
-		}
-
-		if ($settings['template_id'] == NULL || $settings["template_id"] == "") {
+		if ($template_id == NULL || $template_id == "") {
 			array_push($this->status['error'], "No enrichment capability provided.");
 			return $this->status;
 		}
 
-		$user = UserAgent::where('api_key', $settings['token'])->first();
+		// Validate user
+		$user = UserAgent::where('_id', $userId)->first();
 		if(!$user) {
-			array_push($this->status['error'], "Invalid auth key for user: " . $settings['token'] . "");
+			array_push($this->status['error'], "Invalid auth key for user: ".$userId);
 			return $this->status;
 		}
 
@@ -98,20 +95,20 @@ class DIVEUnitsImporter {
 		$user = Auth::user();
 
 		// Validate project
-		if ($settings['project'] == NULL || $settings['project'] == '') {
+		if ($project == NULL || $project == '') {
 			array_push($this->status['error'], "No project name was given in the request.");
 			return $this->status;
 		}
 
 		$projectsAll = ProjectHandler::listProjects();
 		// Project does not exist -- create it
-		if (!in_array($settings['project'], $projectsAll)) {
-			ProjectHandler::createGroup($settings['project']);
+		if (!in_array($project, $projectsAll)) {
+			ProjectHandler::createGroup($project);
 		}
 
 		// add the user to the project if it has no access yet
-		if(!ProjectHandler::inGroup($user['_id'], $settings['project'])) {
-			ProjectHandler::grantUser($user, $settings['project'], Roles::PROJECT_MEMBER);
+		if(!ProjectHandler::inGroup($userId, $project)) {
+			ProjectHandler::grantUser($user, $project, Roles::PROJECT_MEMBER);
 		}
 
 		// Validate data
@@ -133,7 +130,6 @@ class DIVEUnitsImporter {
 			}
 		}
 
-		$settings['units'] = [];
 		foreach ($data as $unitContent) {
 			// Create activity
 			$activity = $this->createActivity();
@@ -151,7 +147,7 @@ class DIVEUnitsImporter {
 				}
 
 				$hashing = array();
-				$hashing["project"] = $settings["project"];
+				$hashing["project"] = $project;
 				$hashing["documentType"] = "document_for_" . $templateEntity["type"];
 				$hashing["content"] = $content;
 				$hash = md5(serialize($hashing));
@@ -167,7 +163,7 @@ class DIVEUnitsImporter {
 				}
 				else {
 					$unit = new Unit();
-					$unit->project = $settings['project'];
+					$unit->project = $project;
 					$unit->activity_id = $activity->_id;
 					$unit->documentType = "document_for_" . $templateEntity["type"];
 					$unit->type = "unit";
@@ -178,7 +174,6 @@ class DIVEUnitsImporter {
 					$unit->description = 'data received from the dashboard';
 					$unit->save();
 
-					array_push($settings['units'], $unit->_id);
 					$mapping[$unitContent["id"]]["CT_generated_ID"]= $unit->_id;
 					$mapping[$unitContent["id"]]["status"] = "accepted";
 					$mapping[$unitContent["id"]]["ticket"] = $unit->_id . "_" . $unitContent["id"];;

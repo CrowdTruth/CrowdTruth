@@ -99,14 +99,9 @@ class apiAnnotations extends BaseController
       $body = file_get_contents('php://input');
       $body = json_decode( $body , true);
 
-      $settings = [];
-      $settings['token'] = isset($body['token']) ? $body['token'] : "";
-      $settings['project'] = isset($body['project']) ? $body['project'] : "";
-      $settings['template_id'] = $template_id;
-
       // process request
       $importer = new DIVEUnitsImporter();
-      $status = $importer->process($body['data'], $settings);
+      $status = $importer->process($body['data'], $template_id);
 
       if (count($status["error"]) == 0) {
         return [
