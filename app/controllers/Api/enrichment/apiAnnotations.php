@@ -22,7 +22,6 @@ class apiAnnotations extends BaseController
       $body = file_get_contents('php://input');
       $body = json_decode( $body , true);
       $tickets = $body['tickets'];
-      $token = $body['token'];
 
       $annotationStatus = [];
       foreach ($tickets as $ticket)
@@ -48,7 +47,6 @@ class apiAnnotations extends BaseController
       $body = file_get_contents('php://input');
       $body = json_decode( $body , true);
       $tickets = $body['tickets'];
-      $token = $body['token'];
 
       $annotations = [];
       foreach ($tickets as $ticket)

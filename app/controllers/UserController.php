@@ -107,7 +107,7 @@ class UserController extends BaseController {
 	/**
 	 * Perform user registration. Return the
 	 */
-	public function doRegister($username, $firstname, $lastname, $email,
+	public static function doRegister($username, $firstname, $lastname, $email,
 									$password, $confirm_password) {
 		$userdata = [
 				'_id' => strtolower($username),
