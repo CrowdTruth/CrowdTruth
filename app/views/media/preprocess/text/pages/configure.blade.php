@@ -501,7 +501,7 @@
 {{ Form::hidden('postAction', 'preview', [ 'id' => 'postAction' ]) }}
 {{ Form::hidden('delimiter', '', [ 'id' => 'delimiter-form' ]) }}
 {{ Form::hidden('separator', '', [ 'id' => 'separator-form' ]) }}
-{{ Form::checkbox('useHeaders', 'true', true, [ 'style' => '', 'id' => 'useHeaders-form' ]) }}
+{{ Form::checkbox('useHeaders', 'true', true, [ 'style' => 'display:none;', 'id' => 'useHeaders-form' ]) }}
 
 <div class="panel panel-default">
 	<div class="panel-heading">
