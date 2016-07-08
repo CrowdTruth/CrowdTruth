@@ -25,7 +25,7 @@ class UserController extends BaseController {
 	public function getIndex() {
 		return Redirect::to('login');
 	}
-	
+
 	/**
 	 * Redirect to login page.
 	 */
@@ -61,18 +61,6 @@ class UserController extends BaseController {
 	}
 
 	/**
-	 * Process user login.
-	 */
-/*	public static function loginWithToken($token, $pass){
-		
-		$user = UserAgent::where('api_key', '=', $token)->first();
-		
-		$value = Auth::attempt(array('email' => $user['email'], 'password' => $pass)); 
-		
-		return $value;
-	}
-*/
-	/**
 	 * Display user registration page.
 	 */
 	public function register(){
@@ -83,15 +71,53 @@ class UserController extends BaseController {
 	 * Perform user registration.
 	 */
 	public function postRegister() {
+		$username = Input::get('username');
+		$firstname = Input::get('firstname');
+		$lastname = Input::get('lastname');
+		$email = Input::get('email');
+		$password = Input::get('password');
+		$confirm_password = Input::get('confirm_password');
+
+		$registration = $this->doRegister($username, $firstname, $lastname, $email,
+										$password, $confirm_password);
+
+		if($registration['status']=='fail') {
+			$msg = '<ul>';
+			foreach ($registration['messages'] as $message)
+				$msg .= "<li>$message</li>";
+
+			Session::flash('flashError', "$msg</ul>");
+			return Redirect::back()->withInput(Input::except('password', 'confirm_password'));
+		}
+
+		$user = $registration['user'];
+		Auth::login($user);
+
+		// Assign to groups ?
+		$iCode = Input::get('invitation');
+		$sentryGroup = SentryGroup::where('invite_code', '=', $iCode)->first();
+		if(!is_null($sentryGroup)) {
+			$user->addGroup($sentryGroup);
+			Session::flash('flashSuccess', 'You have joined group: <b>'.$sentryGroup['name'].'</b>');
+		}
+
+		return Redirect::to('/');
+	}
+
+	/**
+	 * Perform user registration. Return the
+	 */
+	public function doRegister($username, $firstname, $lastname, $email,
+									$password, $confirm_password) {
 		$userdata = [
-				'_id' => strtolower(Input::get('username')),
-				'firstname' => ucfirst(strtolower(Input::get('firstname'))),
-				'lastname' => ucfirst(strtolower(Input::get('lastname'))),
-				'email' => strtolower(Input::get('email')),
-				'password' => Input::get('password'),
-				'confirm_password' => Input::get('confirm_password'),
+				'_id' => strtolower($username),
+				'firstname' => ucfirst(strtolower($firstname)),
+				'lastname' => ucfirst(strtolower($lastname)),
+				'email' => strtolower($email),
+				'password' => $password,
+				'confirm_password' => $confirm_password,
 		];
-	
+
 		$rules = [
 				'_id' => 'required|min:3|unique:useragents',
 				'firstname' => 'required|min:3',
@@ -100,30 +126,23 @@ class UserController extends BaseController {
 				'password' => 'required|min:5',
 				'confirm_password' => 'required|same:password'
 		];
-	
+
 		$validation = Validator::make($userdata, $rules);
-	
-		if($validation->fails()){
-			$msg = '<ul>';
-			foreach ($validation->messages()->all() as $message)
-				$msg .= "<li>$message</li>";
-	
-			Session::flash('flashError', "$msg</ul>");
-			return Redirect::back()->withInput(Input::except('password', 'confirm_password'));
+		if($validation->fails()) {
+			return [
+				'status'   => 'fail',
+				'messages' => $validation->messages()->all(),
+				'user'     => NULL
+			];
 		}
+
 		unset($userdata['confirm_password']);
 		$user = Sentry::register($userdata);
-		Auth::login($user);
-	
-		// Assign to groups ?
-		$iCode = Input::get('invitation');
-		$sentryGroup = SentryGroup::where('invite_code', '=', $iCode)->first();
-		if(!is_null($sentryGroup)) {
-			$user->addGroup($sentryGroup);
-			Session::flash('flashSuccess', 'You have joined group: <b>'.$sentryGroup['name'].'</b>');
-		}
-	
-		return Redirect::to('/');
+		return [
+			'status'   => 'ok',
+			'messages' => [],
+			'user'     => $user
+		];
 	}
 
 	/**
@@ -171,7 +190,7 @@ class UserController extends BaseController {
 			// List of groups $user belongs to
 			$usergroups = ProjectHandler::getUserProjects($user);
 			$usergroupnames = array_column($usergroups, 'name');
-			
+
 			// List of groups logged in user can invite $user to join
 			// and that $user is not already a member of.
 			$inviteGroups = array_diff($groupsManaged, $usergroupnames);
@@ -182,7 +201,7 @@ class UserController extends BaseController {
 				$canAssign = PermissionHandler::checkProject($thisUser, $group['name'], Permissions::PROJECT_ADMIN);
 				// Can logged user view info for this group ?
 				$canView   = PermissionHandler::checkProject($thisUser, $group['name'], Permissions::PROJECT_READ);
-				
+
 				// User cannot change his own permissions
 				if($user['_id']==$thisUser['_id']) {
 					$canAssign = false;
@@ -192,7 +211,7 @@ class UserController extends BaseController {
 				$group['assignrole'] = $canAssign;
 				array_push($belongGroups, $group);
 			}
-			
+
 			$userGroupInfo[$user['_id']] = [
 				'groups' => $belongGroups,
 				'tojoin' => $inviteGroups

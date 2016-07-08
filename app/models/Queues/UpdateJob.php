@@ -59,6 +59,8 @@ class UpdateJob {
 			}
 		}
 		
+		\Log::debug("Expanding annotation vectors");
+
 		// expand annotationVector with annotations from other workers
         foreach($workerunits as $workerunit){
         	
@@ -148,7 +150,7 @@ class UpdateJob {
 
 				set_time_limit(3600); // One hour.
 				
-				$command = Config::get('config.python_path') . " " . Config::get('config.metrics_path') . " '{$j->_id }' '$templateid'";
+				$command = Config::get('config.python_path') . " " . Config::get('config.metrics_path') . " {$j->_id } $templateid";
 				//$command = "C:\Users\IBM_ADMIN\AppData\Local\Enthought\Canopy\User\python.exe $apppath/lib/generateMetrics.py {$j->_id } $templateid";
 				\Log::debug("Command: $command");
 				exec($command, $output, $return_var);
@@ -182,13 +184,13 @@ class UpdateJob {
 					
 				// update workerunits
 				foreach ($workerunits as $workerunit) {
-					set_time_limit(60);
+					//set_time_limit(60);
 					\Queue::push('Queues\UpdateWorkerunits', array('workerunit' => serialize($workerunit)));
 				}
 
 				// update worker cache
 				foreach ($response['metrics']['workers']['withoutFilter'] as $workerId => $workerData) {
-					set_time_limit(60);
+					//set_time_limit(60);
 					$agent = CrowdAgent::where("_id", $workerId)->first();
 					\Queue::push('Queues\UpdateCrowdAgent', array('crowdagent' => serialize($agent)));
 				}
