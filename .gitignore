@@ -23,3 +23,8 @@ crowd-watson.sublime-workspace
 Installation.md
 public/js/
 public/images/team/
+/node_modules
+/public/storage
+Homestead.yaml
+Homestead.json
+.env
