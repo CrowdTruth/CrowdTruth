@@ -21,7 +21,7 @@ class UpdateWorkerunits {
 
 	public function fire($job, $data){
 		// Metrics
-		set_time_limit(600);
+		//set_time_limit(600);
 		$workerunit = unserialize($data['workerunit']);
 		
 		$spammer = Job::where('_id', $workerunit->job_id)->whereIn('metrics.spammers.list', [$workerunit->crowdAgent_id])->exists();

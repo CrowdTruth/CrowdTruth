@@ -113,11 +113,22 @@ class TextController extends BaseController {
 		$reader = Reader::createFromString($documentContent);
 		$reader->setDelimiter($separator);
 		$reader->setEnclosure($delimiter);
+
+		// remove empty lines
+		$reader->addFilter(function($row) {
+			if(count($row) == 1 && $row[0] == NULL) {
+				return false;
+			}
+			return true;
+		});
+	
+		// start at the second row if the file contains headers
 		if($ignoreHeader) {
 			$reader->setLimit($nLines);
+
 		} else {
 			$reader->setOffset(1);
-			$reader->setLimit($nLines + 1);
+			$reader->setLimit($nLines);
 		}
 
 		$dataTable = $reader->fetchAll();
@@ -150,7 +161,7 @@ class TextController extends BaseController {
 		$delimiter = Input::get('delimiter');
 		$separator = Input::get('separator');
 		$ignoreHeader = !Input::get('useHeaders');
-		
+
 		if($delimiter=='') {
 			$delimiter = '"';
 		}
@@ -206,12 +217,13 @@ class TextController extends BaseController {
 	 * Execute postAction='tableView' command
 	 */
 	private function doPreviewTable($document, $delimiter, $separator, $ignoreHeader) {
-		// Number the file columns
 		$columns  = [];
+
+		// if the header should be ignored we get one row more data.
 		if($ignoreHeader) {
-			$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $ignoreHeader, $this->nLines);
+			$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, true, $this->nLines);
 			for($i=0; $i<count($dataTable[0]); $i = $i + 1) {
-				$columns[$i] = 'Col '.($i+1);
+				$columns[$i] = 'Col'.($i+1);
 			}
 		} else {
 			$rawData = $this->getDocumentData($document['content'], $delimiter, $separator, true, $this->nLines + 1);
@@ -231,6 +243,8 @@ class TextController extends BaseController {
 	 */
 	private function doPreview($rootProcessor, $document, $delimiter, $separator, $ignoreHeader) {
 		// Use only first Nlines of file for information
+				
+		// get the data
 		$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $ignoreHeader, $this->nLines);
 	
 		$entities = [];
@@ -245,9 +259,9 @@ class TextController extends BaseController {
 	 * Execute postAction='process' command
 	 */
 	private function doPreprocess($rootProcessor, $document, $type, $delimiter, $separator, $ignoreHeader) {
-		$nLines = -1;	// Process all lines
-		$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $ignoreHeader, $nLines);
-		
+		// get the data
+		$dataTable = $this->getDocumentData($document['content'], $delimiter, $separator, $ignoreHeader, -1);
+
 		$entities = [];
 		foreach ($dataTable as $line) {
 			$lineEntity = $rootProcessor->call($line);

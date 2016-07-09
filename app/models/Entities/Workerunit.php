@@ -391,11 +391,15 @@ class Workerunit extends Entity {
     public function createAnnotationVectorPassageJustification() {
         $debug = false;		
 		
-		$judgment = $this->content;
+		$data = $this->content;
 		
-		$question = $data[$i][array_search('Answer.Question',$data[0])];
-		$answer = $data[$i][array_search('Answer.Answer',$data[0])];
-		$justification = $data[$i][array_search('Answer.Justifying',$data[0])];
+        $vector = [];
+        $vector['question'][$data['question']] = 1;
+
+        /*
+        $question = $data['question'];
+		$answer = $data['answer'];
+		$justification = $data['justifying'];
 
 		$join = $question.':'.$answer;
 						
@@ -426,7 +430,7 @@ class Workerunit extends Entity {
 			foreach($justify as $j) {
 				$vector['justification']['p'.$j] = 1;
 			}
-		}
+		}*/
 			
 		return $vector;
 	}
