@@ -9,13 +9,19 @@ use \SoftwareComponents\DIVEUnitsImporter as DIVEUnitsImporter;
 
 use \Exception;
 
+/**
+ * This class implements the 'annotation' calls from the Enrichment API. For more
+ * details on the Enrichment API see:
+ * https://github.com/beeldengeluid/labs-enrichment-api/
+ */
 class apiAnnotations extends BaseController
 {
-    // public function getStatus()
-    public function anyStatus()
+    // This function implements the POST /annotation/status/ API call
+    public function postStatus()
     {
       $body = file_get_contents('php://input');
-      $tickets = json_decode( $body );
+      $body = json_decode( $body , true);
+      $tickets = $body['tickets'];
 
       $annotationStatus = [];
       foreach ($tickets as $ticket)
@@ -35,11 +41,12 @@ class apiAnnotations extends BaseController
       ];
     }
 
-    // public function getCollect()
-    public function anyCollect()
+    // This function implements the POST /annotation/collect/ API call
+    public function postCollect()
     {
       $body = file_get_contents('php://input');
-      $tickets = json_decode( $body );
+      $body = json_decode( $body , true);
+      $tickets = $body['tickets'];
 
       $annotations = [];
       foreach ($tickets as $ticket)
@@ -82,25 +89,19 @@ class apiAnnotations extends BaseController
       ];
     }
 
-    // public function getSend($capability)
+    // This function implements the POST /annotation/send/{capability} API call
     public function postSend($capability)
     {
-      $user_token = Input::get('token');
-      $project = Input::get('project');
       $template_id = $capability;
 
       $body = file_get_contents('php://input');
-
-      $settings = [];
-      $settings['token'] = $user_token;
-      $settings['project'] = $project;
-      $settings['template_id'] = $template_id;
+      $body = json_decode( $body , true);
 
       // process request
       $importer = new DIVEUnitsImporter();
-      $status = $importer->process($body, $settings);
+      $status = $importer->process($body['data'], $template_id);
 
-      if (count($status["error"] == 0)) {
+      if (count($status["error"]) == 0) {
         return [
           'status'  => 'success',
           'message' => $status['success'][0],
@@ -114,25 +115,6 @@ class apiAnnotations extends BaseController
           'annotationStatus' => $status['annotationStatus']
         ];
       }
-/*
-      $annotationStatus = [];
-      foreach ($data as $datapoint)
-      {
-        // $datapoint=>data -- this is the data we need to annotate
-        $datapointStatus = [
-          'id'     => $datapoint->id,  // This is the original ID of the data sent
-          'status' => 'accepted',
-          'ticket' => 'CT_generated_ID_'.$datapoint->id
-        ];
-        array_push($annotationStatus, $datapointStatus);
-      }
-
-      return [
-        'status'  => 'success',
-        'message' => 'We are applying '.$capability.' to your data',
-        'annotationStatus' => $annotationStatus
-      ];
-*/
     }
 
     public function postImportresults()
@@ -179,8 +161,5 @@ class apiAnnotations extends BaseController
 
 		return $status;
     }
-
-
 }
-
 ?>
