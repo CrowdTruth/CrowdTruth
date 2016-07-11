@@ -94,6 +94,7 @@ class Job extends Entity {
     */
     public function publish($sandbox = false){
     	try {
+
 	    	$response = $this->getPlatform()->publishJob($this, $sandbox);
 	    	
             if(!is_array($response['id']))

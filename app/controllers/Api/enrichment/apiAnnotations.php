@@ -96,15 +96,15 @@ class apiAnnotations extends BaseController
 
       $body = file_get_contents('php://input');
       $body = json_decode( $body , true);
-
+      
       // process request
       $importer = new DIVEUnitsImporter();
-      $status = $importer->process($body['data'], $template_id);
+      $status = $importer->process($body, $template_id);
 
       if (count($status["error"]) == 0) {
         return [
           'status'  => 'success',
-          'message' => $status['success'][0],
+          'message' => implode(", ", $status['success']),
           'annotationStatus' => $status['annotationStatus']
         ];
       }

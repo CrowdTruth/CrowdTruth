@@ -11,10 +11,14 @@ use \Security\Roles as Roles;
 use \Entities\Unit as Unit;
 
 use \Auth as Auth;
+use \App;
 
 use SoftwareAgent, Activity, Entity, UserAgent;
 use UserController as UserController;
 use \Template as Template;
+use \Entities\Batch as Batch;
+use \Entities\Job as Job;
+use \Entities\JobConfiguration as JobConfiguration;
 
 class DIVEUnitsImporter {
 	protected $softwareComponent;
@@ -119,6 +123,8 @@ class DIVEUnitsImporter {
 
 		// Validate that data has fields required by template
 		$templateParamNames = array_column($templateEntity['parameters']['input'], 'name');
+		$associationsTemplBatch = array();
+		//dd($templateParamNames);
 		foreach ($data as $unitContent) {
 			$unitKeys = array_column($unitContent['content'], 'key');
 			// check that data unit has all required keys
@@ -127,8 +133,13 @@ class DIVEUnitsImporter {
 					array_push($this->status['error'], "Data unit should have key: ".$paramName);
 					return $this->status;
 				}
+				else {
+					array_push($associationsTemplBatch, $paramName . " - " . $paramName);
+				}
 			}
 		}
+
+		$units = array();
 
 		foreach ($data as $unitContent) {
 			// Create activity
@@ -156,8 +167,10 @@ class DIVEUnitsImporter {
 				if ($searchForUnit != NULL) {
 					$mapping[$unitContent["id"]]["id"] = $searchForUnit["content"]["id"];
 					$mapping[$unitContent["id"]]["status"] = "exists";
-					$mapping[$unitContent["id"]]["ticket"] = $searchForUnit["_id"] . "_" . $searchForUnit["content"]["id"];
+					$mapping[$unitContent["id"]]["ticket"] = $searchForUnit["_id"] . " - " . $searchForUnit["content"]["id"];
 					$mapping[$unitContent["id"]]["CT_generated_ID"] = $searchForUnit["_id"];
+
+					array_push($units, $searchForUnit["_id"]);
 
 					array_push($this->status['annotationStatus'], $mapping[$unitContent["id"]]);
 				}
@@ -176,7 +189,9 @@ class DIVEUnitsImporter {
 
 					$mapping[$unitContent["id"]]["CT_generated_ID"]= $unit->_id;
 					$mapping[$unitContent["id"]]["status"] = "accepted";
-					$mapping[$unitContent["id"]]["ticket"] = $unit->_id . "_" . $unitContent["id"];;
+					$mapping[$unitContent["id"]]["ticket"] = $unit->_id . "_" . $unitContent["id"];
+
+					array_push($units, $unit->_id);
 
 					array_push($this->status['annotationStatus'], $mapping[$unitContent["id"]]);
 				}
@@ -189,10 +204,170 @@ class DIVEUnitsImporter {
 				$mapping[$unitContent["id"]]["CT_generated_ID"] = "";
 				array_push($this->status['annotationStatus'], $mapping[$unitContent["id"]]);
 				array_push($this->status["error"], "An error occurred when saving the units!");
+				return $this->status;
 			}
 		}
 
 		array_push($this->status["success"], "Units successfully saved!");
+		$batch_id = "";
+		$job_id = "";
+
+		if (count($this->status["error"] == 0)) {
+			// create batch
+			$settings = array();
+			$settings['units'] = $units;
+			$settings['batch_title'] = "Batch for project " . $project;
+			$settings['batch_description'] = "Batch added via CLARIAH dashboard";
+			$settings['project'] = $project;
+
+			$hashing = array();
+			$hashing["project"] = $project;
+			$hashing["content"] = $settings['units'];
+
+			$searchForBatch = \Entity::where("hash", md5(serialize($hashing)))->first();
+
+			if ($searchForBatch == NULL) {
+				$batch = Batch::store($settings, null);
+
+				if ($batch == false) {
+					array_push($this->status["error"], "An error occurred when saving the batch!");
+					return $this->status;
+				}
+
+				$batch_id = $batch["_id"];
+			}
+			else {
+				$batch_id = $searchForBatch["_id"];
+			}
+
+			array_push($this->status["success"], "Batch successfully saved!");
+
+			// create the job configuration entity
+			$settings = array();
+			$settings["project"] = $project;
+			$settings["documentType"] = "document_for_" . $templateEntity["type"];
+			$settings["templateType"] = $templateEntity["type"];
+			$settings["templateDescription"] = $templateEntity["description"];
+			$settings["platform"] = $templateEntity["platform"];
+			$settings["associationsTemplBatch"] = $associationsTemplBatch;
+			$settings["instructions"] = $templateEntity["instructions"];
+			$settings["title"] = "Temporary title - job from dashboard";
+			$jobconfig = $this->createJobconf(null, $settings);
+
+			if ($jobconfig) {
+				// Create job
+				$job = $this->createJob($jobconfig->_id, $activity->_id, $batch_id, $settings);
+			}
+			else {
+				array_push($this->status["error"], "An error occurred when creating the job!");
+
+				// Create job
+				$settings = array();
+				$settings["templateType"] = $templateEntity["type"];
+				$settings["platform"] = "CF";
+
+				$job = $this->createJob($jobconfig["_id"], $jobconfig["activity_id"], $batch_id, $settings);
+				$job_id = $job["_id"];
+			}
+
+		}
+
+		foreach ($this->status["annotationStatus"] as $index => $addedUnit) {
+			$this->status["annotationStatus"][$index]["ticket"] = $job["_id"] . " - " . $this->status["annotationStatus"][$index]["ticket"];
+		}
+
 		return $this->status;
 	}
+
+	public function createJobconf($activity, $settings)
+	{
+		$content = array();
+
+		$content["type"] = $settings["templateType"];
+		$content["platform"] = $settings["platform"];
+		$content["expirationInMinutes"] = 0;
+		$content["reward"] = 0.00;
+		$content["workerunitsPerUnit"] = 15;
+		$content["workerunitsPerWorker"] = 10;
+		$content["unitsPerTask"] = 1;
+		$content["title"] = $settings["title"];
+		$content["description"] = $settings["templateDescription"];
+		$content["keywords"] = "created via dashboard";
+		$content["instructions"] = $settings["instructions"];
+
+		$hash = md5(serialize([$content]));
+		
+		$entity = JobConfiguration::withTrashed()->where('hash', $hash)->first();
+		// check if file already exists
+		if($entity) {
+			// do not delete this on rollback
+			$entity->_existing = true;
+			//array_push($this->status['success'], "Existing job configuration found (" . $entity->_id . ")");
+		} else {
+			$entity = new Entity;
+			$entity->type = "jobconf";
+			$entity->project = $settings['project'];
+			$entity->tags = array($settings['documentType']);
+			$entity->documentType = $settings['documentType'];
+			$entity->content = $content;
+			$entity->hash = $hash;
+			$entity->activity_id = $activity;  
+			$entity->save();
+		
+			array_push($this->status['success'], "Job configuration created (" . $entity->_id . ")");
+		}
+		
+		return $entity;
+	}
+
+
+		
+	/**
+	 *	Create job entity
+	 * 	Note: the job does not get a platformJobId because this is unknown
+	 */
+	public function createJob($config, $activity, $batch, $settings)
+	{
+		
+		$entity = new Job;
+		$entity->_id = $entity->_id;
+		$entity->batch_id = $batch;
+		$entity->project = $settings['project'];
+		$entity->documentType = $settings['documentType'];
+		$entity->templateType = $settings['templateType'];
+		$entity->type = "job";
+		$entity->completion = 0;
+		$entity->expectedWorkerUnitsCount = 0;
+		$entity->finishedAt = new MongoDate;
+		$entity->jobConf_id = $config;
+		$entity->projectedCost = 0.00;
+		$entity->realCost = 0.00;
+		$entity->runningTimeInSeconds = 0;
+		$entity->softwareAgent_id = $settings["platform"];
+		$entity->startedAt = new MongoDate;
+		//$entity->status = "unordered";
+		$entity->activity_id = $activity;
+		$extraInfoBatch = array();
+		$extraInfoBatch["batchColumnsNewTemplate"] = array();
+		$extraInfoBatch["batchColumnsExtraChosenTemplate"] = array();
+		$extraInfoBatch["associationsTemplBatch"] = $settings["associationsTemplBatch"];
+		$extraInfoBatch["ownTemplate"] = false;
+		$entity->extraInfoBatch = $extraInfoBatch;
+		$entity->save();
+
+		//false if we want to run it on the internal interface
+
+		$entity->publish(true);
+
+		$successmessage = "Created job with jobConf :-)";
+
+		$platformApp = App::make($settings["platform"]); //TODOJORAN
+
+		$platformApp->refreshJob($entity->_id);
+		
+		array_push($this->status['success'], "Job created (" . $entity->_id . ")");
+		
+		return $entity;
+	}
+	
 }
