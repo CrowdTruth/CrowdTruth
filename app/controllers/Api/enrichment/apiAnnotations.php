@@ -21,17 +21,32 @@ class apiAnnotations extends BaseController
     {
       $body = file_get_contents('php://input');
       $body = json_decode( $body , true);
-      $tickets = $body['tickets'];
+
+    //  $tickets = $body['tickets'];
+      $tickets = $body;
+     // dd($tickets);
 
       $annotationStatus = [];
       foreach ($tickets as $ticket)
       {
-        $ticketStatus = [
-          'ticket' => $ticket,
-          // HERE WE NEED SOME CODE TO CHECK THE STATUS OF A TICKET
-          'status' => 'pending'
-        ];
-        array_push($annotationStatus, $ticketStatus);
+        $ticketIds = explode(" - ", $ticket["ticket"]);
+        $jobContent = \Entity::where("_id", $ticketIds[0])->first();
+
+        if ($jobContent == NULL) {
+          return [
+            'status'  =>  'error',
+            'message' =>  'Ticket ID ' . $ticket["ticket"] . ' does not exist!',
+            'annotationStatus'=> $annotationStatus
+          ];
+        }
+        else {
+          $ticketStatus = [
+            'ticket' => $ticket["ticket"],
+            // HERE WE NEED SOME CODE TO CHECK THE STATUS OF A TICKET
+            'status' => $jobContent["status"]
+          ];
+          array_push($annotationStatus, $ticketStatus);
+        }
       }
 
       return [
