@@ -1,0 +1,26 @@
+#checklist
+{
+    border: 1px solid darkgrey;
+    border-radius: 14px;
+    height: 270px;
+    padding: 10px 5px;
+}
+
+#checklist_ul
+{
+    line-height: 30px;
+    font-family: Verdana, helvetica, arial, sans-serif;
+    font-size: larger;
+    list-style: none;
+}
+
+#videocontiner
+{
+    text-align: center;
+}
+
+#container_jwplayer
+{
+    margin: 0 auto;
+}
+
