@@ -18,6 +18,8 @@ Route::group(array('before' => 'auth'), function()
 
 	Route::controller('project-viz', 'ProjectVizController');
 	Route::controller('shankey', 'ShankeyController');
+
+	Route::controller('processvideo','ProcessVideoController');
 });
 
 Route::get('/', function()

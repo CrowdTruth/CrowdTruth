@@ -29,7 +29,7 @@ class TextController extends BaseController {
 	public function __construct(Repository $repository, TextSentencePreprocessor $processor) {
 		$this->repository = $repository;
 		$this->processor = $processor;
-		$this->nLines = 5;
+		$this->nLines = 2;
 		
 		//$this->beforeFilter('permission:'.Permissions::PROJECT_WRITE, [ 'only' => 'postConfigure']);
 	}

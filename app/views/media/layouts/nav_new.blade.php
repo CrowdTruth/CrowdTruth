@@ -2,7 +2,7 @@
 <!-- 						<ul class="nav nav-tabs">
 							<li{{ (Request::segment(2) == 'upload' ? ' class="active"' : '') }}>{{ link_to('media/upload', "Upload Media") }}</li>
 							<li{{ (Request::segment(2) == 'search' ? ' class="active"' : '') }}>{{ link_to('media/search', "Search Media") }}</li>
-							<li{{ (Request::segment(2) == 'preprocess' ? ' class="active"' : '') }}>{{ link_to('media/preprocess', "Pre-Process Media") }}</li>
+							<li{{ (Request::segment(2) == 'preprocess' ? ' class="active"' : '') }}>{{ link_to('media/preprocess', "Pre-Process Mediaa") }}</li>
 						</ul> -->
 						<div class='modalFacade'>
 							<h3 class='pageHeader'> @yield('pageHeader', 'Media') </h3>

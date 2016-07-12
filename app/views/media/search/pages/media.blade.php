@@ -139,10 +139,11 @@
 						Actions <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu" role="menu">
-							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Media</a></li>
+							<li><a href="{{ URL::to('media/preprocess') }}">Pre-process Mediaa</a></li>
 							<li><a href="{{ URL::to('media/importresults') }}">Import Results</a></li>
 							<li><a href="#" class='toSelection'>Save Selection as Batch</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
+							<li><a href="#" class="processVideo">Process video</a></li>
 						</ul>
 					</div>
 					<select name="search_limit" data-query-key="limit" class="limit selectpicker pull-right show-tick">
@@ -584,6 +585,27 @@ $('body').on('click', '.toSelection', function(){
 		form.submit();
 	}
 });
+
+	$('body').on('click', '.processVideo', function(){
+		if(typeof selectedRows == 'undefined' || selectedRows.length != 1){
+			// event.preventDefault();
+			alert('Please select one video file');
+		} else {
+		//	var searchQuery = JSON.stringify(lastQueryResult.searchQuery);
+
+			// alert(searchQuery);
+
+			var form = $('<form action="{{ URL::action("ProcessVideoController@postProcess") }}" method="post"></form>');
+			$('body').append(form);
+
+			$.each(selectedRows, function(index, value){
+				form.append($('<input type="hidden" name="videofile" value="' + value + '">'))
+			});
+
+			//form.append($("<input type='checkbox' name='searchQuery[]' value='" + searchQuery + "' checked >"));
+			form.submit();
+		}
+	});
 
 // toggle relex specific options on click
 $('body').on('click', '.specificFilterOptions button', function(){

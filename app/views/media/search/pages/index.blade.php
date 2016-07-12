@@ -79,6 +79,7 @@
 							@endif
 						</ul>
 					</div>
+
 					<select name="search_limit" data-query-key="limit" class="selectpicker pull-right show-tick">
 						<option value="10">10 Records per page</option>
 						<option value="25">25 Records per page</option>
