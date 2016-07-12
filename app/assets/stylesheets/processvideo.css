@@ -4,6 +4,7 @@
     border-radius: 14px;
     height: 270px;
     padding: 10px 5px;
+    min-width: 270px;
 }
 
 #checklist_ul
