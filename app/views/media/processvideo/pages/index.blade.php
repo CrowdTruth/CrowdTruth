@@ -30,10 +30,13 @@
                 </div>
 
             </div>
-            <div id="videocontiner" class="col-cs-8"><div id="container_jwplayer"></div></div>
+            <div id="videocontiner" class="col-xs-8"><div id="container_jwplayer"></div></div>
 
-
-
+            <div class="col-xs-12">
+                @foreach($data['keyframes'] as $keyframe)
+                    <img src="{{URL::action('ProcessVideoController@getImage').'?unit='.$keyframe['_id'].'&number=0&width=200'; }}" />
+                @endforeach
+            </div>
         </div>
 
         @if(!isset($data['downloaded']))
@@ -70,9 +73,10 @@
 
         function flashMessage(type, message)
         {
+
             $(".flashmessage_text").text(message);
             if (type == "success") {
-                $("#flashing_success").fadeIn('fast').delay(3000).fadeOut('fast');
+                $("#flashing_success").fadeIn('fast');
             } else if (type == "error")
             {
                 $("#flashing_error").fadeIn('fast');

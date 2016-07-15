@@ -28,9 +28,10 @@ class ProcessVideoController extends BaseController {
         $videofileid = $videodata['_id'];
         if (count($videodata) > 0) { $output['downloaded'] = $videodata;}
 
-        $kfdata = $videodata = Entity::where('type','keyframe')->whereIn('parents',[$videofile,$videofileid])->get()->toArray();
+        $kfdata = $videodata = Entity::where('type','keyframe')->whereIn('parents',[$videofile,$videofileid])->get()->sortBy('scenestart')->toArray();
         if (count($kfdata) > 0) {$output['keyframes'] = $kfdata; }
-        
+
+        //print_r($output);
         return View::make('media.processvideo.pages.index')->with('data',$output);
     }
     
@@ -93,15 +94,23 @@ class ProcessVideoController extends BaseController {
         $res = @mkdir($outdir,0777,true);
         if (!$res) $this->echoError("Could not create output directory.");
 
-        $buildcmd = "$ffmpegbinary -i $videofile -vf select=\"gt(scene\,0.".$scenetreshold.")\" -vsync 2 ".$outdir."frame%07d.png -loglevel debug 2>&1 | grep \"select:1\" | cut -d \" \" -f 6 - >".$outdir."frametimes.out";
+        //$buildcmd = "$ffmpegbinary -i $videofile -vf select=\"gt(scene\,0.".$scenetreshold.")\" -vsync 2 ".$outdir."frame%07d.png -loglevel debug 2>&1 | grep \"select:1\" | cut -d \" \" -f 6 - >".$outdir."frametimes.out";
+        $buildcmd = "$ffmpegbinary -i $videofile -vf select=\"gt(scene\,0.".$scenetreshold.")\" -vsync 2 ".$outdir."frame%07d.png -loglevel debug 2>&1| grep \"select:1\" > ".$outdir."frametimes.out";
         $out = shell_exec($buildcmd);
 
         $fhtimes = fopen($outdir."frametimes.out","r");
-        $count = 0;
+        $count = 1;
         while (($curft = fgets($fhtimes)) !== false)
         {
+            if (strstr($curft,"\r")) //ffmpeg can drop a stat line in the log
+            {
+                $tempexplode = explode("\r",$curft);
+                $curft = $tempexplode[1];
+            }
+            $timeone = explode(" ",$curft);
+            $curft = $timeone[5];
             $curframename = sprintf("frame%07d.png",$count);
-            $curframefileloc = $outdir . $curframename;
+            $curframefileloc = 'videostorage/keyframes/'.$getunit.'/' . $curframename;
             $curtime = explode(":",$curft);
             $curtime = array_pop($curtime);
 
@@ -109,9 +118,13 @@ class ProcessVideoController extends BaseController {
             $newkfunit->parents = [$getunit,$videofileunit];
             $newkfunit->frames = [$curframefileloc];
             $newkfunit->project = $unit['project'];
-            $newkfunit->scenestart = ''.$curtime.'';
+            $newkfunit->scenestart = (float)$curtime;
+            $newkfunit->scenestartraw = $curtime;
             $newkfunit->type = "keyframe";
             $newkfunit->save();
+            $count++;
+
+
         }
 
         $this->echoSuccess("Keyframes successfully extracted and added to database.");
@@ -133,6 +146,41 @@ class ProcessVideoController extends BaseController {
         $output['message'] =  $msg;
 
         echo json_encode($output);
+    }
+
+    public function getImage()
+    {
+        $getunit = Input::get("unit");
+        $filenumber = Input::get("number");
+
+        $videounit = Entity::where('_id',$getunit)->first()->toArray();
+        $frameloc = $videounit['frames'][$filenumber];
+        $inputfile = storage_path($frameloc);
+
+        if (Input::has("width"))
+        {
+            list($originalwidth,$originalheight) = getimagesize($inputfile);
+
+            $targetwidth = Input::get("width");
+            $targetheight = $originalheight * ($targetwidth / $originalwidth);
+
+            $inputimage = imagecreatefrompng($inputfile);
+
+            $outputimage = imagecreatetruecolor($targetwidth,$targetheight);
+
+            imagecopyresized($outputimage,$inputimage,0,0,0,0,$targetwidth,$targetheight,$originalwidth,$originalheight);
+
+            header('Content-Type: image/png');
+            imagepng($outputimage);
+
+        } else {
+            header('Content-Type: image/png');
+            imagepng(imagecreatefrompng($inputfile));
+
+        }
+
+
+
     }
 
 }
