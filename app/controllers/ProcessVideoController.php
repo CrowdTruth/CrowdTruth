@@ -12,6 +12,11 @@ class ProcessVideoController extends BaseController {
         return Redirect::to('media/search');
     }
 
+    public function getProcess()
+    {
+        return Redirect::to('media/search');
+    }
+
     public function postProcess()
     {
         if (!Input::has('videofile'))
@@ -20,18 +25,26 @@ class ProcessVideoController extends BaseController {
         }
         $output = Array();
         $videofile = Input::get('videofile');
-        $data = Entity::where('_id',$videofile)->first()->toArray();
-        $output['videofile'] = $data;
+        $data = Entity::where('_id',$videofile)->get()->first()->toArray();
 
-        $videodata = Entity::where('type','downloadedvideo')->whereIn('parents',[$videofile])->first()->toArray();
+        $output = $data;
+        /*
+       // $videodata = Entity::where('type','downloadedvideo')->whereIn('parents',[$videofile])->first();
 
-        $videofileid = $videodata['_id'];
-        if (count($videodata) > 0) { $output['downloaded'] = $videodata;}
+        //if (count($videodata) > 0) {
+          //  $output['downloaded'] = $videodata->toArray();
+            $kfdata = Entity::where('type','keyframe')->whereIn('parents',[$videofile,$videofileid])->get()->sortBy('scenestart')->toArray();
+            if (count($kfdata) > 0) {
+                $output['keyframes'] = $kfdata;
+                $subdata = Entity::where('type','substitle')->whereIn('parents',[$videofile])->get()->sortBy('starttime')->toArray();
+                if (count($subdata) > 0)
+                {
+                    $output['subtitles'] = $subdata;
 
-        $kfdata = $videodata = Entity::where('type','keyframe')->whereIn('parents',[$videofile,$videofileid])->get()->sortBy('scenestart')->toArray();
-        if (count($kfdata) > 0) {$output['keyframes'] = $kfdata; }
+        } } //}
 
-        //print_r($output);
+*/
+        print_r($output);
         return View::make('media.processvideo.pages.index')->with('data',$output);
     }
     
@@ -41,8 +54,10 @@ class ProcessVideoController extends BaseController {
         ini_set('memory_limit','256M');
         $getunit = Input::get('videounit');
 
-        $videounit = Entity::where('_id',$getunit)->first()->toArray();
-        $videourl = $videounit['content']['url'];
+        $videounit = Unit::where('_id',$getunit)->first();
+
+        $videocontent = $videounit->content;
+        $videourl = $videocontent['url'];
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
@@ -68,15 +83,77 @@ class ProcessVideoController extends BaseController {
         curl_close($curl);
         if (!$fwh) $this->echoError("The file could not be saved to local storage.");
 
-        $newfile = new Unit();
+        $videocontent['downloadedvideo'] = $storagedir;
+
+        $videounit->content = $videocontent;
+        $videounit->save();
+        /*$newfile = new Unit();
         $newfile->parents = [$getunit];
         $newfile->type = "downloadedvideo";
         $newfile->downloadlocation = $storagedir;
         $newfile->project = $videounit['project'];
-        $newfile->save();
+        $newfile->save();*/
+
+        //$videounit->save();
 
 
         $this->echoSuccess("Successfully downloaded the file to local storage.");
+    }
+
+    public function postUploadSubs()
+    {
+        $file = Input::file('subsfile');
+
+
+        $getunit = Input::get('videounit');
+
+        $videounit = Entity::where('_id',$getunit)->first()->toArray();
+
+        $targetpath = 'subtitles/'.$getunit.'/';
+        $uploadpath = storage_path('subtitles/'.$getunit.'/');
+        Input::file('subsfile')->move($uploadpath,$file->getClientOriginalName());
+
+        $entity = new Entity();
+        $entity->parents = [$getunit];
+        $entity->type = "substitlefile";
+        $entity->filelocation = $targetpath . $file->getClientOriginalName();
+        $entity->project = $videounit['project'];
+        $entity->save();
+        
+        //parse!
+        $subsxml = simplexml_load_file(storage_path($targetpath . $file->getClientOriginalName()));
+        $base = $subsxml->body->div->p; //this is where the subs start
+
+        foreach ($base as $subdata)
+        {
+
+            $subdata = (Array)$subdata;
+            $time = explode(":",$subdata['@attributes']['begin']); //hours:minutes:seconds.millis
+            $seconds = (float)((($time[0] * 3600) + ($time[1] * 60) + explode(".",$time[2])[0]) . "." . (explode(".",$time[2])[1]));
+            $findframe = Entity::whereIn('parents',[$getunit])->where('type','keyframe')->where('scenestart','<',$seconds)->get()->sortBy('scenestart')->last();
+
+            print_r($findframe);
+            exit;
+            $newsubent = new Entity();
+            $newsubent->type = "substitle";
+            $newsubent->starttime = $seconds;
+            $newsubent->humantime = $subdata['@attributes']['begin'];
+            $newsubent->parents = [$getunit,$findframe['_id']];
+            $newsubent->project = $videounit['project'];
+            if (!is_array($subdata['span'])) {
+                $newsubent->content = [$subdata['span']];
+            } else {
+                $newsubent->content = $subdata['span'];
+            }
+            $newsubent->save();
+
+        }
+
+        $this->echoSuccess("Successfully uploaded and processed subtitles");
+        
+
+
+        
     }
 
     public function getProcessKeyframes()
@@ -114,11 +191,17 @@ class ProcessVideoController extends BaseController {
             $curtime = explode(":",$curft);
             $curtime = array_pop($curtime);
 
+            $timesecs = explode(".",$curtime)[0];
+            $timemillis = explode(".",$curtime)[1];
+            $timemillis = substr($timemillis,0,3);
+            $humantime = sprintf("%02d:%02d:%02d.%d",floor($timesecs / 3600) , floor($timesecs / 60) , ($timesecs % 60) , $timemillis);
+
             $newkfunit = new Unit();
             $newkfunit->parents = [$getunit,$videofileunit];
             $newkfunit->frames = [$curframefileloc];
             $newkfunit->project = $unit['project'];
             $newkfunit->scenestart = (float)$curtime;
+            $newkfunit->humantime = $humantime;
             $newkfunit->scenestartraw = $curtime;
             $newkfunit->type = "keyframe";
             $newkfunit->save();

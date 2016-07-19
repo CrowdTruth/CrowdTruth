@@ -25,3 +25,40 @@
     margin: 0 auto;
 }
 
+#kfcontainer
+{
+
+}
+
+.singlekeyframe
+{
+    width: 210px;
+    float: left;
+    padding: 5px 0px;
+
+}
+
+.kftime > pre
+{
+    display: inline;
+    padding: 0;
+}
+
+.clearboth
+{
+    clear: both;
+}
+
+.singlekfleft
+{
+    width: 210px;
+    height: 100%;
+
+}
+.singlekfright
+{
+    display: none;
+    width: 400px;
+    height: 100%;
+
+}
