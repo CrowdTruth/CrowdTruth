@@ -27,7 +27,7 @@ class EnrichmentAPISeeder extends Seeder {
 		$user = $registration['user'];
 
 		$te = new Template;
-		$te['platform'] = 'cf2';
+		$te['platform'] = 'CF';
 		$te['cml'] = '<div class="html-element-wrapper"><br /><span>{{snippet}}</span></div><cml:radios label="Question" validates="required" gold="true"><cml:radio label="First option" value="first_option" /><cml:radio label="Second option" value="second_option" /></cml:radios>';
 		$te['css'] = '';
 		$te['instructions'] = '<p><strong>1. Summarize Goal: 1</strong></p><p><strong>2. Define Rules: 2</strong></p><p><strong>3. Provide Examples: 3</strong></p>';
