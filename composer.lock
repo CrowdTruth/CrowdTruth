@@ -4,9 +4,55 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "29cf1d20ed5bc8fc3e5d570fb0b4a820",
-    "content-hash": "824f094ed5541bbfe2c3db0ea42f3a3f",
+    "hash": "c93f10ee8e16396519d52b56fe8a052e",
+    "content-hash": "9efcc5ce642d47ac1c7ddf6066023465",
     "packages": [
+        {
+            "name": "anlutro/l4-settings",
+            "version": "0.4.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/anlutro/laravel-settings.git",
+                "reference": "3c389dcef5e1d2dd8830c1254a70b56f430d3ea0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/anlutro/laravel-settings/zipball/3c389dcef5e1d2dd8830c1254a70b56f430d3ea0",
+                "reference": "3c389dcef5e1d2dd8830c1254a70b56f430d3ea0",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": ">=4.1 <6.0",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "illuminate/database": ">=4.1 <6.0",
+                "illuminate/filesystem": ">=4.1 <6.0",
+                "mockery/mockery": "0.9.*"
+            },
+            "suggest": {
+                "illuminate/database": "Save settings to a database table.",
+                "illuminate/filesystem": "Save settings to a JSON file."
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "anlutro\\LaravelSettings\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andreas Lutro",
+                    "email": "anlutro@gmail.com"
+                }
+            ],
+            "description": "Persistent settings in Laravel.",
+            "time": "2016-02-28 18:37:50"
+        },
         {
             "name": "barryvdh/laravel-ide-helper",
             "version": "1.11.x-dev",

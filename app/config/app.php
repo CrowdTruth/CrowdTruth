@@ -115,6 +115,7 @@ return array(
 		'CrowdTruth\Mturk\MturkServiceProvider',
 		'CrowdTruth\DDGameapi\DDGameapiServiceProvider',
 		'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
+        'anlutro\LaravelSettings\ServiceProvider', //persistent settings plugin.
 /*		'PlatformProvider'*/
 	),
 
@@ -186,5 +187,6 @@ return array(
 		'Moloquent'       => 'Jenssegers\Mongodb\Model',
 		'Cart'            => 'Gloudemans\Shoppingcart\Facades\Cart',
 		'Sentry'          => 'Cartalyst\Sentry\Facades\Laravel\Sentry',
+        'Setting'         => 'anlutro\LaravelSettings\Facade',
 	),
 );

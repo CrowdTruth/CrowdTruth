@@ -15,7 +15,8 @@
 		"league/csv": "5.*",
 		"jenssegers/mongodb-sentry": "v1.0.1",
 		"phpdocumentor/reflection-docblock": "~2.0.3",
-		"barryvdh/laravel-ide-helper": "~1.11"
+		"barryvdh/laravel-ide-helper": "~1.11",
+		"anlutro/l4-settings": "^0.4.8"
 
 	},
 	"autoload": {

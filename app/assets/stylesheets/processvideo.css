@@ -34,8 +34,13 @@
 {
     width: 210px;
     float: left;
-    padding: 5px 0px;
-
+    padding: 5px 19px;
+    height: 142px;
+    border: 1px solid lightgrey;
+    border-radius: 2px;
+    margin: 2px;
+    position: relative;
+    overflow: hidden;
 }
 
 .kftime > pre
@@ -57,8 +62,52 @@
 }
 .singlekfright
 {
-    display: none;
+    display: inline;
     width: 400px;
     height: 100%;
+    position: absolute;
+    top: 0;
+    left: 210px;
+    max-height: 100%;
+
 
 }
+
+.clarifaibutton
+{
+    color: darkblue;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0px 2px;
+
+
+}
+
+.imaggabutton
+{
+    color: darkblue;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0px 2px;
+
+
+}
+
+.tagcontent
+{
+    float:left;
+    width: 300px;
+    height: 200px;
+    overflow: scroll;
+}
+
+.tagcontent > table{
+    width: 100%;
+
+}
+
+.tagcontent > table > tr > td
+{
+    text-align: left;
+}
+

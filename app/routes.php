@@ -72,6 +72,8 @@ Route::controller('api/analytics', '\Api\analytics\apiController');
 Route::controller('api/import', '\Api\import\apiController');
 Route::controller('api/shankey', '\Api\shankey\apiController');
 
+//Route::controller('getimage','ProcessVideoController@getImage');
+
 Route::get('login', 'UserController@login');
 Route::get('register', 'UserController@register');
 Route::post('register', 'UserController@postRegister');

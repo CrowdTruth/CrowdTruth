@@ -24,13 +24,13 @@
                         @else
                             <li class="checklistitem"><span id="cl_status_kf" class="glyphicon glyphicon-remove"></span> Processed keyframes <button class="button" id="processkeyframes">Keyframes</button></li>
                         @endif
-                        @if (isset($data['subtitles']) && false)
+                        @if (isset($data['subtitles']))
                             <li class="checklistitem"><span id="cl_status_subs" class="glyphicon glyphicon-ok"></span> Processed subtitles</li>
                         @else
                             <li class="checklistitem"><span id="cl_status_subs" class="glyphicon glyphicon-remove"></span> Processed subtiles
                                 <form name="subsform" id="subsform">
                                 <input type="file" name="subsfile" id="uploadsubs">
-                                    <input type="hidden" name="videounit" value="{{$data['videofile']['_id']}}">
+                                    <input type="hidden" name="videounit" value="{{$data['_id']}}">
                                 <input type="submit" value="Upload" id="uploadsubssubmit" />
                                 </form>
                             </li>
@@ -48,27 +48,57 @@
                 @if(isset($data['keyframes']))
 
                     <div id="kfcontainer" class="col-xs-12">
-                    @foreach($data['keyframes'] as $keyframe)
-                        <div class="singlekeyframe" unitid="{{str_replace("/","-",$keyframe['_id']);}}">
-                            <div class="singlekfleft">
-                            <img src="{{URL::action('ProcessVideoController@getImage').'?unit='.$keyframe['_id'].'&number=0&width=200&extension=.png'; }}" />
-                            <div class="kfinfo">
-                                <span class="kftime">Time in video: <pre>{{ $keyframe['humantime']; }}</pre></span>
-                            </div>
-                            </div>
-                            @if(isset($data['subtitles']))
-                            <div class="singlekfright">
-                                <div class="subcontainer" id="subcontainer-{{str_replace("/","-",$keyframe['_id'])}}">
+                        @foreach($data['keyframes'] as $keyframe)
 
+                            <div class="singlekeyframe" unitid="{{str_replace("/","-",$keyframe['_id']);}}">
+
+                                <div class="row">
+                                    <div class="singlekfleft">
+                                        <img src="{{URL::action('ProcessVideoController@getImage').'?unit='.$keyframe['_id'].'&number=0&width=200&extension=.png'; }}" />
+                                        <div class="kfinfo">
+                                            <span class="kftime">Time: <pre>{{ $keyframe['content']['humantime']; }}</pre></span>
+                                            <span class="clarifaibutton" kfid="{{$keyframe['_id']}}">C</span>
+                                            <span class="imaggabutton" kfid="{{$keyframe['_id']}}">I</span>
+                                        </div>
+                                    </div>
+                                    @if(isset($keyframe['content']['subtitles']))
+                                        <div class="singlekfright">
+                                            <div class="subcontainer" id="subcontainer-{{str_replace("/","-",$keyframe['_id'])}}">
+                                                @foreach($keyframe['content']['subtitles'] as $datasub)
+                                                    {{$datasub}}<BR/>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
 
-                            </div>
-                            @endif
-                        </div>
-                    @endforeach
-                    </div>
+                                @if(isset($keyframe['content']['tags']))
 
-            @endif
+                                    <div class="row">
+                                        @foreach($keyframe['content']['tags'] as $tagcontent)
+                                            <div class="tagcontent">
+                                                Source: {{$tagcontent['source']}}
+                                                <table>
+                                                    <tr>
+                                                        <td>Tag</td>
+                                                        <td>Prob</td>
+                                                    </tr>
+                                                    @foreach($tagcontent['tags'] as $currenttag)
+                                                        <tr>
+                                                            <td>{{$currenttag['tag']}}</td>
+                                                            <td>{{$currenttag['prob']}}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </table>
+
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -114,6 +144,7 @@
                 processData: false,
                 contentType: false,
                 type: 'POST',
+                dataType: "json"
             });
 
             });
@@ -122,6 +153,34 @@
         {
 
         }
+
+        $('.singlekeyframe').click(function(){
+            if ($(this).width() > 500)
+            {
+                $(this).animate({width: 210, height: 142}, 500);
+            } else {
+                $(this).animate({width: 610, height: 350}, 500);
+            }
+        });
+
+        $('.clarifaibutton').click(function() {
+            event.stopPropagation();
+            var curvid = $(this).attr('kfid');
+            var getdata = {keyframeid: curvid};
+            $.get( '{{ URL::action('ProcessVideoController@getClarifai') }}',getdata,function(data,status){
+                flashMessage(data.status,data.message);
+            },'json');
+        });
+
+
+        $('.imaggabutton').click(function() {
+            event.stopPropagation();
+            var curvid = $(this).attr('kfid');
+            var getdata = {keyframeid: curvid};
+            $.get( '{{ URL::action('ProcessVideoController@getImagga') }}',getdata,function(data,status){
+                flashMessage(data.status,data.message);
+            },'json');
+        });
 
 
         function flashMessage(type, message)
