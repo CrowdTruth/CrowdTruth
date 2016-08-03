@@ -224,7 +224,10 @@ class MediaController extends BaseController {
 			$source = explode("_", $sourceName);
 			$parameters = array();
 			$parameters["metadataPrefix"] = "oai_oi";
+			$parameters["set"] = "beeldengeluid";
+
 			$status_onlinedata = $mongoDBOnlineData->store($documentType, $parameters, $noOfVideos);
+			
 		} catch (Exception $e){
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}
