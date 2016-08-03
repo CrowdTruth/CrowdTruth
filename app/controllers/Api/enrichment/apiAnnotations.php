@@ -22,27 +22,24 @@ class apiAnnotations extends BaseController
       $body = file_get_contents('php://input');
       $body = json_decode( $body , true);
 
-    //  $tickets = $body['tickets'];
-      $tickets = $body;
-     // dd($tickets);
+      $tickets = $body['tickets'];
 
       $annotationStatus = [];
       foreach ($tickets as $ticket)
       {
-        $ticketIds = explode(" - ", $ticket["ticket"]);
+        $ticketIds = explode(" - ", $ticket);
         $jobContent = \Entity::where("_id", $ticketIds[0])->first();
 
         if ($jobContent == NULL) {
           return [
             'status'  =>  'error',
-            'message' =>  'Ticket ID ' . $ticket["ticket"] . ' does not exist!',
+            'message' =>  'Ticket ID ' . $ticket . ' does not exist!',
             'annotationStatus'=> $annotationStatus
           ];
         }
         else {
           $ticketStatus = [
-            'ticket' => $ticket["ticket"],
-            // HERE WE NEED SOME CODE TO CHECK THE STATUS OF A TICKET
+            'ticket' => $ticket,
             'status' => $jobContent["status"]
           ];
           array_push($annotationStatus, $ticketStatus);
@@ -111,10 +108,10 @@ class apiAnnotations extends BaseController
 
       $body = file_get_contents('php://input');
       $body = json_decode( $body , true);
-      
+
       // process request
       $importer = new DIVEUnitsImporter();
-      $status = $importer->process($body, $template_id);
+      $status = $importer->process($body['data'], $template_id);
 
       if (count($status["error"]) == 0) {
         return [

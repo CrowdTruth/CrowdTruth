@@ -19,6 +19,7 @@ use \Template as Template;
 use \Entities\Batch as Batch;
 use \Entities\Job as Job;
 use \Entities\JobConfiguration as JobConfiguration;
+use \Exception as Exception;
 
 class DIVEUnitsImporter {
 	protected $softwareComponent;
@@ -127,6 +128,7 @@ class DIVEUnitsImporter {
 		//dd($templateParamNames);
 		foreach ($data as $unitContent) {
 			$unitKeys = array_column($unitContent['content'], 'key');
+
 			// check that data unit has all required keys
 			foreach ($templateParamNames as $paramName) {
 				if( !in_array($paramName, $unitKeys)) {
@@ -138,7 +140,6 @@ class DIVEUnitsImporter {
 				}
 			}
 		}
-
 		$units = array();
 
 		foreach ($data as $unitContent) {
@@ -296,7 +297,7 @@ class DIVEUnitsImporter {
 		$content["instructions"] = $settings["instructions"];
 
 		$hash = md5(serialize([$content]));
-		
+
 		$entity = JobConfiguration::withTrashed()->where('hash', $hash)->first();
 		// check if file already exists
 		if($entity) {
@@ -311,24 +312,24 @@ class DIVEUnitsImporter {
 			$entity->documentType = $settings['documentType'];
 			$entity->content = $content;
 			$entity->hash = $hash;
-			$entity->activity_id = $activity;  
+			$entity->activity_id = $activity;
 			$entity->save();
-		
+
 			array_push($this->status['success'], "Job configuration created (" . $entity->_id . ")");
 		}
-		
+
 		return $entity;
 	}
 
 
-		
+
 	/**
 	 *	Create job entity
 	 * 	Note: the job does not get a platformJobId because this is unknown
 	 */
 	public function createJob($config, $activity, $batch, $settings)
 	{
-		
+
 		$entity = new Job;
 		$entity->_id = $entity->_id;
 		$entity->batch_id = $batch;
@@ -357,17 +358,20 @@ class DIVEUnitsImporter {
 
 		//false if we want to run it on the internal interface
 
-		$entity->publish(true);
+		try {
+			$entity->publish(true);
+		} catch (Exception $e) {
+			array_push($this->status["error"], "An error occurred when publishing the job!\n". $e->getMessage());
+			return $entity;
+		}
 
 		$successmessage = "Created job with jobConf :-)";
-
 		$platformApp = App::make($settings["platform"]); //TODOJORAN
-
 		$platformApp->refreshJob($entity->_id);
-		
+
 		array_push($this->status['success'], "Job created (" . $entity->_id . ")");
-		
+
 		return $entity;
 	}
-	
+
 }
