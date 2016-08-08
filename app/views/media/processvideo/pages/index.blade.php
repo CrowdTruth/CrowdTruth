@@ -35,7 +35,10 @@
                                 </form>
                             </li>
                         @endif
-                        <li class="checklistitem"><span id="cl_status_class_img" class="glyphicon glyphicon-remove"></span> Image classification</li>
+                        <li class="checklistitem"><span id="cl_status_class_img" class="glyphicon glyphicon-remove"></span> Image classification
+                            <button id="clarifaiall">Clarifai</button>
+                            <button id="imaggaall">Imagga</button>
+                        </li>
                         <li class="checklistitem"><span id="cl_status_class_text" class="glyphicon glyphicon-remove"></span> Text extraction</li>
                     </ul>
                 </div>
@@ -78,15 +81,15 @@
                                         @foreach($keyframe['content']['tags'] as $tagcontent)
                                             <div class="tagcontent">
                                                 Source: {{$tagcontent['source']}}
-                                                <table>
+                                                <table class="table-striped tagtable">
                                                     <tr>
-                                                        <td>Tag</td>
-                                                        <td>Prob</td>
+                                                        <td class="tdtaghead_tag">Tag</td>
+                                                        <td class="tdtaghead_prob">Prob</td>
                                                     </tr>
                                                     @foreach($tagcontent['tags'] as $currenttag)
                                                         <tr>
-                                                            <td>{{$currenttag['tag']}}</td>
-                                                            <td>{{$currenttag['prob']}}</td>
+                                                            <td class="tdtag_tag">{{$currenttag['tag']}}</td>
+                                                            <td class="tdtag_prob" title="{{$currenttag['prob']}}">{{sprintf("%.03f",$currenttag['prob'])}}</td>
                                                         </tr>
                                                     @endforeach
                                                 </table>
@@ -193,7 +196,25 @@
             {
                 $("#flashing_error").fadeIn('fast');
             }
-        }
+        };
+
+        $('#clarifaiall').click(function() {
+
+           var getdata = {videoid: '{{$data['_id']}}', all: "yes"}
+           $.get('{{URL::action('ProcessVideoController@getClarifai')}}',getdata,function(data,status){
+               flashMessage(data.status,data.message);
+           });
+
+        });
+
+        $('#imaggaall').click(function(){
+
+            var getdata = {videoid: '{{$data['_id']}}', all: "yes"}
+            $.get('{{URL::action('ProcessVideoController@getImagga')}}',getdata,function(data,status){
+                flashMessage(data.status,data.message);
+            });
+
+        });
     </script>
 @stop
 

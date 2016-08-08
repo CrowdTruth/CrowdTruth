@@ -96,18 +96,34 @@
 .tagcontent
 {
     float:left;
-    width: 300px;
+    max-width: 300px;
+    min-width: 150px;
     height: 200px;
     overflow: scroll;
 }
 
 .tagcontent > table{
-    width: 100%;
+    max-width: 100%;
+    min-width: 50%;
+    text-align: left !important;
 
 }
 
-.tagcontent > table > tr > td
+.tagcontent > table > tr
 {
+    text-align: left !important;
+    padding: 0px;
+}
+
+.tdtag_prob, .tdtag_tag
+{
+    text-align: left;
+    padding: 0px 3px;
+}
+
+.tdtaghead_prob, .tdtaghead_tag
+{
+    font-weight: bold;
     text-align: left;
 }
 
