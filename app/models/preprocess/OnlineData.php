@@ -8,7 +8,6 @@ use \Security\Roles as Roles;
 use URL, Session, Exception, Config;
 use \SoftwareAgent as SoftwareAgent;
 use \Activity as Activity;
-use \Entity as Entity;
 use \Entities\Unit as Unit;
 
 class OnlineData extends Moloquent {
@@ -21,27 +20,11 @@ class OnlineData extends Moloquent {
     		}
     		return (substr($haystack, -$length) === $needle);
 	}
-/*	
-	public function downloadFile($url) {
-		$videoPathSplit = explode("/", (string)$url);
-		$videoName = $videoPathSplit[sizeof($videoPathSplit) - 1];
-		$path = public_path() . "/videostorage/fullvideos/" . $videoName;
- 		$fp = fopen($path, 'w');
- 
-    		$ch = curl_init($url);
-    		curl_setopt($ch, CURLOPT_FILE, $fp);
- 
-    		$data = curl_exec($ch);
- 		
-    		curl_close($ch);
-    		fclose($fp);
-	}
-*/
 
-	public function listRecords($parameters, $noEntries, &$listOfRecords) {
-
+	public function listRecords($parameters, $noEntries) {
+		$listOfRecords = array();
+		$resumptionToken = "";
 		$curlRequest = new SVRequest;
-		//$listOfRecords = array();
 		$url = "http://openbeelden.nl/feeds/oai/?" . "verb=ListRecords";
 		if (isset($parameters)) {
 			if (!array_key_exists("metadataPrefix", $parameters)) {
@@ -64,14 +47,13 @@ class OnlineData extends Moloquent {
 			throw new Exception('Request parameters missing!');
 		}
 
-		
+		$entities = \Entity::where('documentType', 'video')->where('type','unit')->get()->toArray();
 
-		$entities = Entity::where('documentType', 'video')->where('type','unit')->get()->toArray();
 		$identifiers = array();
 		foreach ($entities as $entity) {
 			array_push($identifiers, $entity["content"]["identifier"]);
 		}
-
+				//$identifiers = array();
 		while ($noEntries > 0) {
 		    
 			$result = $curlRequest->curlRequest($url, "POST", null);
@@ -81,17 +63,19 @@ class OnlineData extends Moloquent {
 			}
 			else {	
 				$xmlNode = $xml->ListRecords;
+				$resumptionToken = (string)$xml->ListRecords->resumptionToken;
+
 				if (isset($xmlNode)){
 					foreach ($xmlNode->record as $rNode) {
     					if(strpos((string)$rNode->metadata->children('oai_oi', 1)->oi->children('oi', 1)->type, "Moving Image") !== false) {
 							if ($noEntries > 0) {
 								if (!in_array((string)$rNode->header->identifier, $identifiers)) {
 									array_push($listOfRecords, (string)$rNode->header->identifier);
-									array_push($identifiers, (string)$rNode->header->identifier);
-								//	dd($entities);
+									array_push($identifiers, (string)$rNode->header->identifier);									
 									$noEntries --;
 								}
 								else {
+
 									continue;
 								}
 							}
@@ -100,27 +84,14 @@ class OnlineData extends Moloquent {
 							}
 						}
 					}
-				}
-				
-				
-				if (isset($xml->ListRecords->resumptionToken)) {
-					if ($noEntries > 0) {
-						if(!array_key_exists("resumptionToken", $parameters)) {
-							$parameters["resumptionToken"] = (string)$xml->ListRecords->resumptionToken;
-							unset($parameters["metadataPrefix"]);
-							$this->listRecords($parameters, $noEntries, $listOfRecords);
-						}
-						else {
-							$replacement = array("resumptionToken" => (string)$xml->ListRecords->resumptionToken);
-							$parameters = array_replace($parameters, $replacement);
-							$this->listRecords($parameters, $noEntries, $listOfRecords);
-						}
-					}
+
+					$partialResult["resumptionToken"] = $resumptionToken;
+					$partialResult["listOfRecords"] = $listOfRecords;
+
+					return $partialResult;
 				}
 			}
 		}
-		//dd($listOfRecords);
-		//return serialize($listOfRecords);
 	}
 
 	public function getRecord($recordId, $metadataPrefix) {
@@ -273,14 +244,11 @@ class OnlineData extends Moloquent {
 							if ($added == false) {
 								if ($this->endsWith((string)$medium, ".mp4")) {
 									$added = true;
-									//echo $identifier . "--------" . (string)$medium . "\n";
 									$videoPathSplit = explode("/", (string)$medium);
 									$videoName = $videoPathSplit[sizeof($videoPathSplit) - 1];
 									$metadata["online_url"] = (string)$medium;
 								}
-							}						
-				//			echo (string)$value . "--" . (string)$medium . "\n";
-	
+							}							
 						}
 					}
 					$metadata["medium"] = $mediumJson;
@@ -366,15 +334,25 @@ class OnlineData extends Moloquent {
 	}
 
 	public function store ($documentType, $parameters, $noOfVideos) {
-		//fastcgi_finish_request();
+		
 		$listOfVideoIdentifiers = array();
-		$this->listRecords($parameters, $noOfVideos, $listOfVideoIdentifiers);
-		//return serialize($listOfVideoIdentifiers);
+		$partialResult = $this->listRecords($parameters, $noOfVideos); 
+		$listOfVideoIdentifiers = array_merge($listOfVideoIdentifiers, $partialResult["listOfRecords"]);
+		$noOfVideos = $noOfVideos - count($partialResult["listOfRecords"]);
+
+		while ($noOfVideos > 0) {
+			$newParameters = array();
+			$newParameters["set"] = $parameters["set"];
+			$newParameters["resumptionToken"] = $partialResult["resumptionToken"];	
+			
+			$partialResult = $this->listRecords($newParameters, $noOfVideos); 		
+			$listOfVideoIdentifiers = array_merge($listOfVideoIdentifiers, $partialResult["listOfRecords"]);
+			$noOfVideos = $noOfVideos - count($partialResult['listOfRecords']);
+		}
+		
 		// get list of existing projects
 		$projects = ProjectHandler::listProjects();
 
-
-	//	dd("done");
 		$status = array();
 
 		try {
@@ -414,7 +392,6 @@ class OnlineData extends Moloquent {
 			return $status;
 		}
 
-
 		$count["count"] = 0;
 		$videoMetadata = array();
 		foreach($listOfVideoIdentifiers as $video){
@@ -437,8 +414,9 @@ class OnlineData extends Moloquent {
 				$hashing = array();
 				$hashing["content"] = $entity->content;
 				$hashing["project"] = $entity->project;
-				$entity->hash = md5(serialize($hashing));				
+							
 				$entity->activity_id = $activity->_id;  
+				$entity->hash = md5(serialize($hashing));	
 				$entity->save();
 				
 				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
@@ -482,24 +460,12 @@ class OnlineData extends Moloquent {
 				$hashing = array();
 				$hashing["content"] = $entity->content;
 				$hashing["project"] = $entity->project;
-				$entity->hash = md5(serialize($hashing));				
+				
 				$entity->activity_id = $activitySynopsis->_id;  
+				$entity->hash = md5(serialize($hashing));				
 				$entity->save();
 				
 				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
-
-				// add the project if it doesnt exist yet
-				if(!in_array($entity->project, $projects)) {
-					ProjectHandler::createGroup($entity->project);
-					// add the project to the temporary list
-					array_push($projects, $entity->project);
-				}
-
-				// add the user to the project if it has no access yet
-				if(!ProjectHandler::inGroup($entity->user_id, $entity->project)) {
-					$user = UserAgent::find($entity->user_id);
-					ProjectHandler::grantUser($user, $entity->project, Roles::PROJECT_MEMBER);
-				}
 
 			} catch (Exception $e) {
 				// Something went wrong with creating the Entity

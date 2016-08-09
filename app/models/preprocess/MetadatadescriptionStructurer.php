@@ -29,9 +29,9 @@ class MetadatadescriptionStructurer {
 		\DB::connection()->disableQueryLog();
 		$urlTDH = "http://entityclassifier.eu/thd/api/v2/extraction?";
 	//	$descriptionContent = urlencode($entity->content["metadata"]["abstract"]["nl"]);
-		$descriptionContent = urlencode($entity["content"]["programSynopsis"]);
+		$descriptionContent = urlencode($entity["content"]["description"]);
 	//	$lang = $entity->content["metadata"]["language"];
-		$lang = "en";
+		$lang = "nl";
 		$format = "json";
 		$priority_entity_linking = "true";
 		$apikey = Config::get('config.thd_api_key');
@@ -177,14 +177,16 @@ class MetadatadescriptionStructurer {
 		set_time_limit(5200);
 		\DB::connection()->disableQueryLog();
 		//$descriptionContent = urlencode($entity->content["programSynopsis"]);
-		$descriptionContent = urlencode($entity["content"]["programSynopsis"]);
+		$descriptionContent = urlencode($entity["content"]["description"]);
 		//$lang = $entity->content["language"];
-		$lang = "en";
+		$lang = "nl";
 		$result = array();
 		$result["initialEntities"] = array();
 		$curlRequest = "curl -d \"language=" . $lang . "&text=$descriptionContent\" http://nlp.vse.cz:8081/recognize";
 		$response = exec($curlRequest, $output);
+		//dd($curlRequest);
 		$response = json_decode($output[0]);
+
 	//	$response = object_to_array($response);
 		return $response;
 
@@ -264,13 +266,13 @@ class MetadatadescriptionStructurer {
 		\DB::connection()->disableQueryLog();
 	//	$descriptionContent = $entity->content["programSynopsis"];
 	//	$lang = $entity->content["metadata"]["language"];
-		$descriptionContent = $entity["content"]["programSynopsis"];
+		$descriptionContent = $entity["content"]["description"];
 		$lang = "nl";
 		$apikey = Config::get('config.nerd_api_key');
 		$result = array();
 		$result["initialEntities"] = array();
 		$entities = array();
-		$curlRequest = "curl -i -X POST http://nerd.eurecom.fr/api/document -d \"text=" . urlencode($descriptionContent) . " ---&key=" . $apikey . "\"";
+		$curlRequest = "curl -i -X POST http://nerd.eurecom.fr/api/document -d \"text=" . urlencode($descriptionContent) . "&key=" . $apikey . "\"";
 		$response = exec($curlRequest, $output);
 		$documentId = "";
 		if (strpos($output[count($output) - 1], 'idDocument') !== false) {
@@ -285,30 +287,32 @@ class MetadatadescriptionStructurer {
 		$curlRequest = "curl -i -X GET -H \"Accept: application/json\" \"http://nerd.eurecom.fr/api/entity?key=" . $apikey . "&idAnnotation=" . $annotationId . "&granularity=oen\"";
 		$response = exec($curlRequest, $output);
 		$resultArray = json_decode($output[count($output) - 1], true);
-
-		foreach($resultArray as $key => $value) {
-			$initialEntity = array();
-			$initialEntity["label"] = iconv('UTF-8', 'UTF-8//IGNORE', $value["label"]);
-			$initialEntity["startOffset"] = $value['startChar'];
-			$initialEntity["endOffset"] = $value['endChar'];			
-			$initialEntity["confidenceScore"] = $value["confidence"];
-			$initialEntity["relevanceScore"] = $value["relevance"];
-			$initialEntity["provenance"] = "nerd";
-			$initialEntity["types"] = array();
-			$typesArray = explode(",", $value["extractorType"]);
-			foreach ($typesArray as $typeValue) {
-				$initialType = array();
-				$nerdTypeArray = explode("#", $value["nerdType"]);
-				$initialType["type"] =  $nerdTypeArray[1];
-				$initialType["typeURI"] = $value["nerdType"];
-				$initialType["extractorType"] = $typeValue;
-				$initialType["entityURI"] = iconv('UTF-8', 'UTF-8//IGNORE', $value["uri"]);
-				$initialType["extractor"] = $value["extractor"];
-				array_push($initialEntity["types"], $initialType);
+		if (isset($resultArray)) {
+			foreach($resultArray as $key => $value) {
+				$initialEntity = array();
+				$initialEntity["label"] = iconv('UTF-8', 'UTF-8//IGNORE', $value["label"]);
+				$initialEntity["startOffset"] = $value['startChar'];
+				$initialEntity["endOffset"] = $value['endChar'];			
+				$initialEntity["confidenceScore"] = $value["confidence"];
+				$initialEntity["relevanceScore"] = $value["relevance"];
+				$initialEntity["provenance"] = "nerd";
+				$initialEntity["types"] = array();
+				$typesArray = explode(",", $value["extractorType"]);
+				foreach ($typesArray as $typeValue) {
+					$initialType = array();
+					$nerdTypeArray = explode("#", $value["nerdType"]);
+					$initialType["type"] =  $nerdTypeArray[1];
+					$initialType["typeURI"] = $value["nerdType"];
+					$initialType["extractorType"] = $typeValue;
+					$initialType["entityURI"] = iconv('UTF-8', 'UTF-8//IGNORE', $value["uri"]);
+					$initialType["extractor"] = $value["extractor"];
+					array_push($initialEntity["types"], $initialType);
+				}
+				array_push($result["initialEntities"], $initialEntity);
 			}
-			array_push($result["initialEntities"], $initialEntity);
 		}
-		return $result;	
+		
+		return $result;
 	}
 
 
@@ -374,7 +378,7 @@ class MetadatadescriptionStructurer {
 		}
 
 		$tempEntityID = null;
-		$title = "thdextractor-enriched-synopsis-" . $parentEntity["content"]["programId"];
+		$title = "thdextractor-enriched-synopsis-" . $parentEntity["content"]["identifier"];
 		try {
 			$entity = new Unit;
 			$entity->_id = $tempEntityID;
@@ -386,15 +390,10 @@ class MetadatadescriptionStructurer {
 			$entity->parents = array($parentEntity["_id"]);
 			$entity->source = "Sound&Vision";
 			$content = array();	
-			$content["programId"] = $parentEntity["content"]["programId"];
-			$content["programSynopsis"] = $parentEntity["content"]["programSynopsis"];
-			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
-/*			$content["description"] = $parentEntity["content"]["description"];
-			$content["id"] = $parentEntity["content"]["id"];
+			$content["identifier"] = $parentEntity["content"]["identifier"];
+			$content["description"] = $parentEntity["content"]["description"];
 			$content["provenance"] = "thd";
-			$content["ct_id"] = $parentEntity["content"]["ct_id"];
-*/
-//			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
+			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
 			$entity->hash = md5(serialize($content));
 			$entity->activity_id = $activity->_id;
@@ -436,7 +435,7 @@ class MetadatadescriptionStructurer {
 		}
 
 		$tempEntityID = null;
-		$title = "nerdextractor-enriched-synopsis-" . $parentEntity["content"]["programId"];
+		$title = "nerdextractor-enriched-synopsis-" . $parentEntity["content"]["identifier"];
 		try {
 			$entity = new Unit;
 			$entity->_id = $tempEntityID;
@@ -448,12 +447,9 @@ class MetadatadescriptionStructurer {
 			$entity->parents = array($parentEntity["_id"]);
 			$entity->source = "Sound&Vision";
 			$content = array();	
-		//	$content["description"] = $parentEntity["content"]["description"];
-		//	$content["id"] = $parentEntity["content"]["id"];
-			$content["programId"] = $parentEntity["content"]["programId"];
-		//	$content["id"] = $parentEntity["content"]["id"];
-			$content["programSynopsis"] = $parentEntity["content"]["programSynopsis"];
-		//	$content["ct_id"] = $parentEntity["content"]["ct_id"];
+			$content["identifier"] = $parentEntity["content"]["identifier"];
+			$content["description"] = $parentEntity["content"]["description"];
+			$content["provenance"] = "nerd";
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
 			$entity->hash = md5(serialize($content));
@@ -497,7 +493,7 @@ class MetadatadescriptionStructurer {
 		}
 
 		$tempEntityID = null;
-		$title = "dbpdiaspotlightextractor-enriched-synopsis-" . $parentEntity["content"]["id"];
+		$title = "dbpdiaspotlightextractor-enriched-synopsis-" . $parentEntity["content"]["identifier"];
 		try {
 			$entity = new Unit;
 			$entity->_id = $tempEntityID;
@@ -511,8 +507,7 @@ class MetadatadescriptionStructurer {
 			$content = array();	
 			$content["description"] = $parentEntity["content"]["description"];
 			$content["provenance"] = "dbpediaspotlight";
-			$content["id"] = $parentEntity["content"]["id"];
-			$content["ct_id"] = $parentEntity["content"]["ct_id"];
+			$content["identifier"] = $parentEntity["content"]["identifier"];
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
 			$entity->hash = md5(serialize($content));
@@ -555,7 +550,7 @@ class MetadatadescriptionStructurer {
 		}
 
 		$tempEntityID = null;
-		$title = "textrazorextractor-enriched-synopsis-" . $parentEntity["content"]["id"];
+		$title = "textrazorextractor-enriched-synopsis-" . $parentEntity["content"]["identifier"];
 		try {
 			$entity = new Unit;
 			$entity->_id = $tempEntityID;
@@ -567,10 +562,9 @@ class MetadatadescriptionStructurer {
 			$entity->parents = array($parentEntity["_id"]);
 			$entity->source = "Sound&Vision";
 			$content = array();	
+			$content["identifier"] = $parentEntity["content"]["identifier"];
 			$content["description"] = $parentEntity["content"]["description"];
-			$content["id"] = $parentEntity["content"]["id"];
 			$content["provenance"] = "textrazor";
-			$content["ct_id"] = $parentEntity["content"]["ct_id"];
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
 			$entity->hash = md5(serialize($content));
@@ -615,7 +609,7 @@ class MetadatadescriptionStructurer {
 		}
 
 		$tempEntityID = null;
-		$title = "semitagsextractor-enriched-synopsis-" . $parentEntity["content"]["programId"];
+		$title = "semitagsextractor-enriched-synopsis-" . $parentEntity["content"]["identifier"];
 		try {
 			$entity = new Unit;
 			$entity->_id = $tempEntityID;
@@ -627,10 +621,9 @@ class MetadatadescriptionStructurer {
 			$entity->parents = array($parentEntity["_id"]);
 			$entity->source = "Sound&Vision";
 			$content = array();	
-			$content["programId"] = $parentEntity["content"]["programId"];
-		//	$content["id"] = $parentEntity["content"]["id"];
-			$content["programSynopsis"] = $parentEntity["content"]["programSynopsis"];
-		//	$content["ct_id"] = $parentEntity["content"]["ct_id"];
+			$content["identifier"] = $parentEntity["content"]["identifier"];
+			$content["description"] = $parentEntity["content"]["description"];
+			$content["provenance"] = "textrazor";
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
 			$entity->hash = md5(serialize($content));

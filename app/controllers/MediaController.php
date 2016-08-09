@@ -125,7 +125,7 @@ class MediaController extends BaseController {
 		// get the document types
 		$documents = explode("|", Input::get('documents'));
 		$searchComponent = new MediaSearchComponent();
-
+		dd($documents);
 		// store all keys in this array
 		$docKeys = [];
 
@@ -227,7 +227,8 @@ class MediaController extends BaseController {
 			$parameters["set"] = "beeldengeluid";
 
 			$status_onlinedata = $mongoDBOnlineData->store($documentType, $parameters, $noOfVideos);
-			
+		//	Session::flash('flashError', $status_onlinedata);
+			//return Redirect::back()->with('flashError', "hhoi");
 		} catch (Exception $e){
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}
