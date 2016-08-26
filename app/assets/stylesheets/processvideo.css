@@ -2,7 +2,7 @@
 {
     border: 1px solid darkgrey;
     border-radius: 14px;
-    height: 270px;
+    min-height: 270px;
     padding: 10px 5px;
     min-width: 270px;
 }
@@ -57,7 +57,7 @@
 .singlekfleft
 {
     width: 210px;
-    height: 100%;
+    /*height: 100%;*/
 
 }
 .singlekfright
@@ -127,3 +127,51 @@
     text-align: left;
 }
 
+.vidtooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+
+}
+
+ .vidtooltip .vidtooltiptext {
+    visibility: hidden;
+
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    font-size: smaller;
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 5;
+}
+
+.vidtooltip:hover .vidtooltiptext {
+    visibility: visible;
+}
+
+#textareadesc
+{
+    display: none;
+
+}
+
+#savedesc, #processdesc
+{
+    display: none;
+}
+
+#textareadescshow
+{
+    display: none;
+    width: 316px;
+   /* max-height: 300px;*/
+    overflow: visible;
+    font-size: medium;
+    line-height: normal;
+    margin: 15px 0px;
+    border: 1px solid lightgray;
+    padding: 3px;
+}

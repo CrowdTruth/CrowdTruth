@@ -35,11 +35,38 @@
                                 </form>
                             </li>
                         @endif
-                        <li class="checklistitem"><span id="cl_status_class_img" class="glyphicon glyphicon-remove"></span> Image classification
+
+                        @if ($data['doneclarifai'] == "1" && $data['doneimagga'] == "1")
+                                <li class="checklistitem"><span id="cl_status_class_img" class="glyphicon glyphicon-ok">
+                        @else
+                        <li class="checklistitem"><span id="cl_status_class_img" class="glyphicon glyphicon-remove">
+                         @endif
+                            </span> Image classification
+                            @if ($data['doneclarifai'] == "0")
                             <button id="clarifaiall">Clarifai</button>
+                            @endif
+                            @if ($data['doneimagga'] == "0")
                             <button id="imaggaall">Imagga</button>
+                            @endif
                         </li>
                         <li class="checklistitem"><span id="cl_status_class_text" class="glyphicon glyphicon-remove"></span> Text extraction</li>
+                            @if ($data['donedbpedia'] == "0")
+                                <button id="dbpediasubtitles">DBPedia subtitles</button>
+                                @endif
+                            @if ($data['donenerd'] == "0")
+                                <button id="nerdsubtitles">NERD subtitles</button>
+                                @endif
+                        @if (!isset($data['content']['description']))
+                            <button id="buttonadddesc">Add description</button>
+                                <textarea name="" id="textareadesc" cols="30" rows="10"></textarea>
+                                <button id="savedesc">Save desciption</button>
+                            @else
+                                <button id="buttonshowdesc">Show description</button>
+                                <div id="textareadescshow"> {{$data['content']['taggeddesc'];}}</div>
+                                <button id="processdesc_dbpedia">DBpedia</button>
+                                <button id="processdesc_nerd">Nerd</button>
+
+                        @endif
                     </ul>
                 </div>
 
@@ -64,12 +91,20 @@
                                             <span class="imaggabutton" kfid="{{$keyframe['_id']}}">I</span>
                                         </div>
                                     </div>
-                                    @if(isset($keyframe['content']['subtitles']))
+                                    @if(isset($keyframe['content']['subtitles']) && !isset($keyframe['content']['taggedsub']))
                                         <div class="singlekfright">
+                                            <button class="dbpediasubtitles" unitid="{{$keyframe['_id']}}">DBP</button>
                                             <div class="subcontainer" id="subcontainer-{{str_replace("/","-",$keyframe['_id'])}}">
                                                 @foreach($keyframe['content']['subtitles'] as $datasub)
                                                     {{$datasub}}<BR/>
                                                 @endforeach
+                                            </div>
+                                        </div>
+                                        @elseif(isset($keyframe['content']['taggedsub']))
+                                        <div class="singlekfright">
+
+                                            <div class="subcontainer" id="subcontainer-{{str_replace("/","-",$keyframe['_id'])}}">
+                                                {{$keyframe['content']['taggedsub']}}
                                             </div>
                                         </div>
                                     @endif
@@ -79,6 +114,7 @@
 
                                     <div class="row">
                                         @foreach($keyframe['content']['tags'] as $tagcontent)
+                                            @if ($tagcontent['source'] != 'dbpedia')
                                             <div class="tagcontent">
                                                 Source: {{$tagcontent['source']}}
                                                 <table class="table-striped tagtable">
@@ -87,6 +123,7 @@
                                                         <td class="tdtaghead_prob">Prob</td>
                                                     </tr>
                                                     @foreach($tagcontent['tags'] as $currenttag)
+
                                                         <tr>
                                                             <td class="tdtag_tag">{{$currenttag['tag']}}</td>
                                                             <td class="tdtag_prob" title="{{$currenttag['prob']}}">{{sprintf("%.03f",$currenttag['prob'])}}</td>
@@ -95,6 +132,7 @@
                                                 </table>
 
                                             </div>
+                                            @endif
                                         @endforeach
                                     </div>
                                 @endif
@@ -113,6 +151,7 @@
 
 @section('end_javascript')
     <script>
+
         jwplayer('container_jwplayer').setup({
             file: '{{$data['content']['url']}}',
         });
@@ -215,6 +254,82 @@
             });
 
         });
+
+        $('.dbpediasubtitles').click(function(){
+            event.stopPropagation();
+            var getid = $(this).attr('unitid');
+            var type = "subtitles";
+            var getdata = {unitid: getid, type: type};
+            $.get('{{URL::action('ProcessVideoController@getDBPediaSpotlight')}}', getdata, function(data,status){
+                flashMessage(data.status,data.message);
+            });
+        });
+
+        $('#dbpediasubtitles').click(function(){
+            var unitid = '{{$data['_id']}}';
+            var getdata = {unitid: unitid};
+            $.get('{{URL::action('ProcessVideoController@getDBPediaSpotlight_allSubtitles')}}',getdata,function(data,status){
+                flashMessage(data.status,data.message);
+            });
+
+        });
+        $('#nerdsubtitles').click(function(){
+            var unitid = '{{$data['_id']}}';
+            var getdata = {unitid: unitid};
+            $.get('{{URL::action('ProcessVideoController@getNerd_allSubtitles')}}',getdata,function(data,status){
+                flashMessage(data.status,data.message);
+            });
+
+        });
+
+        $('#buttonadddesc').click(function(){
+            $('#textareadesc').fadeIn('fast');
+            $('#savedesc').fadeIn('fast');
+        });
+
+        $('#buttonshowdesc').click(function()
+        {
+           if ($('#textareadescshow').css('display') != 'block')
+           {
+               $('#textareadescshow').fadeIn('fast');
+               $('#processdesc').fadeIn('fast');
+               $('#buttonshowdesc').text('Hide description');
+           } else {
+               $('#textareadescshow').fadeOut('fast');
+               $('#processdesc').fadeOut('fast');
+               $('#buttonshowdesc').text('Show description');
+           }
+        });
+
+        $('#processdesc_dbpedia').click(function(){
+            var type = "description";
+            var unitid = '{{$data['_id']}}';
+            var getdata = {type:type, unitid:unitid};
+            $.get('{{URL::action('ProcessVideoController@getDBPediaSpotlight')}}', getdata, function(data,status){
+                flashMessage(data.status,data.message);
+            });
+        });
+
+        $('#processdesc_nerd').click(function(){
+            var type = "description";
+            var unitid = '{{$data['_id']}}';
+            var getdata = {type:type, unitid:unitid};
+            $.get('{{URL::action('ProcessVideoController@getNerd')}}', getdata, function(data,status){
+                flashMessage(data.status,data.message);
+            });
+        });
+
+        $('#savedesc').click(function(){
+
+            var desc = $('#textareadesc').val();
+            var postdata = {unitid: '{{$data['_id']}}', description: desc};
+            $.post('{{URL::action('ProcessVideoController@postAddDescription')}}', postdata, function(data,status){
+                flashMessage(data.status,data.message);
+            });
+
+        });
+
+
     </script>
 @stop
 

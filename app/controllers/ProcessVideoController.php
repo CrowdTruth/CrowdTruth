@@ -44,12 +44,91 @@ class ProcessVideoController extends BaseController {
         }*/ //}
         //}
 
+        if (isset($output['content']['description']) && isset($output['content']['tags']))
+        {
+            $curdesc = $output['content']['description'];
+            $curoffset = 0;
+
+            foreach($output['content']['tags'] as $curtag)
+            {
+                if ($curtag['source'] != "dbpedia") continue;
+                foreach($curtag['tags'] as $curactualtag) {
+                    $tt_part1 = "<span class=\"vidtooltip\">";
+                    $tt_part2 = "<span class=\"vidtooltiptext\">";
+                    $tt_part3 = "</span></span>";
+
+                    $tagstr = $curactualtag['@surfaceForm'];
+                    $tagoff = (Int)$curactualtag['@offset'];
+                    $tagurl = $curactualtag['@URI'];
+
+                    $taglength = strlen($tagstr);
+
+                    $makett = $tt_part1 . $tagstr . $tt_part2 . $tagurl . $tt_part3;
+
+                    $curdesc = substr_replace($curdesc, $makett, $tagoff + $curoffset, $taglength);
+                    $curoffset += strlen($makett) - $taglength;
+                }
+            }
+        }
+
+        $output['content']['taggeddesc'] = $curdesc;
+
+        $output['doneclarifai'] = "1";
+        $output['doneimagga'] = "1";
+        $output['donedbpedia'] = "1";
+        $output['donenerd'] = "0";
+        foreach ($output['keyframes'] as $curkfkey => $curkf)
+        {
+            $clarifaiswitch = false;
+            $imaggaswitch = false;
+            $dbpediaswitch = false;
+            foreach ($curkf['content']['tags'] as $curtagkey => $curtag)
+            {
+                if ($curtag['source'] == "imagga") $imaggaswitch = true;
+                if ($curtag['source'] == "clarifai") $clarifaiswitch = true;
+                if (isset($curkf['content']['subtitles']))
+                {
+                    if ($curtag['source'] == "dbpedia")
+                    {
+                        $cursub = implode(" ",$curkf['content']['subtitles']);
+                        $tt_part1 = "<span class=\"vidtooltip\">";
+                        $tt_part2 = "<span class=\"vidtooltiptext\">";
+                        $tt_part3 = "</span></span>";
+                        $curoffset = 0;
+                        foreach ($curtag['tags'] as $subtag)
+                        {
+                            $tagstr = $subtag['@surfaceForm'];
+                            $tagoff = (Int)$subtag['@offset'];
+                            $tagurl = $subtag['@URI'];
+
+                            $taglength = strlen($tagstr);
+
+                            $makett = $tt_part1 . $tagstr . $tt_part2 . $tagurl . $tt_part3;
+
+                            $cursub = substr_replace($cursub, $makett, $tagoff + $curoffset, $taglength);
+                            $curoffset += strlen($makett) - $taglength;
+                        }
+                        $output['keyframes'][$curkfkey]['content']['taggedsub'] = $cursub;
+
+                        $dbpediaswitch = true;
+                    }
+                } else {$dbpediaswitch = true;}
+            }
+            if (!$clarifaiswitch) $output['doneclarifai'] = "0";
+            if (!$imaggaswitch) $output['doneimagga'] = "0";
+            if (!$dbpediaswitch) $output['donedbpedia'] = "0";
+
+            if ($output['doneclarifai'] == "0" && $output['doneimagga'] == "0" && $output['donedbpedia'] == "0") break;
+        }
+
         if (count(Unit::where('documentType', 'subtitlefile')->whereIn('parents',[$videofile])->get()->toArray()) > 0) $output['subtitles'] = 'true';
         //$temp = Unit::where('documentType', 'subtitlefile')->whereIn('parents',[$videofile])->get()->toArray();
         //print_r($temp);
 
-        //print_r($output);
+
         return View::make('media.processvideo.pages.index')->with('data',$output);
+
+
     }
     
     public function getDownloadFile()
@@ -148,19 +227,6 @@ class ProcessVideoController extends BaseController {
 
             $findframe->save();
 
-            /*$newsubent = new Entity();
-            $newsubent->type = "substitle";
-            $newsubent->starttime = $seconds;
-            $newsubent->humantime = $subdata['@attributes']['begin'];
-            $newsubent->parents = [$getunit,$findframe['_id']];
-            $newsubent->project = $videounit['project'];
-            if (!is_array($subdata['span'])) {
-                $newsubent->content = [$subdata['span']];
-            } else {
-                $newsubent->content = $subdata['span'];
-            }
-
-            $newsubent->save();*/
 
         }
 
@@ -432,7 +498,7 @@ class ProcessVideoController extends BaseController {
 
 
             $classarray['source'] = 'imagga';
-            $classarray['timestamp'] = time();
+            $classarray['timestamp'] = new MongoDate();
             foreach ($results as $index => $result) {
                 $classarray['tags'][$index]['tag'] = $result['tag'];
                 $classarray['tags'][$index]['prob'] = ($result['confidence'] / 100); //imagga does 0-100, so we normalize to 0-1;
@@ -459,6 +525,373 @@ class ProcessVideoController extends BaseController {
         $this->echoSuccess("Successfully processed $successcount images through Imagga!");
 
 
+
+    }
+
+    public function getDBPediaSpotlight_allSubtitles()
+    {
+        $unitid = Input::get('unitid');
+        $allkf = Entity::where('documentType','keyframe')->whereIn('parents',[$unitid])->get()->sortBy('content.scenestart')->toArray();
+        $donecounter = 0;
+
+        foreach ($allkf as $curkf)
+        {
+
+            if (!isset($curkf['content']['subtitles']))
+            {
+                continue;
+            } else {
+                if (!isset($curkf['content']['tags'])) continue;
+                foreach($curkf['content']['tags'] as $curtag)
+                {
+                    if ($curtag['source'] == "dbpedia") continue 2;
+                }
+            }
+
+            $data = implode(" ", $curkf['content']['subtitles']);
+
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            $data = urlencode($data);
+            $getdata = "text=$data&confidence=0.35";
+            curl_setopt($curl, CURLOPT_URL, 'http://spotlight.sztaki.hu:2222/rest/annotate?' . $getdata);
+            $getheader = Array("Accept: application/json");
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $getheader);
+            $returndata = curl_exec($curl);
+
+            $updateunit = Unit::where('_id',$curkf['_id'])->get()->first();
+            $newcontent = $updateunit->content;
+            $results = (Array)json_decode($returndata);
+            //print_r($results);
+            $newtags = Array();
+            $newtags['source'] = 'dbpedia';
+            $newtags['confidence'] = $results['@confidence'];
+            $newtags['timestamp'] = new MongoDate();
+            $newtags['tags'] = Array();
+            if (isset($results['Resources']))
+            {
+                foreach ($results['Resources'] as $result)
+                {
+                    $newtags['tags'][] = (Array)$result;
+                }
+            }
+
+            if (!isset($newcontent['tags'])) {
+                $newcontent['tags'] = Array();
+            }
+
+            $newarray = $newcontent['tags'];
+            $newarray[] = $newtags;
+
+            $newcontent['tags'] = $newarray;
+
+            $updateunit->content = $newcontent;
+            $updateunit->save();
+            $donecounter++;
+        }
+        $this->echoSuccess("Successfully proceesed $donecounter for $unitid");
+    }
+
+    public function getNerd_allSubtitles()
+    {
+        $unitid = Input::get('unitid');
+        $allkf = Entity::where('documentType','keyframe')->whereIn('parents',[$unitid])->get()->sortBy('content.scenestart')->toArray();
+        $donecounter = 0;
+        $failarray = Array();
+
+        $nerdapikey = Config::get('config.nerd_api_key');
+
+        foreach ($allkf as $curkf)
+        {
+
+            if (!isset($curkf['content']['subtitles']))
+            {
+                continue;
+            } else {
+                if (!isset($curkf['content']['tags'])) continue;
+                foreach($curkf['content']['tags'] as $curtag)
+                {
+                    if ($curtag['source'] == "nerd") continue 2;
+                }
+            }
+
+            $data = implode(" ", $curkf['content']['subtitles']);
+
+            $curlurl =  "http://nerd.eurecom.fr/api/document";
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $curlurl);
+            curl_setopt($curl, CURLOPT_POST, 2);
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            $postdata = 'text=' . urlencode($data) . '&key=' . urlencode($nerdapikey);
+            curl_setopt($curl,CURLOPT_POSTFIELDS,$postdata);
+            $returndata = curl_exec($curl);
+            $returndata = json_decode($returndata);
+            if (!isset($returndata->idDocument))
+            {
+                $curcount = count($failarray);
+                $failarray[$curcount]['unit'] = $curkf['_id'];
+                $failarray[$curcount]['msg'] = "1: " . json_encode($returndata);
+                continue;
+            }
+            $documentid = $returndata->idDocument;
+            curl_close($curl);
+
+            $curlurl = "http://nerd.eurecom.fr/api/annotation";
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $curlurl);
+            curl_setopt($curl, CURLOPT_POST, 5);
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            $postdata = 'key=' . $nerdapikey . '&idDocument=' . $documentid . '&extractor=nerdml&ontology=extended&timeout=10';
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $postdata);
+            $returndata = curl_exec($curl);
+            $returndata = json_decode($returndata);
+            if (!isset($returndata->idAnnotation))
+            {
+                $curcount = count($failarray);
+                $failarray[$curcount]['unit'] = $curkf['_id'];
+                $failarray[$curcount]['msg'] = "2: " . json_encode($returndata);
+                continue;
+            }
+            $annotationid = $returndata->idAnnotation;
+            curl_close($curl);
+
+            $curlurl = "http://nerd.eurecom.fr/api/entity?key=" . $nerdapikey . "&idAnnotation=" . $annotationid . "&granularity=oen";
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $curlurl);
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            $getheader = Array("Accept: application/json");
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $getheader);
+            $returndata = curl_exec($curl);
+            $returndata = (Array)json_decode($returndata);
+            if (count($returndata) == 0)
+            {
+                $curcount = count($failarray);
+                $failarray[$curcount]['unit'] = $curkf['_id'];
+                $failarray[$curcount]['msg'] = "3: " . json_encode($returndata);
+                continue;
+            }
+            curl_close($curl);
+
+            $updateunit = Unit::where('_id',$curkf['_id'])->get()->first();
+            $newcontent = $updateunit->content;
+
+            //print_r($results);
+            $newtags = Array();
+            $newtags['source'] = 'nerd';
+
+            $newtags['timestamp'] = new MongoDate();
+            $newtags['tags'] = Array();
+
+                foreach ($returndata as $result)
+                {
+                    $newtags['tags'][] = (Array)$result;
+                }
+
+
+            if (!isset($newcontent['tags'])) {
+                $newcontent['tags'] = Array();
+            }
+
+            $newarray = $newcontent['tags'];
+            $newarray[] = $newtags;
+
+            $newcontent['tags'] = $newarray;
+
+            $updateunit->content = $newcontent;
+            $updateunit->save();
+            $donecounter++;
+        }
+        print_r($failarray);
+        $this->echoSuccess("Successfully proceesed $donecounter for $unitid");
+
+
+    }
+
+    public function getNerd()
+    {
+        $nerdapikey = Config::get('config.nerd_api_key');
+        $gettype = Input::get('type');
+        $unitid = Input::get('unitid');
+        $data = "";
+        if ($gettype == "subtitles") {
+            $unit = Unit::where('_id', $unitid)->first()->toArray();
+            if (!isset($unit['content']['subtitles'])) {
+                $this->echoError("$unitid has no subtitles.");
+            }
+
+            $data = implode(" ", $unit['content']['subtitles']);
+
+        } else if ($gettype == "description")
+        {
+            $unit = Unit::where('_id', $unitid)->first()->toArray();
+            if (!isset($unit['content']['description']))
+            {
+                $this->echoError("$unitid has no description.");
+            }
+
+            $data = $unit['content']['description'];
+        }
+
+        $curlurl =  "http://nerd.eurecom.fr/api/document";
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $curlurl);
+        curl_setopt($curl, CURLOPT_POST, 2);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $postdata = 'text=' . urlencode($data) . '&key=' . urlencode($nerdapikey);
+        curl_setopt($curl,CURLOPT_POSTFIELDS,$postdata);
+        $returndata = curl_exec($curl);
+        $returndata = json_decode($returndata);
+        $documentid = $returndata->idDocument;
+        curl_close($curl);
+
+        $curlurl = "http://nerd.eurecom.fr/api/annotation";
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $curlurl);
+        curl_setopt($curl, CURLOPT_POST, 5);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $postdata = 'key=' . $nerdapikey . '&idDocument=' . $documentid . '&extractor=nerdml&ontology=extended&timeout=10';
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $postdata);
+        $returndata = curl_exec($curl);
+        $returndata = json_decode($returndata);
+        $annotationid = $returndata->idAnnotation;
+        curl_close($curl);
+
+        $curlurl = "http://nerd.eurecom.fr/api/entity?key=" . $nerdapikey . "&idAnnotation=" . $annotationid . "&granularity=oen";
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $curlurl);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $getheader = Array("Accept: application/json");
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $getheader);
+        $returndata = curl_exec($curl);
+        $returndata = (Array)json_decode($returndata);
+        curl_close($curl);
+
+
+        $updateframe = Unit::where('_id', $unitid)->get()->first();
+        $newcontent = $updateframe->content;
+
+        //print_r($results);
+        $newtags = Array();
+        $newtags['source'] = 'nerd';
+
+        $newtags['timestamp'] = new MongoDate();
+        $newtags['tags'] = Array();
+        foreach ($returndata as $result)
+        {
+            $newtags['tags'][] = (Array)$result;
+        }
+
+
+        if (!isset($newcontent['tags'])) {
+            $newcontent['tags'] = Array();
+        }
+
+        $newarray = $newcontent['tags'];
+        $newarray[] = $newtags;
+
+        $newcontent['tags'] = $newarray;
+
+        $updateframe->content = $newcontent;
+        $updateframe->save();
+        $this->echoSuccess("Succesfully processed $gettype of $unitid with NERD");
+
+    }
+
+    public function getDBPediaSpotlight()
+    {
+        $gettype = Input::get('type');
+        $unitid = Input::get('unitid');
+        $data = "";
+        if ($gettype == "subtitles") {
+            $unit = Unit::where('_id', $unitid)->first()->toArray();
+            if (!isset($unit['content']['subtitles'])) {
+                $this->echoError("$unitid has no subtitles.");
+            }
+
+            $data = implode(" ", $unit['content']['subtitles']);
+
+        } else if ($gettype == "description")
+        {
+            $unit = Unit::where('_id', $unitid)->first()->toArray();
+            if (!isset($unit['content']['description']))
+            {
+                $this->echoError("$unitid has no description.");
+            }
+
+            $data = $unit['content']['description'];
+        }
+
+        $curl = curl_init();
+
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $data = urlencode($data);
+        $getdata = "text=$data&confidence=0.35";
+        //print_r($getdata);
+        curl_setopt($curl, CURLOPT_URL, 'http://spotlight.sztaki.hu:2222/rest/annotate?' . $getdata);
+        $getheader = Array("Accept: application/json");
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $getheader);
+
+        $returndata = curl_exec($curl);
+
+
+        $updateframe = Unit::where('_id', $unitid)->get()->first();
+        $newcontent = $updateframe->content;
+        $results = (Array)json_decode($returndata);
+        //print_r($results);
+        $newtags = Array();
+        $newtags['source'] = 'dbpedia';
+        $newtags['confidence'] = $results['@confidence'];
+        $newtags['timestamp'] = new MongoDate();
+        $newtags['tags'] = Array();
+        foreach ($results['Resources'] as $result)
+        {
+            $newtags['tags'][] = (Array)$result;
+        }
+
+
+        if (!isset($newcontent['tags'])) {
+            $newcontent['tags'] = Array();
+        }
+
+        $newarray = $newcontent['tags'];
+        $newarray[] = $newtags;
+
+        $newcontent['tags'] = $newarray;
+
+        $updateframe->content = $newcontent;
+        $updateframe->save();
+        $this->echoSuccess("Succesfully processed $gettype of $unitid with DBPedia Spotlight");
+        //print_r($updateframe);
+
+   }
+
+    public function postAddDescription()
+    {
+        $unitid = Input::get('unitid');
+        $desc = Input::get('description');
+        $getunit = Unit::where('_id',$unitid)->get()->first()->toArray();
+
+        if (isset($getunit['content']['description']))
+        {
+            $this->echoError("Description for $unitid already set.");
+        }
+
+        $newcontent = $getunit['content'];
+        $newcontent['description'] = $desc;
+
+        $updateunit = Unit::where('_id',$unitid)->get()->first();
+        $updateunit->content = $newcontent;
+        $updateunit->save();
+
+        $this->echoSuccess("Succesfully saved description for $unitid");
 
     }
 

@@ -1,6 +1,8 @@
 <?php
 use \Security\Permissions as Permissions;
 
+Route::get('processvideo/image','ProcessVideoController@getImage');
+
 Route::group(array('before' => 'auth'), function()
 {
 	Route::controller('media/preprocess/fullvideo', 'preprocess\FullvideoController');
@@ -102,3 +104,5 @@ Route::resource('api/v3/', '\Api\v3\apiController', array('only' => array('index
 Route::resource('api/v4', '\Api\v4\apiController', array('only' => array('index', 'show')));
 
 Route::controller('user', 'UserController');
+
+

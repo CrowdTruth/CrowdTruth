@@ -265,7 +265,7 @@ class MetadatadescriptionStructurer {
 			$documentId = explode("}", explode(":", $output[count($output) - 1])[1])[0];
 		}
 		$annotationId = "";
-		$curlRequest = "curl -i -X POST \"http://nerd.eurecom.fr/api/annotation\" -d \"key=" . $apikey . "&idDocument=" . $documentId . "&extractor=combined&ontology=extended&timeout=10\"";
+		$curlRequest = "curl -i -X POST \"http://nerd.eurecom.fr/api/annotation\" -d \"key=" . $apikey . "&idDocument=" . $documentId . "&extractor=nerdml&ontology=extended&timeout=10\"";
 		$response = exec($curlRequest, $output);
 		if (strpos($output[count($output) - 1], 'idAnnotation') !== false) {
 			$annotationId = explode("}", explode(":", $output[count($output) - 1])[1])[0];
