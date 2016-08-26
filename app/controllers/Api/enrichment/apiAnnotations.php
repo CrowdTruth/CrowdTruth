@@ -101,7 +101,7 @@ class apiAnnotations extends BaseController
           if (strpos($parameter["type"], "[]") !== false) {
             $dataParam = [
               "key" => $parameter["name"],
-              "value" => array_flatten($ticketUnit["content"][$parameter["name"]]);
+              "value" => array_flatten($ticketUnit["content"][$parameter["name"]])
             ];
           }
           else {
