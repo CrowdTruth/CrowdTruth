@@ -63,6 +63,22 @@ class apiAnnotations extends BaseController
       ];
     }
 
+
+    function array_flatten($array) { 
+      if (!is_array($array)) { 
+        return false; 
+      } 
+      $result = array(); 
+      foreach ($array as $key => $value) { 
+        if (is_array($value)) { 
+          $result = array_merge($result, array_flatten($value)); 
+        } else { 
+          $result[$key] = $value; 
+        } 
+      } 
+      return $result; 
+    }
+
     // This function implements the POST /annotation/collect/ API call
     public function postCollect()
     {
@@ -71,28 +87,42 @@ class apiAnnotations extends BaseController
       $tickets = $body['tickets'];
 
       $annotations = [];
+
       foreach ($tickets as $ticket)
       {
+        $data = [];
+        $ticketComponents = explode(" - ", $ticket);
+        $ticketJob = \Entity::where("_id", $ticketComponents[0])->first();
+        $ticketUnit = \Entity::where("parents", [$ticketComponents[0], $ticketComponents[1]])->first();
+        $ticketTemplate = \Entity::where("_id", $ticketJob["template_id"])->first();
+        $outputParameters = $ticketTemplate["parameters"]["output"];
+
+        foreach ($outputParameters as $parameter) {
+          if (strpos($parameter["type"], "[]") !== false) {
+            $dataParam = [
+              "key" => $parameter["name"],
+              "value" => array_flatten($ticketUnit["content"][$parameter["name"]]);
+            ];
+          }
+          else {
+            $dataParam = [
+              "key" => $parameter["name"],
+              "value" => $ticketUnit["content"][$parameter["name"]];
+            ];
+          }
+          array_push($data, $dataParam);
+        }
         $ticketData = [ // This is a list of entities
             [
-              "id"   => "The ID the ticket has on the originating system",
-              "data" => [// More key/value pairs can be present in the data.
-                [
-                  "key"   => "VALIDATION",
-                  "value" => "OK"
-                ]
-              ]
+              "id"   => $ticket,
+              "data" => $dataParam
             ]
         ];
         $ticketProvenance = [
           "data" => [
             [
-              "key"   => "AnnotationTool",
-              "value" => "CrowdTruth"
-            ],
-            [
               "key"   => "AnnotationTemplate",
-              "value" => "Template1"
+              "value" => $ticketTemplate["type"];            
             ]
           ]
         ];
