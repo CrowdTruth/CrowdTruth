@@ -113,9 +113,7 @@ class MediaController extends BaseController {
 
 		return View::make('media.search.pages.importresults')->with('types', $types[0]);
 	}
-	
-	
-	
+
 	
 	/**
 	 * get keys for (a set of) selected document types
@@ -125,7 +123,6 @@ class MediaController extends BaseController {
 		// get the document types
 		$documents = explode("|", Input::get('documents'));
 		$searchComponent = new MediaSearchComponent();
-		dd($documents);
 		// store all keys in this array
 		$docKeys = [];
 

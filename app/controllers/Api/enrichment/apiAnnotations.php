@@ -38,11 +38,21 @@ class apiAnnotations extends BaseController
           ];
         }
         else {
-          $ticketStatus = [
-            'ticket' => $ticket,
-            'status' => $jobContent["status"]
-          ];
-          array_push($annotationStatus, $ticketStatus);
+
+          if (isset($jobContent["metrics"])) {
+            $ticketStatus = [
+              'ticket' => $ticket,
+              'status' => $jobContent["status"]
+            ];
+            array_push($annotationStatus, $ticketStatus);
+          }
+          else {
+            $ticketStatus = [
+              'ticket' => $ticket,
+              'status' => "pending"
+            ];
+            array_push($annotationStatus, $ticketStatus);
+          }
         }
       }
 
