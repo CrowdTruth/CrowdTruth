@@ -107,7 +107,7 @@ class apiAnnotations extends BaseController
           else {
             $dataParam = [
               "key" => $parameter["name"],
-              "value" => $ticketUnit["content"][$parameter["name"]];
+              "value" => $ticketUnit["content"][$parameter["name"]]
             ];
           }
           array_push($data, $dataParam);
@@ -122,7 +122,7 @@ class apiAnnotations extends BaseController
           "data" => [
             [
               "key"   => "AnnotationTemplate",
-              "value" => $ticketTemplate["type"];            
+              "value" => $ticketTemplate["type"]         
             ]
           ]
         ];
