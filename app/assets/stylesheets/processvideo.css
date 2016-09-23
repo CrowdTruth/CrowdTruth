@@ -30,6 +30,11 @@
 
 }
 
+.subcontainer
+{
+    width: 250px;
+}
+
 .singlekeyframe
 {
     width: 210px;
@@ -139,9 +144,9 @@
 
     background-color: black;
     color: #fff;
-    text-align: center;
+    text-align: left;
     border-radius: 6px;
-    padding: 5px 0;
+    padding: 5px;
     font-size: smaller;
     /* Position the tooltip */
     position: absolute;
@@ -158,7 +163,7 @@
 
 }
 
-#savedesc, #processdesc
+#savedesc, #processdesc_dbpedia, #processdesc_nerd
 {
     display: none;
 }
@@ -174,4 +179,61 @@
     margin: 15px 0px;
     border: 1px solid lightgray;
     padding: 3px;
+}
+
+.keyframeimg
+{
+    float: left;
+    padding: 0px 3px;
+
+}
+
+.keyframerow
+{
+    padding: 5px 0 5px 5px;
+    max-width: 100%;
+    border: 1px dotted lightgray;
+    position: relative;
+}
+
+.keyframestags
+{
+    display: block;
+    overflow: hidden;
+    max-height: 25px;
+}
+
+.keyframerow > span
+{
+ padding: 3px 0;
+}
+.selectkeyframe
+{
+    float: left;
+    position: relative;
+    top: 50px;
+    right: 2px;
+
+}
+
+.gotopreview
+{
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    font-weight: bold;
+    height: 100%;
+    border-left: 1px dotted lightgray;
+    vertical-align: middle;
+    padding: 50px 10px 0 5px;
+    width: 30px;
+    cursor: pointer;
+    z-index: 2;
+
+
+}
+
+.gotopreview:hover
+{
+    background-color: lightsalmon;
 }

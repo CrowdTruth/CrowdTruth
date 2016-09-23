@@ -17,6 +17,178 @@ class ProcessVideoController extends BaseController {
         return Redirect::to('media/search');
     }
 
+    public function postTaskPreview()
+    {
+        if (!Input::has('keyframeid')) {
+            return Redirect::to('media/search');
+        }
+
+        $keyframeid = Input::get('keyframeid');
+
+        $output = Entity::where('_id', $keyframeid)->get()->first()->toArray();
+
+        $videofile = Entity::where('_id', $output['parents'][0])->get()->first()->toArray();
+        $output['videodata'] = $videofile;
+
+                if (isset($output['videodata']['content']['tags']))
+                {
+                    foreach ($output['videodata']['content']['tags'] as $curtags)
+                    {
+                        if ($curtags['source'] != "nerd") continue;
+                        $kfcount = 0;
+                        $curdes = $output['videodata']['content']['description'];
+                        $tt_part1a = "<span kfcount=\"";
+                        $tt_part1b = "\" class=\"vidtooltip\">";
+                        $tt_part2 = "<span class=\"vidtooltiptext\">";
+                        $tt_part3 = "</span></span>";
+                        $curoffset = 0;
+                        foreach ($curtags['tags'] as $destag) {
+                            $tagstr = $destag['label'];
+                            $tagoff = (Int)$destag['startChar'];
+                            $tagcon = (Float)$destag['confidence'];
+                            $tagcon = sprintf("%.03f", $tagcon);
+                            $tagurl = "Source: NerdML<br> Conf: $tagcon<br>" . $destag['uri'];
+
+                            $taglength = strlen($tagstr);
+
+
+                            $createstr =  $tagstr . "__" . $tagoff . "__" . ($tagoff+$taglength-1) . "_###_";
+                            echo $createstr;
+
+                            $makett = $tt_part1a . $kfcount . $tt_part1b . $tagstr . $tt_part2 . $tagurl . $tt_part3;
+
+                            $curdes = substr_replace($curdes, $makett, $tagoff + $curoffset, $taglength);
+                            $curoffset += strlen($makett) - $taglength;
+                            $kfcount++;
+                        }
+                        $output['videodata']['content']['taggeddes'] = $curdes;
+                    }
+                }
+                echo "\n";
+                $allimagetags = Array();
+                if (isset($output['content']['tags'])) {
+                    foreach ($output['content']['tags'] as $curtagkey => $curtag) {
+                        if ($curtag['source'] == "imagga" || $curtag['source'] == "clarifai")
+                        {
+                            foreach($curtag['tags'] as $curtagsingle)
+                            {
+                                $inserttag = $curtagsingle;
+                                $inserttag['source'] = $curtag['source'];
+                                $allimagetags[] = $inserttag;
+                            }
+                        }
+
+
+
+                        $kfcount = 0;
+
+                        if ($curtag['source'] == "nerd") {
+                            $cursub = implode(" ", $output['content']['subtitles']);
+                            $tt_part1a = "<span kfcount=\"";
+                            $tt_part1b = "\" class=\"vidtooltip\">";
+                            $tt_part2 = "<span class=\"vidtooltiptext\">";
+                            $tt_part3 = "</span></span>";
+                            $curoffset = 0;
+                            foreach ($curtag['tags'] as $subtag) {
+                                $tagstr = $subtag['label'];
+                                $tagoff = (Int)$subtag['startChar'];
+                                $tagcon = (Float)$subtag['confidence'];
+                                $tagcon = sprintf("%.03f", $tagcon);
+                                $tagurl = "Source: NerdML<br> Conf: $tagcon<br>" . $subtag['uri'];
+
+                                $taglength = strlen($tagstr);
+                                $createstr =  $tagstr . "__" . $tagoff . "__" . ($tagoff+$taglength-1) . "_###_";
+                                echo $createstr;
+
+
+                                $makett = $tt_part1a . $kfcount . $tt_part1b . $tagstr . $tt_part2 . $tagurl . $tt_part3;
+
+                                $cursub = substr_replace($cursub, $makett, $tagoff + $curoffset, $taglength);
+                                $curoffset += strlen($makett) - $taglength;
+                                $kfcount++;
+                            }
+                            $output['content']['taggedsub'] = $cursub;
+                        }
+                    }
+                }
+
+
+
+    echo "\n";
+
+        usort($allimagetags, function($a, $b) {
+            return $a['prob'] - $b['prob'];
+        });
+        $allimagetags = array_reverse($allimagetags);
+        foreach ($allimagetags as $allimagetag)
+        {
+            $createstr = $allimagetag['tag']  . "_###_"; //. "__" . $allimagetag['source'] . "__" . sprintf("%.3f",$allimagetag['prob'])
+            echo $createstr;
+        }
+        echo "\n";
+        print_r($output);
+
+
+
+        return View::make('media.processvideo.pages.taskpreview')->with('data', $output);
+    }
+
+    public function postStepTwo()
+    {
+        if (!Input::has('videofile'))
+        {
+            return Redirect::to('media/search');
+        }
+
+        $videofile = Input::get('videofile');
+        $output = Entity::where('_id',$videofile)->get()->first()->toArray();
+        $kfdata = Entity::where('documentType','keyframe')->whereIn('parents',[$videofile])->get()->sortBy('content.scenestart')->toArray();
+        if (count($kfdata) > 0) {
+            $output['keyframes'] = $kfdata; }
+
+        if (isset($output['keyframes'])) {
+
+            foreach ($output['keyframes'] as $curkfkey => $curkf) {
+
+
+                if (isset($curkf['content']['tags'])) {
+                    foreach ($curkf['content']['tags'] as $curtagkey => $curtag) {
+                        if ($curtag['source'] == "imagga") continue;
+                        if ($curtag['source'] == "clarifai") continue;
+                        if (isset($curkf['content']['subtitles'])) {
+
+                            if ($curtag['source'] == "nerd") {
+                                $cursub = implode(" ", $curkf['content']['subtitles']);
+                                $tt_part1 = "<span class=\"vidtooltip\">";
+                                $tt_part2 = "<span class=\"vidtooltiptext\">";
+                                $tt_part3 = "</span></span>";
+                                $curoffset = 0;
+                                foreach ($curtag['tags'] as $subtag) {
+                                    $tagstr = $subtag['label'];
+                                    $tagoff = (Int)$subtag['startChar'];
+                                    $tagcon = (Float)$subtag['confidence'];
+                                    $tagcon = sprintf("%.03f", $tagcon);
+                                    $tagurl = "Source: NerdML<br> Conf: $tagcon<br>" . $subtag['uri'];
+
+                                    $taglength = strlen($tagstr);
+
+                                    $makett = $tt_part1 . $tagstr . $tt_part2 . $tagurl . $tt_part3;
+
+                                    $cursub = substr_replace($cursub, $makett, $tagoff + $curoffset, $taglength);
+                                    $curoffset += strlen($makett) - $taglength;
+                                }
+                                $output['keyframes'][$curkfkey]['content']['taggedsub'] = $cursub;
+
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return View::make('media.processvideo.pages.steptwo')->with('data',$output);
+    }
     public function postProcess()
     {
         if (!Input::has('videofile'))
@@ -28,21 +200,11 @@ class ProcessVideoController extends BaseController {
         $data = Entity::where('_id',$videofile)->get()->first()->toArray();
 
         $output = $data;
-        /*
-       // $videodata = Entity::where('type','downloadedvideo')->whereIn('parents',[$videofile])->first();
 
-        //if (count($videodata) > 0) {
-          //  $output['downloaded'] = $videodata->toArray();*/
-            $kfdata = Entity::where('documentType','keyframe')->whereIn('parents',[$videofile])->get()->sortBy('content.scenestart')->toArray();
-            if (count($kfdata) > 0) {
-                $output['keyframes'] = $kfdata; }
-              /*  $subdata = Entity::where('type','substitle')->whereIn('parents',[$videofile])->get()->sortBy('starttime')->toArray();
-                if (count($subdata) > 0)
-                {
-                    $output['subtitles'] = $subdata;
+        $kfdata = Entity::where('documentType','keyframe')->whereIn('parents',[$videofile])->get()->sortBy('content.scenestart')->toArray();
+        if (count($kfdata) > 0) {
+            $output['keyframes'] = $kfdata; }
 
-        }*/ //}
-        //}
 
         if (isset($output['content']['description']) && isset($output['content']['tags']))
         {
@@ -51,15 +213,17 @@ class ProcessVideoController extends BaseController {
 
             foreach($output['content']['tags'] as $curtag)
             {
-                if ($curtag['source'] != "dbpedia") continue;
+                if ($curtag['source'] != "nerd") continue;
                 foreach($curtag['tags'] as $curactualtag) {
                     $tt_part1 = "<span class=\"vidtooltip\">";
                     $tt_part2 = "<span class=\"vidtooltiptext\">";
                     $tt_part3 = "</span></span>";
 
-                    $tagstr = $curactualtag['@surfaceForm'];
-                    $tagoff = (Int)$curactualtag['@offset'];
-                    $tagurl = $curactualtag['@URI'];
+                    $tagstr = $curactualtag['label'];
+                    $tagoff = (Int)$curactualtag['startChar'];
+                    $tagcon = (Float)$curactualtag['confidence'];
+                    $tagcon = sprintf("%.03f",$tagcon);
+                    $tagurl = "Source: NerdML<br> Conf: $tagcon<br>" . $curactualtag['uri'];
 
                     $taglength = strlen($tagstr);
 
@@ -69,58 +233,69 @@ class ProcessVideoController extends BaseController {
                     $curoffset += strlen($makett) - $taglength;
                 }
             }
+            $output['content']['taggeddesc'] = $curdesc;
         }
 
-        $output['content']['taggeddesc'] = $curdesc;
 
-        $output['doneclarifai'] = "1";
-        $output['doneimagga'] = "1";
-        $output['donedbpedia'] = "1";
-        $output['donenerd'] = "0";
-        foreach ($output['keyframes'] as $curkfkey => $curkf)
-        {
-            $clarifaiswitch = false;
-            $imaggaswitch = false;
-            $dbpediaswitch = false;
-            foreach ($curkf['content']['tags'] as $curtagkey => $curtag)
-            {
-                if ($curtag['source'] == "imagga") $imaggaswitch = true;
-                if ($curtag['source'] == "clarifai") $clarifaiswitch = true;
-                if (isset($curkf['content']['subtitles']))
+        if (isset($output['keyframes'])) {
+            $output['doneclarifai'] = "1";
+            $output['doneimagga'] = "1";
+
+            $output['donenerd'] = "0";
+            $nerdswitch = false;
+            foreach ($output['keyframes'] as $curkfkey => $curkf) {
+
+                $clarifaiswitch = false;
+                $imaggaswitch = false;
+
+                if (isset($curkf['content']['tags']))
                 {
-                    if ($curtag['source'] == "dbpedia")
-                    {
-                        $cursub = implode(" ",$curkf['content']['subtitles']);
-                        $tt_part1 = "<span class=\"vidtooltip\">";
-                        $tt_part2 = "<span class=\"vidtooltiptext\">";
-                        $tt_part3 = "</span></span>";
-                        $curoffset = 0;
-                        foreach ($curtag['tags'] as $subtag)
-                        {
-                            $tagstr = $subtag['@surfaceForm'];
-                            $tagoff = (Int)$subtag['@offset'];
-                            $tagurl = $subtag['@URI'];
+                foreach ($curkf['content']['tags'] as $curtagkey => $curtag) {
+                    if ($curtag['source'] == "imagga") $imaggaswitch = true;
+                    if ($curtag['source'] == "clarifai") $clarifaiswitch = true;
+                    if (isset($curkf['content']['subtitles'])) {
+                        $nerdswitch = true;
+                        if ($curtag['source'] == "nerd") {
+                            $cursub = implode(" ", $curkf['content']['subtitles']);
+                            $tt_part1 = "<span class=\"vidtooltip\">";
+                            $tt_part2 = "<span class=\"vidtooltiptext\">";
+                            $tt_part3 = "</span></span>";
+                            $curoffset = 0;
+                            foreach ($curtag['tags'] as $subtag) {
+                                $tagstr = $subtag['label'];
+                                $tagoff = (Int)$subtag['startChar'];
+                                $tagcon = (Float)$subtag['confidence'];
+                                $tagcon = sprintf("%.03f",$tagcon);
+                                $tagurl = "Source: NerdML<br> Conf: $tagcon<br>" . $subtag['uri'];
 
-                            $taglength = strlen($tagstr);
+                                $taglength = strlen($tagstr);
 
-                            $makett = $tt_part1 . $tagstr . $tt_part2 . $tagurl . $tt_part3;
+                                $makett = $tt_part1 . $tagstr . $tt_part2 . $tagurl . $tt_part3;
 
-                            $cursub = substr_replace($cursub, $makett, $tagoff + $curoffset, $taglength);
-                            $curoffset += strlen($makett) - $taglength;
+                                $cursub = substr_replace($cursub, $makett, $tagoff + $curoffset, $taglength);
+                                $curoffset += strlen($makett) - $taglength;
+                            }
+                            $output['keyframes'][$curkfkey]['content']['taggedsub'] = $cursub;
+
+                            $dbpediaswitch = true;
                         }
-                        $output['keyframes'][$curkfkey]['content']['taggedsub'] = $cursub;
-
+                    } else {
                         $dbpediaswitch = true;
                     }
-                } else {$dbpediaswitch = true;}
+                }
+                }
+                if (!$clarifaiswitch) $output['doneclarifai'] = "0";
+                if (!$imaggaswitch) $output['doneimagga'] = "0";
+                if ($nerdswitch) $output['donenerd'] = "1";
+
+              //  if ($output['doneclarifai'] == "0" && $output['doneimagga'] == "0" && $output['donenerd'] == "0") break;
             }
-            if (!$clarifaiswitch) $output['doneclarifai'] = "0";
-            if (!$imaggaswitch) $output['doneimagga'] = "0";
-            if (!$dbpediaswitch) $output['donedbpedia'] = "0";
-
-            if ($output['doneclarifai'] == "0" && $output['doneimagga'] == "0" && $output['donedbpedia'] == "0") break;
+        } else {
+            $output['doneclarifai'] = "0";
+            $output['doneimagga'] = "0";
+            $output['donedbpedia'] = "0";
+            $output['donenerd'] = "0";
         }
-
         if (count(Unit::where('documentType', 'subtitlefile')->whereIn('parents',[$videofile])->get()->toArray()) > 0) $output['subtitles'] = 'true';
         //$temp = Unit::where('documentType', 'subtitlefile')->whereIn('parents',[$videofile])->get()->toArray();
         //print_r($temp);
@@ -130,7 +305,139 @@ class ProcessVideoController extends BaseController {
 
 
     }
-    
+
+    public function postDownloadAllFiles()
+    {
+        ini_set('memory_limit','256M');
+        $getunit = Input::get('videofile');
+
+        $successcount = 0;
+        $totalcount = count($getunit);
+        foreach ($getunit as $currentunit)
+        {
+            $videounit = Unit::where('_id',$currentunit)->first();
+            $videocontent = $videounit->content;
+            $videourl = $videocontent['url'];
+            if (strstr($videourl,"youtube.com")) {
+
+
+                $extension = "mp4";
+                $targetfilename = str_replace("/", ".", $currentunit);
+                $storagedir = 'videostorage/fullvideos/' . $targetfilename . '.' . $extension;
+                $targetdownload = storage_path($storagedir);
+
+                $buildcmd = "youtube-dl -o " . $targetdownload . " \"" . $videourl . "\"";
+
+                $ytreturn = shell_exec($buildcmd);
+                if (strstr($ytreturn,"Error")) continue;
+            } else {
+                $curl = curl_init();
+                curl_setopt_array($curl, array(
+                    CURLOPT_RETURNTRANSFER => 1,
+                    CURLOPT_URL => $videourl,
+                    CURLOPT_SSL_VERIFYPEER => 0,
+                    CURLOPT_FOLLOWLOCATION => 1,));
+
+                $extension = explode(".", $videourl);
+                $extension = array_pop($extension);
+
+                $targetfilename = str_replace("/", ".", $currentunit);
+                $storagedir = 'videostorage/fullvideos/' . $targetfilename . '.' . $extension;
+                $targetdownload = storage_path($storagedir);
+
+                $curldata = curl_exec($curl);
+                $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                if ($httpcode != '200') {continue;}
+
+                $fwh = @fopen($targetdownload, "w");
+                @fwrite($fwh, $curldata);
+                @fclose($fwh);
+                curl_close($curl);
+                if (!$fwh) {continue;}
+            }
+            $videocontent['downloadedvideo'] = $storagedir;
+
+            $videounit->content = $videocontent;
+            $videounit->save();
+            $successcount++;
+
+        }
+
+        if ($successcount == $totalcount)
+        {
+             $this->echoSuccess( "Successfully downloaded $successcount videos!");
+
+        } elseif ($successcount == 0) {
+           $this->echoError("Couldn't download any of the $totalcount videos!");
+        } else {
+            $this->echoError("Downloaded $successcount of $totalcount videos!");
+        }
+
+      //  return Redirect::to('media/search');
+
+    }
+
+    public function getSplitVideo()
+    {
+        set_time_limit(0);
+        $ffmpegbinary = app_path('ffmpeg');
+
+        $videofile = Input::get('videofile');
+
+        $videounit = Unit::where('_id',$videofile)->first()->toArray();
+        $kfdata = Entity::where('documentType','keyframe')->whereIn('parents',[$videofile])->get()->sortBy('content.scenestart')->toArray();
+
+
+        $newkfdata = Array();
+        foreach($kfdata as $oldkey => $curkf)
+        {
+            $newkfdata[] = $curkf;
+        }
+        $kfdata = $newkfdata;
+
+        if (count($kfdata) < 1)
+        {
+            $this->echoError("No keyframes found for $videofile");
+        }
+
+        $videopath = storage_path($videounit['content']['downloadedvideo']);
+
+        $getcmd = $ffmpegbinary . " -i " . $videopath . " 2>&1 1>/dev/null | grep Duration: | cut -d \" \" -f 4 | cut -d \",\" -f 1";
+        $duration = shell_exec($getcmd);
+        $expl2 = explode(":",$duration);
+        $duration = (Float)((3600 * (Int)$expl2[0]) + (60 * (Int)$expl2[1]) + ((Float)$expl2[2]));
+
+        //echo storage_path('videostorage/segmentvideos/' . str_replace(".","/",$videofile));
+        @mkdir(storage_path('videostorage/segmentvideos/' . str_replace(".","/",$videofile)),0777,true);
+
+        foreach($kfdata as $kfkey => $curkf)
+        {
+            $curstart = $curkf['content']['scenestart'];
+            if ($kfkey == (count($kfdata) -1)) {
+                $curstop = $duration;
+            } else {
+                $curstop = $kfdata[$kfkey + 1]['content']['scenestart'];
+            }
+
+            $savestring = 'videostorage/segmentvideos/' . str_replace(".","/",$videofile) . "/" . $kfkey . ".mp4";
+            $splitdestination = storage_path($savestring);
+            $splitcmd = $ffmpegbinary . " -i " . $videopath . " -ss " . $curstart . " -t " . ($curstop - $curstart) . " -vcodec libx264 " . $splitdestination;
+            $execcmd = shell_exec($splitcmd);
+
+            $saveunit = Unit::where('_id',$curkf['_id'])->first();
+            $oldcontent = (Array)$saveunit->content;
+
+            $oldcontent['cliplocation'] = $savestring;
+            $saveunit->content = $oldcontent;
+            $saveunit->save();
+
+        }
+
+        $this->echoSuccess("Done splitting into ".count($kfdata). " video files");
+
+
+    }
+
     public function getDownloadFile()
     {
 
@@ -141,39 +448,54 @@ class ProcessVideoController extends BaseController {
 
         $videocontent = $videounit->content;
         $videourl = $videocontent['url'];
+        if (strstr($videourl,"youtube.com")) {
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_URL => $videourl,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_FOLLOWLOCATION => 1,));
 
-        $extension = explode(".",$videourl);
-        $extension = array_pop($extension);
+            $extension = "mp4";
+            $targetfilename = str_replace("/", ".", $getunit);
+            $storagedir = 'videostorage/fullvideos/' . $targetfilename . '.' . $extension;
+            $targetdownload = storage_path($storagedir);
 
-        $targetfilename = str_replace("/",".",$getunit);
-        $storagedir = 'videostorage/fullvideos/'.$targetfilename . '.' . $extension;
-        $targetdownload = storage_path($storagedir);
+            $buildcmd = "youtube-dl -o " . $targetdownload . " \"" . $videourl . "\"";
 
-        $curldata = curl_exec($curl);
-        $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        if ($httpcode != '200') $this->echoError("The file could not be downloaded.");
+            $ytreturn = shell_exec($buildcmd);
+        } else {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_URL => $videourl,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_FOLLOWLOCATION => 1,));
 
-        $fwh = @fopen($targetdownload, "w");
-        @fwrite($fwh, $curldata);
-        @fclose($fwh);
-        curl_close($curl);
-        if (!$fwh) $this->echoError("The file could not be saved to local storage.");
+            $extension = explode(".", $videourl);
+            $extension = array_pop($extension);
 
+            $targetfilename = str_replace("/", ".", $getunit);
+            $storagedir = 'videostorage/fullvideos/' . $targetfilename . '.' . $extension;
+            $targetdownload = storage_path($storagedir);
+
+            $curldata = curl_exec($curl);
+            $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            if ($httpcode != '200') $this->echoError("The file could not be downloaded.");
+
+            $fwh = @fopen($targetdownload, "w");
+            @fwrite($fwh, $curldata);
+            @fclose($fwh);
+            curl_close($curl);
+            if (!$fwh) $this->echoError("The file could not be saved to local storage.");
+        }
         $videocontent['downloadedvideo'] = $storagedir;
 
         $videounit->content = $videocontent;
         $videounit->save();
 
 
-
-        $this->echoSuccess("Successfully downloaded the file to local storage.");
+        if (isset($ytreturn))
+        {
+            $this->echoSuccess("Successfully downloaded the YouTube video to local storage: <br> $ytreturn");
+        } else {
+            $this->echoSuccess("Successfully downloaded the file to local storage.");
+        }
     }
 
     public function postUploadSubs()
@@ -352,24 +674,24 @@ class ProcessVideoController extends BaseController {
 
     public function getClarifai()
     {
-        $images = Array();
-        if (Input::has("all"))
+        $images = Array(); //Array of strings containing mongo-id's of keyframes to be classified
+        if (Input::has("all")) //all keyframes with a certain video as a parent.
         {
             $videofile = Input::get('videoid');
             $allkfs = Entity::where('documentType','keyframe')->whereIn('parents',[$videofile])->get()->sortBy('content.scenestart')->toArray();
-            //print_r($allkfs);
+
             foreach($allkfs as $currentkeyf)
             {
                 $images[] = $currentkeyf['_id'];
             }
-        } else {
+        } else { //single keyframe
             $images[] = Input::get("keyframeid");
         }
         $successcount = 0;
         foreach ($images as $image) {
 
 
-            $clarifai_accesstoken = $this->getClarifaiKey();
+            $clarifai_accesstoken = $this->getClarifaiKey(); //They have a limited lifetime
 
             $curlurl = "https://api.clarifai.com/v1/tag/";
             $curl = curl_init();
@@ -398,10 +720,10 @@ class ProcessVideoController extends BaseController {
             $curlheaders[] = "Authorization: Bearer $clarifai_accesstoken";
             curl_setopt($curl, CURLOPT_HTTPHEADER, $curlheaders);
 
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); //Remove this if your SSL works properly
             $output = curl_exec($curl);
 
-            $cldata = json_decode($output, false, 512, JSON_BIGINT_AS_STRING);
+            $cldata = json_decode($output, false, 512, JSON_BIGINT_AS_STRING); //JSON_BIGINT_AS_STRING is needed and only provided in newer json-php libraries
             $updateframe = Unit::where('_id', $image)->get()->first();
             $newcontent = $updateframe->content;
             $classarray = Array();
@@ -446,7 +768,7 @@ class ProcessVideoController extends BaseController {
         {
             $videofile = Input::get('videoid');
             $allkfs = Entity::where('documentType','keyframe')->whereIn('parents',[$videofile])->get()->sortBy('content.scenestart')->toArray();
-            //print_r($allkfs);
+
             foreach($allkfs as $currentkeyf)
             {
                 $images[] = $currentkeyf['_id'];
@@ -469,18 +791,17 @@ class ProcessVideoController extends BaseController {
             $frameloc = $videounit['content']['frames'][0];
             $inputfile = storage_path($frameloc);
 
-            // I tried to do this in PHP, I really did.
             $imagga_api_id = Config::get('config.imagga_api_key');
             $imagga_api_secret = Config::get('config.imagga_api_secret');
 
-
-            $curlcmd = "curl --user \"$imagga_api_id:$imagga_api_secret\" -F \"image=@$inputfile\" $curlurl";
+            // I tried to do this in PHP, I really did.
+            $curlcmd = "curl --user \"$imagga_api_id:$imagga_api_secret\" -F \"image=@$inputfile\" $curlurl"; //save the file on the imagga server
             $output = shell_exec($curlcmd);
 
             $output = json_decode($output, true);
-            $uploadid = $output['uploaded'][0]['id'];
+            $uploadid = $output['uploaded'][0]['id']; //get the id of the uploaded file
 
-            $curlurl = "https://api.imagga.com/v1/tagging?content=$uploadid";
+            $curlurl = "https://api.imagga.com/v1/tagging?content=$uploadid"; //ask imagga to annotate the file and get the tags
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $curlurl);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -508,10 +829,6 @@ class ProcessVideoController extends BaseController {
                 $newcontent['tags'] = Array();
             }
 
-            /*} else {
-                $newtags = array_keys($newcontent['tags']);
-                $newtags = array_pop(array_sort($newtags));
-            }*/
 
             $newarray = $newcontent['tags'];
             $newarray[] = $classarray;
@@ -897,7 +1214,7 @@ class ProcessVideoController extends BaseController {
 
     private function getClarifaiKey()
     {
-
+        //Setting:: is provided by "anlutro/l4-settings": "^0.4.8" in composer.json
         $expiretime = (Int)(Setting::get('clarifai_expiretime','-1')) - 5; //minus five seconds for some tolerance.
 
         $currenttime = time();

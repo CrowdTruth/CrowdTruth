@@ -21,6 +21,7 @@
 <div class="col-xs-12">
 	<div class='maincolumn CW_box_style'>
 @include('layouts.flashdata')
+@include('media.processvideo.layouts.flashing')
 
 		<div class='tab'>
 			<div class='search row'>
@@ -144,6 +145,7 @@
 							<li><a href="#" class='toSelection'>Save Selection as Batch</a></li>
 							<li><a href="#" class='toCSV'>Export results to CSV</a></li>
 							<li><a href="#" class="processVideo">Process video</a></li>
+							<li><a href="#" class="downloadAllVideos">Download all videos</a></li>
 						</ul>
 					</div>
 					<select name="search_limit" data-query-key="limit" class="limit selectpicker pull-right show-tick">
@@ -606,6 +608,36 @@ $('body').on('click', '.toSelection', function(){
 			form.submit();
 		}
 	});
+
+	$('body').on('click', '.downloadAllVideos', function(){
+		if(typeof selectedRows == 'undefined'){
+			// event.preventDefault();
+			alert('Please select at least one video file');
+		} else {
+			//	var searchQuery = JSON.stringify(lastQueryResult.searchQuery);
+
+			// alert(searchQuery);
+
+			//var form = $('<form action="{{ URL::action("ProcessVideoController@postDownloadAllFiles") }}" method="post"></form>');
+			//$('body').append(form);
+			//form.append($('<input type="hidden" name="fromsearch" value="yes">'))
+			var selectarray = [];
+
+			$.each(selectedRows, function(index, value){
+				selectarray.push(value);
+			});
+
+			var postdata = {videofile: selectarray};
+
+			$.post('{{URL::action("ProcessVideoController@postDownloadAllFiles")}}',postdata,function(data,status){
+				flashMessage(data.status,data.message);
+			},"json");
+			//form.append($("<input type='checkbox' name='searchQuery[]' value='" + searchQuery + "' checked >"));
+			//form.submit();
+		}
+	});
+
+
 
 // toggle relex specific options on click
 $('body').on('click', '.specificFilterOptions button', function(){
@@ -1199,6 +1231,20 @@ function jobactions(job, action, index){
 		        }
 		    });
 }
+
+function flashMessage(type, message)
+{
+	$('#successmessage_btnreload').css('display: none');
+	$(".flashmessage_text").text(message);
+	if (type == "success") {
+		$("#flashing_success").fadeIn('fast');
+
+
+	} else if (type == "error")
+	{
+		$("#flashing_error").fadeIn('fast');
+	}
+};
 
 </script>
 

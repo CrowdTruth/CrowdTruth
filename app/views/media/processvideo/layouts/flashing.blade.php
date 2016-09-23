@@ -22,6 +22,7 @@
         <strong><i class="fa fa-check fa-fw"></i>Success!</strong>
         <hr class="message-inner-separator">
 
-            <p class="flashmessage_text"></p>
+            <p class="flashmessage_text"></p><br />
+        <button id="successmessage_btnreload">Reload to see changes</button>
 
     </div>

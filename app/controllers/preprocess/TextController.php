@@ -29,7 +29,7 @@ class TextController extends BaseController {
 	public function __construct(Repository $repository, TextSentencePreprocessor $processor) {
 		$this->repository = $repository;
 		$this->processor = $processor;
-		$this->nLines = 2;
+		$this->nLines = 16;
 		
 		//$this->beforeFilter('permission:'.Permissions::PROJECT_WRITE, [ 'only' => 'postConfigure']);
 	}
@@ -113,6 +113,16 @@ class TextController extends BaseController {
 		$reader = Reader::createFromString($documentContent);
 		$reader->setDelimiter($separator);
 		$reader->setEnclosure($delimiter);
+
+        		// remove empty lines
+        		$reader->addFilter(function($row) {
+            			if(count($row) == 1 && $row[0] == NULL) {
+                				return false;
+ 			}
+ 			return true;
+ 		});
+
+        		// start at the second row if the file contains headers
 		if($ignoreHeader) {
 			$reader->setLimit($nLines);
 		} else {

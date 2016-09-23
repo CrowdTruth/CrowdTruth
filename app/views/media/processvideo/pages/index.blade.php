@@ -49,8 +49,12 @@
                             <button id="imaggaall">Imagga</button>
                             @endif
                         </li>
-                        <li class="checklistitem"><span id="cl_status_class_text" class="glyphicon glyphicon-remove"></span> Text extraction</li>
-                            @if ($data['donedbpedia'] == "0")
+                        @if (isset($data['content']['taggeddesc']) && $data['donenerd'] == "1")
+                            <li class="checklistitem"><span id="cl_status_class_text" class="glyphicon glyphicon-ok"></span> Text extraction</li>
+                        @else
+                            <li class="checklistitem"><span id="cl_status_class_text" class="glyphicon glyphicon-remove"></span> Text extraction</li>
+                        @endif
+                            @if (false)
                                 <button id="dbpediasubtitles">DBPedia subtitles</button>
                                 @endif
                             @if ($data['donenerd'] == "0")
@@ -58,14 +62,20 @@
                                 @endif
                         @if (!isset($data['content']['description']))
                             <button id="buttonadddesc">Add description</button>
-                                <textarea name="" id="textareadesc" cols="30" rows="10"></textarea>
-                                <button id="savedesc">Save desciption</button>
-                            @else
-                                <button id="buttonshowdesc">Show description</button>
+                            <textarea name="" id="textareadesc" cols="30" rows="10"></textarea>
+                            <button id="savedesc">Save desciption</button>
+                        @else
+                            <button id="buttonshowdesc">Show description</button>
+                            @if (isset($data['content']['taggeddesc']))
                                 <div id="textareadescshow"> {{$data['content']['taggeddesc'];}}</div>
-                                <button id="processdesc_dbpedia">DBpedia</button>
+                            @else
+                                <div id="textareadescshow"> {{$data['content']['description']}}</div>
                                 <button id="processdesc_nerd">Nerd</button>
-
+                            @endif
+                        @endif
+                        <button id="splitvideobutton">Split video</button>
+                        @if(isset($data['content']['downloadedvideo']) && (isset($data['keyframes'])) && (isset($data['subtitles'])) && ($data['doneclarifai'] == "1" && $data['doneimagga'] == "1") && (isset($data['content']['taggeddesc']) && $data['donenerd'] == "1"))
+                        <br /><br />    <button id="gotonextstep">Go to step two</button>
                         @endif
                     </ul>
                 </div>
@@ -114,7 +124,7 @@
 
                                     <div class="row">
                                         @foreach($keyframe['content']['tags'] as $tagcontent)
-                                            @if ($tagcontent['source'] != 'dbpedia')
+                                            @if ($tagcontent['source'] != 'dbpedia' && $tagcontent['source'] != 'nerd')
                                             <div class="tagcontent">
                                                 Source: {{$tagcontent['source']}}
                                                 <table class="table-striped tagtable">
@@ -197,11 +207,12 @@
         }
 
         $('.singlekeyframe').click(function(){
-            if ($(this).width() > 500)
+
+            if ($(this).width() > 400)
             {
                 $(this).animate({width: 210, height: 142}, 500);
             } else {
-                $(this).animate({width: 610, height: 350}, 500);
+                $(this).animate({width: 480, height: 350}, 500);
             }
         });
 
@@ -225,17 +236,7 @@
         });
 
 
-        function flashMessage(type, message)
-        {
 
-            $(".flashmessage_text").text(message);
-            if (type == "success") {
-                $("#flashing_success").fadeIn('fast');
-            } else if (type == "error")
-            {
-                $("#flashing_error").fadeIn('fast');
-            }
-        };
 
         $('#clarifaiall').click(function() {
 
@@ -292,11 +293,13 @@
            if ($('#textareadescshow').css('display') != 'block')
            {
                $('#textareadescshow').fadeIn('fast');
-               $('#processdesc').fadeIn('fast');
+               $('#processdesc_dbpedia').fadeIn('fast');
+               $('#processdesc_nerd').fadeIn('fast');
                $('#buttonshowdesc').text('Hide description');
            } else {
                $('#textareadescshow').fadeOut('fast');
-               $('#processdesc').fadeOut('fast');
+               $('#processdesc_dbpedia').fadeOut('fast');
+               $('#processdesc_nerd').fadeOut('fast');
                $('#buttonshowdesc').text('Show description');
            }
         });
@@ -329,6 +332,43 @@
 
         });
 
+        function flashMessage(type, message)
+        {
+
+            $(".flashmessage_text").text(message);
+            if (type == "success") {
+                $("#flashing_success").fadeIn('fast');
+
+                $("#successmessage_btnreload").click(function() {
+
+
+                    var form = $('<form action="{{ URL::action("ProcessVideoController@postProcess") }}" method="post"></form>');
+                    $('body').append(form);
+                    form.append($('<input type="hidden" name="videofile" value="{{$data['_id']}}">'))
+                    form.submit();
+
+                });
+            } else if (type == "error")
+            {
+                $("#flashing_error").fadeIn('fast');
+            }
+        };
+
+        $('#gotonextstep').click(function(){
+            var form = $('<form action="{{ URL::action("ProcessVideoController@postStepTwo") }}" method="post"></form>');
+            $('body').append(form);
+            form.append($('<input type="hidden" name="videofile" value="{{$data['_id']}}">'))
+            form.submit();
+        });
+
+        $('#splitvideobutton').click(function(){
+
+            var unitid = '{{$data['_id']}}';
+            var getdata = {videofile:unitid};
+            $.get('{{URL::action('ProcessVideoController@getSplitVideo')}}', getdata, function(data,status){
+                flashMessage(data.status,data.message);
+            });
+        });
 
     </script>
 @stop
