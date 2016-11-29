@@ -257,6 +257,7 @@ class JobsController2 extends BaseController {
  			$te['instructions'] = $jcco['instructions'];
  		if(isset($jcco['js']))
  			$te['js'] = $jcco['js'];
+ 			
 		$te['version'] = $v;
  		$te['type'] = $type;
  		$te->save();
@@ -483,6 +484,15 @@ class JobsController2 extends BaseController {
 				}
 			}
 
+			if(isset($jcbase['workerunitsPerUnit']))
+				$jcco['workerunitsPerUnit'] = $jcbase['workerunitsPerUnit'];
+			if(isset($jcbase['status']))
+				$jcco['status'] = $jcbase['status'];
+			if(isset($jcbase['unitsPerTask']))
+				$jcco['unitsPerTask'] = $jcbase['unitsPerTask'];
+			if(isset($jcbase['reward']))
+				$jcco['reward'] = $jcbase['reward'];
+			
 			$jcco['cml'] = $jcbase['cml'];
 			if(isset($jcbase['css']))
 				$jcco['css'] = $jcbase['css'];

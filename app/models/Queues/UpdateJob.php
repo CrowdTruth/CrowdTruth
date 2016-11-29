@@ -142,6 +142,14 @@ class UpdateJob {
 					$templateid = 'entity/openimages/template/MetaDEvents';
 				else if($j->templateType == 'DistributionalDisambiguation')
 					$templateid = 'entity/text/opendomain/termpairs/0';
+				else if($j->templateType == 'Cell Tagging Template')
+					$tempalteid = 'entity/image/BioCrowd';
+				else if($j->templateType == 'Nucleus tagging Template')
+					$tempalteid = 'entity/image/BioCrowd';
+				else if($j->templateType == 'Vesicle locating Template')
+					$tempalteid = 'entity/image/BioCrowd';
+				else if($j->templateType == 'Colony tagging Template')
+					$tempalteid = 'entity/image/BioCrowd';
 				else
 					$templateid = 'entity/text/medical/FactSpan/Factor_Span/0';
 
