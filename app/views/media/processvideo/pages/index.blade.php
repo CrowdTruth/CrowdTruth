@@ -28,13 +28,14 @@
                             <li class="checklistitem"><span id="cl_status_subs" class="glyphicon glyphicon-ok"></span> Processed subtitles</li>
                         @else
                             <li class="checklistitem"><span id="cl_status_subs" class="glyphicon glyphicon-remove"></span> Processed subtiles
+                                @endif
                                 <form name="subsform" id="subsform">
                                 <input type="file" name="subsfile" id="uploadsubs">
                                     <input type="hidden" name="videounit" value="{{$data['_id']}}">
                                 <input type="submit" value="Upload" id="uploadsubssubmit" />
                                 </form>
                             </li>
-                        @endif
+
 
                         @if ($data['doneclarifai'] == "1" && $data['doneimagga'] == "1")
                                 <li class="checklistitem"><span id="cl_status_class_img" class="glyphicon glyphicon-ok">
@@ -243,7 +244,7 @@
            var getdata = {videoid: '{{$data['_id']}}', all: "yes"}
            $.get('{{URL::action('ProcessVideoController@getClarifai')}}',getdata,function(data,status){
                flashMessage(data.status,data.message);
-           });
+           },"json");
 
         });
 
@@ -252,7 +253,7 @@
             var getdata = {videoid: '{{$data['_id']}}', all: "yes"}
             $.get('{{URL::action('ProcessVideoController@getImagga')}}',getdata,function(data,status){
                 flashMessage(data.status,data.message);
-            });
+            },"json");
 
         });
 

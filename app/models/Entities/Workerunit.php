@@ -241,8 +241,38 @@ class Workerunit extends Entity {
 		$vector = ['keywords' => []];
 		
 		// for each keyword
-		$keywords = explode(',', $judgment['keywords']);
+        if (isset($judgment['keywords'])) {
+            if (substr($judgment['keywords'],0,2) == "[\"")
+            {
+                   $keywords = json_decode($judgment['keywords']);
+            } else {
+                $keywords = explode(',', $judgment['keywords']);
+            }
+        } else {
+            $arraykeys = array_keys($judgment);
+            foreach ($arraykeys as $arraykey)
+            {
+                if (strstr(strtolower($arraykey),'keywords'))
+                {
+                    if (substr($judgment[$arraykey],0,2) == "[\"")
+                    {
+                        $keywords = json_decode($judgment[$arraykey]);
+                    } else {
+                        $keywords = explode(',', $judgment[$arraykey]);
+                    }
+                    break;
+                }
+            }
+
+        }
+
+        if (!isset($keywords))
+        {
+            print_r($judgment);
+            exit;
+        }
 		foreach($keywords as $keyword) {
+            if ($keyword == "[]") continue;
 			$keyword = str_replace('.', ' ', $keyword);
 			$keyword = trim($keyword);
 			if($keyword != "") {

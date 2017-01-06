@@ -17,11 +17,89 @@ class ProcessVideoController extends BaseController {
         return Redirect::to('media/search');
     }
 
-    public function postTaskPreview()
+    public function postUploadVideos()
     {
-        if (!Input::has('keyframeid')) {
+        if (!Input::has('keyframes')) {
             return Redirect::to('media/search');
         }
+
+        $keyframes = Input::get('keyframes');
+        $videounit = Input::get('videounit');
+        $outarray = Array();
+        foreach($keyframes as $keyframe)
+        {
+            $curkf = Entity::where('_id',$keyframe)->get()->first()->toArray();
+
+            if (isset($curkf['content']['cliplocation'])) {
+                $image = base64_encode(file_get_contents(storage_path($curkf['content']['cliplocation'])));
+                $exploded1 = explode("/", $keyframe);
+                $imagefilename = array_pop($exploded1) . ".mp4";
+
+                $curout = Array();
+                $curout['filename'] = $imagefilename;
+                $curout['content'] = $image;
+                array_push($outarray, $curout);
+            } else {
+                $this->echoError("Please generate video clips first!");
+            }
+
+            $postdata['unitdir'] = str_replace("/",".",$videounit);
+            $postdata['image'] = json_encode($outarray);
+            $curl = curl_init();
+            $curltarget = "https://joran.org/ct/receiver/post.php";
+            curl_setopt($curl,CURLOPT_USERPWD,"joran:ctpost");
+            curl_setopt($curl,CURLOPT_POST,1);
+            curl_setopt($curl,CURLOPT_URL,$curltarget);
+            curl_setopt($curl, CURLOPT_POSTFIELDS,$postdata);
+            curl_exec($curl);
+
+        }
+
+
+        $this->echoSuccess("Uploaded ". count($keyframes). " videos!");
+    }
+
+    public function postUploadImages()
+    {
+        if (!Input::has('keyframes')) {
+            return Redirect::to('media/search');
+        }
+
+        $keyframes = Input::get('keyframes');
+        $videounit = Input::get('videounit');
+        $outarray = Array();
+        foreach($keyframes as $keyframe)
+        {
+            $curkf = Entity::where('_id',$keyframe)->get()->first()->toArray();
+
+            $image = base64_encode(file_get_contents(storage_path($curkf['content']['frames'][0])));
+            $exploded1 = explode("/",$keyframe);
+            $imagefilename = array_pop($exploded1) . ".png";
+
+            $curout = Array();
+            $curout['filename'] = $imagefilename;
+            $curout['content'] = $image;
+            array_push($outarray,$curout);
+        }
+
+        $postdata['unitdir'] = str_replace("/",".",$videounit);
+        $postdata['image'] = json_encode($outarray);
+        $curl = curl_init();
+        $curltarget = "https://joran.org/ct/receiver/post.php";
+        curl_setopt($curl,CURLOPT_USERPWD,"joran:ctpost");
+        curl_setopt($curl,CURLOPT_POST,1);
+        curl_setopt($curl,CURLOPT_URL,$curltarget);
+        curl_setopt($curl, CURLOPT_POSTFIELDS,$postdata);
+        curl_exec($curl);
+
+        $this->echoSuccess("Uploaded ".count($keyframes)." images!");
+
+
+
+
+
+
+        exit;
 
         $keyframeid = Input::get('keyframeid');
 
@@ -131,6 +209,163 @@ class ProcessVideoController extends BaseController {
 
 
         return View::make('media.processvideo.pages.taskpreview')->with('data', $output);
+    }
+
+    public function postCreateSet()
+    {
+        if (!Input::has('keyframes')) {
+            return Redirect::to('media/search');
+        }
+
+        $keyframes = Input::get('keyframes');
+        $videounit = Input::get('videounit');
+        $outarray = Array();
+
+
+        $curvid = Entity::where('_id',$videounit)->get()->first()->toArray();
+        $description = str_replace("\n"," ",trim($curvid['content']['description']));
+
+
+        foreach($keyframes as $keyframe)
+        {
+            $curkf = Entity::where('_id',$keyframe)->get()->first()->toArray();
+
+            $addrow = Array();
+            $addrow['ctunitid'] = $curkf['_id'];
+            $addrow['description'] = $description;
+            if (isset($curkf['content']['subtitles']))
+            {
+                $addrow['subtitles'] = str_replace("\""," ",implode(" ",$curkf['content']['subtitles']));
+            } else {
+                $addrow['subtitles'] = "";
+            }
+            $splitid = explode("/",$curkf['_id']);
+            $unitnumber = array_pop($splitid);
+            $addrow['imagelocation'] = "https://joran.org/ct/".str_replace("/",".",$videounit)."/".$unitnumber.".png";
+            $addrow['videolocation'] = "https://joran.org/ct/".str_replace("/",".",$videounit)."/".$unitnumber.".mp4";
+
+
+            array_push($outarray,$addrow);
+        }
+        echo "ctunitid,description,subtitles,imagelocation,videolocation\n";
+        foreach ($outarray as $currow)
+        {
+            echo "\"".$currow['ctunitid']."\",";
+            echo "\"".$currow['description']."\",";
+            echo "\"".$currow['subtitles']."\",";
+            echo "\"".$currow['imagelocation']."\",";
+            echo "\"".$currow['videolocation']."\"\n";
+
+        }
+
+    }
+
+    public function postCreateSet56()
+    {
+        if (!Input::has('keyframes')) {
+            return Redirect::to('media/search');
+        }
+
+        $limitperimageclassifier = 5;
+
+        $keyframes = Input::get('keyframes');
+        $videounit = Input::get('videounit');
+        $outarray = Array();
+
+
+        $curvid = Entity::where('_id',$videounit)->get()->first()->toArray();
+        $descriptiontags = "";
+        if (isset($curvid['content']['tags']))
+        {
+            foreach ($curvid['content']['tags'] as $curtag)
+            {
+                if ($curtag['source'] != 'nerd') continue;
+
+                foreach($curtag['tags'] as $tagfoundkey => $tagfound)
+                {
+                    $curtagid = $tagfoundkey;
+                    $curtagstr = $tagfound['label'];
+
+                    $descriptiontags .= $curtagstr . "__" . $curtagid . "_###_";
+                }
+            }
+        }
+
+
+        foreach($keyframes as $keyframe)
+        {
+            $curkf = Entity::where('_id',$keyframe)->get()->first()->toArray();
+
+            $addrow = Array();
+            $addrow['ctunitid'] = $curkf['_id'];
+            $addrow['descriptiontags'] = $descriptiontags;
+            $addrow['subtitletags'] = "";
+            $addrow['imagetags'] = "";
+
+
+            $clarifaicounter = 0;
+            $imaggacounter = 0; //bug avoidance;
+            if (isset($curkf['content']['tags']))
+            {
+                foreach ($curkf['content']['tags'] as $curtag)
+                {
+                    if ($curtag['source'] == 'clarifai' && $clarifaicounter == 1) continue;
+                    if ($curtag['source'] == 'imagga' && $imaggacounter == 1) continue;
+                    if ($curtag['source'] == 'clarifai') $clarifaicounter = 1;
+                    if ($curtag['source'] == 'imagga') $imaggacounter = 1;
+                    switch($curtag['source'])
+                    {
+                        case "nerd":
+                            foreach ($curtag['tags'] as $tagfoundkey => $tagfound)
+                            {
+                            //    if (!isset( $tagfound['tags'])) continue;
+
+                                $curtagid = $tagfoundkey;
+                                $curtagstr = $tagfound['label'];
+
+                                $addrow['subtitletags'] .= $curtagstr . "__" . $curtagid . "_###_";
+                            }
+
+                            break;
+                        case "clarifai":
+                        case "imagga":
+                                $cursrc = substr($curtag['source'], 0 ,1);
+                                foreach ($curtag['tags'] as $tagfoundkey => $tagfound)
+                                {
+                                    if ($tagfoundkey >= $limitperimageclassifier) continue;
+                                    $curtagid = $tagfoundkey;
+                                    $curtagstr = $tagfound['tag'];
+
+                                    $addrow['imagetags'] .= $curtagstr ."__". $cursrc . $curtagid . "_###_";
+
+                                }
+
+
+                            break;
+                    }
+                }
+            }
+
+            $splitid = explode("/",$curkf['_id']);
+            $unitnumber = array_pop($splitid);
+            $addrow['imagelocation'] = "https://joran.org/ct/".str_replace("/",".",$videounit)."/".$unitnumber.".png";
+            $addrow['videolocation'] = "https://joran.org/ct/".str_replace("/",".",$videounit)."/".$unitnumber.".mp4";
+
+
+            array_push($outarray,$addrow);
+        }
+        echo "ctunitid,descriptiontags,subtitletags,imagetags,imagelocation,videolocation\n";
+        foreach ($outarray as $currow)
+        {
+            echo "\"".$currow['ctunitid']."\",";
+            echo "\"".$currow['descriptiontags']."\",";
+            echo "\"".$currow['subtitletags']."\",";
+            echo "\"".$currow['imagetags']."\",";
+            echo "\"".$currow['imagelocation']."\",";
+            echo "\"".$currow['videolocation']."\"\n";
+
+        }
+
     }
 
     public function postStepTwo()
@@ -254,8 +489,8 @@ class ProcessVideoController extends BaseController {
                     if ($curtag['source'] == "imagga") $imaggaswitch = true;
                     if ($curtag['source'] == "clarifai") $clarifaiswitch = true;
                     if (isset($curkf['content']['subtitles'])) {
-                        $nerdswitch = true;
                         if ($curtag['source'] == "nerd") {
+                            $nerdswitch = true;
                             $cursub = implode(" ", $curkf['content']['subtitles']);
                             $tt_part1 = "<span class=\"vidtooltip\">";
                             $tt_part2 = "<span class=\"vidtooltiptext\">";
@@ -519,39 +754,140 @@ class ProcessVideoController extends BaseController {
         $entity->content = $newcontent;
         $entity->project = $videounit['project'];
         $entity->save();
-        
-        //parse!
-        $subsxml = simplexml_load_file(storage_path($targetpath . $file->getClientOriginalName()));
-        $base = $subsxml->body->div->p; //this is where the subs start
 
-        foreach ($base as $subdata)
+        $cleandb = Unit::whereIn('parents', [$getunit])->where('documentType', 'keyframe')->get();
+        foreach ($cleandb as $currec)
         {
+            $workon = $currec->toArray();
 
-            $subdata = (Array)$subdata;
-            $time = explode(":",$subdata['@attributes']['begin']); //hours:minutes:seconds.millis
-            $seconds = (float)((($time[0] * 3600) + ($time[1] * 60) + explode(".",$time[2])[0]) . "." . (explode(".",$time[2])[1]));
-            $findframe = Unit::whereIn('parents',[$getunit])->where('documentType','keyframe')->where('content.scenestart','<',$seconds)->get()->sortBy('content.scenestart')->last();
-
-
-            $newcontent = $findframe->content;
-            if (is_array($subdata['span']))
+            if (isset($workon['content']['subtitles']))
             {
-                foreach($subdata['span'] as $cursub)
-                {
-                    $newcontent['subtitles'][] = trim($cursub);
-                }
 
-            } else {
-                $newcontent['subtitles'][] = trim($subdata['span']);
+                unset($workon['content']['subtitles']);
+
+
+                $currec->content = $workon['content'];
+                $currec->save();
+
             }
 
-            $findframe->content = $newcontent;
+            if (isset($workon['content']['tags'])) //remove subtitle tags as well.
+            {
+                foreach($workon['content']['tags'] as $tagkey => $tagvalue)
+                {
+                    if ($tagvalue['source'] != 'nerd') continue;
+                    unset ($workon['content']['tags'][$tagkey]);
+                }
 
-            $findframe->save();
-
+                $currec->content = $workon['content'];
+                $currec->save();
+            }
 
         }
+        
 
+
+        if (substr($file->getClientOriginalName(),-4,4) == ".xml") {
+            $subsxml = simplexml_load_file(storage_path($targetpath . $file->getClientOriginalName()));
+            $base = $subsxml->body->div->p; //this is where the subs start
+
+            foreach ($base as $subdata) {
+
+                $subdata = (Array)$subdata;
+                $time = explode(":", $subdata['@attributes']['begin']); //hours:minutes:seconds.millis
+                $seconds = (float)((($time[0] * 3600) + ($time[1] * 60) + explode(".", $time[2])[0]) . "." . (explode(".", $time[2])[1]));
+                $findframe = Unit::whereIn('parents', [$getunit])->where('documentType', 'keyframe')->where('content.scenestart', '<', $seconds)->get()->sortBy('content.scenestart')->last();
+
+
+                $newcontent = $findframe->content;
+                if (is_array($subdata['span'])) {
+                    foreach ($subdata['span'] as $cursub) {
+                        $newcontent['subtitles'][] = trim($cursub);
+                    }
+
+                } else {
+                    $newcontent['subtitles'][] = trim($subdata['span']);
+                }
+
+                $findframe->content = $newcontent;
+
+                $findframe->save();
+
+
+            }
+        } else if(substr($file->getClientOriginalName(),-4,4) == ".srt") {
+
+
+            $fh = fopen(storage_path($targetpath . $file->getClientOriginalName()),"r");
+            $newline = true;
+            $tempsavestring = Array();
+            $curtime = "";
+
+            while (($curline = fgetss($fh)) !== false)
+            {
+                if ($newline)
+                {
+                    $newline = false; //skip the identifier.
+                    continue;
+                }
+                if (strstr($curline,"-->"))
+                {
+
+                    $expl1 = explode(" --> ",$curline);
+                    $expl2 = explode(",",$expl1[0]);
+                    $timemillis = $expl2[1];
+                    $expl3 = explode(":",$expl2[0]); // hours:minutes:seconds
+                    $timehours = $expl3[0];
+                    $timeminutes = $expl3[1];
+                    $timeseconds = (Int)$expl3[2];
+
+                    $timeseconds += ((Int)$timehours * 3600);
+                    $timeseconds += ((Int)$timeminutes * 60);
+                    $curtime = (float)($timeseconds."."."$timemillis");
+
+                    //echo "$curline became $curtime\n";
+                    continue;
+                }
+
+                if (ord($curline) == 13)
+                {
+                    $findframe = Unit::whereIn('parents', [$getunit])->where('documentType', 'keyframe')->where('content.scenestart', '<', $curtime)->get()->sortBy('content.scenestart')->last();
+
+                    if(!isset($findframe->content)) { //when frame does not exist, add to next one;
+                        $curtime = "";
+                        $newline = true;
+                        continue;
+                    }
+
+                    //echo "Still doing $curtime for ". $findframe->_id ."\n";
+
+                    //if (!mb_check_encoding($tempsavestring,'UTF-8')) $tempsavestring = mb_convert_encoding($tempsavestring,'UTF-8'); //Bug when a non utf-8 char is used.
+                    $newcontent = $findframe->content;
+                    if (isset($newcontent['subtitles']))
+                    {
+                        $newcontent['subtitles'] = array_merge($newcontent['subtitles'],$tempsavestring);
+                    } else {
+                        $newcontent['subtitles'] = $tempsavestring;
+                    }
+                    $findframe->content = $newcontent;
+
+                    $findframe->save();
+
+                    $tempsavestring = Array();
+                    $curtime = "";
+                    $newline = true;
+                    continue;
+                }
+
+                if (!mb_check_encoding($curline,'UTF-8')) $curline = mb_convert_encoding($curline,'UTF-8'); //Bug when a non utf-8 char is used.
+                $tempsavestring[] = trim($curline);
+
+            }
+
+
+        } else {
+            $this->echoError("Format not recognized: " . $file->getClientOriginalName());
+        }
         $this->echoSuccess("Successfully uploaded and processed subtitles");
         
 
@@ -577,6 +913,7 @@ class ProcessVideoController extends BaseController {
 
         //$buildcmd = "$ffmpegbinary -i $videofile -vf select=\"gt(scene\,0.".$scenetreshold.")\" -vsync 2 ".$outdir."frame%07d.png -loglevel debug 2>&1 | grep \"select:1\" | cut -d \" \" -f 6 - >".$outdir."frametimes.out";
         $buildcmd = "$ffmpegbinary -i $videofile -vf select=\"gt(scene\,0.".$scenetreshold.")\" -vsync 2 ".$outdir."frame%07d.png -loglevel debug 2>&1| grep \"select:1\" > ".$outdir."frametimes.out";
+
         $out = shell_exec($buildcmd);
 
         $fhtimes = fopen($outdir."frametimes.out","r");

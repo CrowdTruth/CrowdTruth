@@ -424,7 +424,7 @@ class ResultImporter {
 				$content = [];
 				for($c = $startColumn; $c < $endColumn; $c++) {
 					$key = str_replace('.','_',$data[0][$c]);
-					$content[$key] = $data[$i][$c];
+					if (isset($data[$i][$c])) { $content[$key] = $data[$i][$c]; } else {$content[$key] = 'na'; }
 				}
 			
 				$trust = 1;
