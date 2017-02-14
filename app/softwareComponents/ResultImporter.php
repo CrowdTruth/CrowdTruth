@@ -415,6 +415,30 @@ class ResultImporter {
 						]
 					];
 				}
+				else if ($settings["project"] == "oke_challenge") {
+					$content = [
+							'identifier' => $data[$unitIds[$i]][array_search('identifier',$data[0])],
+							'sentence' => $data[$unitIds[$i]][array_search('sentence',$data[0])],
+							'cluster_name' => $data[$unitIds[$i]][array_search('alternative1',$data[0])],
+							'alternative1' => $data[$unitIds[$i]][array_search('alternative1',$data[0])],
+							'alternative2' => $data[$unitIds[$i]][array_search('alternative2',$data[0])],
+							'alternative3' => $data[$unitIds[$i]][array_search('alternative3',$data[0])],
+							'alternative4' => $data[$unitIds[$i]][array_search('alternative4',$data[0])],
+							'alternative5' => $data[$unitIds[$i]][array_search('alternative5',$data[0])],
+							'alternative6' => $data[$unitIds[$i]][array_search('alternative6',$data[0])],
+							'alternative7' => $data[$unitIds[$i]][array_search('alternative7',$data[0])],
+							'alternative8' => $data[$unitIds[$i]][array_search('alternative8',$data[0])],
+							'alternative9' => $data[$unitIds[$i]][array_search('alternative9',$data[0])],
+							'alternative10' => $data[$unitIds[$i]][array_search('alternative10',$data[0])],
+							'alternative11' => $data[$unitIds[$i]][array_search('alternative11',$data[0])],
+							'alternative12' => $data[$unitIds[$i]][array_search('alternative12',$data[0])]
+						];
+						$settings["keywords"] = "finding the main named entity";
+						$settings["description"] = "choosing the correct entity and its type";
+						$settings["templateType"] = "PrimaryNamedEntity";
+						$settings["platformJobId"] = substr($settings['filename'], 1);
+				}
+
 
 				$platform_id = $data[$unitIds[$i]][$aggrColumn];
 

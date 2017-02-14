@@ -13,7 +13,7 @@ use \Entities\Unit as Unit;
 use \Auth as Auth;
 use \App;
 
-use SoftwareAgent, Activity, Entity, UserAgent;
+use SoftwareAgent, Activity, Entity, UserAgent, Config;
 use UserController as UserController;
 use \Template as Template;
 use \Entities\Batch as Batch;
@@ -67,8 +67,8 @@ class DIVEUnitsImporter {
 		ini_set('memory_limit','256M');
 		set_time_limit(0);
 
-		$project = 'clariah';
-		$userId = 'clariah';
+		$project = Config::get('config.clariah_project');
+		$userId = Config::get('config.clariah_user');
 
 		$this->status = ['annotationStatus' => [], 'success' => [], 'error' => []];
 		$mapping = [];
@@ -356,7 +356,6 @@ class DIVEUnitsImporter {
 		$entity->extraInfoBatch = $extraInfoBatch;
 		$entity->save();
 
-		//false if we want to run it on the internal interface
 
 		try {
 			$entity->publish(true);

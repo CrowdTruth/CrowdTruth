@@ -136,7 +136,7 @@ class MetadatadescriptionStructurer {
 		// the confidence score needs to be normalized 0 .. 1
 		$initialMin = 0.5;
 		$initialMax = 10;
-		dd($response['response']['entities']);
+		//dd($response['response']['entities']);
 		$result["initialEntities"] = array();
 		if (isset($response['response']['entities'])) {
        		$initialEntities = array();
@@ -440,7 +440,7 @@ class MetadatadescriptionStructurer {
 			$content["identifier"] = $parentEntity["content"]["identifier"];
 			$content["sentence"] = $parentEntity["content"]["sentence"];
 			$content["provenance"] = "textrazor";
-			$content["dataset"] = "2016";
+			$content["dataset"] = "testing_2016";
 			$content["pos-tagging"] = $metadataDescriptionPreprocessing["POSTagging"];
 			$entity->content = $content;
 			$entity->hash = md5(serialize($content));
@@ -498,7 +498,7 @@ class MetadatadescriptionStructurer {
 			$content = array();	
 			$content["identifier"] = $parentEntity["content"]["identifier"];
 			$content["description"] = $parentEntity["content"]["sentence"];
-			$content["dataset"] = "2015";
+			$content["dataset"] = "testing_2016";
 			$content["provenance"] = "thd";
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
@@ -556,7 +556,7 @@ class MetadatadescriptionStructurer {
 			$content = array();	
 			$content["identifier"] = $parentEntity["content"]["identifier"];
 			$content["description"] = $parentEntity["content"]["sentence"];
-			$content["dataset"] = "2016";
+			$content["dataset"] = "testing_2016";
 			$content["provenance"] = "nerd";
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
@@ -615,7 +615,7 @@ class MetadatadescriptionStructurer {
 			$content = array();	
 			$content["description"] = $parentEntity["content"]["sentence"];
 			$content["provenance"] = "dbpediaspotlight";
-			$content["dataset"] = "2016";
+			$content["dataset"] = "testing_2016";
 			$content["identifier"] = $parentEntity["content"]["identifier"];
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
@@ -674,7 +674,7 @@ class MetadatadescriptionStructurer {
 			$content["identifier"] = $parentEntity["content"]["identifier"];
 			$content["description"] = $parentEntity["content"]["sentence"];
 			$content["provenance"] = "textrazor";
-			$content["dataset"] = "2016";
+			$content["dataset"] = "testing_2016";
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$content["topics"] = $metadataDescriptionPreprocessing["topics"];
 			$content["course-topics"] = $metadataDescriptionPreprocessing["coarseTopics"];
@@ -737,7 +737,7 @@ class MetadatadescriptionStructurer {
 			$content["identifier"] = $parentEntity["content"]["identifier"];
 			$content["description"] = $parentEntity["content"]["sentence"];
 			$content["provenance"] = "semitags";
-			$content["dataset"] = "2015";
+			$content["dataset"] = "testing_2016";
 			$content["named-entities"] = $metadataDescriptionPreprocessing["initialEntities"];
 			$entity->content = $content;
 			$entity->hash = md5(serialize($content));

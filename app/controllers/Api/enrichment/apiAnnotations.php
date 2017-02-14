@@ -29,6 +29,7 @@ class apiAnnotations extends BaseController
       {
         $ticketIds = explode(" - ", $ticket);
         $jobContent = \Entity::where("_id", $ticketIds[0])->first();
+        $unitContent = \Entity::where("_id", $ticketIds[1])->first();
 
         if ($jobContent == NULL) {
           return [
@@ -39,7 +40,8 @@ class apiAnnotations extends BaseController
         }
         else {
 
-          if (isset($jobContent["metrics"])) {
+          if (isset($jobContent["metrics"]) && isset($unitContent)) {
+            // we might want to change this and check for metrics but also for new units that are created
             $ticketStatus = [
               'ticket' => $ticket,
               'status' => $jobContent["status"]
