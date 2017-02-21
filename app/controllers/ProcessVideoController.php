@@ -260,6 +260,148 @@ class ProcessVideoController extends BaseController {
 
     }
 
+    public function postCreateSetComplete()
+    {
+        if (!Input::has('keyframes')) {
+            return Redirect::to('media/search');
+        }
+
+        $limitperimageclassifier = 5;
+
+        $keyframes = Input::get('keyframes');
+        $videounit = Input::get('videounit');
+        $outarray = Array();
+
+
+        $curvid = Entity::where('_id',$videounit)->get()->first()->toArray();
+        $descriptiontags = "";
+        if (isset($curvid['content']['tags']))
+        {
+            foreach ($curvid['content']['tags'] as $curtag)
+            {
+                if ($curtag['source'] != 'nerd') continue;
+
+                foreach($curtag['tags'] as $tagfoundkey => $tagfound)
+                {
+                    //$curtagid = $tagfoundkey;
+                    $curtagstr = $tagfound['label'];
+                    $curtagprob = $tagfound['confidence'];
+
+                    $descriptiontags[] = [$curtagstr,$curtagprob]; // . "__" . $curtagid . "_###_";
+                }
+            }
+        }
+
+
+        foreach($keyframes as $keyframe)
+        {
+            $curkf = Entity::where('_id',$keyframe)->get()->first()->toArray();
+
+            $addrow = Array();
+            $addrow['ctunitid'] = $curkf['_id'];
+            $addrow['descriptiontags'] = $descriptiontags;
+            $addrow['subtitletags'] = "";
+            $addrow['imagetags'] = "";
+
+
+            $clarifaicounter = 0;
+            $imaggacounter = 0; //bug avoidance;
+            if (isset($curkf['content']['tags']))
+            {
+                foreach ($curkf['content']['tags'] as $curtag)
+                {
+                    if ($curtag['source'] == 'clarifai' && $clarifaicounter == 1) continue;
+                    if ($curtag['source'] == 'imagga' && $imaggacounter == 1) continue;
+                    if ($curtag['source'] == 'clarifai') $clarifaicounter = 1;
+                    if ($curtag['source'] == 'imagga') $imaggacounter = 1;
+                    switch($curtag['source'])
+                    {
+                        case "nerd":
+                            foreach ($curtag['tags'] as $tagfoundkey => $tagfound)
+                            {
+                                //    if (!isset( $tagfound['tags'])) continue;
+
+                                $curtagid = $tagfoundkey;
+                                $curtagstr = $tagfound['label'];
+                                $curtagprob = $tagfound['confidence'];
+
+
+                                $addrow['subtitletags'][] = [$curtagstr,$curtagprob];
+                            }
+
+                            break;
+                        case "clarifai":
+                        case "imagga":
+                            $cursrc = substr($curtag['source'], 0 ,1);
+                            foreach ($curtag['tags'] as $tagfoundkey => $tagfound)
+                            {
+
+                                $curtagid = $tagfoundkey;
+                                $curtagstr = $tagfound['tag'];
+                                $curtagprob = $tagfound['prob'];
+
+                                $addrow['imagetags'][$cursrc][] = [$curtagstr,$curtagprob];
+
+                            }
+
+
+                            break;
+                    }
+                }
+            }
+
+
+
+
+            array_push($outarray,$addrow);
+        }
+
+
+        $descswitch = false;
+        echo "ctunitid,tag,source,extractor,prob\n";
+        //echo "ctunitid,descriptiontags,subtitletags,imagetags,imagelocation,videolocation\n";
+
+        foreach ($outarray as $currow)
+        {
+            if ($descswitch === false)
+            {
+                foreach ($currow['descriptiontags'] as $curtag){
+                    echo "\"".$currow['ctunitid']."\",";
+                    echo "\"".str_replace(" ","_",$curtag[0])."\",";
+                    echo "\"description\",\"nerd\",\"".$curtag[1]."\"\n";
+                }
+                $descswitch = true;
+
+            }
+
+            if (!empty($currow['subtitletags']))
+            {
+               // print_r(count($currow['subtitletags']));
+                foreach($currow['subtitletags'] as $curtag)
+                {
+                    echo "\"".$currow['ctunitid']."\",";
+                    echo "\"".str_replace(" ","_",$curtag[0])."\",";
+                    echo "\"subtitles\",\"nerd\",\"".$curtag[1]."\"\n";
+                }
+            }
+
+            if (!empty($currow['imagetags']))
+            {
+                foreach($currow['imagetags'] as $curextractor => $curarray)
+                {
+                    foreach ($curarray as $curtag)
+                    {
+                        echo "\"".$currow['ctunitid']."\",";
+                        echo "\"".str_replace(" ","_",$curtag[0])."\",";
+                        echo "\"image\",\"$curextractor\",\"".$curtag[1]."\"\n";
+                    }
+                }
+            }
+
+        }
+
+    }
+
     public function postCreateSet56()
     {
         if (!Input::has('keyframes')) {
