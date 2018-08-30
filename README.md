@@ -1,4 +1,5 @@
-The CrowdTruth Framework
+
+*Notice:* This repository is no longer being maintained. Please see [CrowdTruth-core](https://github.com/CrowdTruth/CrowdTruth-core) for the latest release of the framework.
 ===============
 
 [![Latest Stable Version](http://img.shields.io/github/release/crowdtruth/crowdtruth.svg)](https://packagist.org/packages/crowdtruth/crowdtruth) [![Build Status](https://travis-ci.org/CrowdTruth/CrowdTruth.svg?branch=master)](https://travis-ci.org/CrowdTruth/CrowdTruth) [![Code Coverage](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/?branch=master) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/CrowdTruth/CrowdTruth/?branch=master)
