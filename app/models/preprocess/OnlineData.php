@@ -2,10 +2,13 @@
 
 use \CurlRequest\SVBasicRequest as SVRequest;
 //use Moloquent, Schema, URL, File, Exception;
-use \Entities\Unit as Unit;
 use \Security\ProjectHandler as ProjectHandler;
 use \Security\Permissions as Permissions;
 use \Security\Roles as Roles;
+use URL, Session, Exception, Config;
+use \SoftwareAgent as SoftwareAgent;
+use \Activity as Activity;
+use \Entities\Unit as Unit;
 
 class OnlineData extends Moloquent {
 	private $url = "http://openbeelden.nl/feeds/oai/?";
@@ -17,28 +20,12 @@ class OnlineData extends Moloquent {
     		}
     		return (substr($haystack, -$length) === $needle);
 	}
-/*	
-	public function downloadFile($url) {
-		$videoPathSplit = explode("/", (string)$url);
-		$videoName = $videoPathSplit[sizeof($videoPathSplit) - 1];
-		$path = public_path() . "/videostorage/fullvideos/" . $videoName;
- 		$fp = fopen($path, 'w');
- 
-    		$ch = curl_init($url);
-    		curl_setopt($ch, CURLOPT_FILE, $fp);
- 
-    		$data = curl_exec($ch);
- 		
-    		curl_close($ch);
-    		fclose($fp);
-	}
-*/
 
-	public function listRecords($parameters, $noEntries, &$listOfRecords) {
-		
+	public function listRecords($parameters, $noEntries) {
+		$listOfRecords = array();
+		$resumptionToken = "";
 		$curlRequest = new SVRequest;
-
-		$url = $this->url . "verb=ListRecords";
+		$url = "http://openbeelden.nl/feeds/oai/?" . "verb=ListRecords";
 		if (isset($parameters)) {
 			if (!array_key_exists("metadataPrefix", $parameters)) {
 				if (!array_key_exists("resumptionToken", $parameters)) {
@@ -60,10 +47,15 @@ class OnlineData extends Moloquent {
 			throw new Exception('Request parameters missing!');
 		}
 
-		$entities = Entity::where('documentType', 'tv-news-broadcasts')->lists("title");
+		$entities = \Entity::where('documentType', 'video')->where('type','unit')->get()->toArray();
 
+		$identifiers = array();
+		foreach ($entities as $entity) {
+			array_push($identifiers, $entity["content"]["identifier"]);
+		}
+				//$identifiers = array();
 		while ($noEntries > 0) {
-		    //throw new Exception($noEntries);	
+		    
 			$result = $curlRequest->curlRequest($url, "POST", null);
 			$xml = simplexml_load_string($result["result"]);
 			if ($xml === false) {
@@ -71,20 +63,19 @@ class OnlineData extends Moloquent {
 			}
 			else {	
 				$xmlNode = $xml->ListRecords;
+				$resumptionToken = (string)$xml->ListRecords->resumptionToken;
 
 				if (isset($xmlNode)){
 					foreach ($xmlNode->record as $rNode) {
-
     					if(strpos((string)$rNode->metadata->children('oai_oi', 1)->oi->children('oi', 1)->type, "Moving Image") !== false) {
 							if ($noEntries > 0) {
-
-								if (!in_array((string)$rNode->header->identifier, $entities)) {
+								if (!in_array((string)$rNode->header->identifier, $identifiers)) {
 									array_push($listOfRecords, (string)$rNode->header->identifier);
-									array_push($entities, (string)$rNode->header->identifier);
-								//	dd($entities);
+									array_push($identifiers, (string)$rNode->header->identifier);									
 									$noEntries --;
 								}
 								else {
+
 									continue;
 								}
 							}
@@ -93,26 +84,14 @@ class OnlineData extends Moloquent {
 							}
 						}
 					}
-				}
-				
-				if (isset($xml->ListRecords->resumptionToken)) {
-					if ($noEntries > 0) {
-						if(!array_key_exists("resumptionToken", $parameters)) {
-							$parameters["resumptionToken"] = (string)$xml->ListRecords->resumptionToken;
-							unset($parameters["metadataPrefix"]);
-							$this->listRecords($parameters, $noEntries, $listOfRecords);
-						}
-						else {
-							$replacement = array("resumptionToken" => (string)$xml->ListRecords->resumptionToken);
-							$parameters = array_replace($parameters, $replacement);
-							$this->listRecords($parameters, $noEntries, $listOfRecords);
-						}
-					}
+
+					$partialResult["resumptionToken"] = $resumptionToken;
+					$partialResult["listOfRecords"] = $listOfRecords;
+
+					return $partialResult;
 				}
 			}
 		}
-	//	dd($listOfRecords);
-	//	return $listOfRecords;
 	}
 
 	public function getRecord($recordId, $metadataPrefix) {
@@ -139,7 +118,7 @@ class OnlineData extends Moloquent {
 				if (isset($xmlNode)) {
 				//	$ancestors = array();
 				//	$record["ancestors"] = $ancestors;
-					$content = array("identifier" => $recordId, "datestamp" => (string)$xmlNode->header->datestamp, "specSet" => "beeldengeluid");
+					$content = array("identifier" => $recordId, "datestamp" => (string)$xmlNode->header->datestamp, "setSpec" => "beeldengeluid");
 					$searchInFile = false;
 					if(file_exists(public_path(). "/json/" . $recordId . ".json")) {
 						$file = file_get_contents(public_path(). "/json/" . $recordId . ".json");
@@ -265,14 +244,11 @@ class OnlineData extends Moloquent {
 							if ($added == false) {
 								if ($this->endsWith((string)$medium, ".mp4")) {
 									$added = true;
-									//echo $identifier . "--------" . (string)$medium . "\n";
 									$videoPathSplit = explode("/", (string)$medium);
 									$videoName = $videoPathSplit[sizeof($videoPathSplit) - 1];
 									$metadata["online_url"] = (string)$medium;
 								}
-							}						
-				//			echo (string)$value . "--" . (string)$medium . "\n";
-	
+							}							
 						}
 					}
 					$metadata["medium"] = $mediumJson;
@@ -358,15 +334,25 @@ class OnlineData extends Moloquent {
 	}
 
 	public function store ($documentType, $parameters, $noOfVideos) {
-		//fastcgi_finish_request();
+		
 		$listOfVideoIdentifiers = array();
-		$this->listRecords($parameters, $noOfVideos, $listOfVideoIdentifiers);
+		$partialResult = $this->listRecords($parameters, $noOfVideos); 
+		$listOfVideoIdentifiers = array_merge($listOfVideoIdentifiers, $partialResult["listOfRecords"]);
+		$noOfVideos = $noOfVideos - count($partialResult["listOfRecords"]);
+
+		while ($noOfVideos > 0) {
+			$newParameters = array();
+			$newParameters["set"] = $parameters["set"];
+			$newParameters["resumptionToken"] = $partialResult["resumptionToken"];	
+			
+			$partialResult = $this->listRecords($newParameters, $noOfVideos); 		
+			$listOfVideoIdentifiers = array_merge($listOfVideoIdentifiers, $partialResult["listOfRecords"]);
+			$noOfVideos = $noOfVideos - count($partialResult['listOfRecords']);
+		}
 		
 		// get list of existing projects
 		$projects = ProjectHandler::listProjects();
 
-
-	//	dd("done");
 		$status = array();
 
 		try {
@@ -386,8 +372,28 @@ class OnlineData extends Moloquent {
 			$activity->forceDelete();	
 			return $status;
 		}
-		$count["count"] = 0;
 
+
+		try {
+			$this->createOpenimagesVideoDescriptionExtractorSoftwareAgent();
+		} catch (Exception $e) {
+			$status['error']['OnlineData'] = $e->getMessage();
+			return $status;
+		}
+
+		try {
+			$activitySynopsis = new Activity;
+			$activitySynopsis->softwareAgent_id = "videodescriptiongetter";
+			$activitySynopsis->save();
+		} catch (Exception $e) {
+			// Something went wrong with creating the Activity
+			$status['error']['OnlineData'] = $e->getMessage();
+			$activitySynopsis->forceDelete();	
+			return $status;
+		}
+
+		$count["count"] = 0;
+		$videoMetadata = array();
 		foreach($listOfVideoIdentifiers as $video){
 			$title = $video;
 			try {
@@ -396,7 +402,7 @@ class OnlineData extends Moloquent {
 				$entity->title = strtolower($title);
 				$entity->documentType = $documentType;
 				$entity->source = "openimages";
-				$entity->project = "SoundAndVision";
+				$entity->project = "openimages";
 				$entity->type = "unit";
 				$videoMetadata = $this->getRecord($video, $parameters["metadataPrefix"]);
 				$entity->content = $videoMetadata["content"];	
@@ -408,8 +414,9 @@ class OnlineData extends Moloquent {
 				$hashing = array();
 				$hashing["content"] = $entity->content;
 				$hashing["project"] = $entity->project;
-				$entity->hash = md5(serialize($hashing));				
+							
 				$entity->activity_id = $activity->_id;  
+				$entity->hash = md5(serialize($hashing));	
 				$entity->save();
 				
 				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
@@ -430,6 +437,39 @@ class OnlineData extends Moloquent {
 			} catch (Exception $e) {
 				// Something went wrong with creating the Entity
 				$activity->forceDelete();
+				$entity->forceDelete();
+				$status['error'][$title] = $e->getMessage();
+			}
+
+			// add the video description in dutch as a new entity unit
+			try {
+				$entity = new Unit;
+				$entity->_id = $entity->_id;
+				$entity->title = strtolower($title);
+				$entity->documentType = "video-synopsis";
+				$entity->source = "openimages";
+				$entity->project = "openimages";
+				$entity->type = "unit";
+				$videoMetadata["content"]["description"] = $videoMetadata["content"]["metadata"]["abstract"]["nl"];
+				$entity->content = $videoMetadata["content"];	
+				$parents = array();
+				$entity->parents = $parents;
+				$entity->tags = array("unit");
+				$entity->segments = $count;
+				$entity->keyframes = $count;
+				$hashing = array();
+				$hashing["content"] = $entity->content;
+				$hashing["project"] = $entity->project;
+				
+				$entity->activity_id = $activitySynopsis->_id;  
+				$entity->hash = md5(serialize($hashing));				
+				$entity->save();
+				
+				$status['success'][$title] = $title . " was successfully uploaded. (URI: {$entity->_id})";
+
+			} catch (Exception $e) {
+				// Something went wrong with creating the Entity
+				$activitySynopsis->forceDelete();
 				$entity->forceDelete();
 				$status['error'][$title] = $e->getMessage();
 			}	

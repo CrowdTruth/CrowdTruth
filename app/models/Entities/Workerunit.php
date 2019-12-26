@@ -105,6 +105,9 @@ class Workerunit extends Entity {
             case 'LinkEventsLocation':
             	return $this->createAnnotationVectorLinkEventsLocation();
             	break;
+            case 'PrimaryNamedEntity':
+                return $this->createAnnotationVectorPrimaryNamedEntity();
+                break;
             
 		//	case 'DistributionalDisambiguation':
         //        return $this->createAnnotationVectorDistributionalDisambiguation();
@@ -126,6 +129,155 @@ class Workerunit extends Entity {
         }        
     }
 	
+    public function createAnnotationVectorPrimaryNamedEntity() {
+        $debug = false;
+
+        if(empty($this->unit_id))
+            return null;
+
+        $annotationVector = array();
+        $annotationVector["validEntities"] = array();
+        $alternative1 = str_replace(".", "_dot_", $this->content['alternative1']);
+        $annotationVector["validEntities"][$alternative1] = 0;
+        $annotationVector[$alternative1] = array();
+        $annotationVector[$alternative1]["role"] = 0;
+        $annotationVector[$alternative1]["person"] = 0;
+        $annotationVector[$alternative1]["organization"] = 0;
+        $annotationVector[$alternative1]["place"] = 0;
+        $annotationVector[$alternative1]["other"] = 0;
+
+
+        if ($this->content['alternative2'] != "") {
+            $alternative2 = str_replace(".", "_dot_", $this->content['alternative2']);
+            $annotationVector["validEntities"][$alternative2] = 0;
+            $annotationVector[$alternative2] = array();
+            $annotationVector[$alternative2]["role"] = 0;
+            $annotationVector[$alternative2]["person"] = 0;
+            $annotationVector[$alternative2]["organization"] = 0;
+            $annotationVector[$alternative2]["place"] = 0;
+            $annotationVector[$alternative2]["other"] = 0;
+        }
+        if ($this->content['alternative3'] != "") {
+            $alternative3 = str_replace(".", "_dot_", $this->content['alternative3']);
+            $annotationVector["validEntities"][$alternative3] = 0;
+            $annotationVector[$alternative3] = array();
+            $annotationVector[$alternative3]["role"] = 0;
+            $annotationVector[$alternative3]["person"] = 0;
+            $annotationVector[$alternative3]["organization"] = 0;
+            $annotationVector[$alternative3]["place"] = 0;
+            $annotationVector[$alternative3]["other"] = 0;
+        }
+        if ($this->content['alternative4'] != "") {
+            $alternative4 = str_replace(".", "_dot_", $this->content['alternative4']);
+            $annotationVector["validEntities"][$alternative4] = 0;
+            $annotationVector[$alternative4] = array();
+            $annotationVector[$alternative4]["role"] = 0;
+            $annotationVector[$alternative4]["person"] = 0;
+            $annotationVector[$alternative4]["organization"] = 0;
+            $annotationVector[$alternative4]["place"] = 0;
+            $annotationVector[$alternative4]["other"] = 0;
+        }
+        if ($this->content['alternative5'] != "") {
+            $alternative5 = str_replace(".", "_dot_", $this->content['alternative5']);
+            $annotationVector["validEntities"][$alternative5] = 0;
+            $annotationVector[$alternative5] = array();
+            $annotationVector[$alternative5]["role"] = 0;
+            $annotationVector[$alternative5]["person"] = 0;
+            $annotationVector[$alternative5]["organization"] = 0;
+            $annotationVector[$alternative5]["place"] = 0;
+            $annotationVector[$alternative5]["other"] = 0;
+        }
+        if ($this->content['alternative6'] != "") {
+            $alternative6 = str_replace(".", "_dot_", $this->content['alternative6']);
+            $annotationVector["validEntities"][$alternative6] = 0;
+            $annotationVector[$alternative6] = array();
+            $annotationVector[$alternative6]["role"] = 0;
+            $annotationVector[$alternative6]["person"] = 0;
+            $annotationVector[$alternative6]["organization"] = 0;
+            $annotationVector[$alternative6]["place"] = 0;
+            $annotationVector[$alternative6]["other"] = 0;
+        }
+        if ($this->content['alternative7'] != "") {
+            $alternative7 = str_replace(".", "_dot_", $this->content['alternative7']);
+            $annotationVector["validEntities"][$alternative7] = 0;
+            $annotationVector[$alternative7] = array();
+            $annotationVector[$alternative7]["role"] = 0;
+            $annotationVector[$alternative7]["person"] = 0;
+            $annotationVector[$alternative7]["organization"] = 0;
+            $annotationVector[$alternative7]["place"] = 0;
+            $annotationVector[$alternative7]["other"] = 0;
+        }
+        if ($this->content['alternative8'] != "") {
+            $alternative8 = str_replace(".", "_dot_", $this->content['alternative8']);
+            $annotationVector["validEntities"][$alternative8] = 0;
+            $annotationVector[$alternative8] = array();
+            $annotationVector[$alternative8]["role"] = 0;
+            $annotationVector[$alternative8]["person"] = 0;
+            $annotationVector[$alternative8]["organization"] = 0;
+            $annotationVector[$alternative8]["place"] = 0;
+            $annotationVector[$alternative8]["other"] = 0;
+        }
+        if ($this->content['alternative9'] != "") {
+            $alternative9 = str_replace(".", "_dot_", $this->content['alternative9']);
+            $annotationVector["validEntities"][$alternative9] = 0;
+            $annotationVector[$alternative9] = array();
+            $annotationVector[$alternative9]["role"] = 0;
+            $annotationVector[$alternative9]["person"] = 0;
+            $annotationVector[$alternative9]["organization"] = 0;
+            $annotationVector[$alternative9]["place"] = 0;
+            $annotationVector[$alternative9]["other"] = 0;
+        }
+        if ($this->content['alternative10'] != "") {
+            $alternative10 = str_replace(".", "_dot_", $this->content['alternative10']);
+            $annotationVector["validEntities"][$alternative10] = 0;
+            $annotationVector[$alternative10] = array();
+            $annotationVector[$alternative10]["role"] = 0;
+            $annotationVector[$alternative10]["person"] = 0;
+            $annotationVector[$alternative10]["organization"] = 0;
+            $annotationVector[$alternative10]["place"] = 0;
+            $annotationVector[$alternative10]["other"] = 0;
+        }
+        if ($this->content['alternative11'] != "") {
+            $alternative11 = str_replace(".", "_dot_", $this->content['alternative11']);
+            $annotationVector["validEntities"][$alternative11] = 0;
+            $annotationVector[$alternative11] = array();
+            $annotationVector[$alternative11]["role"] = 0;
+            $annotationVector[$alternative11]["person"] = 0;
+            $annotationVector[$alternative11]["organization"] = 0;
+            $annotationVector[$alternative11]["place"] = 0;
+            $annotationVector[$alternative11]["other"] = 0;
+        }
+        if ($this->content['alternative12'] != "") {
+            $alternative12 = str_replace(".", "_dot_", $this->content['alternative12']);
+            $annotationVector["validEntities"][$alternative12] = 0;
+            $annotationVector[$alternative12] = array();
+            $annotationVector[$alternative12]["role"] = 0;
+            $annotationVector[$alternative12]["person"] = 0;
+            $annotationVector[$alternative12]["organization"] = 0;
+            $annotationVector[$alternative12]["place"] = 0;
+            $annotationVector[$alternative12]["other"] = 0;
+        }
+
+        $judgment = $this->content;
+        $alternatives = explode("\n", $judgment["entity_selection"]);
+        foreach ($alternatives as $alternative) {
+            $str = str_replace(".", "_dot_", $alternative);
+            $annotationVector["validEntities"][$str] = 1;
+        }
+
+        for ($i = 1; $i <= 12; $i ++) {
+            if (isset($judgment["alternative" . $i . "_1"]) && $judgment["alternative" . $i . "_1"] != "") {
+                $comps = explode("\n", $judgment["alternative" . $i . "_1"]);
+                foreach ($comps as $comp) {
+                    $str = str_replace(".", "_dot_", $judgment["alternative" . $i]);
+                    $annotationVector[$str][$comp] = 1;
+                }
+            }
+        }
+        
+        return $annotationVector; 
+
+    }
 /*	public function createAnnotationVectorDistributionalDisambiguation() {
         $debug = false;
 

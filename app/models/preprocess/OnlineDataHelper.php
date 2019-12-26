@@ -3,21 +3,12 @@
 class OnlineDataHelper {
 
 	protected $input;
-	protected $format;
 
 	public function __construct(array $input){
 		$this->input = $input;
 	}
 	public function getOnlineSource () {
 		return $this->input['source_name'];
-	}
-
-	public function getType(){
-		switch ($this->input['source_name']) {
-		    case 'source_beeldengeluid':
-		        return $this->format = 'video';
-		}
-		throw new Exception('Unknown file format!');
 	}
 
 	public function getDomain(){
@@ -31,7 +22,7 @@ class OnlineDataHelper {
 	public function getDocumentType(){
 		switch ($this->input['source_name']) {
 		    case 'source_beeldengeluid':
-		        return 'tv-news-broadcasts';
+		        return 'video';
 		}
 		throw new Exception('Unknown document type!');		
 	}

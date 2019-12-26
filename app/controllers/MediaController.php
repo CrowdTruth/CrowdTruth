@@ -113,9 +113,7 @@ class MediaController extends BaseController {
 
 		return View::make('media.search.pages.importresults')->with('types', $types[0]);
 	}
-	
-	
-	
+
 	
 	/**
 	 * get keys for (a set of) selected document types
@@ -125,7 +123,6 @@ class MediaController extends BaseController {
 		// get the document types
 		$documents = explode("|", Input::get('documents'));
 		$searchComponent = new MediaSearchComponent();
-
 		// store all keys in this array
 		$docKeys = [];
 
@@ -224,7 +221,11 @@ class MediaController extends BaseController {
 			$source = explode("_", $sourceName);
 			$parameters = array();
 			$parameters["metadataPrefix"] = "oai_oi";
+			$parameters["set"] = "beeldengeluid";
+
 			$status_onlinedata = $mongoDBOnlineData->store($documentType, $parameters, $noOfVideos);
+		//	Session::flash('flashError', $status_onlinedata);
+			//return Redirect::back()->with('flashError', "hhoi");
 		} catch (Exception $e){
 			return Redirect::back()->with('flashError', $e->getMessage());
 		}

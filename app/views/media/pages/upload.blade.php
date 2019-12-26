@@ -144,7 +144,6 @@
 							'source_name' 			: "source_beeldengeluid",
 							'numberVideos' 			: $('.onlineForm input[name=numberVideos]').val()
 						};
-
 						// process the form
 						$.ajax({
 							type 		: 'POST', // define the type of HTTP verb we want to use (POST for our form)

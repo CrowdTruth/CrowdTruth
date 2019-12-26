@@ -22,15 +22,18 @@ class JobsController2 extends BaseController {
 		return View::make('job2.tabs.batch')->with('batches', $batches)->with('selectedbatchid', '');
 	}
 
-	/**
-	 * Extract available fields from CML in the template. Returns a JSON file with 
-	 * the CML code and available fields.
-	 */
-	public function getTemplate() {
-        $templateType = Input::get( 'templateType' );
-        $template = Template::where("type", $templateType)->first();
-        // everything that is between {{ }}
-        $simpleRegEx = "/{{([^.}}]*)}}/";
+	public function getTemplateFields($templateType, $jobConfId) {
+		if ($templateType != null) {
+			//$templateType = Input::get( 'templateType' );
+        	$template = Template::where("type", $templateType)->first();
+		}
+		else {
+			$jobConf = \Entity::where("_id", $jobConfId)->first();
+			$template = array();
+			$template["cml"] = $jobConf["content"]["cml"];
+		}
+
+		$simpleRegEx = "/{{([^.}}]*)}}/";
 
         preg_match_all($simpleRegEx, $template["cml"], $matchesCol, PREG_OFFSET_CAPTURE);
         $matches = array();
@@ -177,11 +180,25 @@ class JobsController2 extends BaseController {
 		}
 		$result = implode(",", $result);
 
+
+
 		$obj = new stdClass();
 		$obj->fields = $result;
 		$obj->cml = $template["cml"];
 
-		return Response::json( $obj );
+		return $obj;
+
+	}
+
+	/**
+	 * Extract available fields from CML in the template. Returns a JSON file with 
+	 * the CML code and available fields.
+	 */
+	public function getTemplate() {
+        $templateType = Input::get( 'templateType' );
+        $template = Template::where("type", $templateType)->first();
+
+        return Response::json($this->getTemplateFields($templateType, null));
 	}
 
 	public function getSubmit() {
@@ -193,6 +210,11 @@ class JobsController2 extends BaseController {
 		Session::put('jobconf_id_t', $j->jobConf_id);
 		Session::put('job_id_t', $j->_id);
 		Session::put('type_t', $j->templateType);
+
+		$jsonObjectTemplFields = $this->getTemplateFields(null, $j->jobConf_id);
+		$templateFields = explode(",", $jsonObjectTemplFields->fields);
+
+		Session::put('templateFields', $templateFields);
 		return View::make('job2.save');
 	}
 
@@ -219,21 +241,97 @@ class JobsController2 extends BaseController {
 		$jc = Entity::where("_id", $jc_id)->first();
 		$jcco = $jc['content'];
 		$j = Entity::where("_id", $j_id)->first();
-
 		$type = Input::get('templateType');
-
 		$load = Input::get('load');
+		$templateDescription = Input::get('templateDescription');
+		$resultFieldName = Input::get('resultFieldName');
+		$resultFieldDescription = Input::get('resultFieldDescription');
+		$resultFieldType = Input::get('typeResult');
+		$resultFieldNoItems = Input::get('noitemsResult');
+
+		$jsonObjectTemplFields = $this->getTemplateFields(null, $jc_id);
+		$templateFields = explode(",", $jsonObjectTemplFields->fields);
+
+		foreach ($templateFields as $templateField) {
+			$fieldNameType = 'type' . $templateField;
+			$fieldNameItems = 'noitems' . $templateField;
+			$fieldNameDescription = 'description' . $templateField;
+			$fieldNameType = Input::get('type' . $templateField);
+			$fieldNameItems = Input::get('noitems' . $templateField);
+			$fieldNameDescription = Input::get('description' . $templateField);
+		}
+
 		if($type === null){
 			$load = Session::get('load');
 			$type = Session::get('templateType');
+			$templateDescription = Session::get('templateDescription');
+
+			$resultFieldName = Session::get('resultFieldName');
+			$resultFieldDescription = Session::get('resultFieldDescription');
+			$resultFieldType = Session::get('typeResult');
+			$resultFieldNoItems = Session::get('noitemsResult');
+
+			foreach ($templateFields as $templateField) {
+				$fieldNameType = 'type' . $templateField;
+				$fieldNameType = Session::get('type' . $templateField);
+				$fieldNameItems = 'noitems' . $templateField;
+				$fieldNameItems = Session::get('noitem' . $templateField);
+				$fieldNameDescription = 'description' . $templateField;
+				$fieldNameDescription = Session::get('description' . $templateField);
+			}
 		}
 		else
 		{
 			Session::put('templateType', Input::get('templateType'));
 			Session::put('load', $load);
+			Session::put('templateDescription', Input::get('templateDescription'));
+
+			Session::put('resultFieldName', $resultFieldName);
+			Session::put('resultFieldDescription', $resultFieldDescription);
+			Session::put('typeResult', $resultFieldType);
+			Session::put('noitemsResult', $resultFieldNoItems);
+
+
+			foreach ($templateFields as $templateField) {
+				$fieldNameType = 'type' . $templateField;
+				$fieldNameItems = 'noitems' . $templateField;
+				$fieldNameDescription = 'description' . $templateField;
+				Session::put('type' . $templateField, Input::get($fieldNameType));
+				Session::put('noitems' . $templateField, Input::get($fieldNameItems));
+				Session::put('description' . $templateField, Input::get($fieldNameDescription));
+			}
 		}
-		if($type===null or $type==="")
-			return Redirect::back()->with('flashError', "Type name not filled");	
+		//dd($resultFieldNoItems);
+		if($type===null || $type==="")
+			return Redirect::back()->with('flashError', "Type name not filled");
+		if($templateDescription===null || $templateDescription==="")
+			return Redirect::back()->with('flashError', "Template description not filled");
+
+		foreach ($templateFields as $templateField) {
+			$fieldNameType = 'type' . $templateField;
+			$fieldNameItems = 'noitems' . $templateField;
+			$fieldNameDescription = 'description' . $templateField;
+
+			if(Input::get($fieldNameType)===null || Input::get($fieldNameType)==="") {
+				return Redirect::back()->with('flashError', "Type for field - ". $templateField . " - not filled");
+			}
+			if(Input::get($fieldNameItems)===null || Input::get($fieldNameItems)==="") {
+				return Redirect::back()->with('flashError', "Number of items for field - ". $templateField . " - not filled");
+			}
+			if(Input::get($fieldNameDescription)===null || Input::get($fieldNameDescription)==="") {
+				return Redirect::back()->with('flashError', "Description for field - ". $templateField . " - not filled");
+			}
+		}	
+
+		if($resultFieldName===null || $resultFieldName==="")
+			return Redirect::back()->with('flashError', "Named for result field not filled");
+		if($resultFieldDescription===null || $resultFieldDescription==="")
+			return Redirect::back()->with('flashError', "Description for result field not filled");
+		if($resultFieldType===null || $resultFieldType==="")
+			return Redirect::back()->with('flashError', "Type for result field not filled");
+		if($resultFieldNoItems===null || $resultFieldNoItems==="")
+			return Redirect::back()->with('flashError', "Number of items for result field not filled");
+
 		$newest = $this->findNewestTemplate($type, $j->format);
 		if($newest !== null and !(Session::has('overwrite')) ){
 			return Redirect::to("jobs2/saveover");
@@ -245,7 +343,6 @@ class JobsController2 extends BaseController {
 		}else{
 			$v =   Template::where("type", $type)->max('version')+1;
 		}	
-
 		//save + increasing version
 	    $te = new Template;
 	    $te['platform'] = $j->softwareAgent_id;
@@ -260,8 +357,37 @@ class JobsController2 extends BaseController {
  			
 		$te['version'] = $v;
  		$te['type'] = $type;
- 		$te->save();
+ 		$parameters = array();
+ 		$parameters["input"] = array();
+ 		$parameters["output"] = array();
+ 		foreach ($templateFields as $templateField) {
+			$fieldNameType = 'type' . $templateField;
+			$fieldNameItems = 'noitems' . $templateField;
+			$fieldNameDescription = 'description' . $templateField;
 
+			$newParameter = array();
+			$newParameter["type"] = Input::get($fieldNameType);
+			if (Input::get($fieldNameItems) === "multiple")
+				$newParameter["type"] .= "[]";
+
+			$newParameter["name"] = $templateField;
+			$newParameter["description"] = Input::get($fieldNameDescription);
+			
+			array_push($parameters["input"] , $newParameter);		
+		}
+		
+		$newParameter = array();
+		$newParameter["type"] = Input::get('typeResult');
+		if (Input::get('noitemsResult') === "multiple")
+			$newParameter["type"] .= "[]";
+		$newParameter["name"] = $resultFieldName;
+		$newParameter["description"] = $resultFieldDescription;
+		array_push($parameters["output"] , $newParameter);		
+
+		$te["parameters"] = $parameters;
+		$te["description"] = Input::get('templateDescription');
+
+ 		$te->save();
 		$load = Input::get('load');
 		if($load === 'yes'){
 			$this->postLoad();
@@ -279,27 +405,27 @@ class JobsController2 extends BaseController {
 	}
 
 	public function postLoad() {
-			$jc_id = Session::get('jobconf_id_t');
-			$j_id = Session::get('job_id_t');
-			$jc = Entity::where("_id", $jc_id)->first();
-			$j = Entity::where("_id", $j_id)->first();
-			$jcco = $jc['content'];
-			$jcco['type'] =  Input::get('templateType');
+		$jc_id = Session::get('jobconf_id_t');
+		$j_id = Session::get('job_id_t');
+		$jc = Entity::where("_id", $jc_id)->first();
+		$j = Entity::where("_id", $j_id)->first();
+		$jcco = $jc['content'];
+		$jcco['type'] =  Input::get('templateType');
 
-	 		if($jcco['type'] == Null) 
-	    		return Redirect::back()->with('flashError', "form not filled in (type).");	 	
+	 	if($jcco['type'] == Null) 
+	    	return Redirect::back()->with('flashError', "form not filled in (type).");	 	
 	    	// get a selected, newest jcbase
-	    	$maxi = Template::where("type", $jcco['type'])->max('version');
-	 		$jcbase = Template::where("type", $jcco['type'])->where('version', $maxi)->first();
+	    $maxi = Template::where("type", $jcco['type'])->max('version');
+	 	$jcbase = Template::where("type", $jcco['type'])->where('version', $maxi)->first();
 
-	 		if(!isset($jcbase)){
-	 			Session::flash('flashError',"template not found: ". $jcco['type']);
-				return Redirect::to("jobs2/submit");
-			}
-	 		if(!isset($jcbase['cml'])){
-	 			Session::flash('flashError', "No template details in this template");
-				return Redirect::to("jobs2/submit");
-			}
+	 	if(!isset($jcbase)){
+	 		Session::flash('flashError',"template not found: ". $jcco['type']);
+			return Redirect::to("jobs2/submit");
+		}
+		if(!isset($jcbase['cml'])){
+			Session::flash('flashError', "No template details in this template");
+			return Redirect::to("jobs2/submit");
+		}
 	 		$jcco['cml'] = $jcbase['cml'];
 	 		if(isset($jcbase['css']))
 	 			$jcco['css'] = $jcbase['css'];

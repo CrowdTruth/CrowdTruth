@@ -226,6 +226,7 @@ for (var i = 0; i < all.length; i ++) {
                     url : "/jobs2/template",
                     data : dataString,
                     success : function(data){
+                    	console.log(data);
                         fields = data["fields"];
                         fieldsArray = fields.split(",");
                         cmlContent = data["cml"];
